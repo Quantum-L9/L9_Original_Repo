@@ -16,11 +16,13 @@ from __future__ import annotations
 import structlog
 import json
 from datetime import datetime, timedelta
-from typing import Any, Optional, List, Dict
+from typing import Any, Optional, List, Dict, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from memory.substrate_repository import SubstrateRepository
-from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 
