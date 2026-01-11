@@ -840,8 +840,8 @@ async def lifespan(app: FastAPI):
     # =========================================================================
     # CRITICAL HEALTH CHECK: Verify agent_executor if new Slack routing enabled
     # =========================================================================
-    from config.settings import get_settings
-    settings = get_settings()
+    from config.settings import get_integration_settings
+    settings = get_integration_settings()
     
     # Check if legacy Slack router is disabled (new routing enabled)
     legacy_slack_enabled = getattr(settings, "l9_enable_legacy_slack_router", False)
