@@ -339,6 +339,7 @@ class SemanticSearchRequest(BaseModel):
     query: str = Field(..., min_length=1, description="Natural language query")
     top_k: int = Field(10, ge=1, le=100, description="Number of neighbors to return")
     agent_id: Optional[str] = Field(None, description="Filter by agent ID")
+    min_score: float = Field(0.5, ge=0.0, le=1.0, description="Minimum similarity score threshold")
 
 
 class SemanticHit(BaseModel):

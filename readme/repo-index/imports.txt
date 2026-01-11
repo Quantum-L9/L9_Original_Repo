@@ -16,11 +16,13 @@
   .aggregation
   .apply_engine
   .approval_manager
+  .assembler
   .base_extractor
   .bootstrap
   .bootstrap_l_graph
   .c_gmp_engine
   .circuit_breaker
+  .classifier
   .code_extractor
   .codegen_agent
   .config
@@ -77,7 +79,9 @@
   .schemas
   .service
   .session_startup
+  .task
   .task_queue
+  .tokenizer
   .tool_pattern_extractor
   .validator
   .websocket_client
@@ -222,6 +226,7 @@
   core.testing.test_agent
   core.testing.test_executor
   core.testing.test_generator
+  core.tokenizer
   core.tools.base_registry
   core.tools.query_injection
   core.tools.registry_adapter
@@ -350,6 +355,8 @@
   mocks.memory_mocks
   mocks.orchestrator_mocks
   mocks.world_model_mocks
+# neo4j
+  neo4j
 # openai
   openai
 # opentelemetry

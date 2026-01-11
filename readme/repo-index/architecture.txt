@@ -1,6 +1,3 @@
-_archived/archived_mcp_memory/src/ - 
-_archived/archived_mcp_memory/src/routes/ - Route modules for L9 MCP Memory Server.
-_archived/archived_mcp_memory/tests/ - L9 MCP Memory Server Tests.
 agents/ - 
 agents/codegenagent/ - 
 aios/ - 
@@ -48,9 +45,14 @@ dev/ - No module docstring
 dev/tools/ - No module docstring
 email_agent/ - L9 Email Agent - Gmail API integration.
 graph_adapter/ - L9 LangGraph Integration - PacketNodeAdapter for memory-logg
+igor/01-09-2025/tokenizer/core/tokenizer/ - 
+igor/01-09-2025/tokenizer/core/tokenizer/tests/ - 
 ir_engine/ - 
 mac_agent/ - L9 Mac Agent package.
 mac_agent/helpers/ - Mac Agent helper utilities.
+mcp_memory/src/ - 
+mcp_memory/src/routes/ - Route modules for L9 MCP Memory Server.
+mcp_memory/tests/ - L9 MCP Memory Server Tests.
 memory/ - 
 memory/extractor/ - 
 memory/extractor/ingestion/ - Memory extractor ingestion module.

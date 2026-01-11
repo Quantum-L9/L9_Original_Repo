@@ -16,7 +16,7 @@
 
 | File | Purpose | Status |
 |------|---------|--------|
-| `cursor_client.py` | HTTP client for Cursor remote API | 🟡 Legacy (unused) |
+| ~~`cursor_client.py`~~ | ~~HTTP client for Cursor remote API~~ | ✅ **Moved to `agents/cursor/`** |
 | `mac_protocol.py` | JSON schema for Mac agent tunnel | ✅ Active |
 | `export_repo_indexes.py` | Repo indexing utility | 🟡 Legacy |
 | `TOOL_LOADING_DIAGRAM.md` | Architecture diagram | ✅ Active |
@@ -78,7 +78,7 @@ response = create_mac_response(
 > ⚠️ **Deprecated:** The CursorClient was designed for a remote Cursor API that is not currently active.
 
 ```python
-from tools.cursor_client import CursorClient
+from agents.cursor.cursor_client import CursorClient
 
 client = CursorClient(host="127.0.0.1", port=3000)
 result = client.send_code("print('hello')")
@@ -143,7 +143,7 @@ The following files in this directory are **orphaned** (not actively wired into 
 
 | File | Reason | Action |
 |------|--------|--------|
-| `cursor_client.py` | Cursor remote API not active | Archive when needed |
+| ~~`cursor_client.py`~~ | ~~Cursor remote API not active~~ | ✅ **Moved to `agents/cursor/`** |
 | `export_repo_indexes.py` | One-time utility script | Can be moved to scripts/ |
 
 ---

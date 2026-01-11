@@ -9,7 +9,7 @@ L9/
 ├── README.md
 ├── TODO-ON-VPS.md
 ├── __init__.py
-├── ... (7 more files)
+├── ... (8 more files)
 ├── .audit_cache/
 │   ├── analysis_results.json
 │   ├── content_index.txt
@@ -38,27 +38,10 @@ L9/
 │       ├── *runtime-Dockerfile
 │       ├── runtime-docker-compose.yml
 ├── _archived/
-│   ├── archived_mcp_memory/
-│   │   ├── .gitignore
-│   │   ├── DEPRECATED.md
-│   │   ├── Learning Pipeline.md
-│   │   ├── README.md
-│   │   ├── bootstrap.sh
-│   │   ├── memory-setup-instructions.md
-│   │   ├── requirements.txt
-│   │   ├── deploy/
-│   │   ├── mcp-memory-architecture/
-│   │   ├── schema/
-│   │   ├── src/
-│   │   └── tests/
-│   ├── codegen_slack_adapter/
-│   │   ├── slack_webhook_example.yaml
-│   │   ├── Slack-Audit-Pack/
-│   │   └── module.slack_adapter/
-│   └── legacy_slack/
-│       ├── README.md
-│       ├── test_webhook_slack.py
-│       ├── webhook_slack.py
+│   └── legacy_deploy/
+│       ├── deploy-old.sh
+│       ├── l9-deploy-runner.sh
+│       ├── vps-deploy-helper.sh
 ├── agents/
 │   ├── __init__.py
 │   ├── architect_agent_a.py
@@ -276,8 +259,6 @@ L9/
 │       ├── insight_emitter.py
 │       ├── l9_schema.py
 │       ├── service.py
-├── deploy/
-│   ├── deploy.sh
 ├── dev/
 │   ├── __init__.py
 │   └── tools/
@@ -337,6 +318,45 @@ L9/
 │   └── helpers/
 │       ├── __init__.py
 │       ├── logging.py
+├── mcp_memory/
+│   ├── .gitignore
+│   ├── DEPRECATED.md
+│   ├── E2E_INTEGRATION_CHECKLIST.md
+│   ├── E2E_INTEGRATION_SUMMARY.md
+│   ├── ELIMINATE_MCP_SCHEMA.md
+│   ├── Learning Pipeline.md
+│   ├── MCP_002_ANSWER.md
+│   ├── MCP_002_VS_L9_COMPARISON.md
+│   ├── MIGRATE_TO_L9_AUDIT.md
+│   ├── MIGRATION_TO_UNIFIED.md
+│   ├── ... (7 more files)
+│   ├── deploy/
+│   │   ├── L9-MCP-IMPL.md
+│   │   ├── scripts/
+│   │   └── systemd/
+│   ├── mcp-memory-architecture/
+│   │   ├── ARCHITECTURE.md
+│   │   ├── INSTANTIATION_PLAN.md
+│   │   ├── memory-substrate-setup5-GMP.md
+│   │   └── _archived/
+│   ├── schema/
+│   │   ├── init.sql
+│   │   └── migrations/
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── db.py
+│   │   ├── embeddings.py
+│   │   ├── main.py
+│   │   ├── mcp_server.py
+│   │   ├── models.py
+│   │   └── routes/
+│   └── tests/
+│       ├── __init__.py
+│       ├── test_connection.py
+│       ├── test_embeddings.py
+│       ├── test_memory.py
+│       ├── test_search.py
 ├── memory/
 │   ├── README.md
 │   ├── WIRING.md
@@ -372,7 +392,7 @@ L9/
 │   ├── 0008_memory_substrate_10x.sql
 │   ├── 0009_feedback_and_effectiveness.sql
 │   ├── 0011_tool_audit_log.sql
-│   ├── ... (3 more files)
+│   ├── ... (4 more files)
 ├── modules/
 ├── ops/
 │   ├── vps_release_gate.sh
@@ -456,6 +476,10 @@ L9/
 │   ├── ROADMAP.md
 │   ├── WORLDMODEL-README.md
 │   ├── readme-l-cto.md
+│   ├── L-CTO/
+│   │   ├── L-Graph-Backed Agent State.v1.0.md
+│   │   ├── L-YAML.yaml
+│   │   ├── l9_operator_handbook_v2.yaml
 │   └── repo-index/
 │       ├── agent_catalog.txt
 │       ├── api_surfaces.txt
@@ -469,10 +493,17 @@ L9/
 │       ├── deployment_manifest.txt
 │       ├── ... (23 more files)
 ├── reports/
+│   ├── AUDIT_SCRIPTS_DIFFERENCE.md
 │   ├── GMP_Report_GMP-32-CircuitBreaker-Integration.md
 │   ├── GMP_Report_GMP-33-CircuitBreaker-Memory-Wiring.md
 │   ├── GMP_Report_GMP-46-OpenAI-Tool-Name-Validation.md
 │   ├── GMP_Report_GMP-47-Stub-Elimination.md
+│   ├── GRAPH_AUDIT_SUMMARY.md
+│   ├── INDEX_SESSION_START_INTEGRATION.md
+│   ├── INDEX_VPS_UPGRADE.md
+│   ├── graph_audit_20260109_123744.json
+│   ├── graph_audit_vps_20260109_123825.json
+│   ├── ... (2 more files)
 ├── runtime/
 │   ├── Dockerfile
 │   ├── __init__.py
@@ -486,6 +517,8 @@ L9/
 │   ├── l_tools.py
 │   ├── ... (10 more files)
 ├── scripts/
+│   ├── audit_graphs.py
+│   ├── audit_graphs_vps.py
 │   ├── batch_generate_specs.py
 │   ├── bootstrap_neo4j_schema.py
 │   ├── check_env.sh
@@ -494,9 +527,7 @@ L9/
 │   ├── dev_up.sh
 │   ├── docker-validator.sh
 │   ├── extract_perplexity_pack.py
-│   ├── factory_extract.py
-│   ├── init_workspace.py
-│   ├── ... (18 more files)
+│   ├── ... (21 more files)
 │   ├── audit/
 │   │   ├── audit.yaml
 │   │   ├── audit_shared_core.py
@@ -563,7 +594,6 @@ L9/
 │   │   ├── test_architect_agents.py
 │   │   ├── test_base_agent.py
 │   │   ├── test_l_cto_memory_emission.py
-│   │   └── codegenagent/
 │   ├── api/
 │   │   ├── __init__.py
 │   │   ├── test_auth.py

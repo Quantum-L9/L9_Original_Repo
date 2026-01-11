@@ -742,6 +742,18 @@ async def handle_slack_events(
             logger.debug(
                 "slack_command_outbound_stored", event_id=event_id, packet_id=result.packet_id
             )
+            
+            # Index conversation for preferences and corrections
+            try:
+                await _index_slack_conversation(
+                    substrate_service=substrate_service,
+                    text=reply_text,
+                    user_id=user_id,
+                    packet_id=str(result.packet_id),
+                    team_id=team_id,
+                )
+            except Exception as e:
+                logger.debug(f"Slack indexing error (non-blocking): {e}")
         except Exception as e:
             logger.error(
                 "slack_command_outbound_storage_error", error=str(e), event_id=event_id
@@ -996,6 +1008,18 @@ async def handle_slack_events(
         logger.debug(
             "slack_packet_stored", event_id=event_id, packet_id=result.packet_id, packet_type="slack.in"
         )
+        
+        # Index conversation for preferences and corrections
+        try:
+            await _index_slack_conversation(
+                substrate_service=substrate_service,
+                text=text,
+                user_id=user_id,
+                packet_id=str(result.packet_id),
+                team_id=team_id,
+            )
+        except Exception as e:
+            logger.debug(f"Slack indexing error (non-blocking): {e}")
     except Exception as e:
         # CANONICAL LOG EVENT 9: Handler error
         logger.error(
@@ -1068,6 +1092,18 @@ async def handle_slack_events(
             packet_id=result.packet_id,
             packet_type="slack.out",
         )
+        
+        # Index conversation for preferences and corrections
+        try:
+            await _index_slack_conversation(
+                substrate_service=substrate_service,
+                text=reply_text,
+                user_id=user_id,
+                packet_id=str(result.packet_id),
+                team_id=team_id,
+            )
+        except Exception as e:
+            logger.debug(f"Slack indexing error (non-blocking): {e}")
     except Exception as e:
         # CANONICAL LOG EVENT 9: Handler error
         logger.error(
@@ -1400,6 +1436,110 @@ async def _retrieve_semantic_hits(
         except ImportError:
             pass
         return {"results": [], "error": str(e)}
+
+
+async def _index_slack_conversation(
+    substrate_service: MemorySubstrateService,
+    text: str,
+    user_id: str,
+    packet_id: str,
+    team_id: str,
+) -> None:
+    """
+    Index Slack conversation - extract preferences and corrections, create knowledge facts and embeddings.
+    
+    Extracts:
+    - User preferences (patterns like "I prefer", "I like", "use X instead of Y")
+    - Corrections (patterns like "that's wrong", "should be", "actually")
+    - Creates knowledge facts (subject=Igor, predicate=prefers/corrects, object=pattern)
+    - Creates semantic embeddings for conversation context
+    """
+    try:
+        import re
+        
+        # Extract preferences
+        preference_patterns = [
+            r'(?:I|we)\s+prefer\s+(.+?)(?:\.|$|,)',
+            r'(?:I|we)\s+like\s+(.+?)(?:\.|$|,)',
+            r'use\s+([^\.]+?)\s+instead\s+of',
+            r'(?:I|we)\s+want\s+(.+?)(?:\.|$|,)',
+        ]
+        
+        preferences = []
+        for pattern in preference_patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                pref = match.group(1).strip()
+                if len(pref) > 10 and len(pref) < 200:
+                    preferences.append(pref)
+        
+        # Extract corrections
+        correction_patterns = [
+            r'(?:that\'?s|that is)\s+wrong[:\s]+(.+?)(?:\.|$|,)',
+            r'should\s+be\s+(.+?)(?:\.|$|,)',
+            r'actually[,\s]+(.+?)(?:\.|$|,)',
+            r'correct(?:ion|ed)?[:\s]+(.+?)(?:\.|$|,)',
+        ]
+        
+        corrections = []
+        for pattern in correction_patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                corr = match.group(1).strip()
+                if len(corr) > 10 and len(corr) < 200:
+                    corrections.append(corr)
+        
+        # Create knowledge facts for preferences
+        for pref in preferences[:5]:  # Limit to 5
+            try:
+                await substrate_service._repository.insert_knowledge_fact(
+                    subject=user_id,
+                    predicate="prefers",
+                    object_value={"preference": pref, "source": "slack", "team_id": team_id},
+                    confidence=0.8,
+                    source_packet=packet_id if packet_id else None,
+                )
+            except Exception as e:
+                logger.debug(f"Failed to create preference fact: {e}")
+        
+        # Create knowledge facts for corrections
+        for corr in corrections[:5]:  # Limit to 5
+            try:
+                await substrate_service._repository.insert_knowledge_fact(
+                    subject=user_id,
+                    predicate="corrects",
+                    object_value={"correction": corr, "source": "slack", "team_id": team_id},
+                    confidence=0.85,
+                    source_packet=packet_id if packet_id else None,
+                )
+            except Exception as e:
+                logger.debug(f"Failed to create correction fact: {e}")
+        
+        # Create semantic embedding for conversation context if significant content
+        if len(text) > 50 and (preferences or corrections):
+            try:
+                context_text = f"Slack conversation from {user_id}:\n{text}"
+                if preferences:
+                    context_text += f"\nPreferences: {', '.join(preferences[:3])}"
+                if corrections:
+                    context_text += f"\nCorrections: {', '.join(corrections[:3])}"
+                
+                await substrate_service.embed_text(
+                    text=context_text,
+                    payload={
+                        "user_id": user_id,
+                        "team_id": team_id,
+                        "type": "slack_conversation",
+                        "has_preferences": len(preferences) > 0,
+                        "has_corrections": len(corrections) > 0,
+                    },
+                    agent_id=team_id,
+                )
+            except Exception as e:
+                logger.debug(f"Failed to create conversation embedding: {e}")
+        
+    except Exception as e:
+        logger.debug(f"Slack conversation indexing error: {e}")
 
 
 def _build_system_prompt(

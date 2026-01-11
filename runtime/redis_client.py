@@ -24,7 +24,7 @@ logger = structlog.get_logger(__name__)
 
 # L's tenant ID for key prefixing - SEPARATE from Cursor's
 # L uses:      L9_TENANT_ID = 'l-cto' (here)
-# Cursor uses: CURSOR_TENANT_ID = 'cursor-ide' (core/governance/cursor_memory_kernel.py)
+# Cursor uses: CURSOR_TENANT_ID = 'cursor-ide' (agents/cursor/cursor_memory_kernel.py)
 # This prevents session state cross-contamination when Igor talks to both simultaneously
 DEFAULT_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
 

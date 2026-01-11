@@ -3,7 +3,6 @@
 # Format: async function_name(args) @ path/to/file.py
 # Use for: Understanding concurrency patterns, identifying blocking calls
 
-async __aenter__() @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async __aenter__() @ api/adapters/calendar_adapter/clients/calendar_adapter_client.py
 async __aenter__() @ api/adapters/email_adapter/clients/email_adapter_client.py
 async __aenter__() @ api/adapters/twilio_adapter/clients/twilio_adapter_client.py
@@ -12,16 +11,17 @@ async __aenter__() @ clients/world_model_client.py
 async __aenter__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/clients/calendar_adapter_client.py
 async __aenter__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/clients/email_adapter_client.py
 async __aenter__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py
+async __aenter__() @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async __aenter__() @ igor/audit-tools/services_research_tools_perplexity_client.py
 async __aenter__() @ services/research/tools/perplexity_client.py
 async __aenter__() @ tests/world_model/test_world_model_repository_basic.py
-async __aexit__() @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async __aexit__() @ api/adapters/calendar_adapter/clients/calendar_adapter_client.py
 async __aexit__() @ api/adapters/email_adapter/clients/email_adapter_client.py
 async __aexit__() @ api/adapters/twilio_adapter/clients/twilio_adapter_client.py
 async __aexit__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/clients/calendar_adapter_client.py
 async __aexit__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/clients/email_adapter_client.py
 async __aexit__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py
+async __aexit__() @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async __aexit__() @ igor/audit-tools/services_research_tools_perplexity_client.py
 async __aexit__() @ services/research/tools/perplexity_client.py
 async __aexit__(exc_type, exc, tb) @ tests/world_model/test_world_model_repository_basic.py
@@ -105,7 +105,7 @@ async _evaluate() @ core/observability/l9_integration.py
 async _evaluate_blueprint(blueprint, criteria, scores, context) @ orchestrators/meta/orchestrator.py
 async _evict_expired_packets() @ orchestrators/memory/housekeeping.py
 async _evict_lru(context) @ core/memory/virtual_context.py
-async _execute(request, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+async _execute(request, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _execute_and_report(task_id, task_type, payload, trace_id) @ mac_agent/websocket_client.py
 async _execute_browser(payload) @ mac_agent/websocket_client.py
 async _execute_cell_step(step, task, context) @ orchestration/cell_orchestrator.py
@@ -119,7 +119,7 @@ async _execute_python(payload) @ mac_agent/websocket_client.py
 async _execute_reasoning() @ core/observability/l9_integration.py
 async _execute_retry(failure) @ core/observability/failures.py
 async _execute_shell(payload) @ mac_agent/websocket_client.py
-async _execute_side_effects(result, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+async _execute_side_effects(result, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _execute_sql(sql) @ orchestrators/evolution/apply_engine.py
 async _execute_step(step, context, result) @ orchestration/plan_executor.py
 async _execute_steps(plan, result, context) @ orchestration/plan_executor.py
@@ -139,7 +139,7 @@ async _fire_triggers(event_type, target_id, data) @ world_model/runtime.py
 async _forest_of_thought(request) @ orchestrators/reasoning/orchestrator.py
 async _garbage_collect(request) @ orchestrators/memory/orchestrator.py
 async _garbage_collect(threshold_days) @ igor/audit-memory/orchestrators_memory_orchestrator.py
-async _generate_context(request) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+async _generate_context(request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _generate_files(schema, glue, output_dir, result) @ codegen/code-gen-files/extractor.py
 async _generate_tasks_from_query(query) @ core/agents/executor.py
 async _get_client() @ clients/memory_client.py
@@ -173,7 +173,7 @@ async _handle_code_write(step, context) @ orchestration/plan_executor.py
 async _handle_control(data) @ mac_agent/websocket_client.py
 async _handle_error(data) @ mac_agent/websocket_client.py
 async _handle_error(task, error, start_time, error_type) @ core/agents/executor.py
-async _handle_event_callback(callback_data) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+async _handle_event_callback(callback_data) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
 async _handle_file_create(step, context) @ orchestration/plan_executor.py
 async _handle_file_delete(step, context) @ orchestration/plan_executor.py
 async _handle_help(command, user_id, context) @ core/commands/executor.py
@@ -261,7 +261,7 @@ async _read_file(path) @ orchestrators/evolution/apply_engine.py
 async _read_responses() @ runtime/mcp_client.py
 async _replay(request) @ igor/audit-memory/orchestrators_memory_orchestrator.py
 async _replay(request) @ orchestrators/memory/orchestrator.py
-async _request(method, endpoint, data) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+async _request(method, endpoint, data) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async _request(method, endpoint, data, timeout) @ api/adapters/calendar_adapter/clients/calendar_adapter_client.py
 async _request(method, endpoint, data, timeout) @ api/adapters/email_adapter/clients/email_adapter_client.py
 async _request(method, endpoint, data, timeout) @ api/adapters/twilio_adapter/clients/twilio_adapter_client.py
@@ -336,7 +336,7 @@ async _update_lineage(envelope) @ igor/audit-memory/memory_ingestion.py
 async _update_lineage(envelope) @ memory/ingestion.py
 async _update_world_model(result, context) @ orchestration/plan_executor.py
 async _upsert_to_world_model(entity) @ core/integration/graph_to_wm_sync.py
-async _validate(request) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+async _validate(request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _validate_arguments(tool_id, arguments) @ igor/audit-tools/orchestrators_action_tool_validator.py
 async _validate_arguments(tool_id, arguments) @ orchestrators/action_tool/validator.py
 async _validate_output(output, task) @ collaborative_cells/architect_cell.py
@@ -347,25 +347,25 @@ async _validate_output(output, task) @ collaborative_cells/reviewer_cell.py
 async _warmup_cache(expressions) @ orchestration/quantum_swarm_loader.py
 async _worker_loop() @ runtime/gmp_worker.py
 async _write_config(key, value) @ orchestrators/evolution/apply_engine.py
-async _write_error_packet(error, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _write_error_packet(error, context) @ api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py
 async _write_error_packet(error, context) @ api/adapters/email_adapter/adapters/email_adapter_adapter.py
 async _write_error_packet(error, context) @ api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py
 async _write_error_packet(error, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py
 async _write_error_packet(error, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/adapters/email_adapter_adapter.py
 async _write_error_packet(error, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/adapters/twilio_adapter_adapter.py
+async _write_error_packet(error, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _write_file(path, content) @ orchestrators/evolution/apply_engine.py
 async _write_files(generated_files, output_dir, overwrite, result) @ codegen/code-gen-files/extractor.py
 async _write_governance_pattern(task_id, decision, reason, tool_name, task_type, context) @ core/governance/approvals.py
-async _write_inbound_packet(request, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _write_inbound_packet(request, context) @ api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py
 async _write_inbound_packet(request, context) @ api/adapters/email_adapter/adapters/email_adapter_adapter.py
 async _write_inbound_packet(request, context) @ api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py
 async _write_inbound_packet(request, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py
 async _write_inbound_packet(request, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/adapters/email_adapter_adapter.py
 async _write_inbound_packet(request, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/adapters/twilio_adapter_adapter.py
+async _write_inbound_packet(request, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _write_insight(insight) @ core/worldmodel/insight_emitter.py
-async _write_outbound_packet(result, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+async _write_outbound_packet(result, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async _write_outbound_packet(result, context, attachment_metadata) @ api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py
 async _write_outbound_packet(result, context, attachment_metadata) @ api/adapters/email_adapter/adapters/email_adapter_adapter.py
 async _write_outbound_packet(result, context, attachment_metadata) @ api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py
@@ -395,18 +395,20 @@ async add_sop_step(agent_id, sop_name, step) @ core/tools/agent_self_modify.py
 async agent_health() @ api/agent_routes.py
 async agent_status() @ api/agent_routes.py
 async agent_ws_endpoint(websocket) @ api/server.py
-async aios_runtime_call(data) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async aios_runtime_call(data) @ api/adapters/calendar_adapter/clients/calendar_adapter_client.py
 async aios_runtime_call(data) @ api/adapters/email_adapter/clients/email_adapter_client.py
 async aios_runtime_call(data) @ api/adapters/twilio_adapter/clients/twilio_adapter_client.py
 async aios_runtime_call(data) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/clients/calendar_adapter_client.py
 async aios_runtime_call(data) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/clients/email_adapter_client.py
 async aios_runtime_call(data) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py
+async aios_runtime_call(data) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async analyze(query) @ igor/audit-tools/services_research_tools_perplexity_client.py
 async analyze(query) @ services/research/tools/perplexity_client.py
 async analyze_failure(failure_context, error, stack_trace) @ agents/reflection_agent.py
 async analyze_task_execution(context, patterns) @ core/agents/selfreflection.py
 async anonymize_aggregate(aggregate_data) @ upgrades/packet_envelope/governance.py
+async api_request(method, endpoint) @ scripts/audit_graphs_vps.py
+async api_request(method, endpoint) @ scripts/load_indexes_to_neo4j_vps.py
 async append_event(event) @ upgrades/packet_envelope/scalability.py
 async append_event(packet_type, payload, metadata, provenance, confidence) @ igor/audit-memory/memory_state_manager.py
 async append_event(packet_type, payload, metadata, provenance, confidence) @ memory/state_manager.py
@@ -414,8 +416,9 @@ async apply(upgrade, allow_downtime) @ orchestrators/evolution/apply_engine.py
 async apply_analogical_reasoning(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 async apply_causal_logic(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py
 async apply_causal_reasoning(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
-async apply_importance_decay(dry_run) @ _archived/archived_mcp_memory/src/routes/memory.py
 async apply_importance_decay(dry_run) @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async apply_importance_decay(dry_run) @ mcp_memory/src/routes/memory.py
+async apply_importance_decay(dry_run) @ mcp_memory/src/routes/memory_unified.py
 async apply_update(update_type, target_id, data, source) @ world_model/runtime.py
 async apply_upgrades(request) @ orchestrators/evolution/interface.py
 async apply_upgrades(request) @ orchestrators/evolution/orchestrator.py
@@ -443,9 +446,15 @@ async async_wrapper() @ core/observability/instrumentation.py
 async async_wrapper() @ runtime/dora.py
 async async_wrapper() @ upgrades/packet_envelope/observability.py
 async audit_e2e_flow() @ tests/memory/test_e2e_memory_audit.py
+async audit_facts(limit) @ scripts/audit_graphs_vps.py
 async audit_ingestion_pipeline() @ tests/memory/test_e2e_memory_audit.py
+async audit_memory_stats() @ scripts/audit_graphs_vps.py
 async audit_neo4j() @ tests/memory/test_e2e_memory_audit.py
+async audit_neo4j_graphs() @ scripts/audit_graphs.py
+async audit_neo4j_via_api() @ scripts/audit_graphs_vps.py
+async audit_packets(limit) @ scripts/audit_graphs_vps.py
 async audit_postgresql() @ tests/memory/test_e2e_memory_audit.py
+async audit_postgresql_graphs() @ scripts/audit_graphs.py
 async audit_redis() @ tests/memory/test_e2e_memory_audit.py
 async audit_retrieval_pipeline() @ tests/memory/test_e2e_memory_audit.py
 async audit_slack_configuration() @ api/e2e_slack_audit.py
@@ -462,6 +471,7 @@ async audit_slack_security() @ api/e2e_slack_audit.py
 async audit_slack_security() @ tests/api/test_e2e_slack_audit.py
 async audit_slack_telemetry() @ api/e2e_slack_audit.py
 async audit_slack_telemetry() @ tests/api/test_e2e_slack_audit.py
+async audit_world_model() @ scripts/audit_graphs.py
 async batch_embed_and_store(items, text_key, agent_id) @ igor/audit-memory/memory_substrate_semantic.py
 async batch_embed_and_store(items, text_key, agent_id) @ memory/substrate_semantic.py
 async batch_write(request, authorization, _, orchestrator) @ api/memory/router.py
@@ -489,8 +499,8 @@ async call_llm(messages, temperature, json_mode) @ agents/base_agent.py
 async call_llm(messages, temperature, max_tokens, response_format) @ services/research/agents/base_agent.py
 async call_llm_json(messages, temperature, max_tokens) @ services/research/agents/base_agent.py
 async call_llm_json(prompt, context) @ agents/base_agent.py
-async call_tool(request, caller) @ _archived/archived_mcp_memory/src/main.py
 async call_tool(request, caller) @ igor/audit-memory/mcp_memory_src_main.py
+async call_tool(request, caller) @ mcp_memory/src/main.py
 async call_tool(server_id, tool_name, arguments) @ runtime/mcp_client.py
 async can_access(user_id, resource_id) @ core/security/permission_graph.py
 async can_access(user_id, resource_id) @ core/security/permission_graph.py
@@ -529,9 +539,11 @@ async cleanup_orphan_packets() @ igor/audit-memory/memory_housekeeping.py
 async cleanup_orphan_packets() @ memory/housekeeping.py
 async cleanup_parentless_packets(max_age_hours, exclude_types) @ igor/audit-memory/memory_housekeeping.py
 async cleanup_parentless_packets(max_age_hours, exclude_types) @ memory/housekeeping.py
-async cleanup_task() @ _archived/archived_mcp_memory/src/routes/memory.py
 async cleanup_task() @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async cleanup_task() @ mcp_memory/src/routes/memory.py
+async cleanup_task() @ mcp_memory/src/routes/memory_unified.py
 async clear_cache() @ services/symbolic_computation/api/routes.py
+async clear_repo_graph() @ scripts/load_indexes_to_neo4j_vps.py
 async cli_approve(task_id) @ runtime/gmp_approval.py
 async cli_list_pending() @ runtime/gmp_approval.py
 async cli_reject(task_id) @ runtime/gmp_approval.py
@@ -546,8 +558,8 @@ async close() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
 async close() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 async close() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 async close(code) @ tests/runtime/test_websocket_orchestrator_basic.py
-async close_db() @ _archived/archived_mcp_memory/src/db.py
 async close_db() @ igor/audit-memory/mcp_memory_src_db.py
+async close_db() @ mcp_memory/src/db.py
 async close_memory_client() @ clients/memory_client.py
 async close_neo4j_client() @ igor/audit-memory/memory_graph_client.py
 async close_neo4j_client() @ memory/graph_client.py
@@ -570,8 +582,9 @@ async compare_to_baseline(current, baseline_version) @ core/evaluation/evaluator
 async compile(text, context, session_id, user_id) @ ir_engine/semantic_compiler.py
 async compile_incremental(graph, additional_text) @ ir_engine/semantic_compiler.py
 async compile_only(text, context) @ orchestration/unified_controller.py
-async compound_similar_memories(user_id, threshold) @ _archived/archived_mcp_memory/src/routes/memory.py
 async compound_similar_memories(user_id, threshold) @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async compound_similar_memories(user_id, threshold) @ mcp_memory/src/routes/memory.py
+async compound_similar_memories(user_id, threshold) @ mcp_memory/src/routes/memory_unified.py
 async compress_old_memory(agent_id, days) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
 async compute(expression, variables, backend) @ core/tools/symbolic_tool.py
 async compute(expression, variables, backend) @ igor/audit-tools/core_tools_symbolic_tool.py
@@ -605,6 +618,7 @@ async create_evolution_plan(reflection, substrate_service) @ core/agents/kernele
 async create_gmp_nodes(driver, reports) @ scripts/load_gmp_reports_to_graph.py
 async create_gmp_schema(driver) @ scripts/load_gmp_reports_to_graph.py
 async create_governance_entities(driver, agent_id) @ scripts/bootstrap_neo4j_schema.py
+async create_indexes() @ scripts/load_indexes_to_neo4j_vps.py
 async create_kernel_entities(driver, agent_id) @ scripts/bootstrap_neo4j_schema.py
 async create_node(node_type, data) @ tests/mocks/world_model_mocks.py
 async create_node(t, data) @ tests/conftest.py
@@ -642,8 +656,9 @@ async delete_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend
 async delete_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
 async delete_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 async delete_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-async delete_expired_memories(dry_run) @ _archived/archived_mcp_memory/src/routes/memory.py
 async delete_expired_memories(dry_run) @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async delete_expired_memories(dry_run) @ mcp_memory/src/routes/memory.py
+async delete_expired_memories(dry_run) @ mcp_memory/src/routes/memory_unified.py
 async delete_legacy_relationships(driver, dry_run) @ scripts/neo4j_unify_relationships.py
 async delete_node(node_id) @ tests/mocks/world_model_mocks.py
 async deliberate(task, initial_graph, context) @ ir_engine/deliberation_cell.py
@@ -684,11 +699,11 @@ async embed_batch(texts) @ igor/audit-memory/memory_substrate_semantic.py
 async embed_batch(texts) @ memory/substrate_semantic.py
 async embed_batch(texts) @ memory/substrate_semantic.py
 async embed_batch(texts) @ memory/substrate_semantic.py
-async embed_text(text) @ _archived/archived_mcp_memory/src/embeddings.py
 async embed_text(text) @ igor/audit-memory/mcp_memory_src_embeddings.py
 async embed_text(text) @ igor/audit-memory/memory_substrate_semantic.py
 async embed_text(text) @ igor/audit-memory/memory_substrate_semantic.py
 async embed_text(text) @ igor/audit-memory/memory_substrate_semantic.py
+async embed_text(text) @ mcp_memory/src/embeddings.py
 async embed_text(text) @ memory/substrate_semantic.py
 async embed_text(text) @ memory/substrate_semantic.py
 async embed_text(text) @ memory/substrate_semantic.py
@@ -696,8 +711,8 @@ async embed_text(text, payload, agent_id) @ igor/audit-memory/memory_substrate_s
 async embed_text(text, payload, agent_id) @ memory/substrate_service.py
 async embed_text(text, provider, model, api_key) @ igor/audit-memory/memory_substrate_semantic.py
 async embed_text(text, provider, model, api_key) @ memory/substrate_semantic.py
-async embed_texts(texts) @ _archived/archived_mcp_memory/src/embeddings.py
 async embed_texts(texts) @ igor/audit-memory/mcp_memory_src_embeddings.py
+async embed_texts(texts) @ mcp_memory/src/embeddings.py
 async emit_executor_trace(task_id, task_name, agent_id, inputs, outputs, duration_ms, errors, patterns) @ runtime/dora.py
 async enforce_ttl() @ upgrades/packet_envelope/governance.py
 async enhance_directory(directory, pattern, skip_valid) @ runtime/construct_enhancer.py
@@ -753,8 +768,8 @@ async execute(args) @ services/research/tools/tool_wrappers.py
 async execute(args) @ services/research/tools/tool_wrappers.py
 async execute(args) @ services/research/tools/tool_wrappers.py
 async execute(plan, context) @ orchestration/plan_executor.py
-async execute(query) @ _archived/archived_mcp_memory/src/db.py
 async execute(query) @ igor/audit-memory/mcp_memory_src_db.py
+async execute(query) @ mcp_memory/src/db.py
 async execute(query) @ tests/world_model/test_world_model_repository_basic.py
 async execute(query, user_id, thread_id) @ services/research/graph_runtime.py
 async execute(request) @ igor/audit-memory/orchestrators_memory_interface.py
@@ -784,6 +799,7 @@ async execute_command(command, user_id, context) @ core/commands/__init__.py
 async execute_command(command, user_id, context) @ core/commands/executor.py
 async execute_command(command, user_id, context, agent_executor, approval_manager, substrate_service) @ core/commands/executor.py
 async execute_command(request, req, _) @ api/routes/commands.py
+async execute_cypher(query, parameters) @ scripts/load_indexes_to_neo4j_vps.py
 async execute_erasure(request_id) @ upgrades/packet_envelope/governance.py
 async execute_long_plan(goal, constraints, target_apps, agent_id, thread_id) @ orchestration/long_plan_graph.py
 async execute_long_plan_tasks(plan_id, repo_root) @ igor/audit-tools/runtime_long_plan_tool.py
@@ -827,8 +843,9 @@ async extract_intent(nlp_prompt, openai_client) @ core/commands/__init__.py
 async extract_intent(nlp_prompt, openai_client) @ core/commands/intent_extractor.py
 async extract_intent_endpoint(request, _) @ api/routes/commands.py
 async extract_patterns(examples) @ agents/reflection_agent.py
-async extract_session_learnings(user_id, session_id, session_summary, key_decisions, errors_encountered, successes) @ _archived/archived_mcp_memory/src/routes/memory.py
 async extract_session_learnings(user_id, session_id, session_summary, key_decisions, errors_encountered, successes) @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async extract_session_learnings(user_id, session_id, session_summary, key_decisions, errors_encountered, successes) @ mcp_memory/src/routes/memory.py
+async extract_session_learnings(user_id, session_id, session_summary, key_decisions, errors_encountered, successes, caller_id, creator, source) @ mcp_memory/src/routes/memory_unified.py
 async extract_tasks_from_plan(plan_id) @ orchestration/long_plan_graph.py
 async factory_health() @ api/routes/factory.py
 async failing_ingest(packet_in) @ tests/smoke_email.py
@@ -836,8 +853,8 @@ async fake_get_pool() @ tests/world_model/test_world_model_repository_basic.py
 async fake_get_pool() @ tests/world_model/test_world_model_repository_basic.py
 async fake_get_pool() @ tests/world_model/test_world_model_repository_basic.py
 async fetch(query) @ tests/world_model/test_world_model_repository_basic.py
-async fetch_all(query) @ _archived/archived_mcp_memory/src/db.py
 async fetch_all(query) @ igor/audit-memory/mcp_memory_src_db.py
+async fetch_all(query) @ mcp_memory/src/db.py
 async fetch_facts(subject, predicate, source_packet, limit) @ clients/memory_client.py
 async fetch_facts(subject, predicate, source_packet, limit) @ igor/audit-memory/memory_retrieval.py
 async fetch_facts(subject, predicate, source_packet, limit) @ memory/retrieval.py
@@ -847,8 +864,8 @@ async fetch_insights(packet_id, insight_type, limit) @ memory/retrieval.py
 async fetch_lineage(packet_id, direction, max_depth) @ clients/memory_client.py
 async fetch_lineage(packet_id, direction, max_depth) @ igor/audit-memory/memory_retrieval.py
 async fetch_lineage(packet_id, direction, max_depth) @ memory/retrieval.py
-async fetch_one(query) @ _archived/archived_mcp_memory/src/db.py
 async fetch_one(query) @ igor/audit-memory/mcp_memory_src_db.py
+async fetch_one(query) @ mcp_memory/src/db.py
 async fetch_packets(packet_types, limit, since) @ world_model/runtime.py
 async fetch_packets(packet_types, limit, since) @ world_model/runtime.py
 async fetch_thread(thread_id, limit, order) @ clients/memory_client.py
@@ -872,8 +889,8 @@ async gather_context_node(state) @ orchestration/long_plan_graph.py
 async gc_trigger_node(state, repository, housekeeping_engine) @ igor/audit-memory/memory_substrate_graph.py
 async gc_unused_tags(min_usage) @ igor/audit-memory/memory_housekeeping.py
 async gc_unused_tags(min_usage) @ memory/housekeeping.py
-async general_exception_handler(request, exc) @ _archived/archived_mcp_memory/src/main.py
 async general_exception_handler(request, exc) @ igor/audit-memory/mcp_memory_src_main.py
+async general_exception_handler(request, exc) @ mcp_memory/src/main.py
 async generate(request) @ services/symbolic_computation/core.py
 async generate_artifact_with_llm(artifact_type, goal, constraints, context, max_tokens) @ orchestration/long_plan_graph.py
 async generate_batch(meta_paths, parallel) @ agents/codegenagent/c_gmp_engine.py
@@ -904,13 +921,13 @@ async generate_with_limit(spec_path) @ orchestration/quantum_swarm_loader.py
 async get(k) @ tests/conftest.py
 async get(key) @ tests/mocks/orchestrator_mocks.py
 async get(key, raw) @ runtime/redis_client.py
-async get_adapter(request) @ _archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
 async get_adapter(request) @ api/adapters/calendar_adapter/routes/calendar_adapter.py
 async get_adapter(request) @ api/adapters/email_adapter/routes/email_adapter.py
 async get_adapter(request) @ api/adapters/twilio_adapter/routes/twilio_adapter.py
 async get_adapter(request) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/routes/calendar_adapter.py
 async get_adapter(request) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/routes/email_adapter.py
 async get_adapter(request) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/routes/twilio_adapter.py
+async get_adapter(request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
 async get_adaptive_context_for_tool(tool_name) @ core/agents/adaptive_prompting.py
 async get_agent_capabilities(agent_id) @ core/agents/bootstrap/phase_5_bind_tools.py
 async get_agent_capabilities(agent_id, request, _) @ api/routes/worldmodel.py
@@ -935,7 +952,8 @@ async get_checkpoint(agent_id) @ memory/substrate_service.py
 async get_combined_adaptive_context(tool_name, agent_name, include_world_model) @ core/agents/adaptive_prompting.py
 async get_compliance_report(from_date, to_date, _api_key, substrate_service) @ api/routes/compliance.py
 async get_context_injection(task_description, user_id, top_k, include_recent, kinds) @ igor/audit-memory/mcp_memory_src_routes_memory.py
-async get_context_injection(task_description, user_id, top_k, include_recent, kinds, allowed_scopes) @ _archived/archived_mcp_memory/src/routes/memory.py
+async get_context_injection(task_description, user_id, top_k, include_recent, kinds, allowed_scopes) @ mcp_memory/src/routes/memory.py
+async get_context_injection(task_description, user_id, top_k, include_recent, kinds, allowed_scopes, caller_id, creator, source) @ mcp_memory/src/routes/memory_unified.py
 async get_critical_directives(agent_id) @ core/agents/graph_state/agent_graph_loader.py
 async get_daily_compliance_report(date, _api_key, substrate_service) @ api/routes/compliance.py
 async get_domain_context(domain, limit, authorization, _) @ api/memory/graph.py
@@ -996,8 +1014,9 @@ async get_memory_events(agent_id, event_type, limit) @ igor/audit-memory/memory_
 async get_memory_events(agent_id, event_type, limit) @ igor/audit-memory/memory_substrate_service.py
 async get_memory_events(agent_id, event_type, limit) @ memory/substrate_repository.py
 async get_memory_events(agent_id, event_type, limit) @ memory/substrate_service.py
-async get_memory_stats(user_id, duration) @ _archived/archived_mcp_memory/src/routes/memory.py
 async get_memory_stats(user_id, duration) @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async get_memory_stats(user_id, duration) @ mcp_memory/src/routes/memory.py
+async get_memory_stats(user_id, duration) @ mcp_memory/src/routes/memory_unified.py
 async get_metrics_summary(last_hours) @ services/symbolic_computation/core/metrics.py
 async get_metrics_summary(last_hours, metrics) @ services/symbolic_computation/api/routes.py
 async get_modules_status(request, _) @ api/routes/modules.py
@@ -1019,7 +1038,8 @@ async get_packet_as_cloudevent(packet_id) @ upgrades/packet_envelope/integration
 async get_pending_task(task_id) @ runtime/gmp_worker.py
 async get_pool() @ world_model/repository.py
 async get_proactive_suggestions(current_context, user_id, include_error_fixes, include_preferences, top_k) @ igor/audit-memory/mcp_memory_src_routes_memory.py
-async get_proactive_suggestions(current_context, user_id, include_error_fixes, include_preferences, top_k, allowed_scopes) @ _archived/archived_mcp_memory/src/routes/memory.py
+async get_proactive_suggestions(current_context, user_id, include_error_fixes, include_preferences, top_k, allowed_scopes) @ mcp_memory/src/routes/memory.py
+async get_proactive_suggestions(current_context, user_id, include_error_fixes, include_preferences, top_k, allowed_scopes) @ mcp_memory/src/routes/memory_unified.py
 async get_rate_limit(key) @ runtime/redis_client.py
 async get_rate_limit(key, authorization, _) @ api/memory/cache.py
 async get_reasoning_modes(authorization, _) @ api/routes/reasoning.py
@@ -1108,13 +1128,13 @@ async grant_role(user_id, role_id) @ core/security/permission_graph.py
 async grant_role(user_id, role_id) @ core/security/permission_graph.py
 async graph_health(authorization, _) @ api/memory/graph.py
 async guarded_execute(agent, tool_id, arguments, context, principal_id) @ core/tools/registry_adapter.py
-async handle(request, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async handle(request, context) @ api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py
 async handle(request, context) @ api/adapters/email_adapter/adapters/email_adapter_adapter.py
 async handle(request, context) @ api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py
 async handle(request, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py
 async handle(request, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/adapters/email_adapter_adapter.py
 async handle(request, context) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/adapters/twilio_adapter_adapter.py
+async handle(request, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
 async handle_anomaly(anomaly) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
 async handle_calendar_adapter(request, body, adapter, authorization) @ api/adapters/calendar_adapter/routes/calendar_adapter.py
 async handle_calendar_adapter(request, body, adapter, authorization) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/routes/calendar_adapter.py
@@ -1132,22 +1152,18 @@ async handle_slack_commands(payload, substrate_service, slack_client, aios_base_
 async handle_slack_commands(payload, substrate_service, slack_client, aios_base_url) @ memory/slack_ingest.py
 async handle_slack_events(request_body, payload, substrate_service, slack_client, aios_base_url) @ igor/audit-memory/memory_slack_ingest.py
 async handle_slack_events(request_body, payload, substrate_service, slack_client, aios_base_url, app) @ memory/slack_ingest.py
-async handle_slack_webhook(request) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-async handle_slack_webhook(request, body, adapter, x_signature, x_timestamp) @ _archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
-async handle_slack_with_l_agent(app, text, thread_uuid, team_id, channel_id, user_id) @ _archived/legacy_slack/webhook_slack.py
+async handle_slack_webhook(request) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+async handle_slack_webhook(request, body, adapter, x_signature, x_timestamp) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
 async handle_slack_with_l_agent(app, text, thread_uuid, team_id, channel_id, user_id) @ api/webhook_slack.py
+async handle_slack_with_l_agent(app, text, thread_uuid, team_id, channel_id, user_id) @ docs/_archived/legacy_slack/webhook_slack.py
 async handle_slack_with_l_agent(app, text, thread_uuid, team_id, channel_id, user_id, context) @ memory/slack_ingest.py
-async handle_tool_call(tool, user_id, caller) @ _archived/archived_mcp_memory/src/mcp_server.py
 async handle_tool_call(tool, user_id, caller) @ igor/audit-memory/mcp_memory_src_mcp_server.py
 async handle_twilio_adapter(request, body, adapter, authorization) @ api/adapters/twilio_adapter/routes/twilio_adapter.py
 async handle_twilio_adapter(request, body, adapter, authorization) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/routes/twilio_adapter.py
-async handle_webhook(request) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+async handle_webhook(request) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
 async has_permission(user_id, permission_id) @ core/security/permission_graph.py
 async health() @ api/server.py
 async health() @ local_dashboard/app.py
-async health_check() @ _archived/archived_mcp_memory/src/main.py
-async health_check() @ _archived/archived_mcp_memory/src/routes/health.py
-async health_check() @ _archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
 async health_check() @ agents/base_agent.py
 async health_check() @ api/adapters/calendar_adapter/routes/calendar_adapter.py
 async health_check() @ api/adapters/calendar_adapter/services/calendar_adapter_service.py
@@ -1166,12 +1182,15 @@ async health_check() @ codegen/code-gen-files/Module Production/Module-Pipeline-
 async health_check() @ codegen/templates/python/module-template.py
 async health_check() @ core/aios/runtime.py
 async health_check() @ core/tools/symbolic_tool.py
+async health_check() @ docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
 async health_check() @ igor/audit-memory/mcp_memory_src_main.py
 async health_check() @ igor/audit-memory/mcp_memory_src_routes_health.py
 async health_check() @ igor/audit-memory/memory_substrate_repository.py
 async health_check() @ igor/audit-memory/memory_substrate_service.py
 async health_check() @ igor/audit-memory/orchestrators_memory_housekeeping.py
 async health_check() @ igor/audit-tools/core_tools_symbolic_tool.py
+async health_check() @ mcp_memory/src/main.py
+async health_check() @ mcp_memory/src/routes/health.py
 async health_check() @ memory/substrate_repository.py
 async health_check() @ memory/substrate_service.py
 async health_check() @ orchestrators/memory/housekeeping.py
@@ -1216,8 +1235,8 @@ async ingest_email_event(trace_id, action, phase, payload, error) @ email_agent/
 async ingest_packet(packet_in, service) @ igor/audit-memory/memory_ingestion.py
 async ingest_packet(packet_in, service) @ memory/ingestion.py
 async ingest_packet_legacy(packet_data) @ upgrades/packet_envelope/integration.py
-async init_db() @ _archived/archived_mcp_memory/src/db.py
 async init_db() @ igor/audit-memory/mcp_memory_src_db.py
+async init_db() @ mcp_memory/src/db.py
 async init_event_driven_coordination(app_state) @ core/coordination/event_queue.py
 async init_repository(database_url) @ igor/audit-memory/memory_substrate_repository.py
 async init_repository(database_url) @ memory/substrate_repository.py
@@ -1243,8 +1262,8 @@ async insert_knowledge_fact(subject, predicate, object_value, confidence, source
 async insert_knowledge_fact(subject, predicate, object_value, confidence, source_packet, fact_id) @ memory/substrate_repository.py
 async insert_log(agent_id, level, message, metadata) @ igor/audit-memory/memory_substrate_repository.py
 async insert_log(agent_id, level, message, metadata) @ memory/substrate_repository.py
-async insert_many(query, args_list) @ _archived/archived_mcp_memory/src/db.py
 async insert_many(query, args_list) @ igor/audit-memory/mcp_memory_src_db.py
+async insert_many(query, args_list) @ mcp_memory/src/db.py
 async insert_memory_event(agent_id, event_type, content, packet_id, timestamp) @ igor/audit-memory/memory_substrate_repository.py
 async insert_memory_event(agent_id, event_type, content, packet_id, timestamp) @ memory/substrate_repository.py
 async insert_packet(envelope) @ igor/audit-memory/memory_substrate_repository.py
@@ -1263,16 +1282,16 @@ async intake_node(state, repository) @ igor/audit-memory/memory_substrate_graph.
 async intake_node(state, repository) @ memory/substrate_graph.py
 async invalidate_segment(segment, agent_id) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
 async is_approved(task_id) @ core/governance/approvals.py
-async is_duplicate(event_id) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+async is_duplicate(event_id) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
 async kernel_read(kernel_name, property) @ igor/audit-tools/runtime_l_tools.py
 async kernel_read(kernel_name, property) @ runtime/l_tools.py
 async keys(pattern) @ tests/mocks/orchestrator_mocks.py
 async keys(pattern, raw) @ runtime/redis_client.py
 async l_ws(websocket) @ api/server.py
 async lchat(request, authorization, _) @ api/server.py
-async lifespan(app) @ _archived/archived_mcp_memory/src/main.py
 async lifespan(app) @ api/server.py
 async lifespan(app) @ igor/audit-memory/mcp_memory_src_main.py
+async lifespan(app) @ mcp_memory/src/main.py
 async link(a, b, rel) @ tests/conftest.py
 async link(source_id, target_id, edge_type, weight, metadata) @ tests/mocks/world_model_mocks.py
 async link_permission_to_resource(permission_id, resource_id) @ core/security/permission_graph.py
@@ -1289,8 +1308,8 @@ async list_snapshots(limit) @ clients/world_model_client.py
 async list_snapshots(limit) @ world_model/repository.py
 async list_snapshots(limit) @ world_model/service.py
 async list_templates() @ api/routes/factory.py
-async list_tools(request, caller) @ _archived/archived_mcp_memory/src/main.py
 async list_tools(request, caller) @ igor/audit-memory/mcp_memory_src_main.py
+async list_tools(request, caller) @ mcp_memory/src/main.py
 async list_tools(server_id) @ runtime/mcp_client.py
 async list_updates(insight_type, min_confidence, limit) @ api/world_model_api.py
 async list_updates(insight_type, min_confidence, limit) @ clients/world_model_client.py
@@ -1299,20 +1318,25 @@ async list_updates(insight_type, min_confidence, since, limit) @ world_model/ser
 async load(agent_id) @ igor/audit-memory/memory_checkpoint_manager.py
 async load(agent_id) @ memory/checkpoint_manager.py
 async load(agent_id, use_cache) @ core/agents/graph_state/agent_graph_loader.py
+async load_all() @ scripts/load_indexes_to_neo4j_vps.py
 async load_and_parse_kernels(kernel_dir) @ core/agents/bootstrap/phase_1_load_kernels.py
 async load_checkpoint() @ igor/audit-memory/memory_state_manager.py
 async load_checkpoint() @ memory/state_manager.py
 async load_checkpoint(thread_id) @ igor/audit-memory/tests_mocks_memory_mocks.py
 async load_checkpoint(thread_id) @ tests/mocks/memory_mocks.py
 async load_checkpoint(thread_id, agent_id) @ services/research/memory_adapter.py
+async load_class_definitions() @ scripts/load_indexes_to_neo4j_vps.py
 async load_context(agent_id, task_id) @ core/memory/virtual_context.py
 async load_file(path, write_to_substrate, ingest_to_world_model) @ world_model/seed_loader.py
+async load_file_metrics() @ scripts/load_indexes_to_neo4j_vps.py
 async load_from_directory(config_dir) @ core/agents/registry.py
 async load_gmp_reports(driver) @ scripts/load_gmp_reports_to_graph.py
 async load_identity_persona(instance, substrate_service, identity_yaml_path) @ core/agents/bootstrap/phase_4_load_identity.py
+async load_inheritance_graph() @ scripts/load_indexes_to_neo4j_vps.py
 async load_quantum_swarm(capsule_path) @ orchestration/quantum_swarm_loader.py
 async load_quantum_swarm(capsule_path) @ orchestration/quantum_swarm_loader.py
 async load_reflection_memory_yaml(path, write_to_substrate) @ world_model/seed_loader.py
+async load_route_handlers() @ scripts/load_indexes_to_neo4j_vps.py
 async load_seed_library(seed_dir, write_to_substrate) @ world_model/runtime.py
 async load_snapshot(snapshot_id) @ world_model/repository.py
 async log(agent_id, level, message, metadata) @ services/research/memory_adapter.py
@@ -1338,25 +1362,29 @@ async long_plan_simulate_tool(goal, constraints, target_apps, agent_id) @ igor/a
 async long_plan_simulate_tool(goal, constraints, target_apps, agent_id) @ runtime/long_plan_tool.py
 async mac_agent_exec_task(command, timeout) @ igor/audit-tools/runtime_l_tools.py
 async mac_agent_exec_task(command, timeout) @ runtime/l_tools.py
-async main() @ _archived/archived_mcp_memory/tests/test_connection.py
 async main() @ agents/research_agent.py
 async main() @ api/e2e_slack_audit.py
 async main() @ igor/audit-memory/mcp_memory_tests_test_connection.py
 async main() @ igor/audit-memory/memory_smoke_test.py
 async main() @ mac_agent/websocket_client.py
+async main() @ mcp_memory/tests/test_connection.py
 async main() @ memory/smoke_test.py
 async main() @ orchestrators/agent_execution/orchestrator.py
 async main() @ scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py
 async main() @ scripts/audit/tier1/audit_code_integrity.py
 async main() @ scripts/audit/tier1/audit_infrastructure_health.py
+async main() @ scripts/audit_graphs.py
+async main() @ scripts/audit_graphs_vps.py
 async main() @ scripts/batch_generate_specs.py
 async main() @ scripts/bootstrap_neo4j_schema.py
 async main() @ scripts/delegate_deep_research.py
 async main() @ scripts/factory_extract.py
 async main() @ scripts/load_gmp_reports_to_graph.py
+async main() @ scripts/load_indexes_to_neo4j_vps.py
 async main() @ scripts/migrate_kernels_to_graph.py
 async main() @ scripts/neo4j_merge_agent_nodes.py
 async main() @ scripts/neo4j_unify_relationships.py
+async main() @ scripts/run_bootstrap_l_graph.py
 async main() @ scripts/test_research_factory.py
 async main() @ tests/api/test_e2e_slack_audit.py
 async main() @ tests/memory/test_e2e_memory_audit.py
@@ -1396,13 +1424,13 @@ async memory_search_by_thread(thread_id, limit) @ runtime/l_tools.py
 async memory_search_by_type(packet_type, limit) @ runtime/l_tools.py
 async memory_search_executor(agent_id) @ core/tools/memory_tools.py
 async memory_service() @ tests/memory/test_e2e_memory_audit.py
-async memory_service_call(data) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async memory_service_call(data) @ api/adapters/calendar_adapter/clients/calendar_adapter_client.py
 async memory_service_call(data) @ api/adapters/email_adapter/clients/email_adapter_client.py
 async memory_service_call(data) @ api/adapters/twilio_adapter/clients/twilio_adapter_client.py
 async memory_service_call(data) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/clients/calendar_adapter_client.py
 async memory_service_call(data) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/clients/email_adapter_client.py
 async memory_service_call(data) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py
+async memory_service_call(data) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async memory_test(authorization, _) @ api/memory/router.py
 async memory_test(authorization, _) @ igor/audit-memory/api_memory_router.py
 async memory_trigger_world_model_update(insights) @ runtime/l_tools.py
@@ -1491,8 +1519,9 @@ async query_packet(packet_id) @ upgrades/packet_envelope/scalability.py
 async query_packets(packet_types, limit, since, agent_id) @ igor/audit-memory/memory_substrate_service.py
 async query_packets(packet_types, limit, since, agent_id, tenant_id, org_id, user_id, role) @ memory/substrate_service.py
 async query_semantic_graph(query) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
-async query_temporal(user_id, since, until, kinds, operation) @ _archived/archived_mcp_memory/src/routes/memory.py
 async query_temporal(user_id, since, until, kinds, operation) @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async query_temporal(user_id, since, until, kinds, operation) @ mcp_memory/src/routes/memory.py
+async query_temporal(user_id, since, until, kinds, operation) @ mcp_memory/src/routes/memory_unified.py
 async query_temporal_patterns(entity_id, window_days) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
 async queue_size(queue_name) @ runtime/redis_client.py
 async quick_check(query, summary) @ services/research/agents/critic_agent.py
@@ -1588,8 +1617,8 @@ async revoke_role(user_id, role_id) @ core/security/permission_graph.py
 async rollback(upgrade_id) @ orchestrators/evolution/apply_engine.py
 async rollback_upgrade(upgrade_id) @ orchestrators/evolution/interface.py
 async rollback_upgrade(upgrade_id) @ orchestrators/evolution/orchestrator.py
-async root() @ _archived/archived_mcp_memory/src/main.py
 async root() @ igor/audit-memory/mcp_memory_src_main.py
+async root() @ mcp_memory/src/main.py
 async route(event, context) @ orchestration/ws_task_router.py
 async route(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
 async route(request) @ ir_engine/simulation_router.py
@@ -1623,12 +1652,14 @@ async run_all_tests() @ tests/smoke_email.py
 async run_architect_cell(ir_graph, context) @ orchestration/cell_orchestrator.py
 async run_async_tests() @ tests/smoke_test.py
 async run_async_tests() @ tests/smoke_test_root.py
+async run_audit() @ scripts/audit_graphs_vps.py
 async run_coder_cell(plan, context) @ orchestration/cell_orchestrator.py
 async run_consolidation_loop() @ api/server.py
 async run_eval(agent_id, eval_set_name, version) @ core/evaluation/evaluator.py
 async run_extraction() @ core/integration/tool_pattern_extractor.py
 async run_forever(on_iteration) @ world_model/runtime.py
 async run_full_audit() @ api/e2e_slack_audit.py
+async run_full_audit() @ scripts/audit_graphs.py
 async run_full_audit() @ tests/api/test_e2e_slack_audit.py
 async run_full_audit() @ tests/memory/test_e2e_memory_audit.py
 async run_full_gc() @ igor/audit-memory/memory_housekeeping.py
@@ -1671,12 +1702,15 @@ async save_checkpoint(data) @ tests/mocks/memory_mocks.py
 async save_checkpoint(state) @ igor/audit-memory/memory_state_manager.py
 async save_checkpoint(state) @ memory/state_manager.py
 async save_checkpoint(state, agent_id) @ services/research/memory_adapter.py
-async save_memory(req) @ _archived/archived_mcp_memory/src/routes/memory.py
 async save_memory(req) @ igor/audit-memory/mcp_memory_src_routes_memory.py
-async save_memory_handler(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source) @ _archived/archived_mcp_memory/src/routes/memory.py
+async save_memory(req) @ mcp_memory/src/routes/memory.py
 async save_memory_handler(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source) @ igor/audit-memory/mcp_memory_src_routes_memory.py
-async save_memory_with_confidence(user_id, content, kind, scope, duration, confidence, source, related_memory_ids, tags, importance, caller_id, creator) @ _archived/archived_mcp_memory/src/routes/memory.py
+async save_memory_handler(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source) @ mcp_memory/src/routes/memory.py
+async save_memory_handler(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source) @ mcp_memory/src/routes/memory_unified.py
+async save_memory_route(req) @ mcp_memory/src/routes/memory_unified.py
 async save_memory_with_confidence(user_id, content, kind, scope, duration, confidence, source, related_memory_ids, tags, importance, caller_id, creator) @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async save_memory_with_confidence(user_id, content, kind, scope, duration, confidence, source, related_memory_ids, tags, importance, caller_id, creator) @ mcp_memory/src/routes/memory.py
+async save_memory_with_confidence(user_id, content, kind, scope, duration, confidence, source, related_memory_ids, tags, importance, caller_id, creator) @ mcp_memory/src/routes/memory_unified.py
 async save_reasoning_trace(agent_id, packet_id, reasoning_steps, features, confidence) @ services/research/memory_adapter.py
 async save_snapshot(snapshot, state_version, entity_count, relation_count, description, created_by) @ world_model/repository.py
 async save_state_as_packet(state, packet_type, agent_id) @ services/research/memory_adapter.py
@@ -1689,12 +1723,14 @@ async search(query, top_k, agent_id) @ memory/substrate_semantic.py
 async search(request) @ igor/audit-tools/services_research_tools_perplexity_client.py
 async search(request) @ services/research/tools/perplexity_client.py
 async search_memory() @ tests/core/observability/test_observability_integration.py
-async search_memory(req) @ _archived/archived_mcp_memory/src/routes/memory.py
 async search_memory(req) @ igor/audit-memory/mcp_memory_src_routes_memory.py
-async search_memory_handler(user_id, query, scopes, kinds, top_k, threshold, duration) @ _archived/archived_mcp_memory/src/routes/memory.py
+async search_memory(req) @ mcp_memory/src/routes/memory.py
 async search_memory_handler(user_id, query, scopes, kinds, top_k, threshold, duration) @ igor/audit-memory/mcp_memory_src_routes_memory.py
+async search_memory_handler(user_id, query, scopes, kinds, top_k, threshold, duration) @ mcp_memory/src/routes/memory.py
+async search_memory_handler(user_id, query, scopes, kinds, top_k, threshold, duration, caller_id) @ mcp_memory/src/routes/memory_unified.py
+async search_memory_route(req) @ mcp_memory/src/routes/memory_unified.py
 async search_packets() @ tests/integration/test_orchestrator_memory_integration.py
-async search_packets(metadata_filter, limit) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async search_packets(metadata_filter, limit) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async search_packets(query, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
 async search_packets(query, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
 async search_packets(query, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
@@ -1768,13 +1804,13 @@ async simulation_execute(graph_data, scenario_params, mode) @ igor/audit-tools/r
 async simulation_execute(graph_data, scenario_params, mode) @ runtime/l_tools.py
 async simulation_health() @ api/routes/simulation.py
 async size() @ runtime/task_queue.py
-async slack_chat_postMessage(data) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
-async slack_commands(request) @ _archived/legacy_slack/webhook_slack.py
+async slack_chat_postMessage(data) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 async slack_commands(request) @ api/webhook_slack.py
+async slack_commands(request) @ docs/_archived/legacy_slack/webhook_slack.py
 async slack_commands(request, validator, x_slack_signature, x_slack_request_timestamp) @ api/routes/slack.py
 async slack_events(request, validator, x_slack_signature, x_slack_request_timestamp) @ api/routes/slack.py
-async slack_events(request, x_slack_signature, x_slack_request_timestamp) @ _archived/legacy_slack/webhook_slack.py
 async slack_events(request, x_slack_signature, x_slack_request_timestamp) @ api/webhook_slack.py
+async slack_events(request, x_slack_signature, x_slack_request_timestamp) @ docs/_archived/legacy_slack/webhook_slack.py
 async smoke_test() @ igor/audit-memory/memory_smoke_test.py
 async smoke_test() @ memory/smoke_test.py
 async smoke_test_semantic_memory() @ igor/audit-memory/memory_index_syncer.py
@@ -1831,7 +1867,7 @@ async sync_agent(agent_id) @ core/integration/graph_to_wm_sync.py
 async synthesize(topic, context) @ agents/research_agent.py
 async synthesize_decision(reasoning_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
 async synthesize_evidence(evidence_list, query) @ services/research/agents/researcher_agent.py
-async test_accepts_valid_slack_event_callback(slack_adapter_with_mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_accepts_valid_slack_event_callback(slack_adapter_with_mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_add_directive_allows_high_with_approval() @ tests/core/agents/test_agent_self_modify.py
 async test_add_directive_allows_low_without_approval() @ tests/core/agents/test_agent_self_modify.py
 async test_add_directive_blocks_critical_without_approval() @ tests/core/agents/test_agent_self_modify.py
@@ -1843,7 +1879,7 @@ async test_agent_graph_loader_exists_check() @ tests/core/agents/test_graph_stat
 async test_agent_without_kernel_state() @ tests/unit/test_guarded_execution.py
 async test_agent_without_kernels_attribute() @ tests/unit/test_guarded_execution.py
 async test_aios_error_handled(executor, mock_aios, sample_task) @ tests/core/agents/test_executor.py
-async test_aios_response_forwarded(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+async test_aios_response_forwarded(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 async test_aios_response_forwarded(adapter, sample_request, mock_aios_client) @ api/adapters/calendar_adapter/tests/test_calendar_adapter.py
 async test_aios_response_forwarded(adapter, sample_request, mock_aios_client) @ api/adapters/email_adapter/tests/test_email_adapter.py
 async test_aios_response_forwarded(adapter, sample_request, mock_aios_client) @ api/adapters/twilio_adapter/tests/test_twilio_adapter.py
@@ -1913,8 +1949,8 @@ async test_consolidate_graph_state_loader_unavailable() @ tests/memory/test_cons
 async test_consolidate_graph_state_not_found() @ tests/memory/test_consolidation_graph.py
 async test_consolidate_graph_state_success() @ tests/memory/test_consolidation_graph.py
 async test_consolidate_graph_state_updates_metrics() @ tests/memory/test_consolidation_graph.py
-async test_context_injection_retrieves_relevant_memories() @ _archived/archived_mcp_memory/tests/test_memory.py
 async test_context_injection_retrieves_relevant_memories() @ igor/audit-memory/mcp_memory_tests_test_memory.py
+async test_context_injection_retrieves_relevant_memories() @ mcp_memory/tests/test_memory.py
 async test_create_evolution_plan(problematic_task_context) @ tests/integration/test_kernel_evolution_flow.py
 async test_critic_node(mock_get_adapter, mock_critic_class, mock_state) @ tests/test_research_graph.py
 async test_dag_with_db_creates_checkpoint(repository) @ tests/test_memory_substrate_basic.py
@@ -1922,8 +1958,8 @@ async test_dag_with_db_creates_reasoning_trace(repository) @ tests/test_memory_s
 async test_dag_with_db_extracts_insights(repository) @ tests/test_memory_substrate_basic.py
 async test_dag_with_db_writes_packet(repository) @ tests/test_memory_substrate_basic.py
 async test_database_connection() @ tests/docker/test_stack_smoke.py
-async test_dedupe_hit(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-async test_deduplication_via_substrate(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_dedupe_hit(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+async test_deduplication_via_substrate(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_delete_entity_returns_bool(monkeypatch) @ tests/world_model/test_world_model_repository_basic.py
 async test_deployment_validation() @ tests/upgrades/test_packet_envelope_phases.py
 async test_detect_unapproved_high_risk() @ tests/integration/test_compliance_audit.py
@@ -1939,8 +1975,8 @@ async test_duplicate_event_dedupes(adapter, sample_request, mock_substrate_servi
 async test_duplicate_event_dedupes(adapter, sample_request, mock_substrate_service, mock_aios_client) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/tests/test_email_adapter.py
 async test_duplicate_event_dedupes(adapter, sample_request, mock_substrate_service, mock_aios_client) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/tests/test_twilio_adapter.py
 async test_duplicate_event_detected(mock_substrate_service) @ tests/api/test_slack_adapter.py
-async test_duplicate_memory_compounds() @ _archived/archived_mcp_memory/tests/test_memory.py
 async test_duplicate_memory_compounds() @ igor/audit-memory/mcp_memory_tests_test_memory.py
+async test_duplicate_memory_compounds() @ mcp_memory/tests/test_memory.py
 async test_e2e_flow_audit(memory_service) @ tests/memory/test_e2e_memory_audit.py
 async test_edge_creation(world_model) @ tests/world_model/test_wm_integrity.py
 async test_edge_deletion(world_model) @ tests/world_model/test_wm_integrity.py
@@ -1957,10 +1993,10 @@ async test_embed_batch() @ tests/test_memory_substrate_basic.py
 async test_embed_deterministic() @ tests/test_memory_substrate_basic.py
 async test_embed_different_texts() @ tests/test_memory_substrate_basic.py
 async test_embed_text() @ tests/test_memory_substrate_basic.py
-async test_embed_text_returns_vector() @ _archived/archived_mcp_memory/tests/test_embeddings.py
 async test_embed_text_returns_vector() @ igor/audit-memory/mcp_memory_tests_test_embeddings.py
-async test_embed_texts_batch() @ _archived/archived_mcp_memory/tests/test_embeddings.py
+async test_embed_text_returns_vector() @ mcp_memory/tests/test_embeddings.py
 async test_embed_texts_batch() @ igor/audit-memory/mcp_memory_tests_test_embeddings.py
+async test_embed_texts_batch() @ mcp_memory/tests/test_embeddings.py
 async test_emission_gracefully_handles_missing_service() @ tests/agents/test_l_cto_memory_emission.py
 async test_emission_includes_task_and_response() @ tests/agents/test_l_cto_memory_emission.py
 async test_emits_reasoning_packet_on_success() @ tests/agents/test_l_cto_memory_emission.py
@@ -1990,7 +2026,7 @@ async test_error_emits_error_packet(adapter, sample_request, mock_substrate_serv
 async test_error_emits_error_packet(adapter, sample_request, mock_substrate_service, mock_aios_client) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/tests/test_twilio_adapter.py
 async test_error_handling(executor) @ tests/integration/test_l_bootstrap.py
 async test_error_handling_and_packet_emission(executor, mock_substrate_service, mock_aios_runtime) @ tests/integration/test_l_cto_end_to_end.py
-async test_error_recovery(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_error_recovery(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_escalation_to_igor(governance_with_igor) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 async test_evaluate_constant(evaluator) @ tests/services/symbolic_computation/test_expression_evaluator.py
 async test_evaluate_multi_variable(evaluator) @ tests/services/symbolic_computation/test_expression_evaluator.py
@@ -2040,13 +2076,13 @@ async test_fallback_routing(router, mock_packet) @ codegen/extractions/domain_te
 async test_fork_preserves_checkpoints(adapter) @ tests/performance/test_restart_recovery.py
 async test_full_analyze_flow() @ tests/integration/test_igor_commands.py
 async test_full_dag_flow() @ tests/test_memory_substrate_basic.py
-async test_full_event_flow_writes_to_substrate(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_full_event_flow_writes_to_substrate(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_full_execution_flow_success(executor, mock_substrate_service, mock_aios_runtime) @ tests/integration/test_l_cto_end_to_end.py
 async test_full_flow_both_patterns_fire(task, instance) @ tests/integration/test_governance_tracking_e2e.py
 async test_full_graph_lifecycle(mock_neo4j_driver, sample_graph_result) @ tests/integration/test_graph_state_integration.py
 async test_full_help_flow() @ tests/integration/test_igor_commands.py
 async test_full_memory_audit(memory_service) @ tests/memory/test_e2e_memory_audit.py
-async test_full_message_flow(slack_adapter, signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_full_message_flow(slack_adapter, signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
 async test_full_pipeline() @ core/schemas/tests/test_research_factory.py
 async test_generate_batch_parallel(temp_dir, engine) @ tests/agents/codegenagent/test_c_gmp_engine.py
 async test_generate_batch_parallel(temp_dir, engine) @ tests/services/symbolic_computation/test_c_gmp_engine.py
@@ -2107,14 +2143,14 @@ async test_guarded_execution_continues_on_governance_error() @ tests/unit/test_g
 async test_guarded_execution_denies_on_governance_deny() @ tests/unit/test_guarded_execution.py
 async test_guarded_execution_emits_audit_with_kernel_metadata(mock_agent) @ tests/unit/test_guarded_execution.py
 async test_guarded_execution_invokes_governance_engine() @ tests/unit/test_guarded_execution.py
-async test_handle_event_callback_deduplicates(slack_adapter) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-async test_handle_event_callback_error_handling(slack_adapter) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-async test_handle_event_callback_stores_packet(slack_adapter) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-async test_handle_success(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-async test_handle_webhook_invalid_json(slack_adapter, signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-async test_handle_webhook_invalid_signature(slack_adapter) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-async test_handle_webhook_url_verification(slack_adapter, signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-async test_handle_with_context(adapter, sample_request, sample_context) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+async test_handle_event_callback_deduplicates(slack_adapter) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_handle_event_callback_error_handling(slack_adapter) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_handle_event_callback_stores_packet(slack_adapter) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_handle_success(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+async test_handle_webhook_invalid_json(slack_adapter, signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_handle_webhook_invalid_signature(slack_adapter) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_handle_webhook_url_verification(slack_adapter, signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_handle_with_context(adapter, sample_request, sample_context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 async test_happy_path_packet_dispatch(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_health_check(engine) @ services/symbolic_computation/test_symbolic_computation.py
 async test_health_endpoint_degraded_when_startup_fails() @ tests/unit/test_startup_readiness.py
@@ -2124,7 +2160,7 @@ async test_high_risk_triggers_escalation(governance) @ codegen/extractions/domai
 async test_high_volume_metrics_recording() @ tests/integration/test_tool_observability_integration.py
 async test_housekeeping_runs() @ tests/integration/test_orchestrator_memory_integration.py
 async test_idempotency_returns_duplicate_response(executor, mock_aios, sample_task) @ tests/core/agents/test_executor.py
-async test_idempotent_replay_cached(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+async test_idempotent_replay_cached(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 async test_idempotent_replay_cached(adapter, sample_request, mock_substrate_service, mock_aios_client) @ api/adapters/calendar_adapter/tests/test_calendar_adapter.py
 async test_idempotent_replay_cached(adapter, sample_request, mock_substrate_service, mock_aios_client) @ api/adapters/email_adapter/tests/test_email_adapter.py
 async test_idempotent_replay_cached(adapter, sample_request, mock_substrate_service, mock_aios_client) @ api/adapters/twilio_adapter/tests/test_twilio_adapter.py
@@ -2177,10 +2213,10 @@ async test_invalid_agent_id_returns_error(executor) @ tests/core/agents/test_exe
 async test_invalid_expression(evaluator) @ services/symbolic_computation/test_symbolic_computation.py
 async test_invalid_expression(evaluator) @ tests/services/symbolic_computation/test_expression_evaluator.py
 async test_invalid_expression(generator) @ tests/services/symbolic_computation/test_code_generator.py
-async test_invalid_signature_rejected(adapter) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-async test_is_duplicate_handles_substrate_error(mock_substrate_service) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-async test_is_duplicate_returns_false_for_new_event(mock_substrate_service) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-async test_is_duplicate_returns_true_for_known_event(mock_substrate_service) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_invalid_signature_rejected(adapter) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+async test_is_duplicate_handles_substrate_error(mock_substrate_service) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_is_duplicate_returns_false_for_new_event(mock_substrate_service) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+async test_is_duplicate_returns_true_for_known_event(mock_substrate_service) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
 async test_kernel_activation_creates_agent_config() @ tests/integration/test_l_cto_end_to_end.py
 async test_kernel_loaded_in_agent_config(executor, agent_registry) @ tests/integration/test_l_cto_end_to_end.py
 async test_kernel_prompt_contains_identity() @ tests/integration/test_l_cto_end_to_end.py
@@ -2241,7 +2277,7 @@ async test_multiple_blobs(memory_adapter) @ igor/audit-memory/tests_memory_test_
 async test_multiple_blobs(memory_adapter) @ tests/memory/test_blob_offload.py
 async test_multiple_checkpoints(adapter) @ tests/performance/test_restart_recovery.py
 async test_multiple_edges(world_model) @ tests/world_model/test_wm_integrity.py
-async test_multiple_event_types(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_multiple_event_types(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_multiple_handlers_chain() @ tests/integration/test_ws_task_routing_integration.py
 async test_multiple_incremental_compilations(mock_openai_client, simple_valid_graph) @ tests/ir_engine/test_ir_semantic_incremental.py
 async test_multiple_nodes(world_model) @ tests/world_model/test_wm_nodes.py
@@ -2275,18 +2311,18 @@ async test_orchestrator_phase_failure_rollback() @ tests/core/agents/test_bootst
 async test_outbound_packet_stored(mock_substrate_service) @ tests/api/test_slack_adapter.py
 async test_packet_has_required_fields() @ tests/integration/test_tool_observability_integration.py
 async test_packet_has_ttl() @ tests/integration/test_tool_observability_integration.py
-async test_packet_metadata_structure(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_packet_metadata_structure(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_packet_tags_include_tool_info() @ tests/integration/test_tool_observability_integration.py
 async test_packet_ttl_is_24_hours_from_now() @ tests/memory/test_tool_audit.py
 async test_packet_type_is_tool_audit() @ tests/integration/test_tool_observability_integration.py
-async test_packet_written_on_success(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+async test_packet_written_on_success(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ api/adapters/calendar_adapter/tests/test_calendar_adapter.py
 async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ api/adapters/email_adapter/tests/test_email_adapter.py
 async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ api/adapters/twilio_adapter/tests/test_twilio_adapter.py
 async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/tests/test_calendar_adapter.py
 async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/tests/test_email_adapter.py
 async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/tests/test_twilio_adapter.py
+async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 async test_packets_emitted_with_required_fields(executor, mock_aios, mock_substrate, sample_task) @ tests/core/agents/test_executor.py
 async test_partial_match_prohibited_action() @ tests/unit/test_guarded_execution.py
 async test_pass_1_plan_queries() @ core/schemas/tests/test_research_factory.py
@@ -2299,8 +2335,8 @@ async test_post_message_failure() @ tests/test_slack_adapter.py
 async test_post_message_success() @ tests/test_slack_adapter.py
 async test_post_message_timeout() @ tests/test_slack_adapter.py
 async test_postgresql_audit(memory_service) @ tests/memory/test_e2e_memory_audit.py
-async test_proactive_suggestions() @ _archived/archived_mcp_memory/tests/test_memory.py
 async test_proactive_suggestions() @ igor/audit-memory/mcp_memory_tests_test_memory.py
+async test_proactive_suggestions() @ mcp_memory/tests/test_memory.py
 async test_process_packet_creates_controller(mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_processing_log_records_events(mock_openai_client, incremental_response, simple_valid_graph) @ tests/ir_engine/test_ir_semantic_incremental.py
 async test_proposal_to_gmp_spec() @ tests/integration/test_kernel_evolution_flow.py
@@ -2343,7 +2379,7 @@ async test_register_tool_uses_can_execute() @ tests/core/tools/test_tool_graph_u
 async test_register_tool_with_metadata() @ tests/core/tools/test_tool_graph_unified.py
 async test_register_tool_without_agent_no_ensure() @ tests/integration/test_unified_graph.py
 async test_register_tool_without_agent_no_relationship() @ tests/core/tools/test_tool_graph_unified.py
-async test_rejects_unsigned_requests() @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_rejects_unsigned_requests() @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_relationships_created() @ tests/integration/test_world_model.py
 async test_repeated_evaluation_uses_cache(evaluator, cache) @ tests/services/symbolic_computation/test_integration.py
 async test_reply_error_handled(mock_slack_client) @ tests/api/test_slack_adapter.py
@@ -2370,19 +2406,19 @@ async test_run_extraction_success() @ tests/integration/test_tool_patterns.py
 async test_run_extraction_when_disabled() @ tests/integration/test_tool_patterns.py
 async test_run_simulation_basic() @ tests/simulation/test_simulation_engine.py
 async test_save_checkpoint(adapter, mock_repository, sample_state) @ tests/test_memory_adapter.py
-async test_save_memory_creates_embedding() @ _archived/archived_mcp_memory/tests/test_memory.py
 async test_save_memory_creates_embedding() @ igor/audit-memory/mcp_memory_tests_test_memory.py
+async test_save_memory_creates_embedding() @ mcp_memory/tests/test_memory.py
 async test_save_reasoning_trace(adapter, mock_repository) @ tests/test_memory_adapter.py
 async test_save_state_as_packet(adapter, mock_repository, sample_state) @ tests/test_memory_adapter.py
-async test_save_with_confidence() @ _archived/archived_mcp_memory/tests/test_memory.py
 async test_save_with_confidence() @ igor/audit-memory/mcp_memory_tests_test_memory.py
+async test_save_with_confidence() @ mcp_memory/tests/test_memory.py
 async test_search_packets_mock() @ tests/clients/test_memory_client.py
-async test_search_respects_threshold() @ _archived/archived_mcp_memory/tests/test_search.py
 async test_search_respects_threshold() @ igor/audit-memory/mcp_memory_tests_test_search.py
-async test_search_respects_top_k() @ _archived/archived_mcp_memory/tests/test_search.py
+async test_search_respects_threshold() @ mcp_memory/tests/test_search.py
 async test_search_respects_top_k() @ igor/audit-memory/mcp_memory_tests_test_search.py
-async test_search_returns_similar() @ _archived/archived_mcp_memory/tests/test_memory.py
+async test_search_respects_top_k() @ mcp_memory/tests/test_search.py
 async test_search_returns_similar() @ igor/audit-memory/mcp_memory_tests_test_memory.py
+async test_search_returns_similar() @ mcp_memory/tests/test_memory.py
 async test_select_best_returns_highest_scoring(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_select_best_returns_none_below_threshold() @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_selective_modes(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
@@ -2393,8 +2429,8 @@ async test_semantic_search_returns_results(service) @ tests/memory/test_vector_s
 async test_semantic_to_plan_happy_path(mock_openai_client) @ tests/ir_engine/test_ir_semantic_to_plan_integration.py
 async test_send_to_agent_and_unregistered_error() @ tests/runtime/test_websocket_orchestrator_basic.py
 async test_service_initialization() @ tests/integration/test_world_model.py
-async test_session_learning_extraction() @ _archived/archived_mcp_memory/tests/test_memory.py
 async test_session_learning_extraction() @ igor/audit-memory/mcp_memory_tests_test_memory.py
+async test_session_learning_extraction() @ mcp_memory/tests/test_memory.py
 async test_set_working_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_simple_evaluation(evaluator) @ services/symbolic_computation/test_symbolic_computation.py
 async test_simulate_candidates_returns_ranked_list(candidate_graphs) @ tests/ir_engine/test_ir_simulation_router_integration.py
@@ -2405,7 +2441,7 @@ async test_small_content_not_offloaded(memory_adapter) @ tests/memory/test_blob_
 async test_snapshot_contains_required_fields() @ tests/memory/test_consolidation_graph.py
 async test_snapshot_limits_responsibilities() @ tests/memory/test_consolidation_graph.py
 async test_spawn_test_agent_convenience() @ tests/integration/test_recursive_self_testing.py
-async test_stale_timestamp_rejected(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+async test_stale_timestamp_rejected(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 async test_start_when_disabled() @ tests/integration/test_graph_wm_sync.py
 async test_start_when_disabled() @ tests/integration/test_tool_patterns.py
 async test_stop_when_not_running() @ tests/integration/test_graph_wm_sync.py
@@ -2419,9 +2455,9 @@ async test_sync_agent_success() @ tests/integration/test_graph_wm_sync.py
 async test_sync_agent_when_disabled() @ tests/integration/test_graph_wm_sync.py
 async test_task_history(mock_substrate) @ tests/integration/test_l_bootstrap.py
 async test_task_result_routed_to_handler() @ tests/integration/test_ws_task_routing_integration.py
-async test_temporal_query() @ _archived/archived_mcp_memory/tests/test_memory.py
 async test_temporal_query() @ igor/audit-memory/mcp_memory_tests_test_memory.py
-async test_thread_uuid_determinism(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_temporal_query() @ mcp_memory/tests/test_memory.py
+async test_thread_uuid_determinism(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_thread_uuid_deterministic(adapter) @ api/adapters/calendar_adapter/tests/test_calendar_adapter.py
 async test_thread_uuid_deterministic(adapter) @ api/adapters/email_adapter/tests/test_email_adapter.py
 async test_thread_uuid_deterministic(adapter) @ api/adapters/twilio_adapter/tests/test_twilio_adapter.py
@@ -2452,7 +2488,7 @@ async test_unified_agent_node_scenario() @ tests/integration/test_unified_graph.
 async test_unknown_message_type_handled() @ tests/integration/test_ws_task_routing_integration.py
 async test_unmatched_request_is_denied_by_default(temp_policy_dir, simple_allow_policy) @ tests/core/governance/test_engine.py
 async test_unregister_clears_state() @ tests/runtime/test_websocket_orchestrator_basic.py
-async test_unsupported_event_type_skipped(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_unsupported_event_type_skipped(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async test_update_responsibility_not_found() @ tests/core/agents/test_agent_self_modify.py
 async test_update_responsibility_success() @ tests/core/agents/test_agent_self_modify.py
 async test_update_tool_usage() @ tests/integration/test_world_model.py
@@ -2464,13 +2500,13 @@ async test_upsert_handles_missing_wm_service() @ tests/integration/test_graph_wm
 async test_upsert_to_world_model_integration() @ tests/integration/test_graph_wm_sync.py
 async test_valid_packet_end_to_end(mock_services) @ igor/01-07-2026/L9 Memory Substrate Audit/test_memory_substrate_flow.py
 async test_valid_packet_processed(controller) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py
-async test_valid_request_processed(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 async test_valid_request_processed(adapter, sample_request) @ api/adapters/calendar_adapter/tests/test_calendar_adapter.py
 async test_valid_request_processed(adapter, sample_request) @ api/adapters/email_adapter/tests/test_email_adapter.py
 async test_valid_request_processed(adapter, sample_request) @ api/adapters/twilio_adapter/tests/test_twilio_adapter.py
 async test_valid_request_processed(adapter, sample_request) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/tests/test_calendar_adapter.py
 async test_valid_request_processed(adapter, sample_request) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/tests/test_email_adapter.py
 async test_valid_request_processed(adapter, sample_request) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/tests/test_twilio_adapter.py
+async test_valid_request_processed(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 async test_valid_task_instantiates_agent(executor, mock_aios, sample_task) @ tests/core/agents/test_executor.py
 async test_validate_agent_config_missing_id() @ tests/core/agents/test_bootstrap_phases.py
 async test_validate_agent_config_success() @ tests/core/agents/test_bootstrap_phases.py
@@ -2491,7 +2527,7 @@ async test_world_model_instantiation() @ tests/smoke_test_root.py
 async test_write_packet_mock() @ tests/clients/test_memory_client.py
 async test_write_packet_success(service) @ igor/audit-memory/tests_memory_test_substrate_api.py
 async test_write_packet_success(service) @ tests/memory/test_substrate_api.py
-async test_writes_valid_packets(slack_adapter_with_mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async test_writes_valid_packets(slack_adapter_with_mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async tool_call_wrapper(tool_name, tool_func, agent_id) @ igor/audit-tools/runtime_tool_call_wrapper.py
 async tool_call_wrapper(tool_name, tool_func, agent_id) @ runtime/tool_call_wrapper.py
 async tool_graph_health(request) @ api/tools/router.py
@@ -2557,8 +2593,8 @@ async validate_upgrade(upgrade) @ orchestrators/evolution/interface.py
 async validate_upgrade(upgrade) @ orchestrators/evolution/orchestrator.py
 async validate_upgrade_deployment() @ api/routes/upgrades.py
 async verify_and_lock(instance, substrate_service, kernels) @ core/agents/bootstrap/phase_7_verify_and_lock.py
-async verify_api_key(request, authorization) @ _archived/archived_mcp_memory/src/main.py
 async verify_api_key(request, authorization) @ igor/audit-memory/mcp_memory_src_main.py
+async verify_api_key(request, authorization) @ mcp_memory/src/main.py
 async verify_deletion(request_id) @ upgrades/packet_envelope/governance.py
 async verify_l_graph(neo4j_driver) @ core/agents/graph_state/bootstrap_l_graph.py
 async verify_migration() @ scripts/migrate_kernels_to_graph.py
@@ -2592,7 +2628,8 @@ async write(segment, content, agent_id, metadata, embedding, ttl_hours) @ tools/
 async write_documentation(code, doc_type) @ agents/coder_agent_b.py
 async write_insights(insights) @ igor/audit-memory/memory_substrate_service.py
 async write_insights(insights) @ memory/substrate_service.py
-async write_packet(packet) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+async write_memory_summary() @ scripts/load_indexes_to_neo4j_vps.py
+async write_packet(packet) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 async write_packet(packet) @ tests/integration/test_orchestrator_memory_integration.py
 async write_packet(packet) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
 async write_packet(packet) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
@@ -2607,4 +2644,4 @@ async write_packet(packet_type, payload, metadata, provenance, confidence) @ cli
 async write_packet_to_substrate(packet) @ world_model/seed_loader.py
 async write_tests(code, framework) @ agents/coder_agent_b.py
 
-# Total: 2603 async functions
+# Total: 2640 async functions

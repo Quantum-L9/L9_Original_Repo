@@ -1,0 +1,169 @@
+"""
+Configuration for L9 MCP Memory Server.
+Environment-based settings with HNSW and memory compounding support.
+"""
+
+import structlog
+from pydantic_settings import BaseSettings
+
+logger = structlog.get_logger(__name__)
+
+
+class Settings(BaseSettings):
+    # Server Configuration
+    # Single source of truth for MCP server host/port/env
+    # Defaults: 127.0.0.1:9002 (production), overridden by env vars
+    # Public URL: https://l9.quantumaipartners.com (Caddy routes /mcp/* to this server)
+    # Port 9001 = L9 Memory API, Port 9002 = MCP Memory Server
+    MCP_HOST: str = "127.0.0.1"  # Default: localhost only (Caddy reverse proxy)
+    MCP_PORT: int = 9002  # Default: 9002 (MCP server)
+    MCP_ENV: str = "production"  # Default: production
+    LOG_LEVEL: str = "INFO"
+
+    # OpenAI Configuration
+    OPENAI_API_KEY: str
+    OPENAI_EMBED_MODEL: str = "text-embedding-3-small"
+    OPENAI_EMBED_DIM: int = 1536
+
+    # Database Configuration
+    MEMORY_DSN: str
+
+    # Memory Lifecycle
+    MEMORY_SHORT_TERM_HOURS: int = 24
+    MEMORY_MEDIUM_TERM_HOURS: int = 168
+    MEMORY_CLEANUP_INTERVAL_MINUTES: int = 720
+    MEMORY_SHORT_RETENTION_DAYS: int = 14
+    MEMORY_MEDIUM_RETENTION_DAYS: int = 30
+
+    # Vector Search Configuration
+    VECTOR_SEARCH_THRESHOLD: float = 0.7
+    VECTOR_SEARCH_TOP_K: int = 10
+
+    # Vector Index Configuration (HNSW)
+    VECTOR_INDEX_TYPE: str = "hnsw"
+    HNSW_M: int = 16
+    HNSW_EF_CONSTRUCTION: int = 64
+    HNSW_EF_SEARCH: int = 40
+
+    # Memory Compounding Configuration
+    COMPOUNDING_ENABLED: bool = True
+    COMPOUNDING_SIMILARITY_THRESHOLD: float = 0.92
+    COMPOUNDING_MIN_COUNT: int = 3
+
+    # Importance Decay Configuration
+    DECAY_ENABLED: bool = True
+    DECAY_RATE_PER_DAY: float = 0.01
+    ACCESS_BOOST_PER_HIT: float = 0.05
+
+    # Authentication - Dual API Keys for L and C
+    # See: mcp_memory/memory-setup-instructions.md for governance spec
+    # Primary keys (required):
+    # - MCP_API_KEY_L: L-CTO kernel (full read/write/delete)
+    # - MCP_API_KEY_C: Cursor IDE (read all, write/delete own only)
+    # Legacy fallbacks (optional, for backward compatibility):
+    # - MCP_API_KEY: Shared fallback (maps to L if MCP_API_KEY_L not set)
+    # - MCPL9MEMORYKEY: Legacy alias (same as MCP_API_KEY)
+    # - MCP_API_KEYL: Legacy alias for MCP_API_KEY_L
+    # - MCP_API_KEYC: Legacy alias for MCP_API_KEY_C
+    MCP_API_KEY_L: str = ""  # L-CTO API key (required, but allow empty for validation)
+    MCP_API_KEY_C: str = ""  # Cursor IDE API key (required, but allow empty for validation)
+    
+    # Legacy fallback keys (optional)
+    MCP_API_KEY: str = ""  # Shared fallback (legacy)
+    MCPL9MEMORYKEY: str = ""  # Legacy alias (same as MCP_API_KEY)
+    MCP_API_KEYL: str = ""  # Legacy alias for MCP_API_KEY_L
+    MCP_API_KEYC: str = ""  # Legacy alias for MCP_API_KEY_C
+
+    # Shared User Identity (L and C operate in same semantic space)
+    # Separation is enforced via metadata.creator and caller identity
+    # See: memory-setup-instructions.md → userid_strategy
+    L_CTO_USER_ID: str = "l9-shared"  # Shared userid for L + Cursor collaboration
+
+    # Redis (optional)
+    REDIS_ENABLED: bool = False
+    REDIS_HOST: str = "127.0.0.1"
+    REDIS_PORT: int = 6379
+
+    class Config:
+        env_file = ".env"
+        extra = "ignore"
+
+
+settings = Settings()
+
+
+def get_api_key_l() -> str:
+    """Get L-CTO API key with legacy fallback support.
+    
+    Priority:
+    1. MCP_API_KEY_L (primary)
+    2. MCP_API_KEYL (legacy alias)
+    3. MCP_API_KEY (shared fallback)
+    4. MCPL9MEMORYKEY (legacy alias)
+    """
+    if settings.MCP_API_KEY_L:
+        return settings.MCP_API_KEY_L
+    if settings.MCP_API_KEYL:
+        return settings.MCP_API_KEYL
+    if settings.MCP_API_KEY:
+        return settings.MCP_API_KEY
+    if settings.MCPL9MEMORYKEY:
+        return settings.MCPL9MEMORYKEY
+    return ""
+
+
+def get_api_key_c() -> str:
+    """Get Cursor API key with legacy fallback support.
+    
+    Priority:
+    1. MCP_API_KEY_C (primary)
+    2. MCP_API_KEYC (legacy alias)
+    3. MCP_API_KEY (shared fallback)
+    4. MCPL9MEMORYKEY (legacy alias)
+    """
+    if settings.MCP_API_KEY_C:
+        return settings.MCP_API_KEY_C
+    if settings.MCP_API_KEYC:
+        return settings.MCP_API_KEYC
+    if settings.MCP_API_KEY:
+        return settings.MCP_API_KEY
+    if settings.MCPL9MEMORYKEY:
+        return settings.MCPL9MEMORYKEY
+    return ""
+
+
+def validate_api_keys() -> None:
+    """Validate that at least one API key is configured. Fail fast with clear error."""
+    api_key_l = get_api_key_l()
+    api_key_c = get_api_key_c()
+    
+    if not api_key_l and not api_key_c:
+        raise ValueError(
+            "MCP_API_KEY_L or MCP_API_KEY_C must be set. "
+            "Legacy fallbacks (MCP_API_KEY, MCPL9MEMORYKEY) are optional but at least one key is required."
+        )
+    
+    if not api_key_l:
+        import warnings
+        warnings.warn(
+            "MCP_API_KEY_L not set. L-CTO operations will fail. "
+            "Set MCP_API_KEY_L or use legacy MCP_API_KEYL/MCP_API_KEY/MCPL9MEMORYKEY.",
+            UserWarning
+        )
+    
+    if not api_key_c:
+        import warnings
+        warnings.warn(
+            "MCP_API_KEY_C not set. Cursor operations will fail. "
+            "Set MCP_API_KEY_C or use legacy MCP_API_KEYC/MCP_API_KEY/MCPL9MEMORYKEY.",
+            UserWarning
+        )
+
+
+# Validate on module load (fail fast)
+try:
+    validate_api_keys()
+except ValueError as e:
+    logger.error("MCP server configuration invalid", error=str(e))
+    import sys
+    sys.exit(1)

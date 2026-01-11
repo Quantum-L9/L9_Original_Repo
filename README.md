@@ -1,8 +1,8 @@
 # L9 Secure AI OS
 
-> **Version:** 2.1.0  
+> **Version:** 2.2.0  
 > **Status:** Production Ready (VPS Deployed)  
-> **Updated:** 2026-01-01
+> **Updated:** 2026-01-11
 
 ---
 
@@ -16,6 +16,7 @@
 - **World Model** — Insight-driven entity/relationship tracking with scheduled updates
 - **7 Orchestrators** — Reasoning, Memory, ActionTool, WorldModel, Evolution, Meta, and ResearchSwarm
 - **Governance Engine** — Closed-loop learning from Igor approvals, compliance audit trails
+- **Five-Tier Observability** — Distributed tracing, failure detection, context strategies, metrics aggregation, multi-backend export (Console, Substrate, Datadog, Honeycomb)
 
 **Primary Goals:**
 - Secure, governed runtime for autonomous AI agents
@@ -72,12 +73,26 @@ L9/
 │   ├── memory/               # Memory API router
 │   ├── adapters/             # External adapters (Slack, Email, Calendar, Twilio)
 │   └── webhook_slack.py      # Slack event handling
+├── agents/                   # Agent implementations
+│   ├── cursor/               # Cursor IDE integration (consolidated)
+│   │   ├── cursor_memory_kernel.py
+│   │   ├── cursor_client.py
+│   │   ├── integrations/     # LangGraph integration (GMP-48 complete)
+│   │   │   ├── cursor_langgraph.py
+│   │   │   ├── cursor_gateway.py
+│   │   │   └── cursor_executor.py
+│   │   ├── scripts/          # Cursor-specific scripts
+│   │   ├── extractors/       # Action extractors
+│   │   └── docs/             # Cursor documentation
+│   ├── codegenagent/         # Code generation agent
+│   └── [other agents]        # Architect, Coder, QA, Research, etc.
 ├── core/                     # Core schemas, agents, governance
 │   ├── agents/               # AgentExecutorService, KernelRegistry, schemas
 │   ├── commands/             # Igor command parser, intent extraction
 │   ├── compliance/           # Audit logging, compliance reporting
 │   ├── governance/           # Approval engine, patterns, validation
 │   ├── kernel_wiring/        # 10 kernel wirings (master→packet_protocol)
+│   ├── observability/        # Five-tier observability system
 │   ├── schemas/              # Pydantic models, capabilities, tasks
 │   ├── testing/              # Test generation, execution, agent
 │   ├── tools/                # Tool graph, registry adapter
@@ -115,11 +130,17 @@ L9/
 │   ├── cursor-briefs/        # Cursor-generated analysis (52 files)
 │   ├── _GMP-Active/          # Active GMP prompts (14 files)
 │   └── _GMP-Complete/        # Executed GMPs (16 files)
-├── reports/                  # GMP execution reports (25 files)
+├── reports/                  # GMP execution reports (30+ files)
 ├── config/                   # Settings, agent configs, policies
 ├── .cursor/                  # Cursor rules & protocols
 └── workflow_state.md         # Active session state
 ```
+
+---
+
+## Architecture Decisions
+
+See [architecture_decisions.md](architecture_decisions.md) for documented architecture decisions.
 
 ---
 
@@ -232,6 +253,7 @@ docker compose logs -f l9-api
 | `core/compliance/` | Audit logging, compliance reporting | ✅ Production |
 | `core/testing/` | Test generation, recursive self-testing | ✅ Production |
 | `core/worldmodel/` | World model service, insight emission | ✅ Production |
+| `core/observability/` | Five-tier observability: tracing, failure detection, metrics, context strategies | ✅ Production |
 | `memory/` | PacketEnvelope, semantic search, insight extraction | ✅ Production |
 | `orchestrators/` | 7 orchestration patterns | ✅ Production |
 | `runtime/` | Kernel loader, task queue, WebSocket | ✅ Production |
@@ -274,6 +296,11 @@ psql $DATABASE_URL -f migrations/0009_feedback_and_effectiveness.sql
 | `LOG_LEVEL` | No | `INFO` | Logging level |
 | `SLACK_APP_ENABLED` | No | `false` | Enable Slack integration |
 | `L9_ENABLE_LEGACY_SLACK_ROUTER` | No | `true` | Use legacy Slack routing |
+| `L9_OBSERVABILITY` | No | `true` | Enable Five-Tier Observability system |
+| `OBS_ENABLED` | No | `true` | Observability subsystem enabled |
+| `OBS_SAMPLING_RATE` | No | `0.10` | Fraction of requests to sample (0.0-1.0) |
+| `OBS_EXPORTERS` | No | `console` | Exporters: console, file, substrate, datadog, honeycomb |
+| `OBS_SUBSTRATE_ENABLED` | No | `true` | Export spans to L9 Memory Substrate |
 
 ---
 
@@ -294,10 +321,10 @@ pytest tests/integration/ -v
 pytest tests/core/agents/ -v
 ```
 
-**Test Coverage (as of 2026-01-01):**
-- 54 integration tests passing
-- 119 test files total
-- Key test suites: closed_loop_learning (7), world_model (19), recursive_self_testing (20), compliance_audit (15)
+**Test Coverage (as of 2026-01-11):**
+- 54+ integration tests passing
+- 119+ test files total
+- Key test suites: closed_loop_learning (7), world_model (19), recursive_self_testing (20), compliance_audit (15), observability (32)
 
 ---
 
@@ -331,10 +358,18 @@ curl -sS http://127.0.0.1:8000/health | jq .
 
 | GMP | Description | Date |
 |-----|-------------|------|
-| GMP-16 | Closed-loop learning from approvals | 2026-01-01 |
-| GMP-18 | World model population and reasoning | 2026-01-01 |
-| GMP-19 | Recursive self-testing and validation | 2026-01-01 |
+| GMP-48 | Cursor + LangGraph + L9 Memory Integration | 2026-01-11 |
+| GMP-47 | Stub Elimination (Fail Loudly + Implement) | 2026-01-09 |
+| GMP-46 | OpenAI Tool Name Validation | 2026-01-08 |
+| GMP-45 | ToolInputSanitizer + ModuleRegistry | 2026-01-08 |
+| GMP-44 | Auto-Discovery Tool Capabilities | 2026-01-08 |
+| GMP-34 | EmbeddingProvider Default (stub → openai) | 2026-01-09 |
+| GMP-33 | CircuitBreaker Memory Wiring | 2026-01-09 |
+| GMP-32 | CircuitBreaker Integration | 2026-01-09 |
 | GMP-21 | Compliance audit trail and reporting | 2026-01-01 |
+| GMP-19 | Recursive self-testing and validation | 2026-01-01 |
+| GMP-18 | World model population and reasoning | 2026-01-01 |
+| GMP-16 | Closed-loop learning from approvals | 2026-01-01 |
 | GMP-11 | Igor command interface with intent extraction | 2026-01-01 |
 
 See [reports/](reports/) for detailed execution reports.
@@ -348,6 +383,7 @@ See [reports/](reports/) for detailed execution reports.
 | Go-Live Checklist | [docs/Go-Live.md](docs/Go-Live.md) | VPS deployment guide |
 | Roadmap | [docs/ROADMAP.md](docs/ROADMAP.md) | Development roadmap |
 | Memory Substrate | [memory/README.md](memory/README.md) | Memory system docs |
+| Observability | [core/observability/OBSERVABILITY.md](core/observability/OBSERVABILITY.md) | Five-tier observability system |
 | Kernel Loading | [private/kernels/00_system/Loading Instructions.md](private/kernels/00_system/Loading%20Instructions.md) | Kernel config |
 | GMP Reports | [reports/](reports/) | Execution reports (25 files) |
 | Cursor Briefs | [docs/cursor-briefs/](docs/cursor-briefs/) | Analysis briefs (52 files) |
@@ -358,6 +394,7 @@ See [reports/](reports/) for detailed execution reports.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.2.0 | 2026-01-11 | Cursor+LangGraph integration (GMP-48), Five-Tier Observability, Stub Elimination (GMP-47), CircuitBreaker (GMP-32/33), Tool improvements (GMP-44/45/46) |
 | 2.1.0 | 2026-01-01 | 4 HIGH GMPs (16,18,19,21), Emma Substrate 10X, Igor commands, 54 tests |
 | 2.0.0 | 2025-12-31 | Research Factory, SymPy integration, CodeGenAgent specs |
 | 1.1.0 | 2025-12-08 | Insight extraction, knowledge facts, world model integration |

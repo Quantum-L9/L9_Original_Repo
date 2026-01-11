@@ -1,0 +1,665 @@
+# ===========================================================
+# L9 MEMORY MODULE — CANONICAL SPEC v3.0
+# ============================================================
+#
+# PURPOSE
+#   Declarative source of truth for the L9 persistent memory system.
+#   This YAML DESCRIBES memory — it does not replace Python logic.
+#
+# GUARANTEES
+#   - Non-destructive: no existing files are overwritten
+#   - Binding-only: Cursor must wire this into existing modules
+#   - Persistent-agent compatible (NO session handoffs)
+#
+# SCOPE
+#   Applies to:
+#     memory/
+#       checkpoint_manager.py
+#       ingestion.py
+#       retrieval.py
+#       insight_extraction.py
+#       substrate_*.py
+#
+# ============================================================
+# memory_spec_v3.0.yaml — Future-Proof Memory Substrate for Persistent Agents at Boutique Scale
+
+schema:
+  name: l9-memory
+  version: "4.0"
+  mode: persistent-agent-boutique-scale
+  mutation_policy: bind_only
+  target_scale: 100-1000_users
+  design_philosophy: explainable_stateful_over_learned_stateless
+
+multi_tenancy:
+  enabled: true
+  isolation_model: workspace_scoped
+  hierarchy:
+    - tenant_id
+    - org_id
+    - workspace_id
+    - user_id
+  
+  rls_enforcement:
+    enabled: true
+    tables:
+      - packetstore
+      - semanticmemory
+      - memoryembeddings
+      - knowledgefacts
+      - reasoningtraces
+      - reflectionstore
+      - agent_checkpoints
+      - entityrelationships
+      - memory_summaries
+      - retrieval_performance_log
+    policy_type: tenant_isolation
+    session_variables:
+      - app.current_tenant_id
+      - app.current_user_id
+      - app.current_workspace_id
+  
+  cross_workspace_access:
+    allowed: false
+    exception_scopes:
+      - shared
+      - public
+  
+  data_deletion:
+    cascade_on_tenant_delete: true
+    cascade_on_user_delete: true
+    grace_period_days: 30
+    hard_delete_after_grace: true
+
+memory_layers:
+  semantic:
+    backend: postgres_pgvector
+    module: substrate_semantic.py
+    
+    responsibilities:
+      embedding_storage:
+        required_methods:
+          - "store_embedding(vector: List[float], metadata: dict, embedding_type: str) -> UUID"
+          - "recall_similar(query_vector: List[float], top_k: int, embedding_type: str) -> List[EmbeddingResult]"
+          - "batch_store_embeddings(embeddings: List[EmbeddingInput]) -> List[UUID]"
+      
+      semantic_recall:
+        required_methods:
+          - "hybrid_search(query: str, filters: dict, top_k: int) -> List[MemoryHit]"
+      
+      similarity_ranking:
+        required_methods:
+          - "rerank_by_relevance(hits: List[MemoryHit], context: dict) -> List[MemoryHit]"
+    
+    embedding:
+      models:
+        primary: text-embedding-3-small
+        fallback: text-embedding-ada-002
+        version_tracking: true
+      
+      chunking:
+        enabled: true
+        strategy: recursive_character_split
+        chunk_size: 1000
+        chunk_overlap: 200
+        respect_boundaries:
+          - sentence
+          - paragraph
+      
+      multi_resolution:
+        enabled: true
+        embedding_types:
+          - type: content
+            source: packet.payload
+            index: idx_embeddings_vector_content
+            description: Full content semantic embedding
+          
+          - type: entity
+            source: extracted_entities
+            index: idx_embeddings_vector_entity
+            description: Entity-focused embedding for graph alignment
+          
+          - type: summary
+            source: packet_summary
+            index: idx_embeddings_vector_summary
+            description: High-level summary embedding
+          
+          - type: reasoning
+            source: reasoning_block
+            index: idx_embeddings_vector_reasoning
+            description: Reasoning trace embedding for decision reconstruction
+      
+      lifecycle:
+        compute: async
+        refresh_policy: on_model_version_change
+        prune_policy: low_value_ttl
+        reembedding_strategy: incremental_backfill
+
+  structural:
+    backend: neo4j
+    module: substrate_graph.py
+    
+    responsibilities:
+      entity_graph:
+        required_methods:
+          - "upsert_entity(name: str, type: str, attrs: dict, workspace_id: UUID) -> str"
+          - "upsert_relationship(src: str, rel: str, tgt: str, confidence: float, source_packet: UUID) -> str"
+          - "get_entity(name: str, workspace_id: UUID) -> Entity"
+          - "update_entity_attributes(name: str, attrs: dict) -> None"
+      
+      relationship_traversal:
+        required_methods:
+          - "traverse(source: str, depth: int, relationship_types: List[str]) -> List[GraphEdge]"
+          - "find_path(source: str, target: str, max_depth: int) -> List[GraphPath]"
+          - "get_neighbors(entity: str, direction: str) -> List[Entity]"
+      
+      event_timeline:
+        required_methods:
+          - "get_temporal_events(entity: str, start: datetime, end: datetime) -> List[Event]"
+          - "get_event_sequence(entity: str, limit: int) -> List[Event]"
+    
+    node_types:
+      - User
+      - Agent
+      - Session
+      - Message
+      - Entity
+      - Event
+      - HyperEvent
+      - Decision
+      - Task
+      - Reflection
+    
+    relationship_types:
+      - CREATED_BY
+      - RELATED_TO
+      - DERIVED_FROM
+      - CONTRADICTS
+      - SUPPORTS
+      - TEMPORAL_NEXT
+      - CAUSED_BY
+      - REFERENCES
+
+  state:
+    backend: postgres
+    module: state_manager.py
+    
+    responsibilities:
+      agent_state:
+        required_methods:
+          - "get_agent_flags(agent_id: str) -> dict"
+          - "update_agent_state(agent_id: str, patch: dict) -> None"
+          - "reset_agent_state(agent_id: str, preserve: List[str]) -> None"
+      
+      long_term_flags:
+        required_methods:
+          - "set_flag(agent_id: str, flag_name: str, value: Any, ttl: Optional[int]) -> None"
+          - "get_flag(agent_id: str, flag_name: str) -> Any"
+          - "delete_flag(agent_id: str, flag_name: str) -> None"
+      
+      contradiction_tracking:
+        enabled: true
+        resolution_strategy: confidence_weighted
+        threshold_for_deprecation: 3
+        
+        required_methods:
+          - "record_contradiction(subject: str, predicate: str, conflicting_objects: List[str], source_packet: UUID)"
+          - "get_contradiction_count(subject: str, predicate: str) -> int"
+          - "resolve_contradiction(fact_id: UUID, resolution: str, resolved_by: str) -> None"
+          - "get_active_facts(subject: str, min_confidence: float) -> List[Fact]"
+          - "deprecate_fact(fact_id: UUID, reason: str) -> None"
+        
+        resolution_policies:
+          auto_deprecate:
+            enabled: true
+            threshold: 3
+          
+          confidence_decay:
+            enabled: true
+            decay_rate: 0.1
+          
+          alert_on_critical_contradiction:
+            enabled: true
+            criticality_threshold: 0.8
+
+  persistence:
+    backend: postgres
+    module: agent_persistence.py
+    
+    responsibilities:
+      checkpoint_management:
+        required_methods:
+          - "create_checkpoint(agent_id: str, state: dict, reason: str) -> UUID"
+          - "restore_checkpoint(agent_id: str, checkpoint_id: Optional[UUID]) -> dict"
+          - "list_checkpoints(agent_id: str, limit: int) -> List[Checkpoint]"
+          - "delete_old_checkpoints(agent_id: str, keep_last: int) -> int"
+      
+      state_serialization:
+        required_methods:
+          - "serialize_agent_state(agent: Any) -> dict"
+          - "deserialize_agent_state(state: dict) -> dict"
+          - "validate_checkpoint_integrity(checkpoint_id: UUID) -> bool"
+    
+    checkpoint_triggers:
+      - on_agent_shutdown
+      - on_session_boundary
+      - on_critical_decision
+      - scheduled_hourly
+    
+    retention_policy:
+      keep_last_n: 10
+      keep_daily_for_days: 30
+      keep_weekly_for_weeks: 12
+      keep_monthly_for_months: 6
+
+pipelines:
+  ingestion:
+    entrypoint: ingestion.py
+    stages:
+      - normalize_input
+      - persist_message
+      - trigger_checkpoint_if_critical
+      - enqueue_embedding
+      - enqueue_graph_sync
+    
+    contracts:
+      - must_call: semantic.store_embedding
+      - must_call: structural.upsert_entity
+      - must_call: structural.upsert_relationship
+      - must_emit: packet_ingested
+      - must_emit: embedding_stored
+      - must_emit: graph_enqueued
+      - must_emit: packet_store
+
+  extraction:
+    entrypoint: insight_extraction.py
+    outputs:
+      - entities
+      - topics
+      - decisions
+      - facts
+    
+    binding:
+      graph: substrate_graph.py
+      state: state_manager.py
+    
+    output_hooks:
+      - emit: facts_extracted
+        to: substrate_graph.upsert_relationship
+      - emit: entities_extracted
+        to: substrate_graph.upsert_entity
+      - emit: contradiction_detected
+        to: state_manager.record_contradiction
+
+  retrieval:
+    entrypoint: retrieval.py
+    strategy: adaptive_weighted
+    
+    query_classifier:
+      module: query_classifier.py
+      patterns:
+        - entity_lookup
+        - reasoning_trace
+        - temporal
+        - exploratory
+        - factual
+        - default
+    
+    bundle:
+      recent:
+        source: postgres
+        base_limit: 20
+        weight_range: [0.1, 0.6]
+      
+      semantic_hits:
+        source: pgvector
+        base_k: 10
+        weight_range: [0.2, 0.5]
+      
+      graph_context:
+        source: neo4j
+        base_depth: 2
+        weight_range: [0.1, 0.5]
+      
+      facts:
+        source: state_manager
+        weight_range: [0.1, 0.4]
+    
+    weight_override_policy: query_pattern_based
+    
+    telemetry:
+      log_table: retrieval_performance_log
+      track_metrics:
+        - was_useful
+        - relevance_score
+        - execution_time_ms
+        - result_count
+        - query_pattern
+    
+    contracts:
+      - must_call_one:
+          - semantic.recall_similar
+          - structural.traverse
+          - state.get_agent_flags
+      - must_log_access: true
+      - fallback_if_fail: recent
+      - must_emit: retrieval_performed
+
+  reasoning_replay:
+    entrypoint: reasoning_replay.py
+    
+    responsibilities:
+      chain_reconstruction:
+        required_methods:
+          - "reconstruct_chain(packet_id: UUID) -> ReasoningChain"
+          - "get_decision_ancestors(packet_id: UUID, max_depth: int) -> List[Packet]"
+          - "explain_decision(packet_id: UUID, format: str) -> str"
+      
+      lineage_validation:
+        required_methods:
+          - "verify_lineage_integrity(packet_id: UUID) -> bool"
+          - "detect_orphaned_packets(agent_id: str) -> List[UUID]"
+          - "repair_broken_lineage(packet_id: UUID) -> bool"
+    
+    contracts:
+      - must_traverse: PacketLineage.parent_ids
+      - must_return: full_decision_dag
+      - must_handle: cyclic_reference_detection
+      - must_emit: reasoning_chain_reconstructed
+    
+    output_formats:
+      - json
+      - narrative
+      - graph_viz
+      - mermaid
+    
+    max_depth: 50
+    timeout_seconds: 10
+
+  consolidation:
+    entrypoint: consolidation.py
+    schedule: weekly_saturday_2am_utc
+    
+    strategies:
+      deduplication:
+        enabled: true
+        similarity_threshold: 0.95
+        merge_policy: keep_highest_confidence
+        compare_fields:
+          - subject
+          - predicate
+          - object
+      
+      archival:
+        enabled: true
+        triggers:
+          - age_days: 90
+            access_count_lt: 3
+            importance_lt: 0.3
+        archive_backend: postgres_archive_table
+        compress_payload: true
+      
+      summarization:
+        enabled: true
+        triggers:
+          - access_count_gte: 10
+            has_summary: false
+        summary_backend: memory_summaries_table
+        generate_embedding: true
+      
+      ttl_expiration:
+        enabled: true
+        check_frequency: daily
+        grace_period_hours: 24
+        cascade_delete_embeddings: true
+    
+    contracts:
+      - must_log: consolidation_report
+      - must_preserve: high_importance_memories
+      - must_cascade_delete: embeddings_on_packet_delete
+      - must_emit: consolidation_completed
+    
+    dry_run_mode: false
+
+bus_events:
+  packet_ingested:
+    emitted_by: ingestion.persist_message
+    handlers:
+      - ingestion.enqueue_embedding
+      - ingestion.enqueue_graph_sync
+      - audit.log_packet_ingestion
+    delivery_guarantee: at_least_once
+
+  embedding_stored:
+    emitted_by: semantic.store_embedding
+    handlers:
+      - retrieval.invalidate_cache
+      - audit.log_embedding_storage
+    delivery_guarantee: at_least_once
+
+  graph_enqueued:
+    emitted_by: ingestion.enqueue_graph_sync
+    handlers:
+      - structural.process_graph_update
+    delivery_guarantee: at_least_once
+
+  packet_store:
+    emitted_by: ingestion.persist_message
+    handlers:
+      - audit.log_packet_store
+    delivery_guarantee: exactly_once
+
+  facts_extracted:
+    emitted_by: extraction.insight_extraction
+    handlers:
+      - structural.upsert_relationship
+      - state.update_contradiction_tracking
+      - semantic.embed_fact
+    delivery_guarantee: exactly_once
+
+  retrieval_performed:
+    emitted_by: retrieval.execute_retrieval
+    handlers:
+      - audit.log_memory_access
+      - consolidation.track_access_patterns
+    delivery_guarantee: best_effort
+
+  reflection_created:
+    emitted_by: reflection.store_reflection
+    handlers:
+      - semantic.embed_reflection
+      - audit.log_reflection_event
+      - structural.link_reflection_to_task
+    delivery_guarantee: at_least_once
+
+  checkpoint_created:
+    emitted_by: persistence.create_checkpoint
+    handlers:
+      - audit.log_checkpoint
+      - persistence.prune_old_checkpoints
+    delivery_guarantee: exactly_once
+
+  consolidation_completed:
+    emitted_by: consolidation.run_consolidation
+    handlers:
+      - audit.log_consolidation_report
+    delivery_guarantee: at_least_once
+
+  contradiction_detected:
+    emitted_by: extraction.insight_extraction
+    handlers:
+      - state.record_contradiction
+      - audit.log_contradiction
+      - state.evaluate_deprecation
+    delivery_guarantee: exactly_once
+
+  reasoning_chain_reconstructed:
+    emitted_by: reasoning_replay.reconstruct_chain
+    handlers:
+      - audit.log_reasoning_replay
+    delivery_guarantee: best_effort
+
+persistence_rules:
+  no_session_reset: true
+  overwrite_existing_records: false
+  idempotent_writes: true
+  workspace_isolation_enforced: true
+  cascade_deletes_on_tenant_removal: true
+
+audit:
+  access_logging:
+    enabled: true
+    required_tables:
+      - memory_access_log
+      - tool_audit_log
+      - retrieval_performance_log
+      - consolidation_audit_log
+      - checkpoint_audit_log
+  
+  traceability:
+    required_fields:
+      - agent_id
+      - project_id
+      - packet_id
+      - source
+      - tenant_id
+      - workspace_id
+      - user_id
+  
+  retention:
+    access_logs_days: 365
+    tool_logs_days: 730
+    retrieval_logs_days: 90
+    consolidation_logs_days: 180
+
+memory_scope:
+  - agent: cursor
+    read:
+      - semantic
+      - structural
+    write: []
+    required_scope: cursor
+    workspace_isolation: strict
+
+  - agent: system
+    read:
+      - semantic
+      - structural
+      - state
+      - persistence
+    write:
+      - semantic
+      - structural
+      - state
+      - persistence
+    required_scope: shared
+    workspace_isolation: relaxed
+
+  - agent: L
+    read:
+      - semantic
+      - structural
+      - state
+      - persistence
+    write:
+      - semantic
+      - structural
+      - state
+      - persistence
+    required_scope: l-private
+    workspace_isolation: none
+    can_access_all_workspaces: true
+
+validation:
+  required_modules_exist: true
+  forbid_duplicate_memory_stacks: true
+  canonical_path: memory/
+  enforce_interface_contracts: true
+  fail_on_missing_methods: true
+  validate_event_handlers_exist: true
+  validate_rls_policies_applied: true
+  validate_checkpoint_hooks_registered: true
+  validate_query_classifier_patterns: true
+
+schema_versioning:
+  enabled: true
+  enforced_fields:
+    - packet_store
+    - reflection_store
+    - agent_checkpoints
+    - retrieval_performance_log
+  migrate_on_mismatch: false
+  version_tracking_table: memory_schema_versions
+
+performance_contracts:
+  semantic_search:
+    max_latency_ms: 500
+    index_type: hnsw
+    index_params:
+      m: 16
+      ef_construction: 64
+      ef_search: 40
+
+  graph_traversal:
+    max_latency_ms: 1000
+    max_depth: 3
+    max_nodes_returned: 100
+    timeout_behavior: return_partial
+
+  packet_ingestion:
+    max_latency_ms: 200
+    async_processing:
+      - embedding
+      - graph_sync
+    sync_processing:
+      - persist_message
+
+  retrieval_bundle:
+    max_latency_ms: 1500
+    parallel_execution: true
+    timeout_policy: return_partial
+
+  checkpoint_creation:
+    max_latency_ms: 300
+    async_execution: true
+    block_agent_on_critical: false
+
+  consolidation:
+    max_runtime_minutes: 60
+    batch_size: 1000
+    sleep_between_batches_ms: 100
+
+  database_limits:
+    max_packets_per_agent: 1000000
+    max_embeddings_per_agent: 500000
+    max_checkpoints_per_agent: 100
+    partition_strategy: by_tenant_and_time
+
+feature_flags:
+  ENABLE_MULTI_RESOLUTION_EMBEDDINGS:
+    default: true
+    description: Enable content/entity/summary/reasoning embeddings
+
+  ENABLE_ADAPTIVE_RETRIEVAL:
+    default: true
+    description: Enable query pattern-based retrieval weighting
+
+  ENABLE_AUTO_CONSOLIDATION:
+    default: true
+    description: Enable weekly memory consolidation job
+
+  ENABLE_CONTRADICTION_AUTO_DEPRECATION:
+    default: true
+    description: Auto-deprecate facts with >3 contradictions
+
+  ENABLE_CHECKPOINT_ON_CRITICAL:
+    default: true
+    description: Auto-checkpoint on critical decisions
+
+  ENABLE_RLS_ENFORCEMENT:
+    default: true
+    description: Enforce row-level security policies
+
+  ENABLE_REASONING_REPLAY:
+    default: true
+    description: Enable reasoning chain reconstruction API

@@ -1,18 +1,5 @@
 # Entry Points
 
-_archived/archived_mcp_memory/src/main.py
-  Type: FastAPI
-  Title: L9 MCP Memory Server
-  Routes (5):
-    - GET /
-    - GET /health
-    - GET /mcp/tools
-    - POST /mcp/call
-    - ROUTER /memory/*
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-  Type: FastAPI
-  Routes (1):
-    - POST /events
 agents/research_agent.py
   Type: Script
   Has __main__ block: Yes
@@ -98,6 +85,16 @@ mac_agent/runner.py
 mac_agent/websocket_client.py
   Type: Script
   Has __main__ block: Yes
+mcp_memory/src/main.py
+  Type: FastAPI
+  Title: L9 MCP Memory Server
+  Routes (6):
+    - GET /
+    - GET /health
+    - GET /mcp/tools
+    - POST /mcp/call
+    - ROUTER /memory/*
+    - ROUTER /api/v1/memory/*
 orchestrators/agent_execution/orchestrator.py
   Type: Script
   Has __main__ block: Yes
@@ -117,6 +114,12 @@ scripts/audit/tier1/audit_code_integrity.py
   Type: Script
   Has __main__ block: Yes
 scripts/audit/tier1/audit_infrastructure_health.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit_graphs.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit_graphs_vps.py
   Type: Script
   Has __main__ block: Yes
 scripts/batch_generate_specs.py
@@ -149,6 +152,9 @@ scripts/load_gmp_reports_to_graph.py
 scripts/load_indexes_to_neo4j.py
   Type: Script
   Has __main__ block: Yes
+scripts/load_indexes_to_neo4j_vps.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/migrate_kernels_to_graph.py
   Type: Script
   Has __main__ block: Yes
@@ -159,6 +165,9 @@ scripts/neo4j_unify_relationships.py
   Type: Script
   Has __main__ block: Yes
 scripts/rename_l_to_l_cto.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/run_bootstrap_l_graph.py
   Type: Script
   Has __main__ block: Yes
 scripts/send_perplexity_spec_request.py

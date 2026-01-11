@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""
+check_embeddings_via_api.py - Check Embeddings via VPS API
+==========================================================
+
+Uses VPS memory API to inspect what embeddings contain.
+Safer than direct DB access.
+
+Usage:
+    python3 scripts/check_embeddings_via_api.py [--limit N]
+"""
+
+import os
+import sys
+import json
+import asyncio
+import httpx
+import structlog
+from dotenv import load_dotenv
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+load_dotenv()
+
+logger = structlog.get_logger(__name__)
+
+VPS_URL = os.getenv("VPS_MEMORY_URL", "https://157.180.73.53:9001")
+API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
+
+
+async def check_embeddings_via_search(limit: int = 20):
+    """Check embeddings by doing semantic searches and inspecting results."""
+    if not API_KEY:
+        logger.error("L9_EXECUTOR_API_KEY not set")
+        return
+    
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    }
+    
+    # Test queries to see what comes back
+    test_queries = [
+        "slack message",
+        "error",
+        "test",
+        "preference",
+        "decision",
+    ]
+    
+    print("\n" + "=" * 60)
+    print("CHECKING EMBEDDINGS VIA SEMANTIC SEARCH")
+    print("=" * 60)
+    
+    async with httpx.AsyncClient(verify=False, timeout=30.0) as client:
+        for query in test_queries:
+            print(f"\n🔍 Query: '{query}'")
+            print("-" * 60)
+            
+            try:
+                response = await client.post(
+                    f"{VPS_URL}/api/v1/memory/semantic/search",
+                    headers=headers,
+                    json={
+                        "query": query,
+                        "top_k": 5,
+                        "min_score": 0.3,  # Lower threshold to see more
+                    },
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    hits = result.get("hits", [])
+                    print(f"  Found {len(hits)} results")
+                    
+                    for i, hit in enumerate(hits[:3], 1):
+                        payload = hit.get("payload", {})
+                        score = hit.get("score", 0)
+                        text = (
+                            payload.get("_text") or
+                            payload.get("text") or
+                            payload.get("content") or
+                            str(payload)[:200]
+                        )
+                        
+                        print(f"\n  [{i}] Score: {score:.3f}")
+                        print(f"      Type: {payload.get('type', 'unknown')}")
+                        print(f"      Agent: {payload.get('agent_id', 'unknown')}")
+                        print(f"      Text: {text[:150]}...")
+                else:
+                    print(f"  ❌ Error: {response.status_code} - {response.text[:200]}")
+            
+            except Exception as e:
+                print(f"  ❌ Exception: {e}")
+    
+    print("\n" + "=" * 60)
+    print("SUMMARY")
+    print("=" * 60)
+    print("\nIf you see:")
+    print("  - Empty/error messages → Trash embeddings from Slack glitch")
+    print("  - Meaningful content → Embeddings are valid")
+    print("  - Very short text (< 20 chars) → Likely noise")
+    print("  - JSON dumps → Unstructured data got embedded")
+    print("\n")
+
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Check embeddings via VPS API")
+    parser.add_argument("--limit", type=int, default=20, help="Number of results per query")
+    
+    args = parser.parse_args()
+    
+    asyncio.run(check_embeddings_via_search(limit=args.limit))
+

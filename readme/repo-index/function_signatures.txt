@@ -1,84 +1,3 @@
-_archived/archived_mcp_memory/src/main.py::__init__(self, caller_id, user_id) - 
-_archived/archived_mcp_memory/src/main.py::check_auth_block(ip) - Check if IP is blocked due to failed aut
-_archived/archived_mcp_memory/src/main.py::check_rate_limit(ip) - Check if IP has exceeded rate limit. Rai
-_archived/archived_mcp_memory/src/main.py::creator(self) - Metadata creator value for this caller.
-_archived/archived_mcp_memory/src/main.py::get_client_ip(request) - Get client IP, respecting X-Forwarded-Fo
-_archived/archived_mcp_memory/src/main.py::record_failed_auth(ip) - Record a failed authentication attempt.
-_archived/archived_mcp_memory/src/main.py::source(self) - Metadata source value for this caller.
-_archived/archived_mcp_memory/src/mcp_server.py::get_mcp_tools() - 
-_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::event_loop() - Provide event loop for async tests.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::mock_substrate_service(mock_write_result) - Canonical mock of MemorySubstrateService
-_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::mock_write_result() - Create a mock PacketWriteResult.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::pytest_configure(config) - Register custom pytest markers.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::slack_signing_secret() - Slack app signing secret for tests.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::slack_workspace_id() - Slack workspace identifier.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::__init__(self, signing_secret) - Initialize with Slack app signing secret
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::__init__(self, signing_secret, substrate_service, workspace_id) - Initialize adapter.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::__init__(self, substrate_service) - Initialize with substrate service.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::__init__(self, workspace_id) - Initialize normalizer.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::create_slack_router(substrate_service, signing_secret, workspace_id) - Create FastAPI router for Slack webhook.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::generate_thread_uuid(self, team_id, channel_id, thread_ts) - Generate deterministic UUIDv5 for thread
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::parse_event_callback(self, payload) - Parse Slack event_callback to normalized
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::verify(self, timestamp, body, signature) - Verify request signature.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::mock_substrate_service() - Mock MemorySubstrateService.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::signing_secret() - Slack app signing secret for testing.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::slack_adapter(signing_secret, mock_substrate_service) - Create adapter instance with mocked subs
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_generate_thread_uuid_deterministic(self) - Generated thread UUID is deterministic.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_generate_thread_uuid_different_for_different_inputs(self) - Different inputs generate different UUID
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_parse_app_mention_event(self) - Parse valid app_mention event.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_parse_message_event(self) - Parse valid message event.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_parse_unsupported_event(self) - Unsupported event type returns None.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_verify_invalid_signature(self, signing_secret) - Invalid signature fails verification.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_verify_invalid_timestamp_format(self, signing_secret) - Invalid timestamp format fails gracefull
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_verify_stale_timestamp(self, signing_secret) - Stale timestamp (>5 min) fails verificat
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_verify_valid_signature(self, signing_secret) - Valid signature passes verification.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::__init__(self) - Initialize in-memory storage.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::mock_substrate() - In-memory MockSubstrateService for integ
-_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::slack_adapter_with_mock_substrate(mock_substrate) - Create adapter with MockSubstrateService
-_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::__init__(self, substrate_service, aios_runtime_client, memory_service_client) - Initialize adapter with dependencies.
-_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::_get_dedupe_key(self, request) - Generate deduplication key from request.
-_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::_get_thread_key(self, request) - Generate deterministic thread key from r
-_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py::__init__(self, config) - Initialize client with configuration.
-_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py::_get_headers(self) - Get request headers.
-_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::adapter(mock_substrate_service) - Create adapter instance.
-_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::mock_substrate_service() - Mock substrate service.
-_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::sample_context() - Create sample context.
-_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::sample_request() - Create sample request.
-_archived/legacy_slack/test_webhook_slack.py::create_test_app(slack_enabled, signing_secret) - Create a minimal FastAPI app with webhoo
-_archived/legacy_slack/test_webhook_slack.py::fresh_timestamp() - Return current Unix timestamp as string.
-_archived/legacy_slack/test_webhook_slack.py::generate_slack_signature(body, timestamp, secret) - Generate valid Slack HMAC-SHA256 signatu
-_archived/legacy_slack/test_webhook_slack.py::stale_timestamp() - Return timestamp > 300 seconds old (outs
-_archived/legacy_slack/test_webhook_slack.py::test_cache_clear(self) - Cache clear should remove all entries.
-_archived/legacy_slack/test_webhook_slack.py::test_cache_handles_empty_event_id(self) - Empty event_id should return False (can'
-_archived/legacy_slack/test_webhook_slack.py::test_cache_marks_first_occurrence_as_new(self) - First occurrence of event_id should retu
-_archived/legacy_slack/test_webhook_slack.py::test_cache_marks_second_occurrence_as_duplicate(self) - Second occurrence of same event_id shoul
-_archived/legacy_slack/test_webhook_slack.py::test_cache_respects_max_size(self) - Cache should evict oldest entries when m
-_archived/legacy_slack/test_webhook_slack.py::test_commands_disabled_returns_503(self) - When SLACK_APP_ENABLED=false, returns HT
-_archived/legacy_slack/test_webhook_slack.py::test_commands_do_subcommand(self) - POST /slack/commands with 'do' subcomman
-_archived/legacy_slack/test_webhook_slack.py::test_commands_email_search(self) - POST /slack/commands with 'email search'
-_archived/legacy_slack/test_webhook_slack.py::test_commands_unknown_returns_help(self) - Unknown subcommand returns help text.
-_archived/legacy_slack/test_webhook_slack.py::test_different_event_ids_both_processed(self) - Different event_ids should both be proce
-_archived/legacy_slack/test_webhook_slack.py::test_duplicate_event_ignored(self) - Same event_id sent twice should only be 
-_archived/legacy_slack/test_webhook_slack.py::test_events_app_mention_l_agent_router(self) - App mention with L-agent router calls ha
-_archived/legacy_slack/test_webhook_slack.py::test_events_app_mention_legacy_router(self) - App mention with legacy router calls sla
-_archived/legacy_slack/test_webhook_slack.py::test_events_bad_signature_returns_403(self) - Invalid HMAC signature returns HTTP 403.
-_archived/legacy_slack/test_webhook_slack.py::test_events_bot_message_ignored(self) - Bot messages (subtype=bot_message) are i
-_archived/legacy_slack/test_webhook_slack.py::test_events_disabled_returns_503(self) - When SLACK_APP_ENABLED=false, returns HT
-_archived/legacy_slack/test_webhook_slack.py::test_events_mac_command(self) - Message starting with !mac enqueues Mac 
-_archived/legacy_slack/test_webhook_slack.py::test_events_url_verification(self) - URL verification challenge is echoed bac
-_archived/legacy_slack/test_webhook_slack.py::test_ignores_bot_id_field(self) - Messages with bot_id field should be ign
-_archived/legacy_slack/test_webhook_slack.py::test_ignores_bot_message_subtype(self) - Messages with subtype=bot_message should
-_archived/legacy_slack/test_webhook_slack.py::test_ignores_own_user_id(self) - Messages from L's own user ID should be 
-_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_invalid_hash(self) - Invalid hash returns False.
-_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_missing_signature(self) - Empty or None signature returns False.
-_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_missing_timestamp(self) - Empty or None timestamp returns False.
-_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_no_secret(self) - Missing signing_secret returns False.
-_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_stale_timestamp(self) - Timestamp > 300 seconds old returns Fals
-_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_valid(self) - Valid signature with fresh timestamp ret
-_archived/legacy_slack/webhook_slack.py::__init__(self, max_size, ttl_seconds) - 
-_archived/legacy_slack/webhook_slack.py::clear(self) - Clear the cache (for testing).
-_archived/legacy_slack/webhook_slack.py::is_duplicate(self, event_id) - Check if event_id was recently processed
-_archived/legacy_slack/webhook_slack.py::verify_slack_signature(body, timestamp, signature, signing_secret) - Verify Slack request signature.
 agents/architect_agent_a.py::__init__(self, agent_id, config) - Initialize Architect Agent A.
 agents/architect_agent_a.py::get_system_prompt(self) - Get the system prompt.
 agents/architect_agent_b.py::__init__(self, agent_id, config) - Initialize Architect Agent B.
@@ -1437,6 +1356,79 @@ dev/tools/global_state_audit.py::generic_visit(self, node) -
 dev/tools/global_state_audit.py::iter_python_files() - 
 dev/tools/global_state_audit.py::main() - 
 dev/tools/global_state_audit.py::visit_Assign(self, node) - 
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::event_loop() - Provide event loop for async tests.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::mock_substrate_service(mock_write_result) - Canonical mock of MemorySubstrateService
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::mock_write_result() - Create a mock PacketWriteResult.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::pytest_configure(config) - Register custom pytest markers.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::slack_signing_secret() - Slack app signing secret for tests.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::slack_workspace_id() - Slack workspace identifier.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::__init__(self, signing_secret) - Initialize with Slack app signing secret
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::__init__(self, signing_secret, substrate_service, workspace_id) - Initialize adapter.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::__init__(self, substrate_service) - Initialize with substrate service.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::__init__(self, workspace_id) - Initialize normalizer.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::create_slack_router(substrate_service, signing_secret, workspace_id) - Create FastAPI router for Slack webhook.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::generate_thread_uuid(self, team_id, channel_id, thread_ts) - Generate deterministic UUIDv5 for thread
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::parse_event_callback(self, payload) - Parse Slack event_callback to normalized
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::verify(self, timestamp, body, signature) - Verify request signature.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::mock_substrate_service() - Mock MemorySubstrateService.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::signing_secret() - Slack app signing secret for testing.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::slack_adapter(signing_secret, mock_substrate_service) - Create adapter instance with mocked subs
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_generate_thread_uuid_deterministic(self) - Generated thread UUID is deterministic.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_generate_thread_uuid_different_for_different_inputs(self) - Different inputs generate different UUID
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_parse_app_mention_event(self) - Parse valid app_mention event.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_parse_message_event(self) - Parse valid message event.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_parse_unsupported_event(self) - Unsupported event type returns None.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_verify_invalid_signature(self, signing_secret) - Invalid signature fails verification.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_verify_invalid_timestamp_format(self, signing_secret) - Invalid timestamp format fails gracefull
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_verify_stale_timestamp(self, signing_secret) - Stale timestamp (>5 min) fails verificat
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::test_verify_valid_signature(self, signing_secret) - Valid signature passes verification.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::__init__(self) - Initialize in-memory storage.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::mock_substrate() - In-memory MockSubstrateService for integ
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::slack_adapter_with_mock_substrate(mock_substrate) - Create adapter with MockSubstrateService
+docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::__init__(self, substrate_service, aios_runtime_client, memory_service_client) - Initialize adapter with dependencies.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::_get_dedupe_key(self, request) - Generate deduplication key from request.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::_get_thread_key(self, request) - Generate deterministic thread key from r
+docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py::__init__(self, config) - Initialize client with configuration.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py::_get_headers(self) - Get request headers.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::adapter(mock_substrate_service) - Create adapter instance.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::mock_substrate_service() - Mock substrate service.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::sample_context() - Create sample context.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::sample_request() - Create sample request.
+docs/_archived/legacy_slack/test_webhook_slack.py::create_test_app(slack_enabled, signing_secret) - Create a minimal FastAPI app with webhoo
+docs/_archived/legacy_slack/test_webhook_slack.py::fresh_timestamp() - Return current Unix timestamp as string.
+docs/_archived/legacy_slack/test_webhook_slack.py::generate_slack_signature(body, timestamp, secret) - Generate valid Slack HMAC-SHA256 signatu
+docs/_archived/legacy_slack/test_webhook_slack.py::stale_timestamp() - Return timestamp > 300 seconds old (outs
+docs/_archived/legacy_slack/test_webhook_slack.py::test_cache_clear(self) - Cache clear should remove all entries.
+docs/_archived/legacy_slack/test_webhook_slack.py::test_cache_handles_empty_event_id(self) - Empty event_id should return False (can'
+docs/_archived/legacy_slack/test_webhook_slack.py::test_cache_marks_first_occurrence_as_new(self) - First occurrence of event_id should retu
+docs/_archived/legacy_slack/test_webhook_slack.py::test_cache_marks_second_occurrence_as_duplicate(self) - Second occurrence of same event_id shoul
+docs/_archived/legacy_slack/test_webhook_slack.py::test_cache_respects_max_size(self) - Cache should evict oldest entries when m
+docs/_archived/legacy_slack/test_webhook_slack.py::test_commands_disabled_returns_503(self) - When SLACK_APP_ENABLED=false, returns HT
+docs/_archived/legacy_slack/test_webhook_slack.py::test_commands_do_subcommand(self) - POST /slack/commands with 'do' subcomman
+docs/_archived/legacy_slack/test_webhook_slack.py::test_commands_email_search(self) - POST /slack/commands with 'email search'
+docs/_archived/legacy_slack/test_webhook_slack.py::test_commands_unknown_returns_help(self) - Unknown subcommand returns help text.
+docs/_archived/legacy_slack/test_webhook_slack.py::test_different_event_ids_both_processed(self) - Different event_ids should both be proce
+docs/_archived/legacy_slack/test_webhook_slack.py::test_duplicate_event_ignored(self) - Same event_id sent twice should only be 
+docs/_archived/legacy_slack/test_webhook_slack.py::test_events_app_mention_l_agent_router(self) - App mention with L-agent router calls ha
+docs/_archived/legacy_slack/test_webhook_slack.py::test_events_app_mention_legacy_router(self) - App mention with legacy router calls sla
+docs/_archived/legacy_slack/test_webhook_slack.py::test_events_bad_signature_returns_403(self) - Invalid HMAC signature returns HTTP 403.
+docs/_archived/legacy_slack/test_webhook_slack.py::test_events_bot_message_ignored(self) - Bot messages (subtype=bot_message) are i
+docs/_archived/legacy_slack/test_webhook_slack.py::test_events_disabled_returns_503(self) - When SLACK_APP_ENABLED=false, returns HT
+docs/_archived/legacy_slack/test_webhook_slack.py::test_events_mac_command(self) - Message starting with !mac enqueues Mac 
+docs/_archived/legacy_slack/test_webhook_slack.py::test_events_url_verification(self) - URL verification challenge is echoed bac
+docs/_archived/legacy_slack/test_webhook_slack.py::test_ignores_bot_id_field(self) - Messages with bot_id field should be ign
+docs/_archived/legacy_slack/test_webhook_slack.py::test_ignores_bot_message_subtype(self) - Messages with subtype=bot_message should
+docs/_archived/legacy_slack/test_webhook_slack.py::test_ignores_own_user_id(self) - Messages from L's own user ID should be 
+docs/_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_invalid_hash(self) - Invalid hash returns False.
+docs/_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_missing_signature(self) - Empty or None signature returns False.
+docs/_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_missing_timestamp(self) - Empty or None timestamp returns False.
+docs/_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_no_secret(self) - Missing signing_secret returns False.
+docs/_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_stale_timestamp(self) - Timestamp > 300 seconds old returns Fals
+docs/_archived/legacy_slack/test_webhook_slack.py::test_verify_signature_valid(self) - Valid signature with fresh timestamp ret
+docs/_archived/legacy_slack/webhook_slack.py::__init__(self, max_size, ttl_seconds) - 
+docs/_archived/legacy_slack/webhook_slack.py::clear(self) - Clear the cache (for testing).
+docs/_archived/legacy_slack/webhook_slack.py::is_duplicate(self, event_id) - Check if event_id was recently processed
+docs/_archived/legacy_slack/webhook_slack.py::verify_slack_signature(body, timestamp, signature, signing_secret) - Verify Slack request signature.
 email_agent/client.py::execute_email_task(task) - Execute an email task from Mac Agent run
 email_agent/config.py::ensure_dirs() - Ensure all required directories exist.
 email_agent/credentials.py::create_flow(redirect_uri) - Create OAuth2 flow for Gmail authenticat
@@ -1502,6 +1494,68 @@ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/agent_q_strategy_
 igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/agent_q_strategy_selector.py::learn_from_execution(self, strategy_id, outcome) - 
 igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/rafa_adapter_interface.py::adapt_strategy(strategy_graph, current_context, adaptation_budget) - 
 igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_feedback_updater.py::update_strategy_after_execution(strategy_id, outcome, execution_time) - 
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::__init__(self) - Initialize assembler
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::_add_execution_order(self, agenda) - Add execution order metadata to tasks
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::_estimate_duration(self, task) - Estimate task duration (placeholder logi
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::_resolve_dependencies(self, agenda) - Resolve task dependencies and reorder if
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::assemble_agenda(self, tasks, raw_input, metadata) - Assemble tasks into an agenda
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::filter_by_priority(self, agenda, min_priority) - Filter agenda to only include tasks at o
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::get_execution_plan(self, agenda) - Generate execution plan from agenda
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::merge_agendas(self, agendas) - Merge multiple agendas into one
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::split_by_module(self, agenda) - Split agenda into separate agendas by mo
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::visit(task) - 
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::__init__(self, rules) - Initialize classifier with optional rule
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::_classify_intent(self, text) - Determine task intent from text
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::_classify_module(self, text, intent) - Determine target module from text and in
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::_classify_priority(self, text, context) - Determine task priority
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::_default_rules(self) - Default classification rules
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::_extract_params(self, tokens, text) - Extract parameters from tokens
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::classify(self, tokens, context) - Classify tokens into a Task object
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::classify_batch(self, token_groups, context) - Classify multiple token groups into task
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::__len__(self) - 
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::__repr__(self) - 
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::__repr__(self) - 
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::add_task(self, task) - Add a task to the agenda
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::from_json(cls, data) - Create agenda from JSON dict
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::from_json(cls, data) - Create task from JSON dict
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::get_by_module(self, module) - Get all tasks for a specific module
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::is_valid(self) - Check if task has minimum required field
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::sort_by_priority(self) - Sort tasks by priority (critical > high 
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::to_json(self) - Convert agenda to JSON-serializable dict
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::to_json(self) - Convert task to JSON-serializable dict
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::run_all_tests() - Run all tokenizer tests
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_agenda_creation() - Test full agenda creation
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_basic_tokenization() - Test basic single-task tokenization
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_conditional_instructions() - Test conditional instruction processing
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_json_serialization() - Test task JSON serialization
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_malformed_input_recovery() - Test recovery from malformed input
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_multi_task_directive() - Test multi-task directive parsing
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_nested_instructions() - Test nested instruction handling
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_parameter_extraction() - Test parameter extraction from input
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_priority_assignment() - Test priority keyword detection
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_safety_forbidden_actions() - Test safety validation for forbidden act
+igor/01-09-2025/tokenizer/core/tokenizer/tests/test_tokenizer.py::test_task_validation() - Test task validation logic
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::__init__(self, rules_path, safety_rules, log_path) - Initialize tokenizer
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::_load_rules(self, rules_path) - Load classification rules from JSON file
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::_normalize(self, segment) - Normalize a segment
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::_segment(self, input_text) - Segment input into atomic directive unit
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::_setup_logging(self) - Setup directive logging
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::_tokenize_segment(self, segment) - Split segment into tokens
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::create_agenda(self, input_text, context) - Create a full agenda from input
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::expand_ambiguous(self, input_text) - Auto-expand ambiguous tasks using infere
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::get_stats(self) - Get tokenizer statistics
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::process_conditional(self, input_text) - Process conditional instructions (if x t
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::tokenize(self, input_text, context) - Main tokenization entry point
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::__init__(self, safety_rules) - Initialize validator with optional safet
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::_check_completeness(self, task) - Check if task has all required fields
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::_check_module_target(self, task) - Check if module target is valid
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::_check_required_params(self, task) - Check if task has required parameters fo
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::_check_safety(self, task) - Check if task violates safety rules
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::_default_safety_rules(self) - Default safety rules
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::check_conflicts(self, tasks) - Check for conflicts between tasks in an 
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::get_validation_report(self, task) - Get detailed validation report for a tas
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::validate(self, task) - Validate a single task
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::validate_batch(self, tasks) - Validate multiple tasks
 igor/audit-memory/api_memory_router.py::get_memory_orchestrator(request) - Get MemoryOrchestrator from app.state.
 igor/audit-memory/config_memory_substrate_settings.py::get_settings() - Get or create settings singleton.
 igor/audit-memory/config_memory_substrate_settings.py::reset_settings() - Reset settings (useful for testing).
@@ -2007,6 +2061,15 @@ mac_agent/websocket_client.py::on_connect(self, callback) - Register callback fo
 mac_agent/websocket_client.py::on_disconnect(self, callback) - Register callback for disconnection even
 mac_agent/websocket_client.py::on_task(self, callback) - Register callback for task events.
 mac_agent/websocket_client.py::running_count(self) - Number of currently running tasks.
+mcp_memory/src/main.py::__init__(self, caller_id, user_id) - 
+mcp_memory/src/main.py::check_auth_block(ip) - Check if IP is blocked due to failed aut
+mcp_memory/src/main.py::check_rate_limit(ip) - Check if IP has exceeded rate limit. Rai
+mcp_memory/src/main.py::creator(self) - Metadata creator value for this caller.
+mcp_memory/src/main.py::get_client_ip(request) - Get client IP, respecting X-Forwarded-Fo
+mcp_memory/src/main.py::record_failed_auth(ip) - Record a failed authentication attempt.
+mcp_memory/src/main.py::source(self) - Metadata source value for this caller.
+mcp_memory/src/routes/memory_unified.py::map_db_scope_to_mcp_scope(db_scope) - Reverse mapping: DB scope → MCP scope.
+mcp_memory/src/routes/memory_unified.py::map_mcp_scope_to_db_scope(mcp_scope) - Map MCP governance scopes to DB scope va
 memory/checkpoint_manager.py::__init__(self, service) - 
 memory/extractor/agent_config_extractor.py::extract(self, input_path, output_root) - Extract agent configuration from input.
 memory/extractor/agent_config_extractor.py::extract_config(self, content, mode) - Extract configuration based on mode.
@@ -2485,6 +2548,8 @@ scripts/audit/tier1/audit_infrastructure_health.py::compute_startup_order(depend
 scripts/audit/tier1/audit_infrastructure_health.py::generate_report(health_checks, config_validations, dependency_checks, startup_sequence) - Generate complete infrastructure report.
 scripts/audit/tier1/audit_infrastructure_health.py::validate_config() - Validate environment configuration.
 scripts/audit/tier1/audit_infrastructure_health.py::verify_dependency_dag() - Verify dependency graph and startup orde
+scripts/audit_graphs.py::print_audit_report(results) - Print formatted audit report.
+scripts/audit_graphs_vps.py::print_report(results) - Print formatted report.
 scripts/batch_generate_specs.py::__init__(self, config) - 
 scripts/batch_generate_specs.py::__init__(self, config) - 
 scripts/batch_generate_specs.py::__init__(self, rate_per_minute) - 
@@ -2525,6 +2590,8 @@ scripts/load_indexes_to_neo4j.py::load_pydantic_models(self) - Load Pydantic mod
 scripts/load_indexes_to_neo4j.py::load_route_handlers(self) - Load API route handlers.
 scripts/load_indexes_to_neo4j.py::main() - 
 scripts/load_indexes_to_neo4j.py::print_summary(self) - Print loading summary.
+scripts/load_indexes_to_neo4j_vps.py::__init__(self, dry_run, verbose) - 
+scripts/load_indexes_to_neo4j_vps.py::print_summary(self) - Print loading summary.
 scripts/rename_l_to_l_cto.py::main() - Main entry point.
 scripts/rename_l_to_l_cto.py::process_directory(directory, dry_run) - Process all files in a directory.
 scripts/rename_l_to_l_cto.py::replace_in_file(filepath, dry_run) - Replace patterns in a single file.

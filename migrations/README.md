@@ -26,6 +26,10 @@ Apply migrations **in order**. Each builds on the previous.
 | 6 | `0006_init_world_model_updates.sql` | World model audit log | world_model_updates |
 | 7 | `0007_init_world_model_snapshots.sql` | World model snapshots | world_model_snapshots |
 | 8 | `0008_memory_substrate_10x.sql` | 10X upgrade + multi-tenant | 6 new + extensions |
+| 9 | `0009_feedback_and_effectiveness.sql` | Feedback loop + effectiveness | feedback_events + enhancements |
+| 10 | `0011_tool_audit_log.sql` | Tool execution audit | tool_audit_log |
+| 11 | `0012_fix_graph_checkpoints_unique.sql` | Fix unique constraint | (fixes graph_checkpoints) |
+| 12 | `0013_mcp_audit_columns.sql` | MCP audit governance | (extends tool_audit_log) |
 
 ---
 
@@ -167,7 +171,8 @@ New columns:
 ### 0008_memory_substrate_10x.sql (10X Upgrade + Multi-Tenant)
 
 **Version:** 2.1.0  
-**Extensions Required:** `uuid-ossp`, `vector`, `pgcrypto`
+**Extensions Required:** `uuid-ossp`, `vector`, `pgcrypto`  
+**Dependencies:** 0001-0007 must be applied first
 
 This is the major upgrade migration that adds:
 
@@ -267,14 +272,22 @@ psql -U l9_user -d l9 -f migrations/0005_init_knowledge_facts.sql
 psql -U l9_user -d l9 -f migrations/0006_init_world_model_updates.sql
 psql -U l9_user -d l9 -f migrations/0007_init_world_model_snapshots.sql
 psql -U l9_user -d l9 -f migrations/0008_memory_substrate_10x.sql
+psql -U l9_user -d l9 -f migrations/0009_feedback_and_effectiveness.sql
+psql -U l9_user -d l9 -f migrations/0011_tool_audit_log.sql
+psql -U l9_user -d l9 -f migrations/0012_fix_graph_checkpoints_unique.sql
+psql -U l9_user -d l9 -f migrations/0013_mcp_audit_columns.sql
 ```
 
 ### Upgrade from Existing
 
-If you already have 0001-0007, just run:
+If you already have 0001-0007, run:
 
 ```bash
 psql -U l9_user -d l9 -f migrations/0008_memory_substrate_10x.sql
+psql -U l9_user -d l9 -f migrations/0009_feedback_and_effectiveness.sql
+psql -U l9_user -d l9 -f migrations/0011_tool_audit_log.sql
+psql -U l9_user -d l9 -f migrations/0012_fix_graph_checkpoints_unique.sql
+psql -U l9_user -d l9 -f migrations/0013_mcp_audit_columns.sql
 ```
 
 ---
@@ -369,10 +382,95 @@ After all migrations:
 | Knowledge | 2 (knowledge_facts, entity_relationships) |
 | Reflection | 2 (reflection_store, task_reflections) |
 | Intelligence | 2 (memory_embeddings, memory_summaries) |
-| Operations | 2 (tasks, memory_access_log) |
-| **Total** | **21 tables** |
+| Operations | 3 (tasks, memory_access_log, tool_audit_log) |
+| Feedback | 1 (feedback_events) |
+| **Total** | **22 tables** |
 
 ---
 
-*Last updated: 2026-01-01*
+### 0009_feedback_and_effectiveness.sql (Feedback Loop)
+
+**Version:** 1.0.0  
+**Dependencies:** 0008_memory_substrate_10x.sql must be applied first
+
+Adds Emma's feedback loop patterns:
+
+| Table/Enhancement | Purpose |
+|-------------------|---------|
+| `feedback_events` | Structured feedback from users on agent outputs |
+| `reflection_store` enhancements | Effectiveness tracking (success_count, failure_count, effectiveness_score, times_applied) |
+
+**Key Features:**
+- Feedback types: positive, negative, correction, preference, question, clarification
+- Sentiment scoring (-1.0 to 1.0)
+- Links to packets, reflections, tasks
+- Processing status and derived reflections
+- Multi-tenant support
+
+---
+
+### 0011_tool_audit_log.sql (Tool Execution Audit)
+
+**Version:** 1.0.0  
+**Dependencies:** None (standalone table)
+
+Tracks all tool executions with cost and performance metrics:
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `id` | BIGSERIAL | Primary key |
+| `tool_name` | VARCHAR(255) | Tool identifier |
+| `agent_id` | VARCHAR(255) | Agent that executed tool |
+| `input_data` | JSONB | Tool input |
+| `output_data` | JSONB | Tool output |
+| `duration_ms` | FLOAT | Execution time |
+| `tokens_used` | INT | Token consumption |
+| `cost_usd` | FLOAT | Cost in USD |
+| `error` | TEXT | Error message if failed |
+| `timestamp` | TIMESTAMPTZ | Execution time |
+| `request_id` | UUID | Request correlation |
+
+**Key Indexes:**
+- Agent + timestamp for agent activity queries
+- Tool + timestamp for tool usage analytics
+- Request ID for request tracing
+
+---
+
+### 0012_fix_graph_checkpoints_unique.sql (Schema Fix)
+
+**Version:** 1.0.0  
+**Dependencies:** 0001_init_memory_substrate.sql
+
+Fixes missing UNIQUE constraint on `graph_checkpoints.agent_id` required for checkpoint upsert operations.
+
+**Idempotent:** Safe to run multiple times.
+
+---
+
+### 0013_mcp_audit_columns.sql (MCP Governance Audit)
+
+**Version:** 1.0.0  
+**Dependencies:** 0011_tool_audit_log.sql must be applied first
+
+Adds governance columns to `tool_audit_log` for MCP memory server audit:
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `caller` | TEXT | Caller identity: "L" (L-CTO kernel) or "C" (Cursor IDE) |
+| `project_id` | TEXT | Project identifier: "l9" for L9 repo, NULL for global scope |
+
+**Key Indexes:**
+- Caller + timestamp for governance queries
+- Project + timestamp for multi-project isolation
+- Composite (caller, project_id, timestamp) for governance audit
+
+**Usage:**
+- MCP server logs all tool calls to `tool_audit_log` with caller/project_id
+- Replaces deprecated `memory.audit_log` from old MCP schema
+- Enables governance tracking and multi-project isolation
+
+---
+
+*Last updated: 2026-01-09*
 

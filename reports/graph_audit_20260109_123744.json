@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-01-09T12:37:41.888057",
+  "postgresql": {
+    "error": "[Errno 8] nodename nor servname provided, or not known"
+  },
+  "neo4j": {
+    "error": "Neo4j not available"
+  },
+  "world_model": {
+    "error": "[Errno 8] nodename nor servname provided, or not known",
+    "note": "World Model tables may not exist"
+  }
+}

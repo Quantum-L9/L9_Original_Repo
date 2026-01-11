@@ -1,6 +1,7 @@
 ================================================================================
                     L9 MEMORY SUBSTRATE - SCHEMA DIAGRAM
-                              Version 2.1.0
+                              Version 2.2.0
+                         (Updated: 2026-01-09)
 ================================================================================
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -210,6 +211,12 @@
 │  access_count          │ INT           │ Times accessed                     │
 │  vector                │ VECTOR(1536)  │ Semantic search embedding          │
 │  expires_at            │ TIMESTAMPTZ   │ Optional expiration                │
+├─ v1.1.0 (0009) ────────┼───────────────┼────────────────────────────────────┤
+│  success_count         │ INT           │ Times applied successfully         │
+│  failure_count         │ INT           │ Times applied with failure          │
+│  effectiveness_score   │ FLOAT         │ Calculated effectiveness           │
+│  last_applied_at       │ TIMESTAMPTZ   │ Last time applied                  │
+│  times_applied         │ INT           │ Total times applied                │
 │  + multi-tenant cols                                                        │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -282,6 +289,45 @@
                                   │  accessed_at       TIMESTAMPTZ            │
                                   │  + multi-tenant cols                      │
                                   └───────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    tool_audit_log (Tool Execution Audit)                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  id (PK)            │ BIGSERIAL    │ Primary key                            │
+│  tool_name          │ VARCHAR(255) │ Tool identifier                        │
+│  agent_id           │ VARCHAR(255) │ Agent that executed                    │
+│  input_data         │ JSONB        │ Tool input                             │
+│  output_data        │ JSONB        │ Tool output                            │
+│  duration_ms         │ FLOAT        │ Execution time                         │
+│  tokens_used        │ INT          │ Token consumption                      │
+│  cost_usd           │ FLOAT        │ Cost in USD                            │
+│  error              │ TEXT         │ Error message if failed                │
+│  timestamp          │ TIMESTAMPTZ  │ Execution time                         │
+│  request_id         │ UUID         │ Request correlation                    │
+├─ v1.1.0 (0013) ─────┼──────────────┼───────────────────────────────────────┤
+│  caller             │ TEXT         │ "L" (L-CTO) or "C" (Cursor IDE)       │
+│  project_id         │ TEXT         │ "l9" or NULL (multi-project isolation) │
+└─────────────────────┴──────────────┴───────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    feedback_events (Feedback Loop)                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  feedback_id (PK)   │ UUID          │ Unique feedback ID                    │
+│  packet_id (FK)     │ UUID          │ Source packet                         │
+│  reflection_id (FK) │ UUID          │ Source reflection                     │
+│  task_id            │ TEXT          │ Associated task                        │
+│  agent_id           │ TEXT          │ Agent that produced output            │
+│  feedback_type      │ TEXT          │ positive/negative/correction/          │
+│                     │               │ preference/question/clarification     │
+│  feedback_text      │ TEXT          │ Feedback content                      │
+│  sentiment_score    │ FLOAT         │ -1.0 to 1.0                           │
+│  was_processed      │ BOOLEAN       │ Processing status                     │
+│  processed_at       │ TIMESTAMPTZ   │ When processed                        │
+│  processing_notes   │ TEXT          │ Processing details                    │
+│  derived_reflection_id│ UUID        │ Reflection created from feedback       │
+│  derived_fact_id    │ UUID          │ Fact created from feedback            │
+│  + multi-tenant cols                                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
 
 
 ================================================================================
@@ -380,6 +426,55 @@
 
 
 ================================================================================
+                          AUDIT & GOVERNANCE LAYER
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    tool_audit_log (MCP Governance Audit)                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Track all tool executions with governance metadata                │
+│                                                                             │
+│  Governance Columns:                                                        │
+│    - caller: "L" (L-CTO kernel) or "C" (Cursor IDE)                        │
+│    - project_id: "l9" for L9 repo, NULL for global scope                   │
+│                                                                             │
+│  Usage:                                                                     │
+│    - MCP server logs all tool calls with caller/project_id                  │
+│    - Replaces deprecated memory.audit_log                                   │
+│    - Enables governance tracking and multi-project isolation               │
+│                                                                             │
+│  Indexes:                                                                   │
+│    - idx_tool_audit_caller (caller, timestamp DESC)                        │
+│    - idx_tool_audit_project (project_id, timestamp DESC)                   │
+│    - idx_tool_audit_governance (caller, project_id, timestamp DESC)        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    feedback_events (Feedback Loop)                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Structured feedback from users on agent outputs                     │
+│                                                                             │
+│  Feedback Types:                                                            │
+│    - positive: User liked the output                                       │
+│    - negative: User disliked the output                                    │
+│    - correction: User corrected the output                                 │
+│    - preference: User expressed a preference                               │
+│    - question: User asked a question                                      │
+│    - clarification: User requested clarification                           │
+│                                                                             │
+│  Links To:                                                                  │
+│    - packet_id: Source packet being evaluated                              │
+│    - reflection_id: Source reflection being evaluated                       │
+│    - task_id: Associated task                                              │
+│                                                                             │
+│  Processing:                                                                │
+│    - was_processed: Whether feedback has been processed                     │
+│    - derived_reflection_id: Reflection created from feedback                │
+│    - derived_fact_id: Fact created from feedback                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
                                  LEGEND
 ================================================================================
 
@@ -400,6 +495,55 @@
   ─ ─ ─►  Logical relationship
   │       Data flow direction
   ▼       Direction arrow
+
+================================================================================
+                          AUDIT & GOVERNANCE LAYER
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    tool_audit_log (MCP Governance Audit)                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Track all tool executions with governance metadata                │
+│                                                                             │
+│  Governance Columns:                                                        │
+│    - caller: "L" (L-CTO kernel) or "C" (Cursor IDE)                        │
+│    - project_id: "l9" for L9 repo, NULL for global scope                   │
+│                                                                             │
+│  Usage:                                                                     │
+│    - MCP server logs all tool calls with caller/project_id                  │
+│    - Replaces deprecated memory.audit_log                                   │
+│    - Enables governance tracking and multi-project isolation               │
+│                                                                             │
+│  Indexes:                                                                   │
+│    - idx_tool_audit_caller (caller, timestamp DESC)                        │
+│    - idx_tool_audit_project (project_id, timestamp DESC)                   │
+│    - idx_tool_audit_governance (caller, project_id, timestamp DESC)        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    feedback_events (Feedback Loop)                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Structured feedback from users on agent outputs                   │
+│                                                                             │
+│  Feedback Types:                                                            │
+│    - positive: User liked the output                                       │
+│    - negative: User disliked the output                                    │
+│    - correction: User corrected the output                                 │
+│    - preference: User expressed a preference                               │
+│    - question: User asked a question                                       │
+│    - clarification: User requested clarification                          │
+│                                                                             │
+│  Links To:                                                                  │
+│    - packet_id: Source packet being evaluated                              │
+│    - reflection_id: Source reflection being evaluated                      │
+│    - task_id: Associated task                                              │
+│                                                                             │
+│  Processing:                                                                │
+│    - was_processed: Whether feedback has been processed                     │
+│    - derived_reflection_id: Reflection created from feedback                │
+│    - derived_fact_id: Fact created from feedback                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
 
 ================================================================================
                               END OF DIAGRAM

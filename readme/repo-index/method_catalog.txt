@@ -24,6 +24,22 @@ ActionToolOrchestrator::async _get_registry() @ orchestrators/action_tool/orches
 ActionToolOrchestrator::async execute(request) @ igor/audit-tools/orchestrators_action_tool_orchestrator.py
 ActionToolOrchestrator::async execute(request) @ orchestrators/action_tool/orchestrator.py
 AdaptiveStrategySelector::async select_strategy(conversation, task_type, knowledge_base_available) @ core/observability/context_strategies.py
+Agenda::__len__() @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Agenda::__repr__() @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Agenda::add_task(task) @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Agenda::from_json(cls, data) @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Agenda::get_by_module(module) @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Agenda::sort_by_priority() @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Agenda::to_json() @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+AgendaAssembler::__init__() @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
+AgendaAssembler::_add_execution_order(agenda) @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
+AgendaAssembler::_estimate_duration(task) @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
+AgendaAssembler::_resolve_dependencies(agenda) @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
+AgendaAssembler::assemble_agenda(tasks, raw_input, metadata) @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
+AgendaAssembler::filter_by_priority(agenda, min_priority) @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
+AgendaAssembler::get_execution_plan(agenda) @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
+AgendaAssembler::merge_agendas(agendas) @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
+AgendaAssembler::split_by_module(agenda) @ igor/01-09-2025/tokenizer/core/tokenizer/assembler.py
 AgentBootstrapOrchestrator::__init__(substrate_service) @ core/agents/bootstrap/orchestrator.py
 AgentBootstrapOrchestrator::async bootstrap_agent(config, kernel_dir) @ core/agents/bootstrap/orchestrator.py
 AgentCapabilities::get_capability(tool) @ core/schemas/capabilities.py
@@ -483,12 +499,12 @@ CallGraphBuilder::visit_ClassDef(node) @ scripts/audit/tier1/audit_code_integrit
 CallGraphBuilder::visit_FunctionDef(node) @ scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
 CallGraphBuilder::visit_FunctionDef(node) @ scripts/audit/audit_shared_core.py
 CallGraphBuilder::visit_FunctionDef(node) @ scripts/audit/tier1/audit_code_integrity.py
-CallerIdentity::__init__(caller_id, user_id) @ _archived/archived_mcp_memory/src/main.py
 CallerIdentity::__init__(caller_id, user_id) @ igor/audit-memory/mcp_memory_src_main.py
-CallerIdentity::creator() @ _archived/archived_mcp_memory/src/main.py
+CallerIdentity::__init__(caller_id, user_id) @ mcp_memory/src/main.py
 CallerIdentity::creator() @ igor/audit-memory/mcp_memory_src_main.py
-CallerIdentity::source() @ _archived/archived_mcp_memory/src/main.py
+CallerIdentity::creator() @ mcp_memory/src/main.py
 CallerIdentity::source() @ igor/audit-memory/mcp_memory_src_main.py
+CallerIdentity::source() @ mcp_memory/src/main.py
 Capability::requires_igor_approval() @ core/schemas/capabilities.py
 Capability::requires_igor_approval() @ igor/audit-tools/core_schemas_capabilities.py
 CapabilityEnforcedRouter::route_with_capabilities(task, agent_caps, context) @ orchestration/task_router.py
@@ -855,8 +871,8 @@ DoraTraceBlock::create(cls, task, inputs, outputs, patterns_used, duration_ms, e
 DoraTraceBlock::to_dict() @ runtime/dora.py
 DryRunResult::would_create() @ agents/codegenagent/codegen_agent.py
 DryRunResult::would_modify() @ agents/codegenagent/codegen_agent.py
-DuplicateDetector::__init__(substrate_service) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-DuplicateDetector::async is_duplicate(event_id) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+DuplicateDetector::__init__(substrate_service) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+DuplicateDetector::async is_duplicate(event_id) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
 EmailAdapterAdapter::__init__(substrate_service, aios_runtime_client, memory_service_client) @ api/adapters/email_adapter/adapters/email_adapter_adapter.py
 EmailAdapterAdapter::__init__(substrate_service, aios_runtime_client, memory_service_client) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/adapters/email_adapter_adapter.py
 EmailAdapterAdapter::_generate_context(request) @ api/adapters/email_adapter/adapters/email_adapter_adapter.py
@@ -944,12 +960,12 @@ Evaluator::async compare_to_baseline(current, baseline_version) @ core/evaluatio
 Evaluator::async run_eval(agent_id, eval_set_name, version) @ core/evaluation/evaluator.py
 Evaluator::define_eval_set(name, examples, description) @ core/evaluation/evaluator.py
 Event::__post_init__() @ core/coordination/event_queue.py
-EventDedupeCache::__init__(max_size, ttl_seconds) @ _archived/legacy_slack/webhook_slack.py
 EventDedupeCache::__init__(max_size, ttl_seconds) @ api/webhook_slack.py
-EventDedupeCache::clear() @ _archived/legacy_slack/webhook_slack.py
+EventDedupeCache::__init__(max_size, ttl_seconds) @ docs/_archived/legacy_slack/webhook_slack.py
 EventDedupeCache::clear() @ api/webhook_slack.py
-EventDedupeCache::is_duplicate(event_id) @ _archived/legacy_slack/webhook_slack.py
+EventDedupeCache::clear() @ docs/_archived/legacy_slack/webhook_slack.py
 EventDedupeCache::is_duplicate(event_id) @ api/webhook_slack.py
+EventDedupeCache::is_duplicate(event_id) @ docs/_archived/legacy_slack/webhook_slack.py
 EventQueue::__init__(max_size, backpressure_enabled) @ core/coordination/event_queue.py
 EventQueue::async process_forever() @ core/coordination/event_queue.py
 EventQueue::async publish(event) @ core/coordination/event_queue.py
@@ -1845,15 +1861,15 @@ MockRedis::async keys(pattern) @ tests/mocks/orchestrator_mocks.py
 MockRedis::async set(key, value, ex, px) @ tests/mocks/orchestrator_mocks.py
 MockSearchTool::async execute(args) @ igor/audit-tools/services_research_tools_tool_wrappers.py
 MockSearchTool::async execute(args) @ services/research/tools/tool_wrappers.py
-MockSubstrateService::__init__() @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+MockSubstrateService::__init__() @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 MockSubstrateService::__init__() @ tests/core/agents/test_executor.py
 MockSubstrateService::__init__() @ tests/integration/test_orchestrator_memory_integration.py
 MockSubstrateService::async search_packets() @ tests/integration/test_orchestrator_memory_integration.py
-MockSubstrateService::async search_packets(metadata_filter, limit) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+MockSubstrateService::async search_packets(metadata_filter, limit) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 MockSubstrateService::async search_packets(thread_id, limit) @ tests/core/agents/test_executor.py
 MockSubstrateService::async search_packets_by_thread(thread_id, packet_type, limit) @ tests/core/agents/test_executor.py
 MockSubstrateService::async search_packets_by_type(packet_type, agent_id, limit) @ tests/core/agents/test_executor.py
-MockSubstrateService::async write_packet(packet) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+MockSubstrateService::async write_packet(packet) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 MockSubstrateService::async write_packet(packet) @ tests/integration/test_orchestrator_memory_integration.py
 MockSubstrateService::async write_packet(packet_in) @ tests/core/agents/test_executor.py
 MockSubstrateService::clear_write_exception() @ tests/core/agents/test_executor.py
@@ -2635,39 +2651,39 @@ SimulationRouter::set_engine(engine) @ ir_engine/simulation_router.py
 SimulationRun::to_dict() @ simulation/simulation_engine.py
 SlackAPIClient::__init__(bot_token, http_client) @ api/slack_client.py
 SlackAPIClient::async post_message(channel, text, thread_ts, blocks, metadata, reply_broadcast) @ api/slack_client.py
-SlackEventNormalizer::__init__(workspace_id) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackEventNormalizer::generate_thread_uuid(team_id, channel_id, thread_ts) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackEventNormalizer::parse_event_callback(payload) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackEventNormalizer::__init__(workspace_id) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackEventNormalizer::generate_thread_uuid(team_id, channel_id, thread_ts) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackEventNormalizer::parse_event_callback(payload) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
 SlackRequestNormalizer::_generate_thread_uuid(team_id, channel_id, thread_ts) @ api/slack_adapter.py
 SlackRequestNormalizer::parse_command(payload) @ api/slack_adapter.py
 SlackRequestNormalizer::parse_event_callback(payload) @ api/slack_adapter.py
 SlackRequestValidator::__init__(signing_secret) @ api/slack_adapter.py
 SlackRequestValidator::verify(request_body, timestamp_str, signature) @ api/slack_adapter.py
 SlackSignatureVerificationError::__init__(reason, http_status) @ api/slack_adapter.py
-SlackSignatureVerifier::__init__(signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackSignatureVerifier::verify(timestamp, body, signature) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackWebhookAdapter::__init__(signing_secret, substrate_service, workspace_id) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackWebhookAdapter::__init__(substrate_service, aios_runtime_client, memory_service_client) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::_get_dedupe_key(request) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::_get_thread_key(request) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async _execute(request, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async _execute_side_effects(result, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async _generate_context(request) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async _handle_event_callback(callback_data) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackWebhookAdapter::async _validate(request) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async _write_error_packet(error, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async _write_inbound_packet(request, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async _write_outbound_packet(result, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async handle(request, context) @ _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
-SlackWebhookAdapter::async handle_webhook(request) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackWebhookClient::__init__(config) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
-SlackWebhookClient::_get_headers() @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
-SlackWebhookClient::async __aenter__() @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
-SlackWebhookClient::async __aexit__() @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
-SlackWebhookClient::async _request(method, endpoint, data) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
-SlackWebhookClient::async aios_runtime_call(data) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
-SlackWebhookClient::async memory_service_call(data) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
-SlackWebhookClient::async slack_chat_postMessage(data) @ _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+SlackSignatureVerifier::__init__(signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackSignatureVerifier::verify(timestamp, body, signature) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackWebhookAdapter::__init__(signing_secret, substrate_service, workspace_id) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackWebhookAdapter::__init__(substrate_service, aios_runtime_client, memory_service_client) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::_get_dedupe_key(request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::_get_thread_key(request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async _execute(request, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async _execute_side_effects(result, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async _generate_context(request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async _handle_event_callback(callback_data) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackWebhookAdapter::async _validate(request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async _write_error_packet(error, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async _write_inbound_packet(request, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async _write_outbound_packet(result, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async handle(request, context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py
+SlackWebhookAdapter::async handle_webhook(request) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackWebhookClient::__init__(config) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+SlackWebhookClient::_get_headers() @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+SlackWebhookClient::async __aenter__() @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+SlackWebhookClient::async __aexit__() @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+SlackWebhookClient::async _request(method, endpoint, data) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+SlackWebhookClient::async aios_runtime_call(data) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+SlackWebhookClient::async memory_service_call(data) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
+SlackWebhookClient::async slack_chat_postMessage(data) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 SmokeTestResults::__init__() @ tests/smoke_test.py
 SmokeTestResults::__init__() @ tests/smoke_test_root.py
 SmokeTestResults::record(name, success, error) @ tests/smoke_test.py
@@ -2859,10 +2875,22 @@ SynthesisEngine::generate_synthesis_result() @ agents/research_agent.py
 SystemBlock::validate_name_pascal_case(cls, v) @ codegen/code-gen-files/schema_parser.py
 TCPHealthProbe::__init__(service_name, host, port, timeout) @ scripts/audit/tier1/audit_infrastructure_health.py
 TCPHealthProbe::async check() @ scripts/audit/tier1/audit_infrastructure_health.py
+Task::__repr__() @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Task::from_json(cls, data) @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Task::is_valid() @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+Task::to_json() @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
 TaskBatch::all_succeeded() @ core/schemas/tasks.py
 TaskBatch::any_failed() @ core/schemas/tasks.py
 TaskBatch::mark_completed(envelope_id) @ core/schemas/tasks.py
 TaskBatch::mark_failed(envelope_id) @ core/schemas/tasks.py
+TaskClassifier::__init__(rules) @ igor/01-09-2025/tokenizer/core/tokenizer/classifier.py
+TaskClassifier::_classify_intent(text) @ igor/01-09-2025/tokenizer/core/tokenizer/classifier.py
+TaskClassifier::_classify_module(text, intent) @ igor/01-09-2025/tokenizer/core/tokenizer/classifier.py
+TaskClassifier::_classify_priority(text, context) @ igor/01-09-2025/tokenizer/core/tokenizer/classifier.py
+TaskClassifier::_default_rules() @ igor/01-09-2025/tokenizer/core/tokenizer/classifier.py
+TaskClassifier::_extract_params(tokens, text) @ igor/01-09-2025/tokenizer/core/tokenizer/classifier.py
+TaskClassifier::classify(tokens, context) @ igor/01-09-2025/tokenizer/core/tokenizer/classifier.py
+TaskClassifier::classify_batch(token_groups, context) @ igor/01-09-2025/tokenizer/core/tokenizer/classifier.py
 TaskEnvelope::assign_to(agent_id) @ core/schemas/tasks.py
 TaskEnvelope::to_dict() @ core/schemas/tasks.py
 TaskExecutor::__init__() @ mac_agent/websocket_client.py
@@ -2904,6 +2932,16 @@ TaskRouter::release_load(target) @ orchestration/task_router.py
 TaskRouter::route(task, context) @ orchestration/task_router.py
 TaskRouter::route_batch(tasks, context) @ orchestration/task_router.py
 TaskRouter::route_with_dependencies(tasks, dependencies) @ orchestration/task_router.py
+TaskValidator::__init__(safety_rules) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::_check_completeness(task) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::_check_module_target(task) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::_check_required_params(task) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::_check_safety(task) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::_default_safety_rules() @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::check_conflicts(tasks) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::get_validation_report(task) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::validate(task) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
+TaskValidator::validate_batch(tasks) @ igor/01-09-2025/tokenizer/core/tokenizer/validator.py
 TensorAIOSBridge::__init__(tensor_url) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
 TensorAIOSBridge::async call_embedding_similarity(entity_a, entity_b) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
 TensorAIOSBridge::async call_link_prediction(source, target) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py
@@ -2934,11 +2972,11 @@ TestAPIMemoryIntegration::test_memory_stats_flow(client) @ tests/integration/tes
 TestAPIMemoryIntegration::test_memory_test_endpoint(client) @ tests/integration/test_api_memory_integration.py
 TestAPIServerStartupGate::async test_health_endpoint_degraded_when_startup_fails() @ tests/unit/test_startup_readiness.py
 TestAPIServerStartupGate::async test_health_endpoint_includes_startup_status() @ tests/unit/test_startup_readiness.py
-TestAcceptance::async test_aios_response_forwarded(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-TestAcceptance::async test_idempotent_replay_cached(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-TestAcceptance::async test_packet_written_on_success(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-TestAcceptance::async test_stale_timestamp_rejected(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-TestAcceptance::async test_valid_request_processed(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAcceptance::async test_aios_response_forwarded(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAcceptance::async test_idempotent_replay_cached(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAcceptance::async test_packet_written_on_success(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAcceptance::async test_stale_timestamp_rejected(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAcceptance::async test_valid_request_processed(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 TestAcceptanceNegative::async test_duplicate_event_dedupes(adapter, sample_request, mock_substrate_service, mock_aios_client) @ api/adapters/calendar_adapter/tests/test_calendar_adapter.py
 TestAcceptanceNegative::async test_duplicate_event_dedupes(adapter, sample_request, mock_substrate_service, mock_aios_client) @ api/adapters/email_adapter/tests/test_email_adapter.py
 TestAcceptanceNegative::async test_duplicate_event_dedupes(adapter, sample_request, mock_substrate_service, mock_aios_client) @ api/adapters/twilio_adapter/tests/test_twilio_adapter.py
@@ -2991,10 +3029,10 @@ TestActionToolOrchestrator::test_response_model_validation() @ igor/audit-tools/
 TestActionToolOrchestrator::test_response_model_validation() @ tests/orchestrators/test_action_tool_orchestrator.py
 TestActionToolOrchestrator::test_validate_action_request() @ igor/audit-tools/tests_orchestrators_test_action_tool_orchestrator.py
 TestActionToolOrchestrator::test_validate_action_request() @ tests/orchestrators/test_action_tool_orchestrator.py
-TestAdapter::async test_dedupe_hit(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-TestAdapter::async test_handle_success(adapter, sample_request) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-TestAdapter::async test_handle_with_context(adapter, sample_request, sample_context) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
-TestAdapter::async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAdapter::async test_dedupe_hit(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAdapter::async test_handle_success(adapter, sample_request) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAdapter::async test_handle_with_context(adapter, sample_request, sample_context) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestAdapter::async test_packet_written_on_success(adapter, sample_request, mock_substrate_service) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 TestAdapterSingleton::test_get_memory_adapter_requires_init() @ tests/test_memory_adapter.py
 TestAdapterSingleton::test_init_memory_adapter() @ tests/test_memory_adapter.py
 TestAdaptivePrompting::test_empty_patterns() @ tests/integration/test_closed_loop_learning.py
@@ -3063,9 +3101,9 @@ TestBootstrapIntegration::test_bootstrap_without_kernel_loading() @ tests/unit/t
 TestBootstrapIntegration::test_full_bootstrap_flow(temp_kernel_dir) @ tests/unit/test_lcto_bootstrap.py
 TestBootstrapOrchestrator::async test_orchestrator_all_phases_success() @ tests/core/agents/test_bootstrap_phases.py
 TestBootstrapOrchestrator::async test_orchestrator_phase_failure_rollback() @ tests/core/agents/test_bootstrap_phases.py
-TestBotMessageFiltering::test_ignores_bot_id_field() @ _archived/legacy_slack/test_webhook_slack.py
-TestBotMessageFiltering::test_ignores_bot_message_subtype() @ _archived/legacy_slack/test_webhook_slack.py
-TestBotMessageFiltering::test_ignores_own_user_id() @ _archived/legacy_slack/test_webhook_slack.py
+TestBotMessageFiltering::test_ignores_bot_id_field() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestBotMessageFiltering::test_ignores_bot_message_subtype() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestBotMessageFiltering::test_ignores_own_user_id() @ docs/_archived/legacy_slack/test_webhook_slack.py
 TestBuildResearchGraph::test_build_research_graph() @ tests/test_research_graph.py
 TestCCodeGeneration::async test_generate_c_simple(generator) @ tests/services/symbolic_computation/test_code_generator.py
 TestCCodeGeneration::generator() @ tests/services/symbolic_computation/test_code_generator.py
@@ -3194,9 +3232,9 @@ TestDetectDrift::test_drift_detected_with_repeated_failures() @ tests/core/gover
 TestDetectDrift::test_no_drift_with_high_success_rate() @ tests/core/governance/test_validation.py
 TestDockerNetworkConfig::test_memory_api_base_url_uses_service_name() @ tests/docker/test_env_validation.py
 TestDockerNetworkConfig::test_redis_host_uses_service_name() @ tests/docker/test_env_validation.py
-TestDuplicateDetector::async test_is_duplicate_handles_substrate_error(mock_substrate_service) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestDuplicateDetector::async test_is_duplicate_returns_false_for_new_event(mock_substrate_service) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestDuplicateDetector::async test_is_duplicate_returns_true_for_known_event(mock_substrate_service) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestDuplicateDetector::async test_is_duplicate_handles_substrate_error(mock_substrate_service) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestDuplicateDetector::async test_is_duplicate_returns_false_for_new_event(mock_substrate_service) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestDuplicateDetector::async test_is_duplicate_returns_true_for_known_event(mock_substrate_service) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
 TestEdgeCases::test_absorption_error_handling(temp_kernel_dir) @ tests/unit/test_kernel_loader_activation.py
 TestEdgeCases::test_agent_with_custom_config() @ tests/unit/test_lcto_bootstrap.py
 TestEdgeCases::test_agent_with_manifest_path() @ tests/unit/test_lcto_bootstrap.py
@@ -3239,13 +3277,13 @@ TestErrorPaths::async test_reasoner_failure_handling(engine) @ codegen/extractio
 TestEscalationTriggers::async test_high_risk_triggers_escalation(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 TestEscalationTriggers::async test_low_confidence_triggers_escalation(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 TestEscalationTriggers::async test_normal_decision_approved(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
-TestEventDedupeCacheUnit::test_cache_clear() @ _archived/legacy_slack/test_webhook_slack.py
-TestEventDedupeCacheUnit::test_cache_handles_empty_event_id() @ _archived/legacy_slack/test_webhook_slack.py
-TestEventDedupeCacheUnit::test_cache_marks_first_occurrence_as_new() @ _archived/legacy_slack/test_webhook_slack.py
-TestEventDedupeCacheUnit::test_cache_marks_second_occurrence_as_duplicate() @ _archived/legacy_slack/test_webhook_slack.py
-TestEventDedupeCacheUnit::test_cache_respects_max_size() @ _archived/legacy_slack/test_webhook_slack.py
-TestEventDeduplication::test_different_event_ids_both_processed() @ _archived/legacy_slack/test_webhook_slack.py
-TestEventDeduplication::test_duplicate_event_ignored() @ _archived/legacy_slack/test_webhook_slack.py
+TestEventDedupeCacheUnit::test_cache_clear() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestEventDedupeCacheUnit::test_cache_handles_empty_event_id() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestEventDedupeCacheUnit::test_cache_marks_first_occurrence_as_new() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestEventDedupeCacheUnit::test_cache_marks_second_occurrence_as_duplicate() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestEventDedupeCacheUnit::test_cache_respects_max_size() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestEventDeduplication::test_different_event_ids_both_processed() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestEventDeduplication::test_duplicate_event_ignored() @ docs/_archived/legacy_slack/test_webhook_slack.py
 TestEventMessageBasics::test_handshake_event_roundtrip() @ tests/runtime/test_ws_protocol_static.py
 TestEventMessageBasics::test_minimal_event_defaults() @ tests/runtime/test_ws_protocol_static.py
 TestEvolutionPlan::async test_create_evolution_plan(problematic_task_context) @ tests/integration/test_kernel_evolution_flow.py
@@ -3609,7 +3647,7 @@ TestMultiCandidateSimulation::async test_ranked_candidates_have_correct_ranks(ca
 TestMultiCandidateSimulation::async test_ranked_candidates_include_selection_reason(candidate_graphs) @ tests/ir_engine/test_ir_simulation_router_integration.py
 TestMultiCandidateSimulation::async test_simulate_candidates_returns_ranked_list(candidate_graphs) @ tests/ir_engine/test_ir_simulation_router_integration.py
 TestMultiCandidateSimulation::candidate_graphs() @ tests/ir_engine/test_ir_simulation_router_integration.py
-TestNegative::async test_invalid_signature_rejected(adapter) @ _archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
+TestNegative::async test_invalid_signature_rejected(adapter) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 TestNeo4jQuery::async test_query_semantic_graph(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 TestNoCircularImports::test_api_server_no_circular() @ tests/test_imports.py
 TestObservabilityConfig::test_default_config_values() @ tests/core/observability/test_observability_integration.py
@@ -4040,38 +4078,38 @@ TestSlackAPIClient::async test_post_message_success() @ tests/test_slack_adapter
 TestSlackAPIClient::async test_post_message_timeout() @ tests/test_slack_adapter.py
 TestSlackAPIClient::test_post_message_missing_bot_token() @ tests/test_slack_adapter.py
 TestSlackAPIClient::test_post_message_missing_http_client() @ tests/test_slack_adapter.py
-TestSlackAdapterAcceptance::async test_accepts_valid_slack_event_callback(slack_adapter_with_mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackAdapterAcceptance::async test_rejects_unsigned_requests() @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackAdapterAcceptance::async test_writes_valid_packets(slack_adapter_with_mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterAcceptance::async test_accepts_valid_slack_event_callback(slack_adapter_with_mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterAcceptance::async test_rejects_unsigned_requests() @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterAcceptance::async test_writes_valid_packets(slack_adapter_with_mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
 TestSlackAdapterIntegration::test_slack_normalizer_imports() @ tests/api/test_slack_adapter.py
 TestSlackAdapterIntegration::test_slack_validator_imports() @ tests/api/test_slack_adapter.py
 TestSlackAdapterIntegration::test_thread_uuid_generation(sample_slack_event) @ tests/api/test_slack_adapter.py
-TestSlackAdapterSubstrateIntegration::async test_deduplication_via_substrate(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackAdapterSubstrateIntegration::async test_error_recovery(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackAdapterSubstrateIntegration::async test_full_event_flow_writes_to_substrate(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackAdapterSubstrateIntegration::async test_multiple_event_types(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackAdapterSubstrateIntegration::async test_packet_metadata_structure(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackAdapterSubstrateIntegration::async test_thread_uuid_determinism(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackAdapterSubstrateIntegration::async test_unsupported_event_type_skipped(slack_adapter_with_mock_substrate, mock_substrate) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
-TestSlackCommands::test_commands_disabled_returns_503() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackCommands::test_commands_do_subcommand() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackCommands::test_commands_email_search() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackCommands::test_commands_unknown_returns_help() @ _archived/legacy_slack/test_webhook_slack.py
+TestSlackAdapterSubstrateIntegration::async test_deduplication_via_substrate(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterSubstrateIntegration::async test_error_recovery(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterSubstrateIntegration::async test_full_event_flow_writes_to_substrate(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterSubstrateIntegration::async test_multiple_event_types(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterSubstrateIntegration::async test_packet_metadata_structure(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterSubstrateIntegration::async test_thread_uuid_determinism(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackAdapterSubstrateIntegration::async test_unsupported_event_type_skipped(slack_adapter_with_mock_substrate, mock_substrate) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py
+TestSlackCommands::test_commands_disabled_returns_503() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackCommands::test_commands_do_subcommand() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackCommands::test_commands_email_search() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackCommands::test_commands_unknown_returns_help() @ docs/_archived/legacy_slack/test_webhook_slack.py
 TestSlackDispatchIntegration::test_invalid_signature_rejected() @ tests/integration/test_slack_dispatch_integration.py
 TestSlackDispatchIntegration::test_signature_verification_integration() @ tests/integration/test_slack_dispatch_integration.py
 TestSlackDispatchIntegration::test_slack_adapter_normalizes_event() @ tests/integration/test_slack_dispatch_integration.py
-TestSlackEventNormalizer::test_generate_thread_uuid_deterministic() @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackEventNormalizer::test_generate_thread_uuid_different_for_different_inputs() @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackEventNormalizer::test_parse_app_mention_event() @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackEventNormalizer::test_parse_message_event() @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackEventNormalizer::test_parse_unsupported_event() @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackEvents::test_events_app_mention_l_agent_router() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackEvents::test_events_app_mention_legacy_router() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackEvents::test_events_bad_signature_returns_403() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackEvents::test_events_bot_message_ignored() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackEvents::test_events_disabled_returns_503() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackEvents::test_events_mac_command() @ _archived/legacy_slack/test_webhook_slack.py
-TestSlackEvents::test_events_url_verification() @ _archived/legacy_slack/test_webhook_slack.py
+TestSlackEventNormalizer::test_generate_thread_uuid_deterministic() @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackEventNormalizer::test_generate_thread_uuid_different_for_different_inputs() @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackEventNormalizer::test_parse_app_mention_event() @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackEventNormalizer::test_parse_message_event() @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackEventNormalizer::test_parse_unsupported_event() @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackEvents::test_events_app_mention_l_agent_router() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackEvents::test_events_app_mention_legacy_router() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackEvents::test_events_bad_signature_returns_403() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackEvents::test_events_bot_message_ignored() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackEvents::test_events_disabled_returns_503() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackEvents::test_events_mac_command() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestSlackEvents::test_events_url_verification() @ docs/_archived/legacy_slack/test_webhook_slack.py
 TestSlackMetrics::test_init_slack_metrics() @ tests/api/test_slack_adapter.py
 TestSlackMetrics::test_metrics_module_imports() @ tests/api/test_slack_adapter.py
 TestSlackMetrics::test_record_aios_call() @ tests/api/test_slack_adapter.py
@@ -4096,16 +4134,16 @@ TestSlackSignatureVerification::test_signature_verification_invalid_timestamp_fo
 TestSlackSignatureVerification::test_signature_verification_missing_headers() @ tests/test_slack_adapter.py
 TestSlackSignatureVerification::test_signature_verification_stale_timestamp() @ tests/test_slack_adapter.py
 TestSlackSignatureVerification::test_signature_verification_success() @ tests/test_slack_adapter.py
-TestSlackSignatureVerifier::test_verify_invalid_signature(signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackSignatureVerifier::test_verify_invalid_timestamp_format(signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackSignatureVerifier::test_verify_stale_timestamp(signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackSignatureVerifier::test_verify_valid_signature(signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackWebhookAdapter::async test_handle_event_callback_deduplicates(slack_adapter) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackWebhookAdapter::async test_handle_event_callback_error_handling(slack_adapter) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackWebhookAdapter::async test_handle_event_callback_stores_packet(slack_adapter) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackWebhookAdapter::async test_handle_webhook_invalid_json(slack_adapter, signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackWebhookAdapter::async test_handle_webhook_invalid_signature(slack_adapter) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
-TestSlackWebhookAdapter::async test_handle_webhook_url_verification(slack_adapter, signing_secret) @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackSignatureVerifier::test_verify_invalid_signature(signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackSignatureVerifier::test_verify_invalid_timestamp_format(signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackSignatureVerifier::test_verify_stale_timestamp(signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackSignatureVerifier::test_verify_valid_signature(signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackWebhookAdapter::async test_handle_event_callback_deduplicates(slack_adapter) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackWebhookAdapter::async test_handle_event_callback_error_handling(slack_adapter) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackWebhookAdapter::async test_handle_event_callback_stores_packet(slack_adapter) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackWebhookAdapter::async test_handle_webhook_invalid_json(slack_adapter, signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackWebhookAdapter::async test_handle_webhook_invalid_signature(slack_adapter) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
+TestSlackWebhookAdapter::async test_handle_webhook_url_verification(slack_adapter, signing_secret) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py
 TestSmokeSummary::test_all_critical_paths(api_client, memory_client) @ tests/docker/test_stack_smoke.py
 TestSpanKindKernelValues::test_all_kernel_span_kinds_are_strings() @ tests/unit/test_kernel_observability.py
 TestSpanKindKernelValues::test_kernel_activation_span_kind_exists() @ tests/unit/test_kernel_observability.py
@@ -4280,12 +4318,12 @@ TestVerification::test_verify_kernel_activation_wrong_state(mock_agent) @ tests/
 TestVerifyIntegrity::test_verify_integrity_no_hash_returns_false() @ tests/core/schemas/test_content_hash_integrity.py
 TestVerifyIntegrity::test_verify_integrity_valid_packet() @ tests/core/schemas/test_content_hash_integrity.py
 TestVerifyIntegrity::test_verify_integrity_wrong_hash_returns_false() @ tests/core/schemas/test_content_hash_integrity.py
-TestVerifySlackSignature::test_verify_signature_invalid_hash() @ _archived/legacy_slack/test_webhook_slack.py
-TestVerifySlackSignature::test_verify_signature_missing_signature() @ _archived/legacy_slack/test_webhook_slack.py
-TestVerifySlackSignature::test_verify_signature_missing_timestamp() @ _archived/legacy_slack/test_webhook_slack.py
-TestVerifySlackSignature::test_verify_signature_no_secret() @ _archived/legacy_slack/test_webhook_slack.py
-TestVerifySlackSignature::test_verify_signature_stale_timestamp() @ _archived/legacy_slack/test_webhook_slack.py
-TestVerifySlackSignature::test_verify_signature_valid() @ _archived/legacy_slack/test_webhook_slack.py
+TestVerifySlackSignature::test_verify_signature_invalid_hash() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestVerifySlackSignature::test_verify_signature_missing_signature() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestVerifySlackSignature::test_verify_signature_missing_timestamp() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestVerifySlackSignature::test_verify_signature_no_secret() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestVerifySlackSignature::test_verify_signature_stale_timestamp() @ docs/_archived/legacy_slack/test_webhook_slack.py
+TestVerifySlackSignature::test_verify_signature_valid() @ docs/_archived/legacy_slack/test_webhook_slack.py
 TestVersionDetection::test_detect_v1_0_0_packet() @ tests/core/schemas/test_schema_registry.py
 TestVersionDetection::test_detect_v1_0_1_packet() @ tests/core/schemas/test_schema_registry.py
 TestVersionDetection::test_detect_v1_1_0_by_fields() @ tests/core/schemas/test_schema_registry.py
@@ -4331,6 +4369,17 @@ TokenBucketLimiter::__init__(rate_per_minute) @ scripts/batch_generate_specs.py
 TokenBucketLimiter::async acquire() @ scripts/batch_generate_specs.py
 TokenBucketLimiter::async wait_for_token() @ scripts/batch_generate_specs.py
 TokenOverusePattern::detect(context) @ core/agents/selfreflection.py
+Tokenizer::__init__(rules_path, safety_rules, log_path) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::_load_rules(rules_path) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::_normalize(segment) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::_segment(input_text) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::_setup_logging() @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::_tokenize_segment(segment) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::create_agenda(input_text, context) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::expand_ambiguous(input_text) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::get_stats() @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::process_conditional(input_text) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
+Tokenizer::tokenize(input_text, context) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
 ToolAuditEntry::__post_init__() @ core/tools/tool_audit.py
 ToolAuditService::__init__(substrate_service, buffer_size) @ core/tools/tool_audit.py
 ToolAuditService::async _auto_flush() @ core/tools/tool_audit.py
@@ -4523,6 +4572,18 @@ UniversalExtractor::get_template_content(template_name) @ codegen/code-gen-files
 UniversalExtractor::list_templates() @ codegen/code-gen-files/extractor.py
 UpdateRecord::to_dict() @ world_model/runtime.py
 UserCorrectionPattern::detect(context) @ core/agents/selfreflection.py
+VPSRepoGraphLoader::__init__(dry_run, verbose) @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async api_request(method, endpoint) @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async clear_repo_graph() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async create_indexes() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async execute_cypher(query, parameters) @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_all() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_class_definitions() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_file_metrics() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_inheritance_graph() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_route_handlers() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async write_memory_summary() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::print_summary() @ scripts/load_indexes_to_neo4j_vps.py
 ValidationError::__str__() @ codegen/code-gen-files/schema_validator.py
 ValidationResult::__init__(spec_path) @ ci/validate_spec_v25.py
 ValidationResult::__init__(spec_path) @ codegen/code-gen-files/validate_spec_v25.py
@@ -4818,4 +4879,4 @@ _SchemaRegistry::supported_versions() @ core/schemas/schema_registry.py
 _SchemaRegistry::upcast(raw, target_version) @ core/schemas/schema_registry.py
 _SchemaRegistry::write_packet(packet) @ core/schemas/schema_registry.py
 
-# Total: 4814 class methods
+# Total: 4875 class methods

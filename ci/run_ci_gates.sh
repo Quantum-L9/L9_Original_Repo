@@ -394,6 +394,30 @@ with open('$spec_file') as f:
 }
 
 # =============================================================================
+# GATE 11: AGENT EXECUTOR VERIFICATION
+# =============================================================================
+
+gate_11_agent_executor() {
+    log_header "GATE 11: AGENT EXECUTOR VERIFICATION"
+    
+    if [ ! -f "$REPO_ROOT/scripts/verify_agent_executor.py" ]; then
+        log_warn "Agent executor verification script not found, skipping"
+        return 0
+    fi
+    
+    log_info "Verifying agent_executor initialization fix..."
+    
+    if ! python3 "$REPO_ROOT/scripts/verify_agent_executor.py" > /dev/null 2>&1; then
+        log_error "AGENT EXECUTOR VERIFICATION FAILED"
+        log_error "Run scripts/verify_agent_executor.py for details"
+        return 1
+    fi
+    
+    log_info "✅ Agent executor verification passed"
+    return 0
+}
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
@@ -444,6 +468,7 @@ main() {
     gate_8_no_deprecated_services || exit 1
     gate_9_schema_deprecation || exit 1
     gate_10_tool_naming || exit 1
+    gate_11_agent_executor || exit 1
     run_test_presence_check "$spec_file" "${files[@]}" || exit 1
     
     log_header "🎉 ALL CI GATES PASSED"

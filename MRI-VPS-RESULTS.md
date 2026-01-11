@@ -1,52 +1,20 @@
-###############################################################################
-# PART A: SYSTEM-LEVEL DIAGNOSTICS
-###############################################################################
+# L9 VPS MRI Results
 
-echo
-echo "A1) SYSTEM IDENTITY"
-echo "-------------------"
-hostname
-whoami
-ip addr show | grep 'inet ' | grep -v '127.0.0.1'
-uname -a
+**Generated:** 2026-01-09 12:08:02 EST
+**Deployment:** 9bfb180
+**Health Status:** ok
 
-echo
-echo "A2) ALL LISTENING PORTS (TOP 50)"
-echo "--------------------------------"
-sudo ss -tlnp 2>/dev/null | head -50 || true
+---
 
-echo
-echo "A3) FIREWALL STATUS (UFW + CLOUD-FIREWALL HINT)"
-echo "----------------------------------------------"
-sudo ufw status numbered 2>/dev/null || echo "UFW not active or not installed"
-echo
-echo "If ports look blocked externally, check cloud firewall rules (TCP 22, 80, 443, 9001, 7474, 7687, 5432, 6379, 9090, 3000, 16686 as needed)."
-
-echo
-echo "A4) DISK SPACE (KEY PATHS)"
-echo "--------------------------"
-df -h / /opt /var /tmp 2>/dev/null || true
-
-###############################################################################
-# PART B: GIT + REPO STATE
-###############################################################################
-
-echo
-echo "B1) GIT STATE (/opt/l9)"
-echo "-----------------------"
-cd /opt/l9 2>/dev/null || { echo "/opt/l9 missing – L9 not deployed here"; exit 1; }
-
-echo
-echo "===== END OF L9 VPS MRI ====="ers.com fails, public HTTPS access will fail; use IP or fix DNS."S only)."tional backends (Neo4j, observability)."CAGENT|PROMETHEUS|GRAFANA' | so
 
 ===== L9 VPS MRI – UPDATED FULL DIAGNOSTIC =====
-Fri Jan  9 03:52:31 AM UTC 2026
+Fri Jan  9 05:08:00 PM UTC 2026
 
 
 A1) SYSTEM IDENTITY
 -------------------
 L9
-admin
+root
     inet 157.180.73.53/32 metric 100 scope global dynamic eth0
     inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
     inet 172.18.0.1/16 brd 172.18.255.255 scope global br-7a4fdc71f44b
@@ -54,7 +22,6 @@ Linux L9 6.8.0-88-generic #89-Ubuntu SMP PREEMPT_DYNAMIC Sat Oct 11 01:02:46 UTC
 
 A2) ALL LISTENING PORTS (TOP 50)
 --------------------------------
-[sudo] password for admin: 
 State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                   
 LISTEN 0      4096       127.0.0.1:3000       0.0.0.0:*    users:(("docker-proxy",pid=3124511,fd=7))
 LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=656,fd=17))
@@ -62,19 +29,17 @@ LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*    users:(("docker-proxy
 LISTEN 0      4096       127.0.0.1:16686      0.0.0.0:*    users:(("docker-proxy",pid=3123951,fd=7))
 LISTEN 0      200       172.17.0.1:5432       0.0.0.0:*    users:(("postgres",pid=1366480,fd=7))    
 LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=3123837,fd=7))
-LISTEN 0      4096       127.0.0.1:8000       0.0.0.0:*    users:(("docker-proxy",pid=894656,fd=7)) 
+LISTEN 0      4096       127.0.0.1:8000       0.0.0.0:*    users:(("docker-proxy",pid=1649135,fd=7))
 LISTEN 0      4096       127.0.0.1:2019       0.0.0.0:*    users:(("caddy",pid=9230,fd=14))         
 LISTEN 0      4096       127.0.0.1:14268      0.0.0.0:*    users:(("docker-proxy",pid=3123935,fd=7))
 LISTEN 0      2048       127.0.0.1:8100       0.0.0.0:*    users:(("python",pid=362268,fd=13))      
-LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=3740249,fd=7))
+LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=995235,fd=7)) 
 LISTEN 0      128          0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=954,fd=3))            
-LISTEN 0      128        127.0.0.1:22222      0.0.0.0:*    users:(("sshd",pid=805588,fd=7))         
 LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=656,fd=15))
-LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=3740234,fd=7))
+LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=995219,fd=7)) 
 LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=3123972,fd=7))
 LISTEN 0      4096         0.0.0.0:631        0.0.0.0:*    users:(("cupsd",pid=1349,fd=9))          
 LISTEN 0      4096               *:443              *:*    users:(("caddy",pid=9230,fd=16))         
-LISTEN 0      128            [::1]:22222         [::]:*    users:(("sshd",pid=805588,fd=5))         
 LISTEN 0      128             [::]:22            [::]:*    users:(("sshd",pid=954,fd=4))            
 LISTEN 0      4096               *:80               *:*    users:(("caddy",pid=9230,fd=15))         
 LISTEN 0      4096               *:9001             *:*    users:(("caddy",pid=9230,fd=17))         
@@ -104,10 +69,10 @@ If ports look blocked externally, check cloud firewall rules (TCP 22, 80, 443, 9
 A4) DISK SPACE (KEY PATHS)
 --------------------------
 Filesystem      Size  Used Avail Use% Mounted on
-/dev/sda1        38G   24G   13G  66% /
-/dev/sda1        38G   24G   13G  66% /
-/dev/sda1        38G   24G   13G  66% /
-/dev/sda1        38G   24G   13G  66% /
+/dev/sda1        38G   29G  6.8G  82% /
+/dev/sda1        38G   29G  6.8G  82% /
+/dev/sda1        38G   29G  6.8G  82% /
+/dev/sda1        38G   29G  6.8G  82% /
 
 B1) GIT STATE (/opt/l9)
 -----------------------
@@ -130,97 +95,112 @@ active
 
 C2) DOCKER COMPOSE PS
 ----------------------
-NAME            IMAGE                           COMMAND                  SERVICE       CREATED          STATUS                        PORTS
-l9-api          l9-l9-api                       "uvicorn api.server:…"   l9-api        43 minutes ago   Up About a minute (healthy)   127.0.0.1:8000->8000/tcp
-l9-grafana      grafana/grafana:10.2.0          "/run.sh"                grafana       34 hours ago     Up 34 hours (healthy)         127.0.0.1:3000->3000/tcp
-l9-jaeger       jaegertracing/all-in-one:1.52   "/go/bin/all-in-one-…"   jaeger        34 hours ago     Up 34 hours (healthy)         4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
-l9-neo4j        neo4j:5-community               "tini -g -- /startup…"   neo4j         26 hours ago     Up 24 hours (healthy)         127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
-l9-postgres     pgvector/pgvector:pg16          "docker-entrypoint.s…"   l9-postgres   34 hours ago     Up 34 hours (healthy)         127.0.0.1:5432->5432/tcp
-l9-prometheus   prom/prometheus:v2.48.0         "/bin/prometheus --c…"   prometheus    34 hours ago     Up 34 hours (healthy)         127.0.0.1:9090->9090/tcp
-l9-redis        redis:7-alpine                  "docker-entrypoint.s…"   redis         34 hours ago     Up 34 hours (healthy)         127.0.0.1:6379->6379/tcp
+NAME            IMAGE                           COMMAND                  SERVICE       CREATED          STATUS                    PORTS
+l9-api          l9-l9-api                       "uvicorn api.server:…"   l9-api        30 seconds ago   Up 27 seconds (healthy)   127.0.0.1:8000->8000/tcp
+l9-grafana      grafana/grafana:10.2.0          "/run.sh"                grafana       47 hours ago     Up 47 hours (healthy)     127.0.0.1:3000->3000/tcp
+l9-jaeger       jaegertracing/all-in-one:1.52   "/go/bin/all-in-one-…"   jaeger        47 hours ago     Up 47 hours (healthy)     4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
+l9-neo4j        neo4j:5-community               "tini -g -- /startup…"   neo4j         11 hours ago     Up 11 hours (healthy)     127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
+l9-postgres     pgvector/pgvector:pg16          "docker-entrypoint.s…"   l9-postgres   47 hours ago     Up 47 hours (healthy)     127.0.0.1:5432->5432/tcp
+l9-prometheus   prom/prometheus:v2.48.0         "/bin/prometheus --c…"   prometheus    47 hours ago     Up 47 hours (healthy)     127.0.0.1:9090->9090/tcp
+l9-redis        redis:7-alpine                  "docker-entrypoint.s…"   redis         47 hours ago     Up 47 hours (healthy)     127.0.0.1:6379->6379/tcp
 
 C3) CONTAINER LOGS (l9-api last 80 lines)
 -----------------------------------------
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ Registered tool: world_model_restore (risk=high, schema=yes)
-l9-api  | 2026-01-09 03:51:14 [warning  ] Neo4j unavailable - tool graph disabled for 'world_model_list_updates'. Governance queries (blast radius, dependencies) unavailable. extra={'alert': 'neo4j_unavailable', 'tool_name': 'world_model_list_updates'}
-l9-api  | 2026-01-09 03:51:14 [debug    ] Neo4j: skipped world_model_list_updates (unavailable)
-l9-api  | 2026-01-09 03:51:14 [info     ] Registered tool: world_model_list_updates (world_model_list_updates)
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ Registered tool: world_model_list_updates (risk=low, schema=yes)
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓✓ L-CTO tools registered: 71 total, 4 high-risk requiring approval, executors wired to base registry
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ L-CTO tools registered: 71 tools available
-l9-api  | 2026-01-09 03:51:14 [debug    ] Memory tool memory_search already registered, skipping
-l9-api  | 2026-01-09 03:51:14 [debug    ] Memory tool memory_write already registered, skipping
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ Memory tools registered: 2 tools
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ Memory tools registered: 2 tools
-l9-api  | 2026-01-09 03:51:14 [info     ] Memory metrics initialized
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ Prometheus metrics initialized
-l9-api  | 2026-01-09 03:51:14 [info     ] ╔════════════════════════════════════════╗
-l9-api  | 2026-01-09 03:51:14 [info     ] ║  Stage 3: Wiring Enterprise Modules    ║
-l9-api  | 2026-01-09 03:51:14 [info     ] ╚════════════════════════════════════════╝
-l9-api  | 2026-01-09 03:51:14 [info     ] Tool audit service started
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ ToolAuditService initialized (Postgres audit trail)
-l9-api  | 2026-01-09 03:51:14 [info     ] Event-driven coordination initialized
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ EventQueue initialized (async coordination)
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ VirtualContextManager initialized (tiered memory)
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ Evaluator initialized (LLM-as-judge)
-l9-api  | 2026-01-09 03:51:14 [info     ] Stage 3 module wiring complete
-l9-api  | 2026-01-09 03:51:14 [info     ] ╔════════════════════════════════════════╗
-l9-api  | 2026-01-09 03:51:14 [info     ] ║  Stage 4: Memory Consolidation         ║
-l9-api  | 2026-01-09 03:51:14 [info     ] ╚════════════════════════════════════════╝
-l9-api  | 2026-01-09 03:51:14 [info     ] ✓ MemoryConsolidationService initialized (24h cleanup cycle)
-l9-api  | 2026-01-09 03:51:14 [info     ] ╔════════════════════════════════════════╗
-l9-api  | 2026-01-09 03:51:14 [info     ] ║  Stage 5: Graph-Backed Agent State     ║
-l9-api  | 2026-01-09 03:51:14 [info     ] ╚════════════════════════════════════════╝
-l9-api  | 2026-01-09 03:51:14 [warning  ] ⚠️ Stage 5 not started: neo4j_client not available
-l9-api  | 2026-01-09 03:51:14 [info     ] GraphToWorldModelSync started (interval=300s)
-l9-api  | 2026-01-09 03:51:14 [info     ] ✅ UKG Phase 3: Graph-WM Sync started
-l9-api  | 2026-01-09 03:51:14 [info     ] ToolPatternExtractor started (interval=6h)
-l9-api  | 2026-01-09 03:51:14 [info     ] ✅ UKG Phase 4: Tool Pattern Extraction started (6h interval)
-l9-api  | 2026-01-09 03:51:14 [info     ] Initializing Five-Tier Observability...
-l9-api  | 2026-01-09 03:51:14 [info     ] ObservabilityService initialized extra={'sampling_rate': 0.1, 'exporters': ['console', 'substrate']}
-l9-api  | 2026-01-09 03:51:14 [info     ] Instrumented agent executor (start_agent_task)
-l9-api  | 2026-01-09 03:51:14 [info     ] Instrumented tool registry (dispatch_tool_call)
-l9-api  | 2026-01-09 03:51:14 [info     ] Instrumented governance engine (evaluate)
-l9-api  | 2026-01-09 03:51:14 [debug    ] Instrumented substrate.write_packet
-l9-api  | 2026-01-09 03:51:14 [debug    ] Instrumented substrate.semantic_search
-l9-api  | 2026-01-09 03:51:14 [debug    ] Instrumented substrate.get_packet
-l9-api  | 2026-01-09 03:51:14 [debug    ] Instrumented substrate.query_packets
-l9-api  | 2026-01-09 03:51:14 [info     ] Instrumented memory substrate (4 methods)
-l9-api  | 2026-01-09 03:51:14 [info     ] ✅ Five-Tier Observability initialized instrumented={'executor': True, 'tool_registry': True, 'governance': True, 'substrate': True}
-l9-api  | 2026-01-09 03:51:14 [info     ] Event queue processor started
-l9-api  | 2026-01-09 03:51:14 [info     ] Memory consolidation scheduled every 4 hours
-l9-api  | 2026-01-09 03:51:14 [warning  ] Neo4j driver not configured for GraphToWorldModelSync
-l9-api  | 2026-01-09 03:51:14 [warning  ] No graph state found for agent L
-l9-api  | 2026-01-09 03:51:14 [info     ] Starting tool pattern extraction...
+l9-api  | 2026-01-09 17:07:41 [debug    ] Created relationship: Agent:L -[CAN_EXECUTE]-> Tool:world_model_restore
+l9-api  | 2026-01-09 17:07:41 [info     ] Registered tool in graph: world_model_restore
+l9-api  | 2026-01-09 17:07:41 [debug    ] Neo4j: registered world_model_restore
+l9-api  | 2026-01-09 17:07:41 [info     ] Registered tool: world_model_restore (world_model_restore)
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ Registered tool: world_model_restore (risk=high, schema=yes)
+l9-api  | 2026-01-09 17:07:41 [debug    ] Created/updated entity: Tool:world_model_list_updates
+l9-api  | 2026-01-09 17:07:41 [debug    ] Agent L ensured in graph
+l9-api  | 2026-01-09 17:07:41 [debug    ] Created relationship: Agent:L -[CAN_EXECUTE]-> Tool:world_model_list_updates
+l9-api  | 2026-01-09 17:07:41 [info     ] Registered tool in graph: world_model_list_updates
+l9-api  | 2026-01-09 17:07:41 [debug    ] Neo4j: registered world_model_list_updates
+l9-api  | 2026-01-09 17:07:41 [info     ] Registered tool: world_model_list_updates (world_model_list_updates)
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ Registered tool: world_model_list_updates (risk=low, schema=yes)
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓✓ L-CTO tools registered: 71 total, 4 high-risk requiring approval, executors wired to base registry
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ L-CTO tools registered: 71 tools available
+l9-api  | 2026-01-09 17:07:41 [debug    ] Memory tool memory_search already registered, skipping
+l9-api  | 2026-01-09 17:07:41 [debug    ] Memory tool memory_write already registered, skipping
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ Memory tools registered: 2 tools
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ Memory tools registered: 2 tools
+l9-api  | 2026-01-09 17:07:41 [info     ] Memory metrics initialized
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ Prometheus metrics initialized
+l9-api  | 2026-01-09 17:07:41 [info     ] ╔════════════════════════════════════════╗
+l9-api  | 2026-01-09 17:07:41 [info     ] ║  Stage 3: Wiring Enterprise Modules    ║
+l9-api  | 2026-01-09 17:07:41 [info     ] ╚════════════════════════════════════════╝
+l9-api  | 2026-01-09 17:07:41 [info     ] Tool audit service started
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ ToolAuditService initialized (Postgres audit trail)
+l9-api  | 2026-01-09 17:07:41 [info     ] Event-driven coordination initialized
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ EventQueue initialized (async coordination)
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ VirtualContextManager initialized (tiered memory)
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ Evaluator initialized (LLM-as-judge)
+l9-api  | 2026-01-09 17:07:41 [info     ] Stage 3 module wiring complete
+l9-api  | 2026-01-09 17:07:41 [info     ] ╔════════════════════════════════════════╗
+l9-api  | 2026-01-09 17:07:41 [info     ] ║  Stage 4: Memory Consolidation         ║
+l9-api  | 2026-01-09 17:07:41 [info     ] ╚════════════════════════════════════════╝
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ MemoryConsolidationService initialized (24h cleanup cycle)
+l9-api  | 2026-01-09 17:07:41 [info     ] ╔════════════════════════════════════════╗
+l9-api  | 2026-01-09 17:07:41 [info     ] ║  Stage 5: Graph-Backed Agent State     ║
+l9-api  | 2026-01-09 17:07:41 [info     ] ╚════════════════════════════════════════╝
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ AgentGraphLoader initialized
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ GraphHydrator initialized
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ AgentSelfModifyTool initialized
+l9-api  | 2026-01-09 17:07:41 [info     ] Event queue processor started
+l9-api  | 2026-01-09 17:07:41 [info     ] Memory consolidation scheduled every 4 hours
+l9-api  | 2026-01-09 17:07:41 [info     ] ✓ L agent found in Neo4j graph
+l9-api  | 2026-01-09 17:07:41 [info     ] Stage 5 (Graph-Backed Agent State) complete
+l9-api  | 2026-01-09 17:07:41 [info     ] GraphToWorldModelSync started (interval=300s)
+l9-api  | 2026-01-09 17:07:41 [info     ] ✅ UKG Phase 3: Graph-WM Sync started
+l9-api  | 2026-01-09 17:07:41 [info     ] ToolPatternExtractor started (interval=6h)
+l9-api  | 2026-01-09 17:07:41 [info     ] ✅ UKG Phase 4: Tool Pattern Extraction started (6h interval)
+l9-api  | 2026-01-09 17:07:41 [info     ] Initializing Five-Tier Observability...
+l9-api  | 2026-01-09 17:07:41 [info     ] ObservabilityService initialized extra={'sampling_rate': 0.1, 'exporters': ['console', 'substrate']}
+l9-api  | 2026-01-09 17:07:41 [info     ] Instrumented agent executor (start_agent_task)
+l9-api  | 2026-01-09 17:07:41 [info     ] Instrumented tool registry (dispatch_tool_call)
+l9-api  | 2026-01-09 17:07:41 [info     ] Instrumented governance engine (evaluate)
+l9-api  | 2026-01-09 17:07:41 [debug    ] Instrumented substrate.write_packet
+l9-api  | 2026-01-09 17:07:41 [debug    ] Instrumented substrate.semantic_search
+l9-api  | 2026-01-09 17:07:41 [debug    ] Instrumented substrate.get_packet
+l9-api  | 2026-01-09 17:07:41 [debug    ] Instrumented substrate.query_packets
+l9-api  | 2026-01-09 17:07:41 [info     ] Instrumented memory substrate (4 methods)
+l9-api  | 2026-01-09 17:07:41 [info     ] ✅ Five-Tier Observability initialized instrumented={'executor': True, 'tool_registry': True, 'governance': True, 'substrate': True}
+l9-api  | 2026-01-09 17:07:41 [info     ] Loading agent state from Neo4j agent_id=L
+l9-api  | 2026-01-09 17:07:41 [info     ] Starting tool pattern extraction...
 l9-api  | INFO:     Application startup complete.
 l9-api  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-l9-api  | 2026-01-09 03:51:14 [info     ] Database connection pool initialized
-l9-api  | 2026-01-09 03:51:14 [info     ] Database connection pool closed
-l9-api  | 2026-01-09 03:51:14 [info     ] No audit data to analyze
-l9-api  | INFO:     127.0.0.1:48528 - "GET /health HTTP/1.1" 200 OK
-l9-api  | INFO:     172.18.0.5:51008 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
-l9-api  | INFO:     172.18.0.5:51008 - "GET /metrics/ HTTP/1.1" 200 OK
-l9-api  | INFO:     127.0.0.1:46870 - "GET /health HTTP/1.1" 200 OK
-l9-api  | INFO:     172.18.0.5:36462 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
-l9-api  | INFO:     172.18.0.5:36462 - "GET /metrics/ HTTP/1.1" 200 OK
-l9-api  | INFO:     127.0.0.1:49520 - "GET /health HTTP/1.1" 200 OK
-l9-api  | INFO:     172.18.0.5:46328 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
-l9-api  | INFO:     172.18.0.5:46328 - "GET /metrics/ HTTP/1.1" 200 OK
-l9-api  | INFO:     127.0.0.1:39930 - "GET /health HTTP/1.1" 200 OK
-l9-api  | INFO:     172.18.0.5:58514 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
-l9-api  | INFO:     172.18.0.5:58514 - "GET /metrics/ HTTP/1.1" 200 OK
-l9-api  | INFO:     127.0.0.1:34260 - "GET /health HTTP/1.1" 200 OK
-l9-api  | INFO:     172.18.0.5:47462 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
-l9-api  | INFO:     172.18.0.5:47462 - "GET /metrics/ HTTP/1.1" 200 OK
-l9-api  | INFO:     127.0.0.1:40214 - "GET /health HTTP/1.1" 200 OK
-l9-api  | INFO:     172.18.0.5:49496 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
-l9-api  | INFO:     172.18.0.5:49496 - "GET /metrics/ HTTP/1.1" 200 OK
-l9-api  | INFO:     127.0.0.1:50898 - "GET /health HTTP/1.1" 200 OK
-l9-api  | INFO:     172.18.0.5:55138 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
-l9-api  | INFO:     172.18.0.5:55138 - "GET /metrics/ HTTP/1.1" 200 OK
-l9-api  | INFO:     127.0.0.1:53404 - "GET /health HTTP/1.1" 200 OK
-l9-api  | INFO:     172.18.0.5:41272 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
-l9-api  | INFO:     172.18.0.5:41272 - "GET /metrics/ HTTP/1.1" 200 OK
+l9-api  | 2026-01-09 17:07:42 [info     ] Database connection pool initialized
+l9-api  | 2026-01-09 17:07:42 [info     ] Database connection pool closed
+l9-api  | 2026-01-09 17:07:42 [info     ] No audit data to analyze
+l9-api  | INFO:     172.18.0.5:39224 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
+l9-api  | INFO:     172.18.0.5:39224 - "GET /metrics/ HTTP/1.1" 200 OK
+l9-api  | Received notification from DBMS server: <GqlStatusObject gql_status='01N51', status_description='warn: relationship type does not exist. The relationship type `COLLABORATES_WITH` does not exist. Verify that the spelling is correct.', position=<SummaryInputPosition line=8, column=24, offset=330>, raw_classification='UNRECOGNIZED', classification=<NotificationClassification.UNRECOGNIZED: 'UNRECOGNIZED'>, raw_severity='WARNING', severity=<NotificationSeverity.WARNING: 'WARNING'>, diagnostic_record={'_classification': 'UNRECOGNIZED', '_severity': 'WARNING', '_position': {'offset': 330, 'line': 8, 'column': 24}, 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: '
+MATCH (a:Agent {agent_id: $agent_id})
+OPTIONAL MATCH (a)-[r1:HAS_RESPONSIBILITY]->(resp:Responsibility)
+OPTIONAL MATCH (a)-[r2:HAS_DIRECTIVE]->(dir:Directive)
+OPTIONAL MATCH (a)-[r3:HAS_SOP]->(sop:SOP)
+OPTIONAL MATCH (a)-[r4:CAN_EXECUTE]->(tool:Tool)
+OPTIONAL MATCH (a)-[r5:REPORTS_TO]->(supervisor:Agent)
+OPTIONAL MATCH (a)-[r6:COLLABORATES_WITH]->(peer:Agent)
+RETURN a,
+       collect(DISTINCT resp) as responsibilities,
+       collect(DISTINCT dir) as directives,
+       collect(DISTINCT sop) as sops,
+       collect(DISTINCT tool) as tools,
+       supervisor,
+       collect(DISTINCT peer) as collaborators
+'
+l9-api  | 2026-01-09 17:07:42 [info     ] Loaded agent state from Neo4j  agent_id=L directives=0 responsibilities=0 sops=0 supervisor=None tools=0
+l9-api  | 2026-01-09 17:07:42 [info     ] WorldModelService initialized
+l9-api  | 2026-01-09 17:07:42 [info     ] World Model DB pool initialized
+l9-api  | 2026-01-09 17:07:42 [debug    ] Upserted entity: agent:L
+l9-api  | 2026-01-09 17:07:42 [info     ] Synced agent L to World Model  extra={'responsibilities': 0, 'directives': 0, 'tools': 0}
+l9-api  | 2026-01-09 17:07:42 [info     ] TaskQueue: Redis backend active
+l9-api  | INFO:     127.0.0.1:38548 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.1:47788 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.5:42050 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
+l9-api  | INFO:     172.18.0.5:42050 - "GET /metrics/ HTTP/1.1" 200 OK
+l9-api  | INFO:     127.0.0.1:59308 - "GET /health HTTP/1.1" 200 OK
 
 C4) DOCKER NETWORK + PORTS OF INTEREST
 --------------------------------------
@@ -234,9 +214,9 @@ LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*    users:(("docker-proxy
 LISTEN 0      4096       127.0.0.1:16686      0.0.0.0:*    users:(("docker-proxy",pid=3123951,fd=7))
 LISTEN 0      200       172.17.0.1:5432       0.0.0.0:*    users:(("postgres",pid=1366480,fd=7))    
 LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=3123837,fd=7))
-LISTEN 0      4096       127.0.0.1:8000       0.0.0.0:*    users:(("docker-proxy",pid=894656,fd=7)) 
-LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=3740249,fd=7))
-LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=3740234,fd=7))
+LISTEN 0      4096       127.0.0.1:8000       0.0.0.0:*    users:(("docker-proxy",pid=1649135,fd=7))
+LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=995235,fd=7)) 
+LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=995219,fd=7)) 
 LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=3123972,fd=7))
 LISTEN 0      4096               *:9001             *:*    users:(("caddy",pid=9230,fd=17))         
 LISTEN 0      200            [::1]:5432          [::]:*    users:(("postgres",pid=1366480,fd=6))    
@@ -347,7 +327,7 @@ services:
 37:      - neo4j_data:/data
 38:      - neo4j_logs:/logs
 60:      neo4j:
-92:      NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
+92:      NEO4J_URL: ${NEO4J_URL:-bolt://neo4j:7687}
 93:      NEO4J_USER: ${NEO4J_USER:-neo4j}
 243:  neo4j_data:
 245:    name: l9-neo4j-data
@@ -390,7 +370,7 @@ l9.quantumaipartners.com {
 
 E1) L9 API HEALTH (DIRECT ON 8000)
 ----------------------------------
-{"status":"degraded","service":"l9-api","startup_ready":false}
+{"status":"ok","service":"l9-api","startup_ready":true}
 E2) L9 API WORLD MODEL HEALTH
 -----------------------------
 {"detail":"Not Found"}{"detail":"Not Found"}
@@ -406,7 +386,7 @@ HTTPS /health on 9001 not responding (check Caddy and certs)
 E4) PUBLIC HEALTH VIA DOMAIN (IF DNS CONFIGURED)
 -----------------------------------------------
 Public API health (443):
-{"status":"degraded","service":"l9-api","startup_ready":false}Public world model state-version (443):
+{"status":"ok","service":"l9-api","startup_ready":true}Public world model state-version (443):
 curl: (22) The requested URL returned error: 404
 Public worldmodel state-version failed
 
@@ -445,11 +425,11 @@ Database list (first 15):
 F2) NEO4J CONTAINER + PORTS
 ---------------------------
 CONTAINER ID   IMAGE               STATUS                  PORTS
-bf53df65e640   neo4j:5-community   Up 24 hours (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
+f1f1a8ccf661   neo4j:5-community   Up 11 hours (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
 
 Neo4j ports:
-LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=3740249,fd=7))
-LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=3740234,fd=7))
+LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=995235,fd=7)) 
+LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=995219,fd=7)) 
 
 F3) NEO4J BOLT CONNECTIVITY (IF PASSWORD SET)
 --------------------------------------------
@@ -459,7 +439,7 @@ Neo4j Python driver test failed (driver not installed or auth error)
 F4) REDIS STATUS (IF USED)
 --------------------------
 CONTAINER ID   IMAGE            STATUS                  PORTS
-fb06cdb1fdfc   redis:7-alpine   Up 34 hours (healthy)   127.0.0.1:6379->6379/tcp
+fb06cdb1fdfc   redis:7-alpine   Up 47 hours (healthy)   127.0.0.1:6379->6379/tcp
 
 LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=3123837,fd=7))
 
@@ -476,13 +456,13 @@ World model health (via /healthneo4j if present):
 H1) PROMETHEUS STATUS
 ---------------------
 CONTAINER ID   IMAGE                     STATUS                  PORTS
-daba748c3708   prom/prometheus:v2.48.0   Up 34 hours (healthy)   127.0.0.1:9090->9090/tcp
+daba748c3708   prom/prometheus:v2.48.0   Up 47 hours (healthy)   127.0.0.1:9090->9090/tcp
 Prometheus Server is Healthy.
 
 H2) GRAFANA STATUS
 ------------------
 CONTAINER ID   IMAGE                    STATUS                  PORTS
-5460f2f201be   grafana/grafana:10.2.0   Up 34 hours (healthy)   127.0.0.1:3000->3000/tcp
+5460f2f201be   grafana/grafana:10.2.0   Up 47 hours (healthy)   127.0.0.1:3000->3000/tcp
 {
   "commit": "895fbafb7a",
   "database": "ok",
@@ -491,7 +471,7 @@ CONTAINER ID   IMAGE                    STATUS                  PORTS
 H3) JAEGER STATUS
 -----------------
 CONTAINER ID   IMAGE                           STATUS                  PORTS
-ec9433cabe6a   jaegertracing/all-in-one:1.52   Up 34 hours (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
+ec9433cabe6a   jaegertracing/all-in-one:1.52   Up 47 hours (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
 <!doctype html>
 <html lang="en">
   <head>

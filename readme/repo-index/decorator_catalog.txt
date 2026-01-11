@@ -6,27 +6,27 @@
 | Decorator | Count | Example Files |
 |-----------|-------|---------------|
 | `@abstractmethod` | 28 | agents/base_agent.py, collaborative_cells/base_cell.py, core/observability/context_strategies.py |
-| `@acceptance` | 1 | _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py |
-| `@asynccontextmanager` | 5 | _archived/archived_mcp_memory/src/main.py, api/server.py, igor/audit-memory/mcp_memory_src_main.py |
-| `@asyncio` | 636 | _archived/archived_mcp_memory/tests/test_embeddings.py, _archived/archived_mcp_memory/tests/test_memory.py, _archived/archived_mcp_memory/tests/test_search.py |
-| `@classmethod` | 41 | api/adapters/calendar_adapter/config.py, api/adapters/email_adapter/config.py, api/adapters/twilio_adapter/config.py |
-| `@dataclass` | 291 | _archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py, _archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py, agents/base_agent.py |
+| `@acceptance` | 1 | docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py |
+| `@asynccontextmanager` | 5 | api/server.py, igor/audit-memory/mcp_memory_src_main.py, igor/audit-memory/memory_substrate_repository.py |
+| `@asyncio` | 636 | api/adapters/calendar_adapter/tests/test_calendar_adapter.py, api/adapters/email_adapter/tests/test_email_adapter.py, api/adapters/twilio_adapter/tests/test_twilio_adapter.py |
+| `@classmethod` | 43 | api/adapters/calendar_adapter/config.py, api/adapters/email_adapter/config.py, api/adapters/twilio_adapter/config.py |
+| `@dataclass` | 293 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/readme_generator.py |
 | `@dataclass(...)` | 3 | core/moduleregistry.py, core/tools/sanitizer.py |
 | `@delete(...)` | 2 | api/memory/cache.py, api/memory/graph.py |
-| `@exception_handler(...)` | 3 | _archived/archived_mcp_memory/src/main.py, api/server.py, igor/audit-memory/mcp_memory_src_main.py |
+| `@exception_handler(...)` | 3 | api/server.py, igor/audit-memory/mcp_memory_src_main.py, mcp_memory/src/main.py |
 | `@field_validator(...)` | 7 | codegen/code-gen-files/schema_parser.py, core/kernels/schemas.py, core/schemas/research_factory_models.py |
-| `@fixture` | 251 | _archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py, _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py, _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py |
+| `@fixture` | 251 | api/adapters/calendar_adapter/tests/conftest.py, api/adapters/calendar_adapter/tests/test_calendar_adapter.py, api/adapters/calendar_adapter/tests/test_calendar_adapter_integration.py |
 | `@fixture(...)` | 7 | igor/audit-memory/tests_memory_test_substrate_api.py, igor/audit-memory/tests_memory_test_vector_search.py, tests/docker/test_stack_smoke.py |
-| `@get(...)` | 99 | _archived/archived_mcp_memory/src/main.py, _archived/archived_mcp_memory/src/routes/health.py, _archived/archived_mcp_memory/src/routes/memory.py |
-| `@integration` | 6 | _archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py, tests/test_memory_substrate_basic.py |
+| `@get(...)` | 100 | api/adapters/calendar_adapter/routes/calendar_adapter.py, api/adapters/email_adapter/routes/email_adapter.py, api/adapters/twilio_adapter/routes/twilio_adapter.py |
+| `@integration` | 6 | docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py, tests/test_memory_substrate_basic.py |
 | `@l9_traced(...)` | 1 | codegen/templates/python/dora-template.py |
 | `@lru_cache(...)` | 2 | core/schemas/schema_registry.py, services/symbolic_computation/core.py |
 | `@model_validator(...)` | 3 | core/observability/config.py, ir_engine/meta_ir.py |
 | `@on_event(...)` | 2 | api/server.py |
 | `@parametrize(...)` | 4 | tests/docker/test_env_validation.py, tests/test_imports.py |
 | `@patch(...)` | 7 | tests/test_research_graph.py |
-| `@post(...)` | 89 | _archived/archived_mcp_memory/src/main.py, _archived/archived_mcp_memory/src/routes/memory.py, _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py |
-| `@property` | 98 | _archived/archived_mcp_memory/src/main.py, agents/base_agent.py, agents/codegenagent/codegen_agent.py |
+| `@post(...)` | 91 | api/adapters/calendar_adapter/routes/calendar_adapter.py, api/adapters/email_adapter/routes/email_adapter.py, api/adapters/twilio_adapter/routes/twilio_adapter.py |
+| `@property` | 98 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/file_emitter.py |
 | `@recurrence_memo(...)` | 1 | services/symbolic_computation/utils.py |
 | `@register(...)` | 4 | core/schemas/schema_registry.py |
 | `@retry(...)` | 2 | agents/research_agent.py, codegen/scripts/generate_spec.py |

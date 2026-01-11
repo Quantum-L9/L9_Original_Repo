@@ -131,8 +131,8 @@ CompactResponse::BaseModel @ igor/audit-memory/api_memory_router.py
 CompilerError::Exception @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
 ComplianceReportResponse::BaseModel @ api/routes/compliance.py
 CompositeTask::BaseModel @ api/vps_executor.py
-CompoundResult::BaseModel @ _archived/archived_mcp_memory/src/models.py
 CompoundResult::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+CompoundResult::BaseModel @ mcp_memory/src/models.py
 ComputationRequest::BaseModel @ services/symbolic_computation/core/models.py
 ComputationRequest::BaseModel @ services/symbolic_computation/models.py
 ComputationResult::BaseModel @ services/symbolic_computation/core/models.py
@@ -148,10 +148,10 @@ ConstraintStatus::str,Enum @ ir_engine/ir_schema.py
 ConstraintType::str,Enum @ ir_engine/ir_schema.py
 ContentMode::Enum @ upgrades/packet_envelope/standardization.py
 ContextAssemblySpan::Span @ core/observability/models.py
-ContextInjectionRequest::BaseModel @ _archived/archived_mcp_memory/src/models.py
 ContextInjectionRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
-ContextInjectionResponse::BaseModel @ _archived/archived_mcp_memory/src/models.py
+ContextInjectionRequest::BaseModel @ mcp_memory/src/models.py
 ContextInjectionResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+ContextInjectionResponse::BaseModel @ mcp_memory/src/models.py
 ContextRead::BaseModel @ ir_engine/meta_ir.py
 ContextStrategy::ABC @ core/observability/context_strategies.py
 ControllerPhase::str,Enum @ orchestration/unified_controller.py
@@ -359,9 +359,7 @@ LogsConfig::BaseModel @ ir_engine/meta_ir.py
 LongPlanState::TypedDict @ orchestration/long_plan_graph.py
 MCPCallToolInput::BaseModel @ core/schemas/l_tools.py
 MCPCallToolInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
-MCPTool::BaseModel @ _archived/archived_mcp_memory/src/mcp_server.py
 MCPTool::BaseModel @ igor/audit-memory/mcp_memory_src_mcp_server.py
-MCPToolCall::BaseModel @ _archived/archived_mcp_memory/src/mcp_server.py
 MCPToolCall::BaseModel @ igor/audit-memory/mcp_memory_src_mcp_server.py
 MacAgentExecInput::BaseModel @ core/schemas/l_tools.py
 MacAgentExecInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
@@ -385,9 +383,9 @@ MemoryPacket::BaseModel @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
 MemoryPacketError::MemoryError @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
 MemoryRequest::BaseModel @ igor/audit-memory/orchestrators_memory_interface.py
 MemoryRequest::BaseModel @ orchestrators/memory/interface.py
-MemoryResponse::BaseModel @ _archived/archived_mcp_memory/src/models.py
 MemoryResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
 MemoryResponse::BaseModel @ igor/audit-memory/orchestrators_memory_interface.py
+MemoryResponse::BaseModel @ mcp_memory/src/models.py
 MemoryResponse::BaseModel @ orchestrators/memory/interface.py
 MemorySearchInput::BaseModel @ core/schemas/l_tools.py
 MemorySearchInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
@@ -395,8 +393,8 @@ MemorySegment::Enum @ core/tools/memory_tools.py
 MemorySegment::str,Enum @ memory/substrate_models.py
 MemorySegment::str,Enum @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
 MemorySegmentError::MemoryError @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryStatsResponse::BaseModel @ _archived/archived_mcp_memory/src/models.py
 MemoryStatsResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+MemoryStatsResponse::BaseModel @ mcp_memory/src/models.py
 MemorySubstratePacketSource::PacketSource @ world_model/runtime.py
 MemorySubstrateSettings::BaseSettings @ config/memory_substrate_settings.py
 MemorySubstrateSettings::BaseSettings @ igor/audit-memory/config_memory_substrate_settings.py
@@ -505,10 +503,10 @@ Policy::BaseModel @ core/governance/schemas.py
 PolicyEffect::str,Enum @ core/governance/schemas.py
 PolicyLoadError::Exception @ core/governance/loader.py
 PolicyViolation::Exception @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/apply_policy_rules.py
-ProactiveRecallRequest::BaseModel @ _archived/archived_mcp_memory/src/models.py
 ProactiveRecallRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
-ProactiveRecallResponse::BaseModel @ _archived/archived_mcp_memory/src/models.py
+ProactiveRecallRequest::BaseModel @ mcp_memory/src/models.py
 ProactiveRecallResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+ProactiveRecallResponse::BaseModel @ mcp_memory/src/models.py
 Prohibition::FlexibleModel @ core/kernels/schemas.py
 ProtocolBinding::ABC @ upgrades/packet_envelope/standardization.py
 PythonModuleHealthProbe::HealthProbe @ scripts/audit/tier1/audit_infrastructure_health.py
@@ -575,18 +573,18 @@ RuntimeWiringSpec::BaseModel @ ir_engine/meta_ir.py
 SREMetric::BaseModel @ core/observability/models.py
 SSOTViolation::CompilerError @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
 SafetyKernelData::FlexibleModel @ core/kernels/schemas.py
-SaveMemoryRequest::BaseModel @ _archived/archived_mcp_memory/src/models.py
 SaveMemoryRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
-SaveMemoryWithConfidenceRequest::BaseModel @ _archived/archived_mcp_memory/src/models.py
+SaveMemoryRequest::BaseModel @ mcp_memory/src/models.py
 SaveMemoryWithConfidenceRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+SaveMemoryWithConfidenceRequest::BaseModel @ mcp_memory/src/models.py
 ScenarioType::str,Enum @ simulation/scenario_loader.py
 SchemaValidationError::Exception @ ir_engine/schema_validator.py
 SearchContextSize::str,Enum @ igor/audit-tools/services_research_tools_perplexity_client.py
 SearchContextSize::str,Enum @ services/research/tools/perplexity_client.py
-SearchMemoryRequest::BaseModel @ _archived/archived_mcp_memory/src/models.py
 SearchMemoryRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
-SearchMemoryResponse::BaseModel @ _archived/archived_mcp_memory/src/models.py
+SearchMemoryRequest::BaseModel @ mcp_memory/src/models.py
 SearchMemoryResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+SearchMemoryResponse::BaseModel @ mcp_memory/src/models.py
 SecretType::Enum @ core/governance/credentials_policy.py
 SecurityEvent::BaseModel @ core/schemas/event_stream.py
 SecurityEvent::BaseModel @ igor/audit-memory/core_schemas_event_stream.py
@@ -615,12 +613,12 @@ SemanticSearchResult::BaseModel @ memory/substrate_models.py
 SendRequest::BaseModel @ email_agent/router.py
 ServiceType::str,Enum @ ir_engine/meta_ir.py
 SessionContextRequest::BaseModel @ api/memory/cache.py
-SessionLearningRequest::BaseModel @ _archived/archived_mcp_memory/src/models.py
 SessionLearningRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
-SessionLearningResponse::BaseModel @ _archived/archived_mcp_memory/src/models.py
+SessionLearningRequest::BaseModel @ mcp_memory/src/models.py
 SessionLearningResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
-Settings::BaseSettings @ _archived/archived_mcp_memory/src/config.py
+SessionLearningResponse::BaseModel @ mcp_memory/src/models.py
 Settings::BaseSettings @ igor/audit-memory/mcp_memory_src_config.py
+Settings::BaseSettings @ mcp_memory/src/config.py
 Severity::Enum @ core/governance/mistake_prevention.py
 ShellTask::BaseModel @ api/vps_executor.py
 SideEffect::BaseModel @ ir_engine/meta_ir.py
@@ -632,10 +630,10 @@ SimulationRequest::BaseModel @ api/routes/simulation.py
 SimulationResponse::BaseModel @ api/routes/simulation.py
 SlackClientError::Exception @ api/slack_client.py
 SlackSignatureVerificationError::Exception @ api/slack_adapter.py
-SlackWebhookRequest::BaseModel @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackWebhookRequestModel::BaseModel @ _archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
-SlackWebhookResponse::BaseModel @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-SlackWebhookResponseModel::BaseModel @ _archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
+SlackWebhookRequest::BaseModel @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackWebhookRequestModel::BaseModel @ docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
+SlackWebhookResponse::BaseModel @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+SlackWebhookResponseModel::BaseModel @ docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py
 SnapshotData::BaseModel @ clients/world_model_client.py
 SnapshotRequest::BaseModel @ api/world_model_api.py
 SnapshotResponse::BaseModel @ api/world_model_api.py
@@ -703,8 +701,11 @@ TaskComplexity::str,Enum @ orchestration/task_router.py
 TaskEnvelope::BaseModel @ core/schemas/tasks.py
 TaskExecutionStatus::str,Enum @ orchestrators/agent_execution/interface.py
 TaskGraph::BaseModel @ core/schemas/tasks.py
+TaskIntent::str,Enum @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
 TaskKind::str,Enum @ core/agents/schemas.py
 TaskKind::str,Enum @ core/schemas/tasks.py
+TaskModule::str,Enum @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+TaskPriority::str,Enum @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
 TaskResult::BaseModel @ core/schemas/tasks.py
 TaskResultRequest::BaseModel @ api/webhook_mac_agent.py
 TaskRisk::str,Enum @ orchestration/task_router.py
@@ -714,10 +715,10 @@ TaskType::str,Enum @ orchestration/task_router.py
 TelemetryConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 TemplateInfo::BaseModel @ api/routes/factory.py
 TemplatesResponse::BaseModel @ api/routes/factory.py
-TemporalQueryRequest::BaseModel @ _archived/archived_mcp_memory/src/models.py
 TemporalQueryRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
-TemporalQueryResponse::BaseModel @ _archived/archived_mcp_memory/src/models.py
+TemporalQueryRequest::BaseModel @ mcp_memory/src/models.py
 TemporalQueryResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+TemporalQueryResponse::BaseModel @ mcp_memory/src/models.py
 TestScope::BaseModel @ ir_engine/meta_ir.py
 ThresholdsConfig::FlexibleModel @ core/kernels/schemas.py
 TokenOverusePattern::GapDetectionPattern @ core/agents/selfreflection.py
@@ -789,4 +790,4 @@ WorldModelQueryInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
 WorldModelRequest::BaseModel @ orchestrators/world_model/interface.py
 WorldModelResponse::BaseModel @ orchestrators/world_model/interface.py
 
-# Total: 785 classes with inheritance
+# Total: 786 classes with inheritance

@@ -71,18 +71,18 @@ CompactResponse @ api/memory/router.py - Response model for compact operation.
 CompactResponse @ igor/audit-memory/api_memory_router.py - Response model for compact operation.
 ComplianceReportResponse @ api/routes/compliance.py - Compliance report response.
 CompositeTask @ api/vps_executor.py - 
-CompoundResult @ _archived/archived_mcp_memory/src/models.py - 
 CompoundResult @ igor/audit-memory/mcp_memory_src_models.py - 
+CompoundResult @ mcp_memory/src/models.py - 
 ComputationRequest @ services/symbolic_computation/core/models.py - Request model for expression evaluation.
 ComputationRequest @ services/symbolic_computation/models.py - Request model for symbolic computation.
 ComputationResult @ services/symbolic_computation/core/models.py - Result model for expression evaluation.
 ComputationResult @ services/symbolic_computation/models.py - Result model for symbolic computation.
 Condition @ core/governance/schemas.py - A condition that must be met for a policy to apply
 ConfirmationResult @ core/commands/schemas.py - Result of Igor confirmation for high-risk commands
-ContextInjectionRequest @ _archived/archived_mcp_memory/src/models.py - Request for auto context injection before a task.
 ContextInjectionRequest @ igor/audit-memory/mcp_memory_src_models.py - Request for auto context injection before a task.
-ContextInjectionResponse @ _archived/archived_mcp_memory/src/models.py - Context memories to inject into system prompt.
+ContextInjectionRequest @ mcp_memory/src/models.py - Request for auto context injection before a task.
 ContextInjectionResponse @ igor/audit-memory/mcp_memory_src_models.py - Context memories to inject into system prompt.
+ContextInjectionResponse @ mcp_memory/src/models.py - Context memories to inject into system prompt.
 ContextRead @ ir_engine/meta_ir.py - Context read operation.
 CrossAgentSharingConfig @ codegen/code-gen-files/schema_parser.py - Cross-agent memory sharing configuration.
 CursorInstructionsBlock @ codegen/code-gen-files/schema_parser.py - File generation directives for code extraction.
@@ -187,9 +187,7 @@ LoggingStandard @ ir_engine/meta_ir.py - Logging standard.
 LogsConfig @ ir_engine/meta_ir.py - Logging configuration.
 MCPCallToolInput @ core/schemas/l_tools.py - Input schema for MCP tool call.
 MCPCallToolInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema for MCP tool call.
-MCPTool @ _archived/archived_mcp_memory/src/mcp_server.py - 
 MCPTool @ igor/audit-memory/mcp_memory_src_mcp_server.py - 
-MCPToolCall @ _archived/archived_mcp_memory/src/mcp_server.py - 
 MCPToolCall @ igor/audit-memory/mcp_memory_src_mcp_server.py - 
 MacAgentExecInput @ core/schemas/l_tools.py - Input schema for Mac agent execution (high-risk, r
 MacAgentExecInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema for Mac agent execution (high-risk, r
@@ -203,14 +201,14 @@ MemoryLayerConfig @ codegen/code-gen-files/schema_parser.py - Configuration for 
 MemoryPacket @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py - Unit of memory aligned with L9's PacketEnvelope.
 MemoryRequest @ igor/audit-memory/orchestrators_memory_interface.py - Request to memory orchestrator.
 MemoryRequest @ orchestrators/memory/interface.py - Request to memory orchestrator.
-MemoryResponse @ _archived/archived_mcp_memory/src/models.py - 
 MemoryResponse @ igor/audit-memory/mcp_memory_src_models.py - 
 MemoryResponse @ igor/audit-memory/orchestrators_memory_interface.py - Response from memory orchestrator.
+MemoryResponse @ mcp_memory/src/models.py - 
 MemoryResponse @ orchestrators/memory/interface.py - Response from memory orchestrator.
 MemorySearchInput @ core/schemas/l_tools.py - Input schema for memory search tool.
 MemorySearchInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema for memory search tool.
-MemoryStatsResponse @ _archived/archived_mcp_memory/src/models.py - 
 MemoryStatsResponse @ igor/audit-memory/mcp_memory_src_models.py - 
+MemoryStatsResponse @ mcp_memory/src/models.py - 
 MemorySubstrateSettings @ config/memory_substrate_settings.py - Configuration for the Memory Substrate module.
 MemorySubstrateSettings @ igor/audit-memory/config_memory_substrate_settings.py - Configuration for the Memory Substrate module.
 MemoryTopologyBlock @ codegen/code-gen-files/schema_parser.py - Multi-layer memory architecture.
@@ -286,10 +284,10 @@ PacketWriteResult @ memory/substrate_models.py - Result of writing a PacketEnvel
 ParsedObject @ core/schemas/research_factory_models.py - Output of Pass 4: extract_results
 PassMetadata @ core/schemas/research_factory_state.py - Metadata for a single pass execution.
 Policy @ core/governance/schemas.py - A governance policy defining access control rules.
-ProactiveRecallRequest @ _archived/archived_mcp_memory/src/models.py - Request for proactive memory suggestions based on 
 ProactiveRecallRequest @ igor/audit-memory/mcp_memory_src_models.py - Request for proactive memory suggestions based on 
-ProactiveRecallResponse @ _archived/archived_mcp_memory/src/models.py - Proactive suggestions surfaced from memory.
+ProactiveRecallRequest @ mcp_memory/src/models.py - Request for proactive memory suggestions based on 
 ProactiveRecallResponse @ igor/audit-memory/mcp_memory_src_models.py - Proactive suggestions surfaced from memory.
+ProactiveRecallResponse @ mcp_memory/src/models.py - Proactive suggestions surfaced from memory.
 Query @ core/schemas/research_factory_models.py - Individual query within a query plan.
 QueryPlan @ core/schemas/research_factory_models.py - Output of Pass 1: plan_queries
 QueryRequest @ api/memory/graph.py - Request model for Cypher queries.
@@ -325,14 +323,14 @@ RetryConfig @ ir_engine/meta_ir.py - Retry configuration.
 RuntimeTouchpoints @ ir_engine/meta_ir.py - Section 10: What runtime resources this module tou
 RuntimeWiringSpec @ ir_engine/meta_ir.py - Section 3: SINGLE SOURCE OF TRUTH for docker-compo
 SREMetric @ core/observability/models.py - SRE-level metric.
-SaveMemoryRequest @ _archived/archived_mcp_memory/src/models.py - 
 SaveMemoryRequest @ igor/audit-memory/mcp_memory_src_models.py - 
-SaveMemoryWithConfidenceRequest @ _archived/archived_mcp_memory/src/models.py - Save memory with explicit confidence scoring.
+SaveMemoryRequest @ mcp_memory/src/models.py - 
 SaveMemoryWithConfidenceRequest @ igor/audit-memory/mcp_memory_src_models.py - Save memory with explicit confidence scoring.
-SearchMemoryRequest @ _archived/archived_mcp_memory/src/models.py - 
+SaveMemoryWithConfidenceRequest @ mcp_memory/src/models.py - Save memory with explicit confidence scoring.
 SearchMemoryRequest @ igor/audit-memory/mcp_memory_src_models.py - 
-SearchMemoryResponse @ _archived/archived_mcp_memory/src/models.py - 
+SearchMemoryRequest @ mcp_memory/src/models.py - 
 SearchMemoryResponse @ igor/audit-memory/mcp_memory_src_models.py - 
+SearchMemoryResponse @ mcp_memory/src/models.py - 
 SecurityEvent @ core/schemas/event_stream.py - Security audit log event.
 SecurityEvent @ igor/audit-memory/core_schemas_event_stream.py - Security audit log event.
 SemanticHit @ clients/memory_client.py - Single semantic search result.
@@ -357,12 +355,12 @@ SemanticSearchResult @ igor/audit-memory/memory_substrate_models.py - Top-k sema
 SemanticSearchResult @ memory/substrate_models.py - Top-k semantic hits.
 SendRequest @ email_agent/router.py - Request model for sending email.
 SessionContextRequest @ api/memory/cache.py - Request model for session context.
-SessionLearningRequest @ _archived/archived_mcp_memory/src/models.py - Request to extract learnings from a session.
 SessionLearningRequest @ igor/audit-memory/mcp_memory_src_models.py - Request to extract learnings from a session.
-SessionLearningResponse @ _archived/archived_mcp_memory/src/models.py - Learnings extracted and stored from session.
+SessionLearningRequest @ mcp_memory/src/models.py - Request to extract learnings from a session.
 SessionLearningResponse @ igor/audit-memory/mcp_memory_src_models.py - Learnings extracted and stored from session.
-Settings @ _archived/archived_mcp_memory/src/config.py - 
+SessionLearningResponse @ mcp_memory/src/models.py - Learnings extracted and stored from session.
 Settings @ igor/audit-memory/mcp_memory_src_config.py - 
+Settings @ mcp_memory/src/config.py - 
 ShellTask @ api/vps_executor.py - 
 SideEffect @ ir_engine/meta_ir.py - Side effect definition.
 SimpleContent @ core/schemas/packet_envelope.py - Simple text content wrapper.
@@ -370,10 +368,10 @@ SimpleContent @ igor/audit-memory/core_schemas_packet_envelope.py - Simple text 
 SimulationMetricsResponse @ api/routes/simulation.py - Simulation metrics.
 SimulationRequest @ api/routes/simulation.py - Request to run a simulation.
 SimulationResponse @ api/routes/simulation.py - Response from simulation execution.
-SlackWebhookRequest @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py - Inbound Slack webhook request model.
-SlackWebhookRequestModel @ _archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py - Request model for Slack Webhook Adapter endpoint.
-SlackWebhookResponse @ _archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py - Response model for Slack webhook endpoint.
-SlackWebhookResponseModel @ _archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py - Response model for Slack Webhook Adapter endpoint.
+SlackWebhookRequest @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py - Inbound Slack webhook request model.
+SlackWebhookRequestModel @ docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py - Request model for Slack Webhook Adapter endpoint.
+SlackWebhookResponse @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py - Response model for Slack webhook endpoint.
+SlackWebhookResponseModel @ docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py - Response model for Slack Webhook Adapter endpoint.
 SnapshotData @ clients/world_model_client.py - Snapshot data from API.
 SnapshotRequest @ api/world_model_api.py - Create snapshot request.
 SnapshotResponse @ api/world_model_api.py - Snapshot response.
@@ -411,10 +409,10 @@ TaskResultRequest @ api/webhook_mac_agent.py - Request model for task result sub
 TelemetryConfig @ codegen/code-gen-files/schema_parser.py - Telemetry configuration.
 TemplateInfo @ api/routes/factory.py - Information about a template.
 TemplatesResponse @ api/routes/factory.py - Response model for template listing.
-TemporalQueryRequest @ _archived/archived_mcp_memory/src/models.py - Request for temporal memory queries.
 TemporalQueryRequest @ igor/audit-memory/mcp_memory_src_models.py - Request for temporal memory queries.
-TemporalQueryResponse @ _archived/archived_mcp_memory/src/models.py - Temporal query results showing memory evolution.
+TemporalQueryRequest @ mcp_memory/src/models.py - Request for temporal memory queries.
 TemporalQueryResponse @ igor/audit-memory/mcp_memory_src_models.py - Temporal query results showing memory evolution.
+TemporalQueryResponse @ mcp_memory/src/models.py - Temporal query results showing memory evolution.
 TestScope @ ir_engine/meta_ir.py - Section 11: Required test coverage.
 TokenUsage @ core/schemas/packet_envelope.py - Token usage tracking for LLM calls.
 TokenUsage @ igor/audit-memory/core_schemas_packet_envelope.py - Token usage tracking for LLM calls.
@@ -455,4 +453,4 @@ WorldModelQueryInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema f
 WorldModelRequest @ orchestrators/world_model/interface.py - Request to world_model orchestrator.
 WorldModelResponse @ orchestrators/world_model/interface.py - Response from world_model orchestrator.
 
-# Total: 451 Pydantic models
+# Total: 449 Pydantic models

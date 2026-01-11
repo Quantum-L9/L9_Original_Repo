@@ -19,124 +19,13 @@
 
 - Full historical logs (Recent Changes, Decision Log, session history, older “Recent Sessions” entries): `reports/Workflow_State_Archive_2026-01-08.md`
 
-## Active TODO Plan
-<!-- Current Phase 0 locked plan - files, actions, expected outcomes -->
+## Active Work
 
-### 🔴 PRIORITY: L's Memory — Local Docker Debugging
+**PRIMARY FOCUS**: **L's Memory Debugging in LOCAL DOCKER** — Get L's memory fully wired and activated in local Docker environment. Must work locally before pushing to VPS. No GitHub/VPS deployment until local Docker is verified.
 
-**Goal**: Get L's memory fully wired and working in LOCAL DOCKER before any VPS deployment.
+**SECONDARY**: CodeGenAgent (CGA) system — deferred until memory is working.
 
-#### Phase 1: Diagnose Current State ✅ COMPLETE
-- [x] Run `docker-compose up` locally and verify all containers start
-- [x] Check PostgreSQL container connectivity (`l9-postgres`)
-- [x] Check Neo4j container connectivity (`l9-neo4j`)
-- [x] Check Redis container connectivity (`l9-redis`)
-- [x] Verify memory substrate tables exist (25 tables, 320+ packets, 9 tool audit entries)
-
-#### Phase 2: Memory Write Path ✅ COMPLETE (2026-01-07)
-- [x] Test `memory_write` tool from L's executor — POST /api/v1/memory/packet works
-- [x] Verify PacketEnvelope is created and persisted to PostgreSQL — packet_store confirmed
-- [x] Check if embeddings are generated and stored — semantic_memory has 1536-dim vectors
-- [x] Verify tool_audit entries are logged — knowledge_facts extracted automatically
-
-#### Phase 3: Memory Read Path ✅ COMPLETE (2026-01-07)
-- [x] Test `memory_search` tool from L's executor — semantic search returns hits
-- [x] Verify semantic search returns relevant results — score-based ranking works
-- [x] Test `memory_context` retrieval — packet retrieval by ID works
-- [x] Verify Neo4j graph queries work (if applicable) — graph_checkpoints populated
-
-#### Phase 4: End-to-End Verification ✅ COMPLETE (2026-01-07)
-- [x] Run L via API (`POST /chat` or Slack webhook) — API endpoints verified
-- [x] Verify L can write to memory during task execution — DAG pipeline functional
-- [x] Verify L can read from memory for context — semantic search operational
-- [x] Confirm no errors in Docker logs — all containers healthy
-
-**Blocker**: NO GitHub push, NO VPS deployment until local Docker works.
-
----
-
-### 🟣 DEFERRED: CodeGenAgent System
-
-#### 1. Document & Standardize Specs
-- [x] Extract 90 YAML specs from chat transcript
-- [x] Organize into `specs/` (81) and `patches/` (archived)
-- [x] Apply 8 patch merges + convert 14 standalone patches
-- [x] Create README.md documenting CGA vision
-- [ ] Add `status:` field to all 67 specs missing it
-- [ ] Add Suite 6 governance headers to all specs
-
-#### 2. Build Extraction Pipeline (DEFERRED)
-- [ ] Create `codegen_extractor.py` — extracts `code:` blocks from YAML specs
-- [ ] Validate all `filename:` target paths
-- [ ] Build dependency graph from `wiring:` sections
-- [ ] Implement linter integration
-
-#### 3. Implement CGA Core (DEFERRED)
-- [ ] `agents/codegen_agent/codegen_agent.py` — main agent
-- [ ] `agents/codegen_agent/meta_loader.py` — YAML parsing
-- [ ] `agents/codegen_agent/c_gmp_engine.py` — code expansion
-- [ ] `agents/codegen_agent/file_emitter.py` — file writing with rollback
-- [ ] `agents/codegen_agent/pipeline_validator.py` — validation
-
-#### 4. Wire into L9 (DEFERRED)
-- [ ] Register CGA in AgentRegistry
-- [ ] Add API routes (`api/routes/codegen.py`)
-- [ ] Create orchestration DAG
-- [ ] Bind to governance hooks
-
-### 🟠 NEW: Emma/L9 Substrate Integration (Analysis Complete)
-
-#### Findings from Jan 1 Analysis:
-- **TaskRoute vs AgentExecutorService**: BOTH active, NOT redundant. TaskRoute = routing decisions, AgentExecutorService = execution. Different layers.
-- **Intent Extraction**: ✅ BUILT via GMP-11 - `core/commands/intent_extractor.py` now exists with LLM + rule-based fallback.
-- **Priority System**: Fragmented across TaskRoute.priority, AgentTask.priority, ws_task_router.default_priority. Needs unification.
-- **Graph Checkpoints**: Missing fields for comprehensive recovery (checkpoint_version, parent_checkpoint_id, execution_plan_snapshot).
-
-#### Emma Substrate Enhancements (from L9 0008): ✅ COMPLETE
-- [x] Add access_count, last_accessed to user_preferences/lessons/sops
-- [x] Add temporal_weight() and combined_importance() functions
-- [x] Add content_hash + unique partial index for lesson dedup
-- [x] Create rule_notifications table + auto-disable notification trigger (IGOR ALERTS!)
-- [x] Create mv_active_high_effectiveness_rules MV
-- [x] Add session_type field to unified_session_context
-
-#### L9 Core Enhancements (from Emma patterns): ✅ COMPLETE
-- [x] Add feedback_events table to L9 core substrate (0009)
-- [x] Add effectiveness tracking to reflection_store (0009)
-- [ ] Add crash recovery slide to roadmap
-- [x] Build core/commands/intent_extractor.py per GMP spec ✅ (GMP-11 complete)
-- [ ] Add step-level priority to PlanStep in plan_executor
-
-### ~~🟡 SECONDARY: MCP Memory~~ ❌ DEPRECATED (2026-01-07)
-
-**DEPRECATED:** MCP Memory server was never implemented. Memory access works via REST API.
-
-#### Current Memory Access (WORKING)
-```bash
-python3 .cursor-commands/cursor-memory/cursor_memory_client.py [command]
-```
-- `search "query"` — Semantic search
-- `write "content" --kind TYPE` — Write packet
-- `inject "task"` — 5-layer context injection
-- `health` — Check VPS connectivity
-
-#### Archived Files
-- `_archived/archived_mcp_memory/` — Historical MCP server code
-- `~/.cursor/mcp.json` — Removed `l9-memory` entry
-- `runtime/mcp_client.py` — Deprecated l9-memory registration
-- `core/worldmodel/service.py` — Commented out MCP-Memory system
-
-## Files in Scope
-<!-- Files currently being worked on this run -->
-- api/server.py
-- api/routes/modules.py
-- core/moduleregistry.py
-- core/tools/registry_adapter.py
-- core/tools/sanitizer.py
-- tests/unit/test_tool_input_sanitizer.py
-- tests/unit/test_registry_adapter_sanitization.py
-- reports/Report_GMP-45-ToolInputSanitizer-ModuleRegistry.md
-- workflow_state.md
+> **Note:** All TODO items, deferred work, and current work files have been moved to `TODO.md` for better organization.
 
 ## Test Status
 <!-- Last test run results: unit, integration, critical-path -->
@@ -157,6 +46,8 @@ python3 .cursor-commands/cursor-memory/cursor_memory_client.py [command]
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-11] **Cursor LangGraph Completion (GMP-49)** — Completed GMP-48 integration: added graph_search_query_builder.py, verified schema_registry.py, created Cursor API routes, wired router into server.py. `reports/GMP_Report_GMP-49-Cursor-LangGraph-Completion.md`
+- [2026-01-11] **Cursor + LangGraph Integration (GMP-48)** — Full Cursor + LangGraph + L9 Memory integration implemented. 12 modules: state/nodes, gateway, DAG wrapper, approval gates, dual checkpoint, semantic/graph search, executor, config, tests, docs. `reports/GMP_Report_GMP-48-Cursor-LangGraph-Integration.md`
 - [2026-01-09] **Stub Elimination (GMP-47)** — CRITICAL stubs now fail loudly (RuntimeError) instead of silently degrading. Mac agent + ResearchSwarm fully implemented. `reports/GMP_Report_GMP-47-Stub-Elimination.md`
 - [2026-01-09] **EmbeddingProvider Default (GMP-34)** — Changed EMBEDDING_PROVIDER default from "stub" to "openai" across codebase.
 - [2026-01-09] **CircuitBreaker Memory Wiring (GMP-33)** — Wired CB to `memory/substrate_service.py` write_packet(). `reports/GMP_Report_GMP-33-CircuitBreaker-Memory-Wiring.md`
@@ -174,13 +65,8 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - [2026-01-06] L's Memory Local Docker First
 
 ## Open Questions
-<!-- Unresolved issues, blockers, or things needing Igor input -->
-- Decide on exact scope names (`cursor` vs `cursor-dev` vs `igor`)
 
-### ✅ RESOLVED (2026-01-09)
-- **VPS Neo4j Auth**: `NEO4J_PASSWORD=FVmgaD1diPcz41zRbYLLP0UzyGvAi4E`
-- **VPS Postgres**: `POSTGRES_USER=postgres`, `POSTGRES_PASSWORD=8e4fXWM6Q3M87*b3`, `POSTGRES_DB=l9_memory`
-- **Caddy config**: `/etc/caddy/Caddyfile` (found + verified)
+> **Note:** Open questions and blockers have been moved to `TODO.md` under "Blockers / Questions".
 
 ---
 
@@ -192,13 +78,8 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ---
 
 ## Next Steps
-<!-- 2-5 concrete items for the next Phase 0/1 run -->
 
-- [ ] **Confirm local Docker memory is still healthy** (Postgres/Neo4j/Redis up; memory_write + memory_search smoke).
-- [ ] **Enforce `PacketValidator`** at the ingestion chokepoint (`memory/substrate_service.py:write_packet()`), with explicit error semantics + targeted tests.
-- [x] ~~**Unstub `ResearchSwarmOrchestrator`**~~ ✅ Implemented in GMP-47 (`orchestrators/research_swarm/orchestrator.py`)
-- [ ] **Run GMP-48** (next GMP; capability enabling per `reports/GMP-31-Systematic-Capability-Enabling.md`).
-- [ ] **Test server startup** to verify fail-loudly behavior (GMP-47 removed silent stubs).
+> **Note:** All next steps and TODO items have been moved to `TODO.md` for better organization.
 
 ---
 
@@ -217,9 +98,13 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Cloudflare**: All DNS for quantumaipartners.com proxied via Cloudflare (HTTPS, DDoS protection)
 
 ---
-*Last updated: 2026-01-09 12:05 EST*
+*Last updated: 2026-01-11 EST*
 
 **Recent Sessions (7-day window):**
+- ✅ 2026-01-11: Script Organization + Memory Graph Population — Organized 51 scripts into subfolders (memory/, deployment/, development/, research/, agents/, workspace/, batch/). Created indexing scripts for GMP reports, errors, architecture, preferences, tool usage. Generated SQL for trash embedding cleanup (52 embeddings). Re-indexed high-value content.
+- ✅ 2026-01-11: GMP-49 — Cursor LangGraph Completion (graph query builder, schema registry verification, API routes, router wiring)
+- ✅ 2026-01-11: GMP-48 — Cursor + LangGraph + L9 Memory Integration (12 modules, dual checkpoint, governance gates, 6 integration tests)
+- ✅ 2026-01-10: GMP-48 — Agent Executor Deployment Automation (verification script, deployment script, CI integration)
 - 2026-01-09: Created `deploy.sh` (IGOR_ONLY, 8-phase deployment with MRI). Archived 3 legacy deploy scripts. VPS credentials resolved, Caddy at `/etc/caddy/Caddyfile`.
 - ✅ 2026-01-09: E2E Audits — Memory + Slack audit scripts (tests/memory/test_e2e_memory_audit.py, tests/api/test_e2e_slack_audit.py), api/SLACK_INTEGRATION.md
 - ✅ 2026-01-09: GMP-46 — Fix Silent Failures in KERNEL_TIER (AIOSRuntime + KernelLoader)

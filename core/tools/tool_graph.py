@@ -30,7 +30,7 @@ logger = structlog.get_logger(__name__)
 # L's tenant ID for Neo4j tool graph - L's exclusive domain
 # Cursor does NOT use the tool graph (it's for L's tool execution only)
 # L uses:      L9_TENANT_ID = 'l-cto' (here and runtime/redis_client.py)
-# Cursor uses: CURSOR_TENANT_ID = 'cursor-ide' (core/governance/cursor_memory_kernel.py)
+# Cursor uses: CURSOR_TENANT_ID = 'cursor-ide' (agents/cursor/cursor_memory_kernel.py)
 DEFAULT_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
 
 

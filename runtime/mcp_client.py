@@ -336,12 +336,17 @@ class MCPClient:
         logger.info("Memory MCP server configured")
 
         # ========================================================================
-        # DEPRECATED: L9 Memory MCP (2026-01-07)
+        # L9 Memory MCP (Active as of 2026-01-09)
         # ========================================================================
-        # MCP SSE endpoint was never implemented. Memory access is via:
-        #   python3 .cursor-commands/cursor-memory/cursor_memory_client.py
-        # which calls the REST API at /api/v1/memory/* directly.
-        # See: _archived/archived_mcp_memory/ for historical MCP server code.
+        # MCP server is live at https://l9.quantumaipartners.com/mcp
+        # Uses unified substrate (packet_store + memory_embeddings)
+        # All memory operations go through MCP tools (save_memory, search_memory, etc.)
+        # See: mcp_memory/README.md for details
+        # 
+        # Cursor integration:
+        #   - mcp.json configured with l9-memory server (SSE connection)
+        #   - cursor_memory_client.py uses MCP tools via /mcp/call endpoint
+        #   - /mem command uses MCP exclusively
         # ========================================================================
 
     def is_server_available(self, server_id: str) -> bool:

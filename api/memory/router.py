@@ -328,11 +328,7 @@ async def get_facts(
     """Query knowledge facts."""
     try:
         service = await get_service()
-        facts = await service.get_facts_by_subject(
-            subject=subject or "",
-            predicate=predicate,
-            limit=limit,
-        )
+        
         # If source_packet provided, filter by it
         if source_packet:
             try:
@@ -342,6 +338,13 @@ async def get_facts(
                 facts = [f.model_dump(mode="json") for f in facts_by_packet]
             except ValueError:
                 facts = []
+        else:
+            # If subject is None or empty, pass None to get all facts
+            facts = await service.get_facts_by_subject(
+                subject=subject if subject else None,
+                predicate=predicate,
+                limit=limit,
+            )
 
         return {"facts": facts, "count": len(facts)}
     except RuntimeError as e:

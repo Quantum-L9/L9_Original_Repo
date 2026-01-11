@@ -28,7 +28,8 @@ from neo4j import AsyncGraphDatabase
 
 async def main():
     # Get Neo4j credentials from environment
-    neo4j_uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+    # Check both NEO4J_URI and NEO4J_URL (docker-compose uses URL)
+    neo4j_uri = os.getenv("NEO4J_URI") or os.getenv("NEO4J_URL", "bolt://localhost:7687")
     neo4j_user = os.getenv("NEO4J_USER", "neo4j")
     neo4j_password = os.getenv("NEO4J_PASSWORD")
     

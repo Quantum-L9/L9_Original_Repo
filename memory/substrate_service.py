@@ -25,6 +25,10 @@ from memory.substrate_semantic import (
     create_embedding_provider,
 )
 from memory.substrate_graph import SubstrateDAG
+from memory.query_classifier import QueryClassifier, get_query_classifier
+from memory.reasoning_replay import ReasoningReplayPipeline
+from memory.consolidation import ConsolidationPipeline
+from memory.agent_persistence import AgentPersistenceService
 from telemetry.memory_metrics import (
     record_memory_write,
     record_memory_search,
@@ -87,6 +91,12 @@ class MemorySubstrateService:
                 name="memory_dag",
             )
         )
+
+        # Initialize v3.1 modules (lazy initialization)
+        self._query_classifier: Optional[QueryClassifier] = None
+        self._reasoning_replay: Optional[ReasoningReplayPipeline] = None
+        self._consolidation: Optional[ConsolidationPipeline] = None
+        self._agent_persistence: Optional[AgentPersistenceService] = None
 
         logger.info("MemorySubstrateService initialized")
 
@@ -443,18 +453,25 @@ class MemorySubstrateService:
         Returns:
             SemanticSearchResult with hits
         """
-        logger.info(f"Semantic search: query='{request.query[:50]}...'")
+        logger.info(f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}")
 
+        # Get more results to allow filtering by min_score
         hits = await self._semantic_service.search(
             query=request.query,
-            top_k=request.top_k,
+            top_k=request.top_k * 2,  # Get more to allow filtering
             agent_id=request.agent_id,
         )
+
+        # Filter by min_score threshold
+        filtered_hits = [h for h in hits if h.get("score", 0.0) >= request.min_score]
+        
+        # Limit to top_k after filtering
+        filtered_hits = filtered_hits[:request.top_k]
 
         # Record Prometheus metrics for semantic search
         record_memory_search(
             segment="semantic",
-            hit_count=len(hits),
+            hit_count=len(filtered_hits),
             search_type="semantic",
         )
 
@@ -466,7 +483,7 @@ class MemorySubstrateService:
                     score=h["score"],
                     payload=h["payload"],
                 )
-                for h in hits
+                for h in filtered_hits
             ],
         )
 
@@ -685,7 +702,7 @@ class MemorySubstrateService:
 
     async def get_facts_by_subject(
         self,
-        subject: str,
+        subject: Optional[str],
         predicate: Optional[str] = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
@@ -693,7 +710,7 @@ class MemorySubstrateService:
         Retrieve knowledge facts by subject.
 
         Args:
-            subject: Subject to search for
+            subject: Subject to search for (None or empty returns all facts)
             predicate: Optional predicate filter
             limit: Maximum facts to return
 
@@ -701,7 +718,7 @@ class MemorySubstrateService:
             List of facts as dicts
         """
         rows = await self._repository.get_facts_by_subject(
-            subject=subject,
+            subject=subject or "",
             predicate=predicate,
             limit=limit,
         )
@@ -737,6 +754,79 @@ class MemorySubstrateService:
                 },
             },
         }
+
+    # =========================================================================
+    # v3.1 Module Accessors
+    # =========================================================================
+
+    def get_query_classifier(self) -> Optional[QueryClassifier]:
+        """
+        Get query classifier instance (lazy initialization).
+        
+        Returns:
+            QueryClassifier instance, or None if unavailable
+        """
+        if self._query_classifier is None:
+            try:
+                self._query_classifier = get_query_classifier()
+            except Exception as e:
+                logger.warning("Failed to initialize query classifier", error=str(e))
+                return None
+        return self._query_classifier
+
+    def get_reasoning_replay(self) -> Optional[ReasoningReplayPipeline]:
+        """
+        Get reasoning replay pipeline instance (lazy initialization).
+        
+        Returns:
+            ReasoningReplayPipeline instance, or None if unavailable
+        """
+        if self._reasoning_replay is None:
+            try:
+                self._reasoning_replay = ReasoningReplayPipeline(repository=self._repository)
+            except Exception as e:
+                logger.warning("Failed to initialize reasoning replay", error=str(e))
+                return None
+        return self._reasoning_replay
+
+    def get_consolidation(self, dry_run: bool = False) -> Optional[ConsolidationPipeline]:
+        """
+        Get consolidation pipeline instance (lazy initialization).
+        
+        Args:
+            dry_run: If True, consolidation runs in dry-run mode
+            
+        Returns:
+            ConsolidationPipeline instance, or None if unavailable
+        """
+        if self._consolidation is None:
+            try:
+                self._consolidation = ConsolidationPipeline(
+                    repository=self._repository,
+                    dry_run=dry_run,
+                )
+            except Exception as e:
+                logger.warning("Failed to initialize consolidation", error=str(e))
+                return None
+        return self._consolidation
+
+    def get_agent_persistence(self) -> Optional[AgentPersistenceService]:
+        """
+        Get agent persistence service instance (lazy initialization).
+        
+        Returns:
+            AgentPersistenceService instance, or None if unavailable
+        """
+        if self._agent_persistence is None:
+            try:
+                self._agent_persistence = AgentPersistenceService(
+                    service=self,
+                    repository=self._repository,
+                )
+            except Exception as e:
+                logger.warning("Failed to initialize agent persistence", error=str(e))
+                return None
+        return self._agent_persistence
 
 
 # =============================================================================

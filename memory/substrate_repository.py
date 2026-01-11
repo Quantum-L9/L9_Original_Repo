@@ -674,7 +674,7 @@ class SubstrateRepository:
         Retrieve knowledge facts by subject.
 
         Args:
-            subject: Subject to search for
+            subject: Subject to search for (empty string returns all facts)
             predicate: Optional predicate filter
             limit: Maximum facts to return
 
@@ -682,7 +682,27 @@ class SubstrateRepository:
             List of KnowledgeFactRow
         """
         async with self.acquire() as conn:
-            if predicate:
+            # If subject is empty, return all facts
+            if not subject:
+                if predicate:
+                    rows = await conn.fetch(
+                        """
+                        SELECT * FROM knowledge_facts 
+                        WHERE predicate = $1
+                        ORDER BY created_at DESC LIMIT $2
+                        """,
+                        predicate,
+                        limit,
+                    )
+                else:
+                    rows = await conn.fetch(
+                        """
+                        SELECT * FROM knowledge_facts 
+                        ORDER BY created_at DESC LIMIT $1
+                        """,
+                        limit,
+                    )
+            elif predicate:
                 rows = await conn.fetch(
                     """
                     SELECT * FROM knowledge_facts 

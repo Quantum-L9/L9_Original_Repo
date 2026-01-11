@@ -1,55 +1,3 @@
-_archived/archived_mcp_memory/src/config.py::Config - No docstring
-_archived/archived_mcp_memory/src/config.py::Settings - No docstring
-_archived/archived_mcp_memory/src/main.py::CallerIdentity - Caller identity determined from API key.
-_archived/archived_mcp_memory/src/mcp_server.py::MCPTool - No docstring
-_archived/archived_mcp_memory/src/mcp_server.py::MCPToolCall - No docstring
-_archived/archived_mcp_memory/src/models.py::CompoundResult - No docstring
-_archived/archived_mcp_memory/src/models.py::ContextInjectionRequest - Request for auto context injection before a task.
-_archived/archived_mcp_memory/src/models.py::ContextInjectionResponse - Context memories to inject into system prompt.
-_archived/archived_mcp_memory/src/models.py::MemoryResponse - No docstring
-_archived/archived_mcp_memory/src/models.py::MemoryStatsResponse - No docstring
-_archived/archived_mcp_memory/src/models.py::ProactiveRecallRequest - Request for proactive memory suggestions based on patterns.
-_archived/archived_mcp_memory/src/models.py::ProactiveRecallResponse - Proactive suggestions surfaced from memory.
-_archived/archived_mcp_memory/src/models.py::SaveMemoryRequest - No docstring
-_archived/archived_mcp_memory/src/models.py::SaveMemoryWithConfidenceRequest - Save memory with explicit confidence scoring.
-_archived/archived_mcp_memory/src/models.py::SearchMemoryRequest - No docstring
-_archived/archived_mcp_memory/src/models.py::SearchMemoryResponse - No docstring
-_archived/archived_mcp_memory/src/models.py::SessionLearningRequest - Request to extract learnings from a session.
-_archived/archived_mcp_memory/src/models.py::SessionLearningResponse - Learnings extracted and stored from session.
-_archived/archived_mcp_memory/src/models.py::TemporalQueryRequest - Request for temporal memory queries.
-_archived/archived_mcp_memory/src/models.py::TemporalQueryResponse - Temporal query results showing memory evolution.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::DuplicateDetector - Detects duplicate Slack events using substrate memory.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackEventNormalizer - Normalizes Slack events to L9 packet format.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackSignatureVerifier - Verifies Slack request signatures per:
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackWebhookAdapter - Slack webhook adapter for L9 memory substrate.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackWebhookRequest - Inbound Slack webhook request model.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackWebhookResponse - Response model for Slack webhook endpoint.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::TestDuplicateDetector - Test duplicate event detection.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::TestSlackEventNormalizer - Test Slack event normalization.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::TestSlackSignatureVerifier - Test Slack request signature verification.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::TestSlackWebhookAdapter - Test main adapter functionality.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::MockSubstrateService - Mock substrate for integration testing.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::TestSlackAdapterAcceptance - Acceptance tests verifying adapter behavior against spec.
-_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::TestSlackAdapterSubstrateIntegration - Test Slack adapter integration with memory substrate.
-_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::SlackWebhookAdapter - Slack Webhook Adapter Adapter
-_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::SlackWebhookContext - Execution context for the adapter.
-_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::SlackWebhookRequest - Inbound request schema.
-_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::SlackWebhookResponse - Response schema.
-_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py::SlackWebhookClient - External API client for Slack Webhook Adapter.
-_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py::SlackWebhookClientConfig - Client configuration.
-_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py::Config - No docstring
-_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py::SlackWebhookRequestModel - Request model for Slack Webhook Adapter endpoint.
-_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py::SlackWebhookResponseModel - Response model for Slack Webhook Adapter endpoint.
-_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::TestAcceptance - Acceptance tests from spec.
-_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::TestAdapter - Unit tests for SlackWebhookAdapter.
-_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::TestNegative - Negative test cases.
-_archived/legacy_slack/test_webhook_slack.py::TestBotMessageFiltering - Tests for bot message filtering to prevent infinite response
-_archived/legacy_slack/test_webhook_slack.py::TestEventDedupeCacheUnit - Unit tests for the EventDedupeCache class.
-_archived/legacy_slack/test_webhook_slack.py::TestEventDeduplication - Tests for event_id deduplication to prevent duplicate proces
-_archived/legacy_slack/test_webhook_slack.py::TestSlackCommands - API tests for POST /slack/commands endpoint.
-_archived/legacy_slack/test_webhook_slack.py::TestSlackEvents - API tests for POST /slack/events endpoint.
-_archived/legacy_slack/test_webhook_slack.py::TestVerifySlackSignature - Unit tests for the verify_slack_signature function in webhoo
-_archived/legacy_slack/webhook_slack.py::EventDedupeCache - Thread-safe LRU cache for event deduplication.
 agents/architect_agent_a.py::ArchitectAgentA - Primary architect agent for system design.
 agents/architect_agent_b.py::ArchitectAgentB - Challenger architect agent for design validation.
 agents/base_agent.py::AgentConfig - Configuration for an agent.
@@ -758,6 +706,38 @@ core/worldmodel/l9_schema.py::ToolCategory - Categories of tools.
 core/worldmodel/l9_schema.py::ToolRiskLevel - Risk levels for tools.
 core/worldmodel/service.py::WorldModelService - Service for L9 world model operations.
 dev/tools/global_state_audit.py::GlobalStateVisitor - No docstring
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::DuplicateDetector - Detects duplicate Slack events using substrate memory.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackEventNormalizer - Normalizes Slack events to L9 packet format.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackSignatureVerifier - Verifies Slack request signatures per:
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackWebhookAdapter - Slack webhook adapter for L9 memory substrate.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackWebhookRequest - Inbound Slack webhook request model.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackWebhookResponse - Response model for Slack webhook endpoint.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::TestDuplicateDetector - Test duplicate event detection.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::TestSlackEventNormalizer - Test Slack event normalization.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::TestSlackSignatureVerifier - Test Slack request signature verification.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-tests.py::TestSlackWebhookAdapter - Test main adapter functionality.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::MockSubstrateService - Mock substrate for integration testing.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::TestSlackAdapterAcceptance - Acceptance tests verifying adapter behavior against spec.
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py::TestSlackAdapterSubstrateIntegration - Test Slack adapter integration with memory substrate.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::SlackWebhookAdapter - Slack Webhook Adapter Adapter
+docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::SlackWebhookContext - Execution context for the adapter.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::SlackWebhookRequest - Inbound request schema.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/adapters/slack_webhook_adapter.py::SlackWebhookResponse - Response schema.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py::SlackWebhookClient - External API client for Slack Webhook Adapter.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py::SlackWebhookClientConfig - Client configuration.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py::Config - No docstring
+docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py::SlackWebhookRequestModel - Request model for Slack Webhook Adapter endpoint.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/routes/slack_webhook.py::SlackWebhookResponseModel - Response model for Slack Webhook Adapter endpoint.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::TestAcceptance - Acceptance tests from spec.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::TestAdapter - Unit tests for SlackWebhookAdapter.
+docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py::TestNegative - Negative test cases.
+docs/_archived/legacy_slack/test_webhook_slack.py::TestBotMessageFiltering - Tests for bot message filtering to prevent infinite response
+docs/_archived/legacy_slack/test_webhook_slack.py::TestEventDedupeCacheUnit - Unit tests for the EventDedupeCache class.
+docs/_archived/legacy_slack/test_webhook_slack.py::TestEventDeduplication - Tests for event_id deduplication to prevent duplicate proces
+docs/_archived/legacy_slack/test_webhook_slack.py::TestSlackCommands - API tests for POST /slack/commands endpoint.
+docs/_archived/legacy_slack/test_webhook_slack.py::TestSlackEvents - API tests for POST /slack/events endpoint.
+docs/_archived/legacy_slack/test_webhook_slack.py::TestVerifySlackSignature - Unit tests for the verify_slack_signature function in webhoo
+docs/_archived/legacy_slack/webhook_slack.py::EventDedupeCache - Thread-safe LRU cache for event deduplication.
 email_agent/gmail_client.py::GmailClient - Gmail API client wrapper.
 email_agent/oauth_server.py::OAuthHandler - HTTP handler for OAuth flow.
 email_agent/parser.py::HTMLToTextParser - No docstring
@@ -791,6 +771,15 @@ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_in
 igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyFeedback - No docstring
 igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyMemoryService - No docstring
 igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyRetrievalRequest - No docstring
+igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::AgendaAssembler - Assembles validated tasks into ordered agendas
+igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::TaskClassifier - Classifies parsed tokens into tasks with proper routing
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::Agenda - Collection of ordered tasks with metadata
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::Task - Atomic task object - the fundamental unit of L9 task process
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::TaskIntent - Task intent types
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::TaskModule - Target modules for task routing
+igor/01-09-2025/tokenizer/core/tokenizer/task.py::TaskPriority - Task priority levels
+igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::Tokenizer - Main tokenizer class - converts human input to validated tas
+igor/01-09-2025/tokenizer/core/tokenizer/validator.py::TaskValidator - Validates tasks to ensure they are complete, safe, and execu
 igor/audit-memory/api_memory_router.py::BatchRequest - Request model for batch packet ingestion.
 igor/audit-memory/api_memory_router.py::BatchResponse - Response model for batch operations.
 igor/audit-memory/api_memory_router.py::CompactResponse - Response model for compact operation.
@@ -1067,6 +1056,24 @@ mac_agent/websocket_client.py::AgentConfig - Configuration for the Mac Agent Web
 mac_agent/websocket_client.py::EventType - Event type constants matching server EventType enum.
 mac_agent/websocket_client.py::MacAgentClient - Persistent WebSocket client for L9 Mac Agent.
 mac_agent/websocket_client.py::TaskExecutor - Task executor for Mac Agent.
+mcp_memory/src/config.py::Config - No docstring
+mcp_memory/src/config.py::Settings - No docstring
+mcp_memory/src/main.py::CallerIdentity - Caller identity determined from API key.
+mcp_memory/src/models.py::CompoundResult - No docstring
+mcp_memory/src/models.py::ContextInjectionRequest - Request for auto context injection before a task.
+mcp_memory/src/models.py::ContextInjectionResponse - Context memories to inject into system prompt.
+mcp_memory/src/models.py::MemoryResponse - No docstring
+mcp_memory/src/models.py::MemoryStatsResponse - No docstring
+mcp_memory/src/models.py::ProactiveRecallRequest - Request for proactive memory suggestions based on patterns.
+mcp_memory/src/models.py::ProactiveRecallResponse - Proactive suggestions surfaced from memory.
+mcp_memory/src/models.py::SaveMemoryRequest - No docstring
+mcp_memory/src/models.py::SaveMemoryWithConfidenceRequest - Save memory with explicit confidence scoring.
+mcp_memory/src/models.py::SearchMemoryRequest - No docstring
+mcp_memory/src/models.py::SearchMemoryResponse - No docstring
+mcp_memory/src/models.py::SessionLearningRequest - Request to extract learnings from a session.
+mcp_memory/src/models.py::SessionLearningResponse - Learnings extracted and stored from session.
+mcp_memory/src/models.py::TemporalQueryRequest - Request for temporal memory queries.
+mcp_memory/src/models.py::TemporalQueryResponse - Temporal query results showing memory evolution.
 memory/checkpoint_manager.py::CheckpointManager - Simple manager for saving/loading checkpoints per agent.
 memory/extractor/agent_config_extractor.py::AgentConfigExtractor - Extracts agent configuration (preferences, SOPs, roles).
 memory/extractor/base_extractor.py::BaseExtractor - Base class for all extractors.
@@ -1308,6 +1315,7 @@ scripts/batch_generate_specs.py::PerplexityBatchClient - Async Perplexity client
 scripts/batch_generate_specs.py::TokenBucketLimiter - Token bucket rate limiter for API calls
 scripts/init_workspace.py::InitResult - Complete workspace initialization result.
 scripts/load_indexes_to_neo4j.py::RepoGraphLoader - Loads L9 repository indexes into Neo4j graph database.
+scripts/load_indexes_to_neo4j_vps.py::VPSRepoGraphLoader - Loads L9 repository indexes into VPS Neo4j via HTTP API.
 services/mac_tasks.py::MacTask - Mac task dataclass.
 services/research/agents/base_agent.py::BaseAgent - Base class for all research agents.
 services/research/agents/critic_agent.py::CriticAgent - Critic Agent - Evaluates research quality.

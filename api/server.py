@@ -117,7 +117,11 @@ try:
     )
 
     _has_agent_executor = True
-except ImportError:
+except ImportError as e:
+    logger.error(f"Failed to import AgentExecutorService: {e}", exc_info=True)
+    _has_agent_executor = False
+except Exception as e:
+    logger.error(f"Unexpected error importing AgentExecutorService: {e}", exc_info=True)
     _has_agent_executor = False
 
 # Optional: AIOS Runtime (v2.2+)
@@ -125,7 +129,11 @@ try:
     from core.aios.runtime import AIOSRuntime, create_aios_runtime
 
     _has_aios_runtime = True
-except ImportError:
+except ImportError as e:
+    logger.debug(f"AIOS Runtime not available: {e}")
+    _has_aios_runtime = False
+except Exception as e:
+    logger.error(f"Unexpected error importing AIOS Runtime: {e}", exc_info=True)
     _has_aios_runtime = False
 
 # Optional: Tool Registry Adapter (v2.2+)
@@ -136,7 +144,11 @@ try:
     )
 
     _has_tool_registry = True
-except ImportError:
+except ImportError as e:
+    logger.debug(f"Tool Registry not available: {e}")
+    _has_tool_registry = False
+except Exception as e:
+    logger.error(f"Unexpected error importing Tool Registry: {e}", exc_info=True)
     _has_tool_registry = False
 
 # Optional: Research Factory (v2.3+)
@@ -181,6 +193,14 @@ try:
 except ImportError:
     _has_research_swarm = False
 
+# Optional: Cursor Executor (GMP-48)
+try:
+    from api.routes.cursor import router as cursor_router
+
+    _has_cursor_executor = True
+except ImportError:
+    _has_cursor_executor = False
+
 # Optional: Governance Engine (v2.4+)
 try:
     from core.governance.engine import GovernanceEngineService, create_governance_engine
@@ -206,7 +226,11 @@ try:
     )
 
     _has_kernel_registry = True
-except ImportError:
+except ImportError as e:
+    logger.debug(f"Kernel Registry not available: {e}")
+    _has_kernel_registry = False
+except Exception as e:
+    logger.error(f"Unexpected error importing Kernel Registry: {e}", exc_info=True)
     _has_kernel_registry = False
 
 # Optional: Session Startup (v3.4+ / GMP-KERNEL-BOOT)
@@ -214,7 +238,11 @@ try:
     from core.governance.session_startup import SessionStartup, StartupResult
 
     _has_session_startup = True
-except ImportError:
+except ImportError as e:
+    logger.debug(f"Session Startup not available: {e}")
+    _has_session_startup = False
+except Exception as e:
+    logger.error(f"Unexpected error importing Session Startup: {e}", exc_info=True)
     _has_session_startup = False
 
 # Optional: Agent Bootstrap Orchestrator (v3.0+ Paradigm Shift)
@@ -688,15 +716,31 @@ async def lifespan(app: FastAPI):
                     "Check core/agents/registry.py exists and imports cleanly."
                 )
             
+            logger.debug("Attempting to create kernel-aware agent registry...")
             logger.info("Initializing Kernel-Aware Agent Registry...")
-            agent_registry = create_kernel_aware_registry()
-            app.state.agent_registry = agent_registry
-            logger.info(
-                "Kernel-Aware Agent Registry initialized: kernel_state=%s",
-                agent_registry.get_kernel_state(),
-            )
+            try:
+                agent_registry = create_kernel_aware_registry()
+                app.state.agent_registry = agent_registry
+                logger.info(
+                    "Kernel-Aware Agent Registry initialized: kernel_state=%s",
+                    agent_registry.get_kernel_state(),
+                )
+            except RuntimeError as e:
+                # Kernel loading failed - this is critical
+                logger.critical("FATAL: Kernel loading failed: %s", str(e), exc_info=True)
+                # In production, you might want to crash here
+                # For dev, fall back to stub
+                logger.warning("Falling back to stub agent registry")
+                agent_registry = None
+            except Exception as e:
+                # Unexpected error during kernel registry creation
+                logger.critical("FATAL: Unexpected error creating kernel registry: %s", str(e), exc_info=True)
+                logger.warning("Falling back to stub agent registry")
+                agent_registry = None
 
             # Create executor
+            logger.debug("Creating AgentExecutorService with aios_runtime=%s, tool_registry=%s, agent_registry=%s", 
+                        aios_runtime is not None, tool_registry is not None, type(agent_registry).__name__ if agent_registry else "None")
             executor = AgentExecutorService(
                 aios_runtime=aios_runtime,
                 tool_registry=tool_registry,
@@ -707,6 +751,7 @@ async def lifespan(app: FastAPI):
             app.state.agent_executor = executor
             app.state.aios_runtime = aios_runtime
             app.state.tool_registry = tool_registry
+            app.state.agent_registry = agent_registry
             logger.info("Agent Executor initialized")
 
             # Initialize ActionToolOrchestrator (for /tools/execute endpoint)
@@ -782,9 +827,49 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.error(f"Failed to initialize Agent Executor: {e}", exc_info=True)
             app.state.agent_executor = None
+            app.state.aios_runtime = None
+            app.state.tool_registry = None
+            app.state.agent_registry = None
     elif _has_agent_executor:
         logger.warning("Agent Executor not initialized: substrate_service required")
         app.state.agent_executor = None
+        app.state.aios_runtime = None
+        app.state.tool_registry = None
+        app.state.agent_registry = None
+
+    # =========================================================================
+    # CRITICAL HEALTH CHECK: Verify agent_executor if new Slack routing enabled
+    # =========================================================================
+    from config.settings import get_settings
+    settings = get_settings()
+    
+    # Check if legacy Slack router is disabled (new routing enabled)
+    legacy_slack_enabled = getattr(settings, "l9_enable_legacy_slack_router", False)
+    
+    if not legacy_slack_enabled:
+        # New Slack routing is enabled - agent_executor is REQUIRED
+        agent_executor = getattr(app.state, "agent_executor", None)
+        
+        if agent_executor is None:
+            logger.critical(
+                "╔═══════════════════════════════════════════════════════════════╗\n"
+                "║  CRITICAL: Agent Executor Initialization Failed              ║\n"
+                "║                                                               ║\n"
+                "║  The new Slack routing (L9_ENABLE_LEGACY_SLACK_ROUTER=False) ║\n"
+                "║  requires AgentExecutorService to be initialized.            ║\n"
+                "║                                                               ║\n"
+                "║  Options:                                                     ║\n"
+                "║  1. Fix agent_executor initialization (check logs above)     ║\n"
+                "║  2. Set L9_ENABLE_LEGACY_SLACK_ROUTER=true in .env           ║\n"
+                "║  3. Install missing dependencies: pip install -r requirements.txt ║\n"
+                "╚═══════════════════════════════════════════════════════════════╝"
+            )
+            raise RuntimeError(
+                "Agent Executor required for new Slack routing but failed to initialize. "
+                "Set L9_ENABLE_LEGACY_SLACK_ROUTER=true or fix initialization."
+            )
+        else:
+            logger.info("✓ Health Check PASSED: Agent Executor is available for Slack routing")
 
     # Initialize Slack adapter (if enabled)
     if _has_slack:
@@ -2144,6 +2229,11 @@ if _has_reasoning:
 if _has_research_swarm:
     app.include_router(research_swarm_router, prefix="/research/swarm")
     logger.info("ResearchSwarm router registered at /research/swarm")
+
+# Cursor Executor router (GMP-48)
+if _has_cursor_executor:
+    app.include_router(cursor_router, prefix="/cursor")
+    logger.info("Cursor Executor router registered at /cursor")
 
 # Compliance router (GMP-21)
 try:
