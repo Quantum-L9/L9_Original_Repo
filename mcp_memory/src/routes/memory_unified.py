@@ -185,11 +185,15 @@ async def save_memory_handler(
             "embed_time_ms": embed_time_ms,
         }
         
+        # Convert embedding vector to string format for pgvector
+        # pgvector expects format: '[1.0,2.0,3.0]'
+        vector_str = f"[{','.join(str(v) for v in embedding_vector)}]"
+        
         embedding_result = await fetch_one(
             insert_embedding_query,
             packet_id,
             "content",  # embedding_type: 'content', 'context', 'entity', 'summary', 'reasoning'
-            embedding_vector,
+            vector_str,
             content[:500],  # chunk_text (first 500 chars for debugging)
             json.dumps(embedding_metadata),
         )
@@ -221,7 +225,8 @@ async def save_memory_handler(
         }
         
     except asyncpg.PostgresError as e:
-        logger.error("Database error saving memory", error=str(e), error_code=e.code)
+        error_code = getattr(e, 'code', None)
+        logger.error("Database error saving memory", error=str(e), error_code=error_code)
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     except ValueError as e:
         logger.warning("Validation error saving memory", error=str(e))
@@ -476,7 +481,7 @@ async def get_memory_stats(
             query = f"""
             SELECT 
                 COUNT(*) as cnt,
-                COUNT(DISTINCT envelope->>'metadata'->>'user_id') as users,
+                COUNT(DISTINCT envelope->'metadata'->>'user_id') as users,
                 AVG(importance_score) as avg_imp
             FROM packet_store
             WHERE packet_type LIKE 'memory_write_%'
@@ -498,7 +503,8 @@ async def get_memory_stats(
             "avg_importance": avg_importance,
         }
     except asyncpg.PostgresError as e:
-        logger.error("Database error getting stats", error=str(e), error_code=e.code)
+        error_code = getattr(e, 'code', None)
+        logger.error("Database error getting stats", error=str(e), error_code=error_code)
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     except Exception as e:
         logger.exception("Unexpected error getting stats from unified substrate", error=str(e))
@@ -731,7 +737,8 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
         }
         
     except asyncpg.PostgresError as e:
-        logger.error("Database error applying decay", error=str(e), error_code=e.code)
+        error_code = getattr(e, 'code', None)
+        logger.error("Database error applying decay", error=str(e), error_code=error_code)
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     except Exception as e:
         logger.exception("Unexpected error applying importance decay", error=str(e))
