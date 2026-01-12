@@ -442,7 +442,7 @@ async def get_memory_stats(
         
         if user_id:
             # Filter by envelope metadata (user_id is in envelope JSONB)
-            user_filter = f"AND envelope->>'metadata'->>'user_id' = ${param_idx}"
+            user_filter = f"AND envelope->'metadata'->>'user_id' = ${param_idx}"
             params.append(user_id)
             param_idx += 1
         
