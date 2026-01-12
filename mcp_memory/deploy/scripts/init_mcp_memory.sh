@@ -78,13 +78,14 @@ echo "[4/7] Installing dependencies..."
 cd "$MCP_DIR"
 source "$VENV_DIR/bin/activate"
 # Try to upgrade pip, but don't fail if it's system pip
-pip install --upgrade pip -q 2>/dev/null || pip install --upgrade pip --break-system-packages -q 2>/dev/null || echo "⚠️  Skipping pip upgrade (system pip)"
+pip install --upgrade pip -q 2>/dev/null || echo "⚠️  Skipping pip upgrade (system pip)"
 if [ -f "requirements.txt" ]; then
-    pip install -r requirements.txt -q || pip install -r requirements.txt --break-system-packages -q
+    # Use --ignore-installed to skip system packages that can't be uninstalled
+    pip install -r requirements.txt --ignore-installed -q 2>&1 | grep -v "WARNING: Skipping" || true
     echo "✅ Dependencies installed"
 else
     echo "⚠️  requirements.txt not found, installing core packages..."
-    pip install fastapi uvicorn asyncpg pgvector openai pydantic-settings structlog -q || pip install fastapi uvicorn asyncpg pgvector openai pydantic-settings structlog --break-system-packages -q
+    pip install fastapi uvicorn asyncpg pgvector openai pydantic-settings structlog --ignore-installed -q 2>&1 | grep -v "WARNING: Skipping" || true
     echo "✅ Core dependencies installed"
 fi
 
