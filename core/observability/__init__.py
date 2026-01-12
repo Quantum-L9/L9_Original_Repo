@@ -57,6 +57,8 @@ from .instrumentation import (
     trace_governance_check,
 )
 from .service import ObservabilityService, initialize_observability
+from .prometheus_exporter import ObservabilityPrometheusExporter, initialize_exporter, get_exporter
+from .jaeger_exporter import JaegerExporter, initialize_jaeger_exporter, get_jaeger_exporter
 from .exporters import (
     SpanExporter,
     AsyncSpanExporter,
@@ -161,4 +163,12 @@ __all__ = [
     "instrument_governance_engine",
     "instrument_memory_substrate",
     "instrument_aios_runtime",
+    # Prometheus Exporter
+    "ObservabilityPrometheusExporter",
+    "initialize_exporter",
+    "get_exporter",
+    # Jaeger Exporter
+    "JaegerExporter",
+    "initialize_jaeger_exporter",
+    "get_jaeger_exporter",
 ]

@@ -46,6 +46,9 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-12] **C-GMP Suite L9 Alignment (GMP-53)** — Aligned G-CMP v2.0 toolkit with L9 GMP v1.7. Created phase mapping document (G-CMP-L9-GMP-Alignment.md), updated README-INDEX.md to list all 8 files (was incorrectly listing 5), added L9 GMP integration section to main template. All documentation now properly integrated with L9 GMP system. `reports/GMP_Report_GMP-53-C-GMP-Suite-L9-Alignment.md`
+- [2026-01-12] **Cursor GMP Integration Pack Verification** — Verified and adapted Cursor GMP Integration Pack to L9 state. Fixed all paths ($HOME), removed Stage 2 (Intelition), updated directory structure (agents/cursor/), marked stages 1-3 as done (GMP-48/49), added tier metadata, corrected stage numbering (7 stages). 32 TODO items completed. `reports/GMP_Report_GMP-Consolidation-Pack-Verification.md`
+- [2026-01-12] **Memory v3.1 Documentation Verification** — Verified all Memory v3.1 documentation (API_TESTING.md, CONSOLIDATION.md, TESTING.md) describes fully implemented features. All modules, endpoints, tests, and scripts exist and match documentation.
 - [2026-01-11] **Cursor LangGraph Completion (GMP-49)** — Completed GMP-48 integration: added graph_search_query_builder.py, verified schema_registry.py, created Cursor API routes, wired router into server.py. `reports/GMP_Report_GMP-49-Cursor-LangGraph-Completion.md`
 - [2026-01-11] **Cursor + LangGraph Integration (GMP-48)** — Full Cursor + LangGraph + L9 Memory integration implemented. 12 modules: state/nodes, gateway, DAG wrapper, approval gates, dual checkpoint, semantic/graph search, executor, config, tests, docs. `reports/GMP_Report_GMP-48-Cursor-LangGraph-Integration.md`
 - [2026-01-09] **Stub Elimination (GMP-47)** — CRITICAL stubs now fail loudly (RuntimeError) instead of silently degrading. Mac agent + ResearchSwarm fully implemented. `reports/GMP_Report_GMP-47-Stub-Elimination.md`
@@ -98,9 +101,18 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Cloudflare**: All DNS for quantumaipartners.com proxied via Cloudflare (HTTPS, DDoS protection)
 
 ---
-*Last updated: 2026-01-11 EST*
+*Last updated: 2026-01-12 EST*
+
+## Next Steps (Current Session)
+1. **Enable Jaeger export on VPS** - Set `OBS_JAEGER_ENABLED=true` in VPS `.env` to activate Jaeger tracing
+2. **Access VPS Grafana** - Use SSH port forwarding: `ssh -L 3000:localhost:3000 -L 9090:localhost:9090 -L 16686:localhost:16686 root@157.180.73.53`
+3. **Verify observability metrics** - Check Prometheus `/metrics` endpoint and Grafana dashboards show data
+4. **Test Jaeger traces** - After enabling, verify traces appear in Jaeger UI at `http://localhost:16686`
 
 **Recent Sessions (7-day window):**
+- 2026-01-12: C-GMP Suite L9 Alignment (GMP-53) — Aligned G-CMP v2.0 toolkit with L9 GMP v1.7. Created phase mapping document, updated README-INDEX.md (8 files documented), added L9 GMP integration section to main template. All documentation now properly integrated with L9 GMP system.
+- 2026-01-12: Five-Tier Observability + Prometheus/Grafana/Jaeger Integration — Built complete observability stack integration. Created Prometheus exporter (metrics), Jaeger exporter (traces via OTLP), Grafana dashboard (l9-five-tier-observability.json), auto-provisioned Prometheus datasource. All bridges between Five-Tier Observability and Prometheus/Grafana/Jaeger are complete and active. Background task updates SRE metrics every 30s. Full open source observability stack ready for VPS deployment.
+- ✅ 2026-01-12: Cursor GMP Integration Pack Verification — Verified and adapted Cursor GMP Integration Pack to L9 state. Fixed all paths ($HOME), removed Stage 2 (Intelition), updated directory structure (agents/cursor/), marked stages 1-3 as done (GMP-48/49), added tier metadata, corrected stage numbering (7 stages). Generated comprehensive GMP report. Also verified Memory v3.1 documentation completeness (all features implemented).
 - ✅ 2026-01-11: Script Organization + Memory Graph Population — Organized 51 scripts into subfolders (memory/, deployment/, development/, research/, agents/, workspace/, batch/). Created indexing scripts for GMP reports, errors, architecture, preferences, tool usage. Generated SQL for trash embedding cleanup (52 embeddings). Re-indexed high-value content.
 - ✅ 2026-01-11: GMP-49 — Cursor LangGraph Completion (graph query builder, schema registry verification, API routes, router wiring)
 - ✅ 2026-01-11: GMP-48 — Cursor + LangGraph + L9 Memory Integration (12 modules, dual checkpoint, governance gates, 6 integration tests)

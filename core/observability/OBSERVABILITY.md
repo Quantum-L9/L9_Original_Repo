@@ -31,12 +31,14 @@ All observability configuration uses the `OBS_` prefix:
 | `OBS_ENABLED` | bool | `true` | Enable/disable observability system |
 | `OBS_SAMPLING_RATE` | float | `0.10` | Fraction of requests to sample (0.0-1.0) |
 | `OBS_ERROR_SAMPLING_RATE` | float | `1.0` | Fraction of errors to sample (typically 1.0) |
-| `OBS_EXPORTERS` | list | `console` | Comma-separated list: console, file, substrate, datadog, honeycomb |
+| `OBS_EXPORTERS` | list | `console` | Comma-separated list: console, file, substrate, jaeger, datadog, honeycomb |
 | `OBS_BATCH_SIZE` | int | `100` | Number of spans to batch before export |
 | `OBS_BATCH_TIMEOUT_SEC` | int | `10` | Seconds before flushing batch |
 | `OBS_LOG_LEVEL` | str | `INFO` | Logging level: DEBUG, INFO, WARNING, ERROR |
 | `OBS_FILE_EXPORT_PATH` | str | `/tmp/l9_spans.jsonl` | Path for file exporter output |
 | `OBS_SUBSTRATE_ENABLED` | bool | `true` | Export to L9 Memory Substrate |
+| `OBS_JAEGER_ENABLED` | bool | `false` | Export to Jaeger for distributed tracing |
+| `OBS_JAEGER_ENDPOINT` | str | None | Jaeger OTLP endpoint (default: http://jaeger:4318/v1/traces) |
 | `OBS_DATADOG_ENABLED` | bool | `false` | Export to Datadog APM |
 | `OBS_DATADOG_API_KEY` | str | None | Datadog API key (required if datadog enabled) |
 | `OBS_CONTEXT_STRATEGY_DEFAULT` | str | `recency_biased_window` | Default context strategy |

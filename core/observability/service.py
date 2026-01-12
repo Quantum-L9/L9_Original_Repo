@@ -34,6 +34,8 @@ class ObservabilityService:
         self.failures: List[FailureSignal] = []
         self.exporters: List[Any] = []
         self._trace_context: Optional[TraceContext] = None
+        self._prometheus_exporter: Optional[Any] = None
+        self._jaeger_exporter: Optional[Any] = None
         self._setup_logging()
         logger.info("ObservabilityService initialized", extra={
             "sampling_rate": self.config.sampling_rate,
@@ -62,6 +64,20 @@ class ObservabilityService:
         from .exporters import (
             ConsoleExporter, JSONFileExporter, SubstrateExporter,
         )
+        from .prometheus_exporter import initialize_exporter
+        from .jaeger_exporter import initialize_jaeger_exporter
+
+        # Initialize Prometheus exporter (always available if prometheus_client installed)
+        self._prometheus_exporter = initialize_exporter()
+
+        # Initialize Jaeger exporter if enabled
+        if self.config.jaeger_enabled or "jaeger" in self.config.exporters:
+            self._jaeger_exporter = initialize_jaeger_exporter(
+                jaeger_endpoint=self.config.jaeger_endpoint,
+                service_name="l9-observability",
+            )
+        else:
+            self._jaeger_exporter = None
 
         for exporter_name in self.config.exporters:
             try:
@@ -72,6 +88,9 @@ class ObservabilityService:
                 elif exporter_name == "substrate":
                     if self.substrate_service and self.config.substrate_enabled:
                         self.exporters.append(SubstrateExporter(self.substrate_service))
+                elif exporter_name == "jaeger":
+                    # Jaeger exporter is handled separately (uses OpenTelemetry, not SpanExporter interface)
+                    pass
                 # datadog, honeycomb etc. would go here in extended implementation
                 else:
                     logger.warning(f"Unknown exporter: {exporter_name}")
@@ -106,6 +125,46 @@ class ObservabilityService:
         # Store locally
         self.spans.append(span)
 
+        # Export to Jaeger (if enabled)
+        if self._jaeger_exporter:
+            try:
+                self._jaeger_exporter.export_span(span)
+            except Exception as exc:
+                logger.debug(f"Jaeger export failed: {exc}")
+
+        # Export to Prometheus (if enabled)
+        if self._prometheus_exporter:
+            try:
+                self._prometheus_exporter.record_span(
+                    span_name=span.name,
+                    status=span.status.value,
+                    kind=span.kind.value if hasattr(span.kind, "value") else str(span.kind),
+                    duration_ms=span.duration_ms,
+                )
+
+                # Record specialized span types
+                from .models import LLMGenerationSpan, ToolCallSpan, ContextAssemblySpan
+                if isinstance(span, LLMGenerationSpan):
+                    self._prometheus_exporter.record_llm_call(
+                        model=span.model,
+                        status=span.status.value,
+                        prompt_tokens=span.prompt_tokens,
+                        completion_tokens=span.completion_tokens,
+                        cost_usd=span.cost_usd,
+                    )
+                elif isinstance(span, ToolCallSpan):
+                    self._prometheus_exporter.record_tool_call(
+                        tool_name=span.tool_name,
+                        status=span.status.value,
+                    )
+                elif isinstance(span, ContextAssemblySpan):
+                    self._prometheus_exporter.record_context_assembly(
+                        strategy=span.strategy,
+                        tokens=span.tokens_used,
+                    )
+            except Exception as exc:
+                logger.debug(f"Prometheus export failed: {exc}")
+
         # Export via all backends (async, non-blocking)
         for exporter in self.exporters:
             try:
@@ -131,17 +190,57 @@ class ObservabilityService:
         errors = [s for s in self.spans if s.status.value == "ERROR"]
 
         durations.sort()
+        p50_idx = max(0, len(durations) // 2)
         p95_idx = max(0, int(len(durations) * 0.95) - 1)
         p99_idx = max(0, int(len(durations) * 0.99) - 1)
 
-        return {
+        metrics = {
             "span_count": len(self.spans),
             "error_count": len(errors),
             "error_rate": len(errors) / len(self.spans) if self.spans else 0.0,
+            "p50_latency_ms": durations[p50_idx] if p50_idx < len(durations) else 0,
             "p95_latency_ms": durations[p95_idx] if p95_idx < len(durations) else 0,
             "p99_latency_ms": durations[p99_idx] if p99_idx < len(durations) else 0,
             "timestamp": datetime.utcnow().isoformat(),
         }
+
+        # Update Prometheus metrics
+        if self._prometheus_exporter:
+            try:
+                self._prometheus_exporter.update_sre_metrics(metrics)
+            except Exception as exc:
+                logger.debug(f"Failed to update Prometheus SRE metrics: {exc}")
+
+        return metrics
+
+    async def update_agent_kpis(self) -> None:
+        """Update agent KPI metrics in Prometheus."""
+        if not self._prometheus_exporter:
+            return
+
+        from .aggregation import MetricsAggregator
+        from collections import defaultdict
+
+        # Group spans by agent
+        agent_spans = defaultdict(list)
+        for span in self.spans:
+            if hasattr(span, "attributes") and "agent_id" in span.attributes:
+                agent_id = span.attributes["agent_id"]
+                agent_spans[agent_id].append(span)
+
+        # Compute KPIs for each agent
+        for agent_name, spans in agent_spans.items():
+            try:
+                kpis = MetricsAggregator.compute_agent_kpis(spans, agent_name)
+                if kpis:
+                    self._prometheus_exporter.update_agent_kpi(
+                        agent_name=agent_name,
+                        success_rate=kpis.get("success_rate", 0.0),
+                        tool_efficiency=kpis.get("tool_efficiency", 0.0),
+                        cost_usd=kpis.get("total_cost_usd", 0.0),
+                    )
+            except Exception as exc:
+                logger.debug(f"Failed to update agent KPI for {agent_name}: {exc}")
 
     async def detect_failures(self) -> List[FailureSignal]:
         """Detect failures from recent spans."""
@@ -196,6 +295,17 @@ class ObservabilityService:
                 ))
 
         self.failures.extend(signals)
+
+        # Record failure signals to Prometheus
+        if self._prometheus_exporter:
+            for signal in signals:
+                try:
+                    self._prometheus_exporter.record_failure_signal(
+                        failure_class=signal.failure_class.value if hasattr(signal.failure_class, "value") else str(signal.failure_class)
+                    )
+                except Exception as exc:
+                    logger.debug(f"Failed to record failure signal to Prometheus: {exc}")
+
         return signals
 
     async def shutdown(self) -> None:

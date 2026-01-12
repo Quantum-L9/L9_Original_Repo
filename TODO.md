@@ -110,6 +110,40 @@
 - [ ] Create orchestration DAG
 - [ ] Bind to governance hooks
 
+### Agent Persistence GMP Pack (2026-01-11)
+
+**Status**: DEFERRED — Analysis complete, not urgent per current priorities
+
+**Analysis Summary:**
+- **Tech Debt Score**: 62% (🟡 MEDIUM)
+- **Existing Code**: `memory/agent_persistence.py` has partial implementation (create/restore work, but list/delete are stubs)
+- **GMP Pack Quality**: ✅ Excellent (95% GMP compliance, frontier lab patterns)
+- **Conflict**: Pack assumes clean slate, but existing code exists — needs merge strategy
+
+**Key Findings:**
+- ✅ Core methods partially implemented (create_checkpoint, restore_checkpoint work)
+- ❌ Integration wiring missing (0/6 points wired — executor, server, approval_manager, ingestion, agent_instance)
+- ❌ Production features missing (retention engine, checksums, schema versioning, observability)
+- ⚠️ Stub methods need completion (list_checkpoints, delete_old_checkpoints return empty/0)
+
+**Recommendation**: DEFER until:
+1. L's memory fully working in local Docker (current priority)
+2. Agent state recovery becomes urgent requirement
+3. Need production-grade checkpointing (retention, integrity, observability)
+
+**If Implementing:**
+- **Phase 1** (6-7 hours): Resolve code conflict + wire 6 integration points
+- **Phase 2** (8-10 hours): Complete stub methods + add PacketEnvelope emission
+- **Phase 3** (6-8 hours): Production features (retention, checksums, schema versioning, observability)
+- **Total**: ~20-25 hours
+
+**Alternative Quick Path** (3-4 hours):
+- Keep current basic implementation
+- Add integration wiring only (make checkpoints functional)
+- Defer production features until needed
+
+**Reference**: `docs/__Notes/agent_persistence.py/` (8 GMP stage files + runbook)
+
 ### Emma/L9 Substrate Integration
 
 **Status**: Analysis complete, most enhancements done. Remaining items:

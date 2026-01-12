@@ -15,6 +15,7 @@ Version: 0.5.0 (Research Factory Integration)
 from config.settings import settings
 
 import os
+import asyncio
 from pathlib import Path
 import structlog
 from contextlib import asynccontextmanager
@@ -1334,6 +1335,9 @@ async def lifespan(app: FastAPI):
                 app.state.consolidation_service = consolidation_service
 
                 # Schedule background cleanup every 24 hours
+                # NOTE: This loop is for MemoryConsolidationService (different from ConsolidationPipeline).
+                # ConsolidationPipeline (v3.1) should be scheduled separately per memory_spec_v3.0.yaml:
+                # schedule: weekly_saturday_2am_utc (see orchestrators/memory/housekeeping.py run_consolidation())
                 async def run_consolidation_loop():
                     """Background task for periodic memory consolidation"""
                     consolidation_interval = int(os.getenv("L9_CONSOLIDATION_INTERVAL_HOURS", "4")) * 3600
@@ -1532,6 +1536,26 @@ async def lifespan(app: FastAPI):
                     "substrate": substrate is not None,
                 },
             )
+
+            # Start background task to update Prometheus metrics periodically
+            async def update_observability_metrics():
+                """Periodically update Prometheus metrics from observability spans."""
+                update_interval = 30  # Update every 30 seconds
+                while True:
+                    try:
+                        await asyncio.sleep(update_interval)
+                        if observability:
+                            # Compute and update SRE metrics
+                            metrics = await observability.compute_metrics()
+                            # Update agent KPIs
+                            await observability.update_agent_kpis()
+                    except asyncio.CancelledError:
+                        break
+                    except Exception as e:
+                        logger.debug(f"Observability metrics update failed: {e}")
+
+            asyncio.create_task(update_observability_metrics())
+            logger.info("Observability metrics update task started (30s interval)")
         except Exception as e:
             logger.error(f"Observability init failed: {e}", exc_info=True)
             app.state.observability_service = None

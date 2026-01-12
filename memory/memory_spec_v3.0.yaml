@@ -23,6 +23,184 @@
 # ============================================================
 # memory_spec_v3.0.yaml — Future-Proof Memory Substrate for Persistent Agents at Boutique Scale
 
+# =============================================================================
+# v2.5 SPEC HEADER (Required for CI validation)
+# =============================================================================
+schema_version: 2.5
+
+metadata:
+  module_id: memory.substrate
+  name: L9 Memory Substrate
+  tier: 0
+  description: Persistent memory substrate for L9 agents with semantic search, embeddings, and multi-tenant RLS
+  system: L9
+  language: python
+
+ownership:
+  team: platform
+  primary_contact: platform_lead
+
+runtime_wiring:
+  service: memory
+  startup_phase: early
+  depends_on:
+    - postgres
+  blocks_startup_on_failure: true
+
+runtime_contract:
+  runtime_class: data_plane
+  execution_model: request_driven
+
+external_surface:
+  exposes_http_endpoint: true
+  exposes_webhook: false
+  exposes_tool: false
+  callable_from:
+    - internal
+
+dependency_contract:
+  inbound:
+    - from_module: internal
+      interface: http
+      endpoint: /memory/*
+  outbound:
+    - to_module: postgres
+      interface: database
+      endpoint: l9memory
+
+dependencies:
+  allowed_tiers:
+    - 0
+  outbound_calls:
+    - module: postgres
+      interface: database
+
+packet_contract:
+  emits:
+    - memory.ingest
+    - memory.search
+    - memory.store
+  requires_metadata:
+    - task_id
+    - thread_uuid
+    - source
+    - tool_id
+
+packet_expectations:
+  on_success:
+    emits:
+      - memory.store
+  on_error:
+    emits:
+      - memory.error
+  durability:
+    success: durable
+    error: durable
+
+idempotency:
+  pattern: content_hash
+  source: packet.content_hash
+  durability: durable
+  check_method: substrate_search
+
+error_policy:
+  on_ingestion_failure: emit_error_packet
+  on_search_failure: return_empty_results
+  retry_strategy: exponential_backoff
+
+observability:
+  metrics:
+    - memory.ingest.count
+    - memory.search.count
+    - memory.embedding.count
+  traces:
+    - memory.ingest.duration
+    - memory.search.duration
+
+runtime_touchpoints:
+  startup:
+    - initialize_postgres_connection
+    - verify_migrations_applied
+  shutdown:
+    - close_connections
+
+tier_expectations:
+  requires_runtime_wiring: true
+  requires_packet_contract: true
+  requires_negative_tests: true
+
+test_scope:
+  unit: true
+  integration: true
+  e2e: true
+
+acceptance:
+  positive:
+    - Memory can be stored and retrieved
+    - Semantic search returns relevant results
+    - Multi-tenant isolation enforced
+  negative:
+    - Invalid packets are rejected
+    - Search with no results returns empty list
+    - RLS prevents cross-tenant access
+
+global_invariants_ack:
+  emits_packet_on_ingress: true
+  tool_calls_traceable: true
+  unknown_tool_id_hard_fail: true
+  malformed_packet_blocked: true
+  missing_env_fails_boot: true
+
+spec_confidence: 0.85
+
+repo:
+  root_path: memory/
+  allowed_new_files:
+    - memory/*.py
+    - memory/checkpoint/*.py
+
+interfaces:
+  http:
+    - /memory/ingest
+    - /memory/search
+    - /memory/stats
+
+environment:
+  required:
+    - POSTGRES_HOST
+    - POSTGRES_DB
+    - POSTGRES_USER
+    - OPENAI_API_KEY
+  optional:
+    - POSTGRES_PORT
+    - EMBEDDING_MODEL
+
+orchestration:
+  startup_order: 1
+  depends_on_services:
+    - postgres
+
+boot_impact:
+  blocks_startup: true
+  startup_timeout_seconds: 30
+
+standards:
+  - L9 memory substrate patterns
+  - PacketEnvelope v2.0 schema
+  - Multi-tenant RLS enforcement
+
+goals:
+  - Provide persistent memory for L9 agents
+  - Enable semantic search across memories
+  - Enforce multi-tenant isolation
+
+non_goals:
+  - Session-based memory (uses persistent storage)
+  - Real-time memory updates (async ingestion)
+
+# =============================================================================
+# v3.0 MEMORY-SPECIFIC CONFIGURATION (Custom structure)
+# =============================================================================
 schema:
   name: l9-memory
   version: "4.0"

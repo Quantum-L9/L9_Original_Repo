@@ -20,6 +20,8 @@ from memory.retrieval import get_retrieval_pipeline
 from memory.housekeeping import get_housekeeping_engine
 from orchestrators.memory.interface import MemoryRequest, MemoryOperation
 from orchestrators.memory.orchestrator import MemoryOrchestrator
+from memory.reasoning_replay import ReasoningReplayPipeline
+from memory.consolidation import ConsolidationPipeline
 
 logger = structlog.get_logger(__name__)
 
@@ -543,3 +545,144 @@ async def compact_storage(
     except Exception as e:
         logger.error(f"Compact failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Compact failed: {str(e)}")
+
+
+# ============================================================================
+# v3.1 Endpoints: Reasoning Replay & Consolidation
+# ============================================================================
+
+
+class ReasoningReplayRequest(BaseModel):
+    """Request model for reasoning replay."""
+    
+    packet_id: str
+    max_depth: Optional[int] = None
+    format: str = "narrative"  # json, narrative, graph_viz, mermaid
+
+
+class ReasoningReplayResponse(BaseModel):
+    """Response model for reasoning replay."""
+    
+    chain_id: str
+    start_packet_id: str
+    depth: int
+    is_complete: bool
+    explanation: str
+    format: str
+
+
+@router.post("/reasoning/replay", response_model=ReasoningReplayResponse)
+async def reasoning_replay(
+    request: ReasoningReplayRequest,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Reconstruct and explain a decision chain (v3.1).
+    
+    Per memory_spec_v3.0.yaml pipelines.reasoning_replay:
+    - reconstruct_chain(packet_id) -> ReasoningChain
+    - explain_decision(packet_id, format) -> str
+    """
+    try:
+        service = await get_service()
+        replay = service.get_reasoning_replay()
+        
+        if replay is None:
+            raise HTTPException(
+                status_code=503,
+                detail="Reasoning replay pipeline not available",
+            )
+        
+        packet_id = UUID(request.packet_id)
+        
+        # Reconstruct chain
+        chain = await replay.reconstruct_chain(packet_id, max_depth=request.max_depth)
+        
+        # Explain decision
+        explanation = await replay.explain_decision(packet_id, format=request.format)
+        
+        return ReasoningReplayResponse(
+            chain_id=str(chain.chain_id),
+            start_packet_id=str(chain.start_packet_id),
+            depth=chain.depth,
+            is_complete=chain.is_complete,
+            explanation=explanation,
+            format=request.format,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {str(e)}")
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        logger.error(f"Reasoning replay failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Reasoning replay failed: {str(e)}")
+
+
+class ConsolidationRequest(BaseModel):
+    """Request model for consolidation."""
+    
+    dry_run: bool = False
+    batch_size: int = 1000
+    sleep_between_batches_ms: int = 100
+
+
+class ConsolidationResponse(BaseModel):
+    """Response model for consolidation."""
+    
+    success: bool
+    deduplication_count: int
+    archived_count: int
+    summarized_count: int
+    expired_count: int
+    errors: List[str]
+    duration_seconds: Optional[float]
+    message: str
+
+
+@router.post("/consolidation/run", response_model=ConsolidationResponse)
+async def run_consolidation(
+    request: ConsolidationRequest,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Run memory consolidation pipeline (v3.1).
+    
+    Per memory_spec_v3.0.yaml pipelines.consolidation:
+    - deduplication, archival, summarization, ttl_expiration
+    - Schedule: weekly_saturday_2am_utc (manual trigger via this endpoint)
+    """
+    try:
+        service = await get_service()
+        consolidation = service.get_consolidation(dry_run=request.dry_run)
+        
+        if consolidation is None:
+            raise HTTPException(
+                status_code=503,
+                detail="Consolidation pipeline not available",
+            )
+        
+        # Run consolidation
+        report = await consolidation.run_consolidation(
+            batch_size=request.batch_size,
+            sleep_between_batches_ms=request.sleep_between_batches_ms,
+        )
+        
+        report_dict = report.to_dict()
+        
+        return ConsolidationResponse(
+            success=len(report.errors) == 0,
+            deduplication_count=report.deduplication_count,
+            archived_count=report.archived_count,
+            summarized_count=report.summarized_count,
+            expired_count=report.expired_count,
+            errors=report.errors,
+            duration_seconds=report_dict.get("duration_seconds"),
+            message=f"Consolidation complete: {report.deduplication_count} dedup, {report.archived_count} archived, {report.summarized_count} summarized, {report.expired_count} expired",
+        )
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        logger.error(f"Consolidation failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Consolidation failed: {str(e)}")

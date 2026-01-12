@@ -39,7 +39,15 @@ class ObservabilitySettings(BaseSettings):
     )
     exporters: List[str] = Field(
         default_factory=lambda: ["console"],
-        description="List of exporters: console, file, substrate, datadog, honeycomb",
+        description="List of exporters: console, file, substrate, jaeger, datadog, honeycomb",
+    )
+    jaeger_enabled: bool = Field(
+        default=False,
+        description="Export to Jaeger for distributed tracing",
+    )
+    jaeger_endpoint: Optional[str] = Field(
+        default=None,
+        description="Jaeger OTLP endpoint (default: http://jaeger:4318/v1/traces)",
     )
     batch_size: int = Field(
         default=100,

@@ -10,6 +10,8 @@ import structlog
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
+from memory.consolidation import ConsolidationPipeline
+
 logger = structlog.get_logger(__name__)
 
 
@@ -330,6 +332,21 @@ class Housekeeping:
             except Exception as e:
                 logger.error(f"❌ Reflection expiration failed: {e}")
                 results["evict_expired_reflections"] = {"status": "error", "error": str(e)}
+            
+            # 5. Run consolidation (v3.1) - weekly schedule
+            # Note: This should run on Saturday 2am UTC, but included here for manual trigger
+            # In production, this would be called separately via scheduler
+            try:
+                consolidation_result = await self.run_consolidation(dry_run=False)
+                if consolidation_result.get("success"):
+                    results["consolidation"] = {"status": "ok", "report": consolidation_result.get("report")}
+                    logger.info("✓ Consolidation completed")
+                else:
+                    results["consolidation"] = {"status": "error", "error": consolidation_result.get("message")}
+                    logger.warning("⚠ Consolidation completed with errors")
+            except Exception as e:
+                logger.error(f"❌ Consolidation failed: {e}")
+                results["consolidation"] = {"status": "error", "error": str(e)}
 
         all_ok = all(
             r.get("status") == "ok" for r in results.values() if r is not None
@@ -341,3 +358,70 @@ class Housekeeping:
             "procedures": results,
             "timestamp": datetime.utcnow().isoformat(),
         }
+
+    async def run_consolidation(
+        self,
+        dry_run: bool = False,
+        batch_size: int = 1000,
+        sleep_between_batches_ms: int = 100,
+    ) -> Dict[str, Any]:
+        """
+        Run memory consolidation pipeline (v3.1).
+        
+        Per memory_spec_v3.0.yaml pipelines.consolidation:
+        - Schedule: weekly_saturday_2am_utc
+        - Strategies: deduplication, archival, summarization, ttl_expiration
+        
+        Args:
+            dry_run: If True, log actions without executing
+            batch_size: Number of packets to process per batch
+            sleep_between_batches_ms: Sleep time between batches
+            
+        Returns:
+            Consolidation report dict
+        """
+        repository = await self._get_repository()
+        if repository is None:
+            return {
+                "success": False,
+                "message": "Repository not available",
+                "status": "unavailable",
+            }
+        
+        try:
+            consolidation = ConsolidationPipeline(
+                repository=repository,
+                dry_run=dry_run,
+            )
+            
+            report = await consolidation.run_consolidation(
+                batch_size=batch_size,
+                sleep_between_batches_ms=sleep_between_batches_ms,
+            )
+            
+            report_dict = report.to_dict()
+            
+            logger.info(
+                "Consolidation complete",
+                deduplication=report.deduplication_count,
+                archived=report.archived_count,
+                summarized=report.summarized_count,
+                expired=report.expired_count,
+                errors=len(report.errors),
+            )
+            
+            return {
+                "success": len(report.errors) == 0,
+                "status": "complete",
+                "report": report_dict,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        
+        except Exception as e:
+            logger.error(f"Consolidation failed: {e}", exc_info=True)
+            return {
+                "success": False,
+                "status": "error",
+                "message": str(e),
+                "timestamp": datetime.utcnow().isoformat(),
+            }

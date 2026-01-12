@@ -30,6 +30,10 @@ DROPBOX_EXPORT_DIR = os.getenv(
     "L9_DROPBOX_EXPORT_DIR",
     "/Users/ib-mac/Dropbox/Repo_Dropbox_IB/L9-index-export"
 )
+ICLOUD_EXPORT_DIR = os.getenv(
+    "L9_ICLOUD_EXPORT_DIR",
+    "/Users/ib-mac/Library/Mobile Documents/com~apple~CloudDocs/00-LLM-00/L9-repo-index"
+)
 
 # Directories to skip
 SKIP_DIRS = {
@@ -1651,10 +1655,12 @@ def main():
     logger.info("📤 Export destinations:")
     logger.info(f"   - {REPO_INDEX_DIR}")
     logger.info(f"   - {DROPBOX_EXPORT_DIR}")
+    logger.info(f"   - {ICLOUD_EXPORT_DIR}")
 
     try:
         os.makedirs(REPO_INDEX_DIR, exist_ok=True)
         os.makedirs(DROPBOX_EXPORT_DIR, exist_ok=True)
+        os.makedirs(ICLOUD_EXPORT_DIR, exist_ok=True)
         logger.info("✅ Export directories ready")
     except Exception as e:
         logger.error(f"❌ Failed to create export directories: {e}")
@@ -1718,6 +1724,9 @@ def main():
             dropbox_file = os.path.join(DROPBOX_EXPORT_DIR, filename)
             with open(dropbox_file, "w", encoding="utf-8") as f:
                 f.write(content)
+            icloud_file = os.path.join(ICLOUD_EXPORT_DIR, filename)
+            with open(icloud_file, "w", encoding="utf-8") as f:
+                f.write(content)
             size = len(content.encode("utf-8"))
             results[filename] = size
             logger.info(f"✅ ({size:,} bytes)")
@@ -1728,6 +1737,7 @@ def main():
     logger.info("\n✨ Done! Files exported to:")
     logger.info(f"   📂 {REPO_INDEX_DIR}")
     logger.info(f"   ☁️  {DROPBOX_EXPORT_DIR}")
+    logger.info(f"   ☁️  {ICLOUD_EXPORT_DIR}")
     logger.info("\n📋 Summary:")
     total_size = 0
     for filename, size in sorted(results.items()):
