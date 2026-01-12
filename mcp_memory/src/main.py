@@ -16,10 +16,10 @@ from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
 from src.routes import memory_unified as memory, health
 
 # Configure structlog
+import logging
+log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
 structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(
-        getattr(structlog.stdlib, settings.LOG_LEVEL.upper(), structlog.stdlib.INFO)
-    ),
+    wrapper_class=structlog.make_filtering_bound_logger(log_level),
     processors=[
         structlog.stdlib.filter_by_level,
         structlog.stdlib.add_logger_name,
