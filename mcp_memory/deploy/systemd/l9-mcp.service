@@ -11,7 +11,7 @@ WorkingDirectory=/opt/l9/mcp_memory
 Environment="PATH=/opt/l9/venv/bin"
 Environment="PYTHONPATH=/opt/l9/mcp_memory"
 EnvironmentFile=/opt/l9/.env
-ExecStart=/opt/l9/venv/bin/python -m src.main
+ExecStart=/bin/bash -c 'cd /opt/l9/mcp_memory && /opt/l9/venv/bin/python -m src.main'
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
