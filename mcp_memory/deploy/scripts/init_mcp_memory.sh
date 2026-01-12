@@ -1,191 +1,111 @@
-#!/bin/bash
-# L9 MCP Memory Server - Initialization Script
-# Run this on VPS to initialize MCP memory server
-#
-# Usage: sudo bash /opt/l9/mcp_memory/deploy/scripts/init_mcp_memory.sh
+#!/usr/bin/env bash
+# L9 MCP Memory - Activation Helper
+# Usage: cd /opt/l9 && bash mcp_memory_activate.sh
 
-set -e
+set -euo pipefail
 
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║  L9 MCP Memory Server - Initialization                        ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-
-# Configuration
 L9_DIR="/opt/l9"
-MCP_DIR="$L9_DIR/mcp_memory"
-VENV_DIR="$L9_DIR/venv"
-SERVICE_NAME="l9-mcp"
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then 
-    echo "❌ Please run as root (sudo)"
-    exit 1
-fi
-
-# Step 1: Verify code is pulled
-echo "[1/7] Verifying code deployment..."
-if [ ! -d "$MCP_DIR" ]; then
-    echo "❌ MCP directory not found: $MCP_DIR"
-    echo "   Run: cd $L9_DIR && git pull origin main"
-    exit 1
-fi
-echo "✅ Code found"
-
-# Step 2: Load environment variables
+echo "╔══════════════════════════════════════╗"
+echo "║  L9 MCP Memory - Activation Helper   ║"
+echo "╚══════════════════════════════════════╝"
 echo ""
-echo "[2/7] Loading environment variables..."
+
 cd "$L9_DIR"
+
 if [ ! -f ".env" ]; then
-    echo "❌ .env file not found at $L9_DIR/.env"
-    exit 1
+  echo "❌ .env not found at $L9_DIR/.env"
+  exit 1
 fi
-source .env
 
-# Check required variables
-REQUIRED_VARS=("MCP_API_KEY_L" "MCP_API_KEY_C" "OPENAI_API_KEY" "MEMORY_DSN")
-MISSING_VARS=()
+echo "[1/4] Checking MCP env keys in .env..."
 
-for var in "${REQUIRED_VARS[@]}"; do
-    if [ -z "${!var}" ]; then
-        MISSING_VARS+=("$var")
-    fi
+# These are the keys used by the MCP memory server (from mcp_memory/src/config.py)
+# Primary keys (required):
+# - MCP_API_KEY_L: L-CTO kernel (full read/write/delete)
+# - MCP_API_KEY_C: Cursor IDE (read all, write/delete own only)
+# Legacy fallbacks (optional but checked):
+# - MCP_API_KEY: Shared fallback
+# - MCPL9MEMORYKEY: Legacy alias
+# - MCP_API_KEYL: Legacy alias for MCP_API_KEY_L
+# - MCP_API_KEYC: Legacy alias for MCP_API_KEY_C
+# Server config (with defaults, but checked):
+# - MCP_HOST (default: 127.0.0.1)
+# - MCP_PORT (default: 9002)
+# - MCP_ENV (default: production)
+# Required:
+# - OPENAI_API_KEY: For embeddings
+# - MEMORY_DSN: PostgreSQL connection string
+REQUIRED_VARS=( "MCP_API_KEY_L" "MCP_API_KEY_C" "OPENAI_API_KEY" "MEMORY_DSN" )
+OPTIONAL_VARS=( "MCP_API_KEY" "MCPL9MEMORYKEY" "MCP_API_KEYL" "MCP_API_KEYC" "MCP_HOST" "MCP_PORT" "MCP_ENV" )
+
+MISSING=()
+for v in "${REQUIRED_VARS[@]}"; do
+  if ! grep -q "^$v=" .env; then
+    MISSING+=("$v")
+  fi
 done
 
-if [ ${#MISSING_VARS[@]} -ne 0 ]; then
-    echo "❌ Missing environment variables:"
-    printf '   - %s\n' "${MISSING_VARS[@]}"
-    echo ""
-    echo "Add them to $L9_DIR/.env"
-    exit 1
+if [ "${#MISSING[@]}" -ne 0 ]; then
+  echo "❌ Missing MCP-related variables in .env:"
+  for v in "${MISSING[@]}"; do
+    echo "   - $v"
+  done
+  echo ""
+  echo "Edit $L9_DIR/.env and add the missing variables."
+  echo "Then re-run: bash mcp_memory_activate.sh"
+  exit 1
 fi
-echo "✅ Environment variables configured"
 
-# Step 3: Verify virtual environment
+echo "✅ MCP env variables present in .env"
 echo ""
-echo "[3/7] Verifying virtual environment..."
-if [ ! -d "$VENV_DIR" ]; then
-    echo "⚠️  Virtual environment not found, creating..."
-    python3.11 -m venv "$VENV_DIR"
-    echo "✅ Virtual environment created"
+
+echo "[2/4] Checking MCP memory server dependencies..."
+
+# Check if virtual environment exists
+if [ ! -d "venv" ]; then
+  echo "⚠️  Virtual environment not found - MCP server may need dependencies"
+  echo "   Run: python3.11 -m venv venv && source venv/bin/activate && pip install -r mcp_memory/requirements.txt"
 else
-    echo "✅ Virtual environment found"
+  echo "✅ Virtual environment found"
 fi
-
-# Step 4: Install/update dependencies
 echo ""
-echo "[4/7] Installing dependencies..."
-cd "$MCP_DIR"
-source "$VENV_DIR/bin/activate"
-# Try to upgrade pip, but don't fail if it's system pip
-pip install --upgrade pip -q 2>/dev/null || echo "⚠️  Skipping pip upgrade (system pip)"
-if [ -f "requirements.txt" ]; then
-    # Use --ignore-installed to skip system packages that can't be uninstalled
-    pip install -r requirements.txt --ignore-installed -q 2>&1 | grep -v "WARNING: Skipping" || true
-    echo "✅ Dependencies installed"
+
+echo "[3/4] Checking MCP memory server status..."
+
+# Check if systemd service exists
+if systemctl list-unit-files | grep -q "l9-mcp.service"; then
+  if systemctl is-active --quiet l9-mcp; then
+    echo "✅ MCP memory server (l9-mcp) is running"
+  else
+    echo "⚠️  MCP memory server (l9-mcp) service exists but not running"
+    echo "   Start with: sudo systemctl start l9-mcp"
+    echo "   Check logs: sudo journalctl -u l9-mcp -n 50"
+  fi
 else
-    echo "⚠️  requirements.txt not found, installing core packages..."
-    pip install fastapi uvicorn asyncpg pgvector openai pydantic-settings structlog --ignore-installed -q 2>&1 | grep -v "WARNING: Skipping" || true
-    echo "✅ Core dependencies installed"
+  echo "⚠️  MCP memory server systemd service not installed"
+  echo "   Install with: sudo cp mcp_memory/deploy/systemd/l9-mcp.service /etc/systemd/system/"
+  echo "   Then: sudo systemctl daemon-reload && sudo systemctl enable l9-mcp && sudo systemctl start l9-mcp"
 fi
 
-# Step 5: Verify L9 migrations are applied
 echo ""
-echo "[5/7] Verifying L9 memory substrate migrations..."
-cd "$L9_DIR"
+echo "[4/4] Testing MCP memory endpoints..."
 
-# Check if packet_store exists (from migration 0001)
-if psql "$MEMORY_DSN" -tAc "SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='packet_store'" | grep -q 1; then
-    echo "✅ packet_store table exists (migration 0001 applied)"
+# Test local MCP server (if running)
+if systemctl is-active --quiet l9-mcp 2>/dev/null; then
+  source .env
+  echo "Testing MCP tools endpoint..."
+  curl -s -H "Authorization: Bearer ${MCP_API_KEY_C}" \
+    "http://127.0.0.1:9002/mcp/tools" | jq . || echo "⚠️  MCP server not responding on port 9002"
 else
-    echo "⚠️  packet_store not found - applying L9 migrations..."
-    if [ -f "migrations/0001_init_memory_substrate.sql" ]; then
-        psql "$MEMORY_DSN" -f migrations/0001_init_memory_substrate.sql
-        echo "✅ Migration 0001 applied"
-    else
-        echo "❌ Migration 0001 not found - L9 substrate may not be initialized"
-        exit 1
-    fi
+  echo "⚠️  MCP server not running - skipping endpoint test"
 fi
 
-# Check if memory_embeddings exists (from migration 0008)
-if psql "$MEMORY_DSN" -tAc "SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='memory_embeddings'" | grep -q 1; then
-    echo "✅ memory_embeddings table exists (migration 0008 applied)"
-else
-    echo "⚠️  memory_embeddings not found - applying migration 0008..."
-    if [ -f "migrations/0008_memory_substrate_10x.sql" ]; then
-        psql "$MEMORY_DSN" -f migrations/0008_memory_substrate_10x.sql
-        echo "✅ Migration 0008 applied"
-    else
-        echo "⚠️  Migration 0008 not found - continuing anyway"
-    fi
-fi
-
-# Step 6: Apply MCP-specific migration (0013)
 echo ""
-echo "[6/7] Applying MCP audit migration (0013)..."
-if psql "$MEMORY_DSN" -tAc "SELECT 1 FROM information_schema.columns WHERE table_name='tool_audit_log' AND column_name='caller'" | grep -q 1; then
-    echo "✅ Migration 0013 already applied (caller column exists)"
-else
-    if [ -f "migrations/0013_mcp_audit_columns.sql" ]; then
-        psql "$MEMORY_DSN" -f migrations/0013_mcp_audit_columns.sql
-        echo "✅ Migration 0013 applied"
-    else
-        echo "⚠️  Migration 0013 not found - continuing anyway"
-    fi
-fi
-
-# Step 7: Install and start systemd service
+echo "✅ MCP memory activation check complete"
 echo ""
-echo "[7/7] Installing systemd service..."
-cd "$L9_DIR"
-
-SERVICE_FILE="$MCP_DIR/deploy/systemd/l9-mcp.service"
-if [ ! -f "$SERVICE_FILE" ]; then
-    echo "❌ Service file not found: $SERVICE_FILE"
-    exit 1
-fi
-
-cp "$SERVICE_FILE" /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable "$SERVICE_NAME"
-
-# Check if service is already running
-if systemctl is-active --quiet "$SERVICE_NAME"; then
-    echo "⚠️  Service already running, restarting..."
-    systemctl restart "$SERVICE_NAME"
-else
-    echo "Starting service..."
-    systemctl start "$SERVICE_NAME"
-fi
-
-# Wait for service to start
-sleep 3
-
-if systemctl is-active --quiet "$SERVICE_NAME"; then
-    echo "✅ Service installed and running"
-else
-    echo "❌ Service failed to start"
-    echo "   Check logs: sudo journalctl -u $SERVICE_NAME -n 50"
-    exit 1
-fi
-
-# Final verification
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║  ✅ Initialization Complete!                                 ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "Service Status:"
-systemctl status "$SERVICE_NAME" --no-pager -l | head -n 12
-echo ""
-echo "Test Commands:"
-echo "  Health: curl http://127.0.0.1:9001/health"
-echo "  Tools:  curl -H 'Authorization: Bearer \$MCP_API_KEY_C' http://127.0.0.1:9001/mcp/tools"
-echo ""
-echo "View logs: sudo journalctl -u $SERVICE_NAME -f"
-echo ""
-echo "Next Steps:"
-echo "  1. Configure Caddy routing (see mcp_memory/deploy/VPS_DEPLOYMENT_GUIDE.md)"
-echo "  2. Test via HTTPS: curl https://l9.quantumaipartners.com/mcp/health"
-echo "  3. Update Cursor mcp.json with MCP server config"
+echo "Next steps:"
+echo "  1. Ensure l9-mcp service is running: sudo systemctl status l9-mcp"
+echo "  2. Configure Caddy to route /mcp/* to port 9002"
+echo "  3. Test via HTTPS: curl -H 'Authorization: Bearer \$MCP_API_KEY_C' https://l9.quantumaipartners.com/mcp/tools"
+echo "  4. Update Cursor mcp.json with MCP_API_KEY_C as Bearer token"
