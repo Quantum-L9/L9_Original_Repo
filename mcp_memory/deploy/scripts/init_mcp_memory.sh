@@ -77,13 +77,14 @@ echo ""
 echo "[4/7] Installing dependencies..."
 cd "$MCP_DIR"
 source "$VENV_DIR/bin/activate"
-pip install --upgrade pip -q
+# Try to upgrade pip, but don't fail if it's system pip
+pip install --upgrade pip -q 2>/dev/null || pip install --upgrade pip --break-system-packages -q 2>/dev/null || echo "⚠️  Skipping pip upgrade (system pip)"
 if [ -f "requirements.txt" ]; then
-    pip install -r requirements.txt -q
+    pip install -r requirements.txt -q || pip install -r requirements.txt --break-system-packages -q
     echo "✅ Dependencies installed"
 else
     echo "⚠️  requirements.txt not found, installing core packages..."
-    pip install fastapi uvicorn asyncpg pgvector openai pydantic-settings structlog -q
+    pip install fastapi uvicorn asyncpg pgvector openai pydantic-settings structlog -q || pip install fastapi uvicorn asyncpg pgvector openai pydantic-settings structlog --break-system-packages -q
     echo "✅ Core dependencies installed"
 fi
 
