@@ -79,6 +79,66 @@ agents/coder_agent_a.py::__init__(self, agent_id, config) - Initialize Coder Age
 agents/coder_agent_a.py::get_system_prompt(self) - Get the system prompt.
 agents/coder_agent_b.py::__init__(self, agent_id, config) - Initialize Coder Agent B.
 agents/coder_agent_b.py::get_system_prompt(self) - Get the system prompt.
+agents/cursor/cursor_client.py::__init__(self, host, port, timeout) - 
+agents/cursor/cursor_client.py::_request(self, endpoint, method, data) - Make HTTP request to Cursor API.
+agents/cursor/cursor_client.py::health_check(self) - Check Cursor API health.
+agents/cursor/cursor_client.py::send_code(self, code) - Send code to Cursor.
+agents/cursor/cursor_client.py::send_command(self, command) - Send command to Cursor.
+agents/cursor/cursor_memory_kernel.py::__init__(self, config_path) - 
+agents/cursor/cursor_memory_kernel.py::_get_rls_prefix() - Generate RLS session variable SET comman
+agents/cursor/cursor_memory_kernel.py::_load_config(self) - Load kernel YAML configuration.
+agents/cursor/cursor_memory_kernel.py::_run_cypher(query, tenant_id) - Execute Cypher query via docker exec wit
+agents/cursor/cursor_memory_kernel.py::_run_psql(sql, with_rls) - Execute SQL via docker exec and return r
+agents/cursor/cursor_memory_kernel.py::_run_psql_json(sql) - Execute SQL and return JSON result.
+agents/cursor/cursor_memory_kernel.py::_run_redis(cmd_parts) - Execute Redis command via docker exec.
+agents/cursor/cursor_memory_kernel.py::activate(self, session_id) - Activate kernel for a session.
+agents/cursor/cursor_memory_kernel.py::activate_session(session_id) - Convenience function to activate a sessi
+agents/cursor/cursor_memory_kernel.py::add_todo(self, content, milestone) - Add a TODO item.
+agents/cursor/cursor_memory_kernel.py::complete_todo(self, todo_id) - Mark a TODO as completed.
+agents/cursor/cursor_memory_kernel.py::create_cursor_memory_kernel() - Factory function for cursor memory kerne
+agents/cursor/cursor_memory_kernel.py::get_active_kernel() - Get the active kernel instance.
+agents/cursor/cursor_memory_kernel.py::get_confidence_behavior(self, confidence) - Get behavior based on confidence level.
+agents/cursor/cursor_memory_kernel.py::get_execution_style(self) - Get execution style preferences.
+agents/cursor/cursor_memory_kernel.py::get_lessons_summary(self) - Get formatted lessons summary for contex
+agents/cursor/cursor_memory_kernel.py::increment_prompt_count(self) - Increment prompt count and return new va
+agents/cursor/cursor_memory_kernel.py::learn(self, title, content, severity) - Store a new lesson in memory.
+agents/cursor/cursor_memory_kernel.py::load_lessons() - Load LESSON packets from memory - CURSOR
+agents/cursor/cursor_memory_kernel.py::load_todos(session_id) - Load TODO items for a session.
+agents/cursor/cursor_memory_kernel.py::neo4j_get_agent_tools(agent_id, tenant_id) - Get tools used by an agent (tenant-isola
+agents/cursor/cursor_memory_kernel.py::neo4j_get_graph_stats(tenant_id) - Get graph statistics for a tenant.
+agents/cursor/cursor_memory_kernel.py::neo4j_query(query, tenant_id) - Execute Neo4j query with automatic tenan
+agents/cursor/cursor_memory_kernel.py::redis_get(key, tenant_id) - Get value from Redis (tenant-isolated).
+agents/cursor/cursor_memory_kernel.py::redis_get_session_state(tenant_id) - Get current session state from Redis.
+agents/cursor/cursor_memory_kernel.py::redis_hgetall(key, tenant_id) - Get all hash fields from Redis (tenant-i
+agents/cursor/cursor_memory_kernel.py::redis_hset(key, field, value, tenant_id) - Set hash field in Redis (tenant-isolated
+agents/cursor/cursor_memory_kernel.py::redis_key(key, tenant_id) - Generate tenant-prefixed Redis key.
+agents/cursor/cursor_memory_kernel.py::redis_set(key, value, tenant_id, ttl) - Set value in Redis (tenant-isolated).
+agents/cursor/cursor_memory_kernel.py::should_display_todos(self) - Check if TODOs should be displayed based
+agents/cursor/cursor_memory_kernel.py::write_kernel_activation(session_id, kernel_id) - Write kernel activation packet.
+agents/cursor/cursor_memory_kernel.py::write_lesson(title, content, severity, tags) - Write a new lesson to memory.
+agents/cursor/cursor_memory_kernel.py::write_session_todos(session_id, todos) - Write/update session TODOs.
+agents/cursor/extractors/cursor_action_extractor.py::create_directory_structure(self, output_root) - Create all required directories.
+agents/cursor/extractors/cursor_action_extractor.py::extract(self, input_path, output_root) - Extract and reconstruct all files from c
+agents/cursor/extractors/cursor_action_extractor.py::extract_components(self, content) - Extract all component definitions.
+agents/cursor/extractors/cursor_action_extractor.py::extract_executive_mode(self, content) - Extract Executive Mode YAML.
+agents/cursor/extractors/cursor_action_extractor.py::extract_loader_config(self, content) - Extract L9-L-Clone-Core loader configura
+agents/cursor/extractors/cursor_action_extractor.py::extract_reasoning_pattern_schema(self, content) - Extract reasoning pattern schema definit
+agents/cursor/extractors/cursor_action_extractor.py::extract_yaml_configs(self, content) - Extract YAML configurations from content
+agents/cursor/extractors/cursor_action_extractor.py::generate_python_modules(self, content, dirs) - Generate Python module code from compone
+agents/cursor/extractors/cursor_action_extractor.py::parse_inline_yaml(self, text) - Parse inline YAML-like structure.
+agents/cursor/extractors/cursor_action_extractor.py::write_manifest(self, manifest_path, manifest) - Write extraction manifest.
+agents/cursor/extractors/cursor_action_extractor.py::write_yaml(self, file_path, data) - Write YAML file.
+agents/cursor/integrations/cursor_executor.py::__init__(self, langgraph_app, memory_gateway, dag_orchestrator, checkpoint_manager, approval_manager) - Initialize Cursor executor.
+agents/cursor/integrations/cursor_gateway.py::__init__(self, dag_orchestrator) - Initialize Cursor memory gateway.
+agents/cursor/integrations/cursor_gateway.py::_validate_scope(self, scope) - Validate scope is within Cursor's allowe
+agents/cursor/integrations/cursor_langgraph.py::__init__(self, approval_gate) - Initialize decision gate node.
+agents/cursor/integrations/cursor_langgraph.py::__init__(self, llm_provider) - Initialize planning node.
+agents/cursor/integrations/cursor_langgraph.py::__init__(self, memory_gateway) - Initialize error recovery node.
+agents/cursor/integrations/cursor_langgraph.py::__init__(self, memory_gateway) - Initialize memory search node.
+agents/cursor/integrations/cursor_langgraph.py::__init__(self, memory_gateway) - Initialize memory write node.
+agents/cursor/integrations/cursor_langgraph.py::build_cursor_langgraph(config, deps) - Build Cursor LangGraph application.
+agents/cursor/scripts/cursor_check_mistakes.py::format_violation(v) - Format a violation for display.
+agents/cursor/scripts/cursor_check_mistakes.py::main() - 
 agents/l_cto.py::__init__(self, agent_id, config, manifest) - Initialize the L-CTO agent.
 agents/l_cto.py::_build_kernel_prompt(self) - Build system prompt from absorbed kernel
 agents/l_cto.py::_get_fallback_prompt(self) - Fallback prompt when kernels not loaded.
@@ -230,6 +290,7 @@ api/llm.py::chat_with_l9(user_message) - Call LLM and return:
 api/llm.py::get_client() - 
 api/llm.py::get_system_prompt() - Get the system prompt, either from kerne
 api/memory/router.py::get_memory_orchestrator(request) - Get MemoryOrchestrator from app.state.
+api/routes/cursor.py::get_cursor_executor(request) - Get CursorExecutor from app.state.
 api/routes/modules.py::_get_module_registry(request) - 
 api/routes/reasoning.py::get_reasoning_orchestrator(request) - Get ReasoningOrchestrator from app.state
 api/routes/research.py::get_research_swarm_orchestrator(request) - Get ResearchSwarmOrchestrator from app.s
@@ -353,6 +414,27 @@ clients/memory_client.py::get_memory_client() - Get or create singleton MemoryCl
 clients/memory_client.py::is_using_fallback(self) - Check if currently using Docker fallback
 clients/world_model_client.py::__init__(self, base_url, timeout) - Initialize World Model client.
 clients/world_model_client.py::get_world_model_client() - Get or create singleton client.
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::call_perplexity_api(prompt, api_key) - Call Perplexity Research API to generate
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::customize_for_ethical_layer() - Customize prompt for ethical governance 
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::customize_for_learning_layer() - Customize prompt for learning & adaptati
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::customize_for_risk_layer() - Customize prompt for risk management lay
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::example_usage() - Example showing how to use this programm
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::extract_documentation(response_text) - Extract markdown documentation from API 
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::extract_python_files(response_text) - Extract Python code blocks from API resp
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::generate_ai_os_layer_complete(api_key, layer_type) - Complete workflow: customize, call API, 
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py::main() - Command-line interface for layer generat
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::__init__(self, api_key) - 
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::__init__(self, responses) - 
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::build_semantic_graph(self) - Build relationships between concepts acr
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::compute_consensus_patterns(self) - Find consensus across variations
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::extract_architectural_insights(response) - Extract architectural recommendations
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::extract_code_snippets(response) - Extract Python code blocks
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::extract_concepts(response) - Extract key concepts using simple heuris
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::extract_unique_insights(self) - Find novel insights unique to fewer vari
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::generate(synthesis, code_snippets) - Generate production README
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::generate_core_architecture(synthesis) - Generate core architecture implementatio
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::generate_integration_hook(synthesis) - Generate agent integration hook
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::generate_synthesis_report(self) - Generate comprehensive synthesis report
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::__init__(self, substrate_service, aios_runtime_client, memory_service_client) - Initialize adapter with dependencies.
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::__post_init__(self) - 
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::_generate_context(self, request) - Generate execution context with determin
@@ -733,6 +815,8 @@ collaborative_cells/reflection_cell.py::get_reflection_history(self) - Get store
 collaborative_cells/reviewer_cell.py::__init__(self, config) - Initialize the reviewer cell.
 collaborative_cells/reviewer_cell.py::_apply_revisions(self, output, critique) - Apply secondary review findings.
 collaborative_cells/reviewer_cell.py::_ensure_client(self) - Ensure OpenAI client is initialized.
+config/cursor_langgraph_config.py::get_cursor_langgraph_config() - Get singleton CursorLangGraphConfig inst
+config/cursor_langgraph_config.py::reset_cursor_langgraph_config() - Reset singleton (for testing).
 config/memory_substrate_settings.py::get_settings() - Get or create settings singleton.
 config/memory_substrate_settings.py::reset_settings() - Reset settings (useful for testing).
 config/research_settings.py::get_research_settings() - Get or create research settings singleto
@@ -775,7 +859,7 @@ core/agents/agent_instance.py::total_tokens(self) - Get total tokens used.
 core/agents/agent_instance.py::transition_to(self, new_state) - Transition to a new state.
 core/agents/agent_instance.py::user_corrections(self) - Get list of user corrections tracked dur
 core/agents/bootstrap/orchestrator.py::__init__(self, substrate_service) - 
-core/agents/executor.py::__init__(self, aios_runtime, tool_registry, substrate_service, agent_registry, default_agent_id, max_iterations) - Initialize the executor service.
+core/agents/executor.py::__init__(self, aios_runtime, tool_registry, substrate_service, agent_registry, default_agent_id, max_iterations, agent_persistence) - Initialize the executor service.
 core/agents/executor.py::_get_kernel_aware_agent(self) - Get the kernel-aware agent if available 
 core/agents/executor.py::_validate_task(self, task) - Validate an incoming task. Does NOT muta
 core/agents/executor.py::agent_exists(self, agent_id) - Check if an agent is registered.
@@ -887,6 +971,8 @@ core/evaluation/evaluator.py::__init__(self, substrate_service, llm_service, age
 core/evaluation/evaluator.py::_compute_tool_accuracy(self, tools_used, expected_tools) - Jaccard similarity: intersection / union
 core/evaluation/evaluator.py::define_eval_set(self, name, examples, description) - Define evaluation set
 core/evaluation/evaluator.py::task_success_rate(self) - 
+core/governance/approval_gate.py::handle_governance_result(escalation_result, state) - Handle governance result and update stat
+core/governance/approval_gate.py::is_high_impact_decision(decision) - Determine if a decision requires Igor ap
 core/governance/approval_manager.py::__init__(self, substrate_service, slack_client, notification_channel) - 
 core/governance/approval_manager.py::__post_init__(self) - 
 core/governance/approval_manager.py::get_metrics(self) - Get approval manager metrics
@@ -908,39 +994,6 @@ core/governance/credentials_policy.py::patterns(self) - Get all loaded patterns.
 core/governance/credentials_policy.py::redact(self, content) - Redact all detected secrets from content
 core/governance/credentials_policy.py::scan(self, content) - Scan content for exposed secrets.
 core/governance/credentials_policy.py::validate_env_file(self, env_content) - Validate .env file format and content.
-core/governance/cursor_memory_kernel.py::__init__(self, config_path) - 
-core/governance/cursor_memory_kernel.py::_get_rls_prefix() - Generate RLS session variable SET comman
-core/governance/cursor_memory_kernel.py::_load_config(self) - Load kernel YAML configuration.
-core/governance/cursor_memory_kernel.py::_run_cypher(query, tenant_id) - Execute Cypher query via docker exec wit
-core/governance/cursor_memory_kernel.py::_run_psql(sql, with_rls) - Execute SQL via docker exec and return r
-core/governance/cursor_memory_kernel.py::_run_psql_json(sql) - Execute SQL and return JSON result.
-core/governance/cursor_memory_kernel.py::_run_redis(cmd_parts) - Execute Redis command via docker exec.
-core/governance/cursor_memory_kernel.py::activate(self, session_id) - Activate kernel for a session.
-core/governance/cursor_memory_kernel.py::activate_session(session_id) - Convenience function to activate a sessi
-core/governance/cursor_memory_kernel.py::add_todo(self, content, milestone) - Add a TODO item.
-core/governance/cursor_memory_kernel.py::complete_todo(self, todo_id) - Mark a TODO as completed.
-core/governance/cursor_memory_kernel.py::create_cursor_memory_kernel() - Factory function for cursor memory kerne
-core/governance/cursor_memory_kernel.py::get_active_kernel() - Get the active kernel instance.
-core/governance/cursor_memory_kernel.py::get_confidence_behavior(self, confidence) - Get behavior based on confidence level.
-core/governance/cursor_memory_kernel.py::get_execution_style(self) - Get execution style preferences.
-core/governance/cursor_memory_kernel.py::get_lessons_summary(self) - Get formatted lessons summary for contex
-core/governance/cursor_memory_kernel.py::increment_prompt_count(self) - Increment prompt count and return new va
-core/governance/cursor_memory_kernel.py::learn(self, title, content, severity) - Store a new lesson in memory.
-core/governance/cursor_memory_kernel.py::load_lessons() - Load LESSON packets from memory - CURSOR
-core/governance/cursor_memory_kernel.py::load_todos(session_id) - Load TODO items for a session.
-core/governance/cursor_memory_kernel.py::neo4j_get_agent_tools(agent_id, tenant_id) - Get tools used by an agent (tenant-isola
-core/governance/cursor_memory_kernel.py::neo4j_get_graph_stats(tenant_id) - Get graph statistics for a tenant.
-core/governance/cursor_memory_kernel.py::neo4j_query(query, tenant_id) - Execute Neo4j query with automatic tenan
-core/governance/cursor_memory_kernel.py::redis_get(key, tenant_id) - Get value from Redis (tenant-isolated).
-core/governance/cursor_memory_kernel.py::redis_get_session_state(tenant_id) - Get current session state from Redis.
-core/governance/cursor_memory_kernel.py::redis_hgetall(key, tenant_id) - Get all hash fields from Redis (tenant-i
-core/governance/cursor_memory_kernel.py::redis_hset(key, field, value, tenant_id) - Set hash field in Redis (tenant-isolated
-core/governance/cursor_memory_kernel.py::redis_key(key, tenant_id) - Generate tenant-prefixed Redis key.
-core/governance/cursor_memory_kernel.py::redis_set(key, value, tenant_id, ttl) - Set value in Redis (tenant-isolated).
-core/governance/cursor_memory_kernel.py::should_display_todos(self) - Check if TODOs should be displayed based
-core/governance/cursor_memory_kernel.py::write_kernel_activation(session_id, kernel_id) - Write kernel activation packet.
-core/governance/cursor_memory_kernel.py::write_lesson(title, content, severity, tags) - Write a new lesson to memory.
-core/governance/cursor_memory_kernel.py::write_session_todos(session_id, todos) - Write/update session TODOs.
 core/governance/engine.py::__init__(self, policy_dir, default_effect, substrate_service) - Initialize the governance engine.
 core/governance/engine.py::_calculate_duration_ms(self, start_time) - Calculate duration in milliseconds.
 core/governance/engine.py::create_governance_engine(policy_dir, substrate_service) - Create a GovernanceEngineService.
@@ -1001,6 +1054,8 @@ core/governance/validation.py::detect_drift(agent_id, action, success, threshold
 core/governance/validation.py::get_audit_trail(agent_id, limit) - Get audit trail entries.
 core/governance/validation.py::validate_authority(action, agent_id) - Validate agent has authority for action.
 core/governance/validation.py::validate_safety(action, payload) - Validate action is safe to execute.
+core/graph/query/graph_search_query_builder.py::build_cypher_from_intent(query_intent, params) - Build Cypher query from intent string an
+core/graph/query/graph_search_query_builder.py::compute_graph_schema_hash() - Compute schema hash from DSL templates.
 core/integration/graph_to_wm_sync.py::__init__(self, neo4j_driver, sync_interval_seconds, enabled) - Initialize the sync service.
 core/integration/graph_to_wm_sync.py::_transform_to_wm_entity(self, agent_id, graph_state) - Transform Neo4j graph state to World Mod
 core/integration/graph_to_wm_sync.py::get_graph_wm_sync(neo4j_driver) - Get the global GraphToWorldModelSync ins
@@ -1137,11 +1192,27 @@ core/observability/instrumentation.py::trace_governance_check(policy_name) - Dec
 core/observability/instrumentation.py::trace_llm_call(model) - Decorator to trace LLM generation calls.
 core/observability/instrumentation.py::trace_span(name, kind) - Decorator to automatically create and ex
 core/observability/instrumentation.py::trace_tool_call(tool_name) - Decorator to trace tool invocations.
+core/observability/jaeger_exporter.py::__init__(self, jaeger_endpoint, service_name) - Initialize Jaeger exporter.
+core/observability/jaeger_exporter.py::_map_span_kind(self, kind) - Map L9 SpanKind to OpenTelemetry SpanKin
+core/observability/jaeger_exporter.py::export(self, spans) - Export multiple spans to Jaeger.
+core/observability/jaeger_exporter.py::export_span(self, span) - Export a single span to Jaeger.
+core/observability/jaeger_exporter.py::get_jaeger_exporter() - Get the global Jaeger exporter instance.
+core/observability/jaeger_exporter.py::initialize_jaeger_exporter(jaeger_endpoint, service_name) - Initialize the global Jaeger exporter.
 core/observability/models.py::child_context(self) - Create a child context with new span_id.
 core/observability/models.py::finish(self, status, error) - Mark span as finished.
 core/observability/models.py::start(cls, name, trace_id, kernel_id, parent_span_id, kind) - Create and start a new kernel lifecycle 
 core/observability/models.py::start(cls, name, trace_id, parent_span_id, kind) - Create and start a new span.
 core/observability/models.py::to_headers(self) - Convert to W3C traceparent header.
+core/observability/prometheus_exporter.py::__init__(self) - Initialize Prometheus metrics.
+core/observability/prometheus_exporter.py::get_exporter() - Get the global Prometheus exporter insta
+core/observability/prometheus_exporter.py::initialize_exporter() - Initialize the global Prometheus exporte
+core/observability/prometheus_exporter.py::record_context_assembly(self, strategy, tokens) - Record a context window assembly.
+core/observability/prometheus_exporter.py::record_failure_signal(self, failure_class) - Record a failure signal.
+core/observability/prometheus_exporter.py::record_llm_call(self, model, status, prompt_tokens, completion_tokens, cost_usd) - Record an LLM API call.
+core/observability/prometheus_exporter.py::record_span(self, span_name, status, kind, duration_ms) - Record a span observation.
+core/observability/prometheus_exporter.py::record_tool_call(self, tool_name, status) - Record a tool call.
+core/observability/prometheus_exporter.py::update_agent_kpi(self, agent_name, success_rate, tool_efficiency, cost_usd) - Update agent KPI metrics.
+core/observability/prometheus_exporter.py::update_sre_metrics(self, metrics) - Update SRE-level metrics from computed m
 core/observability/service.py::__init__(self, config, substrate_service) - Initialize observability service.
 core/observability/service.py::_setup_logging(self) - Configure logging (structlog is pre-conf
 core/observability/service.py::current_trace_context(self) - Get current trace context (create if nee
@@ -1263,6 +1334,28 @@ core/schemas/tests/test_research_factory.py::test_valid_metrics(self) - Verify v
 core/schemas/tests/test_research_factory.py::test_valid_parsed_object(self) - Verify valid parsed object creation.
 core/schemas/tests/test_research_factory.py::test_valid_query_plan(self) - Verify valid query plan creation.
 core/schemas/universal_schema.py::get_schema_info() - Return schema version information.
+core/singleton_registry.py::__init__(self) - Initialize empty registry.
+core/singleton_registry.py::__repr__(self) - 
+core/singleton_registry.py::_register_core_singletons(registry) - Register ALL L9 singletons across the en
+core/singleton_registry.py::close(self, name) - Close/cleanup a singleton.
+core/singleton_registry.py::close_all(self) - Close all initialized singletons (in rev
+core/singleton_registry.py::close_research_settings() - 
+core/singleton_registry.py::close_world_model_engine() - 
+core/singleton_registry.py::close_ws_orchestrator() - 
+core/singleton_registry.py::get(self, name) - Get singleton instance by name (sync ver
+core/singleton_registry.py::get_by_category(self, category) - Get singletons by category (inferred fro
+core/singleton_registry.py::get_cursor_memory_kernel() - 
+core/singleton_registry.py::get_dependency_graph(self) - Get dependency graph for all singletons.
+core/singleton_registry.py::get_entry(self, name) - Get registry entry for a singleton.
+core/singleton_registry.py::get_health_status(self) - Get health status of all singletons.
+core/singleton_registry.py::get_singleton_registry() - Get or create global singleton registry.
+core/singleton_registry.py::get_ws_orchestrator() - 
+core/singleton_registry.py::is_initialized(self) - Check if singleton is initialized.
+core/singleton_registry.py::list_all(self) - List all registered singletons.
+core/singleton_registry.py::list_initialized(self) - List all initialized singletons.
+core/singleton_registry.py::register(self, name, module_path, getter, closer, lifecycle, dependencies, description) - Register a singleton in the registry.
+core/singleton_registry.py::reset(self) - Reset registry (for testing).
+core/singleton_registry.py::validate_dependencies(self, name) - Validate that all dependencies for a sin
 core/testing/test_agent.py::__init__(self, substrate_service) - Initialize TestAgent.
 core/testing/test_agent.py::_build_test_file(self, tests) - Build a complete test file from test fun
 core/testing/test_agent.py::_generate_recommendations(self, results) - Generate recommendations based on test r
@@ -1356,6 +1449,40 @@ dev/tools/global_state_audit.py::generic_visit(self, node) -
 dev/tools/global_state_audit.py::iter_python_files() - 
 dev/tools/global_state_audit.py::main() - 
 dev/tools/global_state_audit.py::visit_Assign(self, node) - 
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py::__init__(self, substrate, redis_cache) - 
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py::__init__(self, uri, user, password, database) - 
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py::__init__(self, host, port, user, password, database, min_pool_size, max_pool_size, query_timeout) - 
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py::__init__(self, host, port, db, password, ttl_search_sec, ttl_governance_sec) - 
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py::_make_key(self, prefix) - Build cache key.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::as_neo4j_dict(self) - Serialize for Neo4j property storage.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::as_postgres_tuple(self) - Serialize for Postgres INSERT.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::from_postgres_row(cls, row) - Deserialize from Postgres row.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::validate_embedding(cls, v) - Embedding must be list of floats, 1536 d
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::validate_expires_at(cls, v, values) - expires_at must be in future.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::__init__(self, postgres_backend, neo4j_backend, redis_cache, logger) - 
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py::__init__(self, memory_api) - 
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py::schedule_cleanup(self, interval_hours) - Schedule periodic memory cleanup.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::__init__(self) - 
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::_init_prometheus(self) - Initialize Prometheus metrics if availab
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::get_stats(self) - Get telemetry statistics.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::get_telemetry() - Get or create global telemetry instance.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_cache_hit(self, segment) - Record cache hit.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_cache_miss(self, segment) - Record cache miss.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_search(self, segment, agent_id, result_count, duration_ms) - Record search operation.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_structured(self, event, level) - Structured JSON logging.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_write(self, segment, agent_id) - Record write operation.
+docs/Slack-Debug-2/server.py::agent_exists(self, agent_id) - 
+docs/Slack-Debug-2/server.py::get_agent_config(self, agent_id) - 
+docs/Slack-Debug-2/server.py::get_approved_tools(self, agent_id, principal_id) - 
+docs/Slack-Debug-2/server.py::init_metrics() - 
+docs/Slack-Debug-2/server.py::root() - 
+docs/Slack-Debug-2/verify_agent_executor.py::check_agent_registry() - Verify agent registry can be created.
+docs/Slack-Debug-2/verify_agent_executor.py::check_executor_service() - Verify AgentExecutorService can be insta
+docs/Slack-Debug-2/verify_agent_executor.py::check_health_checks() - Verify health check code is present in s
+docs/Slack-Debug-2/verify_agent_executor.py::check_imports() - Verify all critical imports.
+docs/Slack-Debug-2/verify_agent_executor.py::check_kernel_files() - Verify kernel files exist and are readab
+docs/Slack-Debug-2/verify_agent_executor.py::main() - Run all verification checks.
+docs/Slack-Debug-2/verify_agent_executor.py::print_section(title) - Print a formatted section header.
 docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::event_loop() - Provide event loop for async tests.
 docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::mock_substrate_service(mock_write_result) - Canonical mock of MemorySubstrateService
 docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/conftest.py::mock_write_result() - Create a mock PacketWriteResult.
@@ -2061,6 +2188,9 @@ mac_agent/websocket_client.py::on_connect(self, callback) - Register callback fo
 mac_agent/websocket_client.py::on_disconnect(self, callback) - Register callback for disconnection even
 mac_agent/websocket_client.py::on_task(self, callback) - Register callback for task events.
 mac_agent/websocket_client.py::running_count(self) - Number of currently running tasks.
+mcp_memory/src/config.py::get_api_key_c() - Get Cursor API key with legacy fallback 
+mcp_memory/src/config.py::get_api_key_l() - Get L-CTO API key with legacy fallback s
+mcp_memory/src/config.py::validate_api_keys() - Validate that at least one API key is co
 mcp_memory/src/main.py::__init__(self, caller_id, user_id) - 
 mcp_memory/src/main.py::check_auth_block(ip) - Check if IP is blocked due to failed aut
 mcp_memory/src/main.py::check_rate_limit(ip) - Check if IP has exceeded rate limit. Rai
@@ -2068,9 +2198,33 @@ mcp_memory/src/main.py::creator(self) - Metadata creator value for this caller.
 mcp_memory/src/main.py::get_client_ip(request) - Get client IP, respecting X-Forwarded-Fo
 mcp_memory/src/main.py::record_failed_auth(ip) - Record a failed authentication attempt.
 mcp_memory/src/main.py::source(self) - Metadata source value for this caller.
+mcp_memory/src/mcp_server.py::get_mcp_tools() - 
 mcp_memory/src/routes/memory_unified.py::map_db_scope_to_mcp_scope(db_scope) - Reverse mapping: DB scope → MCP scope.
 mcp_memory/src/routes/memory_unified.py::map_mcp_scope_to_db_scope(mcp_scope) - Map MCP governance scopes to DB scope va
+mcp_memory/tests/test_e2e.py::client() - FastAPI test client.
+mcp_memory/tests/test_e2e.py::mock_caller_c() - Mock caller identity for Cursor IDE.
+mcp_memory/tests/test_e2e.py::mock_caller_l() - Mock caller identity for L-CTO.
+mcp_memory/tests/test_mcp_server_smoke.py::client() - FastAPI test client.
+mcp_memory/tests/test_mcp_server_smoke.py::mock_env() - Mock environment variables for testing.
+mcp_memory/tests/test_mcp_server_smoke.py::test_health_endpoint(client) - Test /health endpoint returns OK.
+mcp_memory/tests/test_mcp_server_smoke.py::test_mcp_tools_auth_failure(client) - Test /mcp/tools endpoint rejects invalid
+mcp_memory/tests/test_mcp_server_smoke.py::test_mcp_tools_endpoint(client, mock_env) - Test /mcp/tools endpoint lists available
+mcp_memory/tests/test_mcp_server_smoke.py::test_mcp_tools_missing_auth(client) - Test /mcp/tools endpoint rejects request
+memory/agent_persistence.py::__init__(self, checkpoint_id, agent_id, state, reason, created_at) - 
+memory/agent_persistence.py::__init__(self, service, repository) - Initialize agent persistence service.
+memory/agent_persistence.py::_serialize_value(self, value) - Recursively serialize a value.
+memory/agent_persistence.py::deserialize_agent_state(self, state) - Deserialize a state dict back to agent-c
+memory/agent_persistence.py::serialize_agent_state(self, agent) - Serialize an agent object to a state dic
+memory/agent_persistence.py::set_repository(self, repository) - Set or update repository reference.
+memory/agent_persistence.py::set_service(self, service) - Set or update service reference.
+memory/checkpoint/cursor_checkpoint_manager.py::__init__(self, postgres_saver, memory_gateway) - Initialize checkpoint manager.
+memory/checkpoint/postgres_saver.py::__init__(self, repository) - Initialize L9 PostgresSaver.
+memory/checkpoint/postgres_saver.py::repository(self) - Get repository instance.
 memory/checkpoint_manager.py::__init__(self, service) - 
+memory/consolidation.py::__init__(self) - 
+memory/consolidation.py::__init__(self, repository, dry_run) - Initialize consolidation pipeline.
+memory/consolidation.py::set_repository(self, repository) - Set or update repository reference.
+memory/consolidation.py::to_dict(self) - Convert report to dict.
 memory/extractor/agent_config_extractor.py::extract(self, input_path, output_root) - Extract agent configuration from input.
 memory/extractor/agent_config_extractor.py::extract_config(self, content, mode) - Extract configuration based on mode.
 memory/extractor/agent_config_extractor.py::extract_issues(self, content) - Extract known issues.
@@ -2089,17 +2243,6 @@ memory/extractor/base_extractor.py::is_enabled(self) - Check if this extractor i
 memory/extractor/code_extractor.py::extract(self, input_path, output_root) - Extract code files from input.
 memory/extractor/code_extractor.py::extract_code_content(self, lines, start_idx, pattern_type) - Extract code content starting from start
 memory/extractor/code_extractor.py::find_code_blocks(self, content) - Find all code blocks with file paths in 
-memory/extractor/cursor_action_extractor.py::create_directory_structure(self, output_root) - Create all required directories.
-memory/extractor/cursor_action_extractor.py::extract(self, input_path, output_root) - Extract and reconstruct all files from c
-memory/extractor/cursor_action_extractor.py::extract_components(self, content) - Extract all component definitions.
-memory/extractor/cursor_action_extractor.py::extract_executive_mode(self, content) - Extract Executive Mode YAML.
-memory/extractor/cursor_action_extractor.py::extract_loader_config(self, content) - Extract L9-L-Clone-Core loader configura
-memory/extractor/cursor_action_extractor.py::extract_reasoning_pattern_schema(self, content) - Extract reasoning pattern schema definit
-memory/extractor/cursor_action_extractor.py::extract_yaml_configs(self, content) - Extract YAML configurations from content
-memory/extractor/cursor_action_extractor.py::generate_python_modules(self, content, dirs) - Generate Python module code from compone
-memory/extractor/cursor_action_extractor.py::parse_inline_yaml(self, text) - Parse inline YAML-like structure.
-memory/extractor/cursor_action_extractor.py::write_manifest(self, manifest_path, manifest) - Write extraction manifest.
-memory/extractor/cursor_action_extractor.py::write_yaml(self, file_path, data) - Write YAML file.
 memory/extractor/memory_extractor.py::extract(self, input_path, output_root) - Extract memory entries from input.
 memory/extractor/memory_extractor.py::extract_directives(self, content) - Extract Directive: markers.
 memory/extractor/memory_extractor.py::extract_lessons(self, content) - Extract LESSON: markers.
@@ -2114,6 +2257,9 @@ memory/graph_client.py::__init__(self, uri, user, password, database) - Initiali
 memory/graph_client.py::driver(self) - Expose the raw AsyncDriver for component
 memory/graph_client.py::is_available(self) - Check if Neo4j is available.
 memory/graph_client.py::session(self, database) - Create a session (AsyncDriver-compatible
+memory/graph_search_cache.py::_compute_query_hash(query, params) - Compute hash for query + params.
+memory/graph_search_cache.py::_compute_ttl(ctx, is_governance) - Compute TTL with jitter.
+memory/graph_search_cache.py::compute_graph_schema_version() - Compute GRAPH_CACHE_SCHEMA_VERSION from 
 memory/housekeeping.py::__init__(self, repository) - Initialize housekeeping engine.
 memory/housekeeping.py::get_housekeeping_engine() - Get or create the housekeeping engine si
 memory/housekeeping.py::init_housekeeping_engine(repository) - Initialize the housekeeping engine with 
@@ -2142,6 +2288,13 @@ memory/packet_serializer.py::envelope_from_json(payload) - Load a PacketEnvelope
 memory/packet_serializer.py::envelope_to_dict(envelope) - Convert a PacketEnvelope to a JSON-seria
 memory/packet_serializer.py::envelope_to_json(envelope) - Dump a PacketEnvelope to a JSON string.
 memory/packet_serializer.py::packet_in_from_dict(data) - Construct a PacketEnvelopeIn from a dict
+memory/query_classifier.py::__init__(self) - Initialize query classifier with pattern
+memory/query_classifier.py::classify_query(self, query) - Classify a query into one of the retriev
+memory/query_classifier.py::get_query_classifier() - Get singleton QueryClassifier instance.
+memory/query_classifier.py::get_weight_overrides(self, pattern) - Get weight overrides for a query pattern
+memory/reasoning_replay.py::__init__(self, chain_id, start_packet_id, packets, depth, is_complete) - 
+memory/reasoning_replay.py::__init__(self, repository) - Initialize reasoning replay pipeline.
+memory/reasoning_replay.py::set_repository(self, repository) - Set or update repository reference.
 memory/retrieval.py::__init__(self, repository, semantic_service) - Initialize retrieval pipeline.
 memory/retrieval.py::_matches_filters(self, packet, filters) - Check if packet matches structured filte
 memory/retrieval.py::get_retrieval_pipeline() - Get or create the retrieval pipeline sin
@@ -2158,6 +2311,7 @@ memory/slack_ingest.py::record_slack_reply_error() -
 memory/state_manager.py::__init__(self, service, agent_id) - 
 memory/state_manager.py::agent_id(self) - 
 memory/strategymemory.py::__init__(self) - Initialize the stub service.
+memory/substrate_dag_wrapper.py::__init__(self, dag) - Initialize DAG orchestrator.
 memory/substrate_graph.py::__init__(self, repository, semantic_service, world_model_service) - Initialize DAG with dependencies.
 memory/substrate_graph.py::_default_state() - Create default state.
 memory/substrate_graph.py::_should_skip_embedding(text) - Check if text matches known low-value pa
@@ -2176,6 +2330,10 @@ memory/substrate_semantic.py::dimensions(self) -
 memory/substrate_semantic.py::dimensions(self) - 
 memory/substrate_semantic.py::dimensions(self) - Return the embedding dimensions.
 memory/substrate_service.py::__init__(self, repository, embedding_provider) - Initialize the substrate service.
+memory/substrate_service.py::get_agent_persistence(self) - Get agent persistence service instance (
+memory/substrate_service.py::get_consolidation(self, dry_run) - Get consolidation pipeline instance (laz
+memory/substrate_service.py::get_query_classifier(self) - Get query classifier instance (lazy init
+memory/substrate_service.py::get_reasoning_replay(self) - Get reasoning replay pipeline instance (
 memory/timeline_service.py::__init__(self, repository) - 
 memory/tool_audit.py::_sanitize_arguments(arguments) - Sanitize tool arguments for audit loggin
 memory/validators/packet_validator.py::allowed_types() - 
@@ -2437,6 +2595,13 @@ runtime/websocket_orchestrator.py::__init__(self) -
 runtime/websocket_orchestrator.py::get_connected_agents(self) - Get list of currently connected agent ID
 runtime/websocket_orchestrator.py::get_metadata(self, agent_id) - Get metadata for a connected agent.
 runtime/websocket_orchestrator.py::is_connected(self, agent_id) - Check if an agent is currently connected
+scripts/agents/verify_agent_executor.py::check_agent_registry() - Verify agent registry can be created.
+scripts/agents/verify_agent_executor.py::check_executor_service() - Verify AgentExecutorService can be insta
+scripts/agents/verify_agent_executor.py::check_health_checks() - Verify health check code is present in s
+scripts/agents/verify_agent_executor.py::check_imports() - Verify all critical imports.
+scripts/agents/verify_agent_executor.py::check_kernel_files() - Verify kernel files exist and are readab
+scripts/agents/verify_agent_executor.py::main() - Run all verification checks.
+scripts/agents/verify_agent_executor.py::print_section(title) - Print a formatted section header.
 scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::__init__(self, filepath) - 
 scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::__init__(self, repo_root) - 
 scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::__init__(self, repo_root) - 
@@ -2548,58 +2713,63 @@ scripts/audit/tier1/audit_infrastructure_health.py::compute_startup_order(depend
 scripts/audit/tier1/audit_infrastructure_health.py::generate_report(health_checks, config_validations, dependency_checks, startup_sequence) - Generate complete infrastructure report.
 scripts/audit/tier1/audit_infrastructure_health.py::validate_config() - Validate environment configuration.
 scripts/audit/tier1/audit_infrastructure_health.py::verify_dependency_dag() - Verify dependency graph and startup orde
-scripts/audit_graphs.py::print_audit_report(results) - Print formatted audit report.
-scripts/audit_graphs_vps.py::print_report(results) - Print formatted report.
-scripts/batch_generate_specs.py::__init__(self, config) - 
-scripts/batch_generate_specs.py::__init__(self, config) - 
-scripts/batch_generate_specs.py::__init__(self, rate_per_minute) - 
-scripts/batch_generate_specs.py::parse_modules_file(path) - Parse modules file (format: module_name 
-scripts/batch_generate_specs.py::save_spec(self, module_name, content) - Extract and save YAML spec from response
-scripts/cursor_check_mistakes.py::format_violation(v) - Format a violation for display.
-scripts/cursor_check_mistakes.py::main() - 
-scripts/delegate_deep_research.py::extract_prompt_from_payload(payload_path) - Extract the prompt section from a payloa
-scripts/delegate_deep_research.py::extract_yaml_from_response(response) - Extract YAML spec from API response.
-scripts/extract_perplexity_pack.py::extract_files(content, output_dir) - Extract files from Perplexity multi-file
-scripts/extract_perplexity_pack.py::main() - 
-scripts/extract_perplexity_pack.py::write_files(files, output_dir, dry_run) - Write extracted files to disk.
-scripts/factory_extract.py::print_extraction_result(result, verbose) - Print extraction result.
-scripts/factory_extract.py::print_validation_result(result, verbose) - Print validation result.
-scripts/init_workspace.py::init_workspace(workspace_root, verbose) - Initialize workspace by loading all gove
-scripts/init_workspace.py::main() - Main entry point.
-scripts/init_workspace.py::print_banner(result) - Print final status banner.
-scripts/init_workspace_NEW.py::_log(msg) - 
-scripts/init_workspace_NEW.py::ensure_cursor_commands_symlink() - Ensure `.cursor-commands` is a symlink p
-scripts/init_workspace_NEW.py::main() - 
-scripts/init_workspace_NEW.py::run_env_manager() - Run environment/env-manager.py to sync w
-scripts/init_workspace_NEW.py::run_setup_new_workspace_yaml() - Invoke `setup-new-workspace.yaml` orches
-scripts/init_workspace_NEW.py::start_new_workspace() - High-level entrypoint:
-scripts/load_gmp_reports_to_graph.py::parse_gmp_report(file_path) - Parse a GMP report markdown file and ext
-scripts/load_indexes_to_neo4j.py::__init__(self, uri, user, password, database, dry_run, verbose) - 
-scripts/load_indexes_to_neo4j.py::_run_query(self, query, parameters) - Run a Cypher query.
-scripts/load_indexes_to_neo4j.py::clear_repo_graph(self) - Clear existing repository graph nodes.
-scripts/load_indexes_to_neo4j.py::close(self) - Close Neo4j connection.
-scripts/load_indexes_to_neo4j.py::connect(self) - Connect to Neo4j.
-scripts/load_indexes_to_neo4j.py::create_indexes(self) - Create Neo4j indexes for faster queries.
-scripts/load_indexes_to_neo4j.py::load_all(self) - Load all index files into Neo4j.
-scripts/load_indexes_to_neo4j.py::load_class_definitions(self) - Load class definitions as Class nodes.
-scripts/load_indexes_to_neo4j.py::load_file_metrics(self) - Load file metrics as File nodes.
-scripts/load_indexes_to_neo4j.py::load_function_signatures(self) - Load top-level function definitions.
-scripts/load_indexes_to_neo4j.py::load_inheritance_graph(self) - Load inheritance relationships.
-scripts/load_indexes_to_neo4j.py::load_method_catalog(self) - Load class methods.
-scripts/load_indexes_to_neo4j.py::load_pydantic_models(self) - Load Pydantic model definitions.
-scripts/load_indexes_to_neo4j.py::load_route_handlers(self) - Load API route handlers.
-scripts/load_indexes_to_neo4j.py::main() - 
-scripts/load_indexes_to_neo4j.py::print_summary(self) - Print loading summary.
-scripts/load_indexes_to_neo4j_vps.py::__init__(self, dry_run, verbose) - 
-scripts/load_indexes_to_neo4j_vps.py::print_summary(self) - Print loading summary.
-scripts/rename_l_to_l_cto.py::main() - Main entry point.
-scripts/rename_l_to_l_cto.py::process_directory(directory, dry_run) - Process all files in a directory.
-scripts/rename_l_to_l_cto.py::replace_in_file(filepath, dry_run) - Replace patterns in a single file.
-scripts/rename_l_to_l_cto.py::should_skip_file(filepath) - Check if file should be skipped.
-scripts/run_single_deep_research.py::get_api_key() - 
-scripts/send_perplexity_spec_request.py::load_env() - Load API key from .env file.
-scripts/send_perplexity_spec_request.py::load_file(path) - Load file content.
-scripts/send_perplexity_spec_request.py::main() - 
+scripts/batch/batch_generate_specs.py::__init__(self, config) - 
+scripts/batch/batch_generate_specs.py::__init__(self, config) - 
+scripts/batch/batch_generate_specs.py::__init__(self, rate_per_minute) - 
+scripts/batch/batch_generate_specs.py::parse_modules_file(path) - Parse modules file (format: module_name 
+scripts/batch/batch_generate_specs.py::save_spec(self, module_name, content) - Extract and save YAML spec from response
+scripts/memory/audit_graphs.py::print_audit_report(results) - Print formatted audit report.
+scripts/memory/audit_graphs_vps.py::print_report(results) - Print formatted report.
+scripts/memory/cleanup_trash_embeddings.py::is_trash_embedding(payload) - Check if an embedding payload indicates 
+scripts/memory/cleanup_trash_embeddings_via_api.py::is_trash_embedding(payload) - Check if embedding payload indicates tra
+scripts/memory/generate_delete_sql.py::is_trash(payload) - Check if payload contains trash content.
+scripts/memory/index_architecture.py::extract_architecture_from_code(file_path) - Extract architecture decisions from code
+scripts/memory/index_architecture.py::extract_architecture_from_gmp_reports() - Extract architectural decisions from GMP
+scripts/memory/index_error_patterns.py::extract_error_type(error_message) - Extract error type from error message.
+scripts/memory/index_gmp_reports.py::parse_gmp_report(file_path) - Parse a GMP report markdown file and ext
+scripts/memory/load_gmp_reports_to_graph.py::parse_gmp_report(file_path) - Parse a GMP report markdown file and ext
+scripts/memory/load_indexes_to_neo4j.py::__init__(self, uri, user, password, database, dry_run, verbose) - 
+scripts/memory/load_indexes_to_neo4j.py::_run_query(self, query, parameters) - Run a Cypher query.
+scripts/memory/load_indexes_to_neo4j.py::clear_repo_graph(self) - Clear existing repository graph nodes.
+scripts/memory/load_indexes_to_neo4j.py::close(self) - Close Neo4j connection.
+scripts/memory/load_indexes_to_neo4j.py::connect(self) - Connect to Neo4j.
+scripts/memory/load_indexes_to_neo4j.py::create_indexes(self) - Create Neo4j indexes for faster queries.
+scripts/memory/load_indexes_to_neo4j.py::load_all(self) - Load all index files into Neo4j.
+scripts/memory/load_indexes_to_neo4j.py::load_class_definitions(self) - Load class definitions as Class nodes.
+scripts/memory/load_indexes_to_neo4j.py::load_file_metrics(self) - Load file metrics as File nodes.
+scripts/memory/load_indexes_to_neo4j.py::load_function_signatures(self) - Load top-level function definitions.
+scripts/memory/load_indexes_to_neo4j.py::load_inheritance_graph(self) - Load inheritance relationships.
+scripts/memory/load_indexes_to_neo4j.py::load_method_catalog(self) - Load class methods.
+scripts/memory/load_indexes_to_neo4j.py::load_pydantic_models(self) - Load Pydantic model definitions.
+scripts/memory/load_indexes_to_neo4j.py::load_route_handlers(self) - Load API route handlers.
+scripts/memory/load_indexes_to_neo4j.py::main() - 
+scripts/memory/load_indexes_to_neo4j.py::print_summary(self) - Print loading summary.
+scripts/memory/load_indexes_to_neo4j_vps.py::__init__(self, dry_run, verbose) - 
+scripts/memory/load_indexes_to_neo4j_vps.py::print_summary(self) - Print loading summary.
+scripts/research/delegate_deep_research.py::extract_prompt_from_payload(payload_path) - Extract the prompt section from a payloa
+scripts/research/delegate_deep_research.py::extract_yaml_from_response(response) - Extract YAML spec from API response.
+scripts/research/extract_perplexity_pack.py::extract_files(content, output_dir) - Extract files from Perplexity multi-file
+scripts/research/extract_perplexity_pack.py::main() - 
+scripts/research/extract_perplexity_pack.py::write_files(files, output_dir, dry_run) - Write extracted files to disk.
+scripts/research/factory_extract.py::print_extraction_result(result, verbose) - Print extraction result.
+scripts/research/factory_extract.py::print_validation_result(result, verbose) - Print validation result.
+scripts/research/run_single_deep_research.py::get_api_key() - 
+scripts/research/send_perplexity_spec_request.py::load_env() - Load API key from .env file.
+scripts/research/send_perplexity_spec_request.py::load_file(path) - Load file content.
+scripts/research/send_perplexity_spec_request.py::main() - 
+scripts/workspace/init_workspace.py::init_workspace(workspace_root, verbose) - Initialize workspace by loading all gove
+scripts/workspace/init_workspace.py::main() - Main entry point.
+scripts/workspace/init_workspace.py::print_banner(result) - Print final status banner.
+scripts/workspace/init_workspace_NEW.py::_log(msg) - 
+scripts/workspace/init_workspace_NEW.py::ensure_cursor_commands_symlink() - Ensure `.cursor-commands` is a symlink p
+scripts/workspace/init_workspace_NEW.py::main() - 
+scripts/workspace/init_workspace_NEW.py::run_env_manager() - Run environment/env-manager.py to sync w
+scripts/workspace/init_workspace_NEW.py::run_setup_new_workspace_yaml() - Invoke `setup-new-workspace.yaml` orches
+scripts/workspace/init_workspace_NEW.py::start_new_workspace() - High-level entrypoint:
+scripts/workspace/rename_l_to_l_cto.py::main() - Main entry point.
+scripts/workspace/rename_l_to_l_cto.py::process_directory(directory, dry_run) - Process all files in a directory.
+scripts/workspace/rename_l_to_l_cto.py::replace_in_file(filepath, dry_run) - Replace patterns in a single file.
+scripts/workspace/rename_l_to_l_cto.py::should_skip_file(filepath) - Check if file should be skipped.
 services/mac_tasks.py::complete_task(task_id, result, status, screenshot_path, logs) - Complete a task with result and status.
 services/mac_tasks.py::enqueue_mac_task(source, channel, user, command, steps, attachments) - Enqueue a new Mac task.
 services/mac_tasks.py::enqueue_task(task_dict) - Enqueue a task from task router (file-ba
@@ -3441,6 +3611,17 @@ tests/kernel/test_kernel_merge.py::test_merge_empty_governance() - Test merging 
 tests/kernel/test_kernel_merge.py::test_merge_handles_nested_dicts() - Test that nested dictionaries are merged
 tests/kernel/test_kernel_merge.py::test_merge_preserves_unique_keys() - Test that unique keys from both dicts ar
 tests/mac_agent/test_executor.py::test_executor_captures_output() - Contract: Executor captures and stores e
+tests/memory/test_agent_persistence.py::__init__(self) - 
+tests/memory/test_agent_persistence.py::agent_persistence_service(memory_substrate_service) - Provide an AgentPersistenceService insta
+tests/memory/test_agent_persistence.py::test_deserialize_agent_state(self, agent_persistence_service) - Test deserialize_agent_state.
+tests/memory/test_agent_persistence.py::test_initialization(self, agent_persistence_service) - Test AgentPersistenceService can be inst
+tests/memory/test_agent_persistence.py::test_serialize_agent_state_dict(self, agent_persistence_service) - Test serialize_agent_state with dict.
+tests/memory/test_agent_persistence.py::test_serialize_agent_state_object(self, agent_persistence_service) - Test serialize_agent_state with object.
+tests/memory/test_agent_persistence.py::test_serialize_agent_state_pydantic(self, agent_persistence_service) - Test serialize_agent_state with Pydantic
+tests/memory/test_consolidation.py::consolidation_pipeline(memory_substrate_service) - Provide a ConsolidationPipeline instance
+tests/memory/test_consolidation.py::test_consolidation_config(self, consolidation_pipeline) - Test consolidation config values match s
+tests/memory/test_consolidation.py::test_initialization(self, consolidation_pipeline) - Test ConsolidationPipeline can be instan
+tests/memory/test_consolidation.py::test_initialization_with_dry_run_false(self, memory_substrate_service) - Test ConsolidationPipeline with dry_run=
 tests/memory/test_consolidation_graph.py::test_consolidation_service_has_graph_method() - Test that consolidate_graph_state method
 tests/memory/test_consolidation_graph.py::test_get_metrics_includes_graph_snapshots() - Test that get_metrics returns graph_stat
 tests/memory/test_consolidation_graph.py::test_memory_consolidation_service_import() - Test that MemoryConsolidationService can
@@ -3477,6 +3658,22 @@ tests/memory/test_packet_envelope_immutability.py::test_supporting_models_also_i
 tests/memory/test_packet_envelope_immutability.py::test_with_mutation_chain_increments_generation(self) - Chained mutations increment generation c
 tests/memory/test_packet_envelope_immutability.py::test_with_mutation_creates_new_packet(self) - with_mutation(payload={"new": "data"}) →
 tests/memory/test_packet_envelope_immutability.py::test_with_mutation_creates_proper_lineage(self) - Verify new packet.lineage.parent_ids == 
+tests/memory/test_query_classifier.py::test_classifier_initialization(self) - Test QueryClassifier can be instantiated
+tests/memory/test_query_classifier.py::test_classify_default(self) - Test default pattern for unrecognized qu
+tests/memory/test_query_classifier.py::test_classify_entity_lookup(self) - Test entity lookup pattern classificatio
+tests/memory/test_query_classifier.py::test_classify_exploratory(self) - Test exploratory pattern classification.
+tests/memory/test_query_classifier.py::test_classify_factual(self) - Test factual pattern classification.
+tests/memory/test_query_classifier.py::test_classify_reasoning_trace(self) - Test reasoning trace pattern classificat
+tests/memory/test_query_classifier.py::test_classify_temporal(self) - Test temporal pattern classification.
+tests/memory/test_query_classifier.py::test_get_weight_overrides_default(self) - Test weight overrides for default patter
+tests/memory/test_query_classifier.py::test_get_weight_overrides_entity_lookup(self) - Test weight overrides for entity_lookup 
+tests/memory/test_query_classifier.py::test_get_weight_overrides_exploratory(self) - Test weight overrides for exploratory pa
+tests/memory/test_query_classifier.py::test_get_weight_overrides_factual(self) - Test weight overrides for factual patter
+tests/memory/test_query_classifier.py::test_get_weight_overrides_reasoning_trace(self) - Test weight overrides for reasoning_trac
+tests/memory/test_query_classifier.py::test_get_weight_overrides_temporal(self) - Test weight overrides for temporal patte
+tests/memory/test_query_classifier.py::test_get_weight_overrides_unknown_pattern(self) - Test weight overrides fallback for unkno
+tests/memory/test_query_classifier.py::test_singleton_pattern(self) - Test get_query_classifier returns single
+tests/memory/test_reasoning_replay.py::reasoning_replay_pipeline(memory_substrate_service) - Provide a ReasoningReplayPipeline instan
 tests/memory/test_tool_audit.py::test_all_exports(self) - Contract: __all__ contains expected expo
 tests/memory/test_tool_audit.py::test_exports_log_tool_invocation(self) - Contract: log_tool_invocation is exporte
 tests/memory/test_tool_audit.py::test_exports_ttl_constant(self) - Contract: TOOL_AUDIT_TTL_HOURS is export
@@ -3960,33 +4157,6 @@ tests/world_model/test_wm_boot.py::test_wm_status_has_version() - Test status in
 tests/world_model/test_wm_boot.py::test_wm_status_timestamp() - Test status includes last update timesta
 tests/world_model/test_world_model_repository_basic.py::__init__(self) - 
 tests/world_model/test_world_model_repository_basic.py::__init__(self) - 
-tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py::__init__(self, substrate, redis_cache) - 
-tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py::__init__(self, uri, user, password, database) - 
-tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py::__init__(self, host, port, user, password, database, min_pool_size, max_pool_size, query_timeout) - 
-tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py::__init__(self, host, port, db, password, ttl_search_sec, ttl_governance_sec) - 
-tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py::_make_key(self, prefix) - Build cache key.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::as_neo4j_dict(self) - Serialize for Neo4j property storage.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::as_postgres_tuple(self) - Serialize for Postgres INSERT.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::from_postgres_row(cls, row) - Deserialize from Postgres row.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::validate_embedding(cls, v) - Embedding must be list of floats, 1536 d
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::validate_expires_at(cls, v, values) - expires_at must be in future.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::__init__(self, postgres_backend, neo4j_backend, redis_cache, logger) - 
-tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py::__init__(self, memory_api) - 
-tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py::schedule_cleanup(self, interval_hours) - Schedule periodic memory cleanup.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::__init__(self) - 
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::_init_prometheus(self) - Initialize Prometheus metrics if availab
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::get_stats(self) - Get telemetry statistics.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::get_telemetry() - Get or create global telemetry instance.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_cache_hit(self, segment) - Record cache hit.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_cache_miss(self, segment) - Record cache miss.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_search(self, segment, agent_id, result_count, duration_ms) - Record search operation.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_structured(self, event, level) - Structured JSON logging.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::log_write(self, segment, agent_id) - Record write operation.
-tools/cursor_client.py::__init__(self, host, port, timeout) - 
-tools/cursor_client.py::_request(self, endpoint, method, data) - Make HTTP request to Cursor API.
-tools/cursor_client.py::health_check(self) - Check Cursor API health.
-tools/cursor_client.py::send_code(self, code) - Send code to Cursor.
-tools/cursor_client.py::send_command(self, command) - Send command to Cursor.
 tools/export_repo_indexes.py::generate_agent_catalog() - Generate catalog of all agents with role
 tools/export_repo_indexes.py::generate_api_surfaces() - Map all callable interfaces across diffe
 tools/export_repo_indexes.py::generate_async_function_map() - Map all async functions for understandin

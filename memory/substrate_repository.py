@@ -586,6 +586,67 @@ class SubstrateRepository:
                 )
             return None
 
+    async def list_checkpoints(
+        self,
+        agent_id: str,
+        limit: int = 10,
+    ) -> list[GraphCheckpointRow]:
+        """
+        List checkpoints for an agent.
+
+        Note: Current schema uses UNIQUE(agent_id) so returns at most 1 checkpoint.
+        Full multi-checkpoint support requires schema migration.
+
+        Args:
+            agent_id: Agent identifier
+            limit: Maximum checkpoints to return
+
+        Returns:
+            List of GraphCheckpointRow (currently max 1 due to schema)
+        """
+        async with self.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT * FROM graph_checkpoints
+                WHERE agent_id = $1
+                ORDER BY updated_at DESC
+                LIMIT $2
+                """,
+                agent_id,
+                limit,
+            )
+            return [
+                GraphCheckpointRow(
+                    checkpoint_id=row["checkpoint_id"],
+                    agent_id=row["agent_id"],
+                    graph_state=json.loads(row["graph_state"])
+                    if isinstance(row["graph_state"], str)
+                    else row["graph_state"],
+                    updated_at=row["updated_at"],
+                )
+                for row in rows
+            ]
+
+    async def delete_checkpoint(self, agent_id: str) -> bool:
+        """
+        Delete checkpoint for an agent.
+
+        Args:
+            agent_id: Agent identifier
+
+        Returns:
+            True if checkpoint was deleted, False if not found
+        """
+        async with self.acquire() as conn:
+            result = await conn.execute(
+                "DELETE FROM graph_checkpoints WHERE agent_id = $1",
+                agent_id,
+            )
+            deleted = result.split()[-1] != "0"
+            if deleted:
+                logger.debug(f"Deleted checkpoint for agent {agent_id}")
+            return deleted
+
     # =========================================================================
     # Agent Log Operations
     # =========================================================================

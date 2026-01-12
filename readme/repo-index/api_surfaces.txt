@@ -10,6 +10,7 @@
   api/os_routes.py::router
   api/routes/commands.py::router
   api/routes/compliance.py::router
+  api/routes/cursor.py::router
   api/routes/factory.py::router
   api/routes/modules.py::router
   api/routes/reasoning.py::router
@@ -19,7 +20,6 @@
   api/routes/upgrades.py::router
   api/routes/worldmodel.py::router
   api/tools/router.py::router
-  api/webhook_mac_agent.py::router
 
 # SERVICES Surface:
   services/research/research_api.py::router

@@ -2463,6 +2463,11 @@ agents/codegenagent/patches/patches-done/ui_patch_audit_viewer.yaml
 api/adapters/calendar_adapter/Module-Spec-v2.6-calendar_adapter.yaml
 api/adapters/email_adapter/Module-Spec-v2.6-email_adapter.yaml
 api/adapters/twilio_adapter/Module-Spec-v2.6-twilio_adapter.yaml
+codegen/C-GMP Suite/canonical/L9_Canonical_v4.1_Unified.yaml
+codegen/C-GMP Suite/canonical/L9_GodMode_Prompt_v4.1.yaml
+codegen/C-GMP Suite/canonical/L9_Manifest_GodMode_v4.1.yaml
+codegen/C-GMP Suite/canonical/L9_v4.1_GodMode_Prompt.yaml
+codegen/C-GMP Suite/canonical/L9_v4.1_Manifest_GodMode.yaml
 codegen/MODULE_REGISTRY.yaml
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/examples/module_blocks/calendar_adapter.yaml
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/examples/module_blocks/email_adapter.yaml
@@ -2582,7 +2587,7 @@ codegen/schemas/simple_agent.yaml
 codegen/schemas/sympy_schema_v6.yaml
 codegen/specs/L9_Canonical_v4.1_Unified.yaml
 codegen/sympy_extraction_glue.yaml
-codegen/templates/_spec-files-to-build/spec-reflexive autonomy system.yaml
+codegen/templates/_spec-files-to-build/spec-sympy-symbolic-computation.yaml
 config/agents/l9-standard-v1.yaml
 config/agents/research-agent-v1.yaml
 config/boot_overlay.yaml
@@ -2597,7 +2602,9 @@ docs/_archived/codegen_slack_adapter/module.slack_adapter/Module-Spec-v2.6.yaml
 docs/_archived/codegen_slack_adapter/slack_webhook_example.yaml
 generated/specs/config_loader.yaml
 grafana/dashboards/l9-tool-observability.json
+grafana/provisioning/dashboards/l9-five-tier-observability.json
 grafana/provisioning/dashboards/l9-tool-observability.json
+grafana/provisioning/datasources/prometheus.yml
 igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_governance_policy.yaml
 igor/01-09-2025/tokenizer/core/tokenizer/tokenizer_rules.json
 igor/audit-tools/Current Config/07_execution_kernel.yaml
@@ -2608,6 +2615,7 @@ igor/l-cto-Setup/l-cto-yaml-files/L9 AGENT MANIFEST — L-CTO v1.0.yaml
 igor/l-cto-Setup/l-cto-yaml-files/personality_kernel.yaml
 mac_agent/config.yaml
 memory/memory-yaml2.0.yaml
+memory/memory_spec_v3.0.yaml
 openapi.json
 private/kernels/00_system/01_master_kernel.yaml
 private/kernels/00_system/02_identity_kernel.yaml
@@ -2654,6 +2662,7 @@ reports/graph_audit_20260109_123744.json
 reports/graph_audit_vps_20260109_123825.json
 reports/graph_audit_vps_20260109_123905.json
 reports/graph_audit_vps_20260109_123933.json
+reports/graph_audit_vps_20260109_131338.json
 runtime/Dockerfile
 scripts/audit/audit.yaml
 scripts/reports/audit_infrastructure_health.json

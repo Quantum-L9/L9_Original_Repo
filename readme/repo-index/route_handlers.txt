@@ -8,6 +8,7 @@ DELETE /entity/{entity_type}/{entity_id} → delete_entity() @ api/memory/graph.
 GET / → index() @ local_dashboard/app.py
 GET / → root() @ api/server.py
 GET / → root() @ api/server_memory.py
+GET / → root() @ docs/Slack-Debug-2/server.py
 GET / → root() @ igor/audit-memory/mcp_memory_src_main.py
 GET / → root() @ mcp_memory/src/main.py
 GET /agent/health → agent_health() @ api/vps_executor.py
@@ -33,6 +34,7 @@ GET /health → factory_health() @ api/routes/factory.py
 GET /health → graph_health() @ api/memory/graph.py
 GET /health → health() @ api/server.py
 GET /health → health() @ api/server_memory.py
+GET /health → health() @ docs/Slack-Debug-2/server.py
 GET /health → health() @ tests/orchestrators/test_kernel_injection.py
 GET /health → health_check() @ api/adapters/calendar_adapter/routes/calendar_adapter.py
 GET /health → health_check() @ api/adapters/email_adapter/routes/email_adapter.py
@@ -56,7 +58,9 @@ GET /health → tool_graph_health() @ api/tools/router.py
 GET /health → upgrade_health() @ api/routes/upgrades.py
 GET /health → world_model_health() @ api/world_model_api.py
 GET /health/neo4j → neo4j_health() @ api/server.py
+GET /health/neo4j → neo4j_health() @ docs/Slack-Debug-2/server.py
 GET /health/startup → startup_health() @ api/server.py
+GET /health/startup → startup_health() @ docs/Slack-Debug-2/server.py
 GET /help → get_help() @ api/routes/commands.py
 GET /infrastructure/status → get_infrastructure_status() @ api/routes/worldmodel.py
 GET /insights → get_insights() @ api/memory/router.py
@@ -100,6 +104,7 @@ GET /tasks/next → get_next_mac_task() @ api/webhook_mac_agent.py
 GET /tasks/{task_id} → get_task() @ tests/orchestrators/test_task_execution.py
 GET /templates → list_templates() @ api/routes/factory.py
 GET /templates/{template_name} → get_template() @ api/routes/factory.py
+GET /test → cursor_test() @ api/routes/cursor.py
 GET /test → reasoning_test() @ api/routes/reasoning.py
 GET /test → research_test() @ api/routes/research.py
 GET /thread/{thread_id} → get_thread() @ api/memory/router.py
@@ -117,9 +122,12 @@ POST /cache/clear → clear_cache() @ services/symbolic_computation/api/routes.p
 POST /calendar/webhook → handle_calendar_adapter() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/routes/calendar_adapter.py
 POST /chat → chat() @ api/server.py
 POST /chat → chat() @ api/server_memory.py
+POST /chat → chat() @ docs/Slack-Debug-2/server.py
 POST /commands → slack_commands() @ api/routes/slack.py
+POST /commands → slack_commands() @ docs/Slack-Debug-2/slack.py
 POST /compact → compact_storage() @ api/memory/router.py
 POST /compact → compact_storage() @ igor/audit-memory/api_memory_router.py
+POST /consolidation/run → run_consolidation() @ api/memory/router.py
 POST /draft → draft_email() @ email_agent/router.py
 POST /email/webhook → handle_email_adapter() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/routes/email_adapter.py
 POST /entity → create_entity() @ api/memory/graph.py
@@ -145,7 +153,9 @@ POST /hybrid/search → hybrid_search() @ igor/audit-memory/api_memory_router.py
 POST /insights → submit_insights() @ api/world_model_api.py
 POST /intent → extract_intent_endpoint() @ api/routes/commands.py
 POST /kernels/reload → reload_kernels_endpoint() @ api/server.py
+POST /kernels/reload → reload_kernels_endpoint() @ docs/Slack-Debug-2/server.py
 POST /lchat → lchat() @ api/server.py
+POST /lchat → lchat() @ docs/Slack-Debug-2/server.py
 POST /mcp/call → call_tool() @ igor/audit-memory/mcp_memory_src_main.py
 POST /mcp/call → call_tool() @ mcp_memory/src/main.py
 POST /optimize → optimize_expression() @ services/symbolic_computation/api/routes.py
@@ -160,9 +170,11 @@ POST /parse → parse_command_endpoint() @ api/routes/commands.py
 POST /query → query_emails() @ email_agent/router.py
 POST /query → run_query() @ api/memory/graph.py
 POST /rate-limit/{key}/increment → increment_rate_limit() @ api/memory/cache.py
+POST /reasoning/replay → reasoning_replay() @ api/memory/router.py
 POST /relationship → create_relationship() @ api/memory/graph.py
 POST /reply → reply_email() @ email_agent/router.py
 POST /restore → restore_from_snapshot() @ api/world_model_api.py
+POST /resume → cursor_resume() @ api/routes/cursor.py
 POST /resume/{thread_id} → resume_research() @ services/research/research_api.py
 POST /run → run_simulation() @ api/routes/simulation.py
 POST /save → save_memory() @ igor/audit-memory/mcp_memory_src_routes_memory.py
@@ -182,6 +194,7 @@ POST /slack/events → handle_slack_webhook() @ docs/_archived/codegen_slack_ada
 POST /slack/events → slack_events() @ api/webhook_slack.py
 POST /slack/events → slack_events() @ docs/_archived/legacy_slack/webhook_slack.py
 POST /snapshot → create_snapshot() @ api/world_model_api.py
+POST /task → cursor_task() @ api/routes/cursor.py
 POST /task → submit_task() @ api/agent_routes.py
 POST /task/context/{task_id} → set_task_context() @ api/memory/cache.py
 POST /tasks → create_task() @ tests/orchestrators/test_kernel_injection.py
@@ -200,6 +213,8 @@ POST /webhook → handle_calendar_adapter() @ api/adapters/calendar_adapter/rout
 POST /webhook → handle_email_adapter() @ api/adapters/email_adapter/routes/email_adapter.py
 POST /webhook → handle_twilio_adapter() @ api/adapters/twilio_adapter/routes/twilio_adapter.py
 WEBSOCKET /lws → l_ws() @ api/server.py
+WEBSOCKET /lws → l_ws() @ docs/Slack-Debug-2/server.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ api/server.py
+WEBSOCKET /ws/agent → agent_ws_endpoint() @ docs/Slack-Debug-2/server.py
 
-# Total: 198 route handlers
+# Total: 213 route handlers

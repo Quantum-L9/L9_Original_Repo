@@ -26,6 +26,7 @@ AgentMemoryEventRow @ memory/substrate_models.py - DTO for agent_memory_events t
 AgentSchema @ codegen/code-gen-files/schema_parser.py - Complete agent schema model with all 12 required s
 AgentTask @ core/agents/schemas.py - Defines the work to be done by an agent.
 AgentTask @ core/schemas/tasks.py - Core task model representing work to be executed.
+ApplyDecayArgs @ mcp_memory/src/models.py - Validation model for apply_decay tool arguments.
 ApprovalFeedbackRequest @ api/routes/commands.py - Request to record approval/rejection feedback.
 ApprovalFeedbackResponse @ api/routes/commands.py - Response from approval feedback.
 AuditLogExportResponse @ api/routes/compliance.py - Audit log export response.
@@ -53,8 +54,10 @@ CapabilityViolation @ igor/audit-memory/core_schemas_event_stream.py - Capabilit
 ChannelConfig @ codegen/code-gen-files/schema_parser.py - Communication channel configuration.
 ChatRequest @ api/server.py - 
 ChatRequest @ api/server_memory.py - 
+ChatRequest @ docs/Slack-Debug-2/server.py - 
 ChatResponse @ api/server.py - 
 ChatResponse @ api/server_memory.py - 
+ChatResponse @ docs/Slack-Debug-2/server.py - 
 CodeGenRequest @ services/symbolic_computation/core/models.py - Request model for code generation.
 CodeGenRequest @ services/symbolic_computation/models.py - Request model for code generation.
 CodeGenResult @ services/symbolic_computation/core/models.py - Result model for code generation.
@@ -71,6 +74,7 @@ CompactResponse @ api/memory/router.py - Response model for compact operation.
 CompactResponse @ igor/audit-memory/api_memory_router.py - Response model for compact operation.
 ComplianceReportResponse @ api/routes/compliance.py - Compliance report response.
 CompositeTask @ api/vps_executor.py - 
+CompoundMemoriesArgs @ mcp_memory/src/models.py - Validation model for compound_memories tool argume
 CompoundResult @ igor/audit-memory/mcp_memory_src_models.py - 
 CompoundResult @ mcp_memory/src/models.py - 
 ComputationRequest @ services/symbolic_computation/core/models.py - Request model for expression evaluation.
@@ -79,13 +83,23 @@ ComputationResult @ services/symbolic_computation/core/models.py - Result model 
 ComputationResult @ services/symbolic_computation/models.py - Result model for symbolic computation.
 Condition @ core/governance/schemas.py - A condition that must be met for a policy to apply
 ConfirmationResult @ core/commands/schemas.py - Result of Igor confirmation for high-risk commands
+ConsolidationRequest @ api/memory/router.py - Request model for consolidation.
+ConsolidationResponse @ api/memory/router.py - Response model for consolidation.
 ContextInjectionRequest @ igor/audit-memory/mcp_memory_src_models.py - Request for auto context injection before a task.
 ContextInjectionRequest @ mcp_memory/src/models.py - Request for auto context injection before a task.
 ContextInjectionResponse @ igor/audit-memory/mcp_memory_src_models.py - Context memories to inject into system prompt.
 ContextInjectionResponse @ mcp_memory/src/models.py - Context memories to inject into system prompt.
 ContextRead @ ir_engine/meta_ir.py - Context read operation.
 CrossAgentSharingConfig @ codegen/code-gen-files/schema_parser.py - Cross-agent memory sharing configuration.
+CursorAgentState @ agents/cursor/integrations/cursor_langgraph.py - LangGraph state model for Cursor agent execution.
 CursorInstructionsBlock @ codegen/code-gen-files/schema_parser.py - File generation directives for code extraction.
+CursorLangGraphConfig @ config/cursor_langgraph_config.py - Configuration for Cursor-LangGraph-L9 integration.
+CursorResult @ agents/cursor/integrations/cursor_executor.py - Result of Cursor task execution.
+CursorResumeRequest @ api/routes/cursor.py - Request model for resuming a thread.
+CursorTaskRequest @ api/routes/cursor.py - Request model for Cursor task execution.
+CursorTaskResponse @ api/routes/cursor.py - Response model for Cursor task execution.
+CursorTaskSpec @ agents/cursor/integrations/cursor_executor.py - Task specification for Cursor executor.
+DeleteExpiredMemoriesArgs @ mcp_memory/src/models.py - Validation model for delete_expired_memories tool 
 DependencySpec @ ir_engine/meta_ir.py - Section 5: Explicit dependencies with endpoints.
 DeploymentBlock @ codegen/code-gen-files/schema_parser.py - Runtime, endpoints, and telemetry configuration.
 DraftRequest @ email_agent/router.py - Request model for email draft.
@@ -121,6 +135,7 @@ ExecutionResult @ core/agents/schemas.py - Final result of agent task execution.
 ExternalSurface @ ir_engine/meta_ir.py - Section 4: External surface exposure.
 ExtractRequest @ api/routes/factory.py - Request model for agent extraction.
 ExtractResponse @ api/routes/factory.py - Response model for agent extraction.
+ExtractSessionLearningsArgs @ mcp_memory/src/models.py - Validation model for extract_session_learnings too
 ExtractedInsight @ igor/audit-memory/memory_substrate_models.py - An insight extracted from packet reasoning.
 ExtractedInsight @ memory/substrate_models.py - An insight extracted from packet reasoning.
 FailureSignal @ core/observability/models.py - Signal indicating a failure event.
@@ -128,6 +143,9 @@ FlexibleModel @ core/kernels/schemas.py - Base model that allows extra fields fo
 ForwardRequest @ email_agent/router.py - Request model for forwarding email.
 GMPRunInput @ core/schemas/l_tools.py - Input schema for GMP run tool (high-risk, requires
 GMPRunInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema for GMP run tool (high-risk, requires
+GetContextArgs @ mcp_memory/src/models.py - Validation model for get_context tool arguments.
+GetMemoryStatsArgs @ mcp_memory/src/models.py - Validation model for get_memory_stats tool argumen
+GetProactiveSuggestionsArgs @ mcp_memory/src/models.py - Validation model for get_proactive_suggestions too
 GetRequest @ email_agent/router.py - Request model for getting email.
 GitCommitInput @ core/schemas/l_tools.py - Input schema for git commit tool (high-risk, requi
 GitCommitInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema for git commit tool (high-risk, requi
@@ -141,6 +159,8 @@ GovernancePattern @ memory/governance_patterns.py - A governance pattern capturi
 GraphCheckpointRow @ igor/audit-memory/memory_substrate_models.py - DTO for graph_checkpoints table.
 GraphCheckpointRow @ memory/substrate_models.py - DTO for graph_checkpoints table.
 GraphResponse @ api/memory/graph.py - Standard graph response.
+GraphSearchContext @ memory/graph_search_cache.py - Context for graph search operations.
+GraphSearchResult @ memory/graph_search_cache.py - Graph search result with caching metadata.
 HandshakeResponse @ core/schemas/event_stream.py - Response to an agent handshake.
 HandshakeResponse @ igor/audit-memory/core_schemas_event_stream.py - Response to an agent handshake.
 HealthResponse @ api/routes/factory.py - Response model for health check.
@@ -167,7 +187,9 @@ InterfacesSpec @ ir_engine/meta_ir.py - Section 16: Interface definitions.
 KernelReadInput @ core/schemas/l_tools.py - Input schema for kernel read.
 KernelReadInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema for kernel read.
 KernelReloadRequest @ api/server.py - Request body for kernel reload.
+KernelReloadRequest @ docs/Slack-Debug-2/server.py - Request body for kernel reload.
 KernelReloadResponse @ api/server.py - Response from kernel reload.
+KernelReloadResponse @ docs/Slack-Debug-2/server.py - Response from kernel reload.
 KnowledgeFact @ igor/audit-memory/memory_substrate_models.py - A knowledge fact extracted from packet processing.
 KnowledgeFact @ memory/substrate_models.py - A knowledge fact extracted from packet processing.
 KnowledgeFactRow @ igor/audit-memory/memory_substrate_models.py - DTO for knowledge_facts table.
@@ -181,14 +203,18 @@ L9Relationship @ core/worldmodel/l9_schema.py - Relationship between two entitie
 L9Repository @ core/worldmodel/l9_schema.py - Repository entity in the L9 world model.
 L9Tool @ core/worldmodel/l9_schema.py - Tool entity in the L9 world model.
 LChatRequest @ api/server.py - Request for L-CTO agent chat via AgentExecutorServ
+LChatRequest @ docs/Slack-Debug-2/server.py - Request for L-CTO agent chat via AgentExecutorServ
 LChatResponse @ api/server.py - Response from L-CTO agent chat.
+LChatResponse @ docs/Slack-Debug-2/server.py - Response from L-CTO agent chat.
 LearningSystemBlock @ codegen/code-gen-files/schema_parser.py - Feedback loops and autonomy profile.
 LoggingStandard @ ir_engine/meta_ir.py - Logging standard.
 LogsConfig @ ir_engine/meta_ir.py - Logging configuration.
 MCPCallToolInput @ core/schemas/l_tools.py - Input schema for MCP tool call.
 MCPCallToolInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema for MCP tool call.
 MCPTool @ igor/audit-memory/mcp_memory_src_mcp_server.py - 
+MCPTool @ mcp_memory/src/mcp_server.py - 
 MCPToolCall @ igor/audit-memory/mcp_memory_src_mcp_server.py - 
+MCPToolCall @ mcp_memory/src/mcp_server.py - 
 MacAgentExecInput @ core/schemas/l_tools.py - Input schema for Mac agent execution (high-risk, r
 MacAgentExecInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema for Mac agent execution (high-risk, r
 MacMessage @ igor/audit-tools/tools_mac_protocol.py - Mac protocol message schema.
@@ -198,7 +224,7 @@ MacResponse @ tools/mac_protocol.py - Mac protocol response schema.
 MemoryBackendsConfig @ codegen/code-gen-files/glue_resolver.py - Shared memory backend configuration.
 MemoryHealthTask @ api/vps_executor.py - 
 MemoryLayerConfig @ codegen/code-gen-files/schema_parser.py - Configuration for a single memory layer.
-MemoryPacket @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py - Unit of memory aligned with L9's PacketEnvelope.
+MemoryPacket @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py - Unit of memory aligned with L9's PacketEnvelope.
 MemoryRequest @ igor/audit-memory/orchestrators_memory_interface.py - Request to memory orchestrator.
 MemoryRequest @ orchestrators/memory/interface.py - Request to memory orchestrator.
 MemoryResponse @ igor/audit-memory/mcp_memory_src_models.py - 
@@ -292,10 +318,13 @@ Query @ core/schemas/research_factory_models.py - Individual query within a quer
 QueryPlan @ core/schemas/research_factory_models.py - Output of Pass 1: plan_queries
 QueryRequest @ api/memory/graph.py - Request model for Cypher queries.
 QueryRequest @ email_agent/router.py - Request model for email query.
+QueryTemporalArgs @ mcp_memory/src/models.py - Validation model for query_temporal tool arguments
 ReasoningEngineBlock @ codegen/code-gen-files/schema_parser.py - Logic framework and reasoning modes.
 ReasoningExecuteRequest @ api/routes/reasoning.py - Request model for reasoning execution.
 ReasoningExecuteResponse @ api/routes/reasoning.py - Response model for reasoning execution.
 ReasoningFeedbackConfig @ codegen/code-gen-files/schema_parser.py - Reasoning feedback loop configuration.
+ReasoningReplayRequest @ api/memory/router.py - Request model for reasoning replay.
+ReasoningReplayResponse @ api/memory/router.py - Response model for reasoning replay.
 ReasoningRequest @ orchestrators/reasoning/interface.py - Request to reasoning orchestrator.
 ReasoningResponse @ orchestrators/reasoning/interface.py - Response from reasoning orchestrator.
 ReasoningTraceRow @ igor/audit-memory/memory_substrate_models.py - DTO for reasoning_traces table.
@@ -323,10 +352,14 @@ RetryConfig @ ir_engine/meta_ir.py - Retry configuration.
 RuntimeTouchpoints @ ir_engine/meta_ir.py - Section 10: What runtime resources this module tou
 RuntimeWiringSpec @ ir_engine/meta_ir.py - Section 3: SINGLE SOURCE OF TRUTH for docker-compo
 SREMetric @ core/observability/models.py - SRE-level metric.
+SaveMemoryArgs @ mcp_memory/src/models.py - Validation model for save_memory tool arguments.
 SaveMemoryRequest @ igor/audit-memory/mcp_memory_src_models.py - 
 SaveMemoryRequest @ mcp_memory/src/models.py - 
+SaveMemoryWithConfidenceArgs @ mcp_memory/src/models.py - Validation model for save_memory_with_confidence t
 SaveMemoryWithConfidenceRequest @ igor/audit-memory/mcp_memory_src_models.py - Save memory with explicit confidence scoring.
 SaveMemoryWithConfidenceRequest @ mcp_memory/src/models.py - Save memory with explicit confidence scoring.
+SearchHit @ memory/semantic_search.py - Search hit result for Cursor.
+SearchMemoryArgs @ mcp_memory/src/models.py - Validation model for search_memory tool arguments.
 SearchMemoryRequest @ igor/audit-memory/mcp_memory_src_models.py - 
 SearchMemoryRequest @ mcp_memory/src/models.py - 
 SearchMemoryResponse @ igor/audit-memory/mcp_memory_src_models.py - 
@@ -413,6 +446,7 @@ TemporalQueryRequest @ igor/audit-memory/mcp_memory_src_models.py - Request for 
 TemporalQueryRequest @ mcp_memory/src/models.py - Request for temporal memory queries.
 TemporalQueryResponse @ igor/audit-memory/mcp_memory_src_models.py - Temporal query results showing memory evolution.
 TemporalQueryResponse @ mcp_memory/src/models.py - Temporal query results showing memory evolution.
+TestModel @ tests/memory/test_agent_persistence.py - 
 TestScope @ ir_engine/meta_ir.py - Section 11: Required test coverage.
 TokenUsage @ core/schemas/packet_envelope.py - Token usage tracking for LLM calls.
 TokenUsage @ igor/audit-memory/core_schemas_packet_envelope.py - Token usage tracking for LLM calls.
@@ -453,4 +487,4 @@ WorldModelQueryInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema f
 WorldModelRequest @ orchestrators/world_model/interface.py - Request to world_model orchestrator.
 WorldModelResponse @ orchestrators/world_model/interface.py - Response from world_model orchestrator.
 
-# Total: 449 Pydantic models
+# Total: 483 Pydantic models

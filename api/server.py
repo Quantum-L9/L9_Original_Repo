@@ -16,6 +16,7 @@ from config.settings import settings
 
 import os
 import asyncio
+from datetime import datetime
 from pathlib import Path
 import structlog
 from contextlib import asynccontextmanager
@@ -379,6 +380,7 @@ _has_waba = os.getenv("WABA_ENABLED", "false").lower() == "true"
 # Memory system imports
 from memory.migration_runner import run_migrations
 from memory.substrate_service import init_service, close_service
+from memory.agent_persistence import AgentPersistenceService
 
 # Integration settings
 logger = structlog.get_logger(__name__)
@@ -506,10 +508,45 @@ async def lifespan(app: FastAPI):
 
             # Store in app state for route dependencies
             app.state.substrate_service = substrate_service
+
+            # Initialize Agent Persistence Service for checkpoint management
+            try:
+                agent_persistence = AgentPersistenceService(
+                    service=substrate_service,
+                    repository=substrate_service._repository,
+                )
+                app.state.agent_persistence = agent_persistence
+                logger.info("Agent persistence service initialized")
+
+                # Restore agent checkpoints on startup (best-effort)
+                try:
+                    default_agent_id = os.getenv("DEFAULT_AGENT_ID", "l9-standard-v1")
+                    restored_state = await agent_persistence.restore_checkpoint(default_agent_id)
+                    if restored_state:
+                        logger.info(
+                            "Agent checkpoint restored on startup",
+                            agent_id=default_agent_id,
+                            state_keys=list(restored_state.keys()),
+                        )
+                        app.state.restored_agent_state = restored_state
+                    else:
+                        logger.debug("No checkpoint found for agent", agent_id=default_agent_id)
+                        app.state.restored_agent_state = None
+                except Exception as restore_err:
+                    logger.warning(f"Failed to restore agent checkpoint: {restore_err}")
+                    app.state.restored_agent_state = None
+
+            except Exception as persistence_err:
+                logger.warning(f"Failed to initialize agent persistence: {persistence_err}")
+                app.state.agent_persistence = None
+                app.state.restored_agent_state = None
+
         except Exception as e:
             logger.error(f"Failed to initialize memory system: {e}", exc_info=True)
             # Don't fail startup, but log error
             app.state.substrate_service = None
+            app.state.agent_persistence = None
+            app.state.restored_agent_state = None
 
     # Initialize Quantum Research Factory (if enabled)
     if _has_research and database_url:
@@ -1580,6 +1617,28 @@ async def lifespan(app: FastAPI):
             logger.info("Observability service shutdown complete")
         except Exception as e:
             logger.warning(f"Error shutting down observability: {e}")
+
+    # Save agent checkpoints before shutdown
+    if hasattr(app.state, "agent_persistence") and app.state.agent_persistence:
+        try:
+            default_agent_id = os.getenv("DEFAULT_AGENT_ID", "l9-standard-v1")
+            shutdown_state = {
+                "shutdown_timestamp": datetime.utcnow().isoformat(),
+                "reason": "server_shutdown",
+                "restored_on_startup": app.state.restored_agent_state is not None,
+            }
+            checkpoint_id = await app.state.agent_persistence.create_checkpoint(
+                agent_id=default_agent_id,
+                state=shutdown_state,
+                reason="on_agent_shutdown",
+            )
+            logger.info(
+                "Agent checkpoint saved on shutdown",
+                agent_id=default_agent_id,
+                checkpoint_id=str(checkpoint_id),
+            )
+        except Exception as e:
+            logger.warning(f"Error saving agent checkpoint on shutdown: {e}")
 
     # Stop UKG Phase 4: Tool Pattern Extraction
     if hasattr(app.state, "tool_pattern_extractor") and app.state.tool_pattern_extractor:

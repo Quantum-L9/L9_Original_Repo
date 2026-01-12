@@ -8,8 +8,8 @@ L9/
 ├── Makefile
 ├── README.md
 ├── TODO-ON-VPS.md
-├── __init__.py
-├── ... (8 more files)
+├── TODO.md
+├── ... (11 more files)
 ├── .audit_cache/
 │   ├── analysis_results.json
 │   ├── content_index.txt
@@ -53,6 +53,15 @@ L9/
 │   ├── qa_agent.py
 │   ├── reflection_agent.py
 │   ├── research_agent.py
+│   └── cursor/
+│       ├── __init__.py
+│       ├── cursor_client.py
+│       ├── cursor_memory_kernel.py
+│       ├── cursor_system_prompt.md
+│       ├── extractors/
+│       ├── integrations/
+│       ├── prompts/
+│       └── scripts/
 ├── aios/
 │   ├── __init__.py
 │   ├── bootstrap.py
@@ -86,14 +95,14 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── commands.py
 │   │   ├── compliance.py
+│   │   ├── cursor.py
 │   │   ├── factory.py
 │   │   ├── modules.py
 │   │   ├── reasoning.py
 │   │   ├── research.py
 │   │   ├── simulation.py
 │   │   ├── slack.py
-│   │   ├── upgrades.py
-│   │   ├── ... (1 more files)
+│   │   ├── ... (2 more files)
 │   └── tools/
 │       ├── __init__.py
 │       ├── router.py
@@ -123,6 +132,7 @@ L9/
 ├── config/
 │   ├── __init__.py
 │   ├── boot_overlay.yaml
+│   ├── cursor_langgraph_config.py
 │   ├── memory_substrate_settings.py
 │   ├── research_settings.py
 │   ├── settings.py
@@ -137,6 +147,7 @@ L9/
 │   ├── __init__.py
 │   ├── error_tracking.py
 │   ├── moduleregistry.py
+│   ├── singleton_registry.py
 │   ├── agents/
 │   │   ├── __init__.py
 │   │   ├── adaptive_prompting.py
@@ -173,16 +184,18 @@ L9/
 │   │   ├── evaluator.py
 │   ├── governance/
 │   │   ├── __init__.py
+│   │   ├── approval_gate.py
 │   │   ├── approval_manager.py
 │   │   ├── approvals.py
 │   │   ├── credentials_policy.py
-│   │   ├── cursor_memory_kernel.py
 │   │   ├── engine.py
 │   │   ├── loader.py
 │   │   ├── mistake_prevention.py
 │   │   ├── quick_fixes.py
 │   │   ├── schemas.py
 │   │   ├── ... (2 more files)
+│   ├── graph/
+│   │   └── query/
 │   ├── integration/
 │   │   ├── __init__.py
 │   │   ├── graph_to_wm_sync.py
@@ -209,17 +222,17 @@ L9/
 │   │   ├── runtime.py
 │   │   ├── virtual_context.py
 │   ├── observability/
+│   │   ├── DASHBOARD.md
+│   │   ├── INTEGRATION_VERIFICATION.md
+│   │   ├── JAEGER_INTEGRATION.md
 │   │   ├── OBSERVABILITY.md
+│   │   ├── OPEN_SOURCE_ALTERNATIVES.md
+│   │   ├── PROMETHEUS_GRAFANA_SETUP.md
+│   │   ├── VPS_ACCESS.md
 │   │   ├── __init__.py
 │   │   ├── aggregation.py
 │   │   ├── circuit_breaker.py
-│   │   ├── config.py
-│   │   ├── context_strategies.py
-│   │   ├── exporters.py
-│   │   ├── failures.py
-│   │   ├── instrumentation.py
-│   │   ├── l9_integration.py
-│   │   ├── ... (2 more files)
+│   │   ├── ... (10 more files)
 │   ├── retrievers/
 │   │   ├── __init__.py
 │   │   ├── substrate_retriever.py
@@ -284,7 +297,8 @@ L9/
 │   ├── dashboards/
 │   │   ├── l9-tool-observability.json
 │   └── provisioning/
-│       └── dashboards/
+│       ├── dashboards/
+│       └── datasources/
 ├── graph_adapter/
 │   ├── __init__.py
 │   ├── packet_node_adapter.py
@@ -300,6 +314,9 @@ L9/
 │   ├── ir_validator.py
 │   ├── meta_ir.py
 │   ├── ... (3 more files)
+├── langgraph/
+│   ├── README.md
+│   ├── TYPEDDICT_VS_PYDANTIC.md
 ├── layers/
 ├── local_dashboard/
 │   ├── app.py
@@ -324,14 +341,16 @@ L9/
 │   ├── E2E_INTEGRATION_CHECKLIST.md
 │   ├── E2E_INTEGRATION_SUMMARY.md
 │   ├── ELIMINATE_MCP_SCHEMA.md
+│   ├── GMP_32_TODO_PLAN.md
 │   ├── Learning Pipeline.md
 │   ├── MCP_002_ANSWER.md
 │   ├── MCP_002_VS_L9_COMPARISON.md
-│   ├── MIGRATE_TO_L9_AUDIT.md
-│   ├── MIGRATION_TO_UNIFIED.md
-│   ├── ... (7 more files)
+│   ├── MCP_INTEGRATION_COMPLETE.md
+│   ├── ... (9 more files)
 │   ├── deploy/
+│   │   ├── CADDY_CONFIG.md
 │   │   ├── L9-MCP-IMPL.md
+│   │   ├── VPS_DEPLOYMENT_GUIDE.md
 │   │   ├── scripts/
 │   │   └── systemd/
 │   ├── mcp-memory-architecture/
@@ -354,27 +373,32 @@ L9/
 │   └── tests/
 │       ├── __init__.py
 │       ├── test_connection.py
+│       ├── test_e2e.py
 │       ├── test_embeddings.py
+│       ├── test_mcp_server_smoke.py
 │       ├── test_memory.py
 │       ├── test_search.py
 ├── memory/
 │   ├── README.md
 │   ├── WIRING.md
 │   ├── __init__.py
+│   ├── agent_persistence.py
 │   ├── checkpoint_manager.py
+│   ├── consolidation.py
 │   ├── description.with.diagram.md
 │   ├── governance_patterns.py
 │   ├── graph_client.py
-│   ├── housekeeping.py
-│   ├── index_syncer.py
-│   ├── ingestion.py
-│   ├── ... (16 more files)
+│   ├── graph_search_cache.py
+│   ├── ... (24 more files)
+│   ├── checkpoint/
+│   │   ├── __init__.py
+│   │   ├── cursor_checkpoint_manager.py
+│   │   ├── postgres_saver.py
 │   ├── extractor/
 │   │   ├── __init__.py
 │   │   ├── agent_config_extractor.py
 │   │   ├── base_extractor.py
 │   │   ├── code_extractor.py
-│   │   ├── cursor_action_extractor.py
 │   │   ├── memory_extractor.py
 │   │   ├── module_schema_extractor.py
 │   │   └── ingestion/
@@ -461,12 +485,9 @@ L9/
 │       ├── __init__.py
 │       ├── l9_security_kernel.yaml
 ├── prompts/
-│   ├── cursor-extraction-forge.md
-│   ├── cursor-extraction-planner.md
 │   ├── master.extractor.prompt.md
 │   ├── memory_substrate_extractor_prompt_v1.0.0.md
 ├── readme/
-│   ├── CURSOR-L9-INTEGRATION.md
 │   ├── L-CTO-ABILITIES.md
 │   ├── L-CTO-ARCHITECTURE.md
 │   ├── L-CTO-MEMORY.md
@@ -493,17 +514,17 @@ L9/
 │       ├── deployment_manifest.txt
 │       ├── ... (23 more files)
 ├── reports/
+│   ├── ANALYZE_EVALUATE_Memory-Gap-Analysis.md
 │   ├── AUDIT_SCRIPTS_DIFFERENCE.md
+│   ├── CLASS_PARSING_FIX_EXPLANATION.md
 │   ├── GMP_Report_GMP-32-CircuitBreaker-Integration.md
 │   ├── GMP_Report_GMP-33-CircuitBreaker-Memory-Wiring.md
 │   ├── GMP_Report_GMP-46-OpenAI-Tool-Name-Validation.md
 │   ├── GMP_Report_GMP-47-Stub-Elimination.md
-│   ├── GRAPH_AUDIT_SUMMARY.md
-│   ├── INDEX_SESSION_START_INTEGRATION.md
-│   ├── INDEX_VPS_UPGRADE.md
-│   ├── graph_audit_20260109_123744.json
-│   ├── graph_audit_vps_20260109_123825.json
-│   ├── ... (2 more files)
+│   ├── GMP_Report_GMP-48-Cursor-LangGraph-Integration.md
+│   ├── GMP_Report_GMP-49-Cursor-LangGraph-Completion-Phase0-TODO.md
+│   ├── GMP_Report_GMP-49-Cursor-LangGraph-Completion.md
+│   ├── ... (17 more files)
 ├── runtime/
 │   ├── Dockerfile
 │   ├── __init__.py
@@ -517,25 +538,60 @@ L9/
 │   ├── l_tools.py
 │   ├── ... (10 more files)
 ├── scripts/
-│   ├── audit_graphs.py
-│   ├── audit_graphs_vps.py
-│   ├── batch_generate_specs.py
-│   ├── bootstrap_neo4j_schema.py
-│   ├── check_env.sh
-│   ├── cursor_check_mistakes.py
-│   ├── delegate_deep_research.py
-│   ├── dev_up.sh
-│   ├── docker-validator.sh
-│   ├── extract_perplexity_pack.py
-│   ├── ... (21 more files)
+│   ├── ORGANIZATION_PROPOSAL.md
+│   ├── modules_example.txt
+│   ├── agents/
+│   │   ├── neo4j_merge_agent_nodes.py
+│   │   ├── neo4j_unify_relationships.py
+│   │   ├── run_bootstrap_l_graph.py
+│   │   ├── verify_agent_executor.py
 │   ├── audit/
 │   │   ├── audit.yaml
 │   │   ├── audit_shared_core.py
 │   │   ├── run_all.py
 │   │   ├── L9_AUDIT_SUITE_EXPANSION/
 │   │   └── tier1/
-│   └── reports/
-│       ├── audit_infrastructure_health.json
+│   ├── batch/
+│   │   ├── batch_generate_specs.py
+│   ├── deployment/
+│   │   ├── deploy_agent_executor.sh
+│   │   ├── pull_to_vps.sh
+│   │   ├── rollback_vps.sh
+│   │   ├── vps-mri.sh
+│   ├── development/
+│   │   ├── check_env.sh
+│   │   ├── dev_up.sh
+│   │   ├── docker-validator.sh
+│   │   ├── precommit_docker_smoke.sh
+│   │   ├── test_everything.sh
+│   ├── memory/
+│   │   ├── DELETE_TRASH_INSTRUCTIONS.md
+│   │   ├── audit_graphs.py
+│   │   ├── audit_graphs_vps.py
+│   │   ├── bootstrap_neo4j_schema.py
+│   │   ├── check_embeddings_via_api.py
+│   │   ├── cleanup_and_reindex.sh
+│   │   ├── cleanup_trash_embeddings.py
+│   │   ├── cleanup_trash_embeddings_via_api.py
+│   │   ├── delete_trash_embeddings.py
+│   │   ├── delete_trash_via_service.py
+│   │   ├── ... (14 more files)
+│   ├── reports/
+│   │   ├── audit_infrastructure_health.json
+│   ├── research/
+│   │   ├── delegate_deep_research.py
+│   │   ├── extract_perplexity_pack.py
+│   │   ├── factory_extract.py
+│   │   ├── run_single_deep_research.py
+│   │   ├── send_perplexity_spec_request.py
+│   │   ├── test_research_factory.py
+│   ├── test/
+│   │   ├── run_memory_tests.sh
+│   │   ├── test_api_endpoints.sh
+│   └── workspace/
+│       ├── init_workspace.py
+│       ├── init_workspace_NEW.py
+│       ├── rename_l_to_l_cto.py
 ├── services/
 │   ├── __init__.py
 │   ├── mac_tasks.py
@@ -628,13 +684,13 @@ L9/
 │   │   ├── test_api_memory_integration.py
 │   │   ├── test_closed_loop_learning.py
 │   │   ├── test_compliance_audit.py
+│   │   ├── test_cursor_langgraph_integration.py
 │   │   ├── test_governance_tracking_e2e.py
 │   │   ├── test_graph_state_integration.py
 │   │   ├── test_graph_wm_sync.py
 │   │   ├── test_igor_commands.py
 │   │   ├── test_kernel_agent_activation_integration.py
-│   │   ├── test_kernel_evolution_flow.py
-│   │   ├── ... (15 more files)
+│   │   ├── ... (16 more files)
 │   ├── ir_engine/
 │   │   ├── __init__.py
 │   │   ├── conftest.py
@@ -653,16 +709,16 @@ L9/
 │   │   ├── test_executor.py
 │   ├── memory/
 │   │   ├── __init__.py
+│   │   ├── test_agent_persistence.py
 │   │   ├── test_blob_offload.py
+│   │   ├── test_consolidation.py
 │   │   ├── test_consolidation_graph.py
 │   │   ├── test_e2e_memory_audit.py
 │   │   ├── test_embedding_filter.py
+│   │   ├── test_extraction_pipeline.py
 │   │   ├── test_memory_adapter_basic.py
 │   │   ├── test_memory_ingestion.py
-│   │   ├── test_packet_envelope.py
-│   │   ├── test_packet_envelope_immutability.py
-│   │   ├── test_pruning.py
-│   │   ├── ... (4 more files)
+│   │   ├── ... (9 more files)
 │   ├── mocks/
 │   │   ├── __init__.py
 │   │   ├── kernel_mocks.py
@@ -720,16 +776,8 @@ L9/
 │   ├── README.md
 │   ├── TOOL_LOADING_DIAGRAM.md
 │   ├── __init__.py
-│   ├── cursor_client.py
 │   ├── export_repo_indexes.py
 │   ├── mac_protocol.py
-│   └── Phased Upgrades/
-│       ├── scratchpad-ib.md
-│       ├── spec-style superprompt.md
-│       ├── Gap Analysis - L9 vs Frontier AI Labs/
-│       ├── Memory Upgrades/
-│       ├── Stage 1 - Phase 1-6/
-│       └── Stage 2 - Agent Initialization/
 ├── upgrades/
 │   ├── __init__.py
 │   └── packet_envelope/

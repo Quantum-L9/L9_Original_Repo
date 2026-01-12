@@ -1718,16 +1718,29 @@ def main():
         logger.info(f"  {emoji_desc}...", end=" ", flush=True)
         try:
             content = generator()
+            size = len(content.encode("utf-8"))
+            
+            # Write to local repo (required - must succeed)
             repo_file = os.path.join(REPO_INDEX_DIR, filename)
             with open(repo_file, "w", encoding="utf-8") as f:
                 f.write(content)
-            dropbox_file = os.path.join(DROPBOX_EXPORT_DIR, filename)
-            with open(dropbox_file, "w", encoding="utf-8") as f:
-                f.write(content)
-            icloud_file = os.path.join(ICLOUD_EXPORT_DIR, filename)
-            with open(icloud_file, "w", encoding="utf-8") as f:
-                f.write(content)
-            size = len(content.encode("utf-8"))
+            
+            # Write to Dropbox (optional - continue on error)
+            try:
+                dropbox_file = os.path.join(DROPBOX_EXPORT_DIR, filename)
+                with open(dropbox_file, "w", encoding="utf-8") as f:
+                    f.write(content)
+            except Exception as e:
+                logger.debug(f"Dropbox export failed for {filename}: {e}")
+            
+            # Write to iCloud (optional - continue on error)
+            try:
+                icloud_file = os.path.join(ICLOUD_EXPORT_DIR, filename)
+                with open(icloud_file, "w", encoding="utf-8") as f:
+                    f.write(content)
+            except Exception as e:
+                logger.debug(f"iCloud export failed for {filename}: {e}")
+            
             results[filename] = size
             logger.info(f"✅ ({size:,} bytes)")
         except Exception as e:

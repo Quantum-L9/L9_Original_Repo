@@ -23,6 +23,23 @@ agents/codegenagent/readme_generator.py::ReadmeSection - A single section of a R
 agents/codegenagent/readme_generator.py::ReadmeTemplate - Templates for different README types.
 agents/coder_agent_a.py::CoderAgentA - Primary coder agent for implementation.
 agents/coder_agent_b.py::CoderAgentB - Secondary coder agent for parallel work and review.
+agents/cursor/cursor_client.py::CursorClient - Client for Cursor remote API.
+agents/cursor/cursor_memory_kernel.py::CursorMemoryKernel - Cursor Memory Kernel - manages session memory and behaviors.
+agents/cursor/cursor_memory_kernel.py::Lesson - A lesson loaded from memory.
+agents/cursor/cursor_memory_kernel.py::SessionState - Current session state from memory.
+agents/cursor/cursor_memory_kernel.py::TodoItem - A tracked TODO item.
+agents/cursor/extractors/cursor_action_extractor.py::CursorActionExtractor - Extracts and reconstructs all files from chat history.
+agents/cursor/integrations/cursor_executor.py::CursorExecutor - High-level executor for Cursor tasks.
+agents/cursor/integrations/cursor_executor.py::CursorResult - Result of Cursor task execution.
+agents/cursor/integrations/cursor_executor.py::CursorTaskSpec - Task specification for Cursor executor.
+agents/cursor/integrations/cursor_gateway.py::CursorMemoryGateway - Safe gateway for Cursor to interact with L9 Memory Substrate
+agents/cursor/integrations/cursor_gateway.py::CursorScopeViolationError - Raised when Cursor attempts to access disallowed scope.
+agents/cursor/integrations/cursor_langgraph.py::CursorAgentState - LangGraph state model for Cursor agent execution.
+agents/cursor/integrations/cursor_langgraph.py::CursorDecisionGateNode - Decision gate node: invokes governance approval gate for hig
+agents/cursor/integrations/cursor_langgraph.py::CursorErrorRecoveryNode - Error recovery node: logs errors, queries past fixes, update
+agents/cursor/integrations/cursor_langgraph.py::CursorMemorySearchNode - Memory search node: searches memory substrate and writes hit
+agents/cursor/integrations/cursor_langgraph.py::CursorMemoryWriteNode - Memory write node: writes decisions and errors to memory sub
+agents/cursor/integrations/cursor_langgraph.py::CursorPlanningNode - Planning node: refines task and enriches state with structur
 agents/l_cto.py::LCTOAgent - L - The CTO Agent for Igor.
 agents/qa_agent.py::QAAgent - Quality assurance agent.
 agents/reflection_agent.py::ReflectionAgent - Meta-reasoning agent for self-improvement.
@@ -109,8 +126,12 @@ api/memory/graph.py::RelationshipRequest - Request model for relationship operat
 api/memory/router.py::BatchRequest - Request model for batch packet ingestion.
 api/memory/router.py::BatchResponse - Response model for batch operations.
 api/memory/router.py::CompactResponse - Response model for compact operation.
+api/memory/router.py::ConsolidationRequest - Request model for consolidation.
+api/memory/router.py::ConsolidationResponse - Response model for consolidation.
 api/memory/router.py::PacketRequest - Request model for packet ingestion (PacketEnvelope v2.0 comp
 api/memory/router.py::PacketResponse - Response model for packet ingestion.
+api/memory/router.py::ReasoningReplayRequest - Request model for reasoning replay.
+api/memory/router.py::ReasoningReplayResponse - Response model for reasoning replay.
 api/routes/commands.py::ApprovalFeedbackRequest - Request to record approval/rejection feedback.
 api/routes/commands.py::ApprovalFeedbackResponse - Response from approval feedback.
 api/routes/commands.py::CommandExecuteRequest - Request to execute an Igor command.
@@ -118,6 +139,9 @@ api/routes/commands.py::CommandExecuteResponse - Response from command execution
 api/routes/commands.py::IntentExtractResponse - Response from intent extraction.
 api/routes/compliance.py::AuditLogExportResponse - Audit log export response.
 api/routes/compliance.py::ComplianceReportResponse - Compliance report response.
+api/routes/cursor.py::CursorResumeRequest - Request model for resuming a thread.
+api/routes/cursor.py::CursorTaskRequest - Request model for Cursor task execution.
+api/routes/cursor.py::CursorTaskResponse - Response model for Cursor task execution.
 api/routes/factory.py::ExtractRequest - Request model for agent extraction.
 api/routes/factory.py::ExtractResponse - Response model for agent extraction.
 api/routes/factory.py::HealthResponse - Response model for health check.
@@ -184,6 +208,14 @@ clients/world_model_client.py::SnapshotData - Snapshot data from API.
 clients/world_model_client.py::StateVersion - State version data.
 clients/world_model_client.py::UpdateRecord - Update record from API.
 clients/world_model_client.py::WorldModelClient - Async HTTP client for L9 World Model API.
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::CodeGenerator - Generates production-ready code from synthesis
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::PerplexityLabsClient - Client for Perplexity Labs API with retry logic
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::PromptVariation - Represents a single prompt variation
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::READMEGenerator - Generates comprehensive README from synthesis
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::ResearchResponse - Structured response from Perplexity Labs
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::ResponseProcessor - Extracts structured insights from Perplexity responses
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::SynthesisEngine - Aggregates multi-prompt research findings
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py::SynthesisReport - Aggregated research synthesis
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterAdapter - Calendar Adapter Adapter
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterContext - Execution context.
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterRequest - Inbound request schema.
@@ -377,6 +409,7 @@ collaborative_cells/base_cell.py::ConsensusStrategy - Strategy for reaching cons
 collaborative_cells/coder_cell.py::CoderCell - Collaborative cell for code implementation.
 collaborative_cells/reflection_cell.py::ReflectionCell - Meta-reasoning cell for self-improvement.
 collaborative_cells/reviewer_cell.py::ReviewerCell - Collaborative cell for code review and QA.
+config/cursor_langgraph_config.py::CursorLangGraphConfig - Configuration for Cursor-LangGraph-L9 integration.
 config/memory_substrate_settings.py::Config - No docstring
 config/memory_substrate_settings.py::MemorySubstrateSettings - Configuration for the Memory Substrate module.
 config/research_settings.py::Config - No docstring
@@ -449,6 +482,7 @@ core/evaluation/evaluator.py::EvaluationResult - Result of evaluation run
 core/evaluation/evaluator.py::EvaluationSet - Collection of evaluation examples
 core/evaluation/evaluator.py::Evaluator - Evaluation service for agent performance
 core/evaluation/evaluator.py::RegressionError - Raised when eval results regress beyond thresholds
+core/governance/approval_gate.py::EscalationResult - Result of escalation to Igor.
 core/governance/approval_manager.py::ApprovalDecision - Decision on an approval request
 core/governance/approval_manager.py::ApprovalManager - Manages Igor approval workflow for high-risk tool executions
 core/governance/approval_manager.py::ApprovalRequest - Request for Igor approval of high-risk operation
@@ -458,10 +492,6 @@ core/governance/credentials_policy.py::CredentialsPolicy - Executable credential
 core/governance/credentials_policy.py::SecretPattern - A secret detection pattern.
 core/governance/credentials_policy.py::SecretType - Types of secrets to detect.
 core/governance/credentials_policy.py::SecretViolation - A detected secret exposure.
-core/governance/cursor_memory_kernel.py::CursorMemoryKernel - Cursor Memory Kernel - manages session memory and behaviors.
-core/governance/cursor_memory_kernel.py::Lesson - A lesson loaded from memory.
-core/governance/cursor_memory_kernel.py::SessionState - Current session state from memory.
-core/governance/cursor_memory_kernel.py::TodoItem - A tracked TODO item.
 core/governance/engine.py::GovernanceEngineService - Stateless policy evaluation engine.
 core/governance/engine.py::SubstrateProtocol - Protocol for memory substrate (optional dependency).
 core/governance/loader.py::InvalidPolicyError - Raised when a policy file is invalid.
@@ -553,6 +583,7 @@ core/observability/exporters.py::SubstrateExporter - Export spans to L9 Memory S
 core/observability/failures.py::FailureDetector - Detects failures from spans and signals.
 core/observability/failures.py::RecoveryAction - Available recovery actions.
 core/observability/failures.py::RecoveryExecutor - Executes recovery actions for failures.
+core/observability/jaeger_exporter.py::JaegerExporter - Exports spans to Jaeger via OTLP.
 core/observability/models.py::AgentKPI - Agent performance KPI.
 core/observability/models.py::AgentTrajectorySpan - Root span for complete agent task execution.
 core/observability/models.py::ContextAssemblySpan - Span for context window assembly.
@@ -569,6 +600,7 @@ core/observability/models.py::SpanKind - Kind of span.
 core/observability/models.py::SpanStatus - Span execution status.
 core/observability/models.py::ToolCallSpan - Span for tool invocation.
 core/observability/models.py::TraceContext - W3C-compatible trace context.
+core/observability/prometheus_exporter.py::ObservabilityPrometheusExporter - Exports Five-Tier Observability metrics to Prometheus.
 core/observability/service.py::ObservabilityService - Main service for observability subsystem.
 core/retrievers/substrate_retriever.py::SubstrateRetriever - LangChain retriever wrapper over MemorySubstrateService.sema
 core/schemas/capabilities.py::AgentCapabilities - Complete capability set for an agent.
@@ -660,6 +692,9 @@ core/schemas/ws_event_stream.py::ErrorEvent - Error reporting structure for WebS
 core/schemas/ws_event_stream.py::EventMessage - Canonical event structure for L9's internal EventStream.
 core/schemas/ws_event_stream.py::EventType - High-level event categories for WebSocket communication.
 core/security/permission_graph.py::PermissionGraph - RBAC permission graph backed by Neo4j.
+core/singleton_registry.py::SingletonEntry - Registry entry for a singleton instance.
+core/singleton_registry.py::SingletonLifecycle - Singleton initialization lifecycle.
+core/singleton_registry.py::SingletonRegistry - Centralized registry for L9 singleton instances.
 core/testing/test_agent.py::TestAgent - Agent that generates and executes tests for code proposals.
 core/testing/test_agent.py::TestAgentResult - Result of test agent execution.
 core/testing/test_executor.py::TestExecutor - Executes tests in a sandbox environment.
@@ -706,6 +741,32 @@ core/worldmodel/l9_schema.py::ToolCategory - Categories of tools.
 core/worldmodel/l9_schema.py::ToolRiskLevel - Risk levels for tools.
 core/worldmodel/service.py::WorldModelService - Service for L9 world model operations.
 dev/tools/global_state_audit.py::GlobalStateVisitor - No docstring
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py::MemoryAPI - Public API for agents to read/write memory.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py::Neo4jBackend - Neo4j backend for memory graph.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py::PostgresBackend - PostgreSQL backend with pgvector for memory storage.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py::RedisCache - Redis caching layer with TTL expiration.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemoryError - Base exception for memory operations.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemoryPacket - Unit of memory aligned with L9's PacketEnvelope.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemoryPacketError - Invalid memory packet.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemorySegment - L's memory organization - 4 segments.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemorySegmentError - Segment-related error.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::CompositeSubstrate - Orchestrates multiple backends (Postgres, Neo4j, Redis).
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateConnectionError - Failed to connect to substrate backend.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateException - Base exception for substrate operations.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateService - Abstract protocol for memory backends.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateTimeoutError - Substrate operation timed out.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateValidationError - Invalid input to substrate.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py::MemorySummarizer - Automatic memory compression and pruning.
+docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::MemoryTelemetry - Observability for memory operations.
+docs/Slack-Debug-2/server.py::ChatRequest - No docstring
+docs/Slack-Debug-2/server.py::ChatResponse - No docstring
+docs/Slack-Debug-2/server.py::KernelReloadRequest - Request body for kernel reload.
+docs/Slack-Debug-2/server.py::KernelReloadResponse - Response from kernel reload.
+docs/Slack-Debug-2/server.py::LChatRequest - Request for L-CTO agent chat via AgentExecutorService.
+docs/Slack-Debug-2/server.py::LChatResponse - Response from L-CTO agent chat.
+docs/Slack-Debug-2/server.py::StubAIOSRuntime - Stub AIOS runtime - returns direct responses.
+docs/Slack-Debug-2/server.py::StubAgentRegistry - Stub agent registry with default agent.
+docs/Slack-Debug-2/server.py::StubToolRegistry - Stub tool registry - no tools available.
 docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::DuplicateDetector - Detects duplicate Slack events using substrate memory.
 docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackEventNormalizer - Normalizes Slack events to L9 packet format.
 docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py::SlackSignatureVerifier - Verifies Slack request signatures per:
@@ -1059,43 +1120,79 @@ mac_agent/websocket_client.py::TaskExecutor - Task executor for Mac Agent.
 mcp_memory/src/config.py::Config - No docstring
 mcp_memory/src/config.py::Settings - No docstring
 mcp_memory/src/main.py::CallerIdentity - Caller identity determined from API key.
+mcp_memory/src/mcp_server.py::MCPTool - No docstring
+mcp_memory/src/mcp_server.py::MCPToolCall - No docstring
+mcp_memory/src/models.py::ApplyDecayArgs - Validation model for apply_decay tool arguments.
+mcp_memory/src/models.py::CompoundMemoriesArgs - Validation model for compound_memories tool arguments.
 mcp_memory/src/models.py::CompoundResult - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
+mcp_memory/src/models.py::Config - No docstring
 mcp_memory/src/models.py::ContextInjectionRequest - Request for auto context injection before a task.
 mcp_memory/src/models.py::ContextInjectionResponse - Context memories to inject into system prompt.
+mcp_memory/src/models.py::DeleteExpiredMemoriesArgs - Validation model for delete_expired_memories tool arguments.
+mcp_memory/src/models.py::ExtractSessionLearningsArgs - Validation model for extract_session_learnings tool argument
+mcp_memory/src/models.py::GetContextArgs - Validation model for get_context tool arguments.
+mcp_memory/src/models.py::GetMemoryStatsArgs - Validation model for get_memory_stats tool arguments.
+mcp_memory/src/models.py::GetProactiveSuggestionsArgs - Validation model for get_proactive_suggestions tool argument
 mcp_memory/src/models.py::MemoryResponse - No docstring
 mcp_memory/src/models.py::MemoryStatsResponse - No docstring
 mcp_memory/src/models.py::ProactiveRecallRequest - Request for proactive memory suggestions based on patterns.
 mcp_memory/src/models.py::ProactiveRecallResponse - Proactive suggestions surfaced from memory.
+mcp_memory/src/models.py::QueryTemporalArgs - Validation model for query_temporal tool arguments.
+mcp_memory/src/models.py::SaveMemoryArgs - Validation model for save_memory tool arguments.
 mcp_memory/src/models.py::SaveMemoryRequest - No docstring
+mcp_memory/src/models.py::SaveMemoryWithConfidenceArgs - Validation model for save_memory_with_confidence tool argume
 mcp_memory/src/models.py::SaveMemoryWithConfidenceRequest - Save memory with explicit confidence scoring.
+mcp_memory/src/models.py::SearchMemoryArgs - Validation model for search_memory tool arguments.
 mcp_memory/src/models.py::SearchMemoryRequest - No docstring
 mcp_memory/src/models.py::SearchMemoryResponse - No docstring
 mcp_memory/src/models.py::SessionLearningRequest - Request to extract learnings from a session.
 mcp_memory/src/models.py::SessionLearningResponse - Learnings extracted and stored from session.
 mcp_memory/src/models.py::TemporalQueryRequest - Request for temporal memory queries.
 mcp_memory/src/models.py::TemporalQueryResponse - Temporal query results showing memory evolution.
+memory/agent_persistence.py::AgentPersistenceService - Agent persistence service for checkpoint management.
+memory/agent_persistence.py::Checkpoint - Represents an agent checkpoint.
+memory/checkpoint/cursor_checkpoint_manager.py::CursorCheckpointManager - Dual checkpoint manager per Decision 3 + Decision 6.
+memory/checkpoint/postgres_saver.py::L9PostgresSaver - LangGraph-compatible checkpoint saver using L9's graph_check
 memory/checkpoint_manager.py::CheckpointManager - Simple manager for saving/loading checkpoints per agent.
+memory/consolidation.py::ConsolidationPipeline - Memory consolidation pipeline.
+memory/consolidation.py::ConsolidationReport - Consolidation execution report.
 memory/extractor/agent_config_extractor.py::AgentConfigExtractor - Extracts agent configuration (preferences, SOPs, roles).
 memory/extractor/base_extractor.py::BaseExtractor - Base class for all extractors.
 memory/extractor/code_extractor.py::CodeExtractor - Extracts code files from chat logs.
-memory/extractor/cursor_action_extractor.py::CursorActionExtractor - Extracts and reconstructs all files from chat history.
 memory/extractor/memory_extractor.py::MemoryExtractor - Extracts structured memory for Supabase.
 memory/extractor/module_schema_extractor.py::ModuleSchemaExtractor - Extracts L9 module schema definitions.
 memory/governance_patterns.py::DecisionType - Type of governance decision.
 memory/governance_patterns.py::GovernancePattern - A governance pattern capturing Igor's approval/rejection dec
 memory/graph_client.py::Neo4jClient - Production Neo4j client with connection management.
+memory/graph_search_cache.py::GraphSearchContext - Context for graph search operations.
+memory/graph_search_cache.py::GraphSearchResult - Graph search result with caching metadata.
 memory/housekeeping.py::HousekeepingEngine - Memory housekeeping engine for garbage collection and hygien
 memory/index_syncer.py::IndexSyncer - Lightweight index/extension checker.
 memory/ingestion.py::IngestionPipeline - PacketEnvelope ingestion pipeline.
 memory/insight_extraction.py::InsightExtractionPipeline - Heuristic insight extraction from packet content.
 memory/migration_runner.py::MigrationRunner - Runs database migrations automatically and idempotently.
+memory/query_classifier.py::QueryClassifier - Classifies queries into retrieval patterns for adaptive weig
+memory/reasoning_replay.py::ReasoningChain - Represents a reconstructed reasoning chain.
+memory/reasoning_replay.py::ReasoningReplayPipeline - Reasoning replay pipeline for decision chain reconstruction.
 memory/retrieval.py::RetrievalPipeline - Memory retrieval pipeline with hybrid search capabilities.
+memory/semantic_search.py::SearchHit - Search hit result for Cursor.
 memory/state_manager.py::MemoryStateManager - High-level state manager for agent / graph state.
 memory/strategymemory.py::IStrategyMemoryService - Abstract interface for Strategy Memory operations.
 memory/strategymemory.py::StrategyCandidate - A strategy candidate returned from retrieval.
 memory/strategymemory.py::StrategyFeedback - Feedback data for strategy outcome tracking.
 memory/strategymemory.py::StrategyMemoryService - Stub implementation for Phase 0 testing.
 memory/strategymemory.py::StrategyRetrievalRequest - Request parameters for strategy retrieval.
+memory/substrate_dag_wrapper.py::SubstrateDagOrchestrator - Orchestrator for SubstrateDAG packet ingestion.
 memory/substrate_graph.py::SubstrateDAG - Wrapper for executing the substrate DAG with injected depend
 memory/substrate_graph.py::SubstrateGraphState - State passed through the LangGraph DAG.
 memory/substrate_models.py::AgentMemoryEventRow - DTO for agent_memory_events table.
@@ -1309,13 +1406,13 @@ scripts/audit/tier1/audit_infrastructure_health.py::InfrastructureReport - Compl
 scripts/audit/tier1/audit_infrastructure_health.py::PythonModuleHealthProbe - Python module import + instantiation probe.
 scripts/audit/tier1/audit_infrastructure_health.py::StartupSequence - Startup initialization order.
 scripts/audit/tier1/audit_infrastructure_health.py::TCPHealthProbe - TCP connectivity health probe.
-scripts/batch_generate_specs.py::BatchConfig - Batch processing configuration
-scripts/batch_generate_specs.py::BatchSpecGenerator - Orchestrates batch spec generation
-scripts/batch_generate_specs.py::PerplexityBatchClient - Async Perplexity client with rate limiting and retry
-scripts/batch_generate_specs.py::TokenBucketLimiter - Token bucket rate limiter for API calls
-scripts/init_workspace.py::InitResult - Complete workspace initialization result.
-scripts/load_indexes_to_neo4j.py::RepoGraphLoader - Loads L9 repository indexes into Neo4j graph database.
-scripts/load_indexes_to_neo4j_vps.py::VPSRepoGraphLoader - Loads L9 repository indexes into VPS Neo4j via HTTP API.
+scripts/batch/batch_generate_specs.py::BatchConfig - Batch processing configuration
+scripts/batch/batch_generate_specs.py::BatchSpecGenerator - Orchestrates batch spec generation
+scripts/batch/batch_generate_specs.py::PerplexityBatchClient - Async Perplexity client with rate limiting and retry
+scripts/batch/batch_generate_specs.py::TokenBucketLimiter - Token bucket rate limiter for API calls
+scripts/memory/load_indexes_to_neo4j.py::RepoGraphLoader - Loads L9 repository indexes into Neo4j graph database.
+scripts/memory/load_indexes_to_neo4j_vps.py::VPSRepoGraphLoader - Loads L9 repository indexes into VPS Neo4j via HTTP API.
+scripts/workspace/init_workspace.py::InitResult - Complete workspace initialization result.
 services/mac_tasks.py::MacTask - Mac task dataclass.
 services/research/agents/base_agent.py::BaseAgent - Base class for all research agents.
 services/research/agents/critic_agent.py::CriticAgent - Critic Agent - Evaluates research quality.
@@ -1500,6 +1597,12 @@ tests/integration/test_compliance_audit.py::TestAuditLoggerConvenience - Test au
 tests/integration/test_compliance_audit.py::TestComplianceReport - Test compliance report dataclass.
 tests/integration/test_compliance_audit.py::TestComplianceReporter - Test compliance reporter functionality.
 tests/integration/test_compliance_audit.py::TestDateRangeFiltering - Test date range filtering in reporter.
+tests/integration/test_cursor_langgraph_integration.py::TestCheckpointAndResumeThread - Test checkpoint and resume functionality.
+tests/integration/test_cursor_langgraph_integration.py::TestDecisionWrittenToPacketstoreV2 - Test that decisions are written to packetstore as PacketEnve
+tests/integration/test_cursor_langgraph_integration.py::TestGraphSearchUsesRedisCache - Test that graph search uses Redis cache.
+tests/integration/test_cursor_langgraph_integration.py::TestIgorHighImpactDecisionEscalation - Test that high-impact decisions escalate to Igor.
+tests/integration/test_cursor_langgraph_integration.py::TestScopeEnforcementCursorCannotReadLPrivate - Test that Cursor cannot access l-private scope.
+tests/integration/test_cursor_langgraph_integration.py::TestSemanticSearchHitsPgvector - Test that semantic search returns results from pgvector.
 tests/integration/test_governance_tracking_e2e.py::TestAgentInstanceGovernanceTracking - Tests for AgentInstance governance block tracking.
 tests/integration/test_governance_tracking_e2e.py::TestAgentInstanceUserCorrectionTracking - Tests for AgentInstance user correction tracking.
 tests/integration/test_governance_tracking_e2e.py::TestExecutionResultGovernanceWiring - Tests for ExecutionResult carrying governance data.
@@ -1589,12 +1692,17 @@ tests/ir_engine/test_ir_validation_and_status.py::TestSchemaValidation - Test sc
 tests/ir_engine/test_ir_validation_and_status.py::TestStrictMode - Test strict mode validation.
 tests/ir_engine/test_ir_validation_and_status.py::TestValidateAndUpdateStatus - Test validate_and_update_status method.
 tests/ir_engine/test_ir_validation_and_status.py::TestValidationResult - Test IRValidationResult methods.
+tests/memory/test_agent_persistence.py::TestAgentPersistenceService - Tests for AgentPersistenceService.
+tests/memory/test_agent_persistence.py::TestModel - No docstring
+tests/memory/test_agent_persistence.py::TestObject - No docstring
+tests/memory/test_consolidation.py::TestConsolidationPipeline - Tests for ConsolidationPipeline.
 tests/memory/test_e2e_memory_audit.py::AuditResult - Container for audit results.
 tests/memory/test_embedding_filter.py::TestShouldSkipEmbedding - Tests for _should_skip_embedding filter function.
 tests/memory/test_memory_adapter_basic.py::FakeResponse - Fake httpx response for testing.
 tests/memory/test_packet_envelope.py::TestPacketEnvelopeRoundtrip - No docstring
 tests/memory/test_packet_envelope_immutability.py::TestPacketEnvelopeImmutability - Test suite for PacketEnvelope immutability enforcement.
 tests/memory/test_packet_envelope_immutability.py::TestPacketEnvelopeInConversion - Test PacketEnvelopeIn → PacketEnvelope conversion.
+tests/memory/test_query_classifier.py::TestQueryClassifier - Tests for QueryClassifier pattern classification.
 tests/memory/test_tool_audit.py::TestIngestAuditPacket - Tests for _ingest_audit_packet background task.
 tests/memory/test_tool_audit.py::TestLogToolInvocation - Tests for log_tool_invocation async function.
 tests/memory/test_tool_audit.py::TestPublicAPI - Tests for public API exports.
@@ -1736,24 +1844,6 @@ tests/upgrades/test_packet_envelope_phases.py::TestPhase5Governance - Tests for 
 tests/world_model/test_world_model_repository_basic.py::FakeConnection - No docstring
 tests/world_model/test_world_model_repository_basic.py::FakePool - No docstring
 tests/world_model/test_world_model_repository_basic.py::TestWorldModelRepositoryBasic - No docstring
-tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py::MemoryAPI - Public API for agents to read/write memory.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py::Neo4jBackend - Neo4j backend for memory graph.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py::PostgresBackend - PostgreSQL backend with pgvector for memory storage.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py::RedisCache - Redis caching layer with TTL expiration.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemoryError - Base exception for memory operations.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemoryPacket - Unit of memory aligned with L9's PacketEnvelope.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemoryPacketError - Invalid memory packet.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemorySegment - L's memory organization - 4 segments.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py::MemorySegmentError - Segment-related error.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::CompositeSubstrate - Orchestrates multiple backends (Postgres, Neo4j, Redis).
-tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateConnectionError - Failed to connect to substrate backend.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateException - Base exception for substrate operations.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateService - Abstract protocol for memory backends.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateTimeoutError - Substrate operation timed out.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py::SubstrateValidationError - Invalid input to substrate.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py::MemorySummarizer - Automatic memory compression and pruning.
-tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py::MemoryTelemetry - Observability for memory operations.
-tools/cursor_client.py::CursorClient - Client for Cursor remote API.
 tools/mac_protocol.py::Config - No docstring
 tools/mac_protocol.py::Config - No docstring
 tools/mac_protocol.py::MacMessage - Mac protocol message schema.

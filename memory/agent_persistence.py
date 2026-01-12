@@ -20,6 +20,7 @@ from typing import Any, Optional, List, Dict, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from memory.substrate_repository import SubstrateRepository
+from memory.substrate_models import PacketEnvelopeIn
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
@@ -100,12 +101,12 @@ class AgentPersistenceService:
     ) -> UUID:
         """
         Create a checkpoint for an agent.
-        
+
         Args:
             agent_id: Agent identifier
             state: Agent state dict to persist
             reason: Checkpoint reason (on_agent_shutdown, on_session_boundary, on_critical_decision, scheduled_hourly, manual)
-            
+
         Returns:
             Checkpoint UUID
         """
@@ -115,25 +116,37 @@ class AgentPersistenceService:
             reason=reason,
             state_keys=list(state.keys()),
         )
-        
+
+        # Store checkpoint reason in state for later retrieval
+        state_with_meta = {**state, "_checkpoint_reason": reason}
+
+        checkpoint_id: Optional[UUID] = None
+
         if self._service:
             checkpoint_id = await self._service.save_checkpoint(
                 agent_id=agent_id,
-                state=state,
+                state=state_with_meta,
             )
-            logger.info("Checkpoint created", checkpoint_id=str(checkpoint_id), agent_id=agent_id)
-            return checkpoint_id
-        
         elif self._repository:
             checkpoint_id = await self._repository.save_checkpoint(
                 agent_id=agent_id,
-                graph_state=state,
+                graph_state=state_with_meta,
             )
-            logger.info("Checkpoint created", checkpoint_id=str(checkpoint_id), agent_id=agent_id)
-            return checkpoint_id
-        
         else:
             raise RuntimeError("Neither service nor repository set")
+
+        logger.info("Checkpoint created", checkpoint_id=str(checkpoint_id), agent_id=agent_id)
+
+        # Emit PacketEnvelope for audit trail (best-effort)
+        await self._emit_checkpoint_packet(
+            event_type="checkpoint_created",
+            agent_id=agent_id,
+            checkpoint_id=checkpoint_id,
+            reason=reason,
+            state_keys=list(state.keys()),
+        )
+
+        return checkpoint_id
 
     async def restore_checkpoint(
         self,
@@ -142,34 +155,51 @@ class AgentPersistenceService:
     ) -> Optional[Dict[str, Any]]:
         """
         Restore a checkpoint for an agent.
-        
+
         If checkpoint_id is None, restores the latest checkpoint.
-        
+
         Args:
             agent_id: Agent identifier
             checkpoint_id: Optional specific checkpoint UUID
-            
+
         Returns:
             Agent state dict, or None if not found
         """
         logger.debug("Restoring checkpoint", agent_id=agent_id, checkpoint_id=str(checkpoint_id) if checkpoint_id else "latest")
-        
+
+        state: Optional[Dict[str, Any]] = None
+        restored_checkpoint_id: Optional[UUID] = None
+
         if self._service:
             state = await self._service.get_checkpoint(agent_id=agent_id)
             if state:
                 logger.info("Checkpoint restored", agent_id=agent_id)
-                return state
-            return None
-        
         elif self._repository:
             checkpoint = await self._repository.get_checkpoint(agent_id=agent_id)
             if checkpoint:
+                state = checkpoint.graph_state
+                restored_checkpoint_id = checkpoint.checkpoint_id
                 logger.info("Checkpoint restored", agent_id=agent_id, checkpoint_id=str(checkpoint.checkpoint_id))
-                return checkpoint.graph_state
-            return None
-        
         else:
             raise RuntimeError("Neither service nor repository set")
+
+        # Emit PacketEnvelope for audit trail (best-effort)
+        if state is not None:
+            # Remove internal metadata before returning
+            state_clean = {k: v for k, v in state.items() if not k.startswith("_checkpoint_")}
+            reason = state.get("_checkpoint_reason", "unknown")
+
+            await self._emit_checkpoint_packet(
+                event_type="checkpoint_restored",
+                agent_id=agent_id,
+                checkpoint_id=restored_checkpoint_id,
+                reason=reason,
+                state_keys=list(state_clean.keys()),
+            )
+
+            return state_clean
+
+        return None
 
     async def list_checkpoints(
         self,
@@ -178,21 +208,40 @@ class AgentPersistenceService:
     ) -> List[Checkpoint]:
         """
         List checkpoints for an agent.
-        
+
+        Note: Current schema uses UNIQUE(agent_id) so returns at most 1 checkpoint.
+        Full multi-checkpoint support requires schema migration.
+
         Args:
             agent_id: Agent identifier
             limit: Maximum checkpoints to return
-            
+
         Returns:
-            List of Checkpoint objects
+            List of Checkpoint objects (currently max 1 due to schema)
         """
         logger.debug("Listing checkpoints", agent_id=agent_id, limit=limit)
-        
-        # TODO: Implement actual checkpoint listing
-        # Requires repository method to query graph_checkpoints table
-        # For now, return empty list
-        logger.warning("Checkpoint listing not fully implemented", agent_id=agent_id)
-        return []
+
+        if self._repository is None:
+            raise RuntimeError("Repository not set")
+
+        rows = await self._repository.list_checkpoints(agent_id=agent_id, limit=limit)
+
+        checkpoints = []
+        for row in rows:
+            # Extract reason from graph_state if present, default to "unknown"
+            reason = row.graph_state.get("_checkpoint_reason", "unknown") if isinstance(row.graph_state, dict) else "unknown"
+            checkpoints.append(
+                Checkpoint(
+                    checkpoint_id=row.checkpoint_id,
+                    agent_id=row.agent_id,
+                    state=row.graph_state,
+                    reason=reason,
+                    created_at=row.updated_at,
+                )
+            )
+
+        logger.info("Listed checkpoints", agent_id=agent_id, count=len(checkpoints))
+        return checkpoints
 
     async def delete_old_checkpoints(
         self,
@@ -201,21 +250,34 @@ class AgentPersistenceService:
     ) -> int:
         """
         Delete old checkpoints, keeping only the most recent N.
-        
+
+        Note: Current schema uses UNIQUE(agent_id) so at most 1 checkpoint exists.
+        If keep_last >= 1, nothing is deleted. If keep_last = 0, the checkpoint is deleted.
+        Full retention policy requires schema migration for multi-checkpoint storage.
+
         Args:
             agent_id: Agent identifier
-            keep_last: Number of recent checkpoints to keep
-            
+            keep_last: Number of recent checkpoints to keep (0 = delete all)
+
         Returns:
             Number of checkpoints deleted
         """
         logger.debug("Deleting old checkpoints", agent_id=agent_id, keep_last=keep_last)
-        
-        # TODO: Implement actual checkpoint deletion
-        # Requires repository method to delete from graph_checkpoints
-        # For now, return 0
-        logger.warning("Checkpoint deletion not fully implemented", agent_id=agent_id)
-        return 0
+
+        if self._repository is None:
+            raise RuntimeError("Repository not set")
+
+        # With current UNIQUE(agent_id) schema, only 1 checkpoint per agent exists
+        # Delete only if keep_last = 0
+        if keep_last > 0:
+            logger.debug("Keeping checkpoint (keep_last > 0)", agent_id=agent_id, keep_last=keep_last)
+            return 0
+
+        deleted = await self._repository.delete_checkpoint(agent_id=agent_id)
+        count = 1 if deleted else 0
+
+        logger.info("Deleted old checkpoints", agent_id=agent_id, deleted_count=count)
+        return count
 
     def serialize_agent_state(self, agent: Any) -> Dict[str, Any]:
         """
@@ -325,4 +387,70 @@ class AgentPersistenceService:
         except Exception as e:
             logger.error("Checkpoint validation failed", checkpoint_id=str(checkpoint_id), error=str(e), exc_info=True)
             return False
+
+    # =========================================================================
+    # Audit Trail (PacketEnvelope Emission)
+    # =========================================================================
+
+    async def _emit_checkpoint_packet(
+        self,
+        event_type: str,
+        agent_id: str,
+        checkpoint_id: Optional[UUID],
+        reason: str,
+        state_keys: List[str],
+    ) -> None:
+        """
+        Emit a PacketEnvelope for checkpoint audit trail.
+
+        Best-effort: logs warning on failure but does not raise.
+
+        Args:
+            event_type: Type of checkpoint event (checkpoint_created, checkpoint_restored)
+            agent_id: Agent identifier
+            checkpoint_id: Checkpoint UUID (if available)
+            reason: Checkpoint reason
+            state_keys: List of keys in the checkpoint state
+        """
+        if self._service is None:
+            logger.debug("No service available for packet emission", event_type=event_type)
+            return
+
+        try:
+            packet = PacketEnvelopeIn(
+                source_id="agent_persistence",
+                agent_id=agent_id,
+                thread_id=str(checkpoint_id) if checkpoint_id else str(uuid4()),
+                kind=event_type,
+                payload={
+                    "event_type": event_type,
+                    "agent_id": agent_id,
+                    "checkpoint_id": str(checkpoint_id) if checkpoint_id else None,
+                    "reason": reason,
+                    "state_keys": state_keys,
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
+                metadata={
+                    "component": "agent_persistence",
+                    "version": "1.0.0",
+                },
+                confidence=1.0,
+            )
+
+            await self._service.write_packet(packet)
+            logger.debug(
+                "Checkpoint packet emitted",
+                event_type=event_type,
+                agent_id=agent_id,
+                checkpoint_id=str(checkpoint_id) if checkpoint_id else None,
+            )
+
+        except Exception as e:
+            # Best-effort: don't fail checkpoint operations due to packet emission
+            logger.warning(
+                "Failed to emit checkpoint packet",
+                event_type=event_type,
+                agent_id=agent_id,
+                error=str(e),
+            )
 

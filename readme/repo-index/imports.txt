@@ -46,6 +46,7 @@
   .housekeeping
   .instrumentation
   .interface
+  .jaeger_exporter
   .l9_integration
   .local_api
   .logger
@@ -68,6 +69,7 @@
   .phase_5_bind_tools
   .phase_6_wire_governance
   .phase_7_verify_and_lock
+  .prometheus_exporter
   .quick_fixes
   .readme_generator
   .reasoning.orchestrator
@@ -89,6 +91,10 @@
   .ws_bridge
 # 2020
   2020
+# Cursor
+  Cursor
+# SUPER_PROMPT_TEMPLATE
+  SUPER_PROMPT_TEMPLATE
 # YAML
   YAML
 # __future__
@@ -110,6 +116,11 @@
   agents.codegenagent.readme_generator
   agents.coder_agent_a
   agents.coder_agent_b
+  agents.cursor.cursor_client
+  agents.cursor.cursor_memory_kernel
+  agents.cursor.integrations.cursor_executor
+  agents.cursor.integrations.cursor_gateway
+  agents.cursor.integrations.cursor_langgraph
   agents.l_cto
   agents.qa_agent
   agents.reflection_agent
@@ -199,6 +210,8 @@
   core.commands.schemas
   core.compliance.audit_log
   core.compliance.audit_reporter
+  core.governance.approval_gate
+  core.governance.approval_manager
   core.governance.approvals
   core.governance.engine
   core.governance.loader
@@ -317,6 +330,8 @@
   l9.core.utils
   l9.governance.approvals
   l9.memory.substrate_service
+# langchain
+  langchain.tools
 # langchain_core
   langchain_core.documents
   langchain_core.retrievers
@@ -329,19 +344,28 @@
   mac_agent.executor
   mac_agent.helpers.logging
 # memory
+  memory.agent_persistence
+  memory.checkpoint.cursor_checkpoint_manager
+  memory.checkpoint.postgres_saver
+  memory.consolidation
   memory.extractors.base_extractor
   memory.governance_patterns
   memory.graph_client
+  memory.graph_search_cache
   memory.housekeeping
   memory.ingestion
   memory.insight_extraction
   memory.migration_runner
   memory.models
   memory.packet_serializer
+  memory.query_classifier
+  memory.reasoning_replay
   memory.retrieval
+  memory.semantic_search
   memory.slack_ingest
   memory.strategymemory
   memory.substrate_alignment
+  memory.substrate_dag_wrapper
   memory.substrate_graph
   memory.substrate_models
   memory.substrate_repository
@@ -412,6 +436,8 @@
   re
 # redis
   redis.asyncio
+# requests
+  requests
 # routes
   routes.
   routes.calendar_adapter
@@ -477,9 +503,12 @@
 # socket
   socket
 # src
+  src.agent_integration
+  src.architecture
   src.config
   src.db
   src.embeddings
+  src.main
   src.mcp_server
   src.models
   src.routes
@@ -524,6 +553,10 @@
   threading
 # time
   time
+# torch
+  torch
+  torch.nn
+  torch.nn.functional
 # traceback
   traceback
 # twilio

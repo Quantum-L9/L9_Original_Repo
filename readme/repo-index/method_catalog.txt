@@ -79,7 +79,7 @@ AgentController::async process_packet(packet) @ codegen/extractions/domain_tenso
 AgentExecutionOrchestrator::__init__() @ orchestrators/agent_execution/orchestrator.py
 AgentExecutionOrchestrator::async execute(request) @ orchestrators/agent_execution/orchestrator.py
 AgentExecutionOrchestrator::async poll_and_execute() @ orchestrators/agent_execution/orchestrator.py
-AgentExecutorService::__init__(aios_runtime, tool_registry, substrate_service, agent_registry, default_agent_id, max_iterations) @ core/agents/executor.py
+AgentExecutorService::__init__(aios_runtime, tool_registry, substrate_service, agent_registry, default_agent_id, max_iterations, agent_persistence) @ core/agents/executor.py
 AgentExecutorService::_get_kernel_aware_agent() @ core/agents/executor.py
 AgentExecutorService::_validate_task(task) @ core/agents/executor.py
 AgentExecutorService::async _bind_memory_context(task_id, agent_id) @ core/agents/executor.py
@@ -93,6 +93,7 @@ AgentExecutorService::async _persist_task_result(task_id, result) @ core/agents/
 AgentExecutorService::async _reactive_dispatch_loop() @ core/agents/executor.py
 AgentExecutorService::async _run_execution_loop(instance) @ core/agents/executor.py
 AgentExecutorService::async _run_self_reflection(task, result, instance) @ core/agents/executor.py
+AgentExecutorService::async shutdown() @ core/agents/executor.py
 AgentExecutorService::async start_agent_task(task) @ core/agents/executor.py
 AgentExecutorService::set_kernel_aware_agent(agent) @ core/agents/executor.py
 AgentGraphLoader::__init__(neo4j_driver) @ core/agents/graph_state/agent_graph_loader.py
@@ -137,6 +138,18 @@ AgentInstance::total_tokens() @ core/agents/agent_instance.py
 AgentInstance::transition_to(new_state) @ core/agents/agent_instance.py
 AgentInstance::user_corrections() @ core/agents/agent_instance.py
 AgentMessage::to_dict() @ agents/base_agent.py
+AgentPersistenceService::__init__(service, repository) @ memory/agent_persistence.py
+AgentPersistenceService::_serialize_value(value) @ memory/agent_persistence.py
+AgentPersistenceService::async _emit_checkpoint_packet(event_type, agent_id, checkpoint_id, reason, state_keys) @ memory/agent_persistence.py
+AgentPersistenceService::async create_checkpoint(agent_id, state, reason) @ memory/agent_persistence.py
+AgentPersistenceService::async delete_old_checkpoints(agent_id, keep_last) @ memory/agent_persistence.py
+AgentPersistenceService::async list_checkpoints(agent_id, limit) @ memory/agent_persistence.py
+AgentPersistenceService::async restore_checkpoint(agent_id, checkpoint_id) @ memory/agent_persistence.py
+AgentPersistenceService::async validate_checkpoint_integrity(checkpoint_id) @ memory/agent_persistence.py
+AgentPersistenceService::deserialize_agent_state(state) @ memory/agent_persistence.py
+AgentPersistenceService::serialize_agent_state(agent) @ memory/agent_persistence.py
+AgentPersistenceService::set_repository(repository) @ memory/agent_persistence.py
+AgentPersistenceService::set_service(service) @ memory/agent_persistence.py
 AgentRegistry::__contains__(agent_id) @ core/agents/registry.py
 AgentRegistry::__init__(config_dir) @ core/agents/registry.py
 AgentRegistry::__len__() @ core/agents/registry.py
@@ -359,10 +372,10 @@ BatchIngestionEngine::async _check_idempotency(key) @ upgrades/packet_envelope/s
 BatchIngestionEngine::async _process_sub_batch(packets) @ upgrades/packet_envelope/scalability.py
 BatchIngestionEngine::async ingest_batch(request) @ upgrades/packet_envelope/scalability.py
 BatchResult::success() @ agents/codegenagent/codegen_agent.py
-BatchSpecGenerator::__init__(config) @ scripts/batch_generate_specs.py
-BatchSpecGenerator::async process_batch(modules) @ scripts/batch_generate_specs.py
-BatchSpecGenerator::async run(modules, dry_run) @ scripts/batch_generate_specs.py
-BatchSpecGenerator::save_spec(module_name, content) @ scripts/batch_generate_specs.py
+BatchSpecGenerator::__init__(config) @ scripts/batch/batch_generate_specs.py
+BatchSpecGenerator::async process_batch(modules) @ scripts/batch/batch_generate_specs.py
+BatchSpecGenerator::async run(modules, dry_run) @ scripts/batch/batch_generate_specs.py
+BatchSpecGenerator::save_spec(module_name, content) @ scripts/batch/batch_generate_specs.py
 BehaviorGap::to_dict() @ core/agents/selfreflection.py
 BlueprintAdapter::__init__(openai_client, model) @ orchestrators/meta/adapter.py
 BlueprintAdapter::_build_improvement_prompt(blueprint, evaluation) @ orchestrators/meta/adapter.py
@@ -600,6 +613,7 @@ CellResult::to_dict() @ collaborative_cells/base_cell.py
 CellWorkflow::to_dict() @ orchestration/cell_orchestrator.py
 ChallengeResult::__init__(challenged, invalidated, hidden_found, recommendations) @ ir_engine/constraint_challenger.py
 ChallengeResult::to_dict() @ ir_engine/constraint_challenger.py
+Checkpoint::__init__(checkpoint_id, agent_id, state, reason, created_at) @ memory/agent_persistence.py
 CheckpointManager::__init__(service) @ igor/audit-memory/memory_checkpoint_manager.py
 CheckpointManager::__init__(service) @ memory/checkpoint_manager.py
 CheckpointManager::async load(agent_id) @ igor/audit-memory/memory_checkpoint_manager.py
@@ -657,6 +671,8 @@ CodeGenerator::_generate_python_code(expr, var_symbols, function_name) @ service
 CodeGenerator::async generate(request) @ services/symbolic_computation/core.py
 CodeGenerator::async generate_code(expr, variables, language, function_name) @ services/symbolic_computation/core/code_generator.py
 CodeGenerator::compile_generated(source_code, language, output_name) @ services/symbolic_computation/core/code_generator.py
+CodeGenerator::generate_core_architecture(synthesis) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
+CodeGenerator::generate_integration_hook(synthesis) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 CodeGenerator::generate_sync(request) @ services/symbolic_computation/core.py
 CodeValidationResult::__init__() @ ci/validate_codegen.py
 CodeValidationResult::__init__() @ codegen/code-gen-files/validate_codegen.py
@@ -733,12 +749,12 @@ CompositeExporter::__init__(exporters) @ core/observability/exporters.py
 CompositeExporter::async export_async(spans) @ core/observability/exporters.py
 CompositeExporter::async flush() @ core/observability/exporters.py
 CompositeExporter::export(spans) @ core/observability/exporters.py
-CompositeSubstrate::__init__(postgres_backend, neo4j_backend, redis_cache, logger) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-CompositeSubstrate::async close() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-CompositeSubstrate::async delete_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-CompositeSubstrate::async health_check() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-CompositeSubstrate::async search_packets(query, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-CompositeSubstrate::async write_packet(packet) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+CompositeSubstrate::__init__(postgres_backend, neo4j_backend, redis_cache, logger) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+CompositeSubstrate::async close() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+CompositeSubstrate::async delete_expired() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+CompositeSubstrate::async health_check() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+CompositeSubstrate::async search_packets(query, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+CompositeSubstrate::async write_packet(packet) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 ComputationRequest::validate_expression(cls, v) @ services/symbolic_computation/models.py
 ComputationRequest::validate_variables(cls, v) @ services/symbolic_computation/models.py
 Condition::evaluate(context) @ core/governance/schemas.py
@@ -746,6 +762,15 @@ ConfigValidator::__init__() @ scripts/audit/audit_shared_core.py
 ConfigValidator::add_rule(rule) @ scripts/audit/audit_shared_core.py
 ConfigValidator::validate(config) @ scripts/audit/audit_shared_core.py
 ConsoleExporter::export(spans) @ core/observability/exporters.py
+ConsolidationPipeline::__init__(repository, dry_run) @ memory/consolidation.py
+ConsolidationPipeline::async _run_archival(batch_size, sleep_ms) @ memory/consolidation.py
+ConsolidationPipeline::async _run_deduplication(batch_size, sleep_ms) @ memory/consolidation.py
+ConsolidationPipeline::async _run_summarization(batch_size, sleep_ms) @ memory/consolidation.py
+ConsolidationPipeline::async _run_ttl_expiration(batch_size, sleep_ms) @ memory/consolidation.py
+ConsolidationPipeline::async run_consolidation(batch_size, sleep_between_batches_ms) @ memory/consolidation.py
+ConsolidationPipeline::set_repository(repository) @ memory/consolidation.py
+ConsolidationReport::__init__() @ memory/consolidation.py
+ConsolidationReport::to_dict() @ memory/consolidation.py
 ConstraintChallenger::__init__(api_key, model, temperature, auto_apply) @ ir_engine/constraint_challenger.py
 ConstraintChallenger::_ensure_client() @ ir_engine/constraint_challenger.py
 ConstraintChallenger::_parse_constraint_id(id_str, graph) @ ir_engine/constraint_challenger.py
@@ -787,49 +812,72 @@ CredentialsPolicy::validate_env_file(env_content) @ core/governance/credentials_
 CriticAgent::__init__(agent_id, approval_threshold) @ services/research/agents/critic_agent.py
 CriticAgent::async quick_check(query, summary) @ services/research/agents/critic_agent.py
 CriticAgent::async run(query, evidence, summary) @ services/research/agents/critic_agent.py
+CursorActionExtractor::create_directory_structure(output_root) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::create_directory_structure(output_root) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::create_directory_structure(output_root) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::extract(input_path, output_root) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::extract(input_path, output_root) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::extract(input_path, output_root) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::extract_components(content) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::extract_components(content) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::extract_components(content) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::extract_executive_mode(content) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::extract_executive_mode(content) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::extract_executive_mode(content) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::extract_loader_config(content) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::extract_loader_config(content) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::extract_loader_config(content) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::extract_reasoning_pattern_schema(content) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::extract_reasoning_pattern_schema(content) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::extract_reasoning_pattern_schema(content) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::extract_yaml_configs(content) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::extract_yaml_configs(content) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::extract_yaml_configs(content) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::generate_python_modules(content, dirs) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::generate_python_modules(content, dirs) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::generate_python_modules(content, dirs) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::parse_inline_yaml(text) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::parse_inline_yaml(text) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::parse_inline_yaml(text) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::write_manifest(manifest_path, manifest) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::write_manifest(manifest_path, manifest) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::write_manifest(manifest_path, manifest) @ memory/extractor/cursor_action_extractor.py
+CursorActionExtractor::write_yaml(file_path, data) @ agents/cursor/extractors/cursor_action_extractor.py
 CursorActionExtractor::write_yaml(file_path, data) @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
-CursorActionExtractor::write_yaml(file_path, data) @ memory/extractor/cursor_action_extractor.py
+CursorCheckpointManager::__init__(postgres_saver, memory_gateway) @ memory/checkpoint/cursor_checkpoint_manager.py
+CursorCheckpointManager::async checkpoint(thread_id, state) @ memory/checkpoint/cursor_checkpoint_manager.py
+CursorCheckpointManager::async restore(thread_id) @ memory/checkpoint/cursor_checkpoint_manager.py
+CursorClient::__init__(host, port, timeout) @ agents/cursor/cursor_client.py
 CursorClient::__init__(host, port, timeout) @ igor/audit-tools/tools_cursor_client.py
-CursorClient::__init__(host, port, timeout) @ tools/cursor_client.py
+CursorClient::_request(endpoint, method, data) @ agents/cursor/cursor_client.py
 CursorClient::_request(endpoint, method, data) @ igor/audit-tools/tools_cursor_client.py
-CursorClient::_request(endpoint, method, data) @ tools/cursor_client.py
+CursorClient::health_check() @ agents/cursor/cursor_client.py
 CursorClient::health_check() @ igor/audit-tools/tools_cursor_client.py
-CursorClient::health_check() @ tools/cursor_client.py
+CursorClient::send_code(code) @ agents/cursor/cursor_client.py
 CursorClient::send_code(code) @ igor/audit-tools/tools_cursor_client.py
-CursorClient::send_code(code) @ tools/cursor_client.py
+CursorClient::send_command(command) @ agents/cursor/cursor_client.py
 CursorClient::send_command(command) @ igor/audit-tools/tools_cursor_client.py
-CursorClient::send_command(command) @ tools/cursor_client.py
-CursorMemoryKernel::__init__(config_path) @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::_load_config() @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::activate(session_id) @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::add_todo(content, milestone) @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::complete_todo(todo_id) @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::get_confidence_behavior(confidence) @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::get_execution_style() @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::get_lessons_summary() @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::increment_prompt_count() @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::learn(title, content, severity) @ core/governance/cursor_memory_kernel.py
-CursorMemoryKernel::should_display_todos() @ core/governance/cursor_memory_kernel.py
+CursorDecisionGateNode::__init__(approval_gate) @ agents/cursor/integrations/cursor_langgraph.py
+CursorDecisionGateNode::async __call__(state) @ agents/cursor/integrations/cursor_langgraph.py
+CursorErrorRecoveryNode::__init__(memory_gateway) @ agents/cursor/integrations/cursor_langgraph.py
+CursorErrorRecoveryNode::async __call__(state) @ agents/cursor/integrations/cursor_langgraph.py
+CursorExecutor::__init__(langgraph_app, memory_gateway, dag_orchestrator, checkpoint_manager, approval_manager) @ agents/cursor/integrations/cursor_executor.py
+CursorExecutor::async resume_thread(thread_id) @ agents/cursor/integrations/cursor_executor.py
+CursorExecutor::async run_task(task) @ agents/cursor/integrations/cursor_executor.py
+CursorMemoryGateway::__init__(dag_orchestrator) @ agents/cursor/integrations/cursor_gateway.py
+CursorMemoryGateway::_validate_scope(scope) @ agents/cursor/integrations/cursor_gateway.py
+CursorMemoryGateway::async load_checkpoint(thread_id) @ agents/cursor/integrations/cursor_gateway.py
+CursorMemoryGateway::async search_memory(query, scope, project_id, limit) @ agents/cursor/integrations/cursor_gateway.py
+CursorMemoryGateway::async write_checkpoint(thread_id, state) @ agents/cursor/integrations/cursor_gateway.py
+CursorMemoryGateway::async write_decision(state) @ agents/cursor/integrations/cursor_gateway.py
+CursorMemoryGateway::async write_error(state) @ agents/cursor/integrations/cursor_gateway.py
+CursorMemoryKernel::__init__(config_path) @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::_load_config() @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::activate(session_id) @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::add_todo(content, milestone) @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::complete_todo(todo_id) @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::get_confidence_behavior(confidence) @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::get_execution_style() @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::get_lessons_summary() @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::increment_prompt_count() @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::learn(title, content, severity) @ agents/cursor/cursor_memory_kernel.py
+CursorMemoryKernel::should_display_todos() @ agents/cursor/cursor_memory_kernel.py
+CursorMemorySearchNode::__init__(memory_gateway) @ agents/cursor/integrations/cursor_langgraph.py
+CursorMemorySearchNode::async __call__(state) @ agents/cursor/integrations/cursor_langgraph.py
+CursorMemoryWriteNode::__init__(memory_gateway) @ agents/cursor/integrations/cursor_langgraph.py
+CursorMemoryWriteNode::async __call__(state) @ agents/cursor/integrations/cursor_langgraph.py
+CursorPlanningNode::__init__(llm_provider) @ agents/cursor/integrations/cursor_langgraph.py
+CursorPlanningNode::async __call__(state) @ agents/cursor/integrations/cursor_langgraph.py
 Decision::to_dict() @ world_model/causal_mapper.py
 DecisionSynthesizer::__init__(mode_weights) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
 DecisionSynthesizer::_build_summary(outputs, resolved) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
@@ -1211,6 +1259,7 @@ Housekeeping::async health_check() @ igor/audit-memory/orchestrators_memory_hous
 Housekeeping::async health_check() @ orchestrators/memory/housekeeping.py
 Housekeeping::async process(data) @ igor/audit-memory/orchestrators_memory_housekeeping.py
 Housekeeping::async process(data) @ orchestrators/memory/housekeeping.py
+Housekeeping::async run_consolidation(dry_run, batch_size, sleep_between_batches_ms) @ orchestrators/memory/housekeeping.py
 Housekeeping::async run_scheduled_maintenance() @ orchestrators/memory/housekeeping.py
 HousekeepingEngine::__init__(repository) @ igor/audit-memory/memory_housekeeping.py
 HousekeepingEngine::__init__(repository) @ memory/housekeeping.py
@@ -1420,6 +1469,12 @@ IntentModel::is_ambiguous() @ core/commands/schemas.py
 IntentNode::add_child(child_id) @ ir_engine/ir_schema.py
 JSONFileExporter::__init__(file_path) @ core/observability/exporters.py
 JSONFileExporter::export(spans) @ core/observability/exporters.py
+JaegerExporter::__init__(jaeger_endpoint, service_name) @ core/observability/jaeger_exporter.py
+JaegerExporter::_map_span_kind(kind) @ core/observability/jaeger_exporter.py
+JaegerExporter::async export_async(spans) @ core/observability/jaeger_exporter.py
+JaegerExporter::async flush() @ core/observability/jaeger_exporter.py
+JaegerExporter::export(spans) @ core/observability/jaeger_exporter.py
+JaegerExporter::export_span(span) @ core/observability/jaeger_exporter.py
 KPITracker::__init__(window_size) @ core/observability/aggregation.py
 KPITracker::get_alerts(thresholds) @ core/observability/aggregation.py
 KPITracker::get_trend(kpi_name) @ core/observability/aggregation.py
@@ -1502,6 +1557,11 @@ L9Agent::to_node_dict() @ core/worldmodel/l9_schema.py
 L9ExternalSystem::to_node_dict() @ core/worldmodel/l9_schema.py
 L9Infrastructure::to_node_dict() @ core/worldmodel/l9_schema.py
 L9MemorySegment::to_node_dict() @ core/worldmodel/l9_schema.py
+L9PostgresSaver::__init__(repository) @ memory/checkpoint/postgres_saver.py
+L9PostgresSaver::async get(config) @ memory/checkpoint/postgres_saver.py
+L9PostgresSaver::async list(config, filter) @ memory/checkpoint/postgres_saver.py
+L9PostgresSaver::async put(config, checkpoint, metadata, new_versions) @ memory/checkpoint/postgres_saver.py
+L9PostgresSaver::repository() @ memory/checkpoint/postgres_saver.py
 L9Relationship::to_edge_dict() @ core/worldmodel/l9_schema.py
 L9Repository::to_node_dict() @ core/worldmodel/l9_schema.py
 L9Tool::to_node_dict() @ core/worldmodel/l9_schema.py
@@ -1578,13 +1638,13 @@ MacAgentConfig::__init__() @ mac_agent/config.py
 MathAgent::__init__() @ codegen/code-gen-files/examples_symbolic_computation.py
 MathAgent::async evaluate_formula(formula, params) @ codegen/code-gen-files/examples_symbolic_computation.py
 MathAgent::async generate_optimized_code(formula, vars) @ codegen/code-gen-files/examples_symbolic_computation.py
-MemoryAPI::__init__(substrate, redis_cache) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
-MemoryAPI::async cleanup_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
-MemoryAPI::async delete(chunk_id) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
-MemoryAPI::async list_segments(agent_id) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
-MemoryAPI::async search(query, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
-MemoryAPI::async semantic_search(embedding, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
-MemoryAPI::async write(segment, content, agent_id, metadata, embedding, ttl_hours) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
+MemoryAPI::__init__(substrate, redis_cache) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
+MemoryAPI::async cleanup_expired() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
+MemoryAPI::async delete(chunk_id) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
+MemoryAPI::async list_segments(agent_id) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
+MemoryAPI::async search(query, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
+MemoryAPI::async semantic_search(embedding, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
+MemoryAPI::async write(segment, content, agent_id, metadata, embedding, ttl_hours) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
 MemoryBridge::__init__(substrate_service) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
 MemoryBridge::async get_working_memory(key) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
 MemoryBridge::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
@@ -1639,11 +1699,11 @@ MemoryOrchestrator::async _replay(request) @ igor/audit-memory/orchestrators_mem
 MemoryOrchestrator::async _replay(request) @ orchestrators/memory/orchestrator.py
 MemoryOrchestrator::async execute(request) @ igor/audit-memory/orchestrators_memory_orchestrator.py
 MemoryOrchestrator::async execute(request) @ orchestrators/memory/orchestrator.py
-MemoryPacket::as_neo4j_dict() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryPacket::as_postgres_tuple() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryPacket::from_postgres_row(cls, row) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryPacket::validate_embedding(cls, v) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryPacket::validate_expires_at(cls, v, values) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
+MemoryPacket::as_neo4j_dict() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
+MemoryPacket::as_postgres_tuple() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
+MemoryPacket::from_postgres_row(cls, row) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
+MemoryPacket::validate_embedding(cls, v) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
+MemoryPacket::validate_expires_at(cls, v, values) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
 MemoryStateManager::__init__(service, agent_id) @ igor/audit-memory/memory_state_manager.py
 MemoryStateManager::__init__(service, agent_id) @ memory/state_manager.py
 MemoryStateManager::agent_id() @ igor/audit-memory/memory_state_manager.py
@@ -1690,21 +1750,25 @@ MemorySubstrateService::async write_insights(insights) @ igor/audit-memory/memor
 MemorySubstrateService::async write_insights(insights) @ memory/substrate_service.py
 MemorySubstrateService::async write_packet(packet_in) @ igor/audit-memory/memory_substrate_service.py
 MemorySubstrateService::async write_packet(packet_in, tenant_id, org_id, user_id, role) @ memory/substrate_service.py
-MemorySummarizer::__init__(memory_api) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
-MemorySummarizer::async _cleanup_loop(interval_sec) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
-MemorySummarizer::async cancel_cleanup() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
-MemorySummarizer::async cleanup_all_agents() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
-MemorySummarizer::async compress_old_memory(agent_id, days) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
-MemorySummarizer::async prune_session_context(agent_id, max_chunks) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
-MemorySummarizer::schedule_cleanup(interval_hours) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
-MemoryTelemetry::__init__() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
-MemoryTelemetry::_init_prometheus() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
-MemoryTelemetry::get_stats() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
-MemoryTelemetry::log_cache_hit(segment) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
-MemoryTelemetry::log_cache_miss(segment) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
-MemoryTelemetry::log_search(segment, agent_id, result_count, duration_ms) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
-MemoryTelemetry::log_structured(event, level) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
-MemoryTelemetry::log_write(segment, agent_id) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
+MemorySubstrateService::get_agent_persistence() @ memory/substrate_service.py
+MemorySubstrateService::get_consolidation(dry_run) @ memory/substrate_service.py
+MemorySubstrateService::get_query_classifier() @ memory/substrate_service.py
+MemorySubstrateService::get_reasoning_replay() @ memory/substrate_service.py
+MemorySummarizer::__init__(memory_api) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
+MemorySummarizer::async _cleanup_loop(interval_sec) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
+MemorySummarizer::async cancel_cleanup() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
+MemorySummarizer::async cleanup_all_agents() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
+MemorySummarizer::async compress_old_memory(agent_id, days) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
+MemorySummarizer::async prune_session_context(agent_id, max_chunks) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
+MemorySummarizer::schedule_cleanup(interval_hours) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
+MemoryTelemetry::__init__() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
+MemoryTelemetry::_init_prometheus() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
+MemoryTelemetry::get_stats() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
+MemoryTelemetry::log_cache_hit(segment) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
+MemoryTelemetry::log_cache_miss(segment) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
+MemoryTelemetry::log_search(segment, agent_id, result_count, duration_ms) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
+MemoryTelemetry::log_structured(event, level) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
+MemoryTelemetry::log_write(segment, agent_id) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
 MetaContract::get_allowed_files() @ ir_engine/meta_ir.py
 MetaContract::get_module_id() @ ir_engine/meta_ir.py
 MetaContract::get_packet_types() @ ir_engine/meta_ir.py
@@ -1936,15 +2000,15 @@ ModuleSchemaExtractor::extract(input_path, output_root) @ memory/extractor/modul
 ModuleSchemaExtractor::generate_modules(kernel, output_root) @ igor/audit-memory/memory_extractor_module_schema_extractor.py
 ModuleSchemaExtractor::generate_modules(kernel, output_root) @ memory/extractor/module_schema_extractor.py
 NaiveTruncationStrategy::async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
-Neo4jBackend::__init__(uri, user, password, database) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
-Neo4jBackend::async _create_indexes() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
-Neo4jBackend::async close() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
-Neo4jBackend::async connect() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
-Neo4jBackend::async delete_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
-Neo4jBackend::async health_check() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
-Neo4jBackend::async search_packets(query, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
-Neo4jBackend::async semantic_search(embedding, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
-Neo4jBackend::async write_packet(packet) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::__init__(uri, user, password, database) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::async _create_indexes() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::async close() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::async connect() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::async delete_expired() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::async health_check() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::async search_packets(query, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::async semantic_search(embedding, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
+Neo4jBackend::async write_packet(packet) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
 Neo4jClient::__init__(uri, user, password, database) @ igor/audit-memory/memory_graph_client.py
 Neo4jClient::__init__(uri, user, password, database) @ memory/graph_client.py
 Neo4jClient::async _get_session() @ igor/audit-memory/memory_graph_client.py
@@ -1982,12 +2046,21 @@ OAuthHandler::log_message(format) @ email_agent/oauth_server.py
 ObservabilityHooks::__init__(substrate_enabled) @ scripts/audit/audit_shared_core.py
 ObservabilityHooks::export_spans(output_file) @ scripts/audit/audit_shared_core.py
 ObservabilityHooks::record_span(name, operation, status, duration_ms, attributes) @ scripts/audit/audit_shared_core.py
+ObservabilityPrometheusExporter::__init__() @ core/observability/prometheus_exporter.py
+ObservabilityPrometheusExporter::record_context_assembly(strategy, tokens) @ core/observability/prometheus_exporter.py
+ObservabilityPrometheusExporter::record_failure_signal(failure_class) @ core/observability/prometheus_exporter.py
+ObservabilityPrometheusExporter::record_llm_call(model, status, prompt_tokens, completion_tokens, cost_usd) @ core/observability/prometheus_exporter.py
+ObservabilityPrometheusExporter::record_span(span_name, status, kind, duration_ms) @ core/observability/prometheus_exporter.py
+ObservabilityPrometheusExporter::record_tool_call(tool_name, status) @ core/observability/prometheus_exporter.py
+ObservabilityPrometheusExporter::update_agent_kpi(agent_name, success_rate, tool_efficiency, cost_usd) @ core/observability/prometheus_exporter.py
+ObservabilityPrometheusExporter::update_sre_metrics(metrics) @ core/observability/prometheus_exporter.py
 ObservabilityService::__init__(config, substrate_service) @ core/observability/service.py
 ObservabilityService::_setup_logging() @ core/observability/service.py
 ObservabilityService::async compute_metrics() @ core/observability/service.py
 ObservabilityService::async detect_failures() @ core/observability/service.py
 ObservabilityService::async initialize_exporters() @ core/observability/service.py
 ObservabilityService::async shutdown() @ core/observability/service.py
+ObservabilityService::async update_agent_kpis() @ core/observability/service.py
 ObservabilityService::current_trace_context() @ core/observability/service.py
 ObservabilityService::export_span(span) @ core/observability/service.py
 ObservabilityService::get(cls) @ core/observability/service.py
@@ -2133,8 +2206,8 @@ PermissionGraph::async grant_role(user_id, role_id) @ core/security/permission_g
 PermissionGraph::async has_permission(user_id, permission_id) @ core/security/permission_graph.py
 PermissionGraph::async link_permission_to_resource(permission_id, resource_id) @ core/security/permission_graph.py
 PermissionGraph::async revoke_role(user_id, role_id) @ core/security/permission_graph.py
-PerplexityBatchClient::__init__(config) @ scripts/batch_generate_specs.py
-PerplexityBatchClient::async generate_spec(module_name, module_description, semaphore) @ scripts/batch_generate_specs.py
+PerplexityBatchClient::__init__(config) @ scripts/batch/batch_generate_specs.py
+PerplexityBatchClient::async generate_spec(module_name, module_description, semaphore) @ scripts/batch/batch_generate_specs.py
 PerplexityClient::__init__(api_key) @ agents/research_agent.py
 PerplexityClient::__init__(api_key) @ codegen/scripts/generate_spec.py
 PerplexityClient::__init__(api_key) @ igor/audit-tools/services_research_tools_perplexity_client.py
@@ -2163,6 +2236,8 @@ PerplexityClient::async search(request) @ services/research/tools/perplexity_cli
 PerplexityEnricher::__init__(api_key, model) @ runtime/superprompt_emitter.py
 PerplexityEnricher::_parse_patches(content) @ runtime/superprompt_emitter.py
 PerplexityEnricher::async enrich(superprompt) @ runtime/superprompt_emitter.py
+PerplexityLabsClient::__init__(api_key) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
+PerplexityLabsClient::async query(prompt, session_id) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 PerplexityRequest::validate() @ igor/audit-tools/services_research_tools_perplexity_client.py
 PerplexityRequest::validate() @ services/research/tools/perplexity_client.py
 PerplexityTool::__init__() @ igor/audit-tools/services_research_tools_tool_wrappers.py
@@ -2238,15 +2313,15 @@ PolicyLoader::load_from_file(file_path) @ core/governance/loader.py
 PolicyLoader::loaded_files() @ core/governance/loader.py
 PolicyLoader::policies() @ core/governance/loader.py
 PolicyLoader::policy_count() @ core/governance/loader.py
-PostgresBackend::__init__(host, port, user, password, database, min_pool_size, max_pool_size, query_timeout) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
-PostgresBackend::async _create_schema() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
-PostgresBackend::async close() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
-PostgresBackend::async connect() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
-PostgresBackend::async delete_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
-PostgresBackend::async health_check() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
-PostgresBackend::async search_packets(query, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
-PostgresBackend::async semantic_search(embedding, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
-PostgresBackend::async write_packet(packet) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::__init__(host, port, user, password, database, min_pool_size, max_pool_size, query_timeout) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::async _create_schema() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::async close() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::async connect() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::async delete_expired() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::async health_check() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::async search_packets(query, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::async semantic_search(embedding, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
+PostgresBackend::async write_packet(packet) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
 ProtocolBinding::deserialize(data) @ upgrades/packet_envelope/standardization.py
 ProtocolBinding::serialize(event) @ upgrades/packet_envelope/standardization.py
 PythonModuleHealthProbe::__init__(service_name, module, function, timeout) @ scripts/audit/tier1/audit_infrastructure_health.py
@@ -2263,6 +2338,9 @@ QuantumSwarmLoader::_load_capsule(capsule_path) @ orchestration/quantum_swarm_lo
 QuantumSwarmLoader::async _warmup_cache(expressions) @ orchestration/quantum_swarm_loader.py
 QuantumSwarmLoader::async load_quantum_swarm(capsule_path) @ orchestration/quantum_swarm_loader.py
 QuantumSwarmLoader::get_stats() @ orchestration/quantum_swarm_loader.py
+QueryClassifier::__init__() @ memory/query_classifier.py
+QueryClassifier::classify_query(query) @ memory/query_classifier.py
+QueryClassifier::get_weight_overrides(pattern) @ memory/query_classifier.py
 QueryInjectionDetector::__init__() @ igor/01-07-2026/L9 Memory Substrate Audit/query_injection.py
 QueryInjectionDetector::detect_injection(query) @ igor/01-07-2026/L9 Memory Substrate Audit/query_injection.py
 QueryInjectionDetector::sanitize_query(query, max_length) @ igor/01-07-2026/L9 Memory Substrate Audit/query_injection.py
@@ -2278,6 +2356,7 @@ QuickFixEngine::get_stats() @ core/governance/quick_fixes.py
 QuickFixEngine::get_suggestions(content) @ core/governance/quick_fixes.py
 RAGStrategy::__init__(top_k, min_relevance) @ core/observability/context_strategies.py
 RAGStrategy::async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
+READMEGenerator::generate(synthesis, code_snippets) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 RateLimitWindow::__init__(window_seconds) @ core/tools/base_registry.py
 RateLimitWindow::__init__(window_seconds) @ igor/audit-tools/services_research_tools_tool_registry.py
 RateLimitWindow::check_and_increment(key, limit) @ core/tools/base_registry.py
@@ -2310,6 +2389,7 @@ ReadmeGenerator::generate_subsystem_readme(subsystem_name, overview, owns, does_
 ReasoningAdapterNode::__call__(state) @ orchestrators/reasoning/adapter_node.py
 ReasoningAdapterNode::__init__(orchestrator) @ orchestrators/reasoning/adapter_node.py
 ReasoningAdapterNode::async process(state) @ orchestrators/reasoning/adapter_node.py
+ReasoningChain::__init__(chain_id, start_packet_id, packets, depth, is_complete) @ memory/reasoning_replay.py
 ReasoningEngine::__init__(symbolic_reasoner, causal_reasoner, analogical_reasoner, reflective_auditor) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 ReasoningEngine::_calculate_confidence(mode_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 ReasoningEngine::_synthesize_decision(mode_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
@@ -2326,6 +2406,14 @@ ReasoningOrchestrator::async _forest_of_thought(request) @ orchestrators/reasoni
 ReasoningOrchestrator::async _tree_of_thought(request) @ orchestrators/reasoning/orchestrator.py
 ReasoningOrchestrator::async execute(request) @ orchestrators/reasoning/orchestrator.py
 ReasoningOrchestrator::run(packet) @ orchestrators/reasoning/orchestrator.py
+ReasoningReplayPipeline::__init__(repository) @ memory/reasoning_replay.py
+ReasoningReplayPipeline::async detect_orphaned_packets(agent_id) @ memory/reasoning_replay.py
+ReasoningReplayPipeline::async explain_decision(packet_id, format) @ memory/reasoning_replay.py
+ReasoningReplayPipeline::async get_decision_ancestors(packet_id, max_depth) @ memory/reasoning_replay.py
+ReasoningReplayPipeline::async reconstruct_chain(packet_id, max_depth) @ memory/reasoning_replay.py
+ReasoningReplayPipeline::async repair_broken_lineage(packet_id) @ memory/reasoning_replay.py
+ReasoningReplayPipeline::async verify_lineage_integrity(packet_id) @ memory/reasoning_replay.py
+ReasoningReplayPipeline::set_repository(repository) @ memory/reasoning_replay.py
 RecencyBiasedWindowStrategy::__init__(recent_percent) @ core/observability/context_strategies.py
 RecencyBiasedWindowStrategy::async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
 RecoveryExecutor::__init__(max_retries, circuit_breaker_threshold) @ core/observability/failures.py
@@ -2335,14 +2423,14 @@ RecoveryExecutor::async _execute_fallback(failure, action) @ core/observability/
 RecoveryExecutor::async _execute_retry(failure) @ core/observability/failures.py
 RecoveryExecutor::async _execute_summarize(failure, action) @ core/observability/failures.py
 RecoveryExecutor::async execute_recovery(failure, recovery_actions) @ core/observability/failures.py
-RedisCache::__init__(host, port, db, password, ttl_search_sec, ttl_governance_sec) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
-RedisCache::_make_key(prefix) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
-RedisCache::async close() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
-RedisCache::async connect() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
-RedisCache::async get_search(query, segment, agent_id) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
-RedisCache::async health_check() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
-RedisCache::async invalidate_segment(segment, agent_id) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
-RedisCache::async set_search(query, segment, agent_id, packets) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
+RedisCache::__init__(host, port, db, password, ttl_search_sec, ttl_governance_sec) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
+RedisCache::_make_key(prefix) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
+RedisCache::async close() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
+RedisCache::async connect() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
+RedisCache::async get_search(query, segment, agent_id) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
+RedisCache::async health_check() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
+RedisCache::async invalidate_segment(segment, agent_id) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
+RedisCache::async set_search(query, segment, agent_id, packets) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
 RedisClient::__init__(host, port, db, password, decode_responses) @ runtime/redis_client.py
 RedisClient::_prefixed_key(key, tenant_id) @ runtime/redis_client.py
 RedisClient::async connect() @ runtime/redis_client.py
@@ -2418,21 +2506,21 @@ ReflectionMemory::update_improvement_status(improvement_id, status, actual_impac
 ReflectionMemory::update_reflection(reflection_id, content, confidence, priority) @ world_model/reflection_memory.py
 ReflectiveAuditor::audit_reasoning(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py
 RepeatedToolFailurePattern::detect(context) @ core/agents/selfreflection.py
-RepoGraphLoader::__init__(uri, user, password, database, dry_run, verbose) @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::_run_query(query, parameters) @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::clear_repo_graph() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::close() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::connect() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::create_indexes() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::load_all() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::load_class_definitions() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::load_file_metrics() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::load_function_signatures() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::load_inheritance_graph() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::load_method_catalog() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::load_pydantic_models() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::load_route_handlers() @ scripts/load_indexes_to_neo4j.py
-RepoGraphLoader::print_summary() @ scripts/load_indexes_to_neo4j.py
+RepoGraphLoader::__init__(uri, user, password, database, dry_run, verbose) @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::_run_query(query, parameters) @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::clear_repo_graph() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::close() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::connect() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::create_indexes() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::load_all() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::load_class_definitions() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::load_file_metrics() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::load_function_signatures() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::load_inheritance_graph() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::load_method_catalog() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::load_pydantic_models() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::load_route_handlers() @ scripts/memory/load_indexes_to_neo4j.py
+RepoGraphLoader::print_summary() @ scripts/memory/load_indexes_to_neo4j.py
 Reporter::__init__(audit_name, repo_root) @ scripts/audit/audit_shared_core.py
 Reporter::generate_html_template(title, summary, content) @ scripts/audit/audit_shared_core.py
 Reporter::to_html(html_content, filename) @ scripts/audit/audit_shared_core.py
@@ -2488,8 +2576,11 @@ ResearcherAgent::async run(step, previous_evidence) @ services/research/agents/r
 ResearcherAgent::async synthesize_evidence(evidence_list, query) @ services/research/agents/researcher_agent.py
 ResearcherAgent::set_tool_registry(registry) @ services/research/agents/researcher_agent.py
 ResponseProcessor::extract_architectural_insights(response) @ agents/research_agent.py
+ResponseProcessor::extract_architectural_insights(response) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 ResponseProcessor::extract_code_snippets(response) @ agents/research_agent.py
+ResponseProcessor::extract_code_snippets(response) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 ResponseProcessor::extract_concepts(response) @ agents/research_agent.py
+ResponseProcessor::extract_concepts(response) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 RetentionManager::__init__(config) @ upgrades/packet_envelope/governance.py
 RetentionManager::async enforce_ttl() @ upgrades/packet_envelope/governance.py
 RetentionManager::get_expiration_date(aggregate_id, created_at) @ upgrades/packet_envelope/governance.py
@@ -2649,6 +2740,24 @@ SimulationRouter::get_result(request_id) @ ir_engine/simulation_router.py
 SimulationRouter::get_results_for_graph(graph_id) @ ir_engine/simulation_router.py
 SimulationRouter::set_engine(engine) @ ir_engine/simulation_router.py
 SimulationRun::to_dict() @ simulation/simulation_engine.py
+SingletonEntry::__repr__() @ core/singleton_registry.py
+SingletonEntry::is_initialized() @ core/singleton_registry.py
+SingletonRegistry::__init__() @ core/singleton_registry.py
+SingletonRegistry::async close_all_async() @ core/singleton_registry.py
+SingletonRegistry::async close_async(name) @ core/singleton_registry.py
+SingletonRegistry::async get_async(name) @ core/singleton_registry.py
+SingletonRegistry::close(name) @ core/singleton_registry.py
+SingletonRegistry::close_all() @ core/singleton_registry.py
+SingletonRegistry::get(name) @ core/singleton_registry.py
+SingletonRegistry::get_by_category(category) @ core/singleton_registry.py
+SingletonRegistry::get_dependency_graph() @ core/singleton_registry.py
+SingletonRegistry::get_entry(name) @ core/singleton_registry.py
+SingletonRegistry::get_health_status() @ core/singleton_registry.py
+SingletonRegistry::list_all() @ core/singleton_registry.py
+SingletonRegistry::list_initialized() @ core/singleton_registry.py
+SingletonRegistry::register(name, module_path, getter, closer, lifecycle, dependencies, description) @ core/singleton_registry.py
+SingletonRegistry::reset() @ core/singleton_registry.py
+SingletonRegistry::validate_dependencies(name) @ core/singleton_registry.py
 SlackAPIClient::__init__(bot_token, http_client) @ api/slack_client.py
 SlackAPIClient::async post_message(channel, text, thread_ts, blocks, metadata, reply_broadcast) @ api/slack_client.py
 SlackEventNormalizer::__init__(workspace_id) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
@@ -2750,6 +2859,9 @@ StructuredLogEvent::to_json() @ upgrades/packet_envelope/observability.py
 StructuredLogger::__init__(name) @ services/symbolic_computation/logger.py
 StructuredLogger::_configure_handler() @ services/symbolic_computation/logger.py
 StructuredLogger::log_structured(level, message, extra) @ services/symbolic_computation/logger.py
+StubAIOSRuntime::async execute_reasoning(context) @ docs/Slack-Debug-2/server.py
+StubAgentRegistry::agent_exists(agent_id) @ docs/Slack-Debug-2/server.py
+StubAgentRegistry::get_agent_config(agent_id) @ docs/Slack-Debug-2/server.py
 StubDetector::__init__(source_code) @ scripts/audit/tier1/audit_code_integrity.py
 StubDetector::check_is_stub(node) @ scripts/audit/tier1/audit_code_integrity.py
 StubDetector::visit_ClassDef(node) @ scripts/audit/tier1/audit_code_integrity.py
@@ -2761,6 +2873,8 @@ StubEmbeddingProvider::async embed_text(text) @ igor/audit-memory/memory_substra
 StubEmbeddingProvider::async embed_text(text) @ memory/substrate_semantic.py
 StubEmbeddingProvider::dimensions() @ igor/audit-memory/memory_substrate_semantic.py
 StubEmbeddingProvider::dimensions() @ memory/substrate_semantic.py
+StubToolRegistry::async dispatch_tool_call(tool_id, arguments, context) @ docs/Slack-Debug-2/server.py
+StubToolRegistry::get_approved_tools(agent_id, principal_id) @ docs/Slack-Debug-2/server.py
 SubstrateAlignmentChecker::__init__(substrate_repository, graph_client, vector_store) @ igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py
 SubstrateAlignmentChecker::async _check_orphaned_relationships(neo4j_ids, postgres_ids) @ igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py
 SubstrateAlignmentChecker::async _get_neo4j_memory_node_ids() @ igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py
@@ -2771,6 +2885,8 @@ SubstrateDAG::__init__(repository, semantic_service, world_model_service) @ igor
 SubstrateDAG::__init__(repository, semantic_service, world_model_service) @ memory/substrate_graph.py
 SubstrateDAG::async run(envelope) @ igor/audit-memory/memory_substrate_graph.py
 SubstrateDAG::async run(envelope) @ memory/substrate_graph.py
+SubstrateDagOrchestrator::__init__(dag) @ memory/substrate_dag_wrapper.py
+SubstrateDagOrchestrator::async ingest_packet(envelope) @ memory/substrate_dag_wrapper.py
 SubstrateExporter::__init__(substrate_service) @ core/observability/exporters.py
 SubstrateExporter::async export_async(spans) @ core/observability/exporters.py
 SubstrateExporter::async flush() @ core/observability/exporters.py
@@ -2783,6 +2899,7 @@ SubstrateRepository::async acquire() @ igor/audit-memory/memory_substrate_reposi
 SubstrateRepository::async acquire() @ memory/substrate_repository.py
 SubstrateRepository::async connect() @ igor/audit-memory/memory_substrate_repository.py
 SubstrateRepository::async connect() @ memory/substrate_repository.py
+SubstrateRepository::async delete_checkpoint(agent_id) @ memory/substrate_repository.py
 SubstrateRepository::async disconnect() @ igor/audit-memory/memory_substrate_repository.py
 SubstrateRepository::async disconnect() @ memory/substrate_repository.py
 SubstrateRepository::async get_checkpoint(agent_id) @ igor/audit-memory/memory_substrate_repository.py
@@ -2811,6 +2928,7 @@ SubstrateRepository::async insert_reasoning_block(block) @ igor/audit-memory/mem
 SubstrateRepository::async insert_reasoning_block(block) @ memory/substrate_repository.py
 SubstrateRepository::async insert_semantic_embedding(vector, payload, agent_id) @ igor/audit-memory/memory_substrate_repository.py
 SubstrateRepository::async insert_semantic_embedding(vector, payload, agent_id) @ memory/substrate_repository.py
+SubstrateRepository::async list_checkpoints(agent_id, limit) @ memory/substrate_repository.py
 SubstrateRepository::async save_checkpoint(agent_id, graph_state) @ igor/audit-memory/memory_substrate_repository.py
 SubstrateRepository::async save_checkpoint(agent_id, graph_state) @ memory/substrate_repository.py
 SubstrateRepository::async search_packets_by_thread(thread_id, packet_type, limit, offset) @ igor/audit-memory/memory_substrate_repository.py
@@ -2822,12 +2940,12 @@ SubstrateRepository::async search_semantic_memory(query_embedding, top_k, agent_
 SubstrateRetriever::__init__(service, agent_id, top_k) @ core/retrievers/substrate_retriever.py
 SubstrateRetriever::_get_relevant_documents(query) @ core/retrievers/substrate_retriever.py
 SubstrateRetriever::async _aget_relevant_documents(query) @ core/retrievers/substrate_retriever.py
-SubstrateService::async close() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-SubstrateService::async delete_expired() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-SubstrateService::async health_check() @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-SubstrateService::async search_packets(query, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-SubstrateService::async semantic_search(embedding, segment, agent_id, limit) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
-SubstrateService::async write_packet(packet) @ tools/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+SubstrateService::async close() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+SubstrateService::async delete_expired() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+SubstrateService::async health_check() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+SubstrateService::async search_packets(query, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+SubstrateService::async semantic_search(embedding, segment, agent_id, limit) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
+SubstrateService::async write_packet(packet) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubstrateServiceProtocol::async search_packets(thread_id, limit) @ core/agents/executor.py
 SubstrateServiceProtocol::async search_packets_by_thread(thread_id, packet_type, limit) @ core/agents/executor.py
 SubstrateServiceProtocol::async write_packet(packet_in) @ core/agents/executor.py
@@ -2868,9 +2986,14 @@ SymbolicReasoner::apply_domain_rules(context, domain) @ codegen/extractions/doma
 SyntaxIssue::__init__(file_path, line_num, message, code) @ ci/check_syntax.py
 SyntaxIssue::__str__() @ ci/check_syntax.py
 SynthesisEngine::__init__(responses) @ agents/research_agent.py
+SynthesisEngine::__init__(responses) @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 SynthesisEngine::build_semantic_graph() @ agents/research_agent.py
+SynthesisEngine::build_semantic_graph() @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 SynthesisEngine::compute_consensus_patterns() @ agents/research_agent.py
+SynthesisEngine::compute_consensus_patterns() @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 SynthesisEngine::extract_unique_insights() @ agents/research_agent.py
+SynthesisEngine::extract_unique_insights() @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
+SynthesisEngine::generate_synthesis_report() @ codegen/Perplexity-Search-Pack/autonomous-research-agent.py
 SynthesisEngine::generate_synthesis_result() @ agents/research_agent.py
 SystemBlock::validate_name_pascal_case(cls, v) @ codegen/code-gen-files/schema_parser.py
 TCPHealthProbe::__init__(service_name, host, port, timeout) @ scripts/audit/tier1/audit_infrastructure_health.py
@@ -3060,6 +3183,18 @@ TestAgentInstanceGovernanceTracking::test_governance_blocks_copy_isolation(insta
 TestAgentInstanceUserCorrectionTracking::test_add_user_correction(instance) @ tests/integration/test_governance_tracking_e2e.py
 TestAgentInstanceUserCorrectionTracking::test_multiple_user_corrections(instance) @ tests/integration/test_governance_tracking_e2e.py
 TestAgentInstanceUserCorrectionTracking::test_user_corrections_copy_isolation(instance) @ tests/integration/test_governance_tracking_e2e.py
+TestAgentPersistenceService::async test_create_checkpoint(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::async test_delete_old_checkpoints(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::async test_list_checkpoints(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::async test_restore_checkpoint(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::async test_restore_checkpoint_not_found(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::async test_validate_checkpoint_integrity_not_found(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::async test_validate_checkpoint_integrity_valid(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::test_deserialize_agent_state(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::test_initialization(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::test_serialize_agent_state_dict(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::test_serialize_agent_state_object(agent_persistence_service) @ tests/memory/test_agent_persistence.py
+TestAgentPersistenceService::test_serialize_agent_state_pydantic(agent_persistence_service) @ tests/memory/test_agent_persistence.py
 TestAgentResult::to_dict() @ core/testing/test_agent.py
 TestApprovalIntegration::test_format_approval_request_all_passing() @ tests/integration/test_recursive_self_testing.py
 TestApprovalIntegration::test_format_approval_request_with_tests() @ tests/integration/test_recursive_self_testing.py
@@ -3146,6 +3281,7 @@ TestCaching::async test_cache_miss_then_store(evaluator, cache_mock) @ tests/ser
 TestCaching::cache_mock() @ tests/services/symbolic_computation/test_expression_evaluator.py
 TestCaching::evaluator(cache_mock) @ tests/services/symbolic_computation/test_expression_evaluator.py
 TestCanonicalLogEvents::test_canonical_events_documented() @ tests/api/test_slack_adapter.py
+TestCheckpointAndResumeThread::async test_checkpoint_and_resume_thread() @ tests/integration/test_cursor_langgraph_integration.py
 TestCodeCompilation::generator() @ tests/services/symbolic_computation/test_code_generator.py
 TestCodeCompilation::test_compile_python_code(generator) @ tests/services/symbolic_computation/test_code_generator.py
 TestCodeGenerator::async test_c_code_generation(codegen) @ services/symbolic_computation/test_symbolic_computation.py
@@ -3192,6 +3328,13 @@ TestConfidenceValidation::test_confidence_valid_range() @ core/schemas/tests/tes
 TestConfidenceValidation::test_confidence_valid_range() @ igor/audit-memory/core_schemas_tests_test_packet_envelope.py
 TestConfirmationFlow::async test_high_risk_requires_confirmation() @ tests/integration/test_igor_commands.py
 TestConfirmationFlow::async test_low_risk_no_confirmation() @ tests/integration/test_igor_commands.py
+TestConsolidationPipeline::async test_consolidation_with_repository_none() @ tests/memory/test_consolidation.py
+TestConsolidationPipeline::async test_run_consolidation_dry_run(consolidation_pipeline) @ tests/memory/test_consolidation.py
+TestConsolidationPipeline::async test_run_consolidation_report_structure(consolidation_pipeline) @ tests/memory/test_consolidation.py
+TestConsolidationPipeline::async test_ttl_expiration_strategy(memory_substrate_service) @ tests/memory/test_consolidation.py
+TestConsolidationPipeline::test_consolidation_config(consolidation_pipeline) @ tests/memory/test_consolidation.py
+TestConsolidationPipeline::test_initialization(consolidation_pipeline) @ tests/memory/test_consolidation.py
+TestConsolidationPipeline::test_initialization_with_dry_run_false(memory_substrate_service) @ tests/memory/test_consolidation.py
 TestConstraintValidation::test_conflicting_constraints_warning() @ tests/ir_engine/test_ir_validation_and_status.py
 TestConstraintValidation::test_false_constraint_active_warning() @ tests/ir_engine/test_ir_validation_and_status.py
 TestConstraintValidation::test_orphan_constraint_info() @ tests/ir_engine/test_ir_validation_and_status.py
@@ -3221,6 +3364,7 @@ TestDatabaseConnectivity::test_database_url_not_localhost() @ tests/docker/test_
 TestDateRangeFiltering::test_in_date_range_before() @ tests/integration/test_compliance_audit.py
 TestDateRangeFiltering::test_in_date_range_empty() @ tests/integration/test_compliance_audit.py
 TestDateRangeFiltering::test_in_date_range_valid() @ tests/integration/test_compliance_audit.py
+TestDecisionWrittenToPacketstoreV2::async test_decision_written_to_packetstore_v2() @ tests/integration/test_cursor_langgraph_integration.py
 TestDeduplication::async test_duplicate_event_detected(mock_substrate_service) @ tests/api/test_slack_adapter.py
 TestDeduplication::async test_new_event_processed(mock_substrate_service) @ tests/api/test_slack_adapter.py
 TestDefaultTools::test_get_tool_registry_initializes_defaults() @ igor/audit-tools/tests_test_tool_registry.py
@@ -3380,6 +3524,7 @@ TestGovernanceEngineIntegration::async test_guarded_execution_invokes_governance
 TestGovernanceTrackingEndToEnd::async test_full_flow_both_patterns_fire(task, instance) @ tests/integration/test_governance_tracking_e2e.py
 TestGovernanceTrackingEndToEnd::async test_no_patterns_fire_when_no_issues(task, instance) @ tests/integration/test_governance_tracking_e2e.py
 TestGracefulDegradation::test_functions_handle_prometheus_unavailable() @ tests/telemetry/test_memory_metrics.py
+TestGraphSearchUsesRedisCache::async test_graph_search_uses_redis_cache() @ tests/integration/test_cursor_langgraph_integration.py
 TestGuardedExecute::async test_guarded_execute_blocks_prohibited_action() @ tests/unit/test_guarded_execution.py
 TestGuardedExecute::async test_guarded_execute_blocks_prohibited_tool() @ tests/unit/test_guarded_execution.py
 TestGuardedExecute::async test_guarded_execute_fails_inactive_kernels() @ tests/unit/test_guarded_execution.py
@@ -3429,6 +3574,7 @@ TestIRToPlanAdapterToMemoryPacket::test_memory_packet_has_required_keys(validate
 TestIRToPlanAdapterToMemoryPacket::test_memory_packet_is_json_serializable(validated_graph) @ tests/ir_engine/test_ir_packet_formats.py
 TestIRToPlanAdapterToMemoryPacket::test_memory_packet_source_graph_id_matches(validated_graph) @ tests/ir_engine/test_ir_packet_formats.py
 TestIRToPlanAdapterToMemoryPacket::test_memory_packet_step_types_are_unique(graph_with_dependencies) @ tests/ir_engine/test_ir_packet_formats.py
+TestIgorHighImpactDecisionEscalation::async test_igor_high_impact_decision_escalation() @ tests/integration/test_cursor_langgraph_integration.py
 TestIncrementalCompilation::async test_incremental_appends_actions(mock_openai_client, incremental_response, simple_valid_graph) @ tests/ir_engine/test_ir_semantic_incremental.py
 TestIncrementalCompilation::async test_incremental_appends_constraints(mock_openai_client, incremental_response, simple_valid_graph) @ tests/ir_engine/test_ir_semantic_incremental.py
 TestIncrementalCompilation::async test_incremental_appends_intents(mock_openai_client, incremental_response, simple_valid_graph) @ tests/ir_engine/test_ir_semantic_incremental.py
@@ -3650,6 +3796,7 @@ TestMultiCandidateSimulation::candidate_graphs() @ tests/ir_engine/test_ir_simul
 TestNegative::async test_invalid_signature_rejected(adapter) @ docs/_archived/codegen_slack_adapter/module.slack_adapter/tests/test_slack_webhook.py
 TestNeo4jQuery::async test_query_semantic_graph(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 TestNoCircularImports::test_api_server_no_circular() @ tests/test_imports.py
+TestObject::__init__() @ tests/memory/test_agent_persistence.py
 TestObservabilityConfig::test_default_config_values() @ tests/core/observability/test_observability_integration.py
 TestObservabilityConfig::test_load_config_returns_settings() @ tests/core/observability/test_observability_integration.py
 TestObservabilityConfig::test_substrate_exporter_auto_added() @ tests/core/observability/test_observability_integration.py
@@ -3830,6 +3977,21 @@ TestPythonGeneration::test_generate_python_files(contract, ir_compiler, py_compi
 TestPythonGeneration::test_generated_adapter_has_class(contract, ir_compiler, py_compiler) @ tests/codegen/test_codegen_pipeline.py
 TestPythonGeneration::test_generated_route_has_endpoint(contract, ir_compiler, py_compiler) @ tests/codegen/test_codegen_pipeline.py
 TestPythonGeneration::test_generated_test_has_fixtures(contract, ir_compiler, py_compiler) @ tests/codegen/test_codegen_pipeline.py
+TestQueryClassifier::test_classifier_initialization() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_classify_default() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_classify_entity_lookup() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_classify_exploratory() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_classify_factual() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_classify_reasoning_trace() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_classify_temporal() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_get_weight_overrides_default() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_get_weight_overrides_entity_lookup() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_get_weight_overrides_exploratory() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_get_weight_overrides_factual() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_get_weight_overrides_reasoning_trace() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_get_weight_overrides_temporal() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_get_weight_overrides_unknown_pattern() @ tests/memory/test_query_classifier.py
+TestQueryClassifier::test_singleton_pattern() @ tests/memory/test_query_classifier.py
 TestQueryPlan::test_empty_queries_rejected() @ core/schemas/tests/test_research_factory.py
 TestQueryPlan::test_valid_query_plan() @ core/schemas/tests/test_research_factory.py
 TestQuickValidate::test_quick_validate_false_for_invalid(graph_missing_descriptions) @ tests/ir_engine/test_ir_validation_and_status.py
@@ -4008,6 +4170,7 @@ TestSchemaValidation::test_valid_spec_passes(valid_spec) @ tests/codegen/test_co
 TestSchemaValidator::test_validate_forbidden_patterns(validator) @ tests/codegen/test_sample_schemas.py
 TestSchemaValidator::test_validate_missing_required_section(validator, minimal_valid_contract) @ tests/codegen/test_sample_schemas.py
 TestSchemaValidator::test_validate_valid_dict(validator, minimal_valid_contract) @ tests/codegen/test_sample_schemas.py
+TestScopeEnforcementCursorCannotReadLPrivate::async test_scope_enforcement_cursor_cannot_read_l_private() @ tests/integration/test_cursor_langgraph_integration.py
 TestSelectBest::async test_select_best_returns_highest_scoring(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
 TestSelectBest::async test_select_best_returns_none_below_threshold() @ tests/ir_engine/test_ir_simulation_router_integration.py
 TestSemanticSearch::test_search_request() @ core/schemas/tests/test_packet_envelope.py
@@ -4018,6 +4181,7 @@ TestSemanticSearch::test_search_result() @ core/schemas/tests/test_packet_envelo
 TestSemanticSearch::test_search_result() @ igor/audit-memory/core_schemas_tests_test_packet_envelope.py
 TestSemanticSearch::test_semantic_hit() @ core/schemas/tests/test_packet_envelope.py
 TestSemanticSearch::test_semantic_hit() @ igor/audit-memory/core_schemas_tests_test_packet_envelope.py
+TestSemanticSearchHitsPgvector::async test_semantic_search_hits_pgvector() @ tests/integration/test_cursor_langgraph_integration.py
 TestSemanticSearchModels::test_search_request() @ tests/test_memory_substrate_basic.py
 TestSemanticSearchModels::test_search_result() @ tests/test_memory_substrate_basic.py
 TestSemanticSearchValidation::test_query_min_length() @ core/schemas/tests/test_discriminators.py
@@ -4365,9 +4529,9 @@ TimelineService::async get_recent_events(agent_id, event_type, limit) @ igor/aud
 TimelineService::async get_recent_events(agent_id, event_type, limit) @ memory/timeline_service.py
 TimelineService::async get_timeline_json(agent_id, event_type, limit) @ igor/audit-memory/memory_timeline_service.py
 TimelineService::async get_timeline_json(agent_id, event_type, limit) @ memory/timeline_service.py
-TokenBucketLimiter::__init__(rate_per_minute) @ scripts/batch_generate_specs.py
-TokenBucketLimiter::async acquire() @ scripts/batch_generate_specs.py
-TokenBucketLimiter::async wait_for_token() @ scripts/batch_generate_specs.py
+TokenBucketLimiter::__init__(rate_per_minute) @ scripts/batch/batch_generate_specs.py
+TokenBucketLimiter::async acquire() @ scripts/batch/batch_generate_specs.py
+TokenBucketLimiter::async wait_for_token() @ scripts/batch/batch_generate_specs.py
 TokenOverusePattern::detect(context) @ core/agents/selfreflection.py
 Tokenizer::__init__(rules_path, safety_rules, log_path) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
 Tokenizer::_load_rules(rules_path) @ igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py
@@ -4572,18 +4736,19 @@ UniversalExtractor::get_template_content(template_name) @ codegen/code-gen-files
 UniversalExtractor::list_templates() @ codegen/code-gen-files/extractor.py
 UpdateRecord::to_dict() @ world_model/runtime.py
 UserCorrectionPattern::detect(context) @ core/agents/selfreflection.py
-VPSRepoGraphLoader::__init__(dry_run, verbose) @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async api_request(method, endpoint) @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async clear_repo_graph() @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async create_indexes() @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async execute_cypher(query, parameters) @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async load_all() @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async load_class_definitions() @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async load_file_metrics() @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async load_inheritance_graph() @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async load_route_handlers() @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::async write_memory_summary() @ scripts/load_indexes_to_neo4j_vps.py
-VPSRepoGraphLoader::print_summary() @ scripts/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::__init__(dry_run, verbose) @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async api_request(method, endpoint) @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async clear_repo_graph() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async create_indexes() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async execute_cypher(query, parameters) @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_all() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_class_definitions() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_file_metrics() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_inheritance_graph() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async load_route_handlers() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async run_memory_audit() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::async write_memory_summary() @ scripts/memory/load_indexes_to_neo4j_vps.py
+VPSRepoGraphLoader::print_summary() @ scripts/memory/load_indexes_to_neo4j_vps.py
 ValidationError::__str__() @ codegen/code-gen-files/schema_validator.py
 ValidationResult::__init__(spec_path) @ ci/validate_spec_v25.py
 ValidationResult::__init__(spec_path) @ codegen/code-gen-files/validate_spec_v25.py
@@ -4879,4 +5044,4 @@ _SchemaRegistry::supported_versions() @ core/schemas/schema_registry.py
 _SchemaRegistry::upcast(raw, target_version) @ core/schemas/schema_registry.py
 _SchemaRegistry::write_packet(packet) @ core/schemas/schema_registry.py
 
-# Total: 4875 class methods
+# Total: 5040 class methods

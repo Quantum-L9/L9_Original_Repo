@@ -43,6 +43,7 @@ from core.agents.schemas import (
 )
 from core.agents.agent_instance import AgentInstance
 from memory.substrate_models import PacketEnvelopeIn, PacketMetadata
+from memory.agent_persistence import AgentPersistenceService
 from core.governance.approvals import ApprovalManager
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
@@ -314,6 +315,7 @@ class AgentExecutorService:
         agent_registry: AgentRegistryProtocol,
         default_agent_id: Optional[str] = None,
         max_iterations: Optional[int] = None,
+        agent_persistence: Optional[AgentPersistenceService] = None,
     ):
         """
         Initialize the executor service.
@@ -325,11 +327,13 @@ class AgentExecutorService:
             agent_registry: Agent registry for configs
             default_agent_id: Default agent ID (from env if not provided)
             max_iterations: Max iterations (from env if not provided)
+            agent_persistence: Agent persistence service for checkpoint management
         """
         self._aios_runtime = aios_runtime
         self._tool_registry = tool_registry
         self._substrate_service = substrate_service
         self._agent_registry = agent_registry
+        self._agent_persistence = agent_persistence
 
         # Configuration from env vars (read at init, not import time)
         self._default_agent_id = default_agent_id or os.getenv(
@@ -349,9 +353,10 @@ class AgentExecutorService:
         self._kernel_aware_agent: Optional[Any] = None
 
         logger.info(
-            "agent.executor.init: default_agent_id=%s, max_iterations=%d",
+            "agent.executor.init: default_agent_id=%s, max_iterations=%d, persistence=%s",
             self._default_agent_id,
             self._max_iterations,
+            "enabled" if agent_persistence else "disabled",
         )
 
     def set_kernel_aware_agent(self, agent: Any) -> None:
@@ -373,6 +378,51 @@ class AgentExecutorService:
             kernel_state,
             kernel_count,
         )
+
+    async def shutdown(self) -> None:
+        """
+        Shutdown the executor service, creating checkpoints for agent state.
+
+        Called during server shutdown to persist agent state for recovery.
+        Implements memory_spec_v3.0.yaml checkpoint trigger: on_agent_shutdown.
+        """
+        logger.info("agent.executor.shutdown: starting checkpoint creation")
+
+        if self._agent_persistence is None:
+            logger.warning("agent.executor.shutdown: persistence not available, skipping checkpoints")
+            return
+
+        try:
+            # Create checkpoint for the default agent with executor state
+            state = {
+                "agent_id": self._default_agent_id,
+                "processed_task_count": len(self._processed_tasks),
+                "processed_task_ids": list(self._processed_tasks.keys())[-20:],  # Last 20 task IDs
+                "max_iterations": self._max_iterations,
+                "kernel_agent_state": getattr(self._kernel_aware_agent, "kernel_state", None),
+                "shutdown_timestamp": datetime.utcnow().isoformat(),
+            }
+
+            checkpoint_id = await self._agent_persistence.create_checkpoint(
+                agent_id=self._default_agent_id,
+                state=state,
+                reason="on_agent_shutdown",
+            )
+
+            logger.info(
+                "agent.executor.shutdown: checkpoint created",
+                checkpoint_id=str(checkpoint_id),
+                agent_id=self._default_agent_id,
+                task_count=len(self._processed_tasks),
+            )
+
+        except Exception as e:
+            # Best-effort: don't fail shutdown due to checkpoint failure
+            logger.error(
+                "agent.executor.shutdown: checkpoint creation failed",
+                error=str(e),
+                exc_info=True,
+            )
 
     def _get_kernel_aware_agent(self) -> Optional[Any]:
         """
