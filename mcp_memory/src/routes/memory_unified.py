@@ -257,6 +257,10 @@ async def search_memory_handler(
         query_embedding = await embed_text(query)
         embed_time_ms = (time.time() - embed_start) * 1000
         
+        # Convert embedding vector to string format for pgvector
+        # pgvector expects format: '[1.0,2.0,3.0]'
+        query_embedding_str = f"[{','.join(str(v) for v in query_embedding)}]"
+        
         # Map MCP scopes to DB scopes
         db_scopes = [map_mcp_scope_to_db_scope(s) for s in (scopes or ["developer", "global"])]
         
@@ -264,7 +268,7 @@ async def search_memory_handler(
         
         # Build WHERE clause for scope filtering
         scope_filter = ""
-        params = [query_embedding, threshold, top_k]
+        params = [query_embedding_str, threshold, top_k]
         param_idx = 4
         
         if db_scopes:
