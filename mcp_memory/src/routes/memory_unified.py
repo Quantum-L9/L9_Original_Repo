@@ -581,7 +581,7 @@ async def compound_similar_memories(
         WHERE ps.packet_type LIKE 'memory_write_%'
         AND (ps.ttl IS NULL OR ps.ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
         AND me.embedding_type = 'content'
-        AND ps.envelope->>'metadata'->>'user_id' = $1
+        AND ps.envelope->'metadata'->>'user_id' = $1
         ORDER BY ps.timestamp DESC
         LIMIT 1000
         """
@@ -824,7 +824,7 @@ async def get_context_injection(
                 ps.tags
             FROM packet_store ps
             WHERE ps.packet_type LIKE 'memory_write_%'
-            AND ps.envelope->>'metadata'->>'user_id' = $1
+            AND ps.envelope->'metadata'->>'user_id' = $1
             AND ps.timestamp > NOW() - INTERVAL '24 hours'
             ORDER BY ps.timestamp DESC
             LIMIT 5
