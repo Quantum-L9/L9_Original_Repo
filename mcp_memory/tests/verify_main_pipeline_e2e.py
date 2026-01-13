@@ -17,6 +17,7 @@ Usage:
 """
 
 import asyncio
+import structlog
 import json
 import os
 import sys
@@ -288,27 +289,27 @@ class PipelineTracer:
 async def verify_main_pipeline():
     """Run E2E verification of main pipeline integration."""
     
-    print("=" * 80)
-    print("MCP Memory Main Pipeline E2E Verification")
-    print("=" * 80)
-    print()
+    logger.info("=" * 80)
+    logger.info("MCP Memory Main Pipeline E2E Verification")
+    logger.info("=" * 80)
+    logger.info()
     
     # Check configuration
     if not Config.API_KEY:
-        print("❌ ERROR: API key not found. Set MCP_API_KEY_C or L9_EXECUTOR_API_KEY")
+        logger.error("❌ ERROR: API key not found. Set MCP_API_KEY_C or L9_EXECUTOR_API_KEY")
         sys.exit(1)
     
     if not Config.MEMORY_DSN:
-        print("⚠️  WARNING: MEMORY_DSN not set. Cannot trace through database.")
-        print("   Set MEMORY_DSN to enable full pipeline tracing.")
+        logger.warning("⚠️  WARNING: MEMORY_DSN not set. Cannot trace through database.")
+        logger.info("   Set MEMORY_DSN to enable full pipeline tracing.")
         trace_db = False
     else:
         trace_db = True
     
-    print(f"📡 MCP Server URL: {Config.MCP_URL}")
-    print(f"🔑 API Key: {'*' * 20}...{Config.API_KEY[-4:] if len(Config.API_KEY) > 4 else '***'}")
-    print(f"💾 Database Tracing: {'✅ Enabled' if trace_db else '❌ Disabled'}")
-    print()
+    logger.info(f"📡 MCP Server URL: {Config.MCP_URL}")
+    logger.info(f"🔑 API Key: {'*' * 20}...{Config.API_KEY[-4:] if len(Config.API_KEY) > 4 else '***'}")
+    logger.info(f"💾 Database Tracing: {'✅ Enabled' if trace_db else '❌ Disabled'}")
+    logger.info()
     
     # Initialize clients
     mcp_client = MCPClient(Config.MCP_URL, Config.API_KEY)
@@ -319,11 +320,11 @@ async def verify_main_pipeline():
     
     try:
         # Step 1: Save memory
-        print("Step 1: Saving test memory via MCP...")
-        print(f"   Content: {Config.TEST_CONTENT[:60]}...")
-        print(f"   Kind: {Config.TEST_KIND}")
-        print(f"   Scope: {Config.TEST_SCOPE}")
-        print()
+        logger.info("Step 1: Saving test memory via MCP...")
+        logger.info(f"   Content: {Config.TEST_CONTENT[:60]}...")
+        logger.info(f"   Kind: {Config.TEST_KIND}")
+        logger.info(f"   Scope: {Config.TEST_SCOPE}")
+        logger.info()
         
         save_result = await mcp_client.save_memory(
             content=Config.TEST_CONTENT,
@@ -335,34 +336,34 @@ async def verify_main_pipeline():
         
         packet_id = save_result.get("packet_id")
         if not packet_id:
-            print("❌ ERROR: No packet_id in save result")
-            print(f"   Result: {json.dumps(save_result, indent=2)}")
+            logger.error("❌ ERROR: No packet_id in save result")
+            logger.info(f"   Result: {json.dumps(save_result, indent=2)}")
             sys.exit(1)
         
-        print(f"✅ Memory saved successfully!")
-        print(f"   Packet ID: {packet_id}")
-        print(f"   Pipeline: {save_result.get('pipeline', 'unknown')}")
+        logger.info(f"✅ Memory saved successfully!")
+        logger.info(f"   Packet ID: {packet_id}")
+        logger.info(f"   Pipeline: {save_result.get('pipeline', 'unknown')}")
         
         if save_result.get("pipeline") == "main_dag":
-            print("   ✅ Using MAIN DAG pipeline!")
+            logger.info("   ✅ Using MAIN DAG pipeline!")
         elif save_result.get("pipeline") == "direct_db":
-            print("   ⚠️  Using direct DB (fallback) - main pipeline not available")
+            logger.info("   ⚠️  Using direct DB (fallback) - main pipeline not available")
         else:
-            print("   ⚠️  Pipeline indicator missing")
+            logger.info("   ⚠️  Pipeline indicator missing")
         
         if "written_tables" in save_result:
-            print(f"   Written tables: {', '.join(save_result['written_tables'])}")
+            logger.info(f"   Written tables: {', '.join(save_result['written_tables'])}")
             if "knowledge_facts" in save_result["written_tables"]:
-                print("   ✅ Fact extraction active!")
+                logger.info("   ✅ Fact extraction active!")
             if "reasoning_traces" in save_result["written_tables"]:
-                print("   ✅ Reasoning traces active!")
+                logger.info("   ✅ Reasoning traces active!")
         
-        print()
+        logger.info()
         
         # Step 2: Search for memory
-        print("Step 2: Searching for saved memory...")
-        print(f"   Query: 'E2E Test Memory'")
-        print()
+        logger.info("Step 2: Searching for saved memory...")
+        logger.info(f"   Query: 'E2E Test Memory'")
+        logger.info()
         
         # Wait a moment for embeddings to be indexed
         await asyncio.sleep(2)
@@ -378,23 +379,23 @@ async def verify_main_pipeline():
         for result in results:
             if result.get("packet_id") == packet_id:
                 found = True
-                print(f"✅ Memory found in search results!")
-                print(f"   Similarity: {result.get('similarity', 0):.3f}")
-                print(f"   Content: {result.get('content', '')[:60]}...")
+                logger.info(f"✅ Memory found in search results!")
+                logger.info(f"   Similarity: {result.get('similarity', 0):.3f}")
+                logger.info(f"   Content: {result.get('content', '')[:60]}...")
                 break
         
         if not found:
-            print("⚠️  WARNING: Saved memory not found in search results")
-            print(f"   Found {len(results)} results, but packet_id {packet_id} not in list")
+            logger.warning("⚠️  WARNING: Saved memory not found in search results")
+            logger.info(f"   Found {len(results)} results, but packet_id {packet_id} not in list")
             if results:
-                print(f"   Top result packet_id: {results[0].get('packet_id')}")
+                logger.info(f"   Top result packet_id: {results[0].get('packet_id')}")
         
-        print()
+        logger.info()
         
         # Step 3: Trace through pipeline
         if tracer:
-            print("Step 3: Tracing through DAG pipeline...")
-            print()
+            logger.info("Step 3: Tracing through DAG pipeline...")
+            logger.info()
             
             trace = await tracer.trace_packet(packet_id)
             
@@ -403,66 +404,66 @@ async def verify_main_pipeline():
             stages_missing = []
             
             if trace["stages"]["packet_store"]["found"]:
-                print("✅ Stage 1: packet_store (event log)")
-                print(f"   Packet type: {trace['stages']['packet_store']['packet_type']}")
-                print(f"   Scope: {trace['stages']['packet_store']['scope']}")
+                logger.info("✅ Stage 1: packet_store (event log)")
+                logger.info(f"   Packet type: {trace['stages']['packet_store']['packet_type']}")
+                logger.info(f"   Scope: {trace['stages']['packet_store']['scope']}")
                 stages_ok.append("packet_store")
             else:
-                print("❌ Stage 1: packet_store - NOT FOUND")
+                logger.info("❌ Stage 1: packet_store - NOT FOUND")
                 stages_missing.append("packet_store")
             
             if trace["stages"]["memory_embeddings"]["found"]:
-                print("✅ Stage 2: memory_embeddings (vector store)")
-                print(f"   Embedding type: {trace['stages']['memory_embeddings']['embedding_type']}")
+                logger.info("✅ Stage 2: memory_embeddings (vector store)")
+                logger.info(f"   Embedding type: {trace['stages']['memory_embeddings']['embedding_type']}")
                 stages_ok.append("memory_embeddings")
             else:
-                print("❌ Stage 2: memory_embeddings - NOT FOUND")
+                logger.info("❌ Stage 2: memory_embeddings - NOT FOUND")
                 stages_missing.append("memory_embeddings")
             
             if trace["stages"]["knowledge_facts"]["found"]:
-                print(f"✅ Stage 3: knowledge_facts (fact extraction)")
-                print(f"   Facts extracted: {trace['stages']['knowledge_facts']['count']}")
+                logger.info(f"✅ Stage 3: knowledge_facts (fact extraction)")
+                logger.info(f"   Facts extracted: {trace['stages']['knowledge_facts']['count']}")
                 for fact in trace["stages"]["knowledge_facts"]["facts"][:3]:
-                    print(f"   - {fact['subject']} {fact['predicate']} {fact['object'][:40]}...")
+                    logger.info(f"   - {fact['subject']} {fact['predicate']} {fact['object'][:40]}...")
                 stages_ok.append("knowledge_facts")
             else:
-                print("⚠️  Stage 3: knowledge_facts - No facts extracted")
-                print("   (This is OK - fact extraction may not trigger for all packet types)")
+                logger.info("⚠️  Stage 3: knowledge_facts - No facts extracted")
+                logger.info("   (This is OK - fact extraction may not trigger for all packet types)")
             
             if trace["stages"]["reasoning_traces"]["found"]:
-                print("✅ Stage 4: reasoning_traces (reasoning traces)")
-                print(f"   Agent: {trace['stages']['reasoning_traces']['agent_id']}")
+                logger.info("✅ Stage 4: reasoning_traces (reasoning traces)")
+                logger.info(f"   Agent: {trace['stages']['reasoning_traces']['agent_id']}")
                 stages_ok.append("reasoning_traces")
             else:
-                print("⚠️  Stage 4: reasoning_traces - No reasoning trace created")
-                print("   (This is OK - reasoning traces may not be created for all packets)")
+                logger.info("⚠️  Stage 4: reasoning_traces - No reasoning trace created")
+                logger.info("   (This is OK - reasoning traces may not be created for all packets)")
             
-            print()
-            print("=" * 80)
-            print("Pipeline Trace Summary")
-            print("=" * 80)
-            print(f"✅ Stages completed: {len(stages_ok)}/4")
-            print(f"   - packet_store: {'✅' if 'packet_store' in stages_ok else '❌'}")
-            print(f"   - memory_embeddings: {'✅' if 'memory_embeddings' in stages_ok else '❌'}")
-            print(f"   - knowledge_facts: {'✅' if 'knowledge_facts' in stages_ok else '⚠️'}")
-            print(f"   - reasoning_traces: {'✅' if 'reasoning_traces' in stages_ok else '⚠️'}")
-            print()
+            logger.info()
+            logger.info("=" * 80)
+            logger.info("Pipeline Trace Summary")
+            logger.info("=" * 80)
+            logger.info(f"✅ Stages completed: {len(stages_ok)}/4")
+            logger.info(f"   - packet_store: {'✅' if 'packet_store' in stages_ok else '❌'}")
+            logger.info(f"   - memory_embeddings: {'✅' if 'memory_embeddings' in stages_ok else '❌'}")
+            logger.info(f"   - knowledge_facts: {'✅' if 'knowledge_facts' in stages_ok else '⚠️'}")
+            logger.info(f"   - reasoning_traces: {'✅' if 'reasoning_traces' in stages_ok else '⚠️'}")
+            logger.info()
             
             if "packet_store" in stages_ok and "memory_embeddings" in stages_ok:
-                print("✅ MAIN PIPELINE VERIFIED: Memory went through full DAG pipeline!")
+                logger.info("✅ MAIN PIPELINE VERIFIED: Memory went through full DAG pipeline!")
                 if save_result.get("pipeline") == "main_dag":
-                    print("✅ Pipeline indicator confirmed: 'main_dag'")
+                    logger.info("✅ Pipeline indicator confirmed: 'main_dag'")
                 return 0
             else:
-                print("❌ PIPELINE VERIFICATION FAILED: Critical stages missing")
+                logger.error("❌ PIPELINE VERIFICATION FAILED: Critical stages missing")
                 return 1
         else:
-            print("⚠️  Database tracing disabled - cannot verify pipeline stages")
-            print("   Set MEMORY_DSN to enable full verification")
+            logger.info("⚠️  Database tracing disabled - cannot verify pipeline stages")
+            logger.info("   Set MEMORY_DSN to enable full verification")
             return 0
     
     except Exception as e:
-        print(f"❌ ERROR: {e}")
+        logger.error(f"❌ ERROR: {e}")
         import traceback
         traceback.print_exc()
         return 1
@@ -472,6 +473,8 @@ async def verify_main_pipeline():
             await tracer.close()
 
 
+
+logger = structlog.get_logger(__name__)
 if __name__ == "__main__":
     exit_code = asyncio.run(verify_main_pipeline())
     sys.exit(exit_code)
