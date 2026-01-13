@@ -1,6 +1,6 @@
 """
 L9 Docker Stack Smoke Tests
-Version: 1.0.0
+Version: 1.1.0
 
 Validates that the Docker stack is properly wired:
 - Health endpoints respond
@@ -11,8 +11,12 @@ Validates that the Docker stack is properly wired:
 
 Run with: pytest tests/docker/test_stack_smoke.py -v
 
-These tests are designed to run INSIDE the Docker network (from l9-api container)
-or from the host with published ports.
+These tests AUTO-DETECT execution context:
+- Inside Docker: Uses Docker DNS (l9-api:8000, l9-postgres:5432)
+- From host: Uses localhost (127.0.0.1:8000, 127.0.0.1:5432)
+
+No environment variables required. Manual override still works:
+  API_BASE_URL=http://custom:9000 pytest tests/docker/test_stack_smoke.py -v
 """
 
 import os
@@ -20,13 +24,16 @@ import pytest
 import httpx
 
 # =============================================================================
-# Configuration
+# Configuration (Auto-detected)
 # =============================================================================
 
-# When running inside Docker network, use service DNS names
-# When running from host, use localhost with published ports
-API_BASE_URL = os.environ.get("API_BASE_URL", "http://l9-api:8000")
-MEMORY_API_BASE_URL = os.environ.get("MEMORY_API_BASE_URL", "http://l9-memory-api:8080")
+# Import auto-detection from conftest
+from .conftest import (
+    resolve_service_url,
+    get_execution_context,
+    API_BASE_URL,
+    MEMORY_API_BASE_URL,
+)
 
 # API key for authenticated endpoints
 API_KEY = os.environ.get("L9_EXECUTOR_API_KEY", os.environ.get("L9_API_KEY", "YOUR_API_KEY_HERE"))
