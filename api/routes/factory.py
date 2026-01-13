@@ -57,7 +57,9 @@ class ExtractRequest(BaseModel):
     """Request model for agent extraction."""
 
     schema_yaml: str = Field(..., description="YAML schema content")
-    output_dir: str = Field(..., description="Output directory for generated files")
+    output_dir: str = Field(
+        ..., description="Output directory (relative to sandbox root)"
+    )
     glue_yaml: Optional[str] = Field(
         None, description="Optional glue configuration YAML"
     )
@@ -115,6 +117,14 @@ class HealthResponse(BaseModel):
     model_config = {"extra": "forbid"}
 
 
+class PathSafetyConfig(BaseModel):
+    """Configured output root for extraction endpoints."""
+
+    base_dir: str = Field(..., description="Base directory for extraction outputs")
+
+    model_config = {"extra": "forbid"}
+
+
 # =============================================================================
 # Endpoints
 # =============================================================================
@@ -146,6 +156,17 @@ async def factory_health() -> HealthResponse:
             service="research-factory",
             templates_available=0,
         )
+
+
+def _safe_output_dir(output_dir: str) -> str:
+    from core.security.path_safety import PathSafetyError, resolve_base_dir, safe_resolve_path
+
+    base_root = resolve_base_dir()
+    try:
+        safe_path = safe_resolve_path(base_root, output_dir)
+    except PathSafetyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return str(safe_path)
 
 
 @router.post("/validate", response_model=ValidateResponse)
@@ -206,7 +227,7 @@ async def extract_agent(body: ExtractRequest) -> ExtractResponse:
         body: ExtractRequest with schema YAML and options
 
     Returns:
-        ExtractResponse with extraction results
+        ExtractResponse with extraction results (output_dir is sandboxed)
     """
     try:
         from services.research_factory.extractor import UniversalExtractor
@@ -226,7 +247,7 @@ async def extract_agent(body: ExtractRequest) -> ExtractResponse:
         # Extract
         result = await extractor.extract(
             schema=body.schema_yaml,
-            output_dir=body.output_dir,
+            output_dir=_safe_output_dir(body.output_dir),
             glue=glue,
             overwrite=body.overwrite,
             dry_run=body.dry_run,
@@ -245,6 +266,8 @@ async def extract_agent(body: ExtractRequest) -> ExtractResponse:
             manifest=result.manifest.to_dict() if result.manifest else None,
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.exception("Extraction failed: %s", str(e))
         raise HTTPException(status_code=500, detail=f"Extraction failed: {e}")
@@ -253,7 +276,9 @@ async def extract_agent(body: ExtractRequest) -> ExtractResponse:
 @router.post("/extract-file", response_model=ExtractResponse)
 async def extract_agent_file(
     schema_file: UploadFile = File(..., description="YAML schema file"),
-    output_dir: str = Form(..., description="Output directory"),
+    output_dir: str = Form(
+        ..., description="Output directory (relative to sandbox root)"
+    ),
     glue_file: Optional[UploadFile] = File(
         None, description="Optional glue config file"
     ),
@@ -266,7 +291,7 @@ async def extract_agent_file(
 
     Args:
         schema_file: Uploaded YAML schema file
-        output_dir: Output directory path
+        output_dir: Output directory path (relative to sandbox root)
         glue_file: Optional uploaded glue configuration file
         overwrite: Overwrite existing files
         dry_run: Validate only mode
@@ -298,7 +323,7 @@ async def extract_agent_file(
         # Extract
         result = await extractor.extract(
             schema=schema_yaml,
-            output_dir=output_dir,
+            output_dir=_safe_output_dir(output_dir),
             glue=glue,
             overwrite=overwrite,
             dry_run=dry_run,
@@ -317,6 +342,8 @@ async def extract_agent_file(
             manifest=result.manifest.to_dict() if result.manifest else None,
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.exception("File extraction failed: %s", str(e))
         raise HTTPException(status_code=500, detail=f"Extraction failed: {e}")

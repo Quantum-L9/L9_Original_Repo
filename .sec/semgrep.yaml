@@ -1,0 +1,8 @@
+rules:
+  - id: insecure-path-join
+    message: "Potential unsafe path construction; use core.security.path_safety.safe_resolve_path"
+    severity: ERROR
+    languages: [python]
+    pattern-either:
+      - pattern: os.path.join($A, $B)
+      - pattern: Path($A) / $B
