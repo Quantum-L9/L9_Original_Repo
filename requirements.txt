@@ -64,6 +64,11 @@ playwright>=1.40.0
 # Observability
 prometheus_client>=0.19.0
 
+# OpenTelemetry (Jaeger tracing)
+opentelemetry-api>=1.21.0
+opentelemetry-sdk>=1.21.0
+opentelemetry-exporter-otlp-proto-http>=1.21.0
+
 # Testing (optional, for dev)
 pytest>=7.4.0
 pytest-asyncio>=0.23.0
