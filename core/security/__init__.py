@@ -17,6 +17,13 @@ from .permission_graph import (
     can_access,
     get_user_permissions,
 )
+from .path_safety import (
+    PathSafetyError,
+    resolve_base_dir,
+    safe_resolve_path,
+    safe_resolve_path_async,
+    validate_filename,
+)
 
 __all__ = [
     "PermissionGraph",
@@ -25,4 +32,9 @@ __all__ = [
     "grant_permission",
     "can_access",
     "get_user_permissions",
+    "PathSafetyError",
+    "resolve_base_dir",
+    "safe_resolve_path",
+    "safe_resolve_path_async",
+    "validate_filename",
 ]
