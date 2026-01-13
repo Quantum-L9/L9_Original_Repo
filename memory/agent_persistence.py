@@ -20,7 +20,7 @@ from typing import Any, Optional, List, Dict, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from memory.substrate_repository import SubstrateRepository
-from memory.substrate_models import PacketEnvelopeIn
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService

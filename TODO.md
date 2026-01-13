@@ -1,6 +1,6 @@
 # TODO
 
-> **Last Updated:** 2026-01-11
+> **Last Updated:** 2026-01-13
 
 ---
 
@@ -31,7 +31,7 @@
 
 **Status**: All phases complete, but need ongoing verification:
 - [ ] **Confirm local Docker memory is still healthy** (Postgres/Neo4j/Redis up; memory_write + memory_search smoke)
-- [ ] **Enforce `PacketValidator`** at the ingestion chokepoint (`memory/substrate_service.py:write_packet()`), with explicit error semantics + targeted tests
+- [x] **Enforce `PacketValidator`** at the ingestion chokepoint — ✅ Done (GMP-55, integrated in `substrate_service.py:write_packet()`)
 
 **Completed Phases** (archived):
 - ✅ Phase 1: Diagnose Current State (2026-01-07)
@@ -76,6 +76,89 @@
 ---
 
 ## 🟣 Deferred Work
+
+### Anti-Pattern Regression Tests (GMP-58 Follow-up)
+
+**Status**: Scoped, ready to implement
+
+**Context**: Identified during Memory Ingestion Pipeline Audit (2026-01-13). GMP-58 fixed frozen model mutation bug — need regression tests to prevent similar bugs from returning.
+
+**Deliverable**: Create `tests/ci/test_anti_patterns.py` with 5 regression test categories:
+
+| # | Test | Anti-Pattern | Severity |
+|---|------|--------------|----------|
+| 1 | `test_auto_tagging_with_frozen_envelope` | Frozen model mutation (GMP-58) | 🔴 Critical |
+| 2 | `test_no_hardcoded_user_paths` | `/Users/ib-mac` in prod code | 🔴 Critical |
+| 3 | `test_no_bare_except_in_core` | `bare except:` swallows errors | 🟠 High |
+| 4 | `test_no_print_in_core_modules` | `print()` breaks structured logging | 🟠 High |
+| 5 | `test_no_stdlib_logging_in_core` | stdlib `logging` vs `structlog` | 🟡 Medium |
+
+**Current Anti-Pattern Counts** (from analyze+evaluate 2026-01-13):
+- `print()` in production: 17 files
+- `bare except:`: 9 files
+- Hardcoded paths: 10 files
+- stdlib `logging`: 8 files
+- `requests` vs `httpx`: 10 files
+
+**TODO**:
+- [ ] Create `tests/ci/test_anti_patterns.py`
+- [ ] Add to CI pipeline (`ci/run_ci_gates.sh`)
+- [ ] Fix existing violations or add to `.vultureignore` equivalent
+
+**Reference**: GMP-58 Report (`reports/GMP_Report_GMP-58-Fix-Frozen-Envelope-Tag-Bug.md`)
+
+---
+
+### Dual Ingestion Path Consolidation
+
+**Status**: SIMPLIFIED (2026-01-13) — Using IngestionPipeline ONLY
+
+**Decision**: Route all ingestion through `IngestionPipeline` only until core pipeline is stable. DAG path (reasoning, insights, world model) deferred.
+
+**Current Flow** (SIMPLIFIED):
+```
+ingest_packet() → IngestionPipeline.ingest()
+                      ↓
+              ┌───────────────────┐
+              │ Validation        │
+              │ Security audit    │
+              │ Auto-tagging      │
+              │ packet_store      │ (transactional)
+              │ memory_events     │ (transactional)
+              │ Embeddings        │
+              │ Neo4j sync        │
+              │ Critical checkpoint│
+              └───────────────────┘
+```
+
+**What's ACTIVE now**:
+- ✅ PacketValidator
+- ✅ Security audit (injection detection)
+- ✅ Auto-tagging
+- ✅ Transactional writes (packet_store + memory_events)
+- ✅ Embedding generation
+- ✅ Neo4j sync
+- ✅ Critical checkpoint trigger
+
+**What's DEFERRED** (DAG path):
+- ❌ Reasoning block generation
+- ❌ Insight extraction
+- ❌ World model trigger
+- ❌ Graph checkpoint (LangGraph)
+
+**TODO** (when ready to add DAG):
+- [ ] Wire DAG as optional enhancement after `pipeline.ingest()`
+- [ ] Add feature flag `L9_ENABLE_DAG_INGESTION`
+- [ ] Test DAG path doesn't break core ingestion
+
+**Files**:
+- `memory/ingestion.py` — `ingest_packet()` now uses IngestionPipeline directly
+- `memory/substrate_graph.py` — DAG (not currently used for ingestion)
+- `memory/substrate_service.py` — `write_packet()` (bypassed for now)
+
+**Reference**: `reports/AUDIT_PacketEnvelope_PacketStore_Integration.md` (Section 5)
+
+---
 
 ### CodeGenAgent System
 

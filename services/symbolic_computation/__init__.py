@@ -9,7 +9,7 @@ Author: AIOS
 Version: 1.0.0
 """
 
-from .core import (
+from .computation import (
     SymbolicComputation,
     ExpressionEvaluator,
     CodeGenerator,
@@ -19,6 +19,8 @@ from .models import (
     ComputationResult,
     CodeGenRequest,
     CodeGenResult,
+    BackendType,
+    CodeLanguage,
 )
 from .exceptions import (
     SymbolicComputationError,
@@ -35,6 +37,8 @@ __all__ = [
     "ComputationResult",
     "CodeGenRequest",
     "CodeGenResult",
+    "BackendType",
+    "CodeLanguage",
     "SymbolicComputationError",
     "EvaluationError",
     "CodeGenerationError",

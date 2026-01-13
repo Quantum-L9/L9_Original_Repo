@@ -24,13 +24,13 @@ from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID, uuid4
 
-from memory.substrate_models import (
-    MemorySegment,
+from core.schemas.packet_envelope_v2 import (
+    PacketConfidence,
     PacketEnvelopeIn,
     PacketMetadata,
     PacketProvenance,
-    PacketConfidence,
 )
+from memory.substrate_models import MemorySegment
 from telemetry.memory_metrics import record_tool_invocation
 
 logger = structlog.get_logger(__name__)

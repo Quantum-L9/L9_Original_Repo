@@ -21,14 +21,13 @@ _current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
     "_current_rls_connection", default=None
 )
 
+from core.schemas.packet_envelope_v2 import PacketEnvelope, SemanticHit
 from memory.substrate_models import (
     AgentMemoryEventRow,
     GraphCheckpointRow,
     KnowledgeFactRow,
-    PacketEnvelope,
     PacketStoreRow,
     ReasoningTraceRow,
-    SemanticHit,
     StructuredReasoningBlock,
 )
 
@@ -337,8 +336,9 @@ class SubstrateRepository:
             return [self._row_to_packet_store(r) for r in rows]
 
     def _row_to_packet_store(self, row: Any) -> PacketStoreRow:
-        """Convert a database row to PacketStoreRow."""
+        """Convert a database row to PacketStoreRow (all 22 columns from migrations 0001, 0002, 0008)."""
         return PacketStoreRow(
+            # Core fields (migration 0001)
             packet_id=row["packet_id"],
             packet_type=row["packet_type"],
             envelope=json.loads(row["envelope"])
@@ -351,10 +351,30 @@ class SubstrateRepository:
             provenance=json.loads(row["provenance"])
             if row["provenance"] and isinstance(row["provenance"], str)
             else row["provenance"],
+            # Threading & lineage (migration 0002)
             thread_id=row.get("thread_id"),
             parent_ids=row.get("parent_ids") or [],
             tags=row.get("tags") or [],
             ttl=row.get("ttl"),
+            # 10X Enhancements (migration 0008)
+            scope=row.get("scope", "shared"),
+            importance_score=row.get("importance_score", 0.5),
+            access_count=row.get("access_count", 0),
+            last_accessed=row.get("last_accessed"),
+            confidence_updated_at=row.get("confidence_updated_at"),
+            contradiction_count=row.get("contradiction_count", 0),
+            chunk_count=row.get("chunk_count", 1),
+            is_chunked=row.get("is_chunked", False),
+            content_hash=row.get("content_hash"),
+            processing_status=row.get("processing_status", "complete"),
+            # Multi-tenant identity (migration 0008)
+            tenant_id=row.get("tenant_id"),
+            org_id=row.get("org_id"),
+            user_id=row.get("user_id"),
+            correlation_id=row.get("correlation_id"),
+            # Tracing (migration 0008)
+            session_id=row.get("session_id"),
+            trace_id=row.get("trace_id"),
         )
 
     # =========================================================================
@@ -550,6 +570,172 @@ class SubstrateRepository:
                     if r["confidence_scores"]
                     and isinstance(r["confidence_scores"], str)
                     else r["confidence_scores"],
+                    created_at=r["created_at"],
+                )
+                for r in rows
+            ]
+
+    # =========================================================================
+    # Knowledge Facts Operations (v2.1.0 - GMP-67 Unified Pipeline)
+    # =========================================================================
+
+    async def insert_knowledge_fact(
+        self,
+        fact_id: UUID,
+        subject: str,
+        predicate: str,
+        object_value: Any,
+        confidence: float,
+        source_packet: Optional[UUID],
+    ) -> KnowledgeFactRow:
+        """
+        Insert or update knowledge fact (idempotent via UPSERT).
+        
+        Uses ON CONFLICT (source_packet, subject, predicate) DO UPDATE
+        to prevent duplicate facts from same packet. This ensures:
+        - Same packet enriched twice = no duplicates
+        - Fact updates are atomic
+        
+        Args:
+            fact_id: UUID for the fact (used for insert)
+            subject: Entity or concept being described
+            predicate: Relationship or attribute type
+            object_value: Value, entity, or structured data
+            confidence: Extraction confidence (0.0-1.0)
+            source_packet: Source packet ID (foreign key)
+            
+        Returns:
+            KnowledgeFactRow with assigned/existing fact_id
+            
+        Raises:
+            Exception: DB error (caller decides whether to propagate or log)
+        """
+        created_at = datetime.utcnow()
+        
+        # Serialize object_value to JSON if needed
+        object_json = (
+            json.dumps(object_value)
+            if not isinstance(object_value, str)
+            else object_value
+        )
+        
+        # Use RLS-scoped connection if available, otherwise acquire new one
+        rls_conn = _current_rls_connection.get()
+        
+        if rls_conn:
+            row = await self._insert_knowledge_fact_with_connection(
+                rls_conn, fact_id, subject, predicate, object_json,
+                confidence, source_packet, created_at
+            )
+        else:
+            async with self.acquire() as conn:
+                row = await self._insert_knowledge_fact_with_connection(
+                    conn, fact_id, subject, predicate, object_json,
+                    confidence, source_packet, created_at
+                )
+        
+        return row
+
+    async def _insert_knowledge_fact_with_connection(
+        self,
+        conn: asyncpg.Connection,
+        fact_id: UUID,
+        subject: str,
+        predicate: str,
+        object_json: str,
+        confidence: float,
+        source_packet: Optional[UUID],
+        created_at: datetime,
+    ) -> KnowledgeFactRow:
+        """Helper to insert fact using provided connection."""
+        # UPSERT: Insert or update on conflict (idempotent)
+        # Note: Requires unique index on (source_packet, subject, predicate)
+        row = await conn.fetchrow(
+            """
+            INSERT INTO knowledge_facts (
+                fact_id, subject, predicate, object, confidence, source_packet, created_at
+            ) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7)
+            ON CONFLICT (source_packet, subject, predicate) 
+            WHERE source_packet IS NOT NULL
+            DO UPDATE SET 
+                object = EXCLUDED.object,
+                confidence = EXCLUDED.confidence
+            RETURNING fact_id, subject, predicate, object, confidence, source_packet, created_at
+            """,
+            fact_id,
+            subject,
+            predicate,
+            object_json,
+            confidence,
+            source_packet,
+            created_at,
+        )
+        
+        logger.debug(
+            f"Upserted knowledge fact {row['fact_id']} "
+            f"({subject} - {predicate}) for packet {source_packet}"
+        )
+        
+        return KnowledgeFactRow(
+            fact_id=row["fact_id"],
+            subject=row["subject"],
+            predicate=row["predicate"],
+            object=json.loads(row["object"]) if isinstance(row["object"], str) else row["object"],
+            confidence=row["confidence"],
+            source_packet=row["source_packet"],
+            created_at=row["created_at"],
+        )
+
+    async def get_knowledge_facts(
+        self,
+        source_packet: Optional[UUID] = None,
+        subject: Optional[str] = None,
+        limit: int = 100,
+    ) -> list[KnowledgeFactRow]:
+        """
+        Retrieve knowledge facts with optional filters.
+        
+        Args:
+            source_packet: Filter by source packet ID
+            subject: Filter by subject (exact match)
+            limit: Maximum results to return
+            
+        Returns:
+            List of KnowledgeFactRow
+        """
+        async with self.acquire() as conn:
+            conditions = ["deprecated = FALSE OR deprecated IS NULL"]
+            params: list[Any] = []
+            param_idx = 1
+            
+            if source_packet:
+                conditions.append(f"source_packet = ${param_idx}")
+                params.append(source_packet)
+                param_idx += 1
+            
+            if subject:
+                conditions.append(f"subject = ${param_idx}")
+                params.append(subject)
+                param_idx += 1
+            
+            params.append(limit)
+            
+            query = f"""
+                SELECT * FROM knowledge_facts
+                WHERE {" AND ".join(conditions)}
+                ORDER BY created_at DESC
+                LIMIT ${param_idx}
+            """
+            
+            rows = await conn.fetch(query, *params)
+            return [
+                KnowledgeFactRow(
+                    fact_id=r["fact_id"],
+                    subject=r["subject"],
+                    predicate=r["predicate"],
+                    object=json.loads(r["object"]) if isinstance(r["object"], str) else r["object"],
+                    confidence=r["confidence"],
+                    source_packet=r["source_packet"],
                     created_at=r["created_at"],
                 )
                 for r in rows
@@ -1089,6 +1275,136 @@ class SubstrateRepository:
                 )
                 for r in rows
             ]
+
+    # =========================================================================
+    # Spec v3.0 Required Methods - Fact Deprecation & Contradiction Tracking
+    # =========================================================================
+
+    async def deprecate_fact(
+        self,
+        fact_id: UUID,
+        reason: str,
+    ) -> bool:
+        """
+        Soft-deprecate a knowledge fact.
+
+        Spec: state.contradiction_tracking.deprecate_fact
+
+        Args:
+            fact_id: UUID of fact to deprecate
+            reason: Reason for deprecation
+
+        Returns:
+            True if deprecated, False if not found
+        """
+        async with self.acquire() as conn:
+            result = await conn.execute(
+                """
+                UPDATE knowledge_facts
+                SET deprecated = TRUE,
+                    deprecated_at = NOW(),
+                    deprecated_reason = $2
+                WHERE fact_id = $1 AND deprecated = FALSE
+                """,
+                fact_id,
+                reason,
+            )
+            # Check if any row was updated
+            return "UPDATE 1" in result
+
+    async def increment_contradiction_count(
+        self,
+        fact_id: UUID,
+    ) -> int:
+        """
+        Increment contradiction count for a fact.
+
+        Args:
+            fact_id: UUID of fact
+
+        Returns:
+            New contradiction count
+        """
+        async with self.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                UPDATE knowledge_facts
+                SET contradiction_count = contradiction_count + 1
+                WHERE fact_id = $1
+                RETURNING contradiction_count
+                """,
+                fact_id,
+            )
+            return row["contradiction_count"] if row else 0
+
+    async def get_active_facts(
+        self,
+        subject: str,
+        min_confidence: float = 0.0,
+    ) -> list[KnowledgeFactRow]:
+        """
+        Get active (non-deprecated) facts for a subject.
+
+        Spec: state.contradiction_tracking.get_active_facts
+
+        Args:
+            subject: Subject to get facts for
+            min_confidence: Minimum confidence threshold
+
+        Returns:
+            List of active KnowledgeFactRow
+        """
+        async with self.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT * FROM knowledge_facts 
+                WHERE subject = $1 
+                  AND deprecated = FALSE
+                  AND confidence >= $2
+                ORDER BY confidence DESC, created_at DESC
+                """,
+                subject,
+                min_confidence,
+            )
+            return [
+                KnowledgeFactRow(
+                    fact_id=r["fact_id"],
+                    subject=r["subject"],
+                    predicate=r["predicate"],
+                    object=json.loads(r["object"])
+                    if isinstance(r["object"], str)
+                    else r["object"],
+                    confidence=r["confidence"],
+                    source_packet=r["source_packet"],
+                    created_at=r["created_at"],
+                )
+                for r in rows
+            ]
+
+    async def get_contradiction_count(
+        self,
+        fact_id: UUID,
+    ) -> int:
+        """
+        Get contradiction count for a fact.
+
+        Spec: state.contradiction_tracking.get_contradiction_count
+
+        Args:
+            fact_id: UUID of fact
+
+        Returns:
+            Contradiction count (0 if not found)
+        """
+        async with self.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT contradiction_count FROM knowledge_facts
+                WHERE fact_id = $1
+                """,
+                fact_id,
+            )
+            return row["contradiction_count"] if row else 0
 
     # =========================================================================
     # Health Check

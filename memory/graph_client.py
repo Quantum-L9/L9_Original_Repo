@@ -258,6 +258,80 @@ class Neo4jClient:
             return False
 
     # =========================================================================
+    # Spec v3.0 Required Methods - Entity Operations
+    # =========================================================================
+
+    async def upsert_entity(
+        self,
+        name: str,
+        entity_type: str,
+        attrs: dict[str, Any],
+        workspace_id: Optional[str] = None,
+    ) -> Optional[str]:
+        """
+        Upsert (create or update) an entity node.
+
+        Spec: structural.entity_graph.upsert_entity
+
+        Args:
+            name: Entity name/identifier
+            entity_type: Node label (e.g., 'User', 'Agent', 'Entity')
+            attrs: Entity attributes to set
+            workspace_id: Optional workspace for isolation
+
+        Returns:
+            Entity ID or None if failed
+        """
+        properties = {**attrs, "name": name}
+        if workspace_id:
+            properties["workspace_id"] = workspace_id
+
+        return await self.create_entity(
+            entity_type=entity_type,
+            entity_id=name,
+            properties=properties,
+        )
+
+    async def update_entity_attributes(
+        self,
+        name: str,
+        entity_type: str,
+        attrs: dict[str, Any],
+    ) -> bool:
+        """
+        Update specific attributes on an existing entity (partial update).
+
+        Spec: structural.entity_graph.update_entity_attributes
+
+        Args:
+            name: Entity name/identifier
+            entity_type: Node label
+            attrs: Attributes to update (merged with existing)
+
+        Returns:
+            True if updated, False if entity not found or failed
+        """
+        if not self.is_available():
+            return False
+
+        try:
+            async with self._driver.session(database=self._database) as session:
+                query = f"""
+                MATCH (n:{entity_type} {{id: $entity_id}})
+                SET n += $attrs
+                RETURN n.id as id
+                """
+                result = await session.run(query, entity_id=name, attrs=attrs)
+                record = await result.single()
+                if record:
+                    logger.debug(f"Updated entity attributes: {entity_type}:{name}")
+                    return True
+                return False
+        except Exception as e:
+            logger.error(f"Neo4j update_entity_attributes failed: {e}")
+            return False
+
+    # =========================================================================
     # Relationship Operations
     # =========================================================================
 
@@ -361,6 +435,172 @@ class Neo4jClient:
                 return records
         except Exception as e:
             logger.error(f"Neo4j get_relationships failed: {e}")
+            return []
+
+    # =========================================================================
+    # Spec v3.0 Required Methods - Relationship & Traversal
+    # =========================================================================
+
+    async def upsert_relationship(
+        self,
+        src: str,
+        rel: str,
+        tgt: str,
+        confidence: float = 1.0,
+        source_packet: Optional[str] = None,
+    ) -> Optional[str]:
+        """
+        Upsert a relationship between two entities.
+
+        Spec: structural.entity_graph.upsert_relationship
+
+        Args:
+            src: Source entity ID
+            rel: Relationship type
+            tgt: Target entity ID
+            confidence: Confidence score for the relationship
+            source_packet: Optional source packet UUID
+
+        Returns:
+            Relationship type if created, None if failed
+        """
+        properties = {"confidence": confidence}
+        if source_packet:
+            properties["source_packet"] = source_packet
+
+        # Use create_relationship which already uses MERGE
+        success = await self.create_relationship(
+            from_type="Entity",
+            from_id=src,
+            to_type="Entity",
+            to_id=tgt,
+            rel_type=rel,
+            properties=properties,
+        )
+        return rel if success else None
+
+    async def traverse(
+        self,
+        source: str,
+        depth: int = 2,
+        relationship_types: Optional[list[str]] = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Traverse graph from source entity to specified depth.
+
+        Spec: structural.relationship_traversal.traverse
+
+        Args:
+            source: Starting entity ID
+            depth: Maximum traversal depth (default 2)
+            relationship_types: Optional filter by relationship types
+
+        Returns:
+            List of edges (source, rel_type, target, depth)
+        """
+        if not self.is_available():
+            return []
+
+        try:
+            async with self._driver.session(database=self._database) as session:
+                rel_filter = ""
+                if relationship_types:
+                    rel_filter = ":" + "|".join(relationship_types)
+
+                query = f"""
+                MATCH path = (start {{id: $source}})-[r{rel_filter}*1..{depth}]-(end)
+                UNWIND relationships(path) as rel
+                WITH startNode(rel) as src, rel, endNode(rel) as tgt, length(path) as d
+                RETURN DISTINCT src.id as source_id, type(rel) as rel_type, 
+                       tgt.id as target_id, properties(rel) as rel_props, d as depth
+                ORDER BY d
+                """
+                result = await session.run(query, source=source)
+                records = await result.data()
+                logger.debug(f"Traversed {len(records)} edges from {source}")
+                return records
+        except Exception as e:
+            logger.error(f"Neo4j traverse failed: {e}")
+            return []
+
+    async def find_path(
+        self,
+        source: str,
+        target: str,
+        max_depth: int = 5,
+    ) -> list[dict[str, Any]]:
+        """
+        Find shortest path between two entities.
+
+        Spec: structural.relationship_traversal.find_path
+
+        Args:
+            source: Source entity ID
+            target: Target entity ID
+            max_depth: Maximum path length
+
+        Returns:
+            List of path segments [{source, rel_type, target}, ...]
+        """
+        if not self.is_available():
+            return []
+
+        try:
+            async with self._driver.session(database=self._database) as session:
+                query = f"""
+                MATCH path = shortestPath((start {{id: $source}})-[*1..{max_depth}]-(end {{id: $target}}))
+                UNWIND relationships(path) as rel
+                RETURN startNode(rel).id as source_id, type(rel) as rel_type, 
+                       endNode(rel).id as target_id, properties(rel) as rel_props
+                """
+                result = await session.run(query, source=source, target=target)
+                records = await result.data()
+                logger.debug(f"Found path with {len(records)} segments from {source} to {target}")
+                return records
+        except Exception as e:
+            logger.error(f"Neo4j find_path failed: {e}")
+            return []
+
+    async def get_neighbors(
+        self,
+        entity: str,
+        direction: str = "both",
+    ) -> list[dict[str, Any]]:
+        """
+        Get immediate neighbors (adjacent nodes) of an entity.
+
+        Spec: structural.relationship_traversal.get_neighbors
+
+        Args:
+            entity: Entity ID
+            direction: 'outgoing', 'incoming', or 'both'
+
+        Returns:
+            List of neighbor entities with relationship info
+        """
+        if not self.is_available():
+            return []
+
+        try:
+            async with self._driver.session(database=self._database) as session:
+                if direction == "outgoing":
+                    pattern = "(n {id: $entity})-[r]->(m)"
+                elif direction == "incoming":
+                    pattern = "(n {id: $entity})<-[r]-(m)"
+                else:
+                    pattern = "(n {id: $entity})-[r]-(m)"
+
+                query = f"""
+                MATCH {pattern}
+                RETURN m.id as neighbor_id, labels(m) as labels, 
+                       type(r) as rel_type, properties(m) as props
+                """
+                result = await session.run(query, entity=entity)
+                records = await result.data()
+                logger.debug(f"Found {len(records)} neighbors for {entity}")
+                return records
+        except Exception as e:
+            logger.error(f"Neo4j get_neighbors failed: {e}")
             return []
 
     # =========================================================================
@@ -474,6 +714,96 @@ class Neo4jClient:
                 return [dict(r["e"]) for r in records]
         except Exception as e:
             logger.error(f"Neo4j get_event_timeline failed: {e}")
+            return []
+
+    # =========================================================================
+    # Spec v3.0 Required Methods - Event Timeline
+    # =========================================================================
+
+    async def get_temporal_events(
+        self,
+        entity: str,
+        start: Optional[str] = None,
+        end: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Get events related to an entity within a time range.
+
+        Spec: structural.event_timeline.get_temporal_events
+
+        Args:
+            entity: Entity ID to get events for
+            start: ISO timestamp start (optional)
+            end: ISO timestamp end (optional)
+
+        Returns:
+            List of events related to the entity
+        """
+        if not self.is_available():
+            return []
+
+        try:
+            async with self._driver.session(database=self._database) as session:
+                conditions = ["(e)-[]-(n {id: $entity})"]
+                params: dict[str, Any] = {"entity": entity}
+
+                if start:
+                    conditions.append("e.timestamp >= $start")
+                    params["start"] = start
+                if end:
+                    conditions.append("e.timestamp <= $end")
+                    params["end"] = end
+
+                where_clause = "WHERE " + " AND ".join(conditions)
+
+                query = f"""
+                MATCH (e:Event), (n)
+                {where_clause}
+                RETURN e
+                ORDER BY e.timestamp ASC
+                """
+                result = await session.run(query, **params)
+                records = await result.data()
+                logger.debug(f"Found {len(records)} temporal events for {entity}")
+                return [dict(r["e"]) for r in records]
+        except Exception as e:
+            logger.error(f"Neo4j get_temporal_events failed: {e}")
+            return []
+
+    async def get_event_sequence(
+        self,
+        entity: str,
+        limit: int = 50,
+    ) -> list[dict[str, Any]]:
+        """
+        Get ordered sequence of events for an entity.
+
+        Spec: structural.event_timeline.get_event_sequence
+
+        Args:
+            entity: Entity ID
+            limit: Maximum events to return
+
+        Returns:
+            List of events ordered by timestamp (oldest first)
+        """
+        if not self.is_available():
+            return []
+
+        try:
+            async with self._driver.session(database=self._database) as session:
+                query = """
+                MATCH (e:Event)-[]-(n {id: $entity})
+                RETURN e
+                ORDER BY e.timestamp ASC
+                LIMIT $limit
+                """
+                result = await session.run(query, entity=entity, limit=limit)
+                records = await result.data()
+                logger.debug(f"Found {len(records)} events in sequence for {entity}")
+                return [dict(r["e"]) for r in records]
+        except Exception as e:
+            logger.error(f"Neo4j get_event_sequence failed: {e}")
             return []
 
     # =========================================================================

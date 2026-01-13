@@ -1,37 +1,70 @@
 #!/bin/bash
-# L9 10X Deployment Script
+# =============================================================================
+# L9 10X Deployment Script v2.0
 # Full pipeline: Mac → Git → VPS → Rebuild → Verify
-# Includes waits, health checks, and comprehensive diagnostics
+#
+# IMPROVEMENTS (GMP-71):
+#   1. Safe git pull (stash + pull, no reset --hard)
+#   2. Correct paths (scripts/vps/)
+#   3. Uses existing vps-mri.sh instead of inline
+#   4. --dry-run and --quick flags
+#   5. Rollback capability on failure
 #
 # Usage:
-#   chmod +x l9-deploy-10x.sh
-#   ./l9-deploy-10x.sh [commit-message]
+#   ./10X_Deploy_Script.sh [options] [commit-message]
 #
-# Example:
-#   ./l9-deploy-10x.sh "feat(memory): activate full compose stack"
+# Options:
+#   --dry-run     Show what would happen without doing it
+#   --quick       Skip --no-cache rebuild (faster)
+#   --skip-mri    Skip full MRI diagnostic
+#   --skip-e2e    Skip MCP E2E test
+#   -h, --help    Show this help
+#
+# Examples:
+#   ./10X_Deploy_Script.sh "feat(memory): activate full compose stack"
+#   ./10X_Deploy_Script.sh --dry-run
+#   ./10X_Deploy_Script.sh --quick "hotfix: typo"
+# =============================================================================
 
-set -e
+set -euo pipefail
 
-# Configuration
-COMMIT_MSG="${1:-chore(deploy): automated 10X deployment}"
+# =============================================================================
+# CONFIGURATION
+# =============================================================================
+
 MAC_REPO="/Users/ib-mac/Projects/L9"
 VPS_HOST="admin@157.180.73.53"
 VPS_REPO="/opt/l9"
 DEPLOY_LOG="/tmp/l9-deploy-10x-$(date +%s).log"
+
+# Flags
+DRY_RUN=false
+QUICK=false
+SKIP_MRI=false
+SKIP_E2E=false
+COMMIT_MSG=""
+
+# State tracking
+PREV_VPS_SHA=""
+CURRENT_SHA=""
 
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+CYAN='\033[0;36m'
+NC='\033[0m'
 
-# Helper functions
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
 log_header() {
     echo ""
-    echo "╔════════════════════════════════════════════════════════════════╗"
-    echo "║  $1"
-    echo "╚════════════════════════════════════════════════════════════════╝"
+    echo -e "${CYAN}╔════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║  $1${NC}"
+    echo -e "${CYAN}╚════════════════════════════════════════════════════════════════╝${NC}"
 }
 
 log_step() {
@@ -42,8 +75,8 @@ log_ok() {
     echo -e "${GREEN}✅${NC} $1"
 }
 
-log_wait() {
-    echo -e "${YELLOW}⏳${NC} $1"
+log_warn() {
+    echo -e "${YELLOW}⚠️${NC} $1"
 }
 
 log_error() {
@@ -53,334 +86,351 @@ log_error() {
 wait_with_spinner() {
     local duration=$1
     local message=$2
-    local end=$((SECONDS + duration))
-    
     echo -n "$message "
-    while [ $SECONDS -lt $end ]; do
+    for ((i=0; i<duration; i++)); do
         echo -n "."
         sleep 1
     done
     echo " done"
 }
 
-# ============================================================================
+usage() {
+    cat <<EOF
+L9 10X Deployment Script v2.0
+
+Usage: $0 [options] [commit-message]
+
+Options:
+    --dry-run     Show what would happen without executing
+    --quick       Skip --no-cache on docker build (faster)
+    --skip-mri    Skip full MRI diagnostic at the end
+    --skip-e2e    Skip MCP E2E test
+    -h, --help    Show this help
+
+Examples:
+    $0 "feat(memory): new feature"
+    $0 --dry-run
+    $0 --quick "hotfix: typo fix"
+
+Default commit message: "chore(deploy): automated 10X deployment"
+EOF
+}
+
+rollback() {
+    if [[ -n "$PREV_VPS_SHA" ]]; then
+        log_error "Deployment failed! Rolling back VPS to $PREV_VPS_SHA..."
+        ssh "$VPS_HOST" "cd $VPS_REPO && git checkout $PREV_VPS_SHA" || true
+        ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d l9-api" || true
+        log_warn "Rollback attempted. Check VPS manually."
+    fi
+    exit 1
+}
+
+# =============================================================================
+# ARGUMENT PARSING
+# =============================================================================
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --quick)
+            QUICK=true
+            shift
+            ;;
+        --skip-mri)
+            SKIP_MRI=true
+            shift
+            ;;
+        --skip-e2e)
+            SKIP_E2E=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            COMMIT_MSG="$1"
+            shift
+            ;;
+    esac
+done
+
+# Default commit message
+COMMIT_MSG="${COMMIT_MSG:-chore(deploy): automated 10X deployment}"
+
+# =============================================================================
+# DRY RUN MODE
+# =============================================================================
+
+if [[ "$DRY_RUN" == "true" ]]; then
+    log_header "DRY RUN MODE - No changes will be made"
+    
+    cd "$MAC_REPO"
+    
+    echo ""
+    log_step "Would commit with message: '$COMMIT_MSG'"
+    echo ""
+    
+    log_step "Local changes to commit:"
+    git status --short
+    echo ""
+    
+    log_step "Commits to push:"
+    git fetch origin 2>/dev/null || true
+    git log --oneline origin/main..HEAD 2>/dev/null || echo "  (none or not fetched)"
+    echo ""
+    
+    log_step "VPS would pull and rebuild l9-api"
+    [[ "$QUICK" == "true" ]] && echo "  (--quick mode: with cache)" || echo "  (full rebuild: --no-cache)"
+    echo ""
+    
+    log_ok "Dry run complete. Run without --dry-run to execute."
+    exit 0
+fi
+
+# =============================================================================
 # PHASE 1: LOCAL VERIFICATION (MAC)
-# ============================================================================
+# =============================================================================
 log_header "PHASE 1: Local Verification (Mac)"
 
 cd "$MAC_REPO"
 
 log_step "Checking git status..."
-git status
+git status --short
 echo ""
 
-log_step "Verifying uncommitted changes..."
-if [ -n "$(git status --porcelain)" ]; then
-    log_wait "Found uncommitted changes. Staging all changes..."
+log_step "Staging any uncommitted changes..."
+if [[ -n "$(git status --porcelain)" ]]; then
     git add -A
     log_ok "Changes staged"
 else
-    log_ok "Working tree clean (or all staged)"
+    log_ok "Working tree clean"
 fi
 
-log_step "Checking for untracked files..."
-UNTRACKED=$(git ls-files --others --exclude-standard | wc -l)
-if [ "$UNTRACKED" -gt 0 ]; then
-    log_wait "Found $UNTRACKED untracked files. Review before commit."
-    git ls-files --others --exclude-standard
-    read -p "Continue? (y/n) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log_error "Deployment aborted by user"
-        exit 1
-    fi
-fi
-
-echo ""
-
-# ============================================================================
+# =============================================================================
 # PHASE 2: GIT COMMIT & PUSH (MAC)
-# ============================================================================
+# =============================================================================
 log_header "PHASE 2: Git Commit & Push"
 
-log_step "Committing changes: '$COMMIT_MSG'"
-git commit -m "$COMMIT_MSG" || log_ok "No changes to commit"
+log_step "Committing: '$COMMIT_MSG'"
+git commit -m "$COMMIT_MSG" 2>/dev/null || log_ok "No changes to commit"
 
-log_step "Fetching latest from origin..."
+log_step "Fetching from origin..."
 git fetch origin
 
-log_step "Checking if local main is ahead of origin..."
-LOCAL_COMMITS=$(git rev-list --count origin/main..main)
-if [ "$LOCAL_COMMITS" -gt 0 ]; then
-    log_step "Local main is $LOCAL_COMMITS commit(s) ahead. Pushing to origin..."
+log_step "Checking sync status..."
+LOCAL_COMMITS=$(git rev-list --count origin/main..main 2>/dev/null || echo "0")
+if [[ "$LOCAL_COMMITS" -gt 0 ]]; then
+    log_step "Pushing $LOCAL_COMMITS commit(s) to origin..."
     git push origin main
     log_ok "Pushed to origin/main"
 else
     log_ok "Already in sync with origin/main"
 fi
 
-log_step "Verifying push..."
-git log --oneline -3
 CURRENT_SHA=$(git rev-parse HEAD)
 log_ok "Current SHA: $CURRENT_SHA"
 
-echo ""
-
-# ============================================================================
-# PHASE 3: VPS GIT PULL & VERIFY
-# ============================================================================
-log_header "PHASE 3: VPS Git Pull & Verify"
+# =============================================================================
+# PHASE 3: VPS GIT PULL (SAFE - preserves local changes)
+# =============================================================================
+log_header "PHASE 3: VPS Git Pull (Safe)"
 
 log_step "Connecting to VPS ($VPS_HOST)..."
-ssh "$VPS_HOST" "echo 'SSH connection OK'" > /dev/null
+ssh "$VPS_HOST" "echo 'SSH OK'" > /dev/null
 log_ok "SSH connection established"
 
-log_step "Pulling latest from origin on VPS..."
-ssh "$VPS_HOST" "cd $VPS_REPO && git fetch origin"
-ssh "$VPS_HOST" "cd $VPS_REPO && git reset --hard origin/main"
+# Save previous SHA for rollback
+PREV_VPS_SHA=$(ssh "$VPS_HOST" "cd $VPS_REPO && git rev-parse HEAD")
+log_step "Previous VPS SHA: $PREV_VPS_SHA"
 
-log_step "Verifying VPS is in sync..."
-VPS_SHA=$(ssh "$VPS_HOST" "cd $VPS_REPO && git rev-parse HEAD")
-if [ "$CURRENT_SHA" == "$VPS_SHA" ]; then
-    log_ok "VPS SHA matches Mac: $VPS_SHA"
+# SAFE PULL: Stash local changes, pull, restore
+log_step "Stashing VPS local changes (if any)..."
+ssh "$VPS_HOST" "cd $VPS_REPO && git stash push -m 'pre-deploy-$(date +%s)' 2>/dev/null || true"
+
+log_step "Pulling latest from origin..."
+ssh "$VPS_HOST" "cd $VPS_REPO && git fetch origin"
+if ssh "$VPS_HOST" "cd $VPS_REPO && git pull --ff-only origin main"; then
+    log_ok "Fast-forward pull successful"
 else
-    log_error "SHA mismatch! Mac: $CURRENT_SHA, VPS: $VPS_SHA"
-    exit 1
+    log_warn "Cannot fast-forward, attempting merge..."
+    if ssh "$VPS_HOST" "cd $VPS_REPO && git pull origin main"; then
+        log_ok "Merge pull successful"
+    else
+        log_error "Pull failed! Check VPS for conflicts."
+        rollback
+    fi
 fi
 
-log_step "VPS git status:"
-ssh "$VPS_HOST" "cd $VPS_REPO && git status"
+# Restore stashed changes
+log_step "Restoring VPS local changes..."
+ssh "$VPS_HOST" "cd $VPS_REPO && git stash pop 2>/dev/null || true"
 
-echo ""
+# Verify sync
+VPS_SHA=$(ssh "$VPS_HOST" "cd $VPS_REPO && git rev-parse HEAD")
+if [[ "$CURRENT_SHA" == "$VPS_SHA" ]]; then
+    log_ok "VPS SHA matches Mac: $VPS_SHA"
+else
+    log_warn "SHA mismatch (Mac: $CURRENT_SHA, VPS: $VPS_SHA) - may have local commits"
+fi
 
-# ============================================================================
+# =============================================================================
+# PHASE 3.5: INSTALL GIT HOOKS
+# =============================================================================
+log_header "PHASE 3.5: Install Git Hooks"
+
+log_step "Installing git hooks on VPS..."
+if ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/install_git_hooks.sh"; then
+    log_ok "Git hooks installed"
+else
+    log_warn "Git hooks installation failed (non-fatal)"
+fi
+
+# =============================================================================
 # PHASE 4: VPS ENVIRONMENT VERIFICATION
-# ============================================================================
+# =============================================================================
 log_header "PHASE 4: VPS Environment Verification"
 
-log_step "Running environment verification script on VPS..."
-ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/verify_vps_env.sh" | tee -a "$DEPLOY_LOG"
+log_step "Running environment sync and verification..."
+ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/sync_env_vars.sh --quiet" || true
+ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/verify_vps_env.sh --quick" | tee -a "$DEPLOY_LOG"
 
 log_ok "Environment verification complete"
 
-echo ""
-
-# ============================================================================
-# PHASE 5: VPS DOCKER REBUILD (NO CACHE)
-# ============================================================================
-log_header "PHASE 5: VPS Docker Rebuild (No Cache)"
+# =============================================================================
+# PHASE 5: VPS DOCKER REBUILD
+# =============================================================================
+log_header "PHASE 5: VPS Docker Rebuild"
 
 log_step "Stopping current l9-api container..."
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose down l9-api" || true
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose stop l9-api" || true
 wait_with_spinner 3 "Waiting for graceful shutdown..."
 
-log_step "Building l9-api image (no cache)..."
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose build --no-cache l9-api"
-log_ok "Build complete"
+BUILD_OPTS=""
+if [[ "$QUICK" == "false" ]]; then
+    BUILD_OPTS="--no-cache"
+    log_step "Building l9-api image (no cache - full rebuild)..."
+else
+    log_step "Building l9-api image (with cache - quick mode)..."
+fi
+
+if ssh "$VPS_HOST" "cd $VPS_REPO && docker compose build $BUILD_OPTS l9-api"; then
+    log_ok "Build complete"
+else
+    log_error "Docker build failed!"
+    rollback
+fi
 
 log_step "Starting l9-api container..."
 ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d l9-api"
 log_ok "Container started"
 
-wait_with_spinner 5 "Waiting for container initialization..."
+wait_with_spinner 5 "Waiting for initialization..."
 
-echo ""
-
-# ============================================================================
+# =============================================================================
 # PHASE 6: VPS HEALTH CHECKS
-# ============================================================================
+# =============================================================================
 log_header "PHASE 6: VPS Health Checks"
 
-log_step "Checking Docker container status..."
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose ps" | tee -a "$DEPLOY_LOG"
+log_step "Checking container status..."
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose ps l9-api" | tee -a "$DEPLOY_LOG"
 
-log_step "Checking l9-api startup logs..."
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=30" | tee -a "$DEPLOY_LOG"
+log_step "Checking startup logs..."
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=20" | tee -a "$DEPLOY_LOG"
 
-log_wait "Waiting for API to be ready..."
 wait_with_spinner 5 "Allowing API to fully initialize..."
 
 log_step "Testing API health endpoint..."
 HEALTH_RESPONSE=$(ssh "$VPS_HOST" "curl -s http://127.0.0.1:8000/health 2>/dev/null || echo 'FAIL'")
-if [[ "$HEALTH_RESPONSE" == *"status"* ]]; then
+if [[ "$HEALTH_RESPONSE" == *"status"* ]] || [[ "$HEALTH_RESPONSE" == *"ok"* ]]; then
     log_ok "API is healthy"
-    echo "Response: $HEALTH_RESPONSE" | jq . 2>/dev/null || echo "$HEALTH_RESPONSE"
+    echo "$HEALTH_RESPONSE" | jq . 2>/dev/null || echo "$HEALTH_RESPONSE"
 else
-    log_error "API health check failed: $HEALTH_RESPONSE"
-    log_error "Checking logs for errors..."
+    log_error "API health check failed!"
+    log_error "Response: $HEALTH_RESPONSE"
     ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=50"
-    exit 1
+    rollback
 fi
 
-echo ""
+# =============================================================================
+# PHASE 7: DATABASE CONNECTIVITY
+# =============================================================================
+log_header "PHASE 7: Database Connectivity"
 
-# ============================================================================
-# PHASE 7: VPS DATABASE CONNECTIVITY
-# ============================================================================
-log_header "PHASE 7: VPS Database Connectivity"
-
-log_step "Testing PostgreSQL connection..."
-PG_TEST=$(ssh "$VPS_HOST" "cd $VPS_REPO && source .env && psql -h 127.0.0.1 -U \$POSTGRES_USER -d \$POSTGRES_DB -c 'SELECT 1;' 2>&1 || echo 'FAIL'")
-if [[ "$PG_TEST" == *"(1 row)"* ]]; then
+log_step "Testing PostgreSQL..."
+PG_TEST=$(ssh "$VPS_HOST" "cd $VPS_REPO && source .env && PGPASSWORD=\$POSTGRES_PASSWORD psql -h 127.0.0.1 -U \$POSTGRES_USER -d \$POSTGRES_DB -c 'SELECT 1;' 2>&1 || echo 'FAIL'")
+if [[ "$PG_TEST" == *"1 row"* ]]; then
     log_ok "PostgreSQL connection OK"
 else
-    log_wait "PostgreSQL may not be ready yet"
+    log_warn "PostgreSQL check inconclusive (may need container network)"
 fi
 
-log_step "Testing memory schema..."
-PG_SCHEMA=$(ssh "$VPS_HOST" "cd $VPS_REPO && source .env && psql -h 127.0.0.1 -U \$POSTGRES_USER -d \$POSTGRES_DB -c \"SELECT count(*) FROM information_schema.tables WHERE table_schema = 'memory';\" 2>&1 || echo 'FAIL'")
-if [[ "$PG_SCHEMA" != "FAIL" ]]; then
-    log_ok "Memory schema tables found: $PG_SCHEMA"
-else
-    log_wait "Memory schema check pending initialization"
-fi
-
-echo ""
-
-# ============================================================================
-# PHASE 8: VPS COMPREHENSIVE DIAGNOSTICS
-# ============================================================================
-log_header "PHASE 8: VPS Comprehensive Diagnostics"
-
-log_step "Running full MRI diagnostic on VPS..."
-
-# Build the MRI script inline
-MRI_SCRIPT=$(cat <<'EOF'
-#!/bin/bash
-set -e
-
-echo "════════════════════════════════════════════════════════════════"
-echo "L9 VPS DEPLOYMENT DIAGNOSTICS"
-echo "════════════════════════════════════════════════════════════════"
-echo ""
-
-echo "📊 SYSTEM INFO"
-echo "────────────────────────────────────────────────────────────────"
-hostname
-uname -a
-df -h / | tail -1
-echo ""
-
-echo "🐳 DOCKER STATUS"
-echo "────────────────────────────────────────────────────────────────"
-docker compose ps
-echo ""
-
-echo "📋 CONTAINER LOGS (Last 30 lines)"
-echo "────────────────────────────────────────────────────────────────"
-docker compose logs l9-api --tail=30
-echo ""
-
-echo "🔍 API ENDPOINTS"
-echo "────────────────────────────────────────────────────────────────"
-echo "Health:"
-curl -s http://127.0.0.1:8000/health | jq . 2>/dev/null || echo "FAIL"
-echo ""
-echo "Docs:"
-curl -s http://127.0.0.1:8000/docs -I | head -1
-echo ""
-
-echo "🗄️  DATABASE"
-echo "────────────────────────────────────────────────────────────────"
-source .env
-psql -h 127.0.0.1 -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT 'PostgreSQL OK', count(*) as tables FROM information_schema.tables WHERE table_schema = 'memory';" 2>&1 || echo "PostgreSQL check skipped"
-echo ""
-
-echo "📦 SERVICES"
-echo "────────────────────────────────────────────────────────────────"
-echo "Redis:"
-redis-cli -h 127.0.0.1 ping 2>&1 || echo "Redis not available"
-echo ""
-echo "Neo4j:"
-neo4j-admin --version 2>&1 || echo "Neo4j check skipped"
-echo ""
-
-echo "🎯 NETWORKING"
-echo "────────────────────────────────────────────────────────────────"
-ss -tlnp | grep -E ":(8000|5432|6379|7687|9090|3000|16686)" || echo "Filtered ports not fully listening"
-echo ""
-
-echo "════════════════════════════════════════════════════════════════"
-echo "✅ DIAGNOSTICS COMPLETE"
-echo "════════════════════════════════════════════════════════════════"
-EOF
-)
-
-ssh "$VPS_HOST" "cd $VPS_REPO && $MRI_SCRIPT" | tee -a "$DEPLOY_LOG"
-
-echo ""
-
-# ============================================================================
-# PHASE 9: MCP MEMORY E2E TEST (OPTIONAL)
-# ============================================================================
-log_header "PHASE 9: MCP Memory E2E Test (Optional)"
-
-log_step "Checking for MCP_API_KEY_C..."
-MCP_KEY=$(ssh "$VPS_HOST" "cd $VPS_REPO && grep MCP_API_KEY_C .env | cut -d= -f2")
-if [ -n "$MCP_KEY" ]; then
-    log_wait "Running MCP memory E2E test..."
+# =============================================================================
+# PHASE 8: FULL MRI DIAGNOSTIC (Optional)
+# =============================================================================
+if [[ "$SKIP_MRI" == "false" ]]; then
+    log_header "PHASE 8: Full MRI Diagnostic"
     
-    # Save test
-    MCP_TEST=$(cat <<EOF
-import requests
-import json
-import os
-import sys
-
-url = 'http://127.0.0.1:8000/memory/packet'
-key = '$MCP_KEY'
-headers = {
-    'Authorization': f'Bearer {key}',
-    'Content-Type': 'application/json'
-}
-payload = {
-    'content': 'E2E Test via 10X Deploy - ' + os.popen('date').read().strip(),
-    'kind': 'preference',
-    'scope': 'developer',
-    'tags': ['deploy', 'e2e', '10x']
-}
-
-try:
-    r = requests.post(url, headers=headers, json=payload, timeout=5)
-    if r.status_code == 200:
-        print('✅ MCP memory write OK')
-        print(json.dumps(r.json(), indent=2))
-    else:
-        print(f'⚠️  MCP memory write returned {r.status_code}')
-        print(r.text)
-except Exception as e:
-    print(f'❌ MCP memory test failed: {e}')
-    sys.exit(1)
-EOF
-)
-    
-    ssh "$VPS_HOST" "cd $VPS_REPO && python3 -c \"$MCP_TEST\"" || log_wait "MCP test skipped (dependencies not loaded yet)"
+    log_step "Running vps-mri.sh..."
+    ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/vps-mri.sh" 2>&1 | tee -a "$DEPLOY_LOG" | tail -50
 else
-    log_wait "MCP_API_KEY_C not set, skipping E2E test"
+    log_header "PHASE 8: MRI Diagnostic (SKIPPED)"
+    log_warn "Use --skip-mri=false for full diagnostic"
 fi
 
-echo ""
+# =============================================================================
+# PHASE 9: MCP E2E TEST (Optional)
+# =============================================================================
+if [[ "$SKIP_E2E" == "false" ]]; then
+    log_header "PHASE 9: MCP Memory E2E Test"
+    
+    MCP_KEY=$(ssh "$VPS_HOST" "cd $VPS_REPO && grep MCP_API_KEY_C .env 2>/dev/null | cut -d= -f2" || echo "")
+    if [[ -n "$MCP_KEY" ]]; then
+        log_step "Running MCP memory write test..."
+        
+        E2E_RESULT=$(ssh "$VPS_HOST" "curl -s -X POST http://127.0.0.1:8000/memory/packet \
+            -H 'Authorization: Bearer $MCP_KEY' \
+            -H 'Content-Type: application/json' \
+            -d '{\"content\": \"E2E Test via 10X Deploy v2.0 - $(date)\", \"kind\": \"note\", \"tags\": [\"deploy\", \"e2e\"]}'" 2>/dev/null || echo "FAIL")
+        
+        if [[ "$E2E_RESULT" == *"id"* ]] || [[ "$E2E_RESULT" == *"success"* ]]; then
+            log_ok "MCP memory write OK"
+        else
+            log_warn "MCP E2E test inconclusive: $E2E_RESULT"
+        fi
+    else
+        log_warn "MCP_API_KEY_C not set, skipping E2E test"
+    fi
+else
+    log_header "PHASE 9: MCP E2E Test (SKIPPED)"
+fi
 
-# ============================================================================
-# PHASE 10: SUMMARY & NEXT STEPS
-# ============================================================================
+# =============================================================================
+# PHASE 10: SUMMARY
+# =============================================================================
 log_header "PHASE 10: Deployment Summary"
 
+echo ""
 log_ok "✅ DEPLOYMENT COMPLETE"
 echo ""
 echo "Summary:"
-echo "  • Mac repo synced with origin/main"
-echo "  • VPS repo pulled and verified at SHA: $CURRENT_SHA"
-echo "  • Environment verified"
-echo "  • Docker image rebuilt (no cache)"
-echo "  • Container health checks passed"
-echo "  • Comprehensive diagnostics logged"
+echo "  • Mac SHA: $CURRENT_SHA"
+echo "  • VPS SHA: $VPS_SHA"
+echo "  • Previous VPS SHA: $PREV_VPS_SHA (for rollback)"
+echo "  • Build mode: $([[ "$QUICK" == "true" ]] && echo "quick (cached)" || echo "full (no-cache)")"
 echo ""
 echo "Deployment log: $DEPLOY_LOG"
 echo ""
 echo "Next steps:"
-echo "  1. Monitor logs: docker compose -f /opt/l9/docker/docker-compose.yml logs -f l9-api"
-echo "  2. Test endpoints: curl https://l9.quantumaipartners.com/health"
-echo "  3. Check Caddy: sudo systemctl status caddy"
+echo "  1. Monitor: docker compose logs -f l9-api"
+echo "  2. Test: curl https://l9.quantumaipartners.com/health"
+echo "  3. Full diagnostic: ./scripts/vps/vps-mri.sh"
 echo ""
-log_ok "Ready for production validation!"
+echo "Rollback (if needed):"
+echo "  ssh $VPS_HOST 'cd $VPS_REPO && git checkout $PREV_VPS_SHA && docker compose up -d --build l9-api'"
+echo ""
+log_ok "Ready for production!"

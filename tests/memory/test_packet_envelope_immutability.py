@@ -19,7 +19,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from memory.substrate_models import (
+from core.schemas.packet_envelope_v2 import (
     PacketConfidence,
     PacketEnvelope,
     PacketLineage,

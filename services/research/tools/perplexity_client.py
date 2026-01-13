@@ -1,6 +1,6 @@
 """
 L9 Research Department - Perplexity Client
-Version: 2.0.0
+Version: 3.0.0
 
 Production Perplexity API client with best practices codified.
 
@@ -11,6 +11,8 @@ Best Practices (from Perplexity docs):
 4. One focused topic per query
 5. Think like a web search user
 6. Explicit limitations: "If you cannot find reliable sources, say so"
+
+v3.0.0: Added retry logic with exponential backoff for transient failures
 """
 
 import structlog
@@ -20,7 +22,17 @@ from typing import Any, Optional
 
 import httpx
 
+from core.resilience.retry import async_retry, AsyncRetryConfig
+
 log = structlog.get_logger(__name__)
+
+# Retry configuration for Perplexity API (longer timeouts for deep research)
+PERPLEXITY_RETRY_CONFIG = AsyncRetryConfig(
+    max_retries=3,
+    base_backoff=1.0,  # Slightly longer base for API rate limits
+    max_backoff=30.0,
+    jitter=0.2,
+)
 
 
 class PerplexityModel(str, Enum):
@@ -186,32 +198,51 @@ class PerplexityClient:
             if not self._client:
                 self._client = httpx.AsyncClient(timeout=300.0)
 
-            response = await self._client.post(
-                f"{self.BASE_URL}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
+            async def _make_request():
+                """Inner function for retry logic."""
+                response = await self._client.post(
+                    f"{self.BASE_URL}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                )
+
+                # 5xx errors are transient - raise to trigger retry
+                if response.status_code >= 500:
+                    raise httpx.HTTPStatusError(
+                        f"Server error {response.status_code}",
+                        request=response.request,
+                        response=response,
+                    )
+
+                # 4xx errors are not retryable - return error response
+                if response.status_code >= 400:
+                    error_text = response.text[:500]
+                    log.error(
+                        "perplexity_error", status=response.status_code, error=error_text
+                    )
+                    return PerplexityResponse(
+                        success=False,
+                        content="",
+                        citations=[],
+                        model=request.model.value,
+                        tokens_used=0,
+                        cost=0.0,
+                        error=f"HTTP {response.status_code}: {error_text}",
+                    )
+
+                data = response.json()
+                return self._parse_response(data, request.model)
+
+            # Execute with retry for transient errors (timeouts, connection errors, 5xx)
+            return await async_retry(
+                _make_request,
+                config=PERPLEXITY_RETRY_CONFIG,
+                operation=f"perplexity_search_{request.model.value}",
+                retry_on=(httpx.TimeoutException, httpx.ConnectError, httpx.HTTPStatusError),
             )
-
-            if response.status_code != 200:
-                error_text = response.text[:500]
-                log.error(
-                    "perplexity_error", status=response.status_code, error=error_text
-                )
-                return PerplexityResponse(
-                    success=False,
-                    content="",
-                    citations=[],
-                    model=request.model.value,
-                    tokens_used=0,
-                    cost=0.0,
-                    error=f"HTTP {response.status_code}: {error_text}",
-                )
-
-            data = response.json()
-            return self._parse_response(data, request.model)
 
         except httpx.TimeoutException:
             log.error("perplexity_timeout", model=request.model.value)
@@ -222,7 +253,7 @@ class PerplexityClient:
                 model=request.model.value,
                 tokens_used=0,
                 cost=0.0,
-                error="Request timed out (deep research can take 2-5 minutes)",
+                error="Request timed out after retries (deep research can take 2-5 minutes)",
             )
         except Exception as e:
             log.error("perplexity_exception", error=str(e))

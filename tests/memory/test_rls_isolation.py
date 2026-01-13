@@ -114,7 +114,7 @@ class TestRLSIsolation:
     async def test_repository_uses_rls_connection_when_available(self):
         """Verify repository methods use RLS connection when available."""
         from memory.substrate_repository import SubstrateRepository, _current_rls_connection
-        from memory.substrate_models import PacketEnvelope, PacketMetadata, PacketProvenance
+        from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketMetadata, PacketProvenance
         
         # Mock RLS connection in context
         mock_rls_conn = AsyncMock()
@@ -148,7 +148,7 @@ class TestRLSIsolation:
     async def test_repository_uses_pool_when_no_rls_connection(self):
         """Verify repository methods use pool when no RLS connection available."""
         from memory.substrate_repository import SubstrateRepository
-        from memory.substrate_models import PacketEnvelope, PacketMetadata, PacketProvenance
+        from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketMetadata, PacketProvenance
         
         # Mock connection pool
         mock_pool = MagicMock()

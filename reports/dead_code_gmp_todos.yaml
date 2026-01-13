@@ -1,0 +1,3335 @@
+# GMP Phase 0 TODO Plan: Dead Code Remediation
+# Generated: 2026-01-13 18:16 EST
+
+gmp_id: GMP-63
+task_name: dead_code_remediation
+risk_level: Medium
+generated_at: 2026-01-13 18:16 EST
+
+summary:
+  total_todos: 302
+  auto_fixable: 0
+  manual_review: 0
+
+todos:
+  - id: DC-W001
+    file: core/memory/virtual_context.py
+    target_symbol: "Memory.semantic_importance"
+    lines: "41"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Memory.semantic_importance' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W002
+    file: core/memory/virtual_context.py
+    target_symbol: "Context.working_memory"
+    lines: "50"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Context.working_memory' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W003
+    file: core/memory/virtual_context.py
+    target_symbol: "Context.archival_memory"
+    lines: "51"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Context.archival_memory' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W004
+    file: core/agents/graph_state/graph_hydrator.py
+    target_symbol: "HydratedAgentContext.all_directives"
+    lines: "60"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HydratedAgentContext.all_directives' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W005
+    file: core/agents/graph_state/graph_hydrator.py
+    target_symbol: "HydratedAgentContext.safety_constraints"
+    lines: "67"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HydratedAgentContext.safety_constraints' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W006
+    file: core/agents/graph_state/agent_graph_loader.py
+    target_symbol: "AgentGraphState.collaborator_ids"
+    lines: "89"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AgentGraphState.collaborator_ids' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W007
+    file: core/governance/quick_fixes.py
+    target_symbol: "FixResult.fix_id"
+    lines: "58"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'FixResult.fix_id' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W008
+    file: core/governance/quick_fixes.py
+    target_symbol: "FixResult.original_match"
+    lines: "62"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'FixResult.original_match' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W009
+    file: core/governance/quick_fixes.py
+    target_symbol: "FixResult.fixed_content"
+    lines: "63"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'FixResult.fixed_content' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W010
+    file: core/governance/approval_gate.py
+    target_symbol: "EscalationResult.overrides"
+    lines: "36"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EscalationResult.overrides' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W011
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationExample.expected_output"
+    lines: "29"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationExample.expected_output' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W012
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationExample.success_criteria"
+    lines: "32"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationExample.success_criteria' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W013
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationResult.eval_set_name"
+    lines: "47"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationResult.eval_set_name' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W014
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationResult.avg_latency_ms"
+    lines: "52"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationResult.avg_latency_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W015
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationResult.max_latency_ms"
+    lines: "53"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationResult.max_latency_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W016
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationResult.min_latency_ms"
+    lines: "54"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationResult.min_latency_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W017
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationResult.p95_latency_ms"
+    lines: "55"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationResult.p95_latency_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W018
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationResult.tool_accuracy"
+    lines: "56"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationResult.tool_accuracy' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W019
+    file: core/evaluation/evaluator.py
+    target_symbol: "EvaluationResult.llm_as_judge_score"
+    lines: "57"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationResult.llm_as_judge_score' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W020
+    file: memory/cypher_templates.py
+    target_symbol: "CypherTemplate.example_params"
+    lines: "59"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CypherTemplate.example_params' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W021
+    file: memory/schema_introspection.py
+    target_symbol: "TableInfo.schema_name"
+    lines: "46"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TableInfo.schema_name' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W022
+    file: memory/schema_introspection.py
+    target_symbol: "Neo4jLabelInfo.property_types"
+    lines: "68"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Neo4jLabelInfo.property_types' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W023
+    file: memory/schema_introspection.py
+    target_symbol: "SchemaSnapshot.indexes"
+    lines: "88"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SchemaSnapshot.indexes' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W024
+    file: memory/schema_introspection.py
+    target_symbol: "SchemaSnapshot.relationship_types"
+    lines: "92"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SchemaSnapshot.relationship_types' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W025
+    file: memory/schema_introspection.py
+    target_symbol: "SchemaSnapshot.captured_at"
+    lines: "95"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SchemaSnapshot.captured_at' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W026
+    file: memory/schema_introspection.py
+    target_symbol: "SchemaSnapshot.postgres_version"
+    lines: "96"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SchemaSnapshot.postgres_version' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W027
+    file: memory/schema_introspection.py
+    target_symbol: "SchemaSnapshot.neo4j_version"
+    lines: "97"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SchemaSnapshot.neo4j_version' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W028
+    file: memory/tool_router.py
+    target_symbol: "ToolSearchResult.search_time_ms"
+    lines: "102"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ToolSearchResult.search_time_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W029
+    file: memory/tool_router.py
+    target_symbol: "ToolSearchResult.total_tools"
+    lines: "103"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ToolSearchResult.total_tools' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W030
+    file: memory/hybrid_rag.py
+    target_symbol: "GraphEnrichment.relationship_paths"
+    lines: "73"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GraphEnrichment.relationship_paths' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W031
+    file: memory/hybrid_rag.py
+    target_symbol: "GraphEnrichment.causal_chain"
+    lines: "76"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GraphEnrichment.causal_chain' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W032
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridResult.vector_hit"
+    lines: "88"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridResult.vector_hit' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W033
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridResult.enrichment"
+    lines: "91"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridResult.enrichment' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W034
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridResult.ranking_factors"
+    lines: "97"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridResult.ranking_factors' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W035
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridSearchResult.vector_search_ms"
+    lines: "108"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridSearchResult.vector_search_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W036
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridSearchResult.entity_extraction_ms"
+    lines: "109"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridSearchResult.entity_extraction_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W037
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridSearchResult.graph_enrichment_ms"
+    lines: "110"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridSearchResult.graph_enrichment_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W038
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridSearchResult.total_ms"
+    lines: "111"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridSearchResult.total_ms' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W039
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridSearchResult.vector_hits_count"
+    lines: "114"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridSearchResult.vector_hits_count' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W040
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridSearchResult.enriched_count"
+    lines: "115"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridSearchResult.enriched_count' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W041
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridSearchResult.total_entities_found"
+    lines: "116"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridSearchResult.total_entities_found' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W042
+    file: memory/hybrid_rag.py
+    target_symbol: "HybridSearchResult.total_relationships_found"
+    lines: "117"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HybridSearchResult.total_relationships_found' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W043
+    file: memory/graph_memory.py
+    target_symbol: "GraphSession.ended_at"
+    lines: "94"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GraphSession.ended_at' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W044
+    file: memory/graph_memory.py
+    target_symbol: "GraphSession.message_count"
+    lines: "99"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GraphSession.message_count' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W045
+    file: memory/graph_memory.py
+    target_symbol: "ConversationContext.related_sessions"
+    lines: "110"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ConversationContext.related_sessions' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W046
+    file: memory/graph_memory.py
+    target_symbol: "ConversationContext.time_range_start"
+    lines: "116"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ConversationContext.time_range_start' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W047
+    file: memory/graph_memory.py
+    target_symbol: "ConversationContext.time_range_end"
+    lines: "117"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ConversationContext.time_range_end' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W048
+    file: runtime/superprompt_emitter.py
+    target_symbol: "SpecGap.suggestion"
+    lines: "46"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SpecGap.suggestion' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W049
+    file: runtime/superprompt_emitter.py
+    target_symbol: "GapAnalysis.important_gaps"
+    lines: "57"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GapAnalysis.important_gaps' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W050
+    file: runtime/superprompt_emitter.py
+    target_symbol: "GapAnalysis.optional_gaps"
+    lines: "58"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GapAnalysis.optional_gaps' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W051
+    file: runtime/superprompt_emitter.py
+    target_symbol: "SuperPrompt.gaps_to_fill"
+    lines: "255"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SuperPrompt.gaps_to_fill' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W052
+    file: runtime/superprompt_emitter.py
+    target_symbol: "SuperPrompt.expected_format"
+    lines: "257"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SuperPrompt.expected_format' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W053
+    file: world_model/updater.py
+    target_symbol: "UpdateResult.affected_ids"
+    lines: "62"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'UpdateResult.affected_ids' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W054
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.twilio_adapter_enabled"
+    lines: "43"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.twilio_adapter_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W055
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.twilio_adapter_log_level"
+    lines: "44"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.twilio_adapter_log_level' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W056
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.default_timeout_seconds"
+    lines: "52"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.default_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W057
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.aios_timeout_seconds"
+    lines: "53"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.aios_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W058
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.dedupe_cache_ttl_seconds"
+    lines: "56"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.dedupe_cache_ttl_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W059
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.calendar_adapter_enabled"
+    lines: "42"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.calendar_adapter_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W060
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.calendar_adapter_log_level"
+    lines: "43"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.calendar_adapter_log_level' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W061
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.calendar_sync_interval_minutes"
+    lines: "44"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.calendar_sync_interval_minutes' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W062
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.default_timeout_seconds"
+    lines: "52"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.default_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W063
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.aios_timeout_seconds"
+    lines: "53"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.aios_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W064
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.dedupe_cache_ttl_seconds"
+    lines: "56"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.dedupe_cache_ttl_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W065
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.email_adapter_enabled"
+    lines: "42"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.email_adapter_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W066
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.email_adapter_log_level"
+    lines: "43"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.email_adapter_log_level' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W067
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.default_timeout_seconds"
+    lines: "51"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.default_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W068
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.aios_timeout_seconds"
+    lines: "52"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.aios_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W069
+    file: codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.dedupe_cache_ttl_seconds"
+    lines: "55"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.dedupe_cache_ttl_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W070
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py
+    target_symbol: "ProcessedEmbedding.original_dim"
+    lines: "37"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ProcessedEmbedding.original_dim' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W071
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py
+    target_symbol: "ProcessedEmbedding.processed_dim"
+    lines: "38"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ProcessedEmbedding.processed_dim' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W072
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/embedding_processor.py
+    target_symbol: "ProcessedEmbedding.normalized"
+    lines: "40"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ProcessedEmbedding.normalized' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W073
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py
+    target_symbol: "Rule.rule_type"
+    lines: "38"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Rule.rule_type' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W074
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py
+    target_symbol: "ComplianceResult.compliant"
+    lines: "46"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ComplianceResult.compliant' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W075
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py
+    target_symbol: "ComplianceResult.rules_checked"
+    lines: "47"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ComplianceResult.rules_checked' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W076
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py
+    target_symbol: "Analogy.source_domain"
+    lines: "37"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Analogy.source_domain' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W077
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py
+    target_symbol: "Analogy.target_domain"
+    lines: "38"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Analogy.target_domain' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W078
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py
+    target_symbol: "Analogy.mapping"
+    lines: "41"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Analogy.mapping' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W079
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
+    target_symbol: "ReasoningResult.modes_applied"
+    lines: "43"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ReasoningResult.modes_applied' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W080
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
+    target_symbol: "CausalFactor.factor_id"
+    lines: "38"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CausalFactor.factor_id' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W081
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
+    target_symbol: "CausalFactor.factor_type"
+    lines: "39"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CausalFactor.factor_type' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W082
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
+    target_symbol: "CausalFactor.direction"
+    lines: "41"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CausalFactor.direction' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W083
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
+    target_symbol: "Pattern.pattern_type"
+    lines: "48"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Pattern.pattern_type' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W084
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
+    target_symbol: "Pattern.window_days"
+    lines: "50"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Pattern.window_days' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W085
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
+    target_symbol: "AnomalyResponse.handled"
+    lines: "57"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AnomalyResponse.handled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W086
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
+    target_symbol: "AnomalyResponse.action_taken"
+    lines: "58"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AnomalyResponse.action_taken' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W087
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
+    target_symbol: "AnomalyResponse.escalated"
+    lines: "59"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AnomalyResponse.escalated' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W088
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py
+    target_symbol: "AuditResult.audit_passed"
+    lines: "37"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AuditResult.audit_passed' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W089
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py
+    target_symbol: "AuditResult.issues_found"
+    lines: "38"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AuditResult.issues_found' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W090
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py
+    target_symbol: "AuditResult.suggestions"
+    lines: "40"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AuditResult.suggestions' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W091
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
+    target_symbol: "Decision.reasoning_summary"
+    lines: "41"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Decision.reasoning_summary' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W092
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
+    target_symbol: "Decision.contributing_modes"
+    lines: "42"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Decision.contributing_modes' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W093
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
+    target_symbol: "Decision.conflicts_resolved"
+    lines: "43"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Decision.conflicts_resolved' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W094
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
+    target_symbol: "RoutingResult.handler_name"
+    lines: "41"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RoutingResult.handler_name' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W095
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
+    target_symbol: "RoutingResult.route_confidence"
+    lines: "43"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RoutingResult.route_confidence' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W096
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
+    target_symbol: "RoutingResult.fallback_used"
+    lines: "44"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RoutingResult.fallback_used' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W097
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py
+    target_symbol: "CausalResult.causal_chain"
+    lines: "37"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CausalResult.causal_chain' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W098
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py
+    target_symbol: "CausalResult.intervention_points"
+    lines: "38"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CausalResult.intervention_points' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W099
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py
+    target_symbol: "CausalResult.causal_confidence"
+    lines: "39"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CausalResult.causal_confidence' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W100
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py
+    target_symbol: "RuleResult.rules_applied"
+    lines: "37"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RuleResult.rules_applied' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W101
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py
+    target_symbol: "RuleResult.rule_confidence"
+    lines: "38"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RuleResult.rule_confidence' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W102
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py
+    target_symbol: "DomainContext.entity_data"
+    lines: "40"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DomainContext.entity_data' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W103
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py
+    target_symbol: "DomainContext.domain_rules"
+    lines: "41"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DomainContext.domain_rules' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W104
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
+    target_symbol: "EscalationResult.escalated"
+    lines: "55"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EscalationResult.escalated' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W105
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
+    target_symbol: "EscalationResult.anchor"
+    lines: "56"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EscalationResult.anchor' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W106
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
+    target_symbol: "GovernanceResult.escalation_level"
+    lines: "56"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GovernanceResult.escalation_level' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W107
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
+    target_symbol: "GovernanceResult.audit_id"
+    lines: "57"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GovernanceResult.audit_id' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W108
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
+    target_symbol: "EscalationResult.escalated"
+    lines: "65"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EscalationResult.escalated' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W109
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
+    target_symbol: "EscalationResult.anchor"
+    lines: "66"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EscalationResult.anchor' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W110
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py
+    target_symbol: "EnrichedContext.original_payload"
+    lines: "41"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EnrichedContext.original_payload' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W111
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py
+    target_symbol: "EnrichedContext.world_model_data"
+    lines: "42"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EnrichedContext.world_model_data' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W112
+    file: codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py
+    target_symbol: "EnrichedContext.semantic_entities"
+    lines: "44"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EnrichedContext.semantic_entities' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W113
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py
+    target_symbol: "ServiceProbe.expected_response"
+    lines: "66"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ServiceProbe.expected_response' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W114
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py
+    target_symbol: "ConfigValidationError.actual_type"
+    lines: "92"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ConfigValidationError.actual_type' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W115
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py
+    target_symbol: "HealthReport.performance_baseline"
+    lines: "106"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'HealthReport.performance_baseline' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W116
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "FunctionDef.has_params"
+    lines: "94"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'FunctionDef.has_params' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W117
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "FunctionDef.is_private"
+    lines: "96"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'FunctionDef.is_private' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W118
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "ClassDef.base_classes"
+    lines: "104"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ClassDef.base_classes' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W119
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "CallGraphEdge.callee"
+    lines: "113"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CallGraphEdge.callee' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W120
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "CallGraphEdge.caller_file"
+    lines: "114"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CallGraphEdge.caller_file' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W121
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "IntegrityIssue.issue_type"
+    lines: "120"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IntegrityIssue.issue_type' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W122
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "IntegrityIssue.suggestion"
+    lines: "126"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IntegrityIssue.suggestion' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W123
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "IntegrityReport.duplicate_classes"
+    lines: "135"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IntegrityReport.duplicate_classes' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W124
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "IntegrityReport.dead_code_patterns"
+    lines: "136"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IntegrityReport.dead_code_patterns' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W125
+    file: scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+    target_symbol: "IntegrityReport.call_graph"
+    lines: "137"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IntegrityReport.call_graph' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W126
+    file: api/adapters/calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.calendar_adapter_enabled"
+    lines: "46"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.calendar_adapter_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W127
+    file: api/adapters/calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.calendar_adapter_log_level"
+    lines: "49"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.calendar_adapter_log_level' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W128
+    file: api/adapters/calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.calendar_sync_interval_minutes"
+    lines: "52"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.calendar_sync_interval_minutes' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W129
+    file: api/adapters/calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.default_timeout_seconds"
+    lines: "62"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.default_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W130
+    file: api/adapters/calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.aios_timeout_seconds"
+    lines: "63"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.aios_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W131
+    file: api/adapters/calendar_adapter/config.py
+    target_symbol: "CalendarAdapterConfig.dedupe_cache_ttl_seconds"
+    lines: "66"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CalendarAdapterConfig.dedupe_cache_ttl_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W132
+    file: api/adapters/email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.email_adapter_log_level"
+    lines: "49"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.email_adapter_log_level' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W133
+    file: api/adapters/email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.default_timeout_seconds"
+    lines: "59"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.default_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W134
+    file: api/adapters/email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.aios_timeout_seconds"
+    lines: "60"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.aios_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W135
+    file: api/adapters/email_adapter/config.py
+    target_symbol: "EmailAdapterConfig.dedupe_cache_ttl_seconds"
+    lines: "63"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EmailAdapterConfig.dedupe_cache_ttl_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W136
+    file: api/adapters/twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.twilio_whatsapp_number"
+    lines: "52"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.twilio_whatsapp_number' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W137
+    file: api/adapters/twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.twilio_adapter_log_level"
+    lines: "55"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.twilio_adapter_log_level' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W138
+    file: api/adapters/twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.default_timeout_seconds"
+    lines: "65"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.default_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W139
+    file: api/adapters/twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.aios_timeout_seconds"
+    lines: "66"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.aios_timeout_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W140
+    file: api/adapters/twilio_adapter/config.py
+    target_symbol: "TwilioAdapterConfig.dedupe_cache_ttl_seconds"
+    lines: "69"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TwilioAdapterConfig.dedupe_cache_ttl_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W141
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "JaegerConfig.sample_rate"
+    lines: "53"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'JaegerConfig.sample_rate' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W142
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "JaegerConfig.max_tag_length"
+    lines: "54"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'JaegerConfig.max_tag_length' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W143
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "PrometheusConfig.namespace"
+    lines: "62"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PrometheusConfig.namespace' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W144
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "ObservabilityPhaseConfig.trace_internal_calls"
+    lines: "73"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityPhaseConfig.trace_internal_calls' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W145
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "ObservabilityPhaseConfig.trace_cache_ops"
+    lines: "74"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityPhaseConfig.trace_cache_ops' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W146
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "ObservabilityPhaseConfig.trace_serialization"
+    lines: "75"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityPhaseConfig.trace_serialization' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W147
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "CloudEventsConfig.spec_version"
+    lines: "87"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CloudEventsConfig.spec_version' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W148
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "CloudEventsConfig.source_prefix"
+    lines: "88"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CloudEventsConfig.source_prefix' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W149
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "CloudEventsConfig.default_content_type"
+    lines: "89"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CloudEventsConfig.default_content_type' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W150
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "CloudEventsConfig.max_event_size_bytes"
+    lines: "90"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CloudEventsConfig.max_event_size_bytes' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W151
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "CloudEventsConfig.schema_validation_enabled"
+    lines: "91"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CloudEventsConfig.schema_validation_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W152
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "BatchIngestionConfig.idempotency_cache_ttl_seconds"
+    lines: "109"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'BatchIngestionConfig.idempotency_cache_ttl_seconds' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W153
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "EventStoreConfig.max_events_per_aggregate"
+    lines: "117"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EventStoreConfig.max_events_per_aggregate' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W154
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "EventStoreConfig.enable_compression"
+    lines: "118"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EventStoreConfig.enable_compression' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W155
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "ScalabilityPhaseConfig.cqrs_enabled"
+    lines: "127"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ScalabilityPhaseConfig.cqrs_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W156
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "ScalabilityPhaseConfig.streaming_enabled"
+    lines: "128"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ScalabilityPhaseConfig.streaming_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W157
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "RetentionConfig.default_ttl_days"
+    lines: "140"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RetentionConfig.default_ttl_days' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W158
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "RetentionConfig.pii_ttl_days"
+    lines: "141"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RetentionConfig.pii_ttl_days' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W159
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "RetentionConfig.audit_log_ttl_days"
+    lines: "142"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RetentionConfig.audit_log_ttl_days' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W160
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "RetentionConfig.enable_auto_cleanup"
+    lines: "143"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RetentionConfig.enable_auto_cleanup' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W161
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "RetentionConfig.cleanup_batch_size"
+    lines: "144"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RetentionConfig.cleanup_batch_size' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W162
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "GDPRConfig.enable_anonymization"
+    lines: "153"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GDPRConfig.enable_anonymization' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W163
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "GDPRConfig.proof_signature_algorithm"
+    lines: "154"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GDPRConfig.proof_signature_algorithm' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W164
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "GovernancePhaseConfig.retention"
+    lines: "161"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GovernancePhaseConfig.retention' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W165
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "GovernancePhaseConfig.compliance_logging_enabled"
+    lines: "163"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'GovernancePhaseConfig.compliance_logging_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W166
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "PacketEnvelopeUpgradeConfig.phase_2_enabled"
+    lines: "176"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PacketEnvelopeUpgradeConfig.phase_2_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W167
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "PacketEnvelopeUpgradeConfig.phase_3_enabled"
+    lines: "179"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PacketEnvelopeUpgradeConfig.phase_3_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W168
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "PacketEnvelopeUpgradeConfig.phase_4_enabled"
+    lines: "182"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PacketEnvelopeUpgradeConfig.phase_4_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W169
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "PacketEnvelopeUpgradeConfig.phase_5_enabled"
+    lines: "185"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PacketEnvelopeUpgradeConfig.phase_5_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W170
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "PacketEnvelopeUpgradeConfig.rollback_enabled"
+    lines: "199"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PacketEnvelopeUpgradeConfig.rollback_enabled' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W171
+    file: upgrades/packet_envelope/config.py
+    target_symbol: "PacketEnvelopeUpgradeConfig.dry_run_mode"
+    lines: "200"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PacketEnvelopeUpgradeConfig.dry_run_mode' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W172
+    file: upgrades/packet_envelope/scalability.py
+    target_symbol: "Snapshot.aggregate_version"
+    lines: "424"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Snapshot.aggregate_version' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W173
+    file: upgrades/packet_envelope/integration.py
+    target_symbol: "UpgradeState.rollback_available"
+    lines: "71"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'UpgradeState.rollback_available' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W174
+    file: igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py
+    target_symbol: "AlignmentReport.missing_in_postgres"
+    lines: "16"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AlignmentReport.missing_in_postgres' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W175
+    file: igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py
+    target_symbol: "AlignmentReport.missing_in_qdrant"
+    lines: "17"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AlignmentReport.missing_in_qdrant' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W176
+    file: igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py
+    target_symbol: "AlignmentReport.total_packets_postgres"
+    lines: "19"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AlignmentReport.total_packets_postgres' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W177
+    file: igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py
+    target_symbol: "AlignmentReport.total_nodes_neo4j"
+    lines: "20"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AlignmentReport.total_nodes_neo4j' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W178
+    file: igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py
+    target_symbol: "AlignmentReport.total_vectors_qdrant"
+    lines: "21"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AlignmentReport.total_vectors_qdrant' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W179
+    file: igor/audit-tools/services_research_tools_perplexity_client.py
+    target_symbol: "PerplexityResponse.search_results"
+    lines: "120"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PerplexityResponse.search_results' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W180
+    file: services/research/tools/perplexity_client.py
+    target_symbol: "PerplexityResponse.search_results"
+    lines: "132"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PerplexityResponse.search_results' to functionality or delete if unnecessary
+    confidence: 0.95
+    test_needed: true
+
+  - id: DC-W181
+    file: core/agents/selfreflection.py
+    target_symbol: "ReflectionResult.patterns_observed"
+    lines: "109"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ReflectionResult.patterns_observed' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W182
+    file: core/agents/selfreflection.py
+    target_symbol: "ReflectionResult.analysis_duration_ms"
+    lines: "112"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ReflectionResult.analysis_duration_ms' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W183
+    file: core/agents/selfreflection.py
+    target_symbol: "ReflectionResult.analyzed_at"
+    lines: "113"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ReflectionResult.analyzed_at' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W184
+    file: core/governance/credentials_policy.py
+    target_symbol: "SecretPattern.redact_pattern"
+    lines: "60"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SecretPattern.redact_pattern' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W185
+    file: core/governance/credentials_policy.py
+    target_symbol: "SecretViolation.match_preview"
+    lines: "71"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SecretViolation.match_preview' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W186
+    file: .dora/dora.block/python-header-template-enterprise.py
+    target_symbol: "ModuleMetadata.execution_mode"
+    lines: "194"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ModuleMetadata.execution_mode' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W187
+    file: collaborative_cells/base_cell.py
+    target_symbol: "CellConfig.store_packets"
+    lines: "44"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CellConfig.store_packets' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W188
+    file: collaborative_cells/base_cell.py
+    target_symbol: "AgentMessage.round_number"
+    lines: "57"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AgentMessage.round_number' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W189
+    file: collaborative_cells/base_cell.py
+    target_symbol: "CellRound.round_number"
+    lines: "64"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CellRound.round_number' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W190
+    file: collaborative_cells/base_cell.py
+    target_symbol: "CellResult.rounds"
+    lines: "83"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CellResult.rounds' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W191
+    file: runtime/dora.py
+    target_symbol: "DoraMetrics.errors_detected"
+    lines: "51"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DoraMetrics.errors_detected' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W192
+    file: runtime/dora.py
+    target_symbol: "DoraMetrics.stability_score"
+    lines: "52"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DoraMetrics.stability_score' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W193
+    file: simulation/outcome_evaluator.py
+    target_symbol: "CriterionResult.weighted_score"
+    lines: "101"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CriterionResult.weighted_score' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W194
+    file: simulation/outcome_evaluator.py
+    target_symbol: "EvaluationResult.evaluated_at"
+    lines: "117"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EvaluationResult.evaluated_at' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W195
+    file: simulation/simulation_engine.py
+    target_symbol: "SimulationConfig.parallel_actions"
+    lines: "59"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SimulationConfig.parallel_actions' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W196
+    file: simulation/simulation_engine.py
+    target_symbol: "SimulationConfig.collect_metrics"
+    lines: "60"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SimulationConfig.collect_metrics' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W197
+    file: simulation/simulation_engine.py
+    target_symbol: "SimulationMetrics.resource_usage"
+    lines: "71"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SimulationMetrics.resource_usage' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W198
+    file: simulation/simulation_engine.py
+    target_symbol: "SimulationStep.action_id"
+    lines: "82"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SimulationStep.action_id' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W199
+    file: simulation/simulation_engine.py
+    target_symbol: "SimulationStep.dependencies_satisfied"
+    lines: "90"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SimulationStep.dependencies_satisfied' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W200
+    file: agents/research_agent.py
+    target_symbol: "PromptVariation.audience"
+    lines: "57"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PromptVariation.audience' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W201
+    file: agents/research_agent.py
+    target_symbol: "ResearchResponse.raw_response"
+    lines: "67"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ResearchResponse.raw_response' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W202
+    file: agents/research_agent.py
+    target_symbol: "ResearchResponse.code_snippets"
+    lines: "69"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ResearchResponse.code_snippets' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W203
+    file: agents/research_agent.py
+    target_symbol: "ResearchTask.max_sources"
+    lines: "108"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ResearchTask.max_sources' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W204
+    file: agents/research_agent.py
+    target_symbol: "ResearchTask.stages"
+    lines: "109"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ResearchTask.stages' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W205
+    file: agents/research_agent.py
+    target_symbol: "SpecResult.yaml_content"
+    lines: "118"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'SpecResult.yaml_content' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W206
+    file: world_model/causal_graph.py
+    target_symbol: "CausalEdge.edge_type"
+    lines: "59"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CausalEdge.edge_type' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W207
+    file: world_model/registry.py
+    target_symbol: "EntityTypeSchema.type_name"
+    lines: "39"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EntityTypeSchema.type_name' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W208
+    file: world_model/registry.py
+    target_symbol: "EntityTypeSchema.parent_type"
+    lines: "42"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EntityTypeSchema.parent_type' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W209
+    file: world_model/registry.py
+    target_symbol: "RelationTypeSchema.type_name"
+    lines: "54"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RelationTypeSchema.type_name' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W210
+    file: world_model/registry.py
+    target_symbol: "RelationTypeSchema.source_types"
+    lines: "56"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RelationTypeSchema.source_types' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W211
+    file: world_model/registry.py
+    target_symbol: "RelationTypeSchema.target_types"
+    lines: "57"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RelationTypeSchema.target_types' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W212
+    file: world_model/registry.py
+    target_symbol: "RelationTypeSchema.cardinality"
+    lines: "59"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RelationTypeSchema.cardinality' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W213
+    file: world_model/knowledge_ingestor.py
+    target_symbol: "ExtractedFact.fact_type"
+    lines: "100"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ExtractedFact.fact_type' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W214
+    file: world_model/knowledge_ingestor.py
+    target_symbol: "IngestorConfig.validate_entities"
+    lines: "181"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IngestorConfig.validate_entities' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W215
+    file: world_model/knowledge_ingestor.py
+    target_symbol: "IngestorConfig.extract_relations"
+    lines: "182"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IngestorConfig.extract_relations' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W216
+    file: world_model/knowledge_ingestor.py
+    target_symbol: "IngestorConfig.normalize_patterns"
+    lines: "184"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IngestorConfig.normalize_patterns' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W217
+    file: world_model/knowledge_ingestor.py
+    target_symbol: "IngestorConfig.normalize_heuristics"
+    lines: "185"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'IngestorConfig.normalize_heuristics' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W218
+    file: world_model/reflection_memory.py
+    target_symbol: "Pattern.outcomes"
+    lines: "115"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Pattern.outcomes' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W219
+    file: world_model/reflection_memory.py
+    target_symbol: "Pattern.first_seen"
+    lines: "117"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Pattern.first_seen' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W220
+    file: world_model/reflection_memory.py
+    target_symbol: "Improvement.action_required"
+    lines: "138"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Improvement.action_required' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W221
+    file: world_model/reflection_memory.py
+    target_symbol: "Improvement.expected_impact"
+    lines: "141"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'Improvement.expected_impact' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W222
+    file: world_model/runtime.py
+    target_symbol: "RuntimeConfig.enable_validation"
+    lines: "95"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RuntimeConfig.enable_validation' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W223
+    file: world_model/runtime.py
+    target_symbol: "RuntimeConfig.concurrent_reads"
+    lines: "99"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RuntimeConfig.concurrent_reads' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W224
+    file: world_model/runtime.py
+    target_symbol: "UpdateRecord.old_value"
+    lines: "206"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'UpdateRecord.old_value' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W225
+    file: world_model/runtime.py
+    target_symbol: "UpdateRecord.new_value"
+    lines: "207"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'UpdateRecord.new_value' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W226
+    file: codegen/Perplexity-Search-Pack/autonomous-research-agent.py
+    target_symbol: "PromptVariation.audience"
+    lines: "29"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'PromptVariation.audience' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W227
+    file: codegen/Perplexity-Search-Pack/autonomous-research-agent.py
+    target_symbol: "ResearchResponse.raw_response"
+    lines: "39"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ResearchResponse.raw_response' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W228
+    file: codegen/Perplexity-Search-Pack/autonomous-research-agent.py
+    target_symbol: "ResearchResponse.code_snippets"
+    lines: "41"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ResearchResponse.code_snippets' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W229
+    file: scripts/audit/audit_shared_core.py
+    target_symbol: "CacheEntry.modified"
+    lines: "33"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CacheEntry.modified' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W230
+    file: scripts/audit/audit_shared_core.py
+    target_symbol: "CallGraphEdge.caller_file"
+    lines: "129"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CallGraphEdge.caller_file' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W231
+    file: scripts/audit/audit_shared_core.py
+    target_symbol: "CallGraphEdge.callee"
+    lines: "130"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CallGraphEdge.callee' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W232
+    file: scripts/audit/audit_shared_core.py
+    target_symbol: "CallGraphEdge.callee_type"
+    lines: "131"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CallGraphEdge.callee_type' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W233
+    file: scripts/audit/categorize_dead_code.py
+    target_symbol: "CategorizedFinding.action_reason"
+    lines: "67"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CategorizedFinding.action_reason' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W234
+    file: scripts/audit/tier1/audit_infrastructure_health.py
+    target_symbol: "DependencyCheck.all_available"
+    lines: "146"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DependencyCheck.all_available' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W235
+    file: scripts/audit/tier1/audit_infrastructure_health.py
+    target_symbol: "DependencyCheck.missing_dependencies"
+    lines: "147"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DependencyCheck.missing_dependencies' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W236
+    file: scripts/audit/tier1/audit_infrastructure_health.py
+    target_symbol: "InfrastructureReport.health_checks"
+    lines: "159"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'InfrastructureReport.health_checks' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W237
+    file: scripts/audit/tier1/audit_infrastructure_health.py
+    target_symbol: "InfrastructureReport.config_validations"
+    lines: "160"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'InfrastructureReport.config_validations' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W238
+    file: scripts/audit/tier1/audit_infrastructure_health.py
+    target_symbol: "InfrastructureReport.dependency_checks"
+    lines: "161"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'InfrastructureReport.dependency_checks' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W239
+    file: scripts/audit/tier1/audit_infrastructure_health.py
+    target_symbol: "InfrastructureReport.startup_sequence"
+    lines: "162"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'InfrastructureReport.startup_sequence' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W240
+    file: scripts/audit/run_all.py
+    target_symbol: "AuditResult.file_outputs"
+    lines: "145"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AuditResult.file_outputs' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W241
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "ParameterSchema.enum_values"
+    lines: "125"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ParameterSchema.enum_values' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W242
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "MCPSchema.output_schema"
+    lines: "133"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'MCPSchema.output_schema' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W243
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityMethod.return_type"
+    lines: "146"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityMethod.return_type' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W244
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityMethod.is_exposed"
+    lines: "147"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityMethod.is_exposed' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W245
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityMethod.deprecation_reason"
+    lines: "149"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityMethod.deprecation_reason' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W246
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityMethod.version_added"
+    lines: "150"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityMethod.version_added' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W247
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityMethod.version_deprecated"
+    lines: "151"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityMethod.version_deprecated' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W248
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityMatrix.value_score"
+    lines: "160"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityMatrix.value_score' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W249
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityReport.exposed_tools"
+    lines: "166"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityReport.exposed_tools' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W250
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityReport.hidden_capabilities"
+    lines: "167"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityReport.hidden_capabilities' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W251
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityReport.mcp_schemas"
+    lines: "169"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityReport.mcp_schemas' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W252
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityReport.missing_acl"
+    lines: "170"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityReport.missing_acl' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W253
+    file: scripts/audit/tier1/audit_capability_inventory.py
+    target_symbol: "CapabilityReport.deprecated_methods"
+    lines: "171"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CapabilityReport.deprecated_methods' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W254
+    file: scripts/audit/tier1/audit_code_integrity.py
+    target_symbol: "FileHashEntry.modified"
+    lines: "91"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'FileHashEntry.modified' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W255
+    file: scripts/audit/tier1/audit_code_integrity.py
+    target_symbol: "CallGraphEdge.caller_file"
+    lines: "97"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CallGraphEdge.caller_file' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W256
+    file: scripts/audit/tier1/audit_code_integrity.py
+    target_symbol: "CallGraphEdge.callee"
+    lines: "98"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CallGraphEdge.callee' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W257
+    file: scripts/audit/tier1/audit_code_integrity.py
+    target_symbol: "CallGraphEdge.callee_type"
+    lines: "99"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CallGraphEdge.callee_type' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W258
+    file: scripts/audit/tier1/audit_code_integrity.py
+    target_symbol: "UncalledFunction.skip_reason"
+    lines: "108"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'UncalledFunction.skip_reason' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W259
+    file: scripts/audit/tier1/audit_code_integrity.py
+    target_symbol: "UncalledFunction.is_private"
+    lines: "109"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'UncalledFunction.is_private' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W260
+    file: scripts/audit/tier1/audit_code_integrity.py
+    target_symbol: "OrphanClass.base_classes"
+    lines: "117"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'OrphanClass.base_classes' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W261
+    file: scripts/audit/tier1/audit_code_integrity.py
+    target_symbol: "AuditReport.call_graph_edges"
+    lines: "136"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AuditReport.call_graph_edges' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W262
+    file: orchestration/task_router.py
+    target_symbol: "RoutingDecision.decided_at"
+    lines: "151"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RoutingDecision.decided_at' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W263
+    file: orchestration/cell_orchestrator.py
+    target_symbol: "WorkflowResult.aggregated_output"
+    lines: "121"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'WorkflowResult.aggregated_output' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W264
+    file: orchestration/orchestrator_kernel.py
+    target_symbol: "KernelConfig.max_chain_steps"
+    lines: "134"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'KernelConfig.max_chain_steps' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W265
+    file: orchestration/orchestrator_kernel.py
+    target_symbol: "KernelConfig.step_timeout_ms"
+    lines: "135"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'KernelConfig.step_timeout_ms' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W266
+    file: orchestration/orchestrator_kernel.py
+    target_symbol: "KernelConfig.allow_parallel_chains"
+    lines: "136"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'KernelConfig.allow_parallel_chains' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W267
+    file: orchestration/plan_executor.py
+    target_symbol: "ExecutorConfig.step_timeout_ms"
+    lines: "155"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ExecutorConfig.step_timeout_ms' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W268
+    file: upgrades/packet_envelope/standardization.py
+    target_symbol: "CloudEvent._received_at"
+    lines: "87"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CloudEvent._received_at' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W269
+    file: upgrades/packet_envelope/standardization.py
+    target_symbol: "CloudEvent._processed_at"
+    lines: "88"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'CloudEvent._processed_at' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W270
+    file: upgrades/packet_envelope/standardization.py
+    target_symbol: "EventSchema.encoding"
+    lines: "328"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EventSchema.encoding' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W271
+    file: upgrades/packet_envelope/standardization.py
+    target_symbol: "EventSchema.deprecated_at"
+    lines: "331"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'EventSchema.deprecated_at' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W272
+    file: upgrades/packet_envelope/observability.py
+    target_symbol: "ObservabilityConfig.sample_rate"
+    lines: "70"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityConfig.sample_rate' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W273
+    file: upgrades/packet_envelope/observability.py
+    target_symbol: "ObservabilityConfig.export_timeout_ms"
+    lines: "73"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityConfig.export_timeout_ms' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W274
+    file: upgrades/packet_envelope/observability.py
+    target_symbol: "ObservabilityConfig.prometheus_port"
+    lines: "74"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityConfig.prometheus_port' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W275
+    file: upgrades/packet_envelope/observability.py
+    target_symbol: "ObservabilityConfig.trace_internal_calls"
+    lines: "77"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityConfig.trace_internal_calls' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W276
+    file: upgrades/packet_envelope/observability.py
+    target_symbol: "ObservabilityConfig.trace_cache_ops"
+    lines: "78"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityConfig.trace_cache_ops' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W277
+    file: upgrades/packet_envelope/observability.py
+    target_symbol: "ObservabilityConfig.trace_serialization"
+    lines: "79"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityConfig.trace_serialization' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W278
+    file: upgrades/packet_envelope/observability.py
+    target_symbol: "ObservabilityConfig.baggage_fields"
+    lines: "82"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ObservabilityConfig.baggage_fields' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W279
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DataRetentionConfig.pii_ttl_days"
+    lines: "63"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DataRetentionConfig.pii_ttl_days' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W280
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DataRetentionConfig.audit_log_ttl_days"
+    lines: "64"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DataRetentionConfig.audit_log_ttl_days' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W281
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DataRetentionConfig.enable_anonymization"
+    lines: "68"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DataRetentionConfig.enable_anonymization' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W282
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DeletionRequest.requested_by"
+    lines: "147"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeletionRequest.requested_by' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W283
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DeletionRequest.requested_at"
+    lines: "148"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeletionRequest.requested_at' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W284
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DeletionProof.deleted_aggregate_id"
+    lines: "167"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeletionProof.deleted_aggregate_id' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W285
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DeletionProof.deletion_timestamp"
+    lines: "168"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeletionProof.deletion_timestamp' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W286
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DeletionProof.data_hash"
+    lines: "169"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeletionProof.data_hash' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W287
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DeletionProof.proof_signature"
+    lines: "170"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeletionProof.proof_signature' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W288
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "DeletionProof.cascading_proofs"
+    lines: "171"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeletionProof.cascading_proofs' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W289
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "AnonymizationRule.sensitive"
+    lines: "331"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'AnonymizationRule.sensitive' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W290
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "ComplianceReport.report_type"
+    lines: "460"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ComplianceReport.report_type' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W291
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "ComplianceReport.period_start"
+    lines: "462"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ComplianceReport.period_start' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W292
+    file: upgrades/packet_envelope/governance.py
+    target_symbol: "ComplianceReport.period_end"
+    lines: "463"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'ComplianceReport.period_end' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W293
+    file: ir_engine/deliberation_cell.py
+    target_symbol: "DeliberationRound.round_number"
+    lines: "45"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeliberationRound.round_number' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W294
+    file: ir_engine/deliberation_cell.py
+    target_symbol: "DeliberationRound.producer_output"
+    lines: "46"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeliberationRound.producer_output' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W295
+    file: ir_engine/deliberation_cell.py
+    target_symbol: "DeliberationRound.critique"
+    lines: "47"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeliberationRound.critique' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W296
+    file: ir_engine/deliberation_cell.py
+    target_symbol: "DeliberationRound.revisions_made"
+    lines: "48"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeliberationRound.revisions_made' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W297
+    file: ir_engine/deliberation_cell.py
+    target_symbol: "DeliberationResult.rounds"
+    lines: "59"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DeliberationResult.rounds' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W298
+    file: ir_engine/simulation_router.py
+    target_symbol: "RankedCandidate.rank"
+    lines: "73"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RankedCandidate.rank' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W299
+    file: ir_engine/simulation_router.py
+    target_symbol: "RankedCandidate.selection_reason"
+    lines: "74"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'RankedCandidate.selection_reason' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W300
+    file: ir_engine/compile_meta_to_ir.py
+    target_symbol: "DependencyEdge.source_module"
+    lines: "55"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'DependencyEdge.source_module' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W301
+    file: ir_engine/compile_meta_to_ir.py
+    target_symbol: "TestSpec.test_file"
+    lines: "92"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'TestSpec.test_file' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true
+
+  - id: DC-W302
+    file: ir_engine/compile_meta_to_ir.py
+    target_symbol: "WiringSpec.lifespan_init"
+    lines: "108"
+    action: WIRE_UP
+    reason: "Config field defined but never used—likely bug or needs wiring"
+    proposed_fix: |
+      Wire 'WiringSpec.lifespan_init' to functionality or delete if unnecessary
+    confidence: 0.6499999999999999
+    test_needed: true

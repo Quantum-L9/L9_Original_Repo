@@ -10,7 +10,7 @@ Version: 1.0.0
 
 import pytest
 
-from memory.substrate_models import PacketEnvelope, PacketEnvelopeIn
+from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketEnvelopeIn
 from memory.packet_serializer import (
     envelope_to_dict,
     envelope_from_dict,

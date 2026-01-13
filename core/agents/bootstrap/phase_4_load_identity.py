@@ -13,6 +13,8 @@ from datetime import datetime
 import yaml
 import structlog
 
+from memory.graph_client import get_neo4j_client
+
 if TYPE_CHECKING:
     from .phase_2_instantiate import BootstrapInstanceData
     from memory.substrate_service import MemorySubstrateService
@@ -82,7 +84,7 @@ async def load_identity_persona(
         # Write to memory substrate if available
         if hasattr(substrate_service, 'write_packet'):
             try:
-                from memory.substrate_models import PacketEnvelope, PacketKind
+                from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketKind
                 
                 packet = PacketEnvelope(
                     kind=PacketKind.MEMORY_WRITE,
@@ -111,9 +113,10 @@ async def load_identity_persona(
         )
         
         # Update Neo4j if available
-        if hasattr(substrate_service, 'neo4j_driver') and substrate_service.neo4j_driver:
+        neo4j_client = await get_neo4j_client()
+        if neo4j_client:
             try:
-                async with substrate_service.neo4j_driver.session() as session:
+                async with neo4j_client.session() as session:
                     await session.run("""
                         MATCH (a:Agent {instance_id: $instance_id})
                         SET a.designation = $designation,

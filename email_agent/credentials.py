@@ -1,7 +1,11 @@
 """
 Gmail OAuth Credentials Handler
+===============================
+
 Handles OAuth2 flow for Gmail API authentication.
-Account: nc@scrapmanagement.com
+Supports multi-account mode (igor, l) with backward compatibility.
+
+Version: 2.0.0
 """
 
 import json
@@ -16,45 +20,67 @@ try:
     GMAIL_AUTH_AVAILABLE = True
 except ImportError:
     GMAIL_AUTH_AVAILABLE = False
+    Credentials = None  # Type hint placeholder
     structlog.get_logger(__name__).warning("Gmail OAuth libraries not available")
 
-from email_agent.config import TOKENS_FILE, CLIENT_SECRET_FILE, SCOPES, ensure_dirs
+from email_agent.config import (
+    TOKENS_FILE,
+    CLIENT_SECRET_FILE,
+    SCOPES,
+    ensure_dirs,
+    get_account_config,
+)
 
 logger = structlog.get_logger(__name__)
 
-# Ensure directories exist on import
+# Ensure legacy directories exist on import
 ensure_dirs()
 
 
-def load_client_secrets() -> Optional[Dict[str, Any]]:
+def load_client_secrets(account: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
-    Load OAuth client secrets from ~/.l9/gmail/client_secret.json
+    Load OAuth client secrets.
+
+    Args:
+        account: Account name ("igor" or "l"). If None, uses legacy path.
 
     Returns:
         Client secrets dictionary or None if not found
     """
-    if not CLIENT_SECRET_FILE.exists():
-        logger.error(f"Client secrets not found at {CLIENT_SECRET_FILE}")
-        logger.info("Please download OAuth2 credentials from Google Cloud Console")
-        logger.info("Save as: ~/.l9/gmail/client_secret.json")
+    if account:
+        config = get_account_config(account)
+        secret_file = config.client_secret_file
+    else:
+        secret_file = CLIENT_SECRET_FILE  # Legacy
+
+    if not secret_file.exists():
+        logger.error(f"Client secrets not found at {secret_file}")
+        if account:
+            logger.info(f"Run: python scripts/setup_gmail_accounts.py")
+        else:
+            logger.info("Please download OAuth2 credentials from Google Cloud Console")
+            logger.info("Save as: ~/.l9/gmail/client_secret.json")
         return None
 
     try:
-        with open(CLIENT_SECRET_FILE, "r") as f:
+        with open(secret_file, "r") as f:
             secrets = json.load(f)
-        logger.info(f"Loaded client secrets from {CLIENT_SECRET_FILE}")
+        logger.info(f"Loaded client secrets from {secret_file}")
         return secrets
     except Exception as e:
         logger.error(f"Failed to load client secrets: {e}")
         return None
 
 
-def create_flow(redirect_uri: Optional[str] = None) -> Optional[Any]:
+def create_flow(
+    redirect_uri: Optional[str] = None, account: Optional[str] = None
+) -> Optional[Any]:
     """
     Create OAuth2 flow for Gmail authentication.
 
     Args:
         redirect_uri: Optional redirect URI (defaults to localhost)
+        account: Account name ("igor" or "l"). If None, uses legacy path.
 
     Returns:
         InstalledAppFlow instance or None if client secrets not found
@@ -63,13 +89,20 @@ def create_flow(redirect_uri: Optional[str] = None) -> Optional[Any]:
         logger.error("Gmail OAuth libraries not available")
         return None
 
-    secrets = load_client_secrets()
+    secrets = load_client_secrets(account)
     if not secrets:
         return None
 
+    # Determine secret file path
+    if account:
+        config = get_account_config(account)
+        secret_file = config.client_secret_file
+    else:
+        secret_file = CLIENT_SECRET_FILE
+
     try:
         flow = InstalledAppFlow.from_client_secrets_file(
-            str(CLIENT_SECRET_FILE), SCOPES, redirect_uri=redirect_uri
+            str(secret_file), SCOPES, redirect_uri=redirect_uri
         )
         return flow
     except Exception as e:
@@ -78,7 +111,7 @@ def create_flow(redirect_uri: Optional[str] = None) -> Optional[Any]:
 
 
 def exchange_code_for_tokens(
-    authorization_code: str, redirect_uri: str
+    authorization_code: str, redirect_uri: str, account: Optional[str] = None
 ) -> Optional[Credentials]:
     """
     Exchange authorization code for access/refresh tokens.
@@ -86,6 +119,7 @@ def exchange_code_for_tokens(
     Args:
         authorization_code: Authorization code from OAuth callback
         redirect_uri: Redirect URI used in OAuth flow
+        account: Account name ("igor" or "l"). If None, uses legacy path.
 
     Returns:
         Credentials object or None if exchange failed
@@ -95,7 +129,7 @@ def exchange_code_for_tokens(
         return None
 
     try:
-        flow = create_flow(redirect_uri=redirect_uri)
+        flow = create_flow(redirect_uri=redirect_uri, account=account)
         if not flow:
             return None
 
@@ -104,21 +138,25 @@ def exchange_code_for_tokens(
         credentials = flow.credentials
 
         # Save tokens
-        save_tokens(credentials)
+        save_tokens(credentials, account)
 
-        logger.info("Successfully exchanged authorization code for tokens")
+        account_label = account or "legacy"
+        logger.info(
+            f"Successfully exchanged authorization code for tokens (account={account_label})"
+        )
         return credentials
     except Exception as e:
         logger.error(f"Failed to exchange code for tokens: {e}")
         return None
 
 
-def save_tokens(credentials: Credentials) -> bool:
+def save_tokens(credentials: Credentials, account: Optional[str] = None) -> bool:
     """
-    Save OAuth tokens to ~/.l9/gmail/tokens.json
+    Save OAuth tokens.
 
     Args:
         credentials: Credentials object with tokens
+        account: Account name ("igor" or "l"). If None, uses legacy path.
 
     Returns:
         True if saved successfully
@@ -127,6 +165,15 @@ def save_tokens(credentials: Credentials) -> bool:
         logger.error("Gmail OAuth libraries not available")
         return False
 
+    # Determine tokens file path
+    if account:
+        config = get_account_config(account)
+        tokens_file = config.tokens_file
+        # Ensure account directory exists
+        config.data_root.mkdir(parents=True, exist_ok=True)
+    else:
+        tokens_file = TOKENS_FILE  # Legacy
+
     try:
         token_data = {
             "token": credentials.token,
@@ -134,22 +181,25 @@ def save_tokens(credentials: Credentials) -> bool:
             "token_uri": credentials.token_uri,
             "client_id": credentials.client_id,
             "client_secret": credentials.client_secret,
-            "scopes": credentials.scopes,
+            "scopes": list(credentials.scopes) if credentials.scopes else SCOPES,
         }
 
-        with open(TOKENS_FILE, "w") as f:
+        with open(tokens_file, "w") as f:
             json.dump(token_data, f, indent=2)
 
-        logger.info(f"Saved tokens to {TOKENS_FILE}")
+        logger.info(f"Saved tokens to {tokens_file}")
         return True
     except Exception as e:
         logger.error(f"Failed to save tokens: {e}")
         return False
 
 
-def load_tokens() -> Optional[Credentials]:
+def load_tokens(account: Optional[str] = None) -> Optional[Credentials]:
     """
-    Load OAuth tokens from ~/.l9/gmail/tokens.json
+    Load OAuth tokens.
+
+    Args:
+        account: Account name ("igor" or "l"). If None, uses legacy path.
 
     Returns:
         Credentials object or None if not found/invalid
@@ -158,12 +208,20 @@ def load_tokens() -> Optional[Credentials]:
         logger.error("Gmail OAuth libraries not available")
         return None
 
-    if not TOKENS_FILE.exists():
-        logger.info(f"No tokens found at {TOKENS_FILE}")
+    # Determine tokens file path
+    if account:
+        config = get_account_config(account)
+        tokens_file = config.tokens_file
+    else:
+        tokens_file = TOKENS_FILE  # Legacy
+
+    if not tokens_file.exists():
+        account_label = account or "legacy"
+        logger.info(f"No tokens found at {tokens_file} (account={account_label})")
         return None
 
     try:
-        with open(TOKENS_FILE, "r") as f:
+        with open(tokens_file, "r") as f:
             token_data = json.load(f)
 
         credentials = Credentials(
@@ -181,9 +239,9 @@ def load_tokens() -> Optional[Credentials]:
         if credentials.expired and credentials.refresh_token:
             logger.info("Tokens expired, refreshing...")
             credentials.refresh(Request())
-            save_tokens(credentials)
+            save_tokens(credentials, account)
 
-        logger.info(f"Loaded tokens from {TOKENS_FILE}")
+        logger.info(f"Loaded tokens from {tokens_file}")
         return credentials
     except Exception as e:
         logger.error(f"Failed to load tokens: {e}")

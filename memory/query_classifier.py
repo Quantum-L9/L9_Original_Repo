@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import structlog
 import re
+from functools import lru_cache
 from typing import Optional
 
 logger = structlog.get_logger(__name__)
@@ -183,13 +184,8 @@ class QueryClassifier:
 
 
 # Singleton instance
-_classifier: Optional[QueryClassifier] = None
-
-
+@lru_cache(maxsize=1)
 def get_query_classifier() -> QueryClassifier:
-    """Get singleton QueryClassifier instance."""
-    global _classifier
-    if _classifier is None:
-        _classifier = QueryClassifier()
-    return _classifier
+    """Get singleton QueryClassifier instance. CACHED."""
+    return QueryClassifier()
 

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any, Awaitable, Callable, Dict, TYPE_CHECKING
 
-from memory.substrate_models import PacketEnvelopeIn
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
 # Lazy import to avoid circular dependency with memory module
 if TYPE_CHECKING:

@@ -11,6 +11,8 @@ from pathlib import Path
 
 import structlog
 
+from memory.graph_client import get_neo4j_client
+
 if TYPE_CHECKING:
     from core.agents.schemas import AgentConfig
     from memory.substrate_service import MemorySubstrateService
@@ -65,12 +67,16 @@ async def validate_agent_blueprint(
         return False, f"PostgreSQL offline: {e}"
     
     try:
-        # Ping Neo4j via substrate service
-        if hasattr(substrate_service, 'neo4j_driver') and substrate_service.neo4j_driver:
-            async with substrate_service.neo4j_driver.session() as session:
+        # Ping Neo4j via global client
+        neo4j_client = await get_neo4j_client()
+        if neo4j_client:
+            async with neo4j_client.session() as session:
                 await session.run("RETURN 1")
-        checks.append(("neo4j_online", True))
-        logger.debug("Blueprint check passed", check="neo4j_online")
+            checks.append(("neo4j_online", True))
+            logger.debug("Blueprint check passed", check="neo4j_online")
+        else:
+            logger.warning("Neo4j client not available during validation")
+            checks.append(("neo4j_online", False))
     except Exception as e:
         return False, f"Neo4j offline: {e}"
     

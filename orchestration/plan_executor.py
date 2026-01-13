@@ -892,7 +892,7 @@ class PlanExecutor:
             return
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 source=self._config.packet_source,
@@ -923,7 +923,7 @@ class PlanExecutor:
             return
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 source=self._config.packet_source,
@@ -956,7 +956,7 @@ class PlanExecutor:
             return
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 source=self._config.packet_source,

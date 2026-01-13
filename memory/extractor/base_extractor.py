@@ -5,6 +5,7 @@ All extractors inherit from this base class to ensure consistent interface.
 """
 
 from abc import ABC, abstractmethod
+import logging
 from pathlib import Path
 from typing import Dict, Any
 

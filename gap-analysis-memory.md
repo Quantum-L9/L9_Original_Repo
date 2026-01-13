@@ -19,6 +19,24 @@
 
 ---
 
+## 📋 Doc-Code Alignment Table
+
+| Logical Component | Old Path | New Path | Router/Module | Notes |
+|-------------------|----------|----------|---------------|-------|
+| Memory API Router | api/routes/memory.py | api/memory/router.py | 17 async endpoints | 689 LOC, batch/search/health |
+| Cursor Memory Kernel | core/governance/cursor_memory_kernel.py | agents/cursor/cursor_memory_kernel.py | Session memory | 689 LOC, 33 functions |
+| Cursor Client | tools/cursor_client.py | agents/cursor/cursor_client.py | API client | 77 LOC |
+| Cursor Extractor | memory/extractor/cursor_action_extractor.py | agents/cursor/extractors/cursor_action_extractor.py | Action extraction | 661 LOC |
+| MCP Memory Routes | - | mcp_memory/src/routes/memory.py | MCP server | Separate service |
+| MCP Memory Unified | - | mcp_memory/src/routes/memory_unified.py | MCP unified | With caller tracking |
+| Memory Substrate Service | - | memory/substrate_service.py | Core memory ops | 908 LOC |
+| Memory Substrate Repository | - | memory/substrate_repository.py | DB layer | 976 LOC |
+| Memory Substrate Graph | - | memory/substrate_graph.py | Neo4j layer | 836 LOC |
+
+> **Note:** All paths verified against `readme/repo-index/file_metrics.txt`. Old paths are from `architecture_decisions.md` (2026-01-11 Cursor File Organization decision).
+
+---
+
 ## ✅ COMPLETE COMPONENTS (Verified)
 
 ### 1. `graph_search_query_builder.py`
@@ -479,7 +497,7 @@ CREATE INDEX idx_agent_checkpoints_created_at ON agent_checkpoints(created_at);
 
 **Where Should Be Used:**
 
-1. **`api/routes/memory.py`** — API endpoint for decision explanation
+1. **`api/memory/router.py`** — API endpoint for decision explanation
    - **Current:** No endpoint for decision explanation
    - **Should:** Add `GET /api/v1/memory/reasoning/{packet_id}/explain` endpoint
    - **Location:** New route handler using `reasoning_replay.explain_decision()`
@@ -702,7 +720,7 @@ class ReasoningReplay:
 
 # Integration points:
 
-# 1. api/routes/memory.py
+# 1. api/memory/router.py
 @router.get("/reasoning/{packet_id}/explain")
 async def explain_decision(
     packet_id: UUID,
@@ -803,7 +821,7 @@ class MemorySubstrateService:
    - **Should:** Call `consolidation.run_consolidation()` in housekeeping schedule
    - **Location:** `HousekeepingEngine.run_housekeeping()` — weekly consolidation
 
-2. **`api/routes/memory.py`** — Manual consolidation endpoint
+2. **`api/memory/router.py`** — Manual consolidation endpoint
    - **Current:** No manual consolidation endpoint
    - **Should:** Add `POST /api/v1/memory/consolidation/run` endpoint
    - **Location:** New route handler
@@ -987,7 +1005,7 @@ class HousekeepingEngine:
             report = await self._consolidation.run_consolidation()
             logger.info("Weekly consolidation completed", report=report.model_dump())
 
-# 2. api/routes/memory.py
+# 2. api/memory/router.py
 @router.post("/consolidation/run")
 async def run_consolidation(
     dry_run: bool = False,
@@ -1080,7 +1098,7 @@ ALTER TABLE packet_store ADD COLUMN IF NOT EXISTS has_summary BOOLEAN DEFAULT FA
    - **Should:** Call `state_manager.get_agent_flags()` for agent configuration
    - **Location:** `AgentInstance.__init__()` — load agent flags
 
-3. **`api/routes/memory.py`** — API endpoint
+3. **`api/memory/router.py`** — API endpoint
    - **Current:** No agent flags endpoint
    - **Should:** Add `GET /api/v1/memory/state/{agent_id}/flags` endpoint
    - **Location:** New route handler
@@ -1213,7 +1231,7 @@ class IngestionPipeline:
    - **Should:** Classify query pattern and adjust weights
    - **Location:** `AgentInstance.assemble_context()` — use adaptive retrieval
 
-3. **`api/routes/memory.py`** — Hybrid search endpoint
+3. **`api/memory/router.py`** — Hybrid search endpoint
    - **Current:** No query pattern parameter
    - **Should:** Accept query_pattern parameter for weight adjustment
    - **Location:** `POST /api/v1/memory/hybrid/search` — add query_pattern
@@ -1360,7 +1378,7 @@ class Neo4jClient:
 
 - [ ] **Create `memory/reasoning_replay.py`**
   - [ ] Implement 6 required methods
-  - [ ] Wire into `api/routes/memory.py` (explain endpoint)
+  - [ ] Wire into `api/memory/router.py` (explain endpoint)
   - [ ] Wire into `core/governance/approval_manager.py` (decision chain context)
   - [ ] Wire into `memory/housekeeping.py` (orphan detection)
   - [ ] Wire into `memory/substrate_service.py` (lineage validation)
@@ -1372,7 +1390,7 @@ class Neo4jClient:
   - [ ] Implement 4 consolidation strategies
   - [ ] Create database migrations (archive, summaries, access tracking)
   - [ ] Wire into `memory/housekeeping.py` (weekly schedule)
-  - [ ] Wire into `api/routes/memory.py` (manual endpoint)
+  - [ ] Wire into `api/memory/router.py` (manual endpoint)
   - [ ] Wire into `memory/substrate_service.py` (cascade delete)
   - [ ] Wire into `memory/retrieval.py` (access tracking)
   - [ ] Wire into `runtime/task_queue.py` (scheduled job)
@@ -1383,7 +1401,7 @@ class Neo4jClient:
   - [ ] Implement method
   - [ ] Wire into `memory/retrieval.py` (retrieval context)
   - [ ] Wire into `core/agents/agent_instance.py` (agent config)
-  - [ ] Wire into `api/routes/memory.py` (flags endpoint)
+  - [ ] Wire into `api/memory/router.py` (flags endpoint)
 
 - [ ] **Add `substrate_semantic.batch_store_embeddings()`**
   - [ ] Implement method
@@ -1400,7 +1418,7 @@ class Neo4jClient:
   - [ ] Create `memory/query_classifier.py`
   - [ ] Update `RetrievalPipeline.hybrid_search()` with adaptive weights
   - [ ] Wire into `core/agents/agent_instance.py` (context retrieval)
-  - [ ] Wire into `api/routes/memory.py` (query_pattern parameter)
+  - [ ] Wire into `api/memory/router.py` (query_pattern parameter)
 
 - [ ] **Wire `graph_search_query_builder.py` into retrieval**
   - [ ] Update `RetrievalPipeline.graph_search()` to use query builder

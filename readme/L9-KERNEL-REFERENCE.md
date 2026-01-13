@@ -327,7 +327,7 @@ packet:
 ## 🔗 Related Files
 
 - `core/governance/mistake_prevention.py` — Executable mistake rules
-- `core/governance/cursor_memory_kernel.py` — Cursor-specific memory integration
+- `agents/cursor/cursor_memory_kernel.py` — Cursor-specific memory integration
 - `.cursor/rules/*.mdc` — Cursor-native governance rules
 - `readme/L-CTO-ABILITIES.md` — L's 70 tools
 

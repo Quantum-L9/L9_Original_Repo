@@ -69,7 +69,12 @@ opentelemetry-api>=1.21.0
 opentelemetry-sdk>=1.21.0
 opentelemetry-exporter-otlp-proto-http>=1.21.0
 
-# Testing (optional, for dev)
+# Testing & Linting (optional, for dev)
 pytest>=7.4.0
 pytest-asyncio>=0.23.0
+ruff>=0.4.0
+vulture>=2.11
+mypy>=1.10.0
 python-multipart
+# Pin urllib3 to avoid LibreSSL warning on macOS
+urllib3<2

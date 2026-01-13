@@ -207,7 +207,7 @@ class TestLCTOMemoryPacketStructure:
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
-        from memory.substrate_models import PacketEnvelopeIn, PacketMetadata
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
         
         packet = PacketEnvelopeIn(
             packet_type="agent.l_cto.reasoning",
@@ -234,7 +234,7 @@ class TestLCTOMemoryPacketStructure:
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
-        from memory.substrate_models import PacketEnvelopeIn, PacketMetadata
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
         
         agent_id = "l-cto"
         

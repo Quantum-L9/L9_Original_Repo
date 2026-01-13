@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import pytest
-from memory.substrate_graph import _should_skip_embedding, SKIP_EMBEDDING_PATTERNS
+from memory.substrate_dag import _should_skip_embedding, SKIP_EMBEDDING_PATTERNS
 
 
 class TestShouldSkipEmbedding:

@@ -66,7 +66,7 @@ async def chat(
     Ingests both request and response to memory for audit trail.
     """
     from memory.ingestion import ingest_packet
-    from memory.substrate_models import PacketEnvelopeIn
+    from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
     try:
         messages = []

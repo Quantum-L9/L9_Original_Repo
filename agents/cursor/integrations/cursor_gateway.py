@@ -15,7 +15,7 @@ from typing import Any, List, Dict, Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from memory.substrate_models import PacketEnvelopeIn, PacketWriteResult
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_dag_wrapper import SubstrateDagOrchestrator
 
 logger = structlog.get_logger(__name__)

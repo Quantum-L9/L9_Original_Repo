@@ -96,7 +96,7 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
     # Ingest task result to memory (audit trail)
     try:
         from memory.ingestion import ingest_packet
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
         # Get task source/user from legacy system if available, otherwise use defaults
         source = task.source if task else "unknown"

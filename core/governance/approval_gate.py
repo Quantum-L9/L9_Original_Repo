@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 from core.governance.approval_manager import ApprovalManager, ApprovalRequest, ApprovalDecision, ApprovalStatus
 from core.schemas.capabilities import ToolName, Capability
-from memory.substrate_models import PacketEnvelope
+from core.schemas.packet_envelope_v2 import PacketEnvelope
 
 logger = structlog.get_logger(__name__)
 

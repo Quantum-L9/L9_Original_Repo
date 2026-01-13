@@ -1,6 +1,11 @@
 """
 Gmail API Client
+================
+
 Full-featured Gmail API wrapper with message parsing, attachment handling, and MIME support.
+Supports multi-account mode (igor, l) with backward compatibility.
+
+Version: 2.0.0
 """
 
 import os
@@ -18,7 +23,13 @@ try:
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
     from email_agent.credentials import load_tokens
-    from email_agent.config import ATTACHMENTS_DIR, SCOPES, ensure_dirs
+    from email_agent.config import (
+        ATTACHMENTS_DIR,
+        SCOPES,
+        ensure_dirs,
+        get_account_config,
+        GMAIL_ACCOUNT,
+    )
     from email_agent.parser import (
         parse_headers,
         parse_body,
@@ -33,7 +44,7 @@ except ImportError:
 
 logger = structlog.get_logger(__name__)
 
-# Ensure directories exist
+# Ensure legacy directories exist
 ensure_dirs()
 
 
@@ -59,27 +70,52 @@ def sanitize_filename(filename: str) -> str:
 
 
 class GmailClient:
-    """Gmail API client wrapper."""
+    """Gmail API client wrapper with multi-account support."""
 
-    def __init__(self):
-        """Initialize Gmail client with auto-refresh tokens."""
+    def __init__(self, account: Optional[str] = None):
+        """
+        Initialize Gmail client.
+
+        Args:
+            account: Account name ("igor" or "l").
+                    If None, uses legacy single-account mode.
+        """
         if not GMAIL_AVAILABLE:
             raise RuntimeError("Gmail API libraries not available")
 
+        self.account = account
         self.service = None
+        self.attachments_dir = ATTACHMENTS_DIR  # Default
+
+        if account:
+            config = get_account_config(account)
+            self.email = config.email
+            self.attachments_dir = config.attachments_dir
+            # Ensure account directories exist
+            ensure_dirs(account)
+            logger.info(f"GmailClient initialized for account: {account} ({config.email})")
+        else:
+            self.email = GMAIL_ACCOUNT
+            # Ensure legacy directories exist
+            ensure_dirs()
+            logger.warning("GmailClient in legacy mode (no account specified)")
+
         self._authenticate()
 
     def _authenticate(self):
         """Authenticate with Gmail API using stored tokens."""
-        credentials = load_tokens()
+        credentials = load_tokens(self.account)
         if not credentials:
+            account_label = self.account or "legacy"
             raise RuntimeError(
-                "No Gmail tokens found. Run: python -m email_agent.oauth_server\n"
+                f"No Gmail tokens found for account '{account_label}'. "
+                f"Run: python -m email_agent.oauth_server --account {self.account or ''}\n"
                 "Then visit: http://localhost:8080/oauth/start"
             )
 
         self.service = build("gmail", "v1", credentials=credentials)
-        logger.info("Gmail API authenticated")
+        account_label = self.account or "legacy"
+        logger.info(f"Gmail API authenticated (account={account_label})")
 
     def list_messages(self, query: str = "", limit: int = 20) -> List[Dict[str, Any]]:
         """
@@ -241,7 +277,7 @@ class GmailClient:
                             )
                             safe_filename = sanitize_filename(filename)
                             attachment_path = (
-                                ATTACHMENTS_DIR / f"{msg_id}_{safe_filename}"
+                                self.attachments_dir / f"{msg_id}_{safe_filename}"
                             )
 
                             with open(attachment_path, "wb") as f:

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import structlog
 from datetime import datetime, timedelta
+from functools import lru_cache
 from typing import Any, Optional
 
 logger = structlog.get_logger(__name__)
@@ -418,15 +419,10 @@ class HousekeepingEngine:
 # Singleton / Factory
 # =============================================================================
 
-_engine: Optional[HousekeepingEngine] = None
-
-
+@lru_cache(maxsize=1)
 def get_housekeeping_engine() -> HousekeepingEngine:
-    """Get or create the housekeeping engine singleton."""
-    global _engine
-    if _engine is None:
-        _engine = HousekeepingEngine()
-    return _engine
+    """Get or create the housekeeping engine singleton. CACHED."""
+    return HousekeepingEngine()
 
 
 def init_housekeeping_engine(repository) -> HousekeepingEngine:

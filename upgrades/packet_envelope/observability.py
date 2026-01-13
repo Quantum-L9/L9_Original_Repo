@@ -26,18 +26,31 @@ from datetime import datetime
 from functools import wraps
 from typing import Any, Callable, Dict, Optional
 
-from opentelemetry import baggage, metrics, trace
-from opentelemetry.baggage.propagation import W3CBaggagePropagator
-from opentelemetry.exporter.jaeger.thrift import JaegerExporter
-from opentelemetry.exporter.prometheus import PrometheusMetricReader
-from opentelemetry.propagators.composite import CompositePropagator
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.trace.propagation.tracecontext import (
-    TraceContextTextMapPropagator,
-)
+try:
+    from opentelemetry import baggage, metrics, trace
+    from opentelemetry.baggage.propagation import W3CBaggagePropagator
+    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+    from opentelemetry.propagators.composite import CompositePropagator
+    from opentelemetry.sdk.metrics import MeterProvider
+    from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.trace.propagation.tracecontext import (
+        TraceContextTextMapPropagator,
+    )
+    OPENTELEMETRY_AVAILABLE = True
+except ImportError:
+    OPENTELEMETRY_AVAILABLE = False
+    baggage = None
+    metrics = None
+    trace = None
+
+try:
+    from opentelemetry.exporter.prometheus import PrometheusMetricReader
+    PROMETHEUS_EXPORTER_AVAILABLE = True
+except ImportError:
+    PrometheusMetricReader = None
+    PROMETHEUS_EXPORTER_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 

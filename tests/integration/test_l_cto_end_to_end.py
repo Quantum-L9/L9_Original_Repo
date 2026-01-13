@@ -127,7 +127,7 @@ class TestLCTOEndToEnd:
         """
         # Import here to avoid module-level import issues
         from core.agents.schemas import AgentTask, TaskKind
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
         
         # Create task
         task = AgentTask(
@@ -152,7 +152,7 @@ class TestLCTOEndToEnd:
         assert mock_substrate_service.write_packet.called
         
         # Verify packet structure
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
         packet_calls = mock_substrate_service.write_packet.call_args_list
         assert len(packet_calls) > 0
         
@@ -254,7 +254,7 @@ class TestLCTOEndToEnd:
         """
         # Import here
         from core.agents.schemas import AgentTask, TaskKind
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
         
         task = AgentTask(
             id=uuid4(),

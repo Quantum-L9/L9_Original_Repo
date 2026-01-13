@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 from src.routes.memory_unified import save_memory_handler, _save_via_main_pipeline, _save_via_direct_db
-from memory.substrate_models import PacketWriteResult
+from core.schemas.packet_envelope_v2 import PacketWriteResult
 
 
 # =============================================================================

@@ -228,11 +228,7 @@ class SimulationEngine:
             return  # No substrate attached, skip emission
 
         try:
-            from memory.substrate_models import (
-                PacketEnvelope,
-                PacketProvenance,
-                PacketConfidence,
-            )
+            from core.schemas.packet_envelope_v2 import PacketConfidence, PacketEnvelope, PacketProvenance
 
             packet = PacketEnvelope(
                 packet_type="simulation_result",

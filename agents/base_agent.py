@@ -5,10 +5,13 @@ L9 Agents - Base Agent
 Abstract base class for all L9 agents.
 
 Provides:
-- LLM client management
+- LLM client management with retry logic
 - Message handling
 - Memory integration
 - Standard interfaces
+
+Version: 2.0.0
+- Added retry logic with exponential backoff (uses AgentConfig.retry_count)
 """
 
 from __future__ import annotations
@@ -23,6 +26,8 @@ from typing import Any, Optional
 from uuid import UUID, uuid4
 
 from openai import AsyncOpenAI
+
+from core.resilience.retry import async_retry, AsyncRetryConfig
 
 logger = structlog.get_logger(__name__)
 
@@ -182,7 +187,9 @@ class BaseAgent(ABC):
         json_mode: bool = False,
     ) -> AgentResponse:
         """
-        Call the LLM with messages.
+        Call the LLM with messages and automatic retry on transient failures.
+
+        Uses retry logic with exponential backoff (configured via AgentConfig.retry_count).
 
         Args:
             messages: List of messages
@@ -212,7 +219,24 @@ class BaseAgent(ABC):
             if json_mode:
                 kwargs["response_format"] = {"type": "json_object"}
 
-            response = await client.chat.completions.create(**kwargs)
+            # Create retry config from agent config
+            retry_config = AsyncRetryConfig(
+                max_retries=self._config.retry_count,
+                base_backoff=0.5,
+                max_backoff=30.0,
+                jitter=0.1,
+            )
+
+            async def _make_llm_call():
+                """Inner function for retry logic."""
+                return await client.chat.completions.create(**kwargs)
+
+            # Execute with retry for transient failures
+            response = await async_retry(
+                _make_llm_call,
+                config=retry_config,
+                operation=f"llm_call_{self._agent_id}",
+            )
 
             content = response.choices[0].message.content or ""
             tokens = response.usage.total_tokens if response.usage else 0
@@ -237,7 +261,7 @@ class BaseAgent(ABC):
             )
 
         except Exception as e:
-            logger.error(f"LLM call failed for {self._agent_id}: {e}")
+            logger.error(f"LLM call failed for {self._agent_id} after retries: {e}")
             duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
 
             return AgentResponse(

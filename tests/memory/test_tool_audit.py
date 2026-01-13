@@ -351,12 +351,12 @@ class TestIngestAuditPacket:
     async def test_ingest_audit_packet_success(self):
         """Contract: Successful ingestion completes silently."""
         from memory.tool_audit import _ingest_audit_packet
-        from memory.substrate_models import (
-            PacketEnvelopeIn,
-            PacketMetadata,
-            PacketProvenance,
-            PacketConfidence,
-        )
+        from core.schemas.packet_envelope_v2 import (
+    PacketConfidence,
+    PacketEnvelopeIn,
+    PacketMetadata,
+    PacketProvenance,
+)
 
         packet = PacketEnvelopeIn(
             packet_id=uuid4(),
@@ -381,12 +381,12 @@ class TestIngestAuditPacket:
     async def test_ingest_audit_packet_handles_error(self):
         """Contract: Ingestion errors are logged but don't raise."""
         from memory.tool_audit import _ingest_audit_packet
-        from memory.substrate_models import (
-            PacketEnvelopeIn,
-            PacketMetadata,
-            PacketProvenance,
-            PacketConfidence,
-        )
+        from core.schemas.packet_envelope_v2 import (
+    PacketConfidence,
+    PacketEnvelopeIn,
+    PacketMetadata,
+    PacketProvenance,
+)
 
         packet = PacketEnvelopeIn(
             packet_id=uuid4(),
@@ -408,12 +408,12 @@ class TestIngestAuditPacket:
     async def test_ingest_audit_packet_logs_partial_failure(self):
         """Contract: Partial ingestion status is logged."""
         from memory.tool_audit import _ingest_audit_packet
-        from memory.substrate_models import (
-            PacketEnvelopeIn,
-            PacketMetadata,
-            PacketProvenance,
-            PacketConfidence,
-        )
+        from core.schemas.packet_envelope_v2 import (
+    PacketConfidence,
+    PacketEnvelopeIn,
+    PacketMetadata,
+    PacketProvenance,
+)
 
         packet = PacketEnvelopeIn(
             packet_id=uuid4(),

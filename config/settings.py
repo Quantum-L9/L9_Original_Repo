@@ -7,6 +7,7 @@ All integrations can be toggled on/off via environment variables.
 """
 
 import os
+from functools import lru_cache
 from pathlib import Path
 from pydantic_settings import BaseSettings
 from pydantic import Field
@@ -40,7 +41,13 @@ class IntegrationSettings(BaseSettings):
     )
 
     email_enabled: bool = Field(
-        default=False, alias="EMAIL_ENABLED", description="Enable Email integration"
+        default=False, alias="EMAIL_ENABLED", description="Enable Email integration (legacy)"
+    )
+
+    email_agent_enabled: bool = Field(
+        default=True,
+        alias="EMAIL_AGENT_ENABLED",
+        description="Enable Email Agent (Gmail multi-account). Set False to disable.",
     )
 
     inbox_parser_enabled: bool = Field(
@@ -132,15 +139,10 @@ class IntegrationSettings(BaseSettings):
 
 
 # Singleton instance
-_settings: Optional[IntegrationSettings] = None
-
-
+@lru_cache(maxsize=1)
 def get_integration_settings() -> IntegrationSettings:
-    """Get or create integration settings singleton."""
-    global _settings
-    if _settings is None:
-        _settings = IntegrationSettings()
-    return _settings
+    """Get or create integration settings singleton. CACHED."""
+    return IntegrationSettings()
 
 
 def reset_integration_settings() -> None:

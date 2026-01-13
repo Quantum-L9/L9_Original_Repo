@@ -297,7 +297,7 @@ class TestPacketStorage:
     @pytest.mark.asyncio
     async def test_inbound_packet_stored(self, mock_substrate_service):
         """Test inbound packet is stored."""
-        from memory.substrate_models import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata, PacketProvenance
         
         packet = PacketEnvelopeIn(
             packet_type="slack.in",
@@ -313,7 +313,7 @@ class TestPacketStorage:
     @pytest.mark.asyncio
     async def test_outbound_packet_stored(self, mock_substrate_service):
         """Test outbound packet is stored."""
-        from memory.substrate_models import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata, PacketProvenance
         
         packet = PacketEnvelopeIn(
             packet_type="slack.out",

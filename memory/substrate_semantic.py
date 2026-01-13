@@ -4,10 +4,10 @@ Version: 1.0.0
 
 Embedding generation and vector search helpers.
 Provides a pluggable embedding provider interface.
-
-# bound to memory-yaml2.0 semantic layer
 """
 
+import asyncio
+import random
 import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
@@ -63,11 +63,15 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         model: str = "text-embedding-3-large",
         dimensions: int = 1536,
         api_key: Optional[str] = None,
+        max_retries: int = 3,
+        base_backoff: float = 0.5,
     ):
         self._model = model
         self._dimensions = dimensions
         self._api_key = api_key
         self._client = None
+        self._max_retries = max_retries
+        self._base_backoff = base_backoff
 
     def _get_client(self):
         """Lazy initialization of OpenAI client."""
@@ -83,27 +87,70 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                 )
         return self._client
 
+    async def _with_retries(self, coro_func, *, operation: str):
+        """
+        Execute async function with exponential backoff retry logic.
+        
+        Args:
+            coro_func: Async function to execute (called each attempt)
+            operation: Name of operation for logging
+            
+        Returns:
+            Result from successful coro_func() call
+            
+        Raises:
+            RuntimeError: If all retries exhausted
+        """
+        last_error = None
+        for attempt in range(1, self._max_retries + 1):
+            try:
+                return await coro_func()
+            except Exception as exc:
+                last_error = exc
+                if attempt == self._max_retries:
+                    break
+                delay = self._base_backoff * (2 ** (attempt - 1))
+                jitter = random.random() * 0.1
+                logger.warning(
+                    "Embedding request failed, retrying",
+                    operation=operation,
+                    attempt=attempt,
+                    max_retries=self._max_retries,
+                    error=str(exc),
+                    delay=round(delay + jitter, 3),
+                )
+                await asyncio.sleep(delay + jitter)
+        raise RuntimeError(f"Embedding request failed after {self._max_retries} retries: {last_error}") from last_error
+
     async def embed_text(self, text: str) -> list[float]:
-        """Generate embedding using OpenAI API."""
+        """Generate embedding using OpenAI API with retry logic."""
         client = self._get_client()
-        response = await client.embeddings.create(
-            model=self._model,
-            input=text,
-            dimensions=self._dimensions,
-        )
-        return response.data[0].embedding
+
+        async def _embed() -> list[float]:
+            response = await client.embeddings.create(
+                model=self._model,
+                input=text,
+                dimensions=self._dimensions,
+            )
+            return response.data[0].embedding
+
+        return await self._with_retries(_embed, operation="embed_text")
 
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
-        """Generate embeddings for batch of texts."""
+        """Generate embeddings for batch of texts with retry logic."""
         client = self._get_client()
-        response = await client.embeddings.create(
-            model=self._model,
-            input=texts,
-            dimensions=self._dimensions,
-        )
-        # Sort by index to maintain order
-        sorted_data = sorted(response.data, key=lambda x: x.index)
-        return [item.embedding for item in sorted_data]
+
+        async def _embed() -> list[list[float]]:
+            response = await client.embeddings.create(
+                model=self._model,
+                input=texts,
+                dimensions=self._dimensions,
+            )
+            # Sort by index to maintain order
+            sorted_data = sorted(response.data, key=lambda x: x.index)
+            return [item.embedding for item in sorted_data]
+
+        return await self._with_retries(_embed, operation="embed_batch")
 
     @property
     def dimensions(self) -> int:
@@ -152,8 +199,6 @@ class SemanticService:
     Service for semantic operations on the memory substrate.
 
     Wraps embedding provider and repository for semantic search.
-
-    # bound to memory-yaml2.0 semantic layer (embedding_storage, semantic_recall, similarity_ranking)
     """
 
     def __init__(
@@ -278,6 +323,218 @@ class SemanticService:
             embedding_ids.append(str(embedding_id))
 
         return embedding_ids
+
+    # =========================================================================
+    # Spec v3.0 Required Methods (memory_spec_v3.0.yaml compliance)
+    # =========================================================================
+
+    async def store_embedding(
+        self,
+        vector: list[float],
+        metadata: dict[str, Any],
+        embedding_type: str = "content",
+    ) -> str:
+        """
+        Store a pre-computed embedding vector with metadata.
+
+        Spec: semantic.embedding_storage.store_embedding
+
+        Args:
+            vector: Pre-computed embedding vector
+            metadata: Metadata to store with embedding
+            embedding_type: Type of embedding (content, entity, summary, reasoning)
+
+        Returns:
+            embedding_id as string (UUID)
+        """
+        enriched_payload = {
+            **metadata,
+            "_embedding_type": embedding_type,
+            "_model": getattr(self._provider, "_model", "unknown"),
+        }
+
+        embedding_id = await self._repository.insert_semantic_embedding(
+            vector=vector,
+            payload=enriched_payload,
+            agent_id=metadata.get("agent_id"),
+        )
+
+        logger.debug(f"Stored embedding {embedding_id} (type={embedding_type})")
+        return str(embedding_id)
+
+    async def recall_similar(
+        self,
+        query_vector: list[float],
+        top_k: int = 10,
+        embedding_type: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Recall similar embeddings by vector similarity.
+
+        Spec: semantic.embedding_storage.recall_similar
+
+        Args:
+            query_vector: Query embedding vector
+            top_k: Number of results to return
+            embedding_type: Optional filter by embedding type
+
+        Returns:
+            List of hits with embedding_id, score, payload
+        """
+        hits = await self._repository.search_semantic_memory(
+            query_embedding=query_vector,
+            top_k=top_k,
+            agent_id=None,  # No agent filter for recall
+        )
+
+        results = []
+        for hit in hits:
+            hit_dict = hit.model_dump()
+            # Filter by embedding_type if specified
+            if embedding_type:
+                payload = hit_dict.get("payload", {})
+                if payload.get("_embedding_type") != embedding_type:
+                    continue
+            results.append(hit_dict)
+
+        logger.debug(f"Recalled {len(results)} similar embeddings")
+        return results
+
+    async def batch_store_embeddings(
+        self,
+        embeddings: list[dict[str, Any]],
+    ) -> list[str]:
+        """
+        Store multiple pre-computed embeddings.
+
+        Spec: semantic.embedding_storage.batch_store_embeddings
+
+        Args:
+            embeddings: List of dicts with 'vector', 'metadata', optional 'embedding_type'
+
+        Returns:
+            List of embedding_ids
+        """
+        embedding_ids = []
+        for emb in embeddings:
+            vector = emb["vector"]
+            metadata = emb.get("metadata", {})
+            embedding_type = emb.get("embedding_type", "content")
+
+            emb_id = await self.store_embedding(
+                vector=vector,
+                metadata=metadata,
+                embedding_type=embedding_type,
+            )
+            embedding_ids.append(emb_id)
+
+        logger.debug(f"Batch stored {len(embedding_ids)} embeddings")
+        return embedding_ids
+
+    async def hybrid_search(
+        self,
+        query: str,
+        filters: Optional[dict[str, Any]] = None,
+        top_k: int = 10,
+    ) -> list[dict[str, Any]]:
+        """
+        Hybrid search combining semantic similarity with metadata filters.
+
+        Spec: semantic.semantic_recall.hybrid_search
+
+        Args:
+            query: Natural language query
+            filters: Optional metadata filters (e.g., {"agent_id": "...", "packet_type": "..."})
+            top_k: Number of results
+
+        Returns:
+            List of hits with embedding_id, score, payload
+        """
+        # Generate query embedding
+        query_vector = await self._provider.embed_text(query)
+
+        # Get semantic results
+        hits = await self._repository.search_semantic_memory(
+            query_embedding=query_vector,
+            top_k=top_k * 2,  # Over-fetch for filtering
+            agent_id=filters.get("agent_id") if filters else None,
+        )
+
+        results = []
+        for hit in hits:
+            hit_dict = hit.model_dump()
+            payload = hit_dict.get("payload", {})
+
+            # Apply metadata filters
+            if filters:
+                match = True
+                for key, value in filters.items():
+                    if key == "agent_id":
+                        continue  # Already filtered in query
+                    if payload.get(key) != value:
+                        match = False
+                        break
+                if not match:
+                    continue
+
+            results.append(hit_dict)
+            if len(results) >= top_k:
+                break
+
+        logger.debug(f"Hybrid search found {len(results)} results for: {query[:50]}...")
+        return results
+
+    async def rerank_by_relevance(
+        self,
+        hits: list[dict[str, Any]],
+        context: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """
+        Rerank search hits by relevance to context.
+
+        Spec: semantic.similarity_ranking.rerank_by_relevance
+
+        Uses a simple heuristic reranking based on:
+        - Recency (newer = higher)
+        - Embedding type match
+        - Agent match
+
+        Args:
+            hits: List of search hits to rerank
+            context: Context dict with optional 'preferred_embedding_type', 'agent_id', 'recency_weight'
+
+        Returns:
+            Reranked list of hits (highest relevance first)
+        """
+        preferred_type = context.get("preferred_embedding_type")
+        preferred_agent = context.get("agent_id")
+        recency_weight = context.get("recency_weight", 0.1)
+
+        def score_hit(hit: dict[str, Any]) -> float:
+            base_score = hit.get("score", 0.5)
+            payload = hit.get("payload", {})
+
+            # Boost for matching embedding type
+            if preferred_type and payload.get("_embedding_type") == preferred_type:
+                base_score += 0.1
+
+            # Boost for matching agent
+            if preferred_agent and payload.get("agent_id") == preferred_agent:
+                base_score += 0.05
+
+            # Recency boost (if timestamp available)
+            timestamp = payload.get("timestamp") or payload.get("created_at")
+            if timestamp and recency_weight > 0:
+                # Simple recency: more recent = small boost
+                # This is a placeholder - production would use actual time diff
+                base_score += recency_weight * 0.1
+
+            return base_score
+
+        # Sort by computed relevance score
+        ranked = sorted(hits, key=score_hit, reverse=True)
+        logger.debug(f"Reranked {len(ranked)} hits")
+        return ranked
 
 
 # =============================================================================

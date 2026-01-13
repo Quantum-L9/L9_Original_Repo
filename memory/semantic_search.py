@@ -14,7 +14,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from memory.substrate_service import MemorySubstrateService
-from memory.substrate_models import SemanticSearchRequest, SemanticHit
+from core.schemas.packet_envelope_v2 import SemanticHit, SemanticSearchRequest
 
 logger = structlog.get_logger(__name__)
 

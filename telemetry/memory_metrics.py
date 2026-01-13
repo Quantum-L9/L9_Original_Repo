@@ -105,6 +105,85 @@ if PROMETHEUS_AVAILABLE:
         ["segment"],
     )
 
+    # ==========================================================================
+    # Audit Mode Metrics (v2.0)
+    # ==========================================================================
+
+    # Ingestion counters
+    MEMORY_INGEST_TOTAL = Counter(
+        "l9_memory_ingested_total",
+        "Total number of ingested packets",
+        ["status"],
+    )
+
+    MEMORY_DEDUP_TOTAL = Counter(
+        "l9_memory_deduplicated_total",
+        "Total number of deduplicated packets",
+        ["reason"],
+    )
+
+    MEMORY_QUARANTINED_TOTAL = Counter(
+        "l9_memory_quarantined_total",
+        "Total number of quarantined packets",
+        ["reason"],
+    )
+
+    MEMORY_POISON_SUSPECT_TOTAL = Counter(
+        "l9_memory_poison_suspect_total",
+        "Total number of packets flagged as potential poisoning attempts",
+        ["signal"],
+    )
+
+    # Retrieval quality metrics
+    MEMORY_RECALL_AT_K = Gauge(
+        "l9_memory_recall_at_k",
+        "Recall@k for memory retrieval evaluation",
+        ["k"],
+    )
+
+    MEMORY_MRR = Gauge(
+        "l9_memory_mrr",
+        "Mean reciprocal rank for memory retrieval evaluation",
+    )
+
+    MEMORY_NDCG = Gauge(
+        "l9_memory_ndcg",
+        "Normalized discounted cumulative gain for memory retrieval evaluation",
+        ["k"],
+    )
+
+    # Latency metrics by pipeline stage
+    MEMORY_DAG_LATENCY = Histogram(
+        "l9_memory_dag_latency_seconds",
+        "DAG pipeline latency in seconds",
+        buckets=(0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0),
+    )
+
+    MEMORY_EMBED_LATENCY = Histogram(
+        "l9_memory_embed_latency_seconds",
+        "Embedding latency in seconds",
+        buckets=(0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5),
+    )
+
+    MEMORY_SEARCH_LATENCY = Histogram(
+        "l9_memory_search_latency_seconds",
+        "Search latency in seconds",
+        buckets=(0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0),
+    )
+
+    MEMORY_FUSION_LATENCY = Histogram(
+        "l9_memory_fusion_latency_seconds",
+        "Hybrid fusion latency in seconds",
+        buckets=(0.001, 0.005, 0.01, 0.025, 0.05, 0.1),
+    )
+
+    # Vector index size
+    VECTOR_INDEX_SIZE = Gauge(
+        "l9_memory_vector_index_size",
+        "Current number of vectors in semantic index",
+        ["segment"],
+    )
+
 
 # =============================================================================
 # Recording Functions
@@ -215,6 +294,109 @@ def update_packet_store_size(segment: str, count: int) -> None:
 
 
 # =============================================================================
+# Audit Mode Recording Functions (v2.0)
+# =============================================================================
+
+
+def record_memory_ingest(status: str = "ok") -> None:
+    """Record a memory ingest operation."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+
+    try:
+        MEMORY_INGEST_TOTAL.labels(status=status).inc()
+    except Exception as e:
+        logger.warning("Failed to record memory ingest metric", error=str(e))
+
+
+def record_memory_dedup(reason: str, count: int = 1) -> None:
+    """Record deduplication events."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+
+    try:
+        MEMORY_DEDUP_TOTAL.labels(reason=reason).inc(count)
+    except Exception as e:
+        logger.warning("Failed to record memory dedup metric", error=str(e))
+
+
+def record_memory_quarantine(reason: str, count: int = 1) -> None:
+    """Record quarantined packet events."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+
+    try:
+        MEMORY_QUARANTINED_TOTAL.labels(reason=reason).inc(count)
+    except Exception as e:
+        logger.warning("Failed to record memory quarantine metric", error=str(e))
+
+
+def record_memory_poison_suspect(signal: str, count: int = 1) -> None:
+    """Record potential poisoning signals."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+
+    try:
+        MEMORY_POISON_SUSPECT_TOTAL.labels(signal=signal).inc(count)
+    except Exception as e:
+        logger.warning("Failed to record memory poison metric", error=str(e))
+
+
+def record_retrieval_quality(
+    recall_at_k: dict[int, float],
+    mrr: float,
+    ndcg_at_k: dict[int, float],
+) -> None:
+    """Record retrieval quality metrics."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+
+    try:
+        for k, value in recall_at_k.items():
+            MEMORY_RECALL_AT_K.labels(k=str(k)).set(value)
+        for k, value in ndcg_at_k.items():
+            MEMORY_NDCG.labels(k=str(k)).set(value)
+        MEMORY_MRR.set(mrr)
+    except Exception as e:
+        logger.warning("Failed to record retrieval quality metrics", error=str(e))
+
+
+def record_latency(metric: str, duration_seconds: float) -> None:
+    """
+    Record latency for DAG/embed/search/fusion stages.
+    
+    Args:
+        metric: One of "dag", "embed", "search", "fusion"
+        duration_seconds: Duration in seconds
+    """
+    if not PROMETHEUS_AVAILABLE:
+        return
+
+    try:
+        if metric == "dag":
+            MEMORY_DAG_LATENCY.observe(duration_seconds)
+        elif metric == "embed":
+            MEMORY_EMBED_LATENCY.observe(duration_seconds)
+        elif metric == "search":
+            MEMORY_SEARCH_LATENCY.observe(duration_seconds)
+        elif metric == "fusion":
+            MEMORY_FUSION_LATENCY.observe(duration_seconds)
+    except Exception as e:
+        logger.warning("Failed to record latency metric", error=str(e))
+
+
+def update_vector_index_size(segment: str, count: int) -> None:
+    """Update vector index size gauge for a segment."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+
+    try:
+        VECTOR_INDEX_SIZE.labels(segment=segment).set(count)
+    except Exception as e:
+        logger.warning("Failed to update vector index size", error=str(e))
+
+
+# =============================================================================
 # Initialization
 # =============================================================================
 
@@ -243,12 +425,21 @@ def init_metrics() -> bool:
 
 __all__ = [
     "PROMETHEUS_AVAILABLE",
+    # Core metrics
     "record_memory_write",
     "record_memory_search",
     "record_tool_invocation",
     "set_memory_substrate_health",
     "update_packet_store_size",
     "init_metrics",
+    # Audit mode metrics (v2.0)
+    "record_memory_ingest",
+    "record_memory_dedup",
+    "record_memory_quarantine",
+    "record_memory_poison_suspect",
+    "record_retrieval_quality",
+    "record_latency",
+    "update_vector_index_size",
 ]
 
 

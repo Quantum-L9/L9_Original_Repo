@@ -6,6 +6,7 @@ Pydantic settings for the Research Factory service.
 Uses the Memory Substrate for persistence (no separate DB connection).
 """
 
+from functools import lru_cache
 from typing import Optional
 
 from pydantic import Field
@@ -104,19 +105,12 @@ class ResearchSettings(BaseSettings):
         extra = "ignore"
 
 
-# Singleton instance
-_settings: Optional[ResearchSettings] = None
-
-
+@lru_cache(maxsize=1)
 def get_research_settings() -> ResearchSettings:
-    """Get or create research settings singleton."""
-    global _settings
-    if _settings is None:
-        _settings = ResearchSettings()
-    return _settings
+    """Get or create research settings singleton. CACHED."""
+    return ResearchSettings()
 
 
 def reset_research_settings() -> None:
     """Reset settings (useful for testing)."""
-    global _settings
-    _settings = None
+    get_research_settings.cache_clear()

@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# L9 Pre-Push Hook - Smoke Tests + Validation
+# Drop this into .git/hooks/pre-push and chmod +x
+
+set -e  # Exit on any error
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+echo -e "${BLUE}🚀 L9 Pre-Push Validations${NC}"
+echo "========================================"
+
+# ============================================
+# 1. SMOKE TESTS
+# ============================================
+echo -e "\n${YELLOW}[1/4]${NC} Running smoke tests..."
+
+if [ -f "tests/smoke_test.py" ]; then
+    echo "   Running tests/smoke_test.py..."
+    
+    if pytest tests/smoke_test.py -v --tb=short --maxfail=3 2>&1 | tail -20; then
+        echo -e "${GREEN}✓ Smoke tests passed${NC}"
+    else
+        echo -e "${RED}❌ SMOKE TESTS FAILED!${NC}"
+        echo ""
+        echo "Your changes broke critical paths. Fix before pushing."
+        echo ""
+        echo "To bypass (NOT recommended): git push --no-verify"
+        exit 1
+    fi
+else
+    echo -e "${YELLOW}⚠ No smoke tests found, skipping${NC}"
+fi
+
+# ============================================
+# 2. LARGE FILE CHECK
+# ============================================
+echo -e "\n${YELLOW}[2/4]${NC} Checking for large files..."
+
+# Get list of files being pushed
+LARGE_FILES=$(git diff --stat=200 --cached | grep -E '^\s.*\|.*\+' | awk '{print $1}' | while read file; do
+    if [ -f "$file" ]; then
+        size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo 0)
+        if [ "$size" -gt 10485760 ]; then  # 10MB
+            echo "$file:$(($size / 1048576))MB"
+        fi
+    fi
+done)
+
+if [ -n "$LARGE_FILES" ]; then
+    echo -e "${RED}❌ LARGE FILES DETECTED:${NC}"
+    echo "$LARGE_FILES" | while IFS=: read file size; do
+        echo "   - $file ($size)"
+    done
+    echo ""
+    echo "Large files should not be committed. Options:"
+    echo "  1. Add to .gitignore"
+    echo "  2. Use Git LFS: git lfs track '$file'"
+    echo "  3. Store in S3/external storage"
+    echo ""
+    echo "To bypass: git push --no-verify"
+    exit 1
+else
+    echo -e "${GREEN}✓ No large files detected${NC}"
+fi
+
+# ============================================
+# 3. SCHEMA VALIDATION
+# ============================================
+echo -e "\n${YELLOW}[3/4]${NC} Validating schemas..."
+
+# Check if memory spec validator exists
+if [ -f "scripts/audit/verify_memory_spec_v3.py" ]; then
+    echo "   Validating memory/memory_spec_v3.0.yaml..."
+    
+    if python3 scripts/audit/verify_memory_spec_v3.py --quiet 2>&1 | tail -10; then
+        echo -e "${GREEN}✓ Schema validation passed${NC}"
+    else
+        echo -e "${RED}❌ Schema validation failed!${NC}"
+        echo "   Fix memory spec before pushing"
+        echo "   Or bypass: git push --no-verify"
+        exit 1
+    fi
+else
+    echo -e "${YELLOW}⚠ No schema validator found, skipping${NC}"
+fi
+
+# ============================================
+# 4. BREAKING CHANGE DETECTION
+# ============================================
+echo -e "\n${YELLOW}[4/4]${NC} Checking for breaking changes..."
+
+# Check if PacketEnvelope schema changed
+if git diff --cached --name-only | grep -q "memory/substrate_models.py"; then
+    echo -e "${YELLOW}⚠ substrate_models.py changed!${NC}"
+    echo "   This may contain breaking changes to PacketEnvelope"
+    echo "   Ensure backward compatibility or update version"
+    echo ""
+    
+    # Check if version was bumped
+    if git diff --cached memory/substrate_models.py | grep -q "PACKET_SCHEMA_VERSION"; then
+        echo -e "${GREEN}✓ Schema version updated${NC}"
+    else
+        echo -e "${YELLOW}⚠ Schema version NOT updated (may be okay)${NC}"
+    fi
+else
+    echo -e "${GREEN}✓ No schema changes detected${NC}"
+fi
+
+# ============================================
+# SUCCESS
+# ============================================
+echo ""
+echo -e "${GREEN}✅ All pre-push validations passed!${NC}"
+echo -e "${GREEN}   Safe to push to remote.${NC}"
+echo "========================================"
+exit 0

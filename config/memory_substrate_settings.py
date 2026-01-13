@@ -5,6 +5,7 @@ Version: 1.0.0
 Pydantic settings for environment variables and configuration.
 """
 
+from functools import lru_cache
 from typing import Optional
 
 from pydantic import Field
@@ -68,6 +69,18 @@ class MemorySubstrateSettings(BaseSettings):
         description="Interval for background sync to external systems",
     )
 
+    # DAG Enrichment settings (v2.1.0 - GMP-67 unified pipeline)
+    enable_dag_enrichment: bool = Field(
+        default=False,
+        alias="ENABLE_DAG_ENRICHMENT",
+        description="Enable SubstrateDAG enrichment after core writes (default: False for safety rollout)",
+    )
+    dag_enrichment_timeout_seconds: float = Field(
+        default=30.0,
+        alias="DAG_ENRICHMENT_TIMEOUT",
+        description="Max time for DAG enrichment before timeout (enrichment failure, core write preserved)",
+    )
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
@@ -75,19 +88,12 @@ class MemorySubstrateSettings(BaseSettings):
         extra = "ignore"
 
 
-# Singleton instance
-_settings: Optional[MemorySubstrateSettings] = None
-
-
+@lru_cache(maxsize=1)
 def get_settings() -> MemorySubstrateSettings:
-    """Get or create settings singleton."""
-    global _settings
-    if _settings is None:
-        _settings = MemorySubstrateSettings()
-    return _settings
+    """Get or create settings singleton. CACHED."""
+    return MemorySubstrateSettings()
 
 
 def reset_settings() -> None:
     """Reset settings (useful for testing)."""
-    global _settings
-    _settings = None
+    get_settings.cache_clear()

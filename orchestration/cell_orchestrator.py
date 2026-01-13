@@ -879,7 +879,7 @@ class CellOrchestrator:
             return False
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 source="cell_orchestrator",

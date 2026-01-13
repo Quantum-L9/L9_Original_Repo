@@ -26,6 +26,7 @@ import hashlib
 import json
 import structlog
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -101,18 +102,9 @@ def compute_kernel_hashes(base_path: str = "private") -> Dict[str, str]:
 # =============================================================================
 
 
-def load_kernel_hashes(hash_file: Optional[Path] = None) -> Dict[str, str]:
-    """
-    Load stored kernel hashes from file.
-
-    Args:
-        hash_file: Path to hash file (defaults to KERNEL_HASH_FILE)
-
-    Returns:
-        Dict of stored hashes, empty dict if file doesn't exist
-    """
-    hash_file = hash_file or KERNEL_HASH_FILE
-
+@lru_cache(maxsize=8)
+def _load_kernel_hashes_cached(hash_file: Path) -> Dict[str, str]:
+    """Internal cached implementation."""
     if not hash_file.exists():
         logger.info(f"No stored kernel hashes found at {hash_file}")
         return {}
@@ -123,6 +115,22 @@ def load_kernel_hashes(hash_file: Optional[Path] = None) -> Dict[str, str]:
     except (json.JSONDecodeError, IOError) as e:
         logger.error(f"Failed to load kernel hashes: {e}")
         return {}
+
+
+def load_kernel_hashes(hash_file: Optional[Path] = None) -> Dict[str, str]:
+    """
+    Load stored kernel hashes from file. CACHED.
+
+    Results are cached by file path. Call _load_kernel_hashes_cached.cache_clear()
+    to invalidate after hash file updates.
+
+    Args:
+        hash_file: Path to hash file (defaults to KERNEL_HASH_FILE)
+
+    Returns:
+        Dict of stored hashes, empty dict if file doesn't exist
+    """
+    return _load_kernel_hashes_cached(hash_file or KERNEL_HASH_FILE)
 
 
 def save_kernel_hashes(

@@ -1,0 +1,708 @@
+"""
+L9 Memory - Pre-built Saga Patterns
+===================================
+
+Ready-to-use saga patterns for common cross-DB operations.
+
+Patterns:
+1. VectorToGraphSaga — Vector search → Entity extraction → Graph enrichment
+2. EntityEnrichmentSaga — Entity lookup → Relationship discovery → Context assembly
+3. TimelineCorrelationSaga — Event timeline → Causal chain → Impact analysis
+4. FetchAndEnrichSaga — The "canonical" saga from TODO #5
+
+Version: 1.0.0
+"""
+
+from __future__ import annotations
+
+import structlog
+from typing import Any, Optional
+from uuid import UUID
+
+from memory.saga import (
+    Saga,
+    SagaBuilder,
+    SagaContext,
+    SagaExecutor,
+    SagaStep,
+    SagaResult,
+    DatabaseType,
+    get_saga_executor,
+)
+
+logger = structlog.get_logger(__name__)
+
+
+# =============================================================================
+# Step Functions
+# =============================================================================
+
+
+async def _vector_search_step(
+    context: SagaContext,
+    semantic: Any = None,
+    **kwargs,
+) -> list[dict[str, Any]]:
+    """
+    Step 1: Vector search in Postgres.
+    
+    Searches for semantically similar content.
+    """
+    query = context.input_data.get("query", "")
+    limit = context.input_data.get("limit", 10)
+    min_similarity = context.input_data.get("min_similarity", 0.5)
+    
+    if not semantic:
+        logger.warning("Semantic service not available, returning empty results")
+        return []
+    
+    try:
+        results = await semantic.search(
+            query=query,
+            limit=limit,
+            min_similarity=min_similarity,
+        )
+        
+        # Convert to dicts
+        hits = []
+        for r in results:
+            hit = {
+                "packet_id": str(r.packet_id) if hasattr(r, "packet_id") else None,
+                "content": r.content if hasattr(r, "content") else str(r),
+                "similarity": r.similarity if hasattr(r, "similarity") else 0.0,
+                "kind": r.kind if hasattr(r, "kind") else None,
+                "source_id": r.source_id if hasattr(r, "source_id") else None,
+                "thread_id": r.thread_id if hasattr(r, "thread_id") else None,
+            }
+            hits.append(hit)
+        
+        logger.debug(f"Vector search returned {len(hits)} hits")
+        return hits
+        
+    except Exception as e:
+        logger.error(f"Vector search failed: {e}")
+        raise
+
+
+async def _extract_entities_step(
+    context: SagaContext,
+    **kwargs,
+) -> list[dict[str, Any]]:
+    """
+    Step 2: Extract entity IDs from vector search results.
+    
+    Uses pattern matching and metadata extraction.
+    """
+    import re
+    
+    vector_results = context.get_step_output("vector_search") or []
+    entities: list[dict[str, Any]] = []
+    
+    for hit in vector_results:
+        content = hit.get("content", "")
+        
+        # Extract from metadata
+        if hit.get("source_id"):
+            source = hit["source_id"]
+            entity_type = "User" if source.startswith("user:") else "Agent" if source.startswith("agent:") else "System"
+            entities.append({
+                "type": entity_type,
+                "id": source,
+                "source": "metadata",
+                "from_packet": hit.get("packet_id"),
+            })
+        
+        if hit.get("thread_id"):
+            entities.append({
+                "type": "Thread",
+                "id": hit["thread_id"],
+                "source": "metadata",
+                "from_packet": hit.get("packet_id"),
+            })
+        
+        # Extract UUIDs from content
+        uuid_pattern = r'\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b'
+        for match in re.finditer(uuid_pattern, content, re.IGNORECASE):
+            entities.append({
+                "type": "Entity",
+                "id": match.group(),
+                "source": "content",
+                "from_packet": hit.get("packet_id"),
+            })
+        
+        # Extract GMP references
+        gmp_pattern = r'GMP-(\d+)'
+        for match in re.finditer(gmp_pattern, content, re.IGNORECASE):
+            entities.append({
+                "type": "GMP",
+                "id": f"gmp-{match.group(1)}",
+                "source": "content",
+                "from_packet": hit.get("packet_id"),
+            })
+        
+        # Extract file paths
+        file_pattern = r'(?:/[\w.-]+)+\.(?:py|ts|js|yaml|yml|json|md)'
+        for match in re.finditer(file_pattern, content):
+            entities.append({
+                "type": "File",
+                "id": match.group(),
+                "source": "content",
+                "from_packet": hit.get("packet_id"),
+            })
+    
+    # Deduplicate by (type, id)
+    seen = set()
+    unique_entities = []
+    for entity in entities:
+        key = (entity["type"], entity["id"])
+        if key not in seen:
+            seen.add(key)
+            unique_entities.append(entity)
+    
+    # Add to context for downstream steps
+    context.add_entities(unique_entities)
+    
+    logger.debug(f"Extracted {len(unique_entities)} unique entities")
+    return unique_entities
+
+
+async def _graph_enrich_step(
+    context: SagaContext,
+    neo4j: Any = None,
+    **kwargs,
+) -> dict[str, Any]:
+    """
+    Step 3: Enrich entities with Neo4j graph data.
+    
+    Finds related entities and relationships.
+    """
+    entities = context.entities
+    
+    if not neo4j or not neo4j.is_available():
+        logger.warning("Neo4j not available, skipping enrichment")
+        return {"related_entities": [], "relationships": []}
+    
+    related_entities: list[dict[str, Any]] = []
+    relationships: list[dict[str, Any]] = []
+    
+    for entity in entities[:20]:  # Limit to avoid too many queries
+        entity_type = entity.get("type", "Entity")
+        entity_id = entity.get("id")
+        
+        if not entity_id:
+            continue
+        
+        # Sanitize type for Cypher
+        safe_type = entity_type.replace("`", "").replace(":", "")
+        
+        # Query for neighbors
+        try:
+            query = f"""
+            MATCH (n:`{safe_type}` {{id: $entity_id}})-[r]-(neighbor)
+            RETURN DISTINCT 
+                neighbor.id as neighbor_id,
+                labels(neighbor)[0] as neighbor_type,
+                neighbor.name as neighbor_name,
+                type(r) as relationship
+            LIMIT 5
+            """
+            
+            results = await neo4j.run_query(
+                query,
+                {"entity_id": entity_id},
+            )
+            
+            for r in results:
+                if r.get("neighbor_id"):
+                    related_entities.append({
+                        "id": r["neighbor_id"],
+                        "type": r.get("neighbor_type", "Unknown"),
+                        "name": r.get("neighbor_name"),
+                        "related_to": entity_id,
+                    })
+                    
+                    relationships.append({
+                        "from": entity_id,
+                        "from_type": entity_type,
+                        "to": r["neighbor_id"],
+                        "to_type": r.get("neighbor_type", "Unknown"),
+                        "relationship": r.get("relationship"),
+                    })
+                    
+        except Exception as e:
+            logger.debug(f"Graph query failed for {entity_type}:{entity_id}: {e}")
+    
+    # Add to context
+    context.add_relationships(relationships)
+    
+    logger.debug(f"Found {len(related_entities)} related entities, {len(relationships)} relationships")
+    
+    return {
+        "related_entities": related_entities,
+        "relationships": relationships,
+    }
+
+
+async def _assemble_result_step(
+    context: SagaContext,
+    **kwargs,
+) -> dict[str, Any]:
+    """
+    Step 4: Assemble final result from all steps.
+    """
+    vector_results = context.get_step_output("vector_search") or []
+    extracted_entities = context.get_step_output("extract_entities") or []
+    graph_data = context.get_step_output("graph_enrich") or {}
+    
+    return {
+        "vector_hits": vector_results,
+        "extracted_entities": extracted_entities,
+        "related_entities": graph_data.get("related_entities", []),
+        "relationships": graph_data.get("relationships", []),
+        "statistics": {
+            "vector_hits_count": len(vector_results),
+            "entities_extracted": len(extracted_entities),
+            "related_entities_found": len(graph_data.get("related_entities", [])),
+            "relationships_found": len(graph_data.get("relationships", [])),
+        },
+    }
+
+
+# =============================================================================
+# Timeline Steps
+# =============================================================================
+
+
+async def _fetch_events_step(
+    context: SagaContext,
+    neo4j: Any = None,
+    **kwargs,
+) -> list[dict[str, Any]]:
+    """Fetch events from Neo4j timeline."""
+    start_time = context.input_data.get("start_time")
+    end_time = context.input_data.get("end_time")
+    event_type = context.input_data.get("event_type")
+    limit = context.input_data.get("limit", 50)
+    
+    if not neo4j or not neo4j.is_available():
+        return []
+    
+    conditions = []
+    params: dict[str, Any] = {"limit": limit}
+    
+    if start_time:
+        conditions.append("e.timestamp >= $start_time")
+        params["start_time"] = start_time
+    if end_time:
+        conditions.append("e.timestamp <= $end_time")
+        params["end_time"] = end_time
+    if event_type:
+        conditions.append("e.event_type = $event_type")
+        params["event_type"] = event_type
+    
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    
+    query = f"""
+    MATCH (e:Event)
+    {where_clause}
+    RETURN e.id as id, e.event_type as event_type, e.timestamp as timestamp,
+           properties(e) as properties
+    ORDER BY e.timestamp DESC
+    LIMIT $limit
+    """
+    
+    try:
+        results = await neo4j.run_query(query, params)
+        events = [
+            {
+                "id": r["id"],
+                "event_type": r.get("event_type"),
+                "timestamp": r.get("timestamp"),
+                "properties": r.get("properties", {}),
+            }
+            for r in results
+        ]
+        
+        # Add events as entities
+        for event in events:
+            context.add_entities([{
+                "type": "Event",
+                "id": event["id"],
+                "event_type": event.get("event_type"),
+            }])
+        
+        return events
+    except Exception as e:
+        logger.error(f"Event fetch failed: {e}")
+        return []
+
+
+async def _trace_causal_chain_step(
+    context: SagaContext,
+    neo4j: Any = None,
+    **kwargs,
+) -> list[dict[str, Any]]:
+    """Trace causal chains from events."""
+    events = context.get_step_output("fetch_events") or []
+    
+    if not neo4j or not neo4j.is_available() or not events:
+        return []
+    
+    causal_chains: list[dict[str, Any]] = []
+    
+    for event in events[:10]:  # Limit root events
+        event_id = event.get("id")
+        if not event_id:
+            continue
+        
+        query = """
+        MATCH (root:Event {id: $event_id})
+        MATCH path = (root)-[:TRIGGERED*0..5]->(descendant:Event)
+        RETURN 
+            root.id as root_id,
+            [node in nodes(path) | {
+                id: node.id, 
+                event_type: node.event_type,
+                timestamp: node.timestamp
+            }] as chain
+        LIMIT 10
+        """
+        
+        try:
+            results = await neo4j.run_query(query, {"event_id": event_id})
+            for r in results:
+                if r.get("chain"):
+                    causal_chains.append({
+                        "root_event": event_id,
+                        "chain": r["chain"],
+                        "chain_length": len(r["chain"]),
+                    })
+        except Exception as e:
+            logger.debug(f"Causal chain trace failed for {event_id}: {e}")
+    
+    return causal_chains
+
+
+# =============================================================================
+# Pre-built Sagas
+# =============================================================================
+
+
+def create_fetch_and_enrich_saga() -> Saga:
+    """
+    Create the canonical "fetch_and_enrich" saga from TODO #5.
+    
+    Flow:
+    1. Vector search in Postgres
+    2. Extract entity IDs
+    3. Neo4j graph enrichment
+    4. Combined result
+    
+    Usage:
+        saga = create_fetch_and_enrich_saga()
+        result = await executor.execute(saga, input_data={"query": "..."})
+    """
+    return (
+        SagaBuilder("fetch_and_enrich")
+        .add_step(
+            name="vector_search",
+            database=DatabaseType.POSTGRES,
+            description="Search for semantically similar content",
+            execute_fn=_vector_search_step,
+            max_retries=1,
+        )
+        .add_step(
+            name="extract_entities",
+            database=DatabaseType.MEMORY,
+            description="Extract entity IDs from search results",
+            execute_fn=_extract_entities_step,
+        )
+        .add_step(
+            name="graph_enrich",
+            database=DatabaseType.NEO4J,
+            description="Enrich entities with graph relationships",
+            execute_fn=_graph_enrich_step,
+            required=False,  # Continue even if Neo4j unavailable
+        )
+        .add_step(
+            name="assemble_result",
+            database=DatabaseType.MEMORY,
+            description="Assemble final combined result",
+            execute_fn=_assemble_result_step,
+        )
+        .build()
+    )
+
+
+def create_entity_enrichment_saga() -> Saga:
+    """
+    Create entity enrichment saga.
+    
+    For when you already have entity IDs and want graph context.
+    
+    Input: {"entity_ids": ["id1", "id2"], "entity_type": "User"}
+    """
+    async def lookup_entities(context: SagaContext, neo4j: Any = None, **kwargs):
+        entity_ids = context.input_data.get("entity_ids", [])
+        entity_type = context.input_data.get("entity_type", "Entity")
+        
+        if not neo4j or not neo4j.is_available():
+            return []
+        
+        safe_type = entity_type.replace("`", "").replace(":", "")
+        
+        query = f"""
+        UNWIND $ids as entity_id
+        MATCH (n:`{safe_type}` {{id: entity_id}})
+        RETURN n.id as id, properties(n) as properties
+        """
+        
+        try:
+            results = await neo4j.run_query(query, {"ids": entity_ids})
+            entities = []
+            for r in results:
+                entity = {"id": r["id"], "type": entity_type, **r.get("properties", {})}
+                entities.append(entity)
+                context.add_entities([{"type": entity_type, "id": r["id"]}])
+            return entities
+        except Exception as e:
+            logger.error(f"Entity lookup failed: {e}")
+            return []
+    
+    return (
+        SagaBuilder("entity_enrichment")
+        .add_step(
+            name="lookup_entities",
+            database=DatabaseType.NEO4J,
+            description="Lookup entities by ID",
+            execute_fn=lookup_entities,
+        )
+        .add_step(
+            name="graph_enrich",
+            database=DatabaseType.NEO4J,
+            description="Enrich with graph relationships",
+            execute_fn=_graph_enrich_step,
+        )
+        .build()
+    )
+
+
+def create_timeline_correlation_saga() -> Saga:
+    """
+    Create timeline correlation saga.
+    
+    For analyzing event sequences and causal chains.
+    
+    Input: {"start_time": "...", "end_time": "...", "event_type": "..."}
+    """
+    return (
+        SagaBuilder("timeline_correlation")
+        .add_step(
+            name="fetch_events",
+            database=DatabaseType.NEO4J,
+            description="Fetch events in time range",
+            execute_fn=_fetch_events_step,
+        )
+        .add_step(
+            name="trace_causal_chains",
+            database=DatabaseType.NEO4J,
+            description="Trace causal chains from events",
+            execute_fn=_trace_causal_chain_step,
+        )
+        .build()
+    )
+
+
+# =============================================================================
+# High-Level API
+# =============================================================================
+
+
+class SagaPatterns:
+    """
+    High-level API for executing pre-built sagas.
+    
+    Usage:
+        patterns = SagaPatterns(executor)
+        
+        # Fetch and enrich
+        result = await patterns.fetch_and_enrich(
+            query="How does authentication work?",
+            limit=10,
+        )
+        
+        # Entity enrichment
+        result = await patterns.enrich_entities(
+            entity_ids=["user-1", "user-2"],
+            entity_type="User",
+        )
+        
+        # Timeline correlation
+        result = await patterns.correlate_timeline(
+            start_time="2026-01-01T00:00:00Z",
+            end_time="2026-01-12T23:59:59Z",
+        )
+    """
+    
+    def __init__(self, executor: SagaExecutor):
+        self._executor = executor
+        self._sagas = {
+            "fetch_and_enrich": create_fetch_and_enrich_saga(),
+            "entity_enrichment": create_entity_enrichment_saga(),
+            "timeline_correlation": create_timeline_correlation_saga(),
+        }
+    
+    async def fetch_and_enrich(
+        self,
+        query: str,
+        limit: int = 10,
+        min_similarity: float = 0.5,
+    ) -> SagaResult:
+        """
+        Execute the canonical fetch_and_enrich saga.
+        
+        1. Vector search for query
+        2. Extract entity IDs
+        3. Enrich with graph relationships
+        4. Return combined result
+        
+        Args:
+            query: Search query
+            limit: Max vector results
+            min_similarity: Minimum similarity threshold
+            
+        Returns:
+            SagaResult with combined vector + graph data
+        """
+        return await self._executor.execute(
+            self._sagas["fetch_and_enrich"],
+            input_data={
+                "query": query,
+                "limit": limit,
+                "min_similarity": min_similarity,
+            },
+        )
+    
+    async def enrich_entities(
+        self,
+        entity_ids: list[str],
+        entity_type: str = "Entity",
+    ) -> SagaResult:
+        """
+        Enrich known entities with graph context.
+        
+        Args:
+            entity_ids: List of entity IDs to enrich
+            entity_type: Node label type
+            
+        Returns:
+            SagaResult with entity data and relationships
+        """
+        return await self._executor.execute(
+            self._sagas["entity_enrichment"],
+            input_data={
+                "entity_ids": entity_ids,
+                "entity_type": entity_type,
+            },
+        )
+    
+    async def correlate_timeline(
+        self,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        event_type: Optional[str] = None,
+        limit: int = 50,
+    ) -> SagaResult:
+        """
+        Correlate events in a timeline with causal chains.
+        
+        Args:
+            start_time: ISO timestamp start
+            end_time: ISO timestamp end
+            event_type: Filter by event type
+            limit: Max events
+            
+        Returns:
+            SagaResult with events and causal chains
+        """
+        return await self._executor.execute(
+            self._sagas["timeline_correlation"],
+            input_data={
+                "start_time": start_time,
+                "end_time": end_time,
+                "event_type": event_type,
+                "limit": limit,
+            },
+        )
+
+
+# =============================================================================
+# Convenience Functions
+# =============================================================================
+
+
+_patterns: Optional[SagaPatterns] = None
+
+
+async def get_saga_patterns(
+    executor: Optional[SagaExecutor] = None,
+    postgres_pool: Optional[Any] = None,
+    neo4j_client: Optional[Any] = None,
+    semantic_service: Optional[Any] = None,
+) -> SagaPatterns:
+    """Get or create singleton saga patterns."""
+    global _patterns
+    
+    if _patterns is None:
+        if executor is None:
+            executor = await get_saga_executor(
+                postgres_pool=postgres_pool,
+                neo4j_client=neo4j_client,
+                semantic_service=semantic_service,
+            )
+        _patterns = SagaPatterns(executor)
+    
+    return _patterns
+
+
+async def fetch_and_enrich(
+    query: str,
+    postgres_pool: Optional[Any] = None,
+    neo4j_client: Optional[Any] = None,
+    semantic_service: Optional[Any] = None,
+    limit: int = 10,
+) -> SagaResult:
+    """
+    Convenience function for fetch_and_enrich saga.
+    
+    This is THE canonical implementation of TODO #5.
+    
+    Args:
+        query: Search query
+        postgres_pool: asyncpg pool
+        neo4j_client: Neo4jClient
+        semantic_service: SemanticService
+        limit: Max results
+        
+    Returns:
+        SagaResult with vector search + graph enrichment
+    """
+    patterns = await get_saga_patterns(
+        postgres_pool=postgres_pool,
+        neo4j_client=neo4j_client,
+        semantic_service=semantic_service,
+    )
+    return await patterns.fetch_and_enrich(query, limit=limit)
+
+
+__all__ = [
+    # Sagas
+    "create_fetch_and_enrich_saga",
+    "create_entity_enrichment_saga",
+    "create_timeline_correlation_saga",
+    # High-level API
+    "SagaPatterns",
+    "get_saga_patterns",
+    # Convenience
+    "fetch_and_enrich",
+]

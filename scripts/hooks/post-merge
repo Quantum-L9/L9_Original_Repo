@@ -1,0 +1,196 @@
+#!/usr/bin/env bash
+# L9 Post-Merge Hook - Auto-sync after git pull
+# Drop this into .git/hooks/post-merge and chmod +x
+
+set -e  # Exit on any error
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+echo -e "${BLUE}🔄 L9 Post-Merge Automation${NC}"
+echo "========================================"
+
+# Get changed files between previous HEAD and current HEAD
+CHANGED_FILES=$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD 2>/dev/null || true)
+
+if [ -z "$CHANGED_FILES" ]; then
+    echo -e "${GREEN}✓ No changes detected${NC}"
+    exit 0
+fi
+
+# ============================================
+# 1. ENVIRONMENT VARIABLES SYNC
+# ============================================
+echo -e "\n${YELLOW}[1/8]${NC} Checking environment variables..."
+
+if echo "$CHANGED_FILES" | grep -q "^\.env\.example$"; then
+    echo -e "${YELLOW}⚠ .env.example changed!${NC}"
+    
+    # Check for new required vars
+    if [ -f ".env.example" ] && [ -f ".env" ]; then
+        NEW_VARS=$(comm -23 <(grep "^[A-Z]" .env.example | cut -d= -f1 | sort) <(grep "^[A-Z]" .env | cut -d= -f1 | sort) || true)
+        
+        if [ -n "$NEW_VARS" ]; then
+            echo -e "${RED}❌ Missing environment variables:${NC}"
+            echo "$NEW_VARS" | while read var; do
+                echo "   - $var"
+            done
+            echo ""
+            echo "Action required:"
+            echo "  1. Copy missing vars from .env.example to .env"
+            echo "  2. Set appropriate values"
+        else
+            echo -e "${GREEN}✓ All required env vars present${NC}"
+        fi
+    fi
+else
+    echo -e "${GREEN}✓ No env changes${NC}"
+fi
+
+# ============================================
+# 2. PYTHON DEPENDENCIES
+# ============================================
+echo -e "\n${YELLOW}[2/8]${NC} Checking Python dependencies..."
+
+if echo "$CHANGED_FILES" | grep -qE "^(requirements\.txt|pyproject\.toml|setup\.py)$"; then
+    echo -e "${YELLOW}⚠ Dependencies changed!${NC}"
+    echo "   Auto-installing..."
+    
+    if [ -f "requirements.txt" ]; then
+        pip install -r requirements.txt --quiet 2>&1 | tail -5 || true
+    elif [ -f "pyproject.toml" ]; then
+        pip install -e . --quiet 2>&1 | tail -5 || true
+    fi
+    
+    echo -e "${GREEN}✓ Dependencies installed${NC}"
+else
+    echo -e "${GREEN}✓ No dependency changes${NC}"
+fi
+
+# ============================================
+# 3. DATABASE MIGRATIONS
+# ============================================
+echo -e "\n${YELLOW}[3/8]${NC} Checking for new migrations..."
+
+if echo "$CHANGED_FILES" | grep -q "^migrations/.*\.sql$"; then
+    NEW_MIGRATIONS=$(echo "$CHANGED_FILES" | grep "^migrations/.*\.sql$" || true)
+    
+    echo -e "${YELLOW}⚠ New migrations detected:${NC}"
+    echo "$NEW_MIGRATIONS" | while read migration; do
+        echo "   - $migration"
+    done
+    
+    # Check if migration runner exists
+    if [ -f "memory/migration_runner.py" ]; then
+        echo "   Auto-running migrations..."
+        python3 -c "from memory.migration_runner import MigrationRunner; import asyncio; asyncio.run(MigrationRunner().run_migrations())" 2>&1 | tail -5 || {
+            echo -e "${RED}❌ Migration failed! Check logs.${NC}"
+        }
+        echo -e "${GREEN}✓ Migrations applied${NC}"
+    else
+        echo -e "${YELLOW}   Manual action required: Run migrations${NC}"
+    fi
+else
+    echo -e "${GREEN}✓ No new migrations${NC}"
+fi
+
+# ============================================
+# 4. DOCKER CHANGES
+# ============================================
+echo -e "\n${YELLOW}[4/8]${NC} Checking Docker configuration..."
+
+if echo "$CHANGED_FILES" | grep -qE "^(Dockerfile|docker-compose\.yml|\.dockerignore)$"; then
+    echo -e "${YELLOW}⚠ Docker configuration changed!${NC}"
+    echo ""
+    echo "Action required:"
+    echo "  docker-compose down"
+    echo "  docker-compose up --build -d"
+    echo ""
+else
+    echo -e "${GREEN}✓ No Docker changes${NC}"
+fi
+
+# ============================================
+# 5. KERNEL HOT-RELOAD (NEW!)
+# ============================================
+echo -e "\n${YELLOW}[5/8]${NC} Checking kernel changes..."
+
+if echo "$CHANGED_FILES" | grep -q "^kernels/"; then
+    echo -e "${YELLOW}⚠ Kernels changed!${NC}"
+    
+    # Attempt hot-reload via API
+    if curl -s -X POST http://localhost:8000/api/kernels/reload --max-time 2 >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ Kernels hot-reloaded${NC}"
+    else
+        echo -e "${YELLOW}   (Server not running - kernels will reload on next startup)${NC}"
+    fi
+else
+    echo -e "${GREEN}✓ No kernel changes${NC}"
+fi
+
+# ============================================
+# 6. AUDIT CACHE INVALIDATION (NEW!)
+# ============================================
+echo -e "\n${YELLOW}[6/8]${NC} Checking audit scripts..."
+
+if echo "$CHANGED_FILES" | grep -q "^scripts/audit/"; then
+    echo -e "${YELLOW}⚠ Audit scripts changed!${NC}"
+    
+    if [ -d ".audit_cache" ]; then
+        echo "   Clearing audit cache..."
+        rm -rf .audit_cache/
+        echo -e "${GREEN}✓ Cache cleared${NC}"
+    else
+        echo -e "${GREEN}✓ No cache to clear${NC}"
+    fi
+else
+    echo -e "${GREEN}✓ No audit script changes${NC}"
+fi
+
+# ============================================
+# 7. PRE-COMMIT CONFIG UPDATE (NEW!)
+# ============================================
+echo -e "\n${YELLOW}[7/8]${NC} Checking pre-commit configuration..."
+
+if echo "$CHANGED_FILES" | grep -q "^\.pre-commit-config\.yaml$"; then
+    echo -e "${YELLOW}⚠ Pre-commit config changed!${NC}"
+    
+    if command -v pre-commit &> /dev/null; then
+        echo "   Reinstalling hooks..."
+        pre-commit install --install-hooks >/dev/null 2>&1 || true
+        echo -e "${GREEN}✓ Hooks updated${NC}"
+    else
+        echo -e "${YELLOW}   Install pre-commit: pip install pre-commit${NC}"
+    fi
+else
+    echo -e "${GREEN}✓ No pre-commit changes${NC}"
+fi
+
+# ============================================
+# 8. REPO INDEX REGENERATION (NEW!)
+# ============================================
+echo -e "\n${YELLOW}[8/8]${NC} Checking repo index..."
+
+if echo "$CHANGED_FILES" | grep -qE "\.(py|md|yaml)$"; then
+    if [ -f "scripts/generate_repo_index.py" ]; then
+        echo "   Regenerating repo index (background)..."
+        nohup python3 scripts/generate_repo_index.py --quiet >/dev/null 2>&1 &
+        echo -e "${GREEN}✓ Index regeneration started${NC}"
+    else
+        echo -e "${GREEN}✓ No index generator found${NC}"
+    fi
+else
+    echo -e "${GREEN}✓ No index regeneration needed${NC}"
+fi
+
+# ============================================
+# SUCCESS
+# ============================================
+echo ""
+echo -e "${GREEN}✅ Post-merge automation complete!${NC}"
+echo "========================================"
+exit 0

@@ -1,10 +1,12 @@
 """
 L9 Memory Substrate - Retrieval Pipeline
-Version: 1.1.0
+Version: 1.2.0
 
 Hybrid and structured search features:
 - Semantic search (vector similarity)
 - Hybrid search (semantic + structured filters)
+- Reciprocal rank fusion (multi-source ranking)
+- Temporal decay (recency weighting)
 - Thread reconstruction
 - Lineage traversal
 - Fact/insight retrieval
@@ -12,24 +14,108 @@ Hybrid and structured search features:
 
 All operations are async-safe with proper logging.
 
-# bound to memory-yaml2.0 retrieval bundle (entrypoint: retrieval.py)
+Changelog:
+- v1.2.0: Added reciprocal_rank_fusion, apply_temporal_decay
+- v1.1.0: Initial hybrid search
 """
 
 from __future__ import annotations
 
+import math
 import structlog
-from datetime import datetime
+from datetime import datetime, timedelta
+from functools import lru_cache
 from typing import Any, Optional
 from uuid import UUID
 
-from memory.substrate_models import (
-    SemanticHit,
-    SemanticSearchResult,
-    PacketStoreRow,
-    KnowledgeFactRow,
-)
+from core.schemas.packet_envelope_v2 import SemanticHit, SemanticSearchResult
+from memory.substrate_models import KnowledgeFactRow, PacketStoreRow
 
 logger = structlog.get_logger(__name__)
+
+
+# =============================================================================
+# Ranking Utilities
+# =============================================================================
+
+
+def reciprocal_rank_fusion(
+    rankings: list[list[str]],
+    k: int = 60,
+) -> dict[str, float]:
+    """
+    Combine multiple rankings using Reciprocal Rank Fusion (RRF).
+    
+    RRF is effective for combining results from different retrieval systems
+    (e.g., semantic search + keyword search + graph traversal).
+    
+    Formula: RRF(d) = Σ 1 / (k + rank(d))
+    
+    Args:
+        rankings: List of rankings, each is a list of item IDs in ranked order
+        k: Constant to prevent high ranks from dominating (default 60)
+        
+    Returns:
+        Dict mapping item IDs to their fused scores (higher = better)
+        
+    Example:
+        >>> rankings = [["a", "b", "c"], ["b", "c", "a"]]
+        >>> scores = reciprocal_rank_fusion(rankings, k=60)
+        >>> # "b" ranks 2nd and 1st, so scores highest
+    """
+    scores: dict[str, float] = {}
+    
+    for ranking in rankings:
+        for rank, item_id in enumerate(ranking, start=1):
+            if item_id not in scores:
+                scores[item_id] = 0.0
+            scores[item_id] += 1.0 / (k + rank)
+    
+    return scores
+
+
+def apply_temporal_decay(
+    score: float,
+    timestamp: datetime,
+    half_life_days: float = 30.0,
+    reference_time: Optional[datetime] = None,
+) -> float:
+    """
+    Apply exponential temporal decay to a score based on age.
+    
+    Newer items get higher scores, with exponential decay based on
+    half-life. Useful for recency-weighted retrieval.
+    
+    Formula: decayed_score = score * 2^(-age_days / half_life_days)
+    
+    Args:
+        score: Original score to decay
+        timestamp: Timestamp of the item
+        half_life_days: Days until score is halved (default 30)
+        reference_time: Reference time for age calculation (default: now)
+        
+    Returns:
+        Decayed score value
+        
+    Example:
+        >>> now = datetime.utcnow()
+        >>> recent_score = apply_temporal_decay(1.0, now, half_life_days=30)
+        >>> # recent_score ≈ 1.0
+        >>> old = now - timedelta(days=30)
+        >>> old_score = apply_temporal_decay(1.0, old, half_life_days=30)
+        >>> # old_score ≈ 0.5
+    """
+    if reference_time is None:
+        reference_time = datetime.utcnow()
+    
+    age_days = (reference_time - timestamp).total_seconds() / 86400.0
+    
+    if age_days < 0:
+        # Future timestamp - no decay
+        return score
+    
+    decay_factor = math.pow(2, -age_days / half_life_days)
+    return score * decay_factor
 
 
 class RetrievalPipeline:
@@ -42,8 +128,6 @@ class RetrievalPipeline:
     - Thread reconstruction
     - Lineage graph traversal
     - Knowledge fact queries
-
-    # bound to memory-yaml2.0 retrieval bundle: recent (postgres, limit:20), semantic_hits (pgvector, k:10), graph_context (neo4j, depth:2), facts (state_manager)
     """
 
     def __init__(
@@ -563,15 +647,10 @@ class RetrievalPipeline:
 # Singleton / Factory
 # =============================================================================
 
-_pipeline: Optional[RetrievalPipeline] = None
-
-
+@lru_cache(maxsize=1)
 def get_retrieval_pipeline() -> RetrievalPipeline:
-    """Get or create the retrieval pipeline singleton."""
-    global _pipeline
-    if _pipeline is None:
-        _pipeline = RetrievalPipeline()
-    return _pipeline
+    """Get or create the retrieval pipeline singleton. CACHED."""
+    return RetrievalPipeline()
 
 
 def init_retrieval_pipeline(repository, semantic_service=None) -> RetrievalPipeline:

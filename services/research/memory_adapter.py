@@ -19,13 +19,13 @@ from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from memory.substrate_models import (
+from core.schemas.packet_envelope_v2 import (
+    PacketConfidence,
     PacketEnvelope,
     PacketMetadata,
     PacketProvenance,
-    PacketConfidence,
-    StructuredReasoningBlock,
 )
+from memory.substrate_models import StructuredReasoningBlock
 from memory.substrate_repository import SubstrateRepository, get_repository
 
 from services.research.graph_state import ResearchGraphState

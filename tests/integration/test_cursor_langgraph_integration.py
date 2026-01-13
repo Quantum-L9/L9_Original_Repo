@@ -37,7 +37,7 @@ class TestDecisionWrittenToPacketstoreV2:
     async def test_decision_written_to_packetstore_v2(self):
         """Run simple Cursor task and assert cursor_decision PacketEnvelope v2.0.0 is written."""
         # Mock dependencies
-        from memory.substrate_models import PacketWriteResult
+        from core.schemas.packet_envelope_v2 import PacketWriteResult
         dag_orchestrator = Mock(spec=SubstrateDagOrchestrator)
         dag_orchestrator.ingest_packet = AsyncMock(return_value=PacketWriteResult(
             packet_id=uuid4(),

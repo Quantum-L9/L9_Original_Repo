@@ -11,6 +11,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 import structlog
+from functools import lru_cache
 from typing import Any, Dict, Optional
 
 from runtime.kernel_loader import load_kernel_stack, KernelStack
@@ -18,16 +19,12 @@ from runtime.kernel_loader import load_kernel_stack, KernelStack
 logger = structlog.get_logger(__name__)
 
 # Cache the kernel stack (load once)
-_kernel_stack: Optional[KernelStack] = None
-
-
+@lru_cache(maxsize=1)
 def get_kernel_stack() -> KernelStack:
-    """Get or load the kernel stack (singleton)."""
-    global _kernel_stack
-    if _kernel_stack is None:
-        _kernel_stack = load_kernel_stack()
-        logger.info(f"Loaded kernel stack: {list(_kernel_stack.kernels_by_id.keys())}")
-    return _kernel_stack
+    """Get or load the kernel stack (singleton). CACHED."""
+    stack = load_kernel_stack()
+    logger.info(f"Loaded kernel stack: {list(stack.kernels_by_id.keys())}")
+    return stack
 
 
 def build_identity_section(identity_kernel: Dict[str, Any]) -> str:
@@ -228,8 +225,9 @@ def build_system_prompt_from_kernels() -> str:
         return get_fallback_prompt()
 
 
+@lru_cache(maxsize=1)
 def get_fallback_prompt() -> str:
-    """Fallback system prompt if kernel loading fails."""
+    """Fallback system prompt if kernel loading fails. CACHED."""
     return """You are L, the CTO and executive operator for Igor's computing stack.
 
 IDENTITY

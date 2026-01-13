@@ -100,6 +100,7 @@ try:
         create_runtime_with_substrate,
         get_or_create_runtime,
         WorldModelRuntime,
+        RuntimeConfig,
     )
 
     _has_world_model_runtime = True
@@ -361,6 +362,20 @@ try:
 except ImportError:
     _has_twilio_adapter = False
 
+# Optional: Email Agent (Gmail multi-account)
+# Toggleable via EMAIL_AGENT_ENABLED=false in .env
+try:
+    from email_agent.router import router as email_agent_router
+
+    _has_email_agent = True
+except ImportError:
+    _has_email_agent = False
+
+# Runtime toggle: disable via .env even if code exists
+if _has_email_agent and not settings.email_agent_enabled:
+    _has_email_agent = False
+    logger.info("Email Agent DISABLED via EMAIL_AGENT_ENABLED=false")
+
 # Note: Slack handled by api/routes/slack.py → memory/slack_ingest.py
 
 # Optional: Housekeeping Engine (v2.4+)
@@ -572,8 +587,10 @@ async def lifespan(app: FastAPI):
             logger.info("Initializing World Model Runtime...")
             world_model_runtime = await create_runtime_with_substrate(
                 app.state.substrate_service,
-                poll_interval_seconds=60,  # Poll memory every minute
-                batch_size=50,
+                config=RuntimeConfig(
+                    poll_interval_seconds=60,  # Poll memory every minute
+                    batch_size=50,
+                ),
             )
             app.state.world_model_runtime = world_model_runtime
 
@@ -988,7 +1005,7 @@ async def lifespan(app: FastAPI):
             try:
                 from scripts.bootstrap_neo4j_schema import bootstrap_l_governance
 
-                bootstrap_result = await bootstrap_l_governance(neo4j._driver)
+                bootstrap_result = await bootstrap_l_governance(neo4j.driver)
                 if bootstrap_result.get("success"):
                     logger.info(
                         "Neo4j governance schema bootstrapped",
@@ -1830,6 +1847,7 @@ def root():
             "research_factory": _has_factory,
             "calendar_adapter": _has_calendar_adapter,
             "email_adapter": _has_email_adapter,
+            "email_agent": _has_email_agent,
             "twilio_adapter": _has_twilio_adapter,
             "commands_interface": _has_commands,
             "tools_router": _has_tools_router,
@@ -2201,7 +2219,7 @@ if settings.l9_enable_legacy_chat:
             raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
 
         from memory.ingestion import ingest_packet
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
         try:
             messages = []
@@ -2381,25 +2399,10 @@ if _has_waba:
     except Exception as e:
         logger.warning(f"Failed to load WABA router: {e}")
 
-# Email integration (legacy)
-if _has_email_adapter:
-    try:
-        from api.webhook_email import router as email_webhook_router
-
-        app.include_router(email_webhook_router)
-    except ImportError:
-        # webhook_email.py might not exist - that's okay
-        pass
-    except Exception as e:
-        logger.warning(f"Failed to load legacy Email webhook router: {e}")
-
-    # Email Agent API
-    try:
-        from email_agent.router import router as email_agent_router
-
-        app.include_router(email_agent_router)
-    except Exception as e:
-        logger.warning(f"Failed to load Email Agent router: {e}")
+# Email Agent API (email_agent/router.py) - Gmail multi-account
+if _has_email_agent:
+    app.include_router(email_agent_router)
+    logger.info("Email Agent router registered at /email/{account}/*")
 
 # PacketEnvelope Upgrades API (Phases 2-5)
 try:
@@ -2569,7 +2572,7 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
             # Ingest WebSocket event as packet (canonical memory entrypoint)
             try:
                 from memory.ingestion import ingest_packet
-                from memory.substrate_models import PacketEnvelopeIn
+                from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
                 packet_in = PacketEnvelopeIn(
                     packet_type="websocket_event",

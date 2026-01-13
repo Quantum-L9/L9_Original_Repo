@@ -42,7 +42,7 @@ from core.agents.schemas import (
     ToolBinding,
 )
 from core.agents.agent_instance import AgentInstance
-from memory.substrate_models import PacketEnvelopeIn, PacketMetadata
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
 from memory.agent_persistence import AgentPersistenceService
 from core.governance.approvals import ApprovalManager
 from core.tools.tool_graph import ToolGraph
@@ -61,6 +61,32 @@ try:
     _has_self_reflection = True
 except ImportError:
     _has_self_reflection = False
+
+# Prompt defense imports (GMP-60: Runtime hardening)
+try:
+    from core.agents.prompt_defense import (
+        detect_prompt_injection,
+        should_block_request,
+        get_blocked_response,
+        InjectionDetectionResult,
+    )
+
+    _has_prompt_defense = True
+except ImportError:
+    _has_prompt_defense = False
+    logger.warning("prompt_defense not available - injection detection disabled")
+
+# Kernel-aware prompt builder (GMP-60: Runtime hardening)
+try:
+    from core.agents.prompt_builder import (
+        build_kernel_system_prompt,
+        build_runtime_prompt,
+    )
+
+    _has_prompt_builder = True
+except ImportError:
+    _has_prompt_builder = False
+    logger.warning("prompt_builder not available - kernel prompts disabled")
 
 logger = structlog.get_logger(__name__)
 
@@ -487,6 +513,51 @@ class AgentExecutorService:
                     "validation_failed",
                 )
 
+            # Prompt injection defense (GMP-60)
+            if _has_prompt_defense:
+                user_message = task.payload.get("message", "") if task.payload else ""
+                injection_result = detect_prompt_injection(
+                    user_message,
+                    context={
+                        "task_id": task_id_str,
+                        "agent_id": task.agent_id,
+                        "source_id": task.source_id,
+                    },
+                )
+                
+                if should_block_request(injection_result):
+                    # Emit violation packet
+                    await self._emit_packet(
+                        packet_type="agent.executor.violation",
+                        payload={
+                            "event": "prompt_injection_blocked",
+                            "task_id": task_id_str,
+                            "agent_id": task.agent_id,
+                            "severity": injection_result.severity.value if injection_result.severity else "unknown",
+                            "patterns": injection_result.patterns_matched,
+                            "redacted_input": injection_result.redacted_input,
+                        },
+                        thread_id=task.get_thread_id(),
+                    )
+                    
+                    logger.warning(
+                        "agent.executor.prompt_injection_blocked",
+                        task_id=task_id_str,
+                        severity=injection_result.severity.value if injection_result.severity else "unknown",
+                        patterns=injection_result.patterns_matched,
+                    )
+                    
+                    # Return blocked response
+                    blocked_message = get_blocked_response(injection_result)
+                    return ExecutionResult(
+                        task_id=task.id,
+                        status="blocked",
+                        result=blocked_message,
+                        iterations=0,
+                        duration_ms=int((datetime.utcnow() - start_time).total_seconds() * 1000),
+                        error="Prompt injection detected",
+                    )
+
             # Instantiate agent
             instance = await self._instantiate_agent(task)
             if instance is None:
@@ -861,6 +932,31 @@ class AgentExecutorService:
 
         # Create instance
         instance = AgentInstance(config=config, task=task)
+
+        # Inject kernel-aware system prompt if available (GMP-60)
+        if _has_prompt_builder and self._kernel_aware_agent:
+            kernel_state = getattr(self._kernel_aware_agent, "kernel_state", None)
+            if kernel_state == "ACTIVE":
+                kernel_prompt = build_kernel_system_prompt(self._kernel_aware_agent)
+                
+                # Build runtime context from task
+                memory_context = task.context or {}
+                runtime_prompt = build_runtime_prompt(
+                    task_payload=task.payload or {},
+                    memory_context=memory_context,
+                    channel=task.source_id,
+                )
+                
+                # Combine kernel prompt with existing system prompt
+                existing_prompt = config.system_prompt or ""
+                full_prompt = kernel_prompt + runtime_prompt + "\n\n" + existing_prompt
+                config.system_prompt = full_prompt
+                
+                logger.info(
+                    "agent.executor.kernel_prompt_injected",
+                    agent_id=task.agent_id,
+                    kernel_count=len(getattr(self._kernel_aware_agent, "kernels", {})),
+                )
 
         # Load context from previous thread if exists
         await self._hydrate_context(instance)

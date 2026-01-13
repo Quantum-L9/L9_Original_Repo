@@ -255,7 +255,7 @@ from unittest.mock import Mock, AsyncMock, patch
             return
         
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
             
             packet = PacketEnvelopeIn(
                 packet_type="test_results",

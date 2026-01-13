@@ -4,10 +4,13 @@ L9 Email Agent Client (Compatibility Layer)
 
 This module provides execute_email_task() function for Mac Agent integration.
 Uses gmail_client.py for actual Gmail operations.
+Supports multi-account mode via account parameter.
+
+Version: 2.0.0
 """
 
 import structlog
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 logger = structlog.get_logger(__name__)
@@ -21,12 +24,15 @@ except ImportError:
     logger.warning("Gmail client not available")
 
 
-def execute_email_task(task: Dict[str, Any]) -> Dict[str, Any]:
+def execute_email_task(
+    task: Dict[str, Any], account: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Execute an email task from Mac Agent runner.
 
     Args:
         task: Task dictionary with type="email_task" and steps
+        account: Gmail account name ("igor" or "l"). If None, uses legacy mode.
 
     Returns:
         Result dictionary with status, logs, screenshots, data
@@ -46,8 +52,12 @@ def execute_email_task(task: Dict[str, Any]) -> Dict[str, Any]:
             "data": {"error": "Gmail API libraries not installed"},
         }
 
+    # Get account from task if not passed directly
+    if account is None:
+        account = task.get("account")
+
     try:
-        client = GmailClient()
+        client = GmailClient(account=account)
         logs = []
         steps = task.get("steps", [])
 

@@ -41,12 +41,12 @@ class TestPacketEnvelope:
 
     def test_create_packet_with_all_fields(self):
         """Test creating a packet with all fields."""
-        from memory.substrate_models import (
-            PacketEnvelope,
-            PacketMetadata,
-            PacketProvenance,
-            PacketConfidence,
-        )
+        from core.schemas.packet_envelope_v2 import (
+    PacketConfidence,
+    PacketEnvelope,
+    PacketMetadata,
+    PacketProvenance,
+)
 
         packet_id = uuid4()
         parent_id = uuid4()
@@ -234,7 +234,7 @@ class TestDAGNodes:
     @pytest.mark.asyncio
     async def test_intake_node(self):
         """Test intake node validation."""
-        from memory.substrate_graph import intake_node
+        from memory.substrate_dag import intake_node
 
         state = {
             "envelope": {
@@ -257,7 +257,7 @@ class TestDAGNodes:
     @pytest.mark.asyncio
     async def test_intake_node_missing_required(self):
         """Test intake node with missing required fields."""
-        from memory.substrate_graph import intake_node
+        from memory.substrate_dag import intake_node
 
         state = {
             "envelope": {},
@@ -276,7 +276,7 @@ class TestDAGNodes:
     @pytest.mark.asyncio
     async def test_reasoning_node(self):
         """Test reasoning node generates block."""
-        from memory.substrate_graph import reasoning_node
+        from memory.substrate_dag import reasoning_node
 
         state = {
             "envelope": {
@@ -301,7 +301,7 @@ class TestDAGNodes:
     @pytest.mark.asyncio
     async def test_memory_write_node_no_repo(self):
         """Test memory write node without repository marks tables."""
-        from memory.substrate_graph import memory_write_node
+        from memory.substrate_dag import memory_write_node
 
         state = {
             "envelope": {
@@ -375,7 +375,7 @@ class TestSubstrateDAGNoDB:
     async def test_full_dag_flow(self):
         """Test full DAG flow without database."""
         from memory.substrate_models import PacketEnvelope
-        from memory.substrate_graph import SubstrateDAG
+        from memory.substrate_dag import SubstrateDAG
 
         dag = SubstrateDAG(repository=None, semantic_service=None)
 
@@ -456,7 +456,7 @@ class TestSubstrateDAGDBIntegration:
     async def test_dag_with_db_writes_packet(self, repository):
         """Test DAG writes packet to real database."""
         from memory.substrate_models import PacketEnvelope
-        from memory.substrate_graph import SubstrateDAG
+        from memory.substrate_dag import SubstrateDAG
         import uuid
 
         # Create unique packet
@@ -487,7 +487,7 @@ class TestSubstrateDAGDBIntegration:
     async def test_dag_with_db_creates_reasoning_trace(self, repository):
         """Test DAG creates reasoning trace in database."""
         from memory.substrate_models import PacketEnvelope
-        from memory.substrate_graph import SubstrateDAG
+        from memory.substrate_dag import SubstrateDAG
 
         envelope = PacketEnvelope(
             packet_type="reasoning_test",
@@ -505,7 +505,7 @@ class TestSubstrateDAGDBIntegration:
     async def test_dag_with_db_extracts_insights(self, repository):
         """Test DAG extracts and stores insights from structured payload."""
         from memory.substrate_models import PacketEnvelope
-        from memory.substrate_graph import SubstrateDAG
+        from memory.substrate_dag import SubstrateDAG
 
         # Payload with extractable insights
         envelope = PacketEnvelope(
@@ -530,7 +530,7 @@ class TestSubstrateDAGDBIntegration:
     async def test_dag_with_db_creates_checkpoint(self, repository):
         """Test DAG creates checkpoint in database."""
         from memory.substrate_models import PacketEnvelope
-        from memory.substrate_graph import SubstrateDAG
+        from memory.substrate_dag import SubstrateDAG
 
         envelope = PacketEnvelope(
             packet_type="checkpoint_test",

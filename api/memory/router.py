@@ -14,7 +14,7 @@ from uuid import UUID
 import structlog
 
 from memory.substrate_service import get_service
-from memory.substrate_models import PacketEnvelopeIn, SemanticSearchRequest
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, SemanticSearchRequest
 from memory.ingestion import ingest_packet
 from memory.retrieval import get_retrieval_pipeline
 from memory.housekeeping import get_housekeeping_engine
@@ -22,6 +22,7 @@ from orchestrators.memory.interface import MemoryRequest, MemoryOperation
 from orchestrators.memory.orchestrator import MemoryOrchestrator
 from memory.reasoning_replay import ReasoningReplayPipeline
 from memory.consolidation import ConsolidationPipeline
+from memory.saga import SagaResult, SagaStatus
 
 logger = structlog.get_logger(__name__)
 
@@ -686,3 +687,157 @@ async def run_consolidation(
     except Exception as e:
         logger.error(f"Consolidation failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Consolidation failed: {str(e)}")
+
+
+# ============================================================================
+# Saga Pattern Endpoints (GMP-57: Cross-DB Multi-Step Operations)
+# ============================================================================
+
+
+class FetchAndEnrichRequest(BaseModel):
+    """Request model for fetch_and_enrich saga."""
+    
+    query: str
+    limit: int = 10
+    min_similarity: float = 0.5
+
+
+class EnrichEntitiesRequest(BaseModel):
+    """Request model for entity enrichment saga."""
+    
+    entity_ids: List[str]
+    entity_type: str = "Entity"
+
+
+class CorrelateTimelineRequest(BaseModel):
+    """Request model for timeline correlation saga."""
+    
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    event_type: Optional[str] = None
+    limit: int = 50
+
+
+class SagaResponse(BaseModel):
+    """Response model for saga operations."""
+    
+    saga_id: str
+    saga_name: str
+    status: str
+    steps_completed: int
+    steps_failed: int
+    steps_skipped: int
+    total_duration_ms: float
+    output: Optional[dict] = None
+    error: Optional[str] = None
+    failed_step: Optional[str] = None
+
+
+def _saga_result_to_response(result: SagaResult) -> SagaResponse:
+    """Convert SagaResult to SagaResponse."""
+    return SagaResponse(
+        saga_id=str(result.saga_id),
+        saga_name=result.saga_name,
+        status=result.status.value,
+        steps_completed=result.steps_completed,
+        steps_failed=result.steps_failed,
+        steps_skipped=result.steps_skipped,
+        total_duration_ms=result.total_duration_ms,
+        output=result.output if isinstance(result.output, dict) else None,
+        error=result.error,
+        failed_step=result.failed_step,
+    )
+
+
+@router.post("/saga/fetch-and-enrich", response_model=SagaResponse)
+async def saga_fetch_and_enrich(
+    request: FetchAndEnrichRequest,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Execute fetch_and_enrich saga (GMP-56/57).
+    
+    Cross-DB operation that:
+    1. Searches vectors in Postgres for semantically similar content
+    2. Extracts entity IDs from results (UUIDs, GMPs, file paths)
+    3. Enriches with Neo4j graph relationships (if available)
+    4. Returns combined result
+    
+    This reduces LLM reasoning steps by bundling related database
+    operations into a single atomic workflow.
+    """
+    try:
+        service = await get_service()
+        result = await service.fetch_and_enrich(
+            query=request.query,
+            limit=request.limit,
+            min_similarity=request.min_similarity,
+        )
+        return _saga_result_to_response(result)
+    except RuntimeError as e:
+        logger.error(f"Memory system not initialized: {e}")
+        raise HTTPException(status_code=503, detail="Memory system not available.")
+    except Exception as e:
+        logger.error(f"Fetch and enrich saga failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Saga failed: {str(e)}")
+
+
+@router.post("/saga/enrich-entities", response_model=SagaResponse)
+async def saga_enrich_entities(
+    request: EnrichEntitiesRequest,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Execute entity enrichment saga (GMP-56/57).
+    
+    For when you already have entity IDs and want graph context:
+    1. Lookup entities by ID in Neo4j
+    2. Discover relationships to neighboring entities
+    3. Return enriched entity data with graph context
+    """
+    try:
+        service = await get_service()
+        result = await service.enrich_entities(
+            entity_ids=request.entity_ids,
+            entity_type=request.entity_type,
+        )
+        return _saga_result_to_response(result)
+    except RuntimeError as e:
+        logger.error(f"Memory system not initialized: {e}")
+        raise HTTPException(status_code=503, detail="Memory system not available.")
+    except Exception as e:
+        logger.error(f"Entity enrichment saga failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Saga failed: {str(e)}")
+
+
+@router.post("/saga/correlate-timeline", response_model=SagaResponse)
+async def saga_correlate_timeline(
+    request: CorrelateTimelineRequest,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Execute timeline correlation saga (GMP-56/57).
+    
+    For analyzing event sequences and causal chains:
+    1. Fetch events in time range from Neo4j
+    2. Trace causal chains (TRIGGERED relationships)
+    3. Return events with causal analysis
+    """
+    try:
+        service = await get_service()
+        result = await service.correlate_timeline(
+            start_time=request.start_time,
+            end_time=request.end_time,
+            event_type=request.event_type,
+            limit=request.limit,
+        )
+        return _saga_result_to_response(result)
+    except RuntimeError as e:
+        logger.error(f"Memory system not initialized: {e}")
+        raise HTTPException(status_code=503, detail="Memory system not available.")
+    except Exception as e:
+        logger.error(f"Timeline correlation saga failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Saga failed: {str(e)}")

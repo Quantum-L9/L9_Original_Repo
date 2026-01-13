@@ -315,7 +315,7 @@ memory_layers:
 
   structural:
     backend: neo4j
-    module: substrate_graph.py
+    module: graph_client.py  # Note: substrate_dag.py is LangGraph DAG, graph_client.py is Neo4j
     
     responsibilities:
       entity_graph:
@@ -458,14 +458,14 @@ pipelines:
       - facts
     
     binding:
-      graph: substrate_graph.py
+      graph: graph_client.py  # Note: Neo4j operations (upsert_entity, upsert_relationship)
       state: state_manager.py
-    
+
     output_hooks:
       - emit: facts_extracted
-        to: substrate_graph.upsert_relationship
+        to: graph_client.upsert_relationship
       - emit: entities_extracted
-        to: substrate_graph.upsert_entity
+        to: graph_client.upsert_entity
       - emit: contradiction_detected
         to: state_manager.record_contradiction
 

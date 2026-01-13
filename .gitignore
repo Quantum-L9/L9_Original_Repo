@@ -31,7 +31,6 @@ logs/
 data/
 staging/
 production/
-qdrant/collections/
 neo4j/data/
 
 # --- Editor / Agent tooling (Mac-local only, symlinks to Dropbox) ---
@@ -47,8 +46,7 @@ neo4j/data/
 agents/codegenagent/
 
 # --- Documentation (local only) ---
-docs/
-!docs/MCP-MEMORY-CAPSULE.md  # Official MCP wiring documentation (must be tracked)
+/docs/
 
 # --- Archives (local only) ---
 _Archive_Perplexity/
@@ -85,9 +83,6 @@ _l9_GHOST_REPO-DON'T USE/
 # --- documentation (local only) ---
 Module Production/
 igor/
-docs/_Context-L9-Repo/
-docs/12-19-25/
-docs/_VPS MRI/
 
 # Local Docker overrides (machine-specific)
 # docker-compose.yml is now TRACKED (VPS production config with full observability)

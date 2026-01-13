@@ -18,6 +18,7 @@ Features:
 from __future__ import annotations
 
 import hashlib
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, Tuple
 import yaml
@@ -50,6 +51,18 @@ KERNEL_ORDER = [
     "private/kernels/00_system/10_packet_protocol_kernel.yaml",
 ]
 
+# Required kernels for L-CTO to operate (GMP-60: Runtime hardening)
+# These are the minimum required kernels - missing any will fail loudly
+REQUIRED_KERNELS = {
+    "master": "01_master_kernel",
+    "identity": "02_identity_kernel",
+    "safety": "08_safety_kernel",
+    "execution": "07_execution_kernel",
+}
+
+# Minimum kernel count for valid operation
+MINIMUM_KERNEL_COUNT = 4
+
 
 # =============================================================================
 # Kernel-Aware Agent Protocol
@@ -69,6 +82,95 @@ class KernelAwareAgent(Protocol):
     def set_system_context(self, context: str) -> None:
         """Set the agent's system context after kernel activation."""
         ...
+
+
+# =============================================================================
+# Kernel Integrity Verification (GMP-60: Runtime Hardening)
+# =============================================================================
+
+
+def verify_kernel_integrity(agent: Any) -> Tuple[bool, List[str]]:
+    """
+    Verify that all required kernels are loaded and valid.
+    
+    This function checks:
+    1. Agent has kernels dict
+    2. Kernel state is ACTIVE
+    3. All required kernels are present
+    4. Minimum kernel count is met
+    
+    Args:
+        agent: Kernel-aware agent to verify
+    
+    Returns:
+        Tuple of (is_valid, list of error messages)
+    """
+    errors: List[str] = []
+    
+    # Check kernel dict exists
+    kernels = getattr(agent, "kernels", None)
+    if kernels is None:
+        errors.append("Agent has no kernels attribute")
+        return False, errors
+    
+    if not isinstance(kernels, dict):
+        errors.append(f"Agent kernels is not a dict: {type(kernels)}")
+        return False, errors
+    
+    # Check kernel state
+    kernel_state = getattr(agent, "kernel_state", None)
+    if kernel_state != "ACTIVE":
+        errors.append(f"Kernel state is not ACTIVE: {kernel_state}")
+    
+    # Check minimum kernel count
+    if len(kernels) < MINIMUM_KERNEL_COUNT:
+        errors.append(
+            f"Insufficient kernels: {len(kernels)} < {MINIMUM_KERNEL_COUNT} required"
+        )
+    
+    # Check required kernels are present
+    loaded_kernel_paths = list(kernels.keys())
+    for required_name, required_pattern in REQUIRED_KERNELS.items():
+        found = any(required_pattern in path for path in loaded_kernel_paths)
+        if not found:
+            errors.append(f"Required kernel missing: {required_name} ({required_pattern})")
+    
+    is_valid = len(errors) == 0
+    
+    if is_valid:
+        logger.info(
+            "kernel_loader.integrity_verified",
+            kernel_count=len(kernels),
+            kernel_state=kernel_state,
+        )
+    else:
+        logger.error(
+            "kernel_loader.integrity_failed",
+            error_count=len(errors),
+            errors=errors,
+        )
+    
+    return is_valid, errors
+
+
+def ensure_kernel_integrity(agent: Any) -> None:
+    """
+    Ensure kernel integrity or raise RuntimeError.
+    
+    This is a convenience function that calls verify_kernel_integrity
+    and raises if verification fails.
+    
+    Args:
+        agent: Kernel-aware agent to verify
+    
+    Raises:
+        RuntimeError: If kernel integrity check fails
+    """
+    is_valid, errors = verify_kernel_integrity(agent)
+    if not is_valid:
+        error_msg = "Kernel integrity check failed: " + "; ".join(errors)
+        logger.error("kernel_loader.integrity_check_fatal", errors=errors)
+        raise RuntimeError(error_msg)
 
 
 # =============================================================================
@@ -191,6 +293,9 @@ def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
     logger.info(
         "kernel_loader.validation_passed: %d kernels loaded, state=ACTIVE", loaded_count
     )
+
+    # Verify kernel integrity (GMP-60: Runtime hardening)
+    ensure_kernel_integrity(agent)
 
     return agent
 
@@ -680,9 +785,13 @@ def load_kernel_stack(
 # =============================================================================
 
 
+@lru_cache(maxsize=64)
 def load_kernel_file(file_path: Path) -> Optional[Dict[str, Any]]:
     """
-    Load a single kernel YAML file.
+    Load a single kernel YAML file. CACHED.
+
+    Results are cached by file path. Cache holds up to 64 files.
+    Call load_kernel_file.cache_clear() to invalidate.
 
     Args:
         file_path: Path to kernel file
@@ -1057,6 +1166,54 @@ def validate_packet_protocol_rules() -> Dict[str, Any]:
 
 
 # =============================================================================
+# Cached Accessors (Module-Level Wrappers)
+# =============================================================================
+
+
+@lru_cache(maxsize=64)
+def get_kernel_cached(kernel_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Get kernel by ID from the default kernel stack. CACHED.
+    
+    This is a module-level cached wrapper around KernelStack.get_kernel().
+    Results are cached by kernel_id. Call get_kernel_cached.cache_clear()
+    to invalidate after kernel changes.
+    
+    Args:
+        kernel_id: Kernel identifier (e.g., "master", "cognitive", "safety")
+        
+    Returns:
+        Kernel dict if found, None otherwise
+    """
+    stack = load_kernel_stack()
+    return stack.get_kernel(kernel_id)
+
+
+@lru_cache(maxsize=256)
+def get_rule_cached(kernel_id: str, path: str) -> Any:
+    """
+    Get a nested rule from a kernel by dot-path. CACHED.
+    
+    This is a module-level cached wrapper around KernelStack.get_rule().
+    Results are cached by (kernel_id, path). Call get_rule_cached.cache_clear()
+    to invalidate after kernel changes.
+    
+    Example:
+        get_rule_cached("cognitive", "reasoning.modes.default")
+        → kernels["cognitive"]["reasoning"]["modes"]["default"]
+    
+    Args:
+        kernel_id: Kernel identifier
+        path: Dot-separated path to rule
+        
+    Returns:
+        Rule value if found, None otherwise
+    """
+    stack = load_kernel_stack()
+    return stack.get_rule(kernel_id, path)
+
+
+# =============================================================================
 # Public API
 # =============================================================================
 
@@ -1078,6 +1235,9 @@ __all__ = [
     "get_kernel_by_name",
     "get_enabled_rules",
     "get_rules_by_type",
+    # Cached accessors
+    "get_kernel_cached",
+    "get_rule_cached",
     # Validation
     "validate_kernel_structure",
     "validate_all_kernels",

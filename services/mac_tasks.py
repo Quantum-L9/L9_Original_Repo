@@ -94,7 +94,7 @@ def enqueue_mac_task(
     try:
         import asyncio
         from memory.ingestion import ingest_packet
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
         packet_in = PacketEnvelopeIn(
             packet_type="mac_task_enqueued",
@@ -196,7 +196,7 @@ def enqueue_task(task_dict: Dict[str, Any]) -> str:
         try:
             import asyncio
             from memory.ingestion import ingest_packet
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet_in = PacketEnvelopeIn(
                 packet_type="task_enqueued",

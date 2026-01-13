@@ -331,7 +331,7 @@ class TaskExecutor:
             }
 
         try:
-            from aios.local_api import LocalAPI
+            from runtime.local_api import LocalAPI
 
             api = LocalAPI({"base_path": cwd, "request_timeout": timeout})
 

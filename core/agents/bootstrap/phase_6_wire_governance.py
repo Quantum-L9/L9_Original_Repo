@@ -11,6 +11,8 @@ from datetime import datetime
 
 import structlog
 
+from memory.graph_client import get_neo4j_client
+
 if TYPE_CHECKING:
     from .phase_1_load_kernels import KernelParsed
     from .phase_2_instantiate import BootstrapInstanceData
@@ -31,12 +33,13 @@ async def wire_governance_gates(
     - Destructive tools → Safety kernel (STRICT enforcement)
     - All tools → Execution kernel (standard governance)
     """
-    if not hasattr(substrate_service, 'neo4j_driver') or not substrate_service.neo4j_driver:
+    neo4j_client = await get_neo4j_client()
+    if not neo4j_client:
         logger.info("Neo4j not available, governance gates set in memory only")
         return
     
     try:
-        async with substrate_service.neo4j_driver.session() as session:
+        async with neo4j_client.session() as session:
             # Get all tools bound to this agent
             result = await session.run("""
                 MATCH (a:Agent {instance_id: $instance_id})-[:CAN_EXECUTE]->(t:Tool)

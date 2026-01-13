@@ -5,7 +5,13 @@ Structured logging configuration for symbolic computation module.
 import logging
 import json
 from typing import Any, Dict
-from pythonjsonlogger import jsonlogger
+
+try:
+    from pythonjsonlogger import jsonlogger
+    JSON_LOGGING_AVAILABLE = True
+except ImportError:
+    jsonlogger = None
+    JSON_LOGGING_AVAILABLE = False
 
 
 class StructuredLogger(logging.Logger):
@@ -19,10 +25,15 @@ class StructuredLogger(logging.Logger):
     def _configure_handler(self):
         """Configure JSON log handler."""
         handler = logging.StreamHandler()
-        formatter = jsonlogger.JsonFormatter(
-            '%(asctime)s %(name)s %(levelname)s %(message)s',
-            timestamp=True
-        )
+        if JSON_LOGGING_AVAILABLE and jsonlogger:
+            formatter = jsonlogger.JsonFormatter(
+                '%(asctime)s %(name)s %(levelname)s %(message)s',
+                timestamp=True
+            )
+        else:
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
         handler.setFormatter(formatter)
         self.addHandler(handler)
         self.setLevel(logging.INFO)

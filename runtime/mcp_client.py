@@ -18,6 +18,7 @@ import asyncio
 import json
 import structlog
 import os
+from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -646,16 +647,10 @@ class MCPClient:
             }
 
 
-# Global MCP client instance
-_mcp_client: Optional[MCPClient] = None
-
-
+@lru_cache(maxsize=1)
 def get_mcp_client() -> MCPClient:
-    """Get or create the global MCP client instance."""
-    global _mcp_client
-    if _mcp_client is None:
-        _mcp_client = MCPClient()
-    return _mcp_client
+    """Get or create the global MCP client instance. CACHED."""
+    return MCPClient()
 
 
 __all__ = [

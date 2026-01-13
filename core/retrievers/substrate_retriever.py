@@ -13,7 +13,7 @@ from typing import Any, List, Optional
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 
-from memory.substrate_models import SemanticSearchRequest, SemanticSearchResult
+from core.schemas.packet_envelope_v2 import SemanticSearchRequest, SemanticSearchResult
 from memory.substrate_service import MemorySubstrateService
 
 

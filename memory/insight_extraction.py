@@ -10,22 +10,18 @@ Heuristic insight extraction (no ML dependencies):
 - Source packet linking
 
 All operations are async-safe with proper logging.
-
-# bound to memory-yaml2.0 extraction pipeline (entrypoint: insight_extraction.py, outputs: entities, topics, decisions, facts)
 """
 
 from __future__ import annotations
 
 import structlog
 import re
+from functools import lru_cache
 from typing import Any, Optional
 from uuid import UUID
 
-from memory.substrate_models import (
-    PacketEnvelope,
-    ExtractedInsight,
-    KnowledgeFact,
-)
+from core.schemas.packet_envelope_v2 import PacketEnvelope
+from memory.substrate_models import ExtractedInsight, KnowledgeFact
 
 logger = structlog.get_logger(__name__)
 
@@ -454,15 +450,10 @@ class InsightExtractionPipeline:
 # Singleton / Factory
 # =============================================================================
 
-_pipeline: Optional[InsightExtractionPipeline] = None
-
-
+@lru_cache(maxsize=1)
 def get_insight_pipeline() -> InsightExtractionPipeline:
-    """Get or create the insight extraction pipeline singleton."""
-    global _pipeline
-    if _pipeline is None:
-        _pipeline = InsightExtractionPipeline()
-    return _pipeline
+    """Get or create the insight extraction pipeline singleton. CACHED."""
+    return InsightExtractionPipeline()
 
 
 def init_insight_pipeline(repository) -> InsightExtractionPipeline:

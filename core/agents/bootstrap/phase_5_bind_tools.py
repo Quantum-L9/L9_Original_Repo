@@ -12,6 +12,8 @@ from datetime import datetime
 
 import structlog
 
+from memory.graph_client import get_neo4j_client
+
 if TYPE_CHECKING:
     from .phase_2_instantiate import BootstrapInstanceData
     from memory.substrate_service import MemorySubstrateService
@@ -99,7 +101,8 @@ async def bind_tools_and_capabilities(
         )
         return
     
-    if not hasattr(substrate_service, 'neo4j_driver') or not substrate_service.neo4j_driver:
+    neo4j_client = await get_neo4j_client()
+    if not neo4j_client:
         logger.info(
             "Neo4j not available, tools bound in memory only",
             tool_count=len(tool_definitions),
@@ -107,7 +110,7 @@ async def bind_tools_and_capabilities(
         return
     
     try:
-        async with substrate_service.neo4j_driver.session() as session:
+        async with neo4j_client.session() as session:
             for tool_def in tool_definitions:
                 # Create or merge tool node
                 await session.run("""

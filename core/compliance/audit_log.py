@@ -100,7 +100,7 @@ class AuditLogger:
             return True
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 packet_type="audit_command",
@@ -163,7 +163,7 @@ class AuditLogger:
             return True
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 packet_type="audit_approval",
@@ -234,7 +234,7 @@ class AuditLogger:
             return True
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 packet_type="audit_tool",
@@ -303,7 +303,7 @@ class AuditLogger:
             return True
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 packet_type="audit_memory_write",

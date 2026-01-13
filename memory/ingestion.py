@@ -12,27 +12,25 @@ Real PacketEnvelope ingestion with:
 - Tag assignment
 
 All operations are async-safe with proper logging.
-
-# bound to memory-yaml2.0 ingestion pipeline (entrypoint: ingestion.py)
 """
 
 from __future__ import annotations
 
 import structlog
 from datetime import datetime
+from functools import lru_cache
 from typing import Optional, TYPE_CHECKING
 from uuid import uuid4
 
 if TYPE_CHECKING:
     import asyncpg
+    from memory.substrate_dag import SubstrateDAG
 
-from memory.substrate_models import (
-    PacketEnvelope,
-    PacketEnvelopeIn,
-    PacketWriteResult,
-)
+from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_service import MemorySubstrateService
 from memory.graph_client import get_neo4j_client
+from memory.validators.packet_validator import PacketValidator, PacketValidationError
+from memory.audit_utils import has_injection_markers, prepare_packet_for_ingest
 
 logger = structlog.get_logger(__name__)
 
@@ -66,6 +64,10 @@ class IngestionPipeline:
         agent_persistence=None,
         auto_embed: bool = True,
         auto_tag: bool = True,
+        # DAG enrichment params (v2.1.0 - GMP-67 unified pipeline)
+        dag: Optional["SubstrateDAG"] = None,
+        enable_enrichment: bool = False,
+        enrichment_timeout: float = 30.0,
     ):
         """
         Initialize ingestion pipeline.
@@ -76,13 +78,26 @@ class IngestionPipeline:
             agent_persistence: AgentPersistenceService for checkpoint triggers
             auto_embed: Automatically embed text content
             auto_tag: Automatically generate tags from content
+            dag: Optional SubstrateDAG for enrichment (facts, insights, world model)
+            enable_enrichment: Whether to run DAG enrichment after core writes
+            enrichment_timeout: Max seconds for enrichment (timeout = log + continue)
         """
         self._repository = repository
         self._semantic_service = semantic_service
         self._agent_persistence = agent_persistence
         self._auto_embed = auto_embed
         self._auto_tag = auto_tag
-        logger.info("IngestionPipeline initialized")
+        
+        # DAG enrichment (v2.1.0 - GMP-67)
+        self._dag = dag
+        self._enable_enrichment = enable_enrichment
+        self._enrichment_timeout = enrichment_timeout
+        
+        logger.info(
+            "IngestionPipeline initialized",
+            enable_enrichment=enable_enrichment,
+            enrichment_timeout=enrichment_timeout,
+        )
 
     def set_repository(self, repository) -> None:
         """Set or update the repository reference."""
@@ -95,6 +110,14 @@ class IngestionPipeline:
     def set_agent_persistence(self, service) -> None:
         """Set or update the agent persistence service reference."""
         self._agent_persistence = service
+
+    def set_dag(self, dag: "SubstrateDAG") -> None:
+        """Set or update the DAG reference for enrichment (v2.1.0)."""
+        self._dag = dag
+
+    def set_enable_enrichment(self, enable: bool) -> None:
+        """Enable or disable DAG enrichment (v2.1.0)."""
+        self._enable_enrichment = enable
 
     async def ingest(
         self,
@@ -121,13 +144,24 @@ class IngestionPipeline:
 
         Returns:
             PacketWriteResult with status and written tables
-
-        # bound to memory-yaml2.0 ingestion stages: normalize_input, persist_message, enqueue_embedding, enqueue_graph_sync
         """
         logger.info(f"Ingesting packet: type={packet_in.packet_type}")
 
         should_embed = embed if embed is not None else self._auto_embed
         should_tag = generate_tags if generate_tags is not None else self._auto_tag
+
+        # Security audit: detect injection markers before processing
+        packet_in, audit_report = prepare_packet_for_ingest(packet_in)
+
+        # Disable embedding if injection markers detected (security hardening)
+        if audit_report.has_security_concerns:
+            should_embed = False
+            logger.warning(
+                "Injection markers detected; disabling embedding for packet",
+                packet_id=str(audit_report.packet_id),
+                concern_count=audit_report.concern_count,
+                markers=list(audit_report.injection_markers)[:3],
+            )
 
         written_tables = []
         errors = []
@@ -148,7 +182,10 @@ class IngestionPipeline:
         # Auto-generate tags if enabled
         if should_tag:
             auto_tags = self._generate_tags(envelope)
-            envelope.tags = list(set(envelope.tags + auto_tags))
+            # Use model_copy() since PacketEnvelope is frozen (immutable)
+            envelope = envelope.model_copy(
+                update={"tags": list(set(envelope.tags + auto_tags))}
+            )
 
         # Core writes in transaction (atomic)
         # Wrap packet_store and agent_memory_events in transaction for atomicity
@@ -217,11 +254,73 @@ class IngestionPipeline:
         if status in ("ok", "partial") and packet_in.packet_type in self.CRITICAL_PACKET_TYPES:
             await self._trigger_critical_checkpoint(envelope)
 
+        # =================================================================
+        # DAG Enrichment (v2.1.0 - GMP-67 unified pipeline)
+        # Runs AFTER core writes complete. NO RETRY on failure - just log.
+        # =================================================================
+        enrichment_status = "not_attempted"
+        enrichment_error = None
+        enrichment_facts_count = 0
+        
+        if self._enable_enrichment and self._dag and status in ("ok", "partial"):
+            import asyncio
+            
+            try:
+                # Run enrichment with timeout (NO RETRY on failure)
+                enrichment_result = await asyncio.wait_for(
+                    self._dag.enrich(envelope),
+                    timeout=self._enrichment_timeout,
+                )
+                enrichment_status = "success"
+                enrichment_facts_count = enrichment_result.facts_inserted
+                
+                # Add enrichment tables to written_tables
+                if enrichment_facts_count > 0:
+                    written_tables.append("knowledge_facts")
+                if enrichment_result.reasoning_trace:
+                    written_tables.append("reasoning_traces")
+                
+                logger.info(
+                    "DAG enrichment succeeded",
+                    packet_id=str(envelope.packet_id),
+                    facts_count=enrichment_facts_count,
+                    duration_ms=enrichment_result.enrichment_duration_ms,
+                )
+            except asyncio.TimeoutError:
+                enrichment_status = "failed"
+                enrichment_error = f"Enrichment timed out after {self._enrichment_timeout}s"
+                logger.warning(
+                    enrichment_error,
+                    packet_id=str(envelope.packet_id),
+                )
+                # NO RETRY - core write succeeded, just log and continue
+            except Exception as e:
+                enrichment_status = "failed"
+                enrichment_error = str(e)
+                logger.error(
+                    "DAG enrichment failed (non-blocking)",
+                    packet_id=str(envelope.packet_id),
+                    error=enrichment_error,
+                )
+                # NO RETRY - core write succeeded, just log and continue
+        elif not self._enable_enrichment:
+            enrichment_status = "disabled"
+
+        # Determine write tier used
+        write_tier_used = "full" if enrichment_status == "success" else "core_only"
+        warnings_list = [enrichment_error] if enrichment_error else []
+
         return PacketWriteResult(
             packet_id=envelope.packet_id,
             written_tables=written_tables,
             status=status,
             error_message="; ".join(errors) if errors else None,
+            # Enrichment fields (v2.1.0 - GMP-67)
+            enrichment_status=enrichment_status,
+            enrichment_error=enrichment_error,
+            enrichment_facts_count=enrichment_facts_count,
+            write_tier_used=write_tier_used,
+            warnings=warnings_list,
         )
 
     async def _trigger_critical_checkpoint(self, envelope: PacketEnvelope) -> None:
@@ -272,12 +371,23 @@ class IngestionPipeline:
 
     def _validate_packet(self, packet: PacketEnvelopeIn) -> list[str]:
         """
-        Validate packet structure.
+        Validate packet structure using centralized PacketValidator.
+
+        Uses PacketValidator for:
+        - Pydantic structural validation
+        - packet_type allowed list check (warns for unknown)
+        - TTL future check
+        - Confidence score range check
+
+        Additionally checks:
+        - Required fields (packet_type, payload)
+        - packet_type max length
 
         Returns list of validation errors (empty if valid).
         """
         errors = []
 
+        # Critical field checks (fail fast before full validation)
         if not packet.packet_type:
             errors.append("packet_type is required")
 
@@ -287,15 +397,11 @@ class IngestionPipeline:
         if packet.packet_type and len(packet.packet_type) > 100:
             errors.append("packet_type exceeds maximum length (100)")
 
-        # Validate TTL is in future
-        if packet.ttl and packet.ttl < datetime.utcnow():
-            errors.append("ttl must be in the future")
-
-        # Validate confidence score range
-        if packet.confidence:
-            score = packet.confidence.score
-            if score is not None and (score < 0 or score > 1):
-                errors.append("confidence.score must be between 0 and 1")
+        # Use centralized PacketValidator for remaining checks
+        try:
+            PacketValidator.validate(packet)
+        except PacketValidationError as exc:
+            errors.append(str(exc))
 
         return errors
 
@@ -569,23 +675,76 @@ class IngestionPipeline:
 # Singleton / Factory
 # =============================================================================
 
-_pipeline: Optional[IngestionPipeline] = None
+# Module-level singleton (NOT lru_cache to allow re-init with different settings)
+_ingestion_pipeline: Optional[IngestionPipeline] = None
 
 
 def get_ingestion_pipeline() -> IngestionPipeline:
-    """Get or create the ingestion pipeline singleton."""
-    global _pipeline
-    if _pipeline is None:
-        _pipeline = IngestionPipeline()
-    return _pipeline
+    """
+    Get the ingestion pipeline singleton.
+    
+    First call creates pipeline with settings from environment:
+    - ENABLE_DAG_ENRICHMENT (default: False)
+    - DAG_ENRICHMENT_TIMEOUT (default: 30.0)
+    
+    Use init_ingestion_pipeline() to wire dependencies (repository, dag, etc.)
+    """
+    global _ingestion_pipeline
+    
+    if _ingestion_pipeline is None:
+        # Read settings from environment (GMP-67: proper wiring)
+        from config.memory_substrate_settings import get_settings
+        settings = get_settings()
+        
+        _ingestion_pipeline = IngestionPipeline(
+            enable_enrichment=settings.enable_dag_enrichment,
+            enrichment_timeout=settings.dag_enrichment_timeout_seconds,
+        )
+        logger.info(
+            "IngestionPipeline singleton created from settings",
+            enable_enrichment=settings.enable_dag_enrichment,
+            enrichment_timeout=settings.dag_enrichment_timeout_seconds,
+        )
+    
+    return _ingestion_pipeline
 
 
-def init_ingestion_pipeline(repository, semantic_service=None) -> IngestionPipeline:
-    """Initialize the ingestion pipeline with dependencies."""
+def reset_ingestion_pipeline() -> None:
+    """Reset the singleton (useful for testing or re-initialization)."""
+    global _ingestion_pipeline
+    _ingestion_pipeline = None
+
+
+def init_ingestion_pipeline(
+    repository,
+    semantic_service=None,
+    dag=None,
+    agent_persistence=None,
+) -> IngestionPipeline:
+    """
+    Initialize the ingestion pipeline with dependencies.
+    
+    Args:
+        repository: SubstrateRepository instance
+        semantic_service: Optional SemanticService for embeddings
+        dag: Optional SubstrateDAG for enrichment (facts, insights)
+        agent_persistence: Optional AgentPersistenceService for checkpoints
+        
+    Returns:
+        Configured IngestionPipeline singleton
+    """
     pipeline = get_ingestion_pipeline()
     pipeline.set_repository(repository)
+    
     if semantic_service:
         pipeline.set_semantic_service(semantic_service)
+    
+    if dag:
+        pipeline.set_dag(dag)
+    
+    if agent_persistence:
+        pipeline.set_agent_persistence(agent_persistence)
+    
     return pipeline
 
 
@@ -603,13 +762,21 @@ async def ingest_packet(
 
     This is the SINGLE POINT OF ENTRY for all packet ingestion.
     All runtime packets MUST pass through this function.
+    
+    Pipeline behavior controlled by environment variables:
+    - ENABLE_DAG_ENRICHMENT: Enable fact/insight extraction (default: False)
+    - DAG_ENRICHMENT_TIMEOUT: Max seconds for enrichment (default: 30)
+    
+    When enrichment is enabled and DAG is available, runs:
+    - Core writes (packet_store, embeddings, neo4j) - ALWAYS
+    - DAG enrichment (reasoning, facts, insights, world model) - IF ENABLED
 
     Args:
         packet_in: PacketEnvelopeIn to ingest
         service: Optional MemorySubstrateService (uses singleton if not provided)
 
     Returns:
-        PacketWriteResult with status and written tables
+        PacketWriteResult with status, written tables, and enrichment status
 
     Raises:
         RuntimeError: If memory system is not initialized
@@ -624,5 +791,20 @@ async def ingest_packet(
                 "Memory system not initialized. Call memory.init_service() at startup."
             )
 
-    # Use service.write_packet which runs full DAG pipeline
-    return await service.write_packet(packet_in)
+    # Get pipeline (created with settings from environment)
+    pipeline = get_ingestion_pipeline()
+    pipeline.set_repository(service._repository)
+    pipeline.set_semantic_service(service._semantic_service)
+    
+    # Wire agent persistence for critical checkpoints
+    agent_persistence = service.get_agent_persistence()
+    if agent_persistence:
+        pipeline.set_agent_persistence(agent_persistence)
+    
+    # Wire DAG for enrichment if available on service (GMP-67)
+    # DAG is only used if ENABLE_DAG_ENRICHMENT=true in environment
+    dag = getattr(service, "_dag", None) or getattr(service, "dag", None)
+    if dag:
+        pipeline.set_dag(dag)
+    
+    return await pipeline.ingest(packet_in)

@@ -68,7 +68,7 @@ async def memory_search(
 
     try:
         from memory.substrate_service import get_service
-        from memory.substrate_models import SemanticSearchRequest
+        from core.schemas.packet_envelope_v2 import SemanticSearchRequest
 
         service = get_service()
         if not service:

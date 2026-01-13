@@ -15,6 +15,7 @@ from __future__ import annotations
 import structlog
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import lru_cache
 from typing import Any, Optional
 
 logger = structlog.get_logger(__name__)
@@ -534,15 +535,28 @@ class CypherTemplateLibrary:
 # =============================================================================
 
 
-_library: Optional[CypherTemplateLibrary] = None
-
-
+@lru_cache(maxsize=1)
 def get_template_library() -> CypherTemplateLibrary:
-    """Get singleton template library."""
-    global _library
-    if _library is None:
-        _library = CypherTemplateLibrary()
-    return _library
+    """Get singleton template library. CACHED."""
+    return CypherTemplateLibrary()
+
+
+@lru_cache(maxsize=64)
+def get_template_cached(name: str) -> Optional[CypherTemplate]:
+    """
+    Get a Cypher template by name. CACHED.
+    
+    This is a module-level cached wrapper around CypherTemplateLibrary.get_template().
+    Results are cached by template name. Call get_template_cached.cache_clear()
+    to invalidate after template changes.
+    
+    Args:
+        name: Template name (e.g., "get_entity", "find_packets_by_tag")
+        
+    Returns:
+        CypherTemplate if found, None otherwise
+    """
+    return get_template_library()._templates.get(name)
 
 
 async def execute_template(
@@ -571,5 +585,6 @@ __all__ = [
     "CypherTemplateLibrary",
     "CYPHER_TEMPLATES",
     "get_template_library",
+    "get_template_cached",
     "execute_template",
 ]

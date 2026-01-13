@@ -13,7 +13,7 @@ from uuid import UUID, uuid4
 
 from memory.reasoning_replay import ReasoningReplayPipeline, ReasoningChain
 from memory.substrate_service import MemorySubstrateService, init_service, close_service
-from memory.substrate_models import PacketEnvelopeIn
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")

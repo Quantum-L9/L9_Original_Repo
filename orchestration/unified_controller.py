@@ -734,7 +734,7 @@ class UnifiedController:
         # Emit summary packet
         if self._memory_client and self._config.emit_packets:
             try:
-                from memory.substrate_models import PacketEnvelopeIn
+                from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
                 packet = PacketEnvelopeIn(
                     source=self._config.packet_source,

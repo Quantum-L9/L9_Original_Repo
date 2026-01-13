@@ -206,6 +206,9 @@ mcp_memory/
 │   │   └── init_mcp_memory.sh    # Docker-based activation script
 │   └── systemd/                   # Legacy systemd files (not used)
 ├── tests/                        # Test files
+├── docs/                         # Canonical configuration docs
+│   ├── README.md                 # Doc index
+│   └── CONFIG_REFERENCE.md       # Ports, env vars, architecture
 ├── mcp-memory-architecture/      # Architecture documentation
 │   └── ARCHITECTURE.md           # Current architecture
 ├── _archived/                    # Archived outdated docs
@@ -245,64 +248,53 @@ pytest>=8.0.0
 pytest-asyncio>=0.23.0
 ```
 
-## VPS Deployment
+## VPS Deployment (Docker-Based)
+
+> **IMPORTANT:** MCP Memory runs inside the `l9-api` Docker container, NOT as a standalone systemd service.
+> See `deploy/VPS_DEPLOYMENT_GUIDE.md` for full instructions.
+
+### Quick Activation
+
+```bash
+# On VPS
+cd /opt/l9
+bash mcp_memory/deploy/scripts/init_mcp_memory.sh
+```
 
 ### Caddy Configuration
 
-Add to `/etc/caddy/Caddyfile`:
+All traffic routes to unified `l9-api` (port 8000). See `deploy/CADDY_CONFIG.md` for full details.
 
 ```caddyfile
+# L9 Main API (domain-based)
 l9.quantumaipartners.com {
-    # MCP Memory endpoints
-    handle /mcp/* {
-        reverse_proxy 127.0.0.1:9001
-    }
-    handle /memory/* {
-        reverse_proxy 127.0.0.1:9001
-    }
-    
-    # L9 API (default)
-    handle {
-        reverse_proxy 127.0.0.1:8000
-    }
+    encode gzip
+    reverse_proxy 127.0.0.1:8000
+}
+
+# Cursor MCP endpoint (IP:9001 - alternate front door)
+157.180.73.53:9001 {
+    encode gzip
+    reverse_proxy 127.0.0.1:8000
 }
 ```
 
-Reload: `sudo systemctl reload caddy`
-
-### Systemd Service
-
-```bash
-# Copy service file
-sudo cp deploy/systemd/l9-mcp.service /etc/systemd/system/
-
-# Enable and start
-sudo systemctl daemon-reload
-sudo systemctl enable l9-mcp
-sudo systemctl start l9-mcp
-
-# Check status
-sudo systemctl status l9-mcp
-sudo journalctl -u l9-mcp -f
-```
+**Key Points:**
+- ✅ No standalone MCP service — integrated into `l9-api`
+- ✅ Port 9002 is **deprecated** (never deployed)
+- ✅ Both `:443` and `:9001` route to `127.0.0.1:8000`
 
 ### Deploy Commands
 
 ```bash
-# On VPS
-cd /opt/l9/mcp_memory
-git pull origin main
+# On VPS - sync code and restart
+cd /opt/l9
+git fetch origin && git reset --hard origin/main
+docker compose build l9-api
+docker compose up -d l9-api
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Apply schema
-psql $MEMORY_DSN -f schema/init.sql
-psql $MEMORY_DSN -f schema/migrations/001_hnsw_upgrade.sql
-psql $MEMORY_DSN -f schema/migrations/002_10x_memory_upgrade.sql
-
-# Restart service
-sudo systemctl restart l9-mcp
+# Verify
+curl http://127.0.0.1:8000/health
 ```
 
 ## Troubleshooting

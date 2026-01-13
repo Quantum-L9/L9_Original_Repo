@@ -1,6 +1,7 @@
 # --- Private/Secrets ---
 private/
 secrets/
+l9/igor/
 
 # --- Build artifacts & caches (also in .gitignore) ---
 venv/
@@ -11,5 +12,4 @@ __pycache__/
 .mypy_cache/
 
 # --- Documentation (local only) ---
-docs/
-!docs/MCP-MEMORY-CAPSULE.md  # Official MCP wiring documentation (must be accessible)
+/docs/

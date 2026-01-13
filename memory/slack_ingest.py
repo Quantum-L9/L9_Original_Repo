@@ -41,7 +41,7 @@ from time import time as current_time
 
 from api.slack_adapter import SlackRequestNormalizer
 from api.slack_client import SlackAPIClient, SlackClientError
-from memory.substrate_models import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
 from config.settings import settings
 
@@ -919,16 +919,35 @@ async def handle_slack_events(
         return {"ok": True, "simple_dm": True}
     
     # =========================================================================
-    # Regular AIOS Flow (non-command messages)
+    # DEPRECATED: Legacy AIOS Flow (GMP-60: Runtime Hardening)
     # =========================================================================
+    # This flow bypasses AgentExecutorService and calls /chat directly.
+    # It does NOT enforce:
+    # - Kernel-aware system prompts
+    # - Prompt injection defense
+    # - Capability gating
+    # - Governance approval gates
+    #
+    # RECOMMENDATION: Set L9_ENABLE_LEGACY_SLACK_ROUTER=false to use
+    # the kernel-governed L-CTO agent flow instead.
+    # =========================================================================
+    
+    # Log deprecation warning (GMP-60)
+    logger.warning(
+        "slack_legacy_aios_flow_deprecated",
+        event_id=event_id,
+        message="Legacy AIOS flow bypasses governance. Set L9_ENABLE_LEGACY_SLACK_ROUTER=false.",
+        user_id=user_id,
+        channel_id=channel_id,
+    )
 
     # Call AIOS /chat endpoint
     aios_response = None
     aios_error = None
     aios_start_time = current_time()
 
-    # CANONICAL LOG EVENT 5: AIOS call start
-    logger.info("slack_aios_call_start", event_id=event_id, agent_type="aios")
+    # CANONICAL LOG EVENT 5: AIOS call start (DEPRECATED)
+    logger.info("slack_aios_call_start", event_id=event_id, agent_type="aios", deprecated=True)
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:

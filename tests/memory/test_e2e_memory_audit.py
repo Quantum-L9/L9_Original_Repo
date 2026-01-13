@@ -384,7 +384,7 @@ async def audit_ingestion_pipeline() -> AuditResult:
 
     try:
         from memory.ingestion import ingest_packet
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
         from memory.substrate_service import get_service
 
         service = await get_service()
@@ -551,7 +551,7 @@ async def audit_e2e_flow() -> AuditResult:
 
     try:
         from memory.ingestion import ingest_packet
-        from memory.substrate_models import PacketEnvelopeIn, SemanticSearchRequest
+        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, SemanticSearchRequest
         from memory.substrate_service import get_service
         from memory.graph_client import get_neo4j_client
         from runtime.redis_client import get_redis_client

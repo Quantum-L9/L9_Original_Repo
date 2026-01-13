@@ -144,7 +144,7 @@ async def log_kernel_evolution(
             return event.event_id  # Return ID even if not persisted
 
         # Build packet envelope
-        from memory.substrate_models import PacketEnvelope, PacketKind
+        from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketKind
 
         packet = PacketEnvelope(
             source_id="kernel_loader",

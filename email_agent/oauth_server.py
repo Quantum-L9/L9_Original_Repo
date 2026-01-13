@@ -1,16 +1,35 @@
 """
 Gmail OAuth Server
+==================
+
 Tiny local HTTP server to complete OAuth flow.
+Supports multi-account mode with --account flag.
+
+Version: 2.0.0
+
+Usage:
+    python -m email_agent.oauth_server --account igor
+    python -m email_agent.oauth_server --account l
+    python -m email_agent.oauth_server  # Legacy mode
 """
 
+import argparse
 import structlog
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
+from typing import Optional
+
 from email_agent.credentials import create_flow, exchange_code_for_tokens
+from email_agent.config import VALID_ACCOUNTS
 
 logger = structlog.get_logger(__name__)
 
-PORT = 8080
+# Default port
+DEFAULT_PORT = 8080
+
+# Module-level state (set by CLI)
+CURRENT_ACCOUNT: Optional[str] = None
+CURRENT_PORT: int = DEFAULT_PORT
 
 
 class OAuthHandler(BaseHTTPRequestHandler):
@@ -32,15 +51,18 @@ class OAuthHandler(BaseHTTPRequestHandler):
 
     def handle_start(self):
         """Start OAuth flow - redirect to Google consent."""
+        global CURRENT_ACCOUNT, CURRENT_PORT
         try:
-            redirect_uri = f"http://localhost:{PORT}/oauth/callback"
-            flow = create_flow(redirect_uri=redirect_uri)
+            redirect_uri = f"http://localhost:{CURRENT_PORT}/oauth/callback"
+            flow = create_flow(redirect_uri=redirect_uri, account=CURRENT_ACCOUNT)
 
             if not flow:
                 self.send_response(500)
                 self.end_headers()
+                account_label = CURRENT_ACCOUNT or "legacy"
                 self.wfile.write(
-                    b"Failed to create OAuth flow. Check client_secret.json"
+                    f"Failed to create OAuth flow for account '{account_label}'. "
+                    f"Check client_secret.json exists.".encode()
                 )
                 return
 
@@ -64,6 +86,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
 
     def handle_callback(self, query_string: str):
         """Handle OAuth callback - exchange code for tokens."""
+        global CURRENT_ACCOUNT, CURRENT_PORT
         try:
             params = parse_qs(query_string)
             code = params.get("code", [None])[0]
@@ -83,29 +106,46 @@ class OAuthHandler(BaseHTTPRequestHandler):
                 return
 
             # Exchange code for tokens
-            redirect_uri = f"http://localhost:{PORT}/oauth/callback"
-            credentials = exchange_code_for_tokens(code, redirect_uri)
+            redirect_uri = f"http://localhost:{CURRENT_PORT}/oauth/callback"
+            credentials = exchange_code_for_tokens(
+                code, redirect_uri, account=CURRENT_ACCOUNT
+            )
 
             if credentials:
+                # Determine account info for display
+                if CURRENT_ACCOUNT:
+                    from email_agent.config import get_account_config
+
+                    config = get_account_config(CURRENT_ACCOUNT)
+                    account_email = config.email
+                    tokens_path = str(config.tokens_file)
+                else:
+                    from email_agent.config import GMAIL_ACCOUNT, TOKENS_FILE
+
+                    account_email = GMAIL_ACCOUNT
+                    tokens_path = str(TOKENS_FILE)
+
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(
-                    """
+                    f"""
                     <html>
                     <head><title>Gmail OAuth Complete</title></head>
                     <body>
                         <h1>✅ Gmail OAuth completed successfully!</h1>
-                        <p>Tokens have been saved to ~/.l9/gmail/tokens.json</p>
+                        <p><strong>Account:</strong> {CURRENT_ACCOUNT or 'legacy'}</p>
+                        <p><strong>Email:</strong> {account_email}</p>
+                        <p><strong>Tokens saved to:</strong> {tokens_path}</p>
                         <p>You can close this window.</p>
                     </body>
                     </html>
                 """.encode("utf-8")
                 )
-                from email_agent.config import GMAIL_ACCOUNT
 
-                logger.info(f"OAuth completed for {GMAIL_ACCOUNT}")
-                logger.info(f"\n✅ OAuth completed for {GMAIL_ACCOUNT}")
+                logger.info(f"✅ OAuth completed for account: {CURRENT_ACCOUNT or 'legacy'}")
+                logger.info(f"   Email: {account_email}")
+                logger.info(f"   Tokens: {tokens_path}")
             else:
                 self.send_response(500)
                 self.end_headers()
@@ -119,22 +159,66 @@ class OAuthHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         """Override to use our logger."""
-        logger.info(f"{self.address_string()} - {format % args}")
+        logger.debug(f"{self.address_string()} - {format % args}")
 
 
 def main():
-    """Run OAuth server."""
-    server_address = ("", PORT)
-    httpd = HTTPServer(server_address, OAuthHandler)
+    """Run OAuth server with CLI args."""
+    global CURRENT_ACCOUNT, CURRENT_PORT
 
-    logger.info(f"\n🌐 Gmail OAuth Server starting on http://localhost:{PORT}")
-    logger.info(f"📋 Open http://localhost:{PORT}/oauth/start in your browser")
-    logger.info("Press Ctrl+C to stop\n")
+    parser = argparse.ArgumentParser(
+        description="Gmail OAuth Server - Authenticate Gmail accounts for L9"
+    )
+    parser.add_argument(
+        "--account",
+        choices=VALID_ACCOUNTS,
+        help=f"Account to authenticate ({', '.join(VALID_ACCOUNTS)}). "
+        "If not specified, uses legacy mode.",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=DEFAULT_PORT,
+        help=f"Port to run server on (default: {DEFAULT_PORT})",
+    )
+    args = parser.parse_args()
+
+    CURRENT_ACCOUNT = args.account
+    CURRENT_PORT = args.port
+
+    # Display account info
+    print("\n" + "=" * 60)
+    print("Gmail OAuth Server")
+    print("=" * 60)
+
+    if CURRENT_ACCOUNT:
+        from email_agent.config import get_account_config
+
+        config = get_account_config(CURRENT_ACCOUNT)
+        print(f"Account:       {CURRENT_ACCOUNT}")
+        print(f"Email:         {config.email}")
+        print(f"Client Secret: {config.client_secret_file}")
+        print(f"Tokens:        {config.tokens_file}")
+    else:
+        from email_agent.config import GMAIL_ACCOUNT, CLIENT_SECRET_FILE, TOKENS_FILE
+
+        print("Mode:          LEGACY (no account specified)")
+        print(f"Email:         {GMAIL_ACCOUNT}")
+        print(f"Client Secret: {CLIENT_SECRET_FILE}")
+        print(f"Tokens:        {TOKENS_FILE}")
+
+    print("=" * 60)
+    print(f"\n🌐 Server: http://localhost:{CURRENT_PORT}")
+    print(f"📋 Open:   http://localhost:{CURRENT_PORT}/oauth/start")
+    print("\nPress Ctrl+C to stop\n")
+
+    server_address = ("", CURRENT_PORT)
+    httpd = HTTPServer(server_address, OAuthHandler)
 
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        logger.info("\n\nServer stopped.")
+        print("\n\nServer stopped.")
         httpd.shutdown()
 
 

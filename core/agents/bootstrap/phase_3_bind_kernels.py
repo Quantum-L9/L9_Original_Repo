@@ -11,6 +11,8 @@ from datetime import datetime
 
 import structlog
 
+from memory.graph_client import get_neo4j_client
+
 if TYPE_CHECKING:
     from .phase_1_load_kernels import KernelParsed
     from .phase_2_instantiate import BootstrapInstanceData
@@ -27,14 +29,16 @@ async def bind_kernels_to_agent(
     """
     Activate all kernels on agent. Create agent→kernel relationships in Neo4j.
     """
-    if not hasattr(substrate_service, 'neo4j_driver') or not substrate_service.neo4j_driver:
+    # Get Neo4j client from global singleton
+    neo4j_client = await get_neo4j_client()
+    if not neo4j_client:
         logger.warning("Neo4j not available, skipping kernel binding in graph")
         # Still mark kernels as bound in instance
         instance.kernel_state = "BOUND"
         return
     
     try:
-        async with substrate_service.neo4j_driver.session() as session:
+        async with neo4j_client.session() as session:
             for kernel_name, kernel_parsed in kernels.items():
                 # Create or merge kernel node
                 await session.run("""
@@ -68,7 +72,7 @@ async def bind_kernels_to_agent(
                 )
         
         # Verify all kernels bound
-        async with substrate_service.neo4j_driver.session() as session:
+        async with neo4j_client.session() as session:
             result = await session.run("""
                 MATCH (a:Agent {instance_id: $instance_id})-[:GOVERNED_BY]->(k:Kernel)
                 RETURN count(k) as kernel_count

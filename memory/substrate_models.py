@@ -442,19 +442,43 @@ class ReasoningTraceRow(BaseModel):
 
 
 class PacketStoreRow(BaseModel):
-    """DTO for packet_store table (v1.1.0 extended)."""
+    """DTO for packet_store table (v2.0 - all columns from migrations 0001, 0002, 0008)."""
 
+    # Core fields (migration 0001)
     packet_id: UUID
     packet_type: str
     envelope: dict[str, Any]
     timestamp: datetime
-    routing: Optional[dict[str, Any]]
-    provenance: Optional[dict[str, Any]]
-    # v1.1.0 additions - match DB columns
+    routing: Optional[dict[str, Any]] = None
+    provenance: Optional[dict[str, Any]] = None
+
+    # Threading & lineage (migration 0002)
     thread_id: Optional[UUID] = None
     parent_ids: list[UUID] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     ttl: Optional[datetime] = None
+
+    # 10X Enhancements (migration 0008)
+    scope: Optional[str] = "shared"
+    importance_score: Optional[float] = 0.5
+    access_count: Optional[int] = 0
+    last_accessed: Optional[datetime] = None
+    confidence_updated_at: Optional[datetime] = None
+    contradiction_count: Optional[int] = 0
+    chunk_count: Optional[int] = 1
+    is_chunked: Optional[bool] = False
+    content_hash: Optional[str] = None
+    processing_status: Optional[str] = "complete"
+
+    # Multi-tenant identity (migration 0008)
+    tenant_id: Optional[UUID] = None
+    org_id: Optional[UUID] = None
+    user_id: Optional[UUID] = None
+    correlation_id: Optional[UUID] = None
+
+    # Tracing (migration 0008)
+    session_id: Optional[str] = None
+    trace_id: Optional[str] = None
 
 
 class GraphCheckpointRow(BaseModel):
@@ -525,4 +549,46 @@ class ExtractedInsight(BaseModel):
     )
     trigger_world_model: bool = Field(
         default=False, description="Whether to propagate to world model"
+    )
+
+
+# =============================================================================
+# Enrichment Result Model (v2.1.0 - GMP-67 Unified Pipeline)
+# =============================================================================
+
+
+class EnrichmentResult(BaseModel):
+    """
+    Result of SubstrateDAG.enrich() execution (v2.1.0 - GMP-67).
+    
+    Returned by DAG enrichment when running in enrichment-only mode
+    (after core writes have been completed by IngestionPipeline).
+    
+    Contains extracted facts, insights, reasoning traces, and metrics.
+    """
+    
+    packet_id: UUID = Field(..., description="Source packet that was enriched")
+    
+    # Extracted data
+    facts: list[KnowledgeFact] = Field(
+        default_factory=list, description="Extracted knowledge facts (SPO triples)"
+    )
+    insights: list[ExtractedInsight] = Field(
+        default_factory=list, description="Higher-level extracted insights"
+    )
+    reasoning_trace: Optional[StructuredReasoningBlock] = Field(
+        None, description="Reasoning trace if generated during enrichment"
+    )
+    
+    # Persistence metrics
+    facts_inserted: int = Field(
+        default=0, description="Number of facts persisted to knowledge_facts table"
+    )
+    world_model_triggered: bool = Field(
+        default=False, description="Whether world model update was triggered"
+    )
+    
+    # Timing metrics
+    enrichment_duration_ms: float = Field(
+        default=0.0, description="Total enrichment execution time in milliseconds"
     )

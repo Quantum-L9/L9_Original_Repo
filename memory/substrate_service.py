@@ -10,12 +10,12 @@ import structlog
 from datetime import datetime
 from typing import Any, Optional
 
-from memory.substrate_models import (
+from core.schemas.packet_envelope_v2 import (
     PacketEnvelopeIn,
     PacketWriteResult,
+    SemanticHit,
     SemanticSearchRequest,
     SemanticSearchResult,
-    SemanticHit,
 )
 from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import (
@@ -24,15 +24,27 @@ from memory.substrate_semantic import (
     StubEmbeddingProvider,
     create_embedding_provider,
 )
-from memory.substrate_graph import SubstrateDAG
+from memory.substrate_dag import SubstrateDAG
+from memory.validators.packet_validator import PacketValidator, PacketValidationError
 from memory.query_classifier import QueryClassifier, get_query_classifier
 from memory.reasoning_replay import ReasoningReplayPipeline
 from memory.consolidation import ConsolidationPipeline
 from memory.agent_persistence import AgentPersistenceService
+from memory.saga import (
+    SagaExecutor,
+    SagaResult,
+    get_saga_executor,
+)
+from memory.saga_patterns import (
+    SagaPatterns,
+    get_saga_patterns,
+)
+from memory.audit_utils import prepare_packet_for_ingest
 from telemetry.memory_metrics import (
     record_memory_write,
     record_memory_search,
     set_memory_substrate_health,
+    record_memory_quarantine,
 )
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 
@@ -97,6 +109,10 @@ class MemorySubstrateService:
         self._reasoning_replay: Optional[ReasoningReplayPipeline] = None
         self._consolidation: Optional[ConsolidationPipeline] = None
         self._agent_persistence: Optional[AgentPersistenceService] = None
+        
+        # Initialize saga pattern (lazy initialization)
+        self._saga_executor: Optional[SagaExecutor] = None
+        self._saga_patterns: Optional[SagaPatterns] = None
 
         logger.info("MemorySubstrateService initialized")
 
@@ -162,6 +178,7 @@ class MemorySubstrateService:
         org_id: Optional[str] = None,
         user_id: Optional[str] = None,
         role: str = "end_user",
+        audit_mode: bool = True,
     ) -> PacketWriteResult:
         """
         Submit a packet to the substrate for processing.
@@ -179,11 +196,36 @@ class MemorySubstrateService:
             org_id: Organization UUID for RLS isolation
             user_id: User UUID for RLS isolation
             role: User role for RLS policy enforcement
+            audit_mode: If True, run audit preprocessing (normalization, PII redaction, injection detection)
 
         Returns:
             PacketWriteResult with status and written tables
         """
         logger.info(f"Processing packet: type={packet_in.packet_type}")
+
+        # Audit mode: normalize, redact PII, detect injection markers
+        audit_report = None
+        if audit_mode:
+            packet_in, audit_report = prepare_packet_for_ingest(packet_in)
+            if audit_report.injection_markers:
+                record_memory_quarantine(reason="injection_markers", count=1)
+                logger.warning(
+                    "Injection markers detected in packet",
+                    packet_id=str(audit_report.packet_id),
+                    markers=list(audit_report.injection_markers),
+                )
+
+        # Validate packet before processing (canonical chokepoint)
+        try:
+            PacketValidator.validate(packet_in, strict=False)
+        except PacketValidationError as e:
+            logger.error("packet_validation_failed", error=str(e), packet_type=packet_in.packet_type)
+            return PacketWriteResult(
+                status="error",
+                packet_id=packet_in.packet_id or None,
+                written_tables=[],
+                error_message=f"Validation failed: {e}",
+            )
 
         # Convert input to full envelope
         envelope = packet_in.to_envelope()
@@ -855,6 +897,141 @@ class MemorySubstrateService:
                 logger.warning("Failed to initialize agent persistence", error=str(e))
                 return None
         return self._agent_persistence
+
+    # =========================================================================
+    # Saga Pattern (GMP-56/57: Cross-DB Multi-Step Operations)
+    # =========================================================================
+
+    async def get_saga_executor(self) -> SagaExecutor:
+        """
+        Get saga executor instance (lazy initialization).
+        
+        The executor is wired with:
+        - postgres_pool: From repository
+        - semantic_service: For vector search steps
+        - neo4j_client: From graph_client (if available)
+        
+        Returns:
+            SagaExecutor instance
+        """
+        if self._saga_executor is None:
+            # Get Neo4j client if available
+            neo4j_client = None
+            try:
+                from memory.graph_client import get_graph_client
+                neo4j_client = get_graph_client()
+            except Exception as e:
+                logger.debug(f"Neo4j client not available for saga: {e}")
+            
+            self._saga_executor = SagaExecutor(
+                postgres_pool=self._repository._pool,
+                neo4j_client=neo4j_client,
+                semantic_service=self._semantic_service,
+            )
+            logger.info("SagaExecutor initialized")
+        
+        return self._saga_executor
+
+    async def get_saga_patterns(self) -> SagaPatterns:
+        """
+        Get saga patterns instance (lazy initialization).
+        
+        Provides high-level API for pre-built sagas:
+        - fetch_and_enrich: Vector search → Entity extraction → Graph enrichment
+        - enrich_entities: Entity lookup → Relationship discovery
+        - correlate_timeline: Event timeline → Causal chain analysis
+        
+        Returns:
+            SagaPatterns instance
+        """
+        if self._saga_patterns is None:
+            executor = await self.get_saga_executor()
+            self._saga_patterns = SagaPatterns(executor)
+            logger.info("SagaPatterns initialized")
+        
+        return self._saga_patterns
+
+    async def fetch_and_enrich(
+        self,
+        query: str,
+        limit: int = 10,
+        min_similarity: float = 0.5,
+    ) -> SagaResult:
+        """
+        Execute fetch_and_enrich saga: Vector search → Entity extraction → Graph enrichment.
+        
+        This is the canonical cross-DB search pattern that:
+        1. Searches vectors in Postgres for semantically similar content
+        2. Extracts entity IDs from results (UUIDs, GMPs, file paths)
+        3. Enriches with Neo4j graph relationships (if available)
+        4. Returns combined result
+        
+        Args:
+            query: Search query
+            limit: Max vector results
+            min_similarity: Minimum similarity threshold
+            
+        Returns:
+            SagaResult with combined vector + graph data
+        """
+        patterns = await self.get_saga_patterns()
+        return await patterns.fetch_and_enrich(
+            query=query,
+            limit=limit,
+            min_similarity=min_similarity,
+        )
+
+    async def enrich_entities(
+        self,
+        entity_ids: list[str],
+        entity_type: str = "Entity",
+    ) -> SagaResult:
+        """
+        Execute entity enrichment saga: Entity lookup → Relationship discovery.
+        
+        For when you already have entity IDs and want graph context.
+        
+        Args:
+            entity_ids: List of entity IDs to enrich
+            entity_type: Node label type (e.g., "User", "Agent", "GMP")
+            
+        Returns:
+            SagaResult with entity data and relationships
+        """
+        patterns = await self.get_saga_patterns()
+        return await patterns.enrich_entities(
+            entity_ids=entity_ids,
+            entity_type=entity_type,
+        )
+
+    async def correlate_timeline(
+        self,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        event_type: Optional[str] = None,
+        limit: int = 50,
+    ) -> SagaResult:
+        """
+        Execute timeline correlation saga: Event timeline → Causal chain analysis.
+        
+        For analyzing event sequences and causal chains in Neo4j.
+        
+        Args:
+            start_time: ISO timestamp start
+            end_time: ISO timestamp end
+            event_type: Filter by event type
+            limit: Max events
+            
+        Returns:
+            SagaResult with events and causal chains
+        """
+        patterns = await self.get_saga_patterns()
+        return await patterns.correlate_timeline(
+            start_time=start_time,
+            end_time=end_time,
+            event_type=event_type,
+            limit=limit,
+        )
 
 
 # =============================================================================

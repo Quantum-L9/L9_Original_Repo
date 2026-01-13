@@ -386,7 +386,7 @@ async def test_long_plan_execution(mock_substrate: MockSubstrateService):
     plan_id = str(uuid4())
 
     # Simulate plan state with pending tasks
-    from memory.substrate_models import PacketEnvelopeIn
+    from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
     # Write plan state packet
     await mock_substrate.write_packet(
@@ -518,7 +518,7 @@ async def test_task_history(mock_substrate: MockSubstrateService):
     Validates task history retrieval from memory substrate.
     """
     # Create multiple task result packets
-    from memory.substrate_models import PacketEnvelopeIn
+    from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 
     task_results = []
     for i in range(10):

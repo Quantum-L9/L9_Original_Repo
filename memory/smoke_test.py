@@ -17,7 +17,7 @@ import sys
 from uuid import uuid4
 
 from memory.substrate_service import get_service
-from memory.substrate_models import PacketEnvelopeIn
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
 from memory.ingestion import ingest_packet
 
 

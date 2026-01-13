@@ -79,20 +79,17 @@ async def save_memory_handler(
     substrate_service: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
-    Save memory to unified L9 substrate via MAIN INGESTION PIPELINE.
+    Save memory with tiered fallback (v2.1.0 - GMP-67 corrected).
     
-    If substrate_service is provided, uses MemorySubstrateService.write_packet()
-    which runs the full DAG pipeline:
-    - Validation
-    - Semantic embedding (OpenAI)
-    - Graph sync (Neo4j)
-    - Fact extraction
-    - Reasoning traces
-    - Checkpoint
+    Tier 1: Try full pipeline (core + enrichment if enabled)
+            - Enrichment failure = 200 with enrichment_status="failed" (NO RETRY)
+            - Core failure = fall to Tier 2
+    Tier 2: Try direct DB (emergency fallback)
+            - Success = 200 with tier_used="direct_db"
+            - Failure = fall to Tier 3
+    Tier 3: Return 503 Service Unavailable
     
-    Falls back to direct DB access if service not available.
-    
-    See: mcp_memory/memory-setup-instructions.md for governance spec.
+    KEY INVARIANT: Enrichment is NEVER retried. If it fails, core write already persisted.
     
     Args:
         scope: MCP scope ('developer', 'l-private', 'global')
@@ -101,10 +98,12 @@ async def save_memory_handler(
         source: "l9-kernel" or "cursor-ide" (server-enforced)
         substrate_service: Optional MemorySubstrateService instance
     """
-    try:
-        # Try main ingestion pipeline first (if service available)
-        if substrate_service:
-            return await _save_via_main_pipeline(
+    pipeline_error = None
+    
+    # Tier 1: Full pipeline (preferred path)
+    if substrate_service:
+        try:
+            result = await _save_via_main_pipeline(
                 user_id=user_id,
                 content=content,
                 kind=kind,
@@ -118,10 +117,23 @@ async def save_memory_handler(
                 source=source,
                 substrate_service=substrate_service,
             )
-        
-        # Fallback to direct DB access (backward compatibility)
-        logger.debug("Using direct DB access (substrate service not available)")
-        return await _save_via_direct_db(
+            
+            # Enrichment failure is NOT a tier failure - core write succeeded
+            # Just return 200 with enrichment_status="failed" (already set in result)
+            return result
+            
+        except Exception as e:
+            pipeline_error = str(e)
+            logger.warning(
+                "Full pipeline failed, falling back to direct DB",
+                error=pipeline_error,
+            )
+            # Fall through to Tier 2
+    
+    # Tier 2: Direct DB (emergency fallback)
+    try:
+        logger.debug("Using direct DB access (substrate service unavailable or failed)")
+        result = await _save_via_direct_db(
             user_id=user_id,
             content=content,
             kind=kind,
@@ -134,9 +146,24 @@ async def save_memory_handler(
             creator=creator,
             source=source,
         )
-    except Exception as e:
-        logger.exception("Error saving memory", error=str(e))
-        raise
+        # Mark as fallback tier
+        result["tier_used"] = "direct_db"
+        result["warnings"] = ["pipeline_unavailable", "enrichment_skipped", "neo4j_skipped"]
+        result["enrichment_status"] = "not_attempted"
+        logger.info("Saved via direct DB fallback", packet_id=result.get("packet_id"))
+        return result
+        
+    except Exception as direct_db_error:
+        # Tier 3: 503
+        logger.error(
+            "All fallbacks exhausted",
+            pipeline_error=pipeline_error,
+            direct_db_error=str(direct_db_error),
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Memory substrate unavailable. All fallbacks exhausted.",
+        )
 
 
 async def _save_via_main_pipeline(
@@ -154,7 +181,7 @@ async def _save_via_main_pipeline(
     substrate_service: Any,
 ) -> Dict[str, Any]:
     """Save memory via main L9 ingestion pipeline (full DAG)."""
-    from memory.substrate_models import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+    from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata, PacketProvenance
     from datetime import timedelta
     
     # Map MCP scope to DB scope
@@ -220,7 +247,7 @@ async def _save_via_main_pipeline(
     result = await substrate_service.write_packet(packet_in)
     ingest_time_ms = (time.time() - start_time) * 1000
     
-    if result.status != "ok":
+    if result.status == "error":
         raise HTTPException(
             status_code=500,
             detail=f"Memory ingestion failed: {result.error_message}",
@@ -234,8 +261,11 @@ async def _save_via_main_pipeline(
         caller=caller_id,
         written_tables=result.written_tables,
         ingest_time_ms=ingest_time_ms,
+        enrichment_status=result.enrichment_status,
+        enrichment_facts_count=result.enrichment_facts_count,
     )
     
+    # Wire through ALL fields from PacketWriteResult (v2.1.0 - GMP-67)
     return {
         "packet_id": str(result.packet_id),
         "user_id": user_id,
@@ -246,7 +276,17 @@ async def _save_via_main_pipeline(
         "created_at": datetime.utcnow().isoformat(),
         "written_tables": result.written_tables,
         "ingest_time_ms": ingest_time_ms,
-        "pipeline": "main_dag",  # Indicates full pipeline was used
+        
+        # Enrichment visibility (v2.1.0 - GMP-67)
+        "enrichment_status": result.enrichment_status,
+        "enrichment_error": result.enrichment_error,
+        "enrichment_facts_count": result.enrichment_facts_count,
+        
+        # Tier visibility (v2.1.0 - GMP-67)
+        "tier_used": result.write_tier_used,
+        "warnings": result.warnings,
+        
+        "pipeline": "main_dag",
     }
 
 

@@ -10,6 +10,7 @@ Provides endpoints for:
 """
 
 import structlog
+from functools import lru_cache
 from typing import Any, Dict
 
 from fastapi import APIRouter, HTTPException
@@ -23,16 +24,10 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/upgrades", tags=["upgrades"])
 
-# Singleton upgrade engine instance
-_upgrade_engine: PacketEnvelopeUpgradeEngine | None = None
-
-
+@lru_cache(maxsize=1)
 def get_upgrade_engine() -> PacketEnvelopeUpgradeEngine:
-    """Get or create the upgrade engine singleton"""
-    global _upgrade_engine
-    if _upgrade_engine is None:
-        _upgrade_engine = PacketEnvelopeUpgradeEngine()
-    return _upgrade_engine
+    """Get or create the upgrade engine singleton. CACHED."""
+    return PacketEnvelopeUpgradeEngine()
 
 
 # ============================================================================

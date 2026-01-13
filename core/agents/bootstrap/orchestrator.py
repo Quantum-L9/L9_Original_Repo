@@ -11,6 +11,8 @@ from datetime import datetime
 
 import structlog
 
+from memory.graph_client import get_neo4j_client
+
 from . import (
     phase_0_validate,
     phase_1_load_kernels,
@@ -131,9 +133,10 @@ class AgentBootstrapOrchestrator:
             logger.error("╚════════════════════════════════════════╝")
             
             # Rollback: Delete agent node (cascade deletes relationships)
-            if instance and hasattr(self.substrate, 'neo4j_driver') and self.substrate.neo4j_driver:
+            neo4j_client = await get_neo4j_client()
+            if instance and neo4j_client:
                 try:
-                    async with self.substrate.neo4j_driver.session() as session:
+                    async with neo4j_client.session() as session:
                         await session.run("""
                             MATCH (a:Agent {agent_id: $agent_id})
                             DETACH DELETE a

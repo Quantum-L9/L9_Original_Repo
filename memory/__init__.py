@@ -9,25 +9,26 @@ v1.1.0: Added insight extraction, knowledge facts, world model integration,
         housekeeping engine, ingestion pipeline, retrieval pipeline.
 """
 
-from memory.substrate_models import (
+from core.schemas.packet_envelope_v2 import (
     PacketEnvelope,
     PacketEnvelopeIn,
     PacketWriteResult,
-    StructuredReasoningBlock,
+    SemanticHit,
     SemanticSearchRequest,
     SemanticSearchResult,
-    SemanticHit,
-    SubstrateState,
-    # v1.1.0+ additions
+)
+from memory.substrate_models import (
+    ExtractedInsight,
     KnowledgeFact,
     KnowledgeFactRow,
-    ExtractedInsight,
+    StructuredReasoningBlock,
+    SubstrateState,
 )
 
 # NOTE: Avoid eager imports here to prevent circular dependencies.
 # These modules can be imported directly when needed:
 #   from memory.substrate_repository import SubstrateRepository, ...
-#   from memory.substrate_graph import SubstrateDAG, ...
+#   from memory.substrate_dag import SubstrateDAG, ...
 #   from memory.substrate_service import MemorySubstrateService, ...
 #   from memory.substrate_semantic import SemanticService, ...
 
@@ -47,7 +48,7 @@ from memory.substrate_models import (
 #     embed_text,
 # )
 
-# from memory.substrate_graph import (
+# from memory.substrate_dag import (
 #     SubstrateDAG,
 #     SubstrateGraphState,
 #     run_substrate_flow,
@@ -87,6 +88,20 @@ from memory.insight_extraction import (
     init_insight_pipeline,
 )
 
+# Audit Utilities (GMP-58: Security hardening, v2.0: PII + normalization)
+from memory.audit_utils import (
+    AuditReport,
+    has_injection_markers,
+    detect_injection_markers,
+    prepare_packet_for_ingest,
+    # PII detection (v2.0)
+    detect_pii_types,
+    redact_pii,
+    # Normalization (v2.0)
+    normalize_text,
+    normalize_payload,
+)
+
 # Strategy Memory (Phase 0)
 from memory.strategymemory import (
     IStrategyMemoryService,
@@ -122,6 +137,53 @@ from memory.hybrid_rag import (
     hybrid_search,
 )
 
+# Cross-DB Saga Pattern (GMP-56)
+from memory.saga import (
+    Saga,
+    SagaBuilder,
+    SagaContext,
+    SagaExecutor,
+    SagaResult,
+    SagaStep,
+    SagaStepStatus,
+    SagaStatus,
+    DatabaseType,
+    get_saga_executor,
+)
+
+from memory.saga_patterns import (
+    SagaPatterns,
+    create_fetch_and_enrich_saga,
+    create_entity_enrichment_saga,
+    create_timeline_correlation_saga,
+    get_saga_patterns,
+    fetch_and_enrich,
+)
+
+# Semantic Tool Router (GMP-57)
+from memory.tool_router import (
+    ToolRouter,
+    ToolEmbedding,
+    ToolMatch,
+    ToolSearchResult,
+    get_tool_router,
+    init_tool_router,
+    find_tools,
+)
+
+# Conversational Graph Memory (GMP-58)
+from memory.graph_memory import (
+    ConversationGraphMemory,
+    GraphMessage,
+    GraphSession,
+    ConversationContext,
+    MessageRole,
+    TopicExtractor,
+    get_graph_memory,
+    store_message,
+    query_history,
+)
+
 __all__ = [
     # Models (always available)
     "PacketEnvelope",
@@ -149,6 +211,15 @@ __all__ = [
     "InsightExtractionPipeline",
     "get_insight_pipeline",
     "init_insight_pipeline",
+    # Audit Utilities (GMP-58, v2.0)
+    "AuditReport",
+    "has_injection_markers",
+    "detect_injection_markers",
+    "prepare_packet_for_ingest",
+    "detect_pii_types",
+    "redact_pii",
+    "normalize_text",
+    "normalize_payload",
     # Strategy Memory
     "IStrategyMemoryService",
     "StrategyMemoryService",
@@ -172,9 +243,44 @@ __all__ = [
     "HybridSearchResult",
     "get_hybrid_rag_pipeline",
     "hybrid_search",
+    # Cross-DB Saga Pattern (GMP-56)
+    "Saga",
+    "SagaBuilder",
+    "SagaContext",
+    "SagaExecutor",
+    "SagaResult",
+    "SagaStep",
+    "SagaStepStatus",
+    "SagaStatus",
+    "DatabaseType",
+    "get_saga_executor",
+    "SagaPatterns",
+    "create_fetch_and_enrich_saga",
+    "create_entity_enrichment_saga",
+    "create_timeline_correlation_saga",
+    "get_saga_patterns",
+    "fetch_and_enrich",
+    # Semantic Tool Router (GMP-57)
+    "ToolRouter",
+    "ToolEmbedding",
+    "ToolMatch",
+    "ToolSearchResult",
+    "get_tool_router",
+    "init_tool_router",
+    "find_tools",
+    # Conversational Graph Memory (GMP-58)
+    "ConversationGraphMemory",
+    "GraphMessage",
+    "GraphSession",
+    "ConversationContext",
+    "MessageRole",
+    "TopicExtractor",
+    "get_graph_memory",
+    "store_message",
+    "query_history",
     # NOTE: These are available via direct import to avoid circular deps:
     # from memory.substrate_repository import SubstrateRepository, ...
-    # from memory.substrate_graph import SubstrateDAG, ...
+    # from memory.substrate_dag import SubstrateDAG, ...
     # from memory.substrate_service import MemorySubstrateService, ...
     # from memory.substrate_semantic import SemanticService, ...
 ]

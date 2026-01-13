@@ -78,6 +78,45 @@ TIER_1_ENABLED = True
 TIER_2_ENABLED = False
 TIER_3_ENABLED = False
 
+# Deprecated Cursor paths (moved to agents/cursor/ per architecture_decisions.md 2026-01-11)
+# These paths should NOT appear in .audit_cache/manifest.json
+DEPRECATED_CURSOR_PATHS = [
+    "tools/cursor_client.py",
+    "scripts/cursor_check_mistakes.py",
+    "memory/extractor/cursor_action_extractor.py",
+    "core/governance/cursor_memory_kernel.py",
+]
+
+
+def validate_no_deprecated_paths(cache_dir: Path) -> List[str]:
+    """
+    Fail loudly if deprecated paths appear in audit cache.
+    
+    This guardrail ensures that file moves documented in architecture_decisions.md
+    are properly reflected in the audit cache. If a deprecated path appears,
+    it means the audit is scanning files that no longer exist at those locations.
+    
+    Returns:
+        List of violation messages (empty = all good)
+    """
+    manifest_path = cache_dir / "manifest.json"
+    if not manifest_path.exists():
+        return []
+    
+    try:
+        manifest = json.loads(manifest_path.read_text())
+    except (json.JSONDecodeError, IOError):
+        return ["Could not read manifest.json"]
+    
+    violations = []
+    for path in manifest.keys():
+        for deprecated in DEPRECATED_CURSOR_PATHS:
+            if deprecated in path:
+                violations.append(f"DEPRECATED: {path} (moved to agents/cursor/)")
+    
+    return violations
+
+
 # =============================================================================
 # DATA MODELS
 # =============================================================================
@@ -88,6 +127,7 @@ class AuditType(str, Enum):
     CAPABILITY_INVENTORY = "capability_inventory"
     GOVERNANCE_COMPLIANCE = "governance_compliance"
     CONFIGURATION_DRIFT = "configuration_drift"
+    DEAD_CODE = "dead_code"  # Phase 1-4 dead code detection pipeline
 
 @dataclass
 class AuditResult:
@@ -170,6 +210,8 @@ class AuditOrchestrator:
                 result = self._run_infrastructure_audit()
             elif audit_type == AuditType.CAPABILITY_INVENTORY:
                 result = self._run_capability_audit()
+            elif audit_type == AuditType.DEAD_CODE:
+                result = self._run_dead_code_audit()
             else:
                 result = AuditResult(
                     audit_type=audit_type,
@@ -460,6 +502,104 @@ class AuditOrchestrator:
                 errors=[str(e)],
         )
 
+    def _run_dead_code_audit(self) -> AuditResult:
+        """Run dead code detection pipeline (Phases 1-4)."""
+        try:
+            from scripts.audit.find_dead_code import run_dead_code_audit, get_python_files
+            from scripts.audit.resolve_dead_code_refs import resolve_dead_code_refs
+            from scripts.audit.categorize_dead_code import categorize_dead_code
+            from scripts.audit.generate_gmp_todos import generate_gmp_todos
+            
+            # Phase 1: Baseline static analysis
+            logger.info("Dead Code Phase 1: Baseline analysis...")
+            baseline_output = self.repo_root / "reports" / "dead_code_baseline.json"
+            baseline_result = run_dead_code_audit(
+                repo_root=self.repo_root,
+                min_vulture_confidence=80,
+                parallel_workers=self.parallel_jobs,
+                output_file=baseline_output,
+            )
+            
+            # Phase 2: Resolve false positives
+            logger.info("Dead Code Phase 2: Resolving false positives...")
+            resolved_output = self.repo_root / "reports" / "dead_code_resolved.json"
+            resolved_result = resolve_dead_code_refs(
+                baseline_file=baseline_output,
+                repo_root=self.repo_root,
+                output_file=resolved_output,
+            )
+            
+            # Phase 3: Categorize by risk
+            logger.info("Dead Code Phase 3: Categorizing by risk...")
+            categorized_output = self.repo_root / "reports" / "dead_code_risk_matrix.json"
+            categorized_result = categorize_dead_code(
+                resolved_file=resolved_output,
+                repo_root=self.repo_root,
+                output_file=categorized_output,
+            )
+            
+            # Phase 4: Generate GMP TODOs
+            logger.info("Dead Code Phase 4: Generating GMP TODOs...")
+            yaml_output = self.repo_root / "reports" / "dead_code_gmp_todos.yaml"
+            markdown_output = self.repo_root / "reports" / "dead_code_gmp_plan.md"
+            gmp_plan = generate_gmp_todos(
+                categorized_file=categorized_output,
+                repo_root=self.repo_root,
+                output_yaml=yaml_output,
+                output_markdown=markdown_output,
+            )
+            
+            # Build result summary
+            total_findings = len(baseline_result.findings)
+            false_positives = resolved_result.false_positives_eliminated
+            high_risk = len(categorized_result.high_risk)
+            medium_risk = len(categorized_result.medium_risk)
+            low_risk = len(categorized_result.low_risk)
+            
+            return AuditResult(
+                audit_type=AuditType.DEAD_CODE,
+                status="success",
+                duration_ms=0,
+                items_found=categorized_result.total_findings,
+                items_critical=high_risk,
+                items_high=medium_risk,
+                items_medium=low_risk,
+                items_low=false_positives,
+                data={
+                    "baseline_findings": total_findings,
+                    "false_positives_eliminated": false_positives,
+                    "high_risk": high_risk,
+                    "medium_risk": medium_risk,
+                    "low_risk": low_risk,
+                    "auto_fixable": categorized_result.auto_fixable_count,
+                    "manual_review": categorized_result.manual_review_count,
+                    "gmp_todos_generated": len(gmp_plan.todos),
+                },
+                file_outputs={
+                    "baseline": baseline_output,
+                    "resolved": resolved_output,
+                    "categorized": categorized_output,
+                    "gmp_yaml": yaml_output,
+                    "gmp_markdown": markdown_output,
+                },
+            )
+            
+        except Exception as e:
+            logger.error(f"Dead code audit failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return AuditResult(
+                audit_type=AuditType.DEAD_CODE,
+                status="failure",
+                duration_ms=0,
+                items_found=0,
+                items_critical=0,
+                items_high=0,
+                items_medium=0,
+                items_low=0,
+                errors=[str(e)],
+            )
+
     def run_all(self, tier: int = 1, only: Optional[str] = None) -> AuditRun:
         """Run all audits for given tier."""
         start_time = time.time()
@@ -494,6 +634,19 @@ class AuditOrchestrator:
         for fmt in self.output_formats:
             self._generate_report(fmt)
 
+        # Validate no deprecated paths in cache (wiring invariant guardrail)
+        deprecated_violations = validate_no_deprecated_paths(CACHE_DIR)
+        if deprecated_violations:
+            logger.warning("=" * 70)
+            logger.warning("WIRING INVARIANT VIOLATION: Deprecated paths in audit cache")
+            logger.warning("=" * 70)
+            for violation in deprecated_violations:
+                logger.warning(f"  {violation}")
+            logger.warning("These files were moved per architecture_decisions.md (2026-01-11)")
+            logger.warning("Run with --skip-cache to regenerate, or delete .audit_cache/")
+            logger.warning("=" * 70)
+            self.errors.extend(deprecated_violations)
+
         # Build run summary
         duration_ms = (time.time() - start_time) * 1000
         run = AuditRun(
@@ -517,6 +670,7 @@ class AuditOrchestrator:
                 AuditType.CODE_INTEGRITY,
                 AuditType.INFRASTRUCTURE_HEALTH,
                 AuditType.CAPABILITY_INVENTORY,
+                AuditType.DEAD_CODE,
             ]
         elif tier == 2:
             return [

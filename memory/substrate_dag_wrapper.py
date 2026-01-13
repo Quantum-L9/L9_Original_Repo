@@ -11,8 +11,8 @@ from __future__ import annotations
 import structlog
 from typing import Optional
 
-from memory.substrate_graph import SubstrateDAG
-from memory.substrate_models import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
+from memory.substrate_dag import SubstrateDAG
+from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 
 logger = structlog.get_logger(__name__)
 

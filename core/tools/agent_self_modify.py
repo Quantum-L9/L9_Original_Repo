@@ -313,7 +313,7 @@ class AgentSelfModifyTool:
             return
         
         try:
-            from memory.substrate_models import PacketEnvelopeIn, PacketMetadata
+            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
             
             packet = PacketEnvelopeIn(
                 packet_type="agent_self_modify",

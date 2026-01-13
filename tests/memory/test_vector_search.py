@@ -15,7 +15,7 @@ import os
 
 import pytest
 
-from memory.substrate_models import PacketEnvelopeIn, SemanticSearchRequest
+from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, SemanticSearchRequest
 from memory.substrate_service import init_service, close_service
 
 
