@@ -512,6 +512,7 @@
   src.mcp_server
   src.models
   src.routes
+  src.routes.memory_unified
 # statistics
   statistics
 # structlog

@@ -82,6 +82,7 @@ async _cleanup_loop(interval_sec) @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-
 async _compact() @ igor/audit-memory/orchestrators_memory_orchestrator.py
 async _compact() @ orchestrators/memory/orchestrator.py
 async _connect_and_run() @ mac_agent/websocket_client.py
+async _create_approval_checkpoint(request, decision) @ core/governance/approval_manager.py
 async _create_backup(upgrade) @ orchestrators/evolution/apply_engine.py
 async _create_indexes() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
 async _create_schema() @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py
@@ -306,6 +307,8 @@ async _run_pytest(working_dir, test_file, env_config) @ core/testing/test_execut
 async _run_self_reflection(task, result, instance) @ core/agents/executor.py
 async _run_summarization(batch_size, sleep_ms) @ memory/consolidation.py
 async _run_ttl_expiration(batch_size, sleep_ms) @ memory/consolidation.py
+async _save_via_direct_db(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source) @ mcp_memory/src/routes/memory_unified.py
+async _save_via_main_pipeline(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source, substrate_service) @ mcp_memory/src/routes/memory_unified.py
 async _score_entity(entity_id) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
 async _semantic_search() @ core/observability/l9_integration.py
 async _send(data) @ mac_agent/websocket_client.py
@@ -342,6 +345,7 @@ async _sync_to_graph(envelope) @ igor/audit-memory/memory_ingestion.py
 async _sync_to_graph(envelope) @ memory/ingestion.py
 async _take_screenshot(task_id, suffix) @ mac_agent/executor.py
 async _tree_of_thought(request) @ orchestrators/reasoning/orchestrator.py
+async _trigger_critical_checkpoint(envelope) @ memory/ingestion.py
 async _try_fallback() @ clients/memory_client.py
 async _update_lineage(envelope) @ igor/audit-memory/memory_ingestion.py
 async _update_lineage(envelope) @ memory/ingestion.py
@@ -688,6 +692,7 @@ async delete_expired_memories(dry_run) @ mcp_memory/src/routes/memory_unified.py
 async delete_legacy_relationships(driver, dry_run) @ scripts/agents/neo4j_unify_relationships.py
 async delete_node(node_id) @ tests/mocks/world_model_mocks.py
 async delete_old_checkpoints(agent_id, keep_last) @ memory/agent_persistence.py
+async delete_old_checkpoints(agent_id, keep_last) @ memory/substrate_repository.py
 async delete_trash_embeddings() @ scripts/memory/delete_trash_via_service.py
 async delete_trash_embeddings(database_url, dry_run, verbose) @ scripts/memory/delete_trash_embeddings.py
 async delete_trash_embeddings_from_sql() @ scripts/memory/execute_cleanup_and_reindex.py
@@ -1203,7 +1208,7 @@ async handle_slack_with_l_agent(app, text, thread_uuid, team_id, channel_id, use
 async handle_slack_with_l_agent(app, text, thread_uuid, team_id, channel_id, user_id) @ docs/_archived/legacy_slack/webhook_slack.py
 async handle_slack_with_l_agent(app, text, thread_uuid, team_id, channel_id, user_id, context) @ memory/slack_ingest.py
 async handle_tool_call(tool, user_id, caller) @ igor/audit-memory/mcp_memory_src_mcp_server.py
-async handle_tool_call(tool, user_id, caller) @ mcp_memory/src/mcp_server.py
+async handle_tool_call(tool, user_id, caller, substrate_service) @ mcp_memory/src/mcp_server.py
 async handle_twilio_adapter(request, body, adapter, authorization) @ api/adapters/twilio_adapter/routes/twilio_adapter.py
 async handle_twilio_adapter(request, body, adapter, authorization) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/routes/twilio_adapter.py
 async handle_webhook(request) @ docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
@@ -1798,7 +1803,7 @@ async run_tests_in_sandbox(test_code, source_code, env_config) @ core/testing/te
 async save(agent_id, state) @ igor/audit-memory/memory_checkpoint_manager.py
 async save(agent_id, state) @ memory/checkpoint_manager.py
 async save_checkpoint(agent_id, graph_state) @ igor/audit-memory/memory_substrate_repository.py
-async save_checkpoint(agent_id, graph_state) @ memory/substrate_repository.py
+async save_checkpoint(agent_id, graph_state, reason) @ memory/substrate_repository.py
 async save_checkpoint(data) @ igor/audit-memory/tests_mocks_memory_mocks.py
 async save_checkpoint(data) @ tests/mocks/memory_mocks.py
 async save_checkpoint(state) @ igor/audit-memory/memory_state_manager.py
@@ -1808,8 +1813,8 @@ async save_memory(req) @ igor/audit-memory/mcp_memory_src_routes_memory.py
 async save_memory(req) @ mcp_memory/src/routes/memory.py
 async save_memory_handler(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source) @ igor/audit-memory/mcp_memory_src_routes_memory.py
 async save_memory_handler(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source) @ mcp_memory/src/routes/memory.py
-async save_memory_handler(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source) @ mcp_memory/src/routes/memory_unified.py
-async save_memory_route(req) @ mcp_memory/src/routes/memory_unified.py
+async save_memory_handler(user_id, content, kind, scope, duration, tags, importance, metadata, caller_id, creator, source, substrate_service) @ mcp_memory/src/routes/memory_unified.py
+async save_memory_route(req, request) @ mcp_memory/src/routes/memory_unified.py
 async save_memory_with_confidence(user_id, content, kind, scope, duration, confidence, source, related_memory_ids, tags, importance, caller_id, creator) @ igor/audit-memory/mcp_memory_src_routes_memory.py
 async save_memory_with_confidence(user_id, content, kind, scope, duration, confidence, source, related_memory_ids, tags, importance, caller_id, creator) @ mcp_memory/src/routes/memory.py
 async save_memory_with_confidence(user_id, content, kind, scope, duration, confidence, source, related_memory_ids, tags, importance, caller_id, creator) @ mcp_memory/src/routes/memory_unified.py
@@ -2389,10 +2394,12 @@ async test_long_plan_execution(mock_substrate) @ tests/integration/test_l_bootst
 async test_low_confidence_triggers_escalation(governance) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_governance_integration.py
 async test_low_confidence_warning(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 async test_low_risk_no_confirmation() @ tests/integration/test_igor_commands.py
+async test_main_pipeline_preserves_mcp_scope_in_payload() @ mcp_memory/tests/test_main_pipeline_integration.py
 async test_math_backend(evaluator) @ tests/services/symbolic_computation/test_expression_evaluator.py
 async test_mcp_call_context_injection(client, mock_env) @ mcp_memory/tests/test_mcp_server_smoke.py
 async test_mcp_call_save_memory(client, mock_env) @ mcp_memory/tests/test_mcp_server_smoke.py
 async test_mcp_call_search_memory(client, mock_env) @ mcp_memory/tests/test_mcp_server_smoke.py
+async test_mcp_tool_call_passes_substrate_service() @ mcp_memory/tests/test_main_pipeline_integration.py
 async test_memory_binding(executor, mock_substrate) @ tests/integration/test_l_bootstrap.py
 async test_memory_client_context_manager() @ igor/audit-memory/tests_memory_test_memory_adapter_basic.py
 async test_memory_client_context_manager() @ tests/memory/test_memory_adapter_basic.py
@@ -2552,8 +2559,14 @@ async test_run_simulation_basic() @ tests/simulation/test_simulation_engine.py
 async test_save_checkpoint(adapter, mock_repository, sample_state) @ tests/test_memory_adapter.py
 async test_save_memory_creates_embedding() @ igor/audit-memory/mcp_memory_tests_test_memory.py
 async test_save_memory_creates_embedding() @ mcp_memory/tests/test_memory.py
+async test_save_memory_falls_back_to_direct_db_when_service_unavailable() @ mcp_memory/tests/test_main_pipeline_integration.py
+async test_save_memory_uses_main_pipeline_when_service_available() @ mcp_memory/tests/test_main_pipeline_integration.py
 async test_save_reasoning_trace(adapter, mock_repository) @ tests/test_memory_adapter.py
 async test_save_state_as_packet(adapter, mock_repository, sample_state) @ tests/test_memory_adapter.py
+async test_save_via_direct_db_still_works() @ mcp_memory/tests/test_main_pipeline_integration.py
+async test_save_via_main_pipeline_creates_correct_packet_envelope() @ mcp_memory/tests/test_main_pipeline_integration.py
+async test_save_via_main_pipeline_handles_errors_gracefully() @ mcp_memory/tests/test_main_pipeline_integration.py
+async test_save_via_main_pipeline_handles_ttl_correctly() @ mcp_memory/tests/test_main_pipeline_integration.py
 async test_save_with_confidence() @ igor/audit-memory/mcp_memory_tests_test_memory.py
 async test_save_with_confidence() @ mcp_memory/tests/test_memory.py
 async test_scope_enforcement_cursor_cannot_read_l_private() @ tests/integration/test_cursor_langgraph_integration.py
@@ -2802,4 +2815,4 @@ async write_packet(packet_type, payload, metadata, provenance, confidence) @ cli
 async write_packet_to_substrate(packet) @ world_model/seed_loader.py
 async write_tests(code, framework) @ agents/coder_agent_b.py
 
-# Total: 2798 async functions
+# Total: 2811 async functions

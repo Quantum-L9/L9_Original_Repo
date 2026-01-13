@@ -2410,6 +2410,15 @@ try:
 except Exception as e:
     logger.warning(f"Failed to load PacketEnvelope upgrades router: {e}")
 
+# MCP Memory Router (MCP Protocol endpoints)
+try:
+    from api.routes.mcp import router as mcp_router
+
+    app.include_router(mcp_router)
+    logger.info("MCP memory router registered at /mcp/*")
+except Exception as e:
+    logger.warning(f"Failed to load MCP router: {e}")
+
 # Prometheus metrics endpoint
 if _has_prometheus:
     try:

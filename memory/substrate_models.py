@@ -464,6 +464,8 @@ class GraphCheckpointRow(BaseModel):
     agent_id: str
     graph_state: dict[str, Any]
     updated_at: datetime
+    reason: Optional[str] = None  # Added in migration 0014, optional for backward compat
+    checkpoint_number: Optional[int] = None  # Added in migration 0014
 
 
 # =============================================================================

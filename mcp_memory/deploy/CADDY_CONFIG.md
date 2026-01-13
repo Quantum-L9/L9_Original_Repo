@@ -1,184 +1,244 @@
-# Caddy Configuration for MCP Memory Server
+# Caddy Configuration for L9 API (Unified Architecture)
 
-**Purpose:** Configure Caddy reverse proxy to route MCP endpoints to the MCP Memory Server
+**Purpose:** Configure Caddy reverse proxy to route all traffic (including MCP endpoints) to the unified `l9-api`
 
 **File Location:** `/etc/caddy/Caddyfile` (on VPS)
 
----
-
-## Current Configuration (from MRI)
-
-The VPS Caddyfile currently has:
-
-```caddyfile
-# Memory API endpoint (IP:9001)
-# Routes /memory/* to L9 Memory API (8000)
-157.180.73.53:9001 {
-    encode gzip
-    
-    # L9 Memory API routes → port 8000
-    reverse_proxy /memory* 127.0.0.1:8000
-    
-    # Default to l9-api → port 8000
-    reverse_proxy 127.0.0.1:8000
-}
-
-# MCP Memory Server endpoint (IP:9002)
-# Routes /mcp/* to MCP Memory Server (9002)
-157.180.73.53:9002 {
-    encode gzip
-    
-    # MCP Memory Server routes → port 9002
-    reverse_proxy /mcp/* 127.0.0.1:9002
-    
-    # Default to l9-api → port 8000
-    reverse_proxy 127.0.0.1:8000
-}
-```
-
-**Port Assignment:**
-- **Port 9001** = L9 Memory API (via l9-api:8000)
-- **Port 9002** = MCP Memory Server (standalone service)
+**Last Updated:** 2026-01-12
 
 ---
 
-## Required Updates
+## Architecture Summary
 
-### 1. Update IP-Based Routing
-
-**Port 9001 = Memory API, Port 9002 = MCP Server:**
-
-```caddyfile
-# Memory API endpoint (IP:9001)
-# Routes /memory/* to L9 Memory API (8000)
-157.180.73.53:9001 {
-    encode gzip
-    reverse_proxy /memory* 127.0.0.1:8000
-    reverse_proxy 127.0.0.1:8000
-}
-
-# MCP Memory Server endpoint (IP:9002)
-# Routes /mcp/* to MCP Memory Server (9002)
-157.180.73.53:9002 {
-    encode gzip
-    reverse_proxy /mcp/* 127.0.0.1:9002
-    reverse_proxy 127.0.0.1:8000
-}
+```
+┌──────────────────────────────────────────────────────────────┐
+│                      L9 VPS (157.180.73.53)                  │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Internet                                                    │
+│     │                                                        │
+│     ▼                                                        │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │                    CADDY                             │    │
+│  │                                                      │    │
+│  │  :443 (l9.quantumaipartners.com) ─┬─► 127.0.0.1:8000│    │
+│  │  :9001 (157.180.73.53:9001) ──────┘     (l9-api)    │    │
+│  │                                                      │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                          │                                   │
+│                          ▼                                   │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │               l9-api (port 8000)                     │    │
+│  │                                                      │    │
+│  │  • /health, /docs, /openapi.json                    │    │
+│  │  • /memory/*, /api/v1/memory/*                      │    │
+│  │  • /mcp/tools, /mcp/call, /mcp/health               │    │
+│  │  • /slack/*, /twilio/*, /waba/*                     │    │
+│  │                                                      │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                          │                                   │
+│                          ▼                                   │
+│         PostgreSQL (l9_memory) + Neo4j + Redis              │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### 2. Add Domain-Based Routing (l9.quantumaipartners.com)
+**Key Points:**
+- **No standalone MCP server** — MCP endpoints are integrated into `l9-api`
+- **Port 9001** is an alternate HTTPS front door, routing to the same `l9-api` on 8000
+- **Port 9002 is not used** — there is no separate MCP service
 
-**Add MCP routes to domain config:**
+---
+
+## Canonical Caddyfile Configuration
 
 ```caddyfile
+# L9 Main API (domain-based, with SSL)
 l9.quantumaipartners.com {
     encode gzip
 
-    # Core L9 API routes
-    reverse_proxy /health 127.0.0.1:8000
-    reverse_proxy /docs* 127.0.0.1:8000
-    reverse_proxy /openapi.json 127.0.0.1:8000
-    reverse_proxy /memory* 127.0.0.1:8000
-    reverse_proxy /twilio* 127.0.0.1:8000
-    reverse_proxy /waba* 127.0.0.1:8000
-    reverse_proxy /slack/* 127.0.0.1:8000
-    
-    # MCP Memory Server - protocol endpoints
-    handle /mcp/* {
-        reverse_proxy 127.0.0.1:9002
-    }
-    
-    # MCP Memory Server - direct memory API (backward compatibility)
-    handle /api/v1/memory/* {
-        reverse_proxy 127.0.0.1:9002
-    }
-    
-    # Default to L9 API
+    # All traffic → unified l9-api
+    reverse_proxy 127.0.0.1:8000
+}
+
+# Cursor MCP endpoint (IP:9001 - alternate HTTPS front door)
+# Routes ALL traffic to unified l9-api (8000)
+# MCP endpoints (/mcp/*) are implemented inside l9-api
+157.180.73.53:9001 {
+    encode gzip
+
+    # All traffic → unified l9-api
     reverse_proxy 127.0.0.1:8000
 }
 ```
 
 ---
 
-## Deployment Steps
+## Endpoints Available Through l9-api
 
-### On VPS:
-
-```bash
-# 1. Edit Caddyfile
-sudo nano /etc/caddy/Caddyfile
-
-# 2. Update comments (port 9002 → 9001)
-# 3. Add domain routing for /mcp/* and /api/v1/memory/*
-
-# 4. Validate config
-sudo caddy validate --config /etc/caddy/Caddyfile
-
-# 5. Reload Caddy
-sudo systemctl reload caddy
-
-# 6. Verify routing
-curl -v https://l9.quantumaipartners.com/mcp/tools \
-  -H "Authorization: Bearer $MCP_API_KEY_C"
-```
+| Endpoint | Description |
+|----------|-------------|
+| `/health` | API health check |
+| `/mcp/tools` | List available MCP tools |
+| `/mcp/call` | Execute MCP tool calls |
+| `/mcp/health` | MCP-specific health check |
+| `/api/v1/memory/*` | Memory API routes |
+| `/memory/*` | Memory API routes (alternate) |
+| `/slack/*` | Slack webhook routes |
+| `/docs`, `/openapi.json` | API documentation |
 
 ---
 
-## Routing Priority
+## Deployment / Update Steps
 
-Caddy processes routes in order:
+### Apply Canonical Config
 
-1. **Specific paths first** (`/mcp/*`, `/api/v1/memory/*`)
-2. **Then default** (everything else → l9-api:8000)
+```bash
+# SSH to VPS
+ssh root@157.180.73.53
 
-This ensures MCP endpoints are routed correctly before falling back to L9 API.
+# Backup current config
+sudo cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.bak
+
+# Write canonical config
+sudo tee /etc/caddy/Caddyfile << 'EOF'
+# L9 Main API
+l9.quantumaipartners.com {
+    encode gzip
+    reverse_proxy 127.0.0.1:8000
+}
+
+# Cursor MCP endpoint (IP:9001)
+157.180.73.53:9001 {
+    encode gzip
+    reverse_proxy 127.0.0.1:8000
+}
+EOF
+
+# Validate and reload
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+```
+
+### If Only Fixing 502 Error (Minimal Change)
+
+If Caddy still has old `/mcp/*` → `9002` routing:
+
+```bash
+# One-liner fix: remove /mcp/* special routing (all goes to 8000)
+sudo sed -i 's|reverse_proxy /mcp/\* 127.0.0.1:9002|reverse_proxy 127.0.0.1:8000|' /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+```
 
 ---
 
 ## Testing
 
-### Test IP-based routing (157.180.73.53:9001):
+### Test via domain (443):
 
 ```bash
-curl http://157.180.73.53:9001/health
-curl -H "Authorization: Bearer $MCP_API_KEY_C" \
-  http://157.180.73.53:9001/mcp/tools
+# Health
+curl -s https://l9.quantumaipartners.com/health | jq .
+
+# MCP tools (requires auth)
+curl -s -H "Authorization: Bearer $MCP_API_KEY_C" \
+  https://l9.quantumaipartners.com/mcp/tools | jq .
+
+# MCP call
+curl -s -X POST https://l9.quantumaipartners.com/mcp/call \
+  -H "Authorization: Bearer $MCP_API_KEY_C" \
+  -H "Content-Type: application/json" \
+  -d '{"tool_name": "get_memory_stats", "arguments": {"user_id": "l9-shared"}}' | jq .
 ```
 
-### Test domain-based routing (l9.quantumaipartners.com):
+### Test via IP:9001:
 
 ```bash
-curl https://l9.quantumaipartners.com/health
-curl -H "Authorization: Bearer $MCP_API_KEY_C" \
-  https://l9.quantumaipartners.com/mcp/tools
+# Health (bypasses domain, uses IP directly)
+curl -ks https://157.180.73.53:9001/health | jq .
+
+# MCP tools
+curl -ks -H "Authorization: Bearer $MCP_API_KEY_C" \
+  https://157.180.73.53:9001/mcp/tools | jq .
 ```
 
 ---
 
 ## Troubleshooting
 
-### Route Not Working
+### HTTP 502 Bad Gateway
 
+**Cause:** Caddy routing to a backend that doesn't exist (e.g., port 9002)
+
+**Fix:**
 ```bash
-# Check Caddy logs
-sudo journalctl -u caddy -n 50
+# Check current Caddyfile for 9002 references
+grep 9002 /etc/caddy/Caddyfile
 
-# Verify MCP server is running
-sudo systemctl status l9-mcp
-curl http://127.0.0.1:9001/health
+# If found, fix routing to use 8000
+sudo sed -i 's|127.0.0.1:9002|127.0.0.1:8000|g' /etc/caddy/Caddyfile
+sudo systemctl reload caddy
 ```
 
-### SSL/TLS Issues
+### HTTP 404 Not Found on /mcp/*
+
+**Cause:** MCP endpoints not integrated into `l9-api`
+
+**Fix:** Ensure `api/routes/mcp.py` exists and is registered in `api/server.py`:
+```python
+# In api/server.py
+from api.routes.mcp import router as mcp_router
+app.include_router(mcp_router)
+```
+
+Then rebuild and restart:
+```bash
+cd /opt/l9
+docker compose build l9-api
+docker compose up -d l9-api
+```
+
+### Check Caddy Logs
 
 ```bash
-# Check Caddy cert status
-sudo caddy list-certificates
+sudo journalctl -u caddy -n 50 --no-pager
+```
 
-# Force cert renewal (if needed)
-sudo systemctl restart caddy
+### Check l9-api Logs
+
+```bash
+docker compose logs -f l9-api --tail 50
 ```
 
 ---
 
-**Last Updated:** 2026-01-09
+## Why Unified Architecture?
 
+- **Single codebase** — MCP endpoints live in `api/routes/mcp.py`, same FastAPI app
+- **Shared PostgreSQL substrate** — Uses `DATABASE_URL` / `MEMORY_DSN` pointing to `l9_memory`
+- **Shared authentication** — Same API key infrastructure for L and Cursor
+- **Simpler deployment** — One Docker container (`l9-api`), no separate MCP service
+- **Same ingestion pipeline** — MCP memory writes go through `MemorySubstrateService`
+
+---
+
+## Legacy Notes
+
+> **⚠️ Deprecated:** Previous documentation referenced a standalone MCP server on port 9002.
+> This architecture was **never deployed** on the VPS. All MCP functionality is integrated into
+> the unified `l9-api` service on port 8000.
+> 
+> **Do not create port 9002 routing** — it will cause 502 errors. All traffic routes to 8000.
+
+---
+
+## Official Configuration (Locked 2026-01-12)
+
+**Verified Working Configuration:**
+- **URL:** `https://157.180.73.53:9001` (IP-based) or `https://l9.quantumaipartners.com` (domain)
+- **Backend:** `127.0.0.1:8000` (l9-api Docker container)
+- **API Key:** `MCP_API_KEY_C` (for Cursor IDE)
+
+See `docs/MCP-MEMORY-CAPSULE.md` for complete wiring documentation.
+
+---

@@ -546,26 +546,59 @@ class SubstrateRepository:
         self,
         agent_id: str,
         graph_state: dict[str, Any],
+        reason: str = "manual",
     ) -> UUID:
-        """Save or update a graph checkpoint."""
+        """
+        Save a graph checkpoint.
+
+        After migration 0014, supports multi-checkpoint per agent.
+        Falls back to upsert if 'reason' column doesn't exist (pre-0014 schema).
+
+        Args:
+            agent_id: Agent identifier
+            graph_state: State dict to persist
+            reason: Checkpoint trigger reason
+
+        Returns:
+            Checkpoint UUID
+        """
         checkpoint_id = uuid4()
         async with self.acquire() as conn:
-            # Upsert based on agent_id
-            await conn.execute(
-                """
-                INSERT INTO graph_checkpoints (checkpoint_id, agent_id, graph_state, updated_at)
-                VALUES ($1, $2, $3, $4)
-                ON CONFLICT (agent_id) 
-                DO UPDATE SET 
-                    graph_state = EXCLUDED.graph_state,
-                    updated_at = EXCLUDED.updated_at
-                """,
-                checkpoint_id,
-                agent_id,
-                json.dumps(graph_state),
-                datetime.utcnow(),
-            )
-            logger.debug(f"Saved checkpoint for agent {agent_id}")
+            # Try INSERT with reason column (post-0014 schema)
+            try:
+                await conn.execute(
+                    """
+                    INSERT INTO graph_checkpoints (checkpoint_id, agent_id, graph_state, reason, updated_at)
+                    VALUES ($1, $2, $3, $4, $5)
+                    """,
+                    checkpoint_id,
+                    agent_id,
+                    json.dumps(graph_state),
+                    reason,
+                    datetime.utcnow(),
+                )
+            except Exception as e:
+                # Fallback: pre-0014 schema without reason column (upsert)
+                if "reason" in str(e).lower() or "column" in str(e).lower():
+                    logger.debug("Falling back to upsert (pre-0014 schema)")
+                    await conn.execute(
+                        """
+                        INSERT INTO graph_checkpoints (checkpoint_id, agent_id, graph_state, updated_at)
+                        VALUES ($1, $2, $3, $4)
+                        ON CONFLICT (agent_id)
+                        DO UPDATE SET
+                            graph_state = EXCLUDED.graph_state,
+                            updated_at = EXCLUDED.updated_at
+                        """,
+                        checkpoint_id,
+                        agent_id,
+                        json.dumps(graph_state),
+                        datetime.utcnow(),
+                    )
+                else:
+                    raise
+
+            logger.debug(f"Saved checkpoint for agent {agent_id}", reason=reason)
             return checkpoint_id
 
     async def get_checkpoint(self, agent_id: str) -> Optional[GraphCheckpointRow]:
@@ -594,15 +627,14 @@ class SubstrateRepository:
         """
         List checkpoints for an agent.
 
-        Note: Current schema uses UNIQUE(agent_id) so returns at most 1 checkpoint.
-        Full multi-checkpoint support requires schema migration.
+        Supports both pre-0014 (single checkpoint) and post-0014 (multi-checkpoint) schemas.
 
         Args:
             agent_id: Agent identifier
             limit: Maximum checkpoints to return
 
         Returns:
-            List of GraphCheckpointRow (currently max 1 due to schema)
+            List of GraphCheckpointRow ordered by updated_at DESC
         """
         async with self.acquire() as conn:
             rows = await conn.fetch(
@@ -615,27 +647,38 @@ class SubstrateRepository:
                 agent_id,
                 limit,
             )
-            return [
-                GraphCheckpointRow(
-                    checkpoint_id=row["checkpoint_id"],
-                    agent_id=row["agent_id"],
-                    graph_state=json.loads(row["graph_state"])
-                    if isinstance(row["graph_state"], str)
-                    else row["graph_state"],
-                    updated_at=row["updated_at"],
+            checkpoints = []
+            for row in rows:
+                # Parse graph_state
+                graph_state = row["graph_state"]
+                if isinstance(graph_state, str):
+                    graph_state = json.loads(graph_state)
+
+                # Handle optional fields (post-0014 schema)
+                reason = row.get("reason") if "reason" in row.keys() else None
+                checkpoint_number = row.get("checkpoint_number") if "checkpoint_number" in row.keys() else None
+
+                checkpoints.append(
+                    GraphCheckpointRow(
+                        checkpoint_id=row["checkpoint_id"],
+                        agent_id=row["agent_id"],
+                        graph_state=graph_state,
+                        updated_at=row["updated_at"],
+                        reason=reason,
+                        checkpoint_number=checkpoint_number,
+                    )
                 )
-                for row in rows
-            ]
+            return checkpoints
 
     async def delete_checkpoint(self, agent_id: str) -> bool:
         """
-        Delete checkpoint for an agent.
+        Delete all checkpoints for an agent.
 
         Args:
             agent_id: Agent identifier
 
         Returns:
-            True if checkpoint was deleted, False if not found
+            True if any checkpoint was deleted, False if none found
         """
         async with self.acquire() as conn:
             result = await conn.execute(
@@ -644,8 +687,51 @@ class SubstrateRepository:
             )
             deleted = result.split()[-1] != "0"
             if deleted:
-                logger.debug(f"Deleted checkpoint for agent {agent_id}")
+                logger.debug(f"Deleted checkpoints for agent {agent_id}")
             return deleted
+
+    async def delete_old_checkpoints(
+        self,
+        agent_id: str,
+        keep_last: int = 10,
+    ) -> int:
+        """
+        Delete old checkpoints, keeping the most recent N.
+
+        For retention policy: keeps most recent checkpoints, deletes older ones.
+
+        Args:
+            agent_id: Agent identifier
+            keep_last: Number of recent checkpoints to keep
+
+        Returns:
+            Number of checkpoints deleted
+        """
+        async with self.acquire() as conn:
+            # Delete all checkpoints except the most recent keep_last
+            result = await conn.execute(
+                """
+                DELETE FROM graph_checkpoints
+                WHERE agent_id = $1
+                AND checkpoint_id NOT IN (
+                    SELECT checkpoint_id
+                    FROM graph_checkpoints
+                    WHERE agent_id = $1
+                    ORDER BY updated_at DESC
+                    LIMIT $2
+                )
+                """,
+                agent_id,
+                keep_last,
+            )
+            # Parse "DELETE N" to get count
+            deleted_count = int(result.split()[-1])
+            if deleted_count > 0:
+                logger.debug(
+                    f"Deleted {deleted_count} old checkpoints for agent {agent_id}",
+                    keep_last=keep_last,
+                )
+            return deleted_count
 
     # =========================================================================
     # Agent Log Operations

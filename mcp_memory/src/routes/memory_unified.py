@@ -2,6 +2,12 @@
 
 This replaces the deprecated memory.* tables with the unified L9 memory substrate.
 Uses packet_store for event log and memory_embeddings for vector storage.
+
+NOW USES MAIN L9 INGESTION PIPELINE:
+- Routes through MemorySubstrateService.write_packet() for full DAG pipeline
+- Gets graph sync (Neo4j), fact extraction, reasoning traces automatically
+- Uses same OpenAI embeddings and processing as L agent
+- Falls back to direct DB access if service not initialized
 """
 
 import structlog
@@ -11,7 +17,7 @@ import uuid
 import asyncpg
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 import asyncio
 
 from src.db import fetch_all, fetch_one, execute
@@ -20,6 +26,11 @@ from src.config import settings
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
+
+
+def get_substrate_service(request: Request):
+    """Get MemorySubstrateService from app state (if initialized)."""
+    return getattr(request.app.state, "substrate_service", None)
 
 
 def map_mcp_scope_to_db_scope(mcp_scope: str) -> str:
@@ -64,13 +75,22 @@ async def save_memory_handler(
     caller_id: str = "unknown",
     creator: str = "unknown",
     source: str = "unknown",
+    # Optional: substrate service from app state (for main ingestion pipeline)
+    substrate_service: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
-    Save memory to unified L9 substrate (packet_store + memory_embeddings).
+    Save memory to unified L9 substrate via MAIN INGESTION PIPELINE.
     
-    Uses:
-    - packet_store: Central event log with PacketEnvelope JSONB
-    - memory_embeddings: Vector storage with packet_id FK
+    If substrate_service is provided, uses MemorySubstrateService.write_packet()
+    which runs the full DAG pipeline:
+    - Validation
+    - Semantic embedding (OpenAI)
+    - Graph sync (Neo4j)
+    - Fact extraction
+    - Reasoning traces
+    - Checkpoint
+    
+    Falls back to direct DB access if service not available.
     
     See: mcp_memory/memory-setup-instructions.md for governance spec.
     
@@ -79,161 +99,304 @@ async def save_memory_handler(
         caller_id: "L" or "C" (from API key)
         creator: "L-CTO" or "Cursor-IDE" (server-enforced)
         source: "l9-kernel" or "cursor-ide" (server-enforced)
+        substrate_service: Optional MemorySubstrateService instance
     """
     try:
-        # Generate packet ID
-        packet_id = uuid.uuid4()
-        thread_id = uuid.uuid4()  # Daily session thread (could be passed in)
-        timestamp = datetime.utcnow()
+        # Try main ingestion pipeline first (if service available)
+        if substrate_service:
+            return await _save_via_main_pipeline(
+                user_id=user_id,
+                content=content,
+                kind=kind,
+                scope=scope,
+                duration=duration,
+                tags=tags,
+                importance=importance,
+                metadata=metadata,
+                caller_id=caller_id,
+                creator=creator,
+                source=source,
+                substrate_service=substrate_service,
+            )
         
-        # Map MCP scope to DB scope
-        db_scope = map_mcp_scope_to_db_scope(scope)
-        
-        # Generate embedding
-        embed_start = time.time()
-        embedding_vector = await embed_text(content)
-        embed_time_ms = (time.time() - embed_start) * 1000
-        
-        # Build PacketEnvelope structure
-        # See: memory/substrate_models.py for PacketEnvelope schema
-        # Perplexity integration: Add project_id (default: 'l9' for L9 repo, NULL for global)
-        project_id = None
-        if metadata:
-            project_id = metadata.get("project_id")
-        if project_id is None:
-            # Default: 'l9' for developer/l-private scope, NULL for global
-            project_id = "l9" if scope != "global" else None
-        
-        envelope = {
-            "packet_id": str(packet_id),
-            "packet_type": f"memory_write_{kind}",  # e.g., "memory_write_preference"
-            "timestamp": timestamp.isoformat(),
-            "payload": {
-                "content": content,
-                "kind": kind,
-                "scope": scope,  # MCP scope preserved in payload
-                "project_id": project_id,  # Perplexity: multi-project isolation
-            },
-            "metadata": {
-                "creator": creator,  # Enforced server-side
-                "source": source,    # Enforced server-side
-                "caller": caller_id,
-                "agent": "l-cto" if caller_id == "L" else "cursor-ide",
-                "user_id": user_id,
-                "project_id": project_id,  # Perplexity: store in metadata for querying
-                "importance": importance,
-                "duration": duration,
-                **({} if metadata is None else {k: v for k, v in metadata.items() if k != "project_id"}),
-            },
-            "thread_id": str(thread_id),
-            "tags": tags or [],
-        }
-        
-        # Calculate TTL based on duration
-        ttl = None
-        if duration == "short":
-            ttl = timestamp + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
-        elif duration == "medium":
-            ttl = timestamp + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
-        # long duration: no TTL (permanent)
-        
-        # Insert into packet_store
-        insert_packet_query = """
-        INSERT INTO packet_store (
-            packet_id, packet_type, envelope, timestamp,
-            thread_id, tags, ttl, scope, importance_score,
-            session_id, content_hash
-        )
-        VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING packet_id, timestamp;
-        """
-        
-        # Compute content hash for deduplication
-        import hashlib
-        content_hash = hashlib.sha256(content.encode()).hexdigest()
-        
-        packet_result = await fetch_one(
-            insert_packet_query,
-            packet_id,
-            envelope["packet_type"],
-            json.dumps(envelope),
-            timestamp,
-            thread_id,
-            tags or [],
-            ttl,
-            db_scope,
-            importance,
-            metadata.get("session_id") if metadata else None,
-            content_hash,
-        )
-        
-        # Insert embedding into memory_embeddings
-        # See: migrations/0008_memory_substrate_10x.sql for schema
-        insert_embedding_query = """
-        INSERT INTO memory_embeddings (
-            packet_id, embedding_type, vector, chunk_text, metadata
-        )
-        VALUES ($1, $2, $3::vector, $4, $5::jsonb)
-        RETURNING embedding_id;
-        """
-        
-        embedding_metadata = {
-            "kind": kind,
-            "scope": scope,
-            "duration": duration,
-            "importance": importance,
-            "embed_time_ms": embed_time_ms,
-        }
-        
-        # Convert embedding vector to string format for pgvector
-        # pgvector expects format: '[1.0,2.0,3.0]'
-        vector_str = f"[{','.join(str(v) for v in embedding_vector)}]"
-        
-        embedding_result = await fetch_one(
-            insert_embedding_query,
-            packet_id,
-            "content",  # embedding_type: 'content', 'context', 'entity', 'summary', 'reasoning'
-            vector_str,
-            content[:500],  # chunk_text (first 500 chars for debugging)
-            json.dumps(embedding_metadata),
-        )
-        
-        # Audit logging: Use packet_store metadata (already stored above)
-        # The packet_store entry IS the audit log - metadata contains caller, project_id, scope
-        # For tool execution audit, use tool_audit_log (see mcp_server.py handle_tool_call)
-        
-        logger.info(
-            "Memory saved to unified substrate",
-            packet_id=str(packet_id),
-            scope=scope,
-            db_scope=db_scope,
+        # Fallback to direct DB access (backward compatibility)
+        logger.debug("Using direct DB access (substrate service not available)")
+        return await _save_via_direct_db(
+            user_id=user_id,
+            content=content,
             kind=kind,
-            caller=caller_id,
-            project_id=project_id,
+            scope=scope,
+            duration=duration,
+            tags=tags,
+            importance=importance,
+            metadata=metadata,
+            caller_id=caller_id,
+            creator=creator,
+            source=source,
         )
-        
-        return {
-            "packet_id": str(packet_id),
-            "embedding_id": str(embedding_result["embedding_id"]),
-            "user_id": user_id,
+    except Exception as e:
+        logger.exception("Error saving memory", error=str(e))
+        raise
+
+
+async def _save_via_main_pipeline(
+    user_id: str,
+    content: str,
+    kind: str,
+    scope: str,
+    duration: str,
+    tags: Optional[List[str]],
+    importance: float,
+    metadata: Optional[Dict[str, Any]],
+    caller_id: str,
+    creator: str,
+    source: str,
+    substrate_service: Any,
+) -> Dict[str, Any]:
+    """Save memory via main L9 ingestion pipeline (full DAG)."""
+    from memory.substrate_models import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+    from datetime import timedelta
+    
+    # Map MCP scope to DB scope
+    db_scope = map_mcp_scope_to_db_scope(scope)
+    
+    # Determine project_id
+    project_id = None
+    if metadata:
+        project_id = metadata.get("project_id")
+    if project_id is None:
+        project_id = "l9" if scope != "global" else None
+    
+    # Calculate TTL based on duration
+    ttl = None
+    if duration == "short":
+        ttl = datetime.utcnow() + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
+    elif duration == "medium":
+        ttl = datetime.utcnow() + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
+    
+    # Build metadata dict (not PacketMetadata model - that's for envelope metadata)
+    envelope_metadata = {
+        "creator": creator,
+        "source": source,
+        "caller": caller_id,
+        "agent": "l-cto" if caller_id == "L" else "cursor-ide",
+        "user_id": user_id,
+        "project_id": project_id,
+        "importance": importance,
+        "duration": duration,
+        "scope": scope,  # MCP scope preserved
+        "db_scope": db_scope,  # DB scope for filtering
+        **(metadata or {}),
+    }
+    
+    # Build provenance
+    provenance = PacketProvenance(
+        source=source,
+        source_agent="l-cto" if caller_id == "L" else "cursor-ide",
+    )
+    
+    # Create PacketEnvelopeIn for main ingestion pipeline
+    packet_in = PacketEnvelopeIn(
+        packet_type=f"memory.{kind}",  # e.g., "memory.preference", "memory.lesson"
+        payload={
+            "content": content,
             "kind": kind,
             "scope": scope,
-            "content": content[:100] + "..." if len(content) > 100 else content,
+            "project_id": project_id,
+        },
+        metadata=PacketMetadata(
+            schema_version="2.0.0",
+            agent="l-cto" if caller_id == "L" else "cursor-ide",
+            domain="l9",
+            **envelope_metadata,  # Extra fields allowed
+        ),
+        provenance=provenance,
+        tags=tags or [],
+        ttl=ttl,
+    )
+    
+    # Use main ingestion pipeline (runs full DAG)
+    start_time = time.time()
+    result = await substrate_service.write_packet(packet_in)
+    ingest_time_ms = (time.time() - start_time) * 1000
+    
+    if result.status != "ok":
+        raise HTTPException(
+            status_code=500,
+            detail=f"Memory ingestion failed: {result.error_message}",
+        )
+    
+    logger.info(
+        "Memory saved via main ingestion pipeline",
+        packet_id=str(result.packet_id),
+        scope=scope,
+        kind=kind,
+        caller=caller_id,
+        written_tables=result.written_tables,
+        ingest_time_ms=ingest_time_ms,
+    )
+    
+    return {
+        "packet_id": str(result.packet_id),
+        "user_id": user_id,
+        "kind": kind,
+        "scope": scope,
+        "content": content[:100] + "..." if len(content) > 100 else content,
+        "importance": importance,
+        "created_at": datetime.utcnow().isoformat(),
+        "written_tables": result.written_tables,
+        "ingest_time_ms": ingest_time_ms,
+        "pipeline": "main_dag",  # Indicates full pipeline was used
+    }
+
+
+async def _save_via_direct_db(
+    user_id: str,
+    content: str,
+    kind: str,
+    scope: str,
+    duration: str,
+    tags: Optional[List[str]],
+    importance: float,
+    metadata: Optional[Dict[str, Any]],
+    caller_id: str,
+    creator: str,
+    source: str,
+) -> Dict[str, Any]:
+    """Fallback: Save memory via direct DB access (legacy path)."""
+    # Generate packet ID
+    packet_id = uuid.uuid4()
+    thread_id = uuid.uuid4()  # Daily session thread (could be passed in)
+    timestamp = datetime.utcnow()
+    
+    # Map MCP scope to DB scope
+    db_scope = map_mcp_scope_to_db_scope(scope)
+    
+    # Generate embedding
+    embed_start = time.time()
+    embedding_vector = await embed_text(content)
+    embed_time_ms = (time.time() - embed_start) * 1000
+    
+    # Build PacketEnvelope structure
+    project_id = None
+    if metadata:
+        project_id = metadata.get("project_id")
+    if project_id is None:
+        project_id = "l9" if scope != "global" else None
+    
+    envelope = {
+        "packet_id": str(packet_id),
+        "packet_type": f"memory_write_{kind}",
+        "timestamp": timestamp.isoformat(),
+        "payload": {
+            "content": content,
+            "kind": kind,
+            "scope": scope,
+            "project_id": project_id,
+        },
+        "metadata": {
+            "creator": creator,
+            "source": source,
+            "caller": caller_id,
+            "agent": "l-cto" if caller_id == "L" else "cursor-ide",
+            "user_id": user_id,
+            "project_id": project_id,
             "importance": importance,
-            "created_at": timestamp.isoformat(),
-            "embed_time_ms": embed_time_ms,
-        }
-        
-    except asyncpg.PostgresError as e:
-        error_code = getattr(e, 'code', None)
-        logger.error("Database error saving memory", error=str(e), error_code=error_code)
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-    except ValueError as e:
-        logger.warning("Validation error saving memory", error=str(e))
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.exception("Unexpected error saving memory to unified substrate", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+            "duration": duration,
+            **({} if metadata is None else {k: v for k, v in metadata.items() if k != "project_id"}),
+        },
+        "thread_id": str(thread_id),
+        "tags": tags or [],
+    }
+    
+    # Calculate TTL based on duration
+    ttl = None
+    if duration == "short":
+        ttl = timestamp + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
+    elif duration == "medium":
+        ttl = timestamp + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
+    
+    # Insert into packet_store
+    insert_packet_query = """
+    INSERT INTO packet_store (
+        packet_id, packet_type, envelope, timestamp,
+        thread_id, tags, ttl, scope, importance_score,
+        session_id, content_hash
+    )
+    VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, $9, $10, $11)
+    RETURNING packet_id, timestamp;
+    """
+    
+    # Compute content hash for deduplication
+    import hashlib
+    content_hash = hashlib.sha256(content.encode()).hexdigest()
+    
+    packet_result = await fetch_one(
+        insert_packet_query,
+        packet_id,
+        envelope["packet_type"],
+        json.dumps(envelope),
+        timestamp,
+        thread_id,
+        tags or [],
+        ttl,
+        db_scope,
+        importance,
+        metadata.get("session_id") if metadata else None,
+        content_hash,
+    )
+    
+    # Insert embedding into memory_embeddings
+    insert_embedding_query = """
+    INSERT INTO memory_embeddings (
+        packet_id, embedding_type, vector, chunk_text, metadata
+    )
+    VALUES ($1, $2, $3::vector, $4, $5::jsonb)
+    RETURNING embedding_id;
+    """
+    
+    embedding_metadata = {
+        "kind": kind,
+        "scope": scope,
+        "duration": duration,
+        "importance": importance,
+        "embed_time_ms": embed_time_ms,
+    }
+    
+    # Convert embedding vector to string format for pgvector
+    vector_str = f"[{','.join(str(v) for v in embedding_vector)}]"
+    
+    embedding_result = await fetch_one(
+        insert_embedding_query,
+        packet_id,
+        "content",
+        vector_str,
+        content[:500],
+        json.dumps(embedding_metadata),
+    )
+    
+    logger.info(
+        "Memory saved via direct DB (fallback)",
+        packet_id=str(packet_id),
+        scope=scope,
+        db_scope=db_scope,
+        kind=kind,
+        caller=caller_id,
+        project_id=project_id,
+    )
+    
+    return {
+        "packet_id": str(packet_id),
+        "embedding_id": str(embedding_result["embedding_id"]),
+        "user_id": user_id,
+        "kind": kind,
+        "scope": scope,
+        "content": content[:100] + "..." if len(content) > 100 else content,
+        "importance": importance,
+        "created_at": timestamp.isoformat(),
+        "embed_time_ms": embed_time_ms,
+        "pipeline": "direct_db",  # Indicates fallback path was used
+    }
 
 
 async def search_memory_handler(
@@ -393,8 +556,12 @@ async def search_memory_handler(
 # =============================================================================
 
 @router.post("/save")
-async def save_memory_route(req: Dict[str, Any]) -> Dict[str, Any]:
+async def save_memory_route(
+    req: Dict[str, Any],
+    request: Request,
+) -> Dict[str, Any]:
     """REST endpoint for saving memory."""
+    substrate_service = get_substrate_service(request)
     return await save_memory_handler(
         user_id=req.get("user_id", settings.L_CTO_USER_ID),
         content=req["content"],
@@ -407,6 +574,7 @@ async def save_memory_route(req: Dict[str, Any]) -> Dict[str, Any]:
         caller_id=req.get("caller_id", "unknown"),
         creator=req.get("creator", "unknown"),
         source=req.get("source", "unknown"),
+        substrate_service=substrate_service,
     )
 
 

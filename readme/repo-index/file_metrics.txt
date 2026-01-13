@@ -16,11 +16,11 @@
 | `world_model/knowledge_ingestor.py` | 1674 | 7 | 41 | 0 |
 | `memory/slack_ingest.py` | 1578 | 0 | 7 | 10 |
 | `world_model/causal_mapper.py` | 1517 | 11 | 46 | 0 |
+| `mcp_memory/src/routes/memory_unified.py` | 1409 | 0 | 3 | 16 |
 | `core/tools/tool_graph.py` | 1369 | 2 | 2 | 13 |
 | `world_model/reflection_memory.py` | 1338 | 7 | 39 | 0 |
 | `igor/audit-tools/tools_export_repo_indexes.py` | 1328 | 0 | 21 | 0 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py` | 1318 | 6 | 42 | 0 |
-| `mcp_memory/src/routes/memory_unified.py` | 1241 | 0 | 2 | 14 |
 | `tests/core/agents/test_executor.py` | 1220 | 4 | 25 | 24 |
 | `orchestration/unified_controller.py` | 1205 | 6 | 15 | 16 |
 | `orchestration/plan_executor.py` | 1091 | 6 | 16 | 20 |
@@ -34,6 +34,7 @@
 | `docs/_archived/legacy_slack/webhook_slack.py` | 987 | 1 | 4 | 3 |
 | `api/webhook_slack.py` | 987 | 1 | 4 | 3 |
 | `core/singleton_registry.py` | 979 | 3 | 22 | 3 |
+| `memory/substrate_repository.py` | 976 | 1 | 3 | 25 |
 | `igor/audit-tools/Current Config/runtime_kernel_loader.py` | 961 | 2 | 24 | 1 |
 | `orchestration/cell_orchestrator.py` | 948 | 6 | 21 | 7 |
 | `world_model/world_model_service.py` | 941 | 5 | 15 | 1 |
@@ -42,7 +43,6 @@
 | `memory/substrate_service.py` | 908 | 1 | 5 | 19 |
 | `orchestration/long_plan_graph.py` | 898 | 1 | 2 | 9 |
 | `igor/audit-memory/mcp_memory_src_routes_memory.py` | 891 | 0 | 0 | 14 |
-| `memory/substrate_repository.py` | 890 | 1 | 3 | 24 |
 | `ir_engine/meta_ir.py` | 890 | 56 | 9 | 0 |
 | `igor/audit-tools/core_tools_registry_adapter.py` | 872 | 3 | 11 | 3 |
 | `tests/memory/test_e2e_memory_audit.py` | 855 | 1 | 5 | 16 |
@@ -89,11 +89,12 @@
 | `scripts/audit/tier1/audit_infrastructure_health.py` | 617 | 10 | 7 | 6 |
 | `clients/memory_client.py` | 613 | 6 | 3 | 16 |
 | `core/worldmodel/service.py` | 600 | 1 | 2 | 16 |
+| `mcp_memory/src/mcp_server.py` | 595 | 2 | 1 | 1 |
 | `tests/codegen/test_codegen_pipeline.py` | 594 | 6 | 26 | 0 |
 | `email_agent/gmail_client.py` | 592 | 1 | 10 | 0 |
 | `ci/validate_spec_v25.py` | 590 | 2 | 24 | 0 |
 | `tests/ir_engine/test_ir_packet_formats.py` | 590 | 9 | 28 | 0 |
-| `mcp_memory/src/mcp_server.py` | 589 | 2 | 1 | 1 |
+| `memory/ingestion.py` | 589 | 1 | 8 | 10 |
 | `orchestration/ws_task_router.py` | 583 | 4 | 13 | 4 |
 | `core/commands/executor.py` | 579 | 1 | 1 | 11 |
 | `tests/integration/test_igor_commands.py` | 578 | 6 | 19 | 13 |
@@ -118,11 +119,10 @@
 | `scripts/memory/audit_graphs.py` | 533 | 0 | 1 | 5 |
 | `scripts/audit/tier1/audit_capability_inventory.py` | 531 | 7 | 7 | 0 |
 | `ir_engine/deliberation_cell.py` | 531 | 3 | 8 | 4 |
+| `memory/substrate_models.py` | 529 | 22 | 2 | 0 |
 | `igor/audit-memory/memory_graph_client.py` | 528 | 1 | 2 | 13 |
-| `memory/substrate_models.py` | 527 | 22 | 2 | 0 |
 | `scripts/memory/bootstrap_neo4j_schema.py` | 527 | 0 | 0 | 7 |
 | `igor/audit-memory/api_memory_router.py` | 527 | 5 | 1 | 15 |
-| `memory/ingestion.py` | 523 | 1 | 7 | 9 |
 | `igor/audit-memory/memory_ingestion.py` | 523 | 1 | 7 | 9 |
 | `tests/unit/test_lcto_bootstrap.py` | 522 | 6 | 30 | 0 |
 | `services/research/research_graph.py` | 518 | 0 | 2 | 7 |
@@ -145,6 +145,7 @@
 | `simulation/scenario_loader.py` | 474 | 4 | 14 | 0 |
 | `memory/insight_extraction.py` | 473 | 1 | 8 | 4 |
 | `igor/audit-memory/memory_insight_extraction.py` | 473 | 1 | 8 | 4 |
+| `memory/agent_persistence.py` | 471 | 2 | 7 | 6 |
 | `agents/cursor/integrations/cursor_langgraph.py` | 468 | 6 | 6 | 5 |
 | `ir_engine/ir_to_plan_adapter.py` | 465 | 3 | 14 | 0 |
 | `scripts/audit/audit_shared_core.py` | 462 | 10 | 28 | 0 |
@@ -153,7 +154,6 @@
 | `ir_engine/ir_schema.py` | 461 | 14 | 28 | 0 |
 | `igor/audit-tools/Current Config/agents_l_cto.py` | 460 | 1 | 9 | 2 |
 | `docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py` | 459 | 3 | 3 | 12 |
-| `memory/agent_persistence.py` | 457 | 2 | 7 | 6 |
 | `agents/codegenagent/file_emitter.py` | 457 | 3 | 16 | 0 |
 | `clients/world_model_client.py` | 455 | 7 | 2 | 14 |
 | `codegen/scripts/generate_spec.py` | 452 | 1 | 8 | 3 |
@@ -174,6 +174,7 @@
 | `api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py` | 438 | 4 | 4 | 7 |
 | `memory/housekeeping.py` | 437 | 1 | 5 | 7 |
 | `igor/audit-memory/memory_housekeeping.py` | 437 | 1 | 5 | 7 |
+| `core/governance/approval_manager.py` | 436 | 4 | 7 | 7 |
 | `api/adapters/email_adapter/adapters/email_adapter_adapter.py` | 436 | 4 | 4 | 7 |
 | `api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py` | 436 | 4 | 4 | 7 |
 | `scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py` | 435 | 7 | 7 | 5 |
@@ -227,12 +228,12 @@
 | `ir_engine/simulation_router.py` | 379 | 4 | 10 | 3 |
 | `collaborative_cells/reviewer_cell.py` | 376 | 1 | 3 | 6 |
 | `tests/core/schemas/test_schema_registry.py` | 376 | 7 | 20 | 0 |
+| `mcp_memory/tests/test_main_pipeline_integration.py` | 376 | 0 | 0 | 8 |
 | `collaborative_cells/coder_cell.py` | 373 | 1 | 3 | 6 |
 | `codegen/code-gen-files/examples_symbolic_computation.py` | 373 | 1 | 3 | 14 |
 | `core/compliance/audit_log.py` | 372 | 1 | 1 | 5 |
 | `tests/integration/test_kernel_hot_reload.py` | 372 | 6 | 14 | 4 |
 | `services/research/memory_adapter.py` | 372 | 1 | 6 | 6 |
-| `core/governance/approval_manager.py` | 370 | 4 | 7 | 6 |
 | `core/governance/credentials_policy.py` | 369 | 4 | 10 | 0 |
 | `core/security/permission_graph.py` | 367 | 1 | 0 | 19 |
 | `api/memory/cache.py` | 367 | 3 | 0 | 13 |
@@ -295,6 +296,7 @@
 | `orchestrators/agent_execution/orchestrator.py` | 325 | 1 | 1 | 3 |
 | `tests/mocks/world_model_mocks.py` | 324 | 3 | 3 | 8 |
 | `core/governance/loader.py` | 323 | 3 | 13 | 0 |
+| `mcp_memory/src/main.py` | 323 | 1 | 7 | 10 |
 | `core/tools/symbolic_tool.py` | 321 | 1 | 4 | 5 |
 | `core/integration/graph_to_wm_sync.py` | 321 | 1 | 4 | 8 |
 | `agents/coder_agent_a.py` | 321 | 1 | 2 | 6 |
@@ -338,7 +340,6 @@
 | `scripts/research/delegate_deep_research.py` | 287 | 0 | 2 | 3 |
 | `core/observability/context_strategies.py` | 286 | 7 | 4 | 7 |
 | `agents/architect_agent_a.py` | 285 | 1 | 2 | 4 |
-| `mcp_memory/src/main.py` | 285 | 1 | 7 | 10 |
 | `core/schemas/capabilities.py` | 284 | 3 | 5 | 0 |
 | `ci/check_no_deprecated_services.py` | 284 | 1 | 4 | 0 |
 | `igor/audit-tools/core_schemas_capabilities.py` | 284 | 3 | 5 | 0 |
@@ -786,5 +787,5 @@
 | `igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py` | 51 | 6 | 0 | 0 |
 | `igor/audit-memory/orchestrators_memory_interface.py` | 51 | 4 | 0 | 1 |
 
-# Total: 780 Python files (>50 lines)
-# Total lines: 254,241
+# Total: 781 Python files (>50 lines)
+# Total lines: 255,063

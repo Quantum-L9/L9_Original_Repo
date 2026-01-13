@@ -47,10 +47,20 @@ class IngestionPipeline:
     6. Tag assignment
     """
 
+    # Critical packet types that trigger checkpoints per memory_spec_v3.0.yaml
+    CRITICAL_PACKET_TYPES = {
+        "critical_decision",
+        "igor_approval",
+        "governance_action",
+        "deployment",
+        "rollback",
+    }
+
     def __init__(
         self,
         repository=None,
         semantic_service=None,
+        agent_persistence=None,
         auto_embed: bool = True,
         auto_tag: bool = True,
     ):
@@ -60,11 +70,13 @@ class IngestionPipeline:
         Args:
             repository: SubstrateRepository instance
             semantic_service: SemanticService for embeddings
+            agent_persistence: AgentPersistenceService for checkpoint triggers
             auto_embed: Automatically embed text content
             auto_tag: Automatically generate tags from content
         """
         self._repository = repository
         self._semantic_service = semantic_service
+        self._agent_persistence = agent_persistence
         self._auto_embed = auto_embed
         self._auto_tag = auto_tag
         logger.info("IngestionPipeline initialized")
@@ -76,6 +88,10 @@ class IngestionPipeline:
     def set_semantic_service(self, service) -> None:
         """Set or update the semantic service reference."""
         self._semantic_service = service
+
+    def set_agent_persistence(self, service) -> None:
+        """Set or update the agent persistence service reference."""
+        self._agent_persistence = service
 
     async def ingest(
         self,
@@ -187,12 +203,62 @@ class IngestionPipeline:
             f"Ingestion complete: packet_id={envelope.packet_id}, status={status}"
         )
 
+        # Trigger checkpoint for critical packets per memory_spec_v3.0.yaml
+        if status in ("ok", "partial") and packet_in.packet_type in self.CRITICAL_PACKET_TYPES:
+            await self._trigger_critical_checkpoint(envelope)
+
         return PacketWriteResult(
             packet_id=envelope.packet_id,
             written_tables=written_tables,
             status=status,
             error_message="; ".join(errors) if errors else None,
         )
+
+    async def _trigger_critical_checkpoint(self, envelope: PacketEnvelope) -> None:
+        """
+        Trigger checkpoint for critical packet ingestion.
+
+        Per memory_spec_v3.0.yaml checkpoint trigger: on_critical_decision.
+        Creates checkpoint when critical packets (decisions, approvals, etc.) are ingested.
+
+        Args:
+            envelope: The ingested packet envelope
+        """
+        if self._agent_persistence is None:
+            logger.debug("No persistence service - skipping critical checkpoint")
+            return
+
+        try:
+            agent_id = envelope.agent_id or "ingestion"
+
+            state = {
+                "packet_id": str(envelope.packet_id),
+                "packet_type": envelope.packet_type,
+                "source_id": envelope.source_id,
+                "thread_id": str(envelope.thread_id) if envelope.thread_id else None,
+                "timestamp": envelope.timestamp.isoformat() if envelope.timestamp else None,
+            }
+
+            checkpoint_id = await self._agent_persistence.create_checkpoint(
+                agent_id=agent_id,
+                state=state,
+                reason="on_critical_decision",
+            )
+
+            logger.debug(
+                "Critical checkpoint created",
+                checkpoint_id=str(checkpoint_id),
+                packet_id=str(envelope.packet_id),
+                packet_type=envelope.packet_type,
+            )
+
+        except Exception as e:
+            # Best-effort: don't fail ingestion due to checkpoint failure
+            logger.warning(
+                "Failed to create critical checkpoint",
+                packet_id=str(envelope.packet_id),
+                error=str(e),
+            )
 
     def _validate_packet(self, packet: PacketEnvelopeIn) -> list[str]:
         """

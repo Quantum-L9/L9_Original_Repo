@@ -8,7 +8,7 @@
 | `@abstractmethod` | 28 | agents/base_agent.py, collaborative_cells/base_cell.py, core/observability/context_strategies.py |
 | `@acceptance` | 1 | docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py |
 | `@asynccontextmanager` | 6 | api/server.py, docs/Slack-Debug-2/server.py, igor/audit-memory/mcp_memory_src_main.py |
-| `@asyncio` | 679 | api/adapters/calendar_adapter/tests/test_calendar_adapter.py, api/adapters/email_adapter/tests/test_email_adapter.py, api/adapters/twilio_adapter/tests/test_twilio_adapter.py |
+| `@asyncio` | 687 | api/adapters/calendar_adapter/tests/test_calendar_adapter.py, api/adapters/email_adapter/tests/test_email_adapter.py, api/adapters/twilio_adapter/tests/test_twilio_adapter.py |
 | `@classmethod` | 43 | api/adapters/calendar_adapter/config.py, api/adapters/email_adapter/config.py, api/adapters/twilio_adapter/config.py |
 | `@dataclass` | 298 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/readme_generator.py |
 | `@dataclass(...)` | 3 | core/moduleregistry.py, core/tools/sanitizer.py |

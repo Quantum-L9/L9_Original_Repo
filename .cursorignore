@@ -9,3 +9,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+
+# --- Documentation (local only) ---
+docs/
+!docs/MCP-MEMORY-CAPSULE.md  # Official MCP wiring documentation (must be accessible)

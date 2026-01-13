@@ -298,7 +298,12 @@ def get_mcp_tools() -> List[MCPTool]:
     ]
 
 
-async def handle_tool_call(tool: MCPToolCall, user_id: str, caller: Any = None) -> Dict[str, Any]:
+async def handle_tool_call(
+    tool: MCPToolCall, 
+    user_id: str, 
+    caller: Any = None,
+    substrate_service: Any = None,  # Optional: MemorySubstrateService for main pipeline
+) -> Dict[str, Any]:
     """Handle MCP tool call with caller-enforced governance.
     
     Args:
@@ -399,6 +404,7 @@ async def handle_tool_call(tool: MCPToolCall, user_id: str, caller: Any = None) 
                 caller_id=caller_id,
                 creator=creator,
                 source=source,
+                substrate_service=substrate_service,  # Pass service for main pipeline
             )
         elif tool.name == "search_memory":
             from src.routes.memory_unified import search_memory_handler

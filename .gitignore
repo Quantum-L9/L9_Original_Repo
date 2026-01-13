@@ -48,6 +48,7 @@ agents/codegenagent/
 
 # --- Documentation (local only) ---
 docs/
+!docs/MCP-MEMORY-CAPSULE.md  # Official MCP wiring documentation (must be tracked)
 
 # --- Archives (local only) ---
 _Archive_Perplexity/

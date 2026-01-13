@@ -16,8 +16,15 @@ from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
 from src.routes import memory_unified as memory, health
 
 # Configure structlog
-import logging
-log_level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
+# Use structlog log levels (no need for logging module)
+log_level_map = {
+    "DEBUG": 10,
+    "INFO": 20,
+    "WARNING": 30,
+    "ERROR": 40,
+    "CRITICAL": 50,
+}
+log_level = log_level_map.get(settings.LOG_LEVEL.upper(), 20)  # Default to INFO (20)
 structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(log_level),
     processors=[
@@ -57,10 +64,46 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing database...")
     await init_db()
     logger.info("✓ Database initialized")
+    
+    # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
+    logger.info("Initializing L9 Memory Substrate Service...")
+    try:
+        from memory.substrate_service import init_service
+        import os
+        
+        database_url = settings.MEMORY_DSN or os.getenv("DATABASE_URL")
+        if not database_url:
+            logger.warning(
+                "MEMORY_DSN not set. MCP memory will use direct DB access. "
+                "Set MEMORY_DSN to enable full DAG pipeline (graph sync, fact extraction, etc.)"
+            )
+        else:
+            substrate_service = await init_service(
+                database_url=database_url,
+                embedding_provider_type=os.getenv("EMBEDDING_PROVIDER", "openai"),
+                embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-large"),
+                openai_api_key=settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY"),
+            )
+            # Store in app state for route handlers
+            app.state.substrate_service = substrate_service
+            logger.info("✓ L9 Memory Substrate Service initialized (full DAG pipeline enabled)")
+    except Exception as e:
+        logger.warning(
+            f"Failed to initialize Memory Substrate Service: {e}. "
+            "MCP memory will fall back to direct DB access."
+        )
+        app.state.substrate_service = None
+    
     asyncio.create_task(memory.cleanup_task())  # Background cleanup task
     yield
     logger.info("Closing database connections...")
     await close_db()
+    
+    # Close memory service if initialized
+    if hasattr(app.state, "substrate_service") and app.state.substrate_service:
+        from memory.substrate_service import close_service
+        await close_service()
+    
     logger.info("✓ Shutdown complete")
 
 
@@ -222,7 +265,9 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
         # This enforces L + C operate in same semantic space
         user_id = caller.user_id
         tool_call = MCPToolCall(name=tool_name, arguments=tool_args)
-        result = await handle_tool_call(tool_call, user_id, caller)
+        # Get substrate service from app state (if initialized)
+        substrate_service = getattr(request.app.state, "substrate_service", None)
+        result = await handle_tool_call(tool_call, user_id, caller, substrate_service)
         return {"status": "success", "result": result, "caller": caller.caller_id}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

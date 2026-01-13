@@ -2199,6 +2199,7 @@ mcp_memory/src/main.py::get_client_ip(request) - Get client IP, respecting X-For
 mcp_memory/src/main.py::record_failed_auth(ip) - Record a failed authentication attempt.
 mcp_memory/src/main.py::source(self) - Metadata source value for this caller.
 mcp_memory/src/mcp_server.py::get_mcp_tools() - 
+mcp_memory/src/routes/memory_unified.py::get_substrate_service(request) - Get MemorySubstrateService from app stat
 mcp_memory/src/routes/memory_unified.py::map_db_scope_to_mcp_scope(db_scope) - Reverse mapping: DB scope → MCP scope.
 mcp_memory/src/routes/memory_unified.py::map_mcp_scope_to_db_scope(mcp_scope) - Map MCP governance scopes to DB scope va
 mcp_memory/tests/test_e2e.py::client() - FastAPI test client.
@@ -2266,11 +2267,12 @@ memory/housekeeping.py::init_housekeeping_engine(repository) - Initialize the ho
 memory/housekeeping.py::set_repository(self, repository) - Set or update the repository reference.
 memory/housekeeping.py::stats(self) - Return current housekeeping statistics.
 memory/index_syncer.py::__init__(self, repository) - 
-memory/ingestion.py::__init__(self, repository, semantic_service, auto_embed, auto_tag) - Initialize ingestion pipeline.
+memory/ingestion.py::__init__(self, repository, semantic_service, agent_persistence, auto_embed, auto_tag) - Initialize ingestion pipeline.
 memory/ingestion.py::_generate_tags(self, envelope) - Auto-generate tags from packet content.
 memory/ingestion.py::_validate_packet(self, packet) - Validate packet structure.
 memory/ingestion.py::get_ingestion_pipeline() - Get or create the ingestion pipeline sin
 memory/ingestion.py::init_ingestion_pipeline(repository, semantic_service) - Initialize the ingestion pipeline with d
+memory/ingestion.py::set_agent_persistence(self, service) - Set or update the agent persistence serv
 memory/ingestion.py::set_repository(self, repository) - Set or update the repository reference.
 memory/ingestion.py::set_semantic_service(self, service) - Set or update the semantic service refer
 memory/insight_extraction.py::__init__(self, repository) - Initialize insight extraction pipeline.

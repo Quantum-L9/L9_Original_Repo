@@ -207,6 +207,7 @@ ApplyEngine::async rollback(upgrade_id) @ orchestrators/evolution/apply_engine.p
 ApprovalDecision::is_approved() @ core/governance/approval_manager.py
 ApprovalManager::__init__(substrate_service, slack_client, notification_channel) @ core/governance/approval_manager.py
 ApprovalManager::__init__(substrate_service, slack_client, notification_channel) @ core/governance/approvals.py
+ApprovalManager::async _create_approval_checkpoint(request, decision) @ core/governance/approval_manager.py
 ApprovalManager::async _notify_slack(request) @ core/governance/approval_manager.py
 ApprovalManager::async _notify_slack(request_id, tool_id, operation_summary) @ core/governance/approvals.py
 ApprovalManager::async _write_governance_pattern(task_id, decision, reason, tool_name, task_type, context) @ core/governance/approvals.py
@@ -1402,8 +1403,8 @@ IngestTracker::async mock_ingest(packet_in) @ tests/smoke_email.py
 IngestTracker::clear() @ tests/smoke_email.py
 IngestTracker::find_by_action(action) @ tests/smoke_email.py
 IngestTracker::find_by_trace_id(trace_id) @ tests/smoke_email.py
+IngestionPipeline::__init__(repository, semantic_service, agent_persistence, auto_embed, auto_tag) @ memory/ingestion.py
 IngestionPipeline::__init__(repository, semantic_service, auto_embed, auto_tag) @ igor/audit-memory/memory_ingestion.py
-IngestionPipeline::__init__(repository, semantic_service, auto_embed, auto_tag) @ memory/ingestion.py
 IngestionPipeline::_generate_tags(envelope) @ igor/audit-memory/memory_ingestion.py
 IngestionPipeline::_generate_tags(envelope) @ memory/ingestion.py
 IngestionPipeline::_validate_packet(packet) @ igor/audit-memory/memory_ingestion.py
@@ -1418,12 +1419,14 @@ IngestionPipeline::async _store_packet(envelope) @ igor/audit-memory/memory_inge
 IngestionPipeline::async _store_packet(envelope) @ memory/ingestion.py
 IngestionPipeline::async _sync_to_graph(envelope) @ igor/audit-memory/memory_ingestion.py
 IngestionPipeline::async _sync_to_graph(envelope) @ memory/ingestion.py
+IngestionPipeline::async _trigger_critical_checkpoint(envelope) @ memory/ingestion.py
 IngestionPipeline::async _update_lineage(envelope) @ igor/audit-memory/memory_ingestion.py
 IngestionPipeline::async _update_lineage(envelope) @ memory/ingestion.py
 IngestionPipeline::async ingest(packet_in, embed, generate_tags) @ igor/audit-memory/memory_ingestion.py
 IngestionPipeline::async ingest(packet_in, embed, generate_tags) @ memory/ingestion.py
 IngestionPipeline::async ingest_batch(packets) @ igor/audit-memory/memory_ingestion.py
 IngestionPipeline::async ingest_batch(packets) @ memory/ingestion.py
+IngestionPipeline::set_agent_persistence(service) @ memory/ingestion.py
 IngestionPipeline::set_repository(repository) @ igor/audit-memory/memory_ingestion.py
 IngestionPipeline::set_repository(repository) @ memory/ingestion.py
 IngestionPipeline::set_semantic_service(service) @ igor/audit-memory/memory_ingestion.py
@@ -2900,6 +2903,7 @@ SubstrateRepository::async acquire() @ memory/substrate_repository.py
 SubstrateRepository::async connect() @ igor/audit-memory/memory_substrate_repository.py
 SubstrateRepository::async connect() @ memory/substrate_repository.py
 SubstrateRepository::async delete_checkpoint(agent_id) @ memory/substrate_repository.py
+SubstrateRepository::async delete_old_checkpoints(agent_id, keep_last) @ memory/substrate_repository.py
 SubstrateRepository::async disconnect() @ igor/audit-memory/memory_substrate_repository.py
 SubstrateRepository::async disconnect() @ memory/substrate_repository.py
 SubstrateRepository::async get_checkpoint(agent_id) @ igor/audit-memory/memory_substrate_repository.py
@@ -2930,7 +2934,7 @@ SubstrateRepository::async insert_semantic_embedding(vector, payload, agent_id) 
 SubstrateRepository::async insert_semantic_embedding(vector, payload, agent_id) @ memory/substrate_repository.py
 SubstrateRepository::async list_checkpoints(agent_id, limit) @ memory/substrate_repository.py
 SubstrateRepository::async save_checkpoint(agent_id, graph_state) @ igor/audit-memory/memory_substrate_repository.py
-SubstrateRepository::async save_checkpoint(agent_id, graph_state) @ memory/substrate_repository.py
+SubstrateRepository::async save_checkpoint(agent_id, graph_state, reason) @ memory/substrate_repository.py
 SubstrateRepository::async search_packets_by_thread(thread_id, packet_type, limit, offset) @ igor/audit-memory/memory_substrate_repository.py
 SubstrateRepository::async search_packets_by_thread(thread_id, packet_type, limit, offset) @ memory/substrate_repository.py
 SubstrateRepository::async search_packets_by_type(packet_type, agent_id, limit, since) @ igor/audit-memory/memory_substrate_repository.py
@@ -5044,4 +5048,4 @@ _SchemaRegistry::supported_versions() @ core/schemas/schema_registry.py
 _SchemaRegistry::upcast(raw, target_version) @ core/schemas/schema_registry.py
 _SchemaRegistry::write_packet(packet) @ core/schemas/schema_registry.py
 
-# Total: 5040 class methods
+# Total: 5044 class methods

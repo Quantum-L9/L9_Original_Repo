@@ -17,6 +17,7 @@ import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+    from memory.agent_persistence import AgentPersistenceService
 
 logger = structlog.get_logger(__name__)
 
@@ -281,7 +282,7 @@ class ApprovalManager:
         
         # Remove from pending
         del self._pending[request_id]
-        
+
         logger.info(
             "Approval granted",
             request_id=request_id,
@@ -289,8 +290,73 @@ class ApprovalManager:
             approved_by=approved_by,
             scope=scope,
         )
-        
+
+        # Create checkpoint after approval (per memory_spec_v3.0.yaml on_critical_decision)
+        await self._create_approval_checkpoint(
+            request=request,
+            decision=decision,
+        )
+
         return decision
+
+    async def _create_approval_checkpoint(
+        self,
+        request: ApprovalRequest,
+        decision: ApprovalDecision,
+    ) -> None:
+        """
+        Create a checkpoint after a critical approval decision.
+
+        Per memory_spec_v3.0.yaml checkpoint trigger: on_critical_decision.
+        This captures the system state after high-risk tool approvals for recovery.
+
+        Args:
+            request: The approval request that was approved
+            decision: The approval decision
+        """
+        if self.substrate is None:
+            logger.debug("No substrate service - skipping approval checkpoint")
+            return
+
+        try:
+            # Get agent persistence service
+            persistence = self.substrate.get_agent_persistence()
+            if persistence is None:
+                logger.debug("No persistence service - skipping approval checkpoint")
+                return
+
+            # Determine agent_id from request context or use default
+            agent_id = request.context.get("agent_id", "governance") if request.context else "governance"
+
+            state = {
+                "request_id": str(request.request_id),
+                "tool_id": request.tool_id,
+                "approved_by": decision.approved_by,
+                "approved_at": decision.approved_at.isoformat() if decision.approved_at else None,
+                "scope": decision.scope,
+                "context": request.context,
+            }
+
+            checkpoint_id = await persistence.create_checkpoint(
+                agent_id=agent_id,
+                state=state,
+                reason="on_approval",
+            )
+
+            logger.debug(
+                "Approval checkpoint created",
+                checkpoint_id=str(checkpoint_id),
+                request_id=str(request.request_id),
+                tool_id=request.tool_id,
+            )
+
+        except Exception as e:
+            # Best-effort: don't fail approval due to checkpoint failure
+            logger.warning(
+                "Failed to create approval checkpoint",
+                request_id=str(request.request_id),
+                error=str(e),
+            )
     
     async def reject(
         self,

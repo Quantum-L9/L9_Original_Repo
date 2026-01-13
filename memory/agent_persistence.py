@@ -251,9 +251,9 @@ class AgentPersistenceService:
         """
         Delete old checkpoints, keeping only the most recent N.
 
-        Note: Current schema uses UNIQUE(agent_id) so at most 1 checkpoint exists.
-        If keep_last >= 1, nothing is deleted. If keep_last = 0, the checkpoint is deleted.
-        Full retention policy requires schema migration for multi-checkpoint storage.
+        Supports both:
+        - Pre-0014 schema (UNIQUE constraint): At most 1 checkpoint, delete if keep_last=0
+        - Post-0014 schema (multi-checkpoint): Properly keeps last N, deletes older
 
         Args:
             agent_id: Agent identifier
@@ -267,16 +267,30 @@ class AgentPersistenceService:
         if self._repository is None:
             raise RuntimeError("Repository not set")
 
-        # With current UNIQUE(agent_id) schema, only 1 checkpoint per agent exists
-        # Delete only if keep_last = 0
-        if keep_last > 0:
-            logger.debug("Keeping checkpoint (keep_last > 0)", agent_id=agent_id, keep_last=keep_last)
-            return 0
+        # Use repository method that handles both schema versions
+        if keep_last == 0:
+            # Delete all checkpoints
+            deleted = await self._repository.delete_checkpoint(agent_id=agent_id)
+            count = 1 if deleted else 0
+        else:
+            # Keep last N checkpoints (uses proper SQL for multi-checkpoint schema)
+            count = await self._repository.delete_old_checkpoints(
+                agent_id=agent_id,
+                keep_last=keep_last,
+            )
 
-        deleted = await self._repository.delete_checkpoint(agent_id=agent_id)
-        count = 1 if deleted else 0
+        if count > 0:
+            logger.info("Deleted old checkpoints", agent_id=agent_id, deleted_count=count, kept=keep_last)
 
-        logger.info("Deleted old checkpoints", agent_id=agent_id, deleted_count=count)
+            # Emit PacketEnvelope for audit trail
+            await self._emit_checkpoint_packet(
+                event_type="checkpoints_pruned",
+                agent_id=agent_id,
+                checkpoint_id=None,
+                reason=f"retention_keep_last_{keep_last}",
+                state_keys=["deleted_count", "kept"],
+            )
+
         return count
 
     def serialize_agent_state(self, agent: Any) -> Dict[str, Any]:

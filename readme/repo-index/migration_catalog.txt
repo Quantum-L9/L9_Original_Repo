@@ -18,6 +18,7 @@
 | `0011_tool_audit_log.sql` | Migration: Add tool audit log table |
 | `0012_fix_graph_checkpoints_unique.sql` | Migration: 0012_fix_graph_checkpoints_unique |
 | `0013_mcp_audit_columns.sql` | ============================================================ |
+| `0014_multi_checkpoint_support.sql` | Migration: 0014_multi_checkpoint_support |
 
 ## Key Tables Created
 

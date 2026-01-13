@@ -337,16 +337,18 @@ L9/
 │       ├── logging.py
 ├── mcp_memory/
 │   ├── .gitignore
-│   ├── DEPRECATED.md
-│   ├── E2E_INTEGRATION_CHECKLIST.md
-│   ├── E2E_INTEGRATION_SUMMARY.md
-│   ├── ELIMINATE_MCP_SCHEMA.md
-│   ├── GMP_32_TODO_PLAN.md
-│   ├── Learning Pipeline.md
-│   ├── MCP_002_ANSWER.md
-│   ├── MCP_002_VS_L9_COMPARISON.md
-│   ├── MCP_INTEGRATION_COMPLETE.md
-│   ├── ... (9 more files)
+│   ├── ANALYSIS_2026-01-05.md
+│   ├── QUICK_REFERENCE.md
+│   ├── README.md
+│   ├── bootstrap.sh
+│   ├── memory-setup-instructions.md
+│   ├── requirements.txt
+│   ├── _archived/
+│   │   ├── comparison/
+│   │   ├── conceptual/
+│   │   ├── migration/
+│   │   ├── schema/
+│   │   └── status/
 │   ├── deploy/
 │   │   ├── CADDY_CONFIG.md
 │   │   ├── L9-MCP-IMPL.md
@@ -356,11 +358,9 @@ L9/
 │   ├── mcp-memory-architecture/
 │   │   ├── ARCHITECTURE.md
 │   │   ├── INSTANTIATION_PLAN.md
+│   │   ├── MEMORY_USAGE_GUIDE.md
 │   │   ├── memory-substrate-setup5-GMP.md
 │   │   └── _archived/
-│   ├── schema/
-│   │   ├── init.sql
-│   │   └── migrations/
 │   ├── src/
 │   │   ├── __init__.py
 │   │   ├── config.py
@@ -375,6 +375,7 @@ L9/
 │       ├── test_connection.py
 │       ├── test_e2e.py
 │       ├── test_embeddings.py
+│       ├── test_main_pipeline_integration.py
 │       ├── test_mcp_server_smoke.py
 │       ├── test_memory.py
 │       ├── test_search.py
@@ -416,7 +417,7 @@ L9/
 │   ├── 0008_memory_substrate_10x.sql
 │   ├── 0009_feedback_and_effectiveness.sql
 │   ├── 0011_tool_audit_log.sql
-│   ├── ... (4 more files)
+│   ├── ... (5 more files)
 ├── modules/
 ├── ops/
 │   ├── vps_release_gate.sh
@@ -524,7 +525,7 @@ L9/
 │   ├── GMP_Report_GMP-48-Cursor-LangGraph-Integration.md
 │   ├── GMP_Report_GMP-49-Cursor-LangGraph-Completion-Phase0-TODO.md
 │   ├── GMP_Report_GMP-49-Cursor-LangGraph-Completion.md
-│   ├── ... (17 more files)
+│   ├── ... (18 more files)
 ├── runtime/
 │   ├── Dockerfile
 │   ├── __init__.py
