@@ -28,6 +28,8 @@ from memory.substrate_models import (
     PacketEnvelopeIn,
     PacketWriteResult,
 )
+from memory.audit_utils import prepare_packet_for_ingest
+from memory.validators.packet_validator import PacketValidator, PacketValidationError
 from memory.substrate_service import MemorySubstrateService
 from memory.graph_client import get_neo4j_client
 
@@ -123,8 +125,18 @@ class IngestionPipeline:
         """
         logger.info(f"Ingesting packet: type={packet_in.packet_type}")
 
+        packet_in, audit_report = prepare_packet_for_ingest(packet_in)
+
         should_embed = embed if embed is not None else self._auto_embed
         should_tag = generate_tags if generate_tags is not None else self._auto_tag
+
+        if audit_report.injection_markers:
+            should_embed = False
+            logger.warning(
+                "Injection markers detected; disabling embedding for packet",
+                packet_id=str(audit_report.packet_id),
+                markers=list(audit_report.injection_markers),
+            )
 
         written_tables = []
         errors = []
@@ -267,6 +279,11 @@ class IngestionPipeline:
         Returns list of validation errors (empty if valid).
         """
         errors = []
+
+        try:
+            PacketValidator.validate(packet)
+        except PacketValidationError as exc:
+            errors.append(str(exc))
 
         if not packet.packet_type:
             errors.append("packet_type is required")

@@ -18,8 +18,9 @@ All operations are async-safe with proper logging.
 from __future__ import annotations
 
 import structlog
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
+from collections import defaultdict
 from uuid import UUID
 
 from memory.substrate_models import (
@@ -30,6 +31,26 @@ from memory.substrate_models import (
 )
 
 logger = structlog.get_logger(__name__)
+
+
+def reciprocal_rank_fusion(rankings: list[list[str]], k: int = 60) -> dict[str, float]:
+    """Compute Reciprocal Rank Fusion scores for multiple ranked lists."""
+    scores: dict[str, float] = defaultdict(float)
+    for ranking in rankings:
+        for rank, key in enumerate(ranking):
+            scores[key] += 1.0 / (k + rank + 1)
+    return dict(scores)
+
+
+def apply_temporal_decay(score: float, timestamp: Optional[datetime], half_life_days: float) -> float:
+    """Apply exponential decay to a score based on timestamp age."""
+    if score <= 0 or timestamp is None or half_life_days <= 0:
+        return score
+    now = datetime.now(timezone.utc)
+    ts = timestamp.astimezone(timezone.utc) if timestamp.tzinfo else timestamp.replace(tzinfo=timezone.utc)
+    age_days = max((now - ts).total_seconds() / 86400.0, 0.0)
+    decay = 0.5 ** (age_days / half_life_days)
+    return score * decay
 
 
 class RetrievalPipeline:
@@ -126,6 +147,8 @@ class RetrievalPipeline:
         filters: Optional[dict[str, Any]] = None,
         agent_id: Optional[str] = None,
         min_score: float = 0.5,
+        rrf_k: int = 60,
+        temporal_half_life_days: float = 30.0,
     ) -> dict[str, Any]:
         """
         Perform hybrid search combining semantic and structured filters.
@@ -173,16 +196,30 @@ class RetrievalPipeline:
                 if packet and self._matches_filters(packet, filters):
                     filtered_packets.append(packet)
 
-        # Step 4: Combine and rank
+        # Step 4: Combine and rank with RRF + temporal decay
+        rrf_scores = reciprocal_rank_fusion(
+            [
+                [hit.payload.get("packet_id") for hit in semantic_hits if hit.payload.get("packet_id")],
+                [str(packet.packet_id) for packet in filtered_packets],
+            ],
+            k=rrf_k,
+        )
+
         combined = []
         for hit in semantic_hits:
             packet_id = hit.payload.get("packet_id")
             matching_packet = next(
                 (p for p in filtered_packets if str(p.packet_id) == packet_id), None
             )
+            base_score = rrf_scores.get(packet_id, hit.score)
+            score = apply_temporal_decay(
+                base_score,
+                matching_packet.timestamp if matching_packet else None,
+                temporal_half_life_days,
+            )
             combined.append(
                 {
-                    "score": hit.score,
+                    "score": score,
                     "embedding_id": str(hit.embedding_id),
                     "packet_id": packet_id,
                     "payload": hit.payload,

@@ -8,6 +8,8 @@ Provides a pluggable embedding provider interface.
 # bound to memory-yaml2.0 semantic layer
 """
 
+import asyncio
+import random
 import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
@@ -63,11 +65,15 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         model: str = "text-embedding-3-large",
         dimensions: int = 1536,
         api_key: Optional[str] = None,
+        max_retries: int = 3,
+        base_backoff: float = 0.5,
     ):
         self._model = model
         self._dimensions = dimensions
         self._api_key = api_key
         self._client = None
+        self._max_retries = max_retries
+        self._base_backoff = base_backoff
 
     def _get_client(self):
         """Lazy initialization of OpenAI client."""
@@ -83,27 +89,55 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                 )
         return self._client
 
+    async def _with_retries(self, coro, *, operation: str) -> list[float] | list[list[float]]:
+        last_error = None
+        for attempt in range(1, self._max_retries + 1):
+            try:
+                return await coro()
+            except Exception as exc:
+                last_error = exc
+                if attempt == self._max_retries:
+                    break
+                delay = self._base_backoff * (2 ** (attempt - 1))
+                jitter = random.random() * 0.1
+                logger.warning(
+                    "Embedding request failed, retrying",
+                    operation=operation,
+                    attempt=attempt,
+                    error=str(exc),
+                    delay=delay,
+                )
+                await asyncio.sleep(delay + jitter)
+        raise RuntimeError(f"Embedding request failed after retries: {last_error}") from last_error
+
     async def embed_text(self, text: str) -> list[float]:
         """Generate embedding using OpenAI API."""
         client = self._get_client()
-        response = await client.embeddings.create(
-            model=self._model,
-            input=text,
-            dimensions=self._dimensions,
-        )
-        return response.data[0].embedding
+
+        async def _embed() -> list[float]:
+            response = await client.embeddings.create(
+                model=self._model,
+                input=text,
+                dimensions=self._dimensions,
+            )
+            return response.data[0].embedding
+
+        return await self._with_retries(_embed, operation="embed_text")
 
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings for batch of texts."""
         client = self._get_client()
-        response = await client.embeddings.create(
-            model=self._model,
-            input=texts,
-            dimensions=self._dimensions,
-        )
-        # Sort by index to maintain order
-        sorted_data = sorted(response.data, key=lambda x: x.index)
-        return [item.embedding for item in sorted_data]
+
+        async def _embed() -> list[list[float]]:
+            response = await client.embeddings.create(
+                model=self._model,
+                input=texts,
+                dimensions=self._dimensions,
+            )
+            sorted_data = sorted(response.data, key=lambda x: x.index)
+            return [item.embedding for item in sorted_data]
+
+        return await self._with_retries(_embed, operation="embed_batch")
 
     @property
     def dimensions(self) -> int:

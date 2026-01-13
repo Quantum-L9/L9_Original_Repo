@@ -87,6 +87,16 @@ from memory.insight_extraction import (
     init_insight_pipeline,
 )
 
+from memory.audit_utils import (
+    AuditReport,
+    prepare_packet_for_ingest,
+    normalize_payload,
+    normalize_text,
+    detect_injection_markers,
+    detect_pii_types,
+    redact_pii,
+)
+
 # Strategy Memory (Phase 0)
 from memory.strategymemory import (
     IStrategyMemoryService,
@@ -123,6 +133,14 @@ __all__ = [
     "InsightExtractionPipeline",
     "get_insight_pipeline",
     "init_insight_pipeline",
+    # Audit utilities
+    "AuditReport",
+    "prepare_packet_for_ingest",
+    "normalize_payload",
+    "normalize_text",
+    "detect_injection_markers",
+    "detect_pii_types",
+    "redact_pii",
     # Strategy Memory
     "IStrategyMemoryService",
     "StrategyMemoryService",

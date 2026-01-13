@@ -13,6 +13,7 @@ from typing import Iterable
 from pydantic import ValidationError
 
 from memory.substrate_models import PacketEnvelopeIn
+from memory.audit_utils import detect_injection_markers, detect_pii_types
 
 
 ALLOWED_PACKET_TYPES: set[str] = {
@@ -49,6 +50,21 @@ class PacketValidator:
             raise PacketValidationError(
                 f"packet_type '{packet_in.packet_type}' not in {sorted(ALLOWED_PACKET_TYPES)}"
             )
+
+    @staticmethod
+    def scan_security(packet_in: PacketEnvelopeIn) -> dict[str, list[str]]:
+        """
+        Scan packet payload for PII and injection markers.
+
+        Returns:
+            Dict with detected pii_types and injection_markers.
+        """
+        pii_types = list(detect_pii_types(packet_in.payload))
+        injection_markers = list(detect_injection_markers(packet_in.payload))
+        return {
+            "pii_types": pii_types,
+            "injection_markers": injection_markers,
+        }
 
     @staticmethod
     def allowed_types() -> Iterable[str]:

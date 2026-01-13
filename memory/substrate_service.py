@@ -8,6 +8,7 @@ Provides a unified interface for substrate operations.
 
 import structlog
 from datetime import datetime
+from uuid import uuid4
 from typing import Any, Optional
 
 from memory.substrate_models import (
@@ -29,10 +30,14 @@ from memory.query_classifier import QueryClassifier, get_query_classifier
 from memory.reasoning_replay import ReasoningReplayPipeline
 from memory.consolidation import ConsolidationPipeline
 from memory.agent_persistence import AgentPersistenceService
+from memory.audit_utils import prepare_packet_for_ingest
+from memory.validators.packet_validator import PacketValidator, PacketValidationError
 from telemetry.memory_metrics import (
     record_memory_write,
     record_memory_search,
     set_memory_substrate_health,
+    record_memory_quarantine,
+    record_memory_ingest,
 )
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 
@@ -162,6 +167,7 @@ class MemorySubstrateService:
         org_id: Optional[str] = None,
         user_id: Optional[str] = None,
         role: str = "end_user",
+        audit_mode: bool = True,
     ) -> PacketWriteResult:
         """
         Submit a packet to the substrate for processing.
@@ -184,6 +190,37 @@ class MemorySubstrateService:
             PacketWriteResult with status and written tables
         """
         logger.info(f"Processing packet: type={packet_in.packet_type}")
+
+        if audit_mode:
+            packet_in, audit_report = prepare_packet_for_ingest(packet_in)
+            if audit_report.injection_markers:
+                record_memory_quarantine(
+                    reason="injection_markers",
+                    count=1,
+                )
+                logger.warning(
+                    "Audit quarantine markers detected",
+                    packet_id=str(audit_report.packet_id),
+                    markers=list(audit_report.injection_markers),
+                )
+        else:
+            audit_report = None
+
+        try:
+            PacketValidator.validate(packet_in)
+        except PacketValidationError as exc:
+            packet_id = packet_in.packet_id or uuid4()
+            logger.error(
+                "Packet validation failed",
+                error=str(exc),
+                packet_id=str(packet_id),
+            )
+            return PacketWriteResult(
+                status="error",
+                packet_id=packet_id,
+                written_tables=[],
+                error_message=str(exc),
+            )
 
         # Set RLS scope if provided
         if tenant_id and org_id and user_id:
@@ -240,6 +277,7 @@ class MemorySubstrateService:
             segment=packet_in.packet_type or "unknown",
             status=result.status,
         )
+        record_memory_ingest(status=result.status)
 
         logger.info(
             f"Packet {envelope.packet_id} processed: "

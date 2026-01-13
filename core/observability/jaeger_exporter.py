@@ -154,8 +154,10 @@ class JaegerExporter:
         except Exception as exc:
             logger.debug(f"Failed to export span to Jaeger: {exc}")
 
-    def _map_span_kind(self, kind: Any) -> trace.SpanKind:
+    def _map_span_kind(self, kind: Any) -> Any:
         """Map L9 SpanKind to OpenTelemetry SpanKind."""
+        if not OPENTELEMETRY_AVAILABLE:
+            return None
         from .models import SpanKind
         
         kind_str = kind.value if hasattr(kind, "value") else str(kind)
@@ -217,4 +219,3 @@ def initialize_jaeger_exporter(
         _exporter = None
         logger.debug("Jaeger exporter not available (opentelemetry not installed)")
     return _exporter
-
