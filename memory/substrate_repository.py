@@ -9,11 +9,17 @@ Provides async functions for all memory substrate operations.
 import json
 import structlog
 from contextlib import asynccontextmanager
+from contextvars import ContextVar
 from datetime import datetime
 from typing import Any, AsyncGenerator, Optional
 from uuid import UUID, uuid4
 
 import asyncpg
+
+# Context variable for RLS-scoped connection (used within transactions)
+_current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
+    "_current_rls_connection", default=None
+)
 
 from memory.substrate_models import (
     AgentMemoryEventRow,
@@ -75,6 +81,55 @@ class SubstrateRepository:
         async with self._pool.acquire() as conn:
             yield conn
 
+    @asynccontextmanager
+    async def transaction(
+        self,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> AsyncGenerator[asyncpg.Connection, None]:
+        """
+        Acquire a connection and start a transaction with RLS scope.
+        
+        Sets RLS session variables using SET LOCAL within the transaction,
+        so the scope persists for all operations in the transaction.
+        
+        The connection is stored in a context variable so repository methods
+        can use it instead of acquiring a new connection.
+        
+        Args:
+            tenant_id: Optional tenant UUID for RLS isolation
+            org_id: Optional organization UUID for RLS isolation
+            user_id: Optional user UUID for RLS isolation
+            role: User role for RLS policy enforcement
+            
+        Yields:
+            Connection within a transaction with RLS scope set
+        """
+        if self._pool is None:
+            raise RuntimeError("Repository not connected. Call connect() first.")
+        
+        async with self._pool.acquire() as conn:
+            async with conn.transaction():
+                # Set RLS scope within transaction (SET LOCAL makes it transaction-scoped)
+                if tenant_id and org_id and user_id:
+                    await conn.execute(
+                        """SELECT l9_set_scope($1::uuid, $2::uuid, $3::uuid, $4::text)""",
+                        tenant_id,
+                        org_id,
+                        user_id,
+                        role,
+                    )
+                
+                # Store connection in context variable for repository methods to use
+                token = _current_rls_connection.set(conn)
+                try:
+                    yield conn
+                finally:
+                    # Restore previous context (or clear if None)
+                    _current_rls_connection.reset(token)
+
     # =========================================================================
     # Packet Store Operations
     # =========================================================================
@@ -103,52 +158,80 @@ class SubstrateRepository:
         if importance_score is None and envelope.confidence:
             importance_score = envelope.confidence.score
         
-        async with self.acquire() as conn:
-            await conn.execute(
-                """
-                INSERT INTO packet_store (
-                    packet_id, packet_type, envelope, timestamp, routing, provenance,
-                    thread_id, parent_ids, tags, ttl, content_hash, session_id, scope,
-                    trace_id, importance_score
-                )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-                ON CONFLICT (packet_id) DO UPDATE SET
-                    envelope = EXCLUDED.envelope,
-                    timestamp = EXCLUDED.timestamp,
-                    thread_id = COALESCE(EXCLUDED.thread_id, packet_store.thread_id),
-                    parent_ids = COALESCE(EXCLUDED.parent_ids, packet_store.parent_ids),
-                    tags = COALESCE(EXCLUDED.tags, packet_store.tags),
-                    ttl = COALESCE(EXCLUDED.ttl, packet_store.ttl),
-                    content_hash = COALESCE(EXCLUDED.content_hash, packet_store.content_hash),
-                    session_id = COALESCE(EXCLUDED.session_id, packet_store.session_id),
-                    scope = COALESCE(EXCLUDED.scope, packet_store.scope),
-                    trace_id = COALESCE(EXCLUDED.trace_id, packet_store.trace_id),
-                    importance_score = COALESCE(EXCLUDED.importance_score, packet_store.importance_score)
-                """,
-                envelope.packet_id,
-                envelope.packet_type,
-                json.dumps(envelope.model_dump(mode="json")),
-                envelope.timestamp,
-                json.dumps(
-                    {"agent": envelope.metadata.agent if envelope.metadata else None}
-                ),
-                json.dumps(
-                    envelope.provenance.model_dump(mode="json")
-                    if envelope.provenance
-                    else None
-                ),
-                thread_id,
-                parent_ids,
-                tags,
-                ttl,
-                content_hash,
-                session_id,
-                scope,
-                trace_id,
-                importance_score,
-            )
-            logger.debug(f"Inserted packet {envelope.packet_id} with thread_id={thread_id}, parent_ids={parent_ids}, importance={importance_score}")
+        # Use RLS-scoped connection if available, otherwise acquire new one
+        rls_conn = _current_rls_connection.get()
+        if rls_conn:
+            # Use existing RLS-scoped connection (within transaction)
+            conn = rls_conn
+            # Execute directly without context manager
+            await self._insert_packet_with_connection(conn, envelope, thread_id, tags, ttl, parent_ids, metadata_dict, content_hash, session_id, scope, trace_id, importance_score)
             return envelope.packet_id
+        else:
+            # No RLS scope - use normal connection pool
+            async with self.acquire() as conn:
+                await self._insert_packet_with_connection(conn, envelope, thread_id, tags, ttl, parent_ids, metadata_dict, content_hash, session_id, scope, trace_id, importance_score)
+                return envelope.packet_id
+    
+    async def _insert_packet_with_connection(
+        self,
+        conn: asyncpg.Connection,
+        envelope: PacketEnvelope,
+        thread_id,
+        tags,
+        ttl,
+        parent_ids,
+        metadata_dict,
+        content_hash,
+        session_id,
+        scope,
+        trace_id,
+        importance_score,
+    ) -> None:
+        """Helper method to insert packet using provided connection."""
+        await conn.execute(
+            """
+            INSERT INTO packet_store (
+                packet_id, packet_type, envelope, timestamp, routing, provenance,
+                thread_id, parent_ids, tags, ttl, content_hash, session_id, scope,
+                trace_id, importance_score
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+            ON CONFLICT (packet_id) DO UPDATE SET
+                envelope = EXCLUDED.envelope,
+                timestamp = EXCLUDED.timestamp,
+                thread_id = COALESCE(EXCLUDED.thread_id, packet_store.thread_id),
+                parent_ids = COALESCE(EXCLUDED.parent_ids, packet_store.parent_ids),
+                tags = COALESCE(EXCLUDED.tags, packet_store.tags),
+                ttl = COALESCE(EXCLUDED.ttl, packet_store.ttl),
+                content_hash = COALESCE(EXCLUDED.content_hash, packet_store.content_hash),
+                session_id = COALESCE(EXCLUDED.session_id, packet_store.session_id),
+                scope = COALESCE(EXCLUDED.scope, packet_store.scope),
+                trace_id = COALESCE(EXCLUDED.trace_id, packet_store.trace_id),
+                importance_score = COALESCE(EXCLUDED.importance_score, packet_store.importance_score)
+            """,
+            envelope.packet_id,
+            envelope.packet_type,
+            json.dumps(envelope.model_dump(mode="json")),
+            envelope.timestamp,
+            json.dumps(
+                {"agent": envelope.metadata.agent if envelope.metadata else None}
+            ),
+            json.dumps(
+                envelope.provenance.model_dump(mode="json")
+                if envelope.provenance
+                else None
+            ),
+            thread_id,
+            parent_ids,
+            tags,
+            ttl,
+            content_hash,
+            session_id,
+            scope,
+            trace_id,
+            importance_score,
+        )
+        logger.debug(f"Inserted packet {envelope.packet_id} with thread_id={thread_id}, parent_ids={parent_ids}, importance={importance_score}")
 
     async def get_packet(self, packet_id: UUID) -> Optional[PacketStoreRow]:
         """Retrieve a packet by ID."""
@@ -288,8 +371,12 @@ class SubstrateRepository:
     ) -> UUID:
         """Insert a memory event."""
         event_id = uuid4()
-        async with self.acquire() as conn:
-            await conn.execute(
+        
+        # Use RLS-scoped connection if available, otherwise acquire new one
+        rls_conn = _current_rls_connection.get()
+        if rls_conn:
+            # Use existing RLS-scoped connection (within transaction)
+            await rls_conn.execute(
                 """
                 INSERT INTO agent_memory_events (event_id, agent_id, timestamp, packet_id, event_type, content)
                 VALUES ($1, $2, $3, $4, $5, $6)
@@ -303,6 +390,23 @@ class SubstrateRepository:
             )
             logger.debug(f"Inserted memory event {event_id} for agent {agent_id}")
             return event_id
+        else:
+            # No RLS scope - use normal connection pool
+            async with self.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO agent_memory_events (event_id, agent_id, timestamp, packet_id, event_type, content)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    """,
+                    event_id,
+                    agent_id,
+                    timestamp or datetime.utcnow(),
+                    packet_id,
+                    event_type,
+                    json.dumps(content),
+                )
+                logger.debug(f"Inserted memory event {event_id} for agent {agent_id}")
+                return event_id
 
     async def get_memory_events(
         self,
@@ -353,34 +457,48 @@ class SubstrateRepository:
 
     async def insert_reasoning_block(self, block: StructuredReasoningBlock) -> UUID:
         """Insert a reasoning block into reasoning_traces."""
-        async with self.acquire() as conn:
-            # Extract agent_id from block metadata or use default
-            agent_id = "unknown"
-            if hasattr(block, "agent_id"):
-                agent_id = block.agent_id
-
-            await conn.execute(
-                """
-                INSERT INTO reasoning_traces (
-                    trace_id, agent_id, packet_id, steps, extracted_features,
-                    inference_steps, reasoning_tokens, decision_tokens, 
-                    confidence_scores, created_at
-                )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                """,
-                block.block_id,
-                agent_id,
-                block.packet_id,
-                json.dumps({"steps": block.inference_steps}),
-                json.dumps(block.extracted_features),
-                json.dumps(block.inference_steps),
-                json.dumps(block.reasoning_tokens),
-                json.dumps(block.decision_tokens),
-                json.dumps(block.confidence_scores),
-                block.timestamp,
-            )
-            logger.debug(f"Inserted reasoning block {block.block_id}")
+        # Use RLS-scoped connection if available, otherwise acquire new one
+        rls_conn = _current_rls_connection.get()
+        if rls_conn:
+            # Use existing RLS-scoped connection (within transaction)
+            await self._insert_reasoning_block_with_connection(rls_conn, block)
             return block.block_id
+        else:
+            # No RLS scope - use normal connection pool
+            async with self.acquire() as conn:
+                await self._insert_reasoning_block_with_connection(conn, block)
+                return block.block_id
+    
+    async def _insert_reasoning_block_with_connection(
+        self, conn: asyncpg.Connection, block: StructuredReasoningBlock
+    ) -> None:
+        """Helper method to insert reasoning block using provided connection."""
+        # Extract agent_id from block metadata or use default
+        agent_id = "unknown"
+        if hasattr(block, "agent_id"):
+            agent_id = block.agent_id
+
+        await conn.execute(
+            """
+            INSERT INTO reasoning_traces (
+                trace_id, agent_id, packet_id, steps, extracted_features,
+                inference_steps, reasoning_tokens, decision_tokens, 
+                confidence_scores, created_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            """,
+            block.block_id,
+            agent_id,
+            block.packet_id,
+            json.dumps({"steps": block.inference_steps}),
+            json.dumps(block.extracted_features),
+            json.dumps(block.inference_steps),
+            json.dumps(block.reasoning_tokens),
+            json.dumps(block.decision_tokens),
+            json.dumps(block.confidence_scores),
+            block.timestamp,
+        )
+        logger.debug(f"Inserted reasoning block {block.block_id}")
 
     async def get_reasoning_traces(
         self,
@@ -563,43 +681,63 @@ class SubstrateRepository:
             Checkpoint UUID
         """
         checkpoint_id = uuid4()
-        async with self.acquire() as conn:
-            # Try INSERT with reason column (post-0014 schema)
-            try:
+        
+        # Use RLS-scoped connection if available, otherwise acquire new one
+        rls_conn = _current_rls_connection.get()
+        if rls_conn:
+            # Use existing RLS-scoped connection (within transaction)
+            await self._save_checkpoint_with_connection(rls_conn, checkpoint_id, agent_id, graph_state, reason)
+            return checkpoint_id
+        else:
+            # No RLS scope - use normal connection pool
+            async with self.acquire() as conn:
+                await self._save_checkpoint_with_connection(conn, checkpoint_id, agent_id, graph_state, reason)
+                return checkpoint_id
+    
+    async def _save_checkpoint_with_connection(
+        self,
+        conn: asyncpg.Connection,
+        checkpoint_id: UUID,
+        agent_id: str,
+        graph_state: dict[str, Any],
+        reason: str,
+    ) -> None:
+        """Helper method to save checkpoint using provided connection."""
+        # Try INSERT with reason column (post-0014 schema)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO graph_checkpoints (checkpoint_id, agent_id, graph_state, reason, updated_at)
+                VALUES ($1, $2, $3, $4, $5)
+                """,
+                checkpoint_id,
+                agent_id,
+                json.dumps(graph_state),
+                reason,
+                datetime.utcnow(),
+            )
+        except Exception as e:
+            # Fallback: pre-0014 schema without reason column (upsert)
+            if "reason" in str(e).lower() or "column" in str(e).lower():
+                logger.debug("Falling back to upsert (pre-0014 schema)")
                 await conn.execute(
                     """
-                    INSERT INTO graph_checkpoints (checkpoint_id, agent_id, graph_state, reason, updated_at)
-                    VALUES ($1, $2, $3, $4, $5)
+                    INSERT INTO graph_checkpoints (checkpoint_id, agent_id, graph_state, updated_at)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (agent_id)
+                    DO UPDATE SET
+                        graph_state = EXCLUDED.graph_state,
+                        updated_at = EXCLUDED.updated_at
                     """,
                     checkpoint_id,
                     agent_id,
                     json.dumps(graph_state),
-                    reason,
                     datetime.utcnow(),
                 )
-            except Exception as e:
-                # Fallback: pre-0014 schema without reason column (upsert)
-                if "reason" in str(e).lower() or "column" in str(e).lower():
-                    logger.debug("Falling back to upsert (pre-0014 schema)")
-                    await conn.execute(
-                        """
-                        INSERT INTO graph_checkpoints (checkpoint_id, agent_id, graph_state, updated_at)
-                        VALUES ($1, $2, $3, $4)
-                        ON CONFLICT (agent_id)
-                        DO UPDATE SET
-                            graph_state = EXCLUDED.graph_state,
-                            updated_at = EXCLUDED.updated_at
-                        """,
-                        checkpoint_id,
-                        agent_id,
-                        json.dumps(graph_state),
-                        datetime.utcnow(),
-                    )
-                else:
-                    raise
+            else:
+                raise
 
-            logger.debug(f"Saved checkpoint for agent {agent_id}", reason=reason)
-            return checkpoint_id
+        logger.debug(f"Saved checkpoint for agent {agent_id}", reason=reason)
 
     async def get_checkpoint(self, agent_id: str) -> Optional[GraphCheckpointRow]:
         """Retrieve the latest checkpoint for an agent."""
@@ -789,8 +927,12 @@ class SubstrateRepository:
             fact_id of inserted record
         """
         fid = UUID(fact_id) if fact_id else uuid4()
-        async with self.acquire() as conn:
-            await conn.execute(
+        
+        # Use RLS-scoped connection if available, otherwise acquire new one
+        rls_conn = _current_rls_connection.get()
+        if rls_conn:
+            # Use existing RLS-scoped connection (within transaction)
+            await rls_conn.execute(
                 """
                 INSERT INTO knowledge_facts (fact_id, subject, predicate, object, confidence, source_packet, created_at)
                 VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -810,6 +952,29 @@ class SubstrateRepository:
             )
             logger.debug(f"Inserted knowledge fact {fid}: {subject} - {predicate}")
             return fid
+        else:
+            # No RLS scope - use normal connection pool
+            async with self.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO knowledge_facts (fact_id, subject, predicate, object, confidence, source_packet, created_at)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    ON CONFLICT (fact_id) DO UPDATE SET
+                        object = EXCLUDED.object,
+                        confidence = EXCLUDED.confidence
+                    """,
+                    fid,
+                    subject,
+                    predicate,
+                    json.dumps(object_value),
+                    confidence or 0.8,
+                    UUID(source_packet)
+                    if isinstance(source_packet, str)
+                    else source_packet,
+                    datetime.utcnow(),
+                )
+                logger.debug(f"Inserted knowledge fact {fid}: {subject} - {predicate}")
+                return fid
 
     async def get_facts_by_subject(
         self,

@@ -5,21 +5,27 @@ Exports spans to Jaeger via OTLP (OpenTelemetry Protocol) for distributed tracin
 """
 
 import structlog
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, TYPE_CHECKING
 from datetime import datetime
 
 logger = structlog.get_logger(__name__)
 
-# Try to import OpenTelemetry
-try:
+# Type-only import for type hints (evaluated at static analysis time)
+if TYPE_CHECKING:
     from opentelemetry import trace
+
+# Try to import OpenTelemetry (runtime import)
+try:
+    from opentelemetry import trace as _trace
     from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
     from opentelemetry.sdk.resources import Resource
     OPENTELEMETRY_AVAILABLE = True
+    trace = _trace  # Re-export for runtime use
 except ImportError:
     OPENTELEMETRY_AVAILABLE = False
+    trace = None  # Fallback for runtime
     logger.warning("opentelemetry not installed - Jaeger exporter disabled")
 
 
@@ -154,7 +160,7 @@ class JaegerExporter:
         except Exception as exc:
             logger.debug(f"Failed to export span to Jaeger: {exc}")
 
-    def _map_span_kind(self, kind: Any) -> trace.SpanKind:
+    def _map_span_kind(self, kind: Any) -> "trace.SpanKind":
         """Map L9 SpanKind to OpenTelemetry SpanKind."""
         from .models import SpanKind
         

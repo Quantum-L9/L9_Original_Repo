@@ -96,6 +96,32 @@ from memory.strategymemory import (
     StrategyFeedback,
 )
 
+# Cypher Templates (GMP-55: Parameterized queries)
+from memory.cypher_templates import (
+    CypherTemplate,
+    CypherTemplateCategory,
+    CypherTemplateLibrary,
+    get_template_library,
+    execute_template,
+)
+
+# Schema Introspection (GMP-55: Dynamic schema discovery)
+from memory.schema_introspection import (
+    SchemaIntrospector,
+    PostgresIntrospector,
+    Neo4jIntrospector,
+    get_schema_introspector,
+)
+
+# Hybrid RAG (GMP-55: Vector-Graph Bridge)
+from memory.hybrid_rag import (
+    EnrichmentStrategy,
+    HybridRAGPipeline,
+    HybridSearchResult,
+    get_hybrid_rag_pipeline,
+    hybrid_search,
+)
+
 __all__ = [
     # Models (always available)
     "PacketEnvelope",
@@ -129,6 +155,23 @@ __all__ = [
     "StrategyCandidate",
     "StrategyRetrievalRequest",
     "StrategyFeedback",
+    # Cypher Templates (GMP-55)
+    "CypherTemplate",
+    "CypherTemplateCategory",
+    "CypherTemplateLibrary",
+    "get_template_library",
+    "execute_template",
+    # Schema Introspection (GMP-55)
+    "SchemaIntrospector",
+    "PostgresIntrospector",
+    "Neo4jIntrospector",
+    "get_schema_introspector",
+    # Hybrid RAG (GMP-55)
+    "EnrichmentStrategy",
+    "HybridRAGPipeline",
+    "HybridSearchResult",
+    "get_hybrid_rag_pipeline",
+    "hybrid_search",
     # NOTE: These are available via direct import to avoid circular deps:
     # from memory.substrate_repository import SubstrateRepository, ...
     # from memory.substrate_graph import SubstrateDAG, ...

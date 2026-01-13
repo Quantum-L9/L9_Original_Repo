@@ -185,14 +185,6 @@ class MemorySubstrateService:
         """
         logger.info(f"Processing packet: type={packet_in.packet_type}")
 
-        # Set RLS scope if provided
-        if tenant_id and org_id and user_id:
-            await self.set_session_scope(tenant_id, org_id, user_id, role)
-        else:
-            logger.warning(
-                "RLS scope not provided for write_packet - queries may be restricted"
-            )
-
         # Convert input to full envelope
         envelope = packet_in.to_envelope()
 
@@ -213,29 +205,65 @@ class MemorySubstrateService:
                 error_message=f"Circuit breaker open: {cb_stats['failures_in_window']} failures in {cb_stats['window_seconds']}s",
             )
 
-        # Run through DAG with circuit breaker tracking
-        try:
-            result = await self._dag.run(envelope)
-            # Record success for non-error results
-            if result.status == "ok":
-                self._circuit_breaker.record_success()
-            else:
-                # DAG returned error status
-                self._circuit_breaker.record_failure(
-                    result.error_message or "DAG returned error status"
-                )
-        except Exception as dag_error:
-            # DAG threw exception - record failure and re-raise
-            self._circuit_breaker.record_failure(str(dag_error))
-            logger.error(
-                "memory_substrate_dag_exception",
-                packet_id=str(envelope.packet_id),
-                error=str(dag_error),
-                circuit_state=self._circuit_breaker.get_state(),
+        # Run through DAG with RLS scope if provided
+        # Use transaction with RLS scope to ensure all operations use same connection
+        result: PacketWriteResult
+        if tenant_id and org_id and user_id:
+            # Use transaction with RLS scope - all DAG operations will use same connection
+            async with self._repository.transaction(
+                tenant_id=tenant_id,
+                org_id=org_id,
+                user_id=user_id,
+                role=role,
+            ):
+                # Run DAG within transaction - repository methods will use RLS-scoped connection
+                try:
+                    result = await self._dag.run(envelope)
+                    # Record success for non-error results
+                    if result.status == "ok":
+                        self._circuit_breaker.record_success()
+                    else:
+                        # DAG returned error status
+                        self._circuit_breaker.record_failure(
+                            result.error_message or "DAG returned error status"
+                        )
+                except Exception as dag_error:
+                    # DAG threw exception - record failure and re-raise
+                    self._circuit_breaker.record_failure(str(dag_error))
+                    logger.error(
+                        "memory_substrate_dag_exception",
+                        packet_id=str(envelope.packet_id),
+                        error=str(dag_error),
+                        circuit_state=self._circuit_breaker.get_state(),
+                    )
+                    raise
+        else:
+            logger.warning(
+                "RLS scope not provided for write_packet - queries may be restricted"
             )
-            raise
+            # Run through DAG without RLS scope (normal flow)
+            try:
+                result = await self._dag.run(envelope)
+                # Record success for non-error results
+                if result.status == "ok":
+                    self._circuit_breaker.record_success()
+                else:
+                    # DAG returned error status
+                    self._circuit_breaker.record_failure(
+                        result.error_message or "DAG returned error status"
+                    )
+            except Exception as dag_error:
+                # DAG threw exception - record failure and re-raise
+                self._circuit_breaker.record_failure(str(dag_error))
+                logger.error(
+                    "memory_substrate_dag_exception",
+                    packet_id=str(envelope.packet_id),
+                    error=str(dag_error),
+                    circuit_state=self._circuit_breaker.get_state(),
+                )
+                raise
 
-        # Record Prometheus metrics for memory write
+        # Record Prometheus metrics for memory write (result is defined in both branches)
         record_memory_write(
             segment=packet_in.packet_type or "unknown",
             status=result.status,

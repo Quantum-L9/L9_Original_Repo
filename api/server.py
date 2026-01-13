@@ -1236,7 +1236,7 @@ async def lifespan(app: FastAPI):
         from core.tools.memory_tools import register_memory_tools
 
         tool_registry = getattr(app.state, "tool_registry", None)
-        substrate_service = getattr(app.state, "memory_service", None)
+        substrate_service = getattr(app.state, "substrate_service", None)
         if tool_registry:
             memory_tool_count = await register_memory_tools(
                 tool_registry,
@@ -2453,22 +2453,64 @@ from core.schemas.event_stream import AgentHandshake
 from runtime.websocket_orchestrator import ws_orchestrator
 
 
+# =============================================================================
+# WebSocket Authentication Helper
+# =============================================================================
+
+
+async def verify_websocket_auth(websocket: WebSocket, token: Optional[str] = None) -> bool:
+    """
+    Verify WebSocket authentication token.
+    
+    Token can be provided via:
+    1. Query parameter: ?token=...
+    2. Function parameter (from handshake message)
+    
+    Args:
+        websocket: WebSocket connection
+        token: Optional token from handshake message
+        
+    Returns:
+        True if token is valid, False otherwise
+    """
+    from api.auth import EXECUTOR_API_KEY
+    
+    if not EXECUTOR_API_KEY:
+        logger.warning("WebSocket auth: L9_EXECUTOR_API_KEY not configured")
+        return False
+    
+    # Token can come from query params or function parameter
+    if not token:
+        query_token = websocket.query_params.get("token")
+        if query_token:
+            token = query_token
+    
+    if not token or token != EXECUTOR_API_KEY:
+        return False
+    
+    return True
+
+
 @app.websocket("/ws/agent")
 async def agent_ws_endpoint(websocket: WebSocket) -> None:
     """
     WebSocket entrypoint for L9 Mac Agents and other workers.
 
     Protocol:
-    1) Client connects and sends AgentHandshake JSON.
-    2) Server validates handshake and registers the agent_id.
-    3) Subsequent frames are EventMessage JSON payloads.
-    4) On disconnect, agent is automatically unregistered.
+    1) Client connects with auth token (query param: ?token=... or in handshake).
+    2) Server validates auth BEFORE accepting connection.
+    3) Client sends AgentHandshake JSON.
+    4) Server validates handshake and registers the agent_id.
+    5) Subsequent frames are EventMessage JSON payloads.
+    6) On disconnect, agent is automatically unregistered.
+
+    Requires authentication via L9_EXECUTOR_API_KEY.
 
     Example client connection:
         import websockets
         import json
 
-        async with websockets.connect("ws://localhost:8000/ws/agent") as ws:
+        async with websockets.connect("ws://localhost:8000/ws/agent?token=YOUR_API_KEY") as ws:
             # Step 1: Send handshake
             await ws.send(json.dumps({
                 "agent_id": "mac-agent-1",
@@ -2483,6 +2525,12 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
                 "payload": {"running_tasks": 0}
             }))
     """
+    # Validate auth BEFORE accept
+    token = websocket.query_params.get("token")
+    if not await verify_websocket_auth(websocket, token):
+        await websocket.close(code=1008, reason="Unauthorized")
+        return
+    
     await websocket.accept()
     agent_id: str | None = None
 
@@ -2490,6 +2538,16 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
         # Step 1: Wait for handshake
         raw = await websocket.receive_json()
         handshake = AgentHandshake.model_validate(raw)
+        
+        # Verify token in handshake message too (if provided)
+        if handshake.auth_token:
+            if not await verify_websocket_auth(websocket, handshake.auth_token):
+                await websocket.close(code=1008, reason="Invalid auth token")
+                return
+            # Use handshake token if query param wasn't provided
+            if not token:
+                token = handshake.auth_token
+        
         agent_id = handshake.agent_id
 
         # Register with orchestrator (store handshake metadata)
@@ -2555,21 +2613,24 @@ async def l_ws(websocket: WebSocket) -> None:
     AgentTask -> AgentExecutorService -> AIOSRuntime
 
     Protocol:
-    1) Client connects (no handshake required).
-    2) Client sends JSON frames with:
+    1) Client connects with auth token (query param: ?token=...).
+    2) Server validates auth BEFORE accepting connection.
+    3) Client sends JSON frames with:
        - message: str (required)
        - thread_id: str (optional, for conversation grouping)
        - metadata: dict (optional)
-    3) Server executes via AgentExecutorService and returns:
+    4) Server executes via AgentExecutorService and returns:
        - task_id: str
        - status: str (completed, duplicate, failed, error)
        - reply: str
+
+    Requires authentication via L9_EXECUTOR_API_KEY.
 
     Example client:
         import websockets
         import json
 
-        async with websockets.connect("ws://localhost:8000/lws") as ws:
+        async with websockets.connect("ws://localhost:8000/lws?token=YOUR_API_KEY") as ws:
             await ws.send(json.dumps({
                 "message": "What is L9?",
                 "thread_id": "my-session-123"
@@ -2577,6 +2638,12 @@ async def l_ws(websocket: WebSocket) -> None:
             response = json.loads(await ws.recv())
             logger.info(response["reply"])
     """
+    # Validate auth BEFORE accept
+    token = websocket.query_params.get("token")
+    if not await verify_websocket_auth(websocket, token):
+        await websocket.close(code=1008, reason="Unauthorized")
+        return
+    
     await websocket.accept()
 
     # Check if agent executor is available

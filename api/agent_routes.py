@@ -13,8 +13,10 @@ Version: 1.1.0
 
 import structlog
 from typing import Any, Optional
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, Field
+
+from api.auth import verify_api_key
 
 logger = structlog.get_logger(__name__)
 
@@ -85,11 +87,16 @@ async def agent_status():
 
 
 @router.post("/task")
-async def submit_task(payload: dict):
+async def submit_task(
+    payload: dict,
+    _: bool = Depends(verify_api_key),
+):
     """
     Submit a task to the agent system.
 
     Ingests task to memory and routes to orchestrator.
+
+    Requires authentication via L9_EXECUTOR_API_KEY.
     """
     from uuid import uuid4
     from memory.ingestion import ingest_packet
@@ -123,7 +130,9 @@ async def submit_task(payload: dict):
 
 @router.post("/execute", response_model=ExecuteTaskResponse)
 async def execute_task(
-    request: Request, body: ExecuteTaskRequest
+    request: Request,
+    body: ExecuteTaskRequest,
+    _: bool = Depends(verify_api_key),
 ) -> ExecuteTaskResponse:
     """
     Execute a task via the AgentExecutorService.
@@ -136,8 +145,11 @@ async def execute_task(
 
     For long-running tasks, consider using /task for async submission.
 
+    Requires authentication via L9_EXECUTOR_API_KEY.
+
     Example:
         POST /agent/execute
+        Authorization: Bearer {L9_EXECUTOR_API_KEY}
         {
             "message": "What is the capital of France?",
             "agent_id": "l9-standard-v1",

@@ -20,8 +20,11 @@ from __future__ import annotations
 
 import structlog
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import uuid4
+
+if TYPE_CHECKING:
+    import asyncpg
 
 from memory.substrate_models import (
     PacketEnvelope,
@@ -147,21 +150,28 @@ class IngestionPipeline:
             auto_tags = self._generate_tags(envelope)
             envelope.tags = list(set(envelope.tags + auto_tags))
 
-        # Store structured packet
-        try:
-            await self._store_packet(envelope)
-            written_tables.append("packet_store")
-        except Exception as e:
-            logger.error(f"Failed to store packet: {e}")
-            errors.append(f"packet_store: {str(e)}")
-
-        # Store memory event
-        try:
-            await self._store_memory_event(envelope)
-            written_tables.append("agent_memory_events")
-        except Exception as e:
-            logger.error(f"Failed to store memory event: {e}")
-            errors.append(f"agent_memory_events: {str(e)}")
+        # Core writes in transaction (atomic)
+        # Wrap packet_store and agent_memory_events in transaction for atomicity
+        if self._repository:
+            try:
+                async with self._repository.transaction() as conn:
+                    # Store structured packet (uses transaction connection)
+                    await self._store_packet_with_connection(envelope, conn)
+                    written_tables.append("packet_store")
+                    
+                    # Store memory event (uses same transaction connection)
+                    await self._store_memory_event_with_connection(envelope, conn)
+                    written_tables.append("agent_memory_events")
+                    
+                    # Transaction commits here (or rolls back on exception)
+            except Exception as e:
+                logger.error(f"Transaction failed for core writes: {e}")
+                errors.append(f"transaction: {str(e)}")
+                # Transaction auto-rolls back on exception
+        else:
+            # Fallback if repository not available (should not happen)
+            logger.warning("Repository not available for transactional writes")
+            errors.append("repository: not available")
 
         # Generate and store embedding
         if should_embed and self._semantic_service:
@@ -328,6 +338,17 @@ class IngestionPipeline:
 
         await self._repository.insert_packet(envelope)
 
+    async def _store_packet_with_connection(
+        self, envelope: PacketEnvelope, conn: "asyncpg.Connection"
+    ) -> None:
+        """Store packet using provided connection (for transactions)."""
+        if self._repository is None:
+            raise RuntimeError("Repository not configured")
+        
+        # Use repository's insert_packet which will detect RLS connection from context
+        # The connection is stored in context variable by transaction()
+        await self._repository.insert_packet(envelope)
+
     async def _store_memory_event(self, envelope: PacketEnvelope) -> None:
         """Store memory event in agent_memory_events table."""
         if self._repository is None:
@@ -335,6 +356,25 @@ class IngestionPipeline:
 
         agent_id = envelope.metadata.agent if envelope.metadata else "default"
 
+        await self._repository.insert_memory_event(
+            agent_id=agent_id or "default",
+            event_type=envelope.packet_type,
+            content=envelope.payload,
+            packet_id=envelope.packet_id,
+            timestamp=envelope.timestamp,
+        )
+
+    async def _store_memory_event_with_connection(
+        self, envelope: PacketEnvelope, conn: "asyncpg.Connection"
+    ) -> None:
+        """Store memory event using provided connection (for transactions)."""
+        if self._repository is None:
+            return
+
+        agent_id = envelope.metadata.agent if envelope.metadata else "default"
+
+        # Use repository's insert_memory_event which will detect RLS connection from context
+        # The connection is stored in context variable by transaction()
         await self._repository.insert_memory_event(
             agent_id=agent_id or "default",
             event_type=envelope.packet_type,

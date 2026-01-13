@@ -29,7 +29,7 @@ API_BASE_URL = os.environ.get("API_BASE_URL", "http://l9-api:8000")
 MEMORY_API_BASE_URL = os.environ.get("MEMORY_API_BASE_URL", "http://l9-memory-api:8080")
 
 # API key for authenticated endpoints
-API_KEY = os.environ.get("L9_API_KEY", "YOUR_API_KEY_HERE")
+API_KEY = os.environ.get("L9_EXECUTOR_API_KEY", os.environ.get("L9_API_KEY", "YOUR_API_KEY_HERE"))
 
 
 # =============================================================================
@@ -174,6 +174,7 @@ class TestAgentExecutor:
         This tests the executor wiring without requiring real external tools.
         Expected: Either success response or 503 if executor not initialized
         (which is acceptable in smoke test - proves route exists).
+        Requires authentication.
         """
         payload = {
             "message": "What is 2 + 2?",
@@ -186,6 +187,7 @@ class TestAgentExecutor:
 
         # Accept: 200 (success), 503 (executor not ready), 500 (internal error)
         # All prove the route is wired correctly
+        # Note: api_client fixture includes auth header
         assert response.status_code in [200, 500, 503]
 
         if response.status_code == 200:
@@ -203,6 +205,7 @@ class TestAgentExecutor:
         POST /agent/task - submit task to queue.
 
         This tests the simpler task submission endpoint.
+        Requires authentication.
         """
         payload = {
             "type": "test_task",

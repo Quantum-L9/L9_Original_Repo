@@ -95,6 +95,11 @@ class AgentHandshake(BaseModel):
         description="List of capability names (simple string list)",
     )
 
+    # Authentication (optional, can be in query params or handshake)
+    auth_token: Optional[str] = Field(
+        None, description="Authentication token (can also be provided via query params)"
+    )
+
     # Full capability object (optional, for advanced use)
     agent_capabilities: Optional[AgentCapabilities] = Field(
         None, description="Full AgentCapabilities object for detailed permissions"
