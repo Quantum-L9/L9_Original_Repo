@@ -46,6 +46,7 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-05] **MCP Memory Full Integration (GMP-54)** — Ensured MCP Memory is fully integrated for Cursor agent. Added env var verification and MCP health check to startup protocol, added QUICK_REFERENCE.md to agent startup files, enhanced client and reference documentation. Agent now verifies MCP configuration at startup and has memory usage guide loaded automatically. `reports/GMP_Report_GMP-54-MCP-Memory-Full-Integration.md`
 - [2026-01-12] **C-GMP Suite L9 Alignment (GMP-53)** — Aligned G-CMP v2.0 toolkit with L9 GMP v1.7. Created phase mapping document (G-CMP-L9-GMP-Alignment.md), updated README-INDEX.md to list all 8 files (was incorrectly listing 5), added L9 GMP integration section to main template. All documentation now properly integrated with L9 GMP system. `reports/GMP_Report_GMP-53-C-GMP-Suite-L9-Alignment.md`
 - [2026-01-12] **Cursor GMP Integration Pack Verification** — Verified and adapted Cursor GMP Integration Pack to L9 state. Fixed all paths ($HOME), removed Stage 2 (Intelition), updated directory structure (agents/cursor/), marked stages 1-3 as done (GMP-48/49), added tier metadata, corrected stage numbering (7 stages). 32 TODO items completed. `reports/GMP_Report_GMP-Consolidation-Pack-Verification.md`
 - [2026-01-12] **Memory v3.1 Documentation Verification** — Verified all Memory v3.1 documentation (API_TESTING.md, CONSOLIDATION.md, TESTING.md) describes fully implemented features. All modules, endpoints, tests, and scripts exist and match documentation.
@@ -104,12 +105,13 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 *Last updated: 2026-01-12 EST*
 
 ## Next Steps (Current Session)
-1. **Enable Jaeger export on VPS** - Set `OBS_JAEGER_ENABLED=true` in VPS `.env` to activate Jaeger tracing
-2. **Access VPS Grafana** - Use SSH port forwarding: `ssh -L 3000:localhost:3000 -L 9090:localhost:9090 -L 16686:localhost:16686 root@157.180.73.53`
-3. **Verify observability metrics** - Check Prometheus `/metrics` endpoint and Grafana dashboards show data
-4. **Test Jaeger traces** - After enabling, verify traces appear in Jaeger UI at `http://localhost:16686`
+1. **Commit milestone cleanup changes** - Commit and push MCP official config changes to GitHub
+2. **Sync VPS with GitHub** - On VPS: `git fetch origin && git reset --hard origin/main` (after commit)
+3. **Verify MCP capsule doc** - Ensure `docs/MCP-MEMORY-CAPSULE.md` is accessible and complete
+4. **Optional: Run rate limit tests** - Test tight loop (50× requests) to verify rate limiting behavior
 
 **Recent Sessions (7-day window):**
+- ✅ 2026-01-12: Milestone Cleanup - MCP Memory Official Configuration — Completed all 5 milestone cleanup tasks: locked official MCP URL/key in docs/MCP-MEMORY-CAPSULE.md, removed all 9002 references from active docs, documented auth/rate-limit behavior, documented Neo4j posture decision, added git sync protocol. 6 files modified (documentation + configuration). GMP report: reports/GMP_Report_Milestone-Cleanup-MCP-Memory.md
 - 2026-01-12: C-GMP Suite L9 Alignment (GMP-53) — Aligned G-CMP v2.0 toolkit with L9 GMP v1.7. Created phase mapping document, updated README-INDEX.md (8 files documented), added L9 GMP integration section to main template. All documentation now properly integrated with L9 GMP system.
 - 2026-01-12: Five-Tier Observability + Prometheus/Grafana/Jaeger Integration — Built complete observability stack integration. Created Prometheus exporter (metrics), Jaeger exporter (traces via OTLP), Grafana dashboard (l9-five-tier-observability.json), auto-provisioned Prometheus datasource. All bridges between Five-Tier Observability and Prometheus/Grafana/Jaeger are complete and active. Background task updates SRE metrics every 30s. Full open source observability stack ready for VPS deployment.
 - ✅ 2026-01-12: Cursor GMP Integration Pack Verification — Verified and adapted Cursor GMP Integration Pack to L9 state. Fixed all paths ($HOME), removed Stage 2 (Intelition), updated directory structure (agents/cursor/), marked stages 1-3 as done (GMP-48/49), added tier metadata, corrected stage numbering (7 stages). Generated comprehensive GMP report. Also verified Memory v3.1 documentation completeness (all features implemented).

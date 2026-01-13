@@ -2,7 +2,11 @@
 
 OpenAI embeddings + pgvector semantic search for **L-CTO and Cursor IDE** collaboration.
 
-**Production URL:** `https://l9.quantumaipartners.com/mcp/*`
+**Status:** ✅ **ACTIVE** - Production-ready, Docker-based deployment  
+**Production URL:** `https://l9.quantumaipartners.com:9001/mcp/*`  
+**Architecture:** Unified L9 substrate (`packet_store` + `memory_embeddings`)
+
+> **Quick Reference:** See `QUICK_REFERENCE.md` for concise usage guide.
 
 ## Governance Model (v2.0)
 
@@ -37,8 +41,8 @@ See: `memory-setup-instructions.md` for full governance spec.
 ┌──────────────────────↓──────────────────────────────────────────┐
 │ VPS (L9)                                                        │
 │  ├─ Caddy (reverse proxy)                                       │
-│  │   └─ /mcp/* → MCP Server:9002                               │
-│  ├─ FastAPI MCP Server (127.0.0.1:9002, systemd service)        │
+│  │   └─ :443, :9001 → 127.0.0.1:8000 (unified l9-api)          │
+│  ├─ l9-api (Docker, port 8000)                                  │
 │  │   ├─ /mcp/tools     (tool discovery)                        │
 │  │   ├─ /mcp/call      (tool execution)                        │
 │  │   ├─ /memory/save   (store embeddings)                      │
@@ -51,38 +55,39 @@ See: `memory-setup-instructions.md` for full governance spec.
 
 ## Quick Start
 
+### VPS Activation (Docker-based)
+
 ```bash
-# 1. Bootstrap (creates all files)
-./bootstrap.sh
-
-# 2. Configure
-cp .env.example .env
-# Edit .env with your credentials
-
-# 3. Deploy to VPS
-scp -r . admin@YOUR_VPS:/opt/l9/mcp_memory/
-ssh admin@YOUR_VPS
-cd /opt/l9/mcp_memory
-./deploy/scripts/install.sh
+# On VPS
+cd /opt/l9
+bash mcp_memory/deploy/scripts/init_mcp_memory.sh
 ```
+
+This script:
+1. Checks MCP environment variables in `.env`
+2. Enables MCP memory (`MCPMEMORYENABLED=true`)
+3. Restarts `l9-api` Docker container
+4. Verifies health endpoints
+
+**Note:** MCP Memory runs **inside the `l9-api` Docker container**, not as a separate systemd service.
 
 ## Access (Production)
 
-No SSH tunnel needed! Access directly via HTTPS:
+**Primary Method:** Via L9 API (Docker container)
 
 ```bash
-curl https://l9.quantumaipartners.com/health
-curl -H "Authorization: Bearer YOUR_API_KEY" https://l9.quantumaipartners.com/mcp/tools
+# Health check
+curl http://127.0.0.1:8000/health
+
+# Via HTTPS (Caddy proxy)
+curl -sk https://157.180.73.53:9001/health
+
+# MCP tools (requires API key)
+curl -H "Authorization: Bearer $MCP_API_KEY_C" \
+  https://l9.quantumaipartners.com:9001/mcp/tools
 ```
 
-## SSH Tunnel (Development Only)
-
-Only needed for local development bypassing Cloudflare:
-
-```bash
-ssh -L 9001:127.0.0.1:9001 root@157.180.73.53
-# Then access http://127.0.0.1:9001
-```
+**Note:** MCP Memory is integrated into `l9-api` container. No separate service needed.
 
 ## API Reference
 
@@ -182,31 +187,40 @@ DEFAULT_USER_ID=cursor
 
 ```
 mcp_memory/
-├── src/
-│   ├── main.py           # FastAPI app, lifespan, auth
-│   ├── config.py         # Pydantic settings
-│   ├── db.py             # asyncpg pool
-│   ├── embeddings.py     # OpenAI embedding client
-│   ├── models.py         # Pydantic request/response models
-│   ├── mcp_server.py     # MCP tool definitions
+├── src/                          # Python implementation
+│   ├── main.py                   # FastAPI app, lifespan, auth
+│   ├── config.py                 # Pydantic settings
+│   ├── db.py                     # asyncpg pool
+│   ├── embeddings.py             # OpenAI embedding client
+│   ├── models.py                 # Pydantic request/response models
+│   ├── mcp_server.py             # MCP tool definitions
 │   └── routes/
-│       ├── memory.py     # CRUD, search, compounding, decay
-│       └── health.py     # Health check
-├── schema/
-│   ├── init.sql          # Initial schema
-│   └── migrations/       # Schema migrations
-├── tests/
-│   ├── test_memory.py
-│   ├── test_search.py
-│   └── test_embeddings.py
-├── deploy/
-│   ├── L9-MCP-IMPL.md    # Full implementation guide
-│   ├── systemd/          # Service files
-│   └── scripts/          # Deploy scripts
+│       ├── memory_unified.py     # Unified handlers (packet_store + memory_embeddings)
+│       ├── memory.py             # Legacy handlers (deprecated)
+│       └── health.py             # Health check
+├── deploy/                       # Deployment guides
+│   ├── L9-MCP-IMPL.md            # Full implementation guide (1506 lines)
+│   ├── VPS_DEPLOYMENT_GUIDE.md   # VPS deployment steps
+│   ├── CADDY_CONFIG.md           # Caddy routing configuration
+│   ├── scripts/
+│   │   └── init_mcp_memory.sh    # Docker-based activation script
+│   └── systemd/                   # Legacy systemd files (not used)
+├── tests/                        # Test files
+├── mcp-memory-architecture/      # Architecture documentation
+│   └── ARCHITECTURE.md           # Current architecture
+├── _archived/                    # Archived outdated docs
+│   ├── status/                   # Completed status docs
+│   ├── migration/                 # Migration docs
+│   ├── comparison/                # Comparison/answer docs
+│   ├── conceptual/                # Conceptual docs
+│   └── schema/                    # Deprecated schema (memory.* tables)
+├── memory-setup-instructions.md  # Governance specification
+├── QUICK_REFERENCE.md            # Concise usage guide
 ├── requirements.txt
-├── bootstrap.sh          # One-command setup
-└── README.md             # This file
+└── README.md                     # This file
 ```
+
+**Note:** The `schema/` directory has been archived. MCP Memory uses the unified L9 substrate (`packet_store` + `memory_embeddings`) from L9 migrations.
 
 ## Dependencies
 

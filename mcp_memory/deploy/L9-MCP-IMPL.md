@@ -1300,13 +1300,18 @@ Configure in `~/.cursor/mcp.json`:
       "command": "node",
       "args": ["/path/to/mcp-http-bridge.js"],
       "env": {
-        "MCP_SERVER_URL": "https://l9.quantumaipartners.com",
-        "MCP_API_KEY": "YOUR_MCP_API_KEY"
+        "MCPSERVERURL": "https://157.180.73.53:9001",
+        "MCPAPIKEYC": "YOUR_MCP_API_KEY_C_VALUE"
       }
     }
   }
 }
 ```
+
+**Official Configuration (Locked 2026-01-12):**
+- **URL:** `https://157.180.73.53:9001` (IP-based) or `https://l9.quantumaipartners.com` (domain)
+- **API Key:** `MCP_API_KEY_C` (Cursor IDE key)
+- See `docs/MCP-MEMORY-CAPSULE.md` for complete wiring documentation.
 
 **Note:** No SSH tunnel required! Cloudflare proxies all traffic via HTTPS.
 

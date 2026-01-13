@@ -8,10 +8,10 @@ echo "=== MCP Memory Server VPS Deployment ==="
 echo ""
 
 # Step 1: Fix Caddy Routing
-echo "[1/3] Fixing Caddy routing for /mcp/* → 127.0.0.1:9002..."
+echo "[1/3] Fixing Caddy routing for /mcp/* → 127.0.0.1:8000 (unified l9-api)..."
 cd /opt/l9 && \
 sudo cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.backup && \
-sudo sed -i 's#reverse_proxy /mcp/\* 127\.0\.0\.1:[0-9]\+#reverse_proxy /mcp/* 127.0.0.1:9002#' /etc/caddy/Caddyfile && \
+sudo sed -i 's#reverse_proxy /mcp/\* 127\.0\.0\.1:[0-9]\+#reverse_proxy 127.0.0.1:8000#' /etc/caddy/Caddyfile && \
 echo "✓ Caddyfile backed up and updated" && \
 grep -A3 '/mcp/' /etc/caddy/Caddyfile && \
 echo "" && \
@@ -29,7 +29,7 @@ sudo systemctl start l9-mcp && \
 echo "✓ Service installed and started" && \
 sudo systemctl status l9-mcp --no-pager | head -20 && \
 echo "" && \
-sudo ss -tlnp | grep ':9002' || echo '⚠️  WARNING: Port 9002 not listening (service may be starting)'
+sudo ss -tlnp | grep ':8000' || echo '⚠️  WARNING: Port 8000 not listening (l9-api container may be starting)'
 
 echo ""
 echo "[3/3] Testing MCP endpoints..."
@@ -44,6 +44,6 @@ echo "=== Deployment Complete ==="
 echo ""
 echo "Next steps:"
 echo "  1. Check service logs: sudo journalctl -u l9-mcp -f"
-echo "  2. Test health: curl http://127.0.0.1:9002/health"
+echo "  2. Test health: curl http://127.0.0.1:8000/health"
 echo "  3. Test via Caddy: curl https://l9.quantumaipartners.com/mcp/health"
 

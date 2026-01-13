@@ -17,16 +17,31 @@
 
 ## Step 1: Deploy Code to VPS
 
+**Git Hygiene Protocol (CRITICAL):**
+
 ```bash
-# On local machine
+# On local machine (MacBook)
 cd /Users/ib-mac/Projects/L9
+git add .
+git commit -m "Your commit message"
 git push origin main  # Push latest code
 
 # On VPS
 ssh root@157.180.73.53
 cd /opt/l9
-git pull origin main
+
+# ⚠️ WARNING: This discards any local VPS changes
+# Only run after all changes are committed and pushed from local
+git fetch origin
+git reset --hard origin/main
 ```
+
+**Before `git reset --hard`:**
+- ✅ All changes committed and pushed from local
+- ✅ VPS `.env` backed up (if modified)
+- ✅ Any VPS-only configs documented
+
+**Reference:** See `docs/MCP-MEMORY-CAPSULE.md` for complete git sync protocol.
 
 ---
 
@@ -61,30 +76,38 @@ L_CTO_USER_ID=l9-shared  # Shared user ID
 OPENAI_API_KEY=...  # For embeddings
 MEMORY_DSN=postgresql://postgres:...@localhost:5432/l9_memory
 
-# Server Configuration
-MCP_HOST=0.0.0.0
-MCP_PORT=9001
+# Server Configuration (NOTE: MCP runs inside l9-api Docker container)
+MCPMEMORYENABLED=true  # Enable MCP memory in l9-api
 MCP_ENV=production
 LOG_LEVEL=INFO
 ```
 
+**Note:** MCP Memory runs **inside the `l9-api` Docker container** (port 8000), not as a separate systemd service. No separate MCP service installation needed.
+
 ---
 
-## Step 4: Install Systemd Service
+## Step 4: Activate MCP Memory in l9-api
+
+**MCP Memory is integrated into `l9-api` Docker container:**
 
 ```bash
 # On VPS
 cd /opt/l9
-sudo cp mcp_memory/deploy/systemd/l9-mcp.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable l9-mcp
-sudo systemctl start l9-mcp
+
+# Activate MCP Memory (sets MCPMEMORYENABLED=true and restarts container)
+bash mcp_memory/deploy/scripts/init_mcp_memory.sh
 ```
 
-**Verify service is running:**
+**Verify:**
 ```bash
-sudo systemctl status l9-mcp
-sudo journalctl -u l9-mcp -f  # View logs
+# Check container health
+docker compose ps l9-api
+
+# Check logs
+docker compose logs -f l9-api | grep -i "Memory Substrate Service"
+
+# Test health endpoint
+curl http://127.0.0.1:8000/health
 ```
 
 ---
@@ -93,51 +116,34 @@ sudo journalctl -u l9-mcp -f  # View logs
 
 **File:** `/etc/caddy/Caddyfile`
 
-### Update IP-based routing (157.180.73.53:9001):
+**UNIFIED ARCHITECTURE:** All traffic routes to `l9-api` on port 8000. No separate MCP service.
 
 ```caddyfile
-# Cursor MCP endpoint (IP:9001)
-# Routes /mcp/* to MCP Memory Server (9001)
-157.180.73.53:9001 {
-    encode gzip
-    
-    # MCP Memory Server routes → port 9001
-    reverse_proxy /mcp/* 127.0.0.1:9001
-    
-    # Default to l9-api → port 8000
-    reverse_proxy 127.0.0.1:8000
-}
-```
-
-### Add to domain routing (l9.quantumaipartners.com):
-
-```caddyfile
+# L9 Main API (domain-based)
 l9.quantumaipartners.com {
     encode gzip
+    reverse_proxy 127.0.0.1:8000
+}
 
-    # Core L9 API routes
-    reverse_proxy /health 127.0.0.1:8000
-    reverse_proxy /docs* 127.0.0.1:8000
-    reverse_proxy /openapi.json 127.0.0.1:8000
-    reverse_proxy /memory* 127.0.0.1:8000
-    reverse_proxy /twilio* 127.0.0.1:8000
-    reverse_proxy /waba* 127.0.0.1:8000
-    reverse_proxy /slack/* 127.0.0.1:8000
-    
-    # MCP Memory Server - protocol endpoints
-    handle /mcp/* {
-        reverse_proxy 127.0.0.1:9001
-    }
-    
-    # MCP Memory Server - direct memory API (backward compatibility)
-    handle /api/v1/memory/* {
-        reverse_proxy 127.0.0.1:9001
-    }
-    
-    # Default to L9 API
+# Cursor MCP endpoint (IP:9001 - alternate HTTPS front door)
+# Routes ALL traffic to unified l9-api (8000)
+157.180.73.53:9001 {
+    encode gzip
     reverse_proxy 127.0.0.1:8000
 }
 ```
+
+**Key Points:**
+- ✅ **No `/mcp/*` special routing** — All traffic goes to 8000
+- ✅ **No port 9002** — Deprecated, never deployed
+- ✅ **Unified backend** — Single `l9-api` container handles everything
+
+**Reload Caddy:**
+```bash
+sudo systemctl reload caddy
+```
+
+**Reference:** See `mcp_memory/deploy/CADDY_CONFIG.md` for complete Caddy configuration.
 
 **Reload Caddy:**
 ```bash
