@@ -56,23 +56,22 @@ check_var() {
     fi
 }
 
+# Prefer new naming convention
 check_var "MCP_API_KEY_C" true
 check_var "MCP_API_KEY_L" false
 
-# Check for legacy variable names (for backward compatibility)
-if [ -z "$MCP_API_KEY_C" ] && [ -n "$MCPAPIKEYC" ]; then
-    echo "  ⚠️  MCP_API_KEY_C not set, but MCPAPIKEYC found (legacy)"
-    echo "     → Consider renaming: MCPAPIKEYC → MCP_API_KEY_C"
+# Detect legacy names and warn (but don't require renaming)
+if [ -n "$MCPAPIKEYC" ] && [ -z "$MCP_API_KEY_C" ]; then
+    echo "  ⚠️  MCPAPIKEYC is set (legacy name). Consider: MCP_API_KEY_C=\$MCPAPIKEYC"
 fi
-if [ -z "$MCP_API_KEY_L" ] && [ -n "$MCPAPIKEYL" ]; then
-    echo "  ⚠️  MCP_API_KEY_L not set, but MCPAPIKEYL found (legacy)"
-    echo "     → Consider renaming: MCPAPIKEYL → MCP_API_KEY_L"
+if [ -n "$MCPAPIKEYL" ] && [ -z "$MCP_API_KEY_L" ]; then
+    echo "  ⚠️  MCPAPIKEYL is set (legacy name). Consider: MCP_API_KEY_L=\$MCPAPIKEYL"
 fi
 
-check_var "MCPMEMORYENABLED" false
-if [ -z "$MCPMEMORYENABLED" ]; then
-    echo "     → Setting MCPMEMORYENABLED=true (default)"
-    echo "MCPMEMORYENABLED=true" >> "$ENV_FILE"
+# Check MCP enable flag
+check_var "MCP_ENABLED" false
+if [ -z "$MCP_ENABLED" ]; then
+    echo "     → MCP_ENABLED not set (will default to 'true')"
 fi
 
 echo ""
@@ -87,17 +86,25 @@ check_var "POSTGRES_USER" true
 check_var "POSTGRES_PASSWORD" true
 check_var "POSTGRES_DB" true
 check_var "MEMORY_DSN" true
-check_var "DATABASE_URL" false
 
-# Verify MEMORY_DSN format
+# Verify MEMORY_DSN format and context
 if [ -n "$MEMORY_DSN" ]; then
     if [[ "$MEMORY_DSN" == postgresql://* ]]; then
-        echo "  ✅ MEMORY_DSN format: Valid PostgreSQL connection string"
+        echo "  ✅ MEMORY_DSN format: Valid PostgreSQL DSN"
+        
+        # Check if it's host mode or compose mode
+        if [[ "$MEMORY_DSN" == *"127.0.0.1"* ]] || [[ "$MEMORY_DSN" == *"localhost"* ]]; then
+            echo "     → Host mode (127.0.0.1 or localhost)"
+        elif [[ "$MEMORY_DSN" == *"l9-postgres"* ]]; then
+            echo "     → Compose mode (l9-postgres service)"
+        fi
     else
         echo "  ❌ MEMORY_DSN format: Invalid (should start with postgresql://)"
         ALL_GOOD=false
     fi
 fi
+
+check_var "DATABASE_URL" false
 
 echo ""
 
@@ -110,7 +117,7 @@ echo "────────────────────────�
 check_var "OPENAI_API_KEY" true
 check_var "OPENAI_MODEL" false
 if [ -z "$OPENAI_MODEL" ]; then
-    echo "     → OPENAI_MODEL not set (will use default)"
+    echo "     → OPENAI_MODEL not set (will use 'gpt-4o')"
 fi
 
 echo ""
@@ -142,32 +149,27 @@ echo "────────────────────────�
 check_var "L9_API_KEY" false
 check_var "L9_EXECUTOR_API_KEY" false
 
-# If L9_EXECUTOR_API_KEY not set, suggest using MCP_API_KEY_C
-if [ -z "$L9_EXECUTOR_API_KEY" ] && [ -n "$MCP_API_KEY_C" ]; then
-    echo "     → L9_EXECUTOR_API_KEY not set, but MCP_API_KEY_C is set"
-    echo "     → Consider: L9_EXECUTOR_API_KEY=\$MCP_API_KEY_C"
-fi
-
 echo ""
 
 # ============================================================================
-# Neo4j (Optional)
+# Neo4j (Optional but part of full stack)
 # ============================================================================
-echo "🕸️  Neo4j Configuration (Optional):"
+echo "🕸️  Neo4j Configuration:"
 echo "─────────────────────────────────────────────────────────────────"
 
 check_var "NEO4J_PASSWORD" false
-if [ -z "$NEO4J_PASSWORD" ]; then
-    echo "     → Neo4j not configured (Postgres-only mode)"
-else
+if [ -n "$NEO4J_PASSWORD" ]; then
     check_var "NEO4J_USER" false
-    check_var "NEO4J_URL" false
+    check_var "NEO4J_URI" false
+    echo "     → Neo4j graph enabled"
+else
+    echo "     → Neo4j not configured (Postgres-only mode OK)"
 fi
 
 echo ""
 
 # ============================================================================
-# Redis (Optional but recommended)
+# Redis (Optional)
 # ============================================================================
 echo "📦 Redis Configuration:"
 echo "─────────────────────────────────────────────────────────────────"
@@ -175,7 +177,7 @@ echo "────────────────────────�
 check_var "REDIS_HOST" false
 check_var "REDIS_PORT" false
 if [ -z "$REDIS_HOST" ]; then
-    echo "     → REDIS_HOST not set (will default to 'redis')"
+    echo "     → REDIS_HOST not set (optional, rate limiting disabled)"
 fi
 
 echo ""
@@ -199,18 +201,21 @@ if [ "$ALL_GOOD" = false ]; then
 fi
 
 # ============================================================================
-# Quick Test Commands
+# Quick Test Commands (dynamic, context-aware)
 # ============================================================================
 echo "📋 Quick Verification Commands:"
 echo "─────────────────────────────────────────────────────────────────"
 echo ""
-echo "# Test database connection:"
-echo "docker exec -it l9-postgres psql -U \$POSTGRES_USER -d \$POSTGRES_DB -c 'SELECT 1;'"
+echo "# Test API health (after rebuild):"
+echo "curl -s http://127.0.0.1:8000/health | jq ."
 echo ""
-echo "# Test MCP endpoint (after rebuild):"
-echo "curl -ks https://157.180.73.53:9001/mcp/tools \\"
-echo "  -H \"Authorization: Bearer \$MCP_API_KEY_C\" | jq ."
+echo "# Test MCP memory save (requires API key):"
+echo "export MCP_KEY=\$(grep MCP_API_KEY_C /opt/l9/.env | cut -d= -f2)"
+echo "curl -X POST http://127.0.0.1:8000/memory/packet \\"
+echo "  -H \"Authorization: Bearer \$MCP_KEY\" \\"
+echo "  -H \"Content-Type: application/json\" \\"
+echo "  --data '{\"content\": \"test\", \"kind\": \"note\"}'"
 echo ""
-echo "# Check container logs for MCP router:"
-echo "docker compose logs l9-api | grep -i 'mcp.*router'"
+echo "# Check container logs for startup:"
+echo "docker compose logs l9-api --tail=30"
 echo ""
