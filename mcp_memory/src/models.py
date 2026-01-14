@@ -167,7 +167,7 @@ class SaveMemoryArgs(BaseModel):
     kind: str  # Enum: preference, fact, context, error, success
     scope: str = "developer"  # Enum: developer, l-private, global
     duration: str  # Enum: short, medium, long
-    user_id: str
+    user_id: Optional[str] = None  # Injected server-side from caller identity
     tags: Optional[List[str]] = None
     importance: Optional[float] = 1.0  # Range: 0-1
     metadata: Optional[Dict[str, Any]] = None
@@ -180,7 +180,7 @@ class SaveMemoryArgs(BaseModel):
 class SearchMemoryArgs(BaseModel):
     """Validation model for search_memory tool arguments."""
     query: str
-    user_id: str
+    user_id: Optional[str] = None  # Injected server-side from caller identity
     scopes: Optional[List[str]] = None  # Enum: developer, l-private, global
     kinds: Optional[List[str]] = None
     top_k: Optional[int] = 5
@@ -210,7 +210,7 @@ class DeleteExpiredMemoriesArgs(BaseModel):
 
 class CompoundMemoriesArgs(BaseModel):
     """Validation model for compound_memories tool arguments."""
-    user_id: str
+    user_id: Optional[str] = None  # Injected server-side from caller identity
     threshold: Optional[float] = 0.92
 
     class Config:
@@ -228,7 +228,7 @@ class ApplyDecayArgs(BaseModel):
 class GetContextArgs(BaseModel):
     """Validation model for get_context tool arguments."""
     task_description: str
-    user_id: str
+    user_id: Optional[str] = None  # Injected server-side from caller identity
     top_k: Optional[int] = 5
     include_recent: Optional[bool] = True
     kinds: Optional[List[str]] = None
@@ -239,7 +239,7 @@ class GetContextArgs(BaseModel):
 
 class ExtractSessionLearningsArgs(BaseModel):
     """Validation model for extract_session_learnings tool arguments."""
-    user_id: str
+    user_id: Optional[str] = None  # Injected server-side from caller identity
     session_id: str
     session_summary: str
     key_decisions: Optional[List[str]] = None
@@ -253,7 +253,7 @@ class ExtractSessionLearningsArgs(BaseModel):
 class GetProactiveSuggestionsArgs(BaseModel):
     """Validation model for get_proactive_suggestions tool arguments."""
     current_context: str
-    user_id: str
+    user_id: Optional[str] = None  # Injected server-side from caller identity
     include_error_fixes: Optional[bool] = True
     include_preferences: Optional[bool] = True
     top_k: Optional[int] = 3
@@ -264,7 +264,7 @@ class GetProactiveSuggestionsArgs(BaseModel):
 
 class QueryTemporalArgs(BaseModel):
     """Validation model for query_temporal tool arguments."""
-    user_id: str
+    user_id: Optional[str] = None  # Injected server-side from caller identity
     since: Optional[str] = None  # ISO datetime string
     until: Optional[str] = None  # ISO datetime string
     kinds: Optional[List[str]] = None
@@ -280,7 +280,7 @@ class SaveMemoryWithConfidenceArgs(BaseModel):
     kind: str  # Enum: preference, fact, context, error, success, learning, decision
     scope: str = "developer"  # Enum: developer, l-private, global
     duration: str  # Enum: short, medium, long
-    user_id: str
+    user_id: Optional[str] = None  # Injected server-side from caller identity
     confidence: Optional[float] = 1.0  # Range: 0-1
     source: Optional[str] = "cursor"
     related_memory_ids: Optional[List[Any]] = None  # UUIDs or legacy integer IDs
