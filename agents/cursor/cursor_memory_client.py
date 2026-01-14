@@ -315,7 +315,8 @@ def cmd_search(query: str, limit: int = 10, min_confidence: float = 0.0, sort_by
         "duration": "all",
     })
     
-    hits = result.get("memories", [])
+    # Server returns "results" key, not "memories"
+    hits = result.get("results", []) or result.get("memories", [])
     
     # Filter by min_confidence (if not already filtered by threshold)
     if min_confidence > 0:
@@ -461,7 +462,8 @@ def cmd_mcp_test():
         results["overall"] = "partial"
         results["message"] = f"⚠️ MCP WRITE OK but SEARCH FAILED: {search_result.get('error')}"
     else:
-        memories = search_result.get("memories", [])
+        # Server returns "results" key, not "memories"
+        memories = search_result.get("results", []) or search_result.get("memories", [])
         found = any(test_id in m.get("content", "") for m in memories)
         
         results["steps"]["search"] = {
