@@ -18,7 +18,6 @@ GMP: GMP-UKG-3 (World Model Sync)
 import pytest
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import datetime
 
 
 # =============================================================================

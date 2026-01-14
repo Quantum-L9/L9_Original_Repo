@@ -7,10 +7,10 @@ Purpose: Orchestrate all 7 phases atomically. All succeed or all rollback.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
-from datetime import datetime
 
 import structlog
 
+from core.agents.agent_instance import AgentInstance
 from memory.graph_client import get_neo4j_client
 
 from . import (
@@ -23,7 +23,6 @@ from . import (
     phase_6_wire_governance,
     phase_7_verify_and_lock,
 )
-from .phase_2_instantiate import BootstrapInstanceData
 
 if TYPE_CHECKING:
     from core.agents.schemas import AgentConfig

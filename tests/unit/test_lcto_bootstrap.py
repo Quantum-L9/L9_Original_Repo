@@ -13,11 +13,9 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
-import os
 import tempfile
 from pathlib import Path
-from typing import Any, Dict
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 import yaml

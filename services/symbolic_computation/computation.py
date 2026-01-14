@@ -7,7 +7,7 @@ Provides production-ready interfaces for AI agents to perform mathematical compu
 
 import asyncio
 import time
-from typing import Dict, List, Optional, Union, Any, Callable
+from typing import Dict, List, Union, Any, Callable
 from functools import lru_cache
 import structlog
 
@@ -15,7 +15,6 @@ import sympy as sp
 from sympy.utilities.lambdify import lambdify
 from sympy.utilities.autowrap import autowrap
 from sympy.utilities.codegen import codegen
-from sympy.utilities.memoization import recurrence_memo
 
 from .models import (
     ComputationRequest,
@@ -25,7 +24,7 @@ from .models import (
     BackendType,
     CodeLanguage,
 )
-from .exceptions import SymbolicComputationError, EvaluationError, CodeGenerationError
+from .exceptions import EvaluationError
 from .logger import get_logger
 
 

@@ -340,7 +340,7 @@ class GovernanceEngineService:
             return
 
         try:
-            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
+            from core.schemas import PacketEnvelopeIn, PacketMetadata
 
             packet = PacketEnvelopeIn(
                 packet_type="governance.engine.evaluation.trace",

@@ -13,7 +13,7 @@ import json
 from datetime import datetime
 from typing import Any, Dict
 
-from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketEnvelopeIn
+from core.schemas import PacketEnvelope, PacketEnvelopeIn
 
 
 def envelope_to_dict(envelope: PacketEnvelope) -> Dict[str, Any]:

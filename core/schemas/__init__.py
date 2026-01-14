@@ -13,13 +13,22 @@ Source schemas:
 All models are Pydantic v2 compliant with strict validation.
 """
 
-from core.schemas.packet_envelope import (
+from core.schemas.packet_envelope_v2 import (
+    # Core Packet Models
     PacketEnvelope,
     PacketEnvelopeIn,
     PacketWriteResult,
+    # Packet Components
     PacketMetadata,
     PacketProvenance,
     PacketConfidence,
+    PacketLineage,
+    # Enums
+    PacketKind,
+    DerivationType,
+    DeriveType,
+    VALID_DERIVE_TYPES,
+    # Search Models
     SemanticSearchRequest,
     SemanticHit,
     SemanticSearchResult,
@@ -91,13 +100,20 @@ from core.schemas.research_factory_nodes import (
 )
 
 __all__ = [
-    # Packet Envelope (Memory.yaml v1.0.1)
+    # Packet Envelope (Memory.yaml v1.0.1) - CANONICAL IMPORTS
     "PacketEnvelope",
     "PacketEnvelopeIn",
     "PacketWriteResult",
     "PacketMetadata",
     "PacketProvenance",
     "PacketConfidence",
+    "PacketLineage",
+    # Enums
+    "PacketKind",
+    "DerivationType",
+    "DeriveType",
+    "VALID_DERIVE_TYPES",
+    # Search Models
     "SemanticSearchRequest",
     "SemanticHit",
     "SemanticSearchResult",

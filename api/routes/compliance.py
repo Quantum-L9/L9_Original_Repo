@@ -16,7 +16,7 @@ from pydantic import BaseModel
 import structlog
 
 from api.dependencies import get_substrate_service, verify_api_key
-from core.compliance.audit_reporter import ComplianceReport, ComplianceReporter
+from core.compliance.audit_reporter import ComplianceReporter
 
 logger = structlog.get_logger(__name__)
 

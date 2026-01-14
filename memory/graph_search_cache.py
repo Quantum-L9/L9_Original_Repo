@@ -16,7 +16,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional
 
 from runtime.redis_client import RedisClient
-from memory.graph_client import get_neo4j_client, Neo4jClient
+from memory.graph_client import Neo4jClient
 from pydantic import BaseModel, Field
 
 logger = structlog.get_logger(__name__)

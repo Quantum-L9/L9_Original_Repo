@@ -205,7 +205,7 @@ def check_no_deprecated_services() -> tuple[bool, list[Violation]]:
     files_scanned = 0
     
     logger.info("\n🔍 Scanning for deprecated service references...")
-    logger.info(f"   Forbidden: supabase, n8n")
+    logger.info("   Forbidden: supabase, n8n")
     logger.info(f"   Scanning: {', '.join(SCAN_DIRS)}")
     
     for scan_dir in SCAN_DIRS:

@@ -100,7 +100,7 @@ async def submit_task(
     """
     from uuid import uuid4
     from memory.ingestion import ingest_packet
-    from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+    from core.schemas import PacketEnvelopeIn
 
     task_id = str(uuid4())
     logger.info("Task submitted: %s (id=%s)", payload.get("type", "unknown"), task_id)

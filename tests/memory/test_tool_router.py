@@ -6,7 +6,6 @@ Tests the semantic tool discovery functionality.
 
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from uuid import uuid4
 
 from memory.tool_router import (
     ToolRouter,
@@ -15,7 +14,6 @@ from memory.tool_router import (
     ToolSearchResult,
     get_tool_router,
     init_tool_router,
-    find_tools,
 )
 
 

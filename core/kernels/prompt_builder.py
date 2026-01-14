@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import structlog
 from functools import lru_cache
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from runtime.kernel_loader import load_kernel_stack, KernelStack
 
@@ -117,7 +117,7 @@ def build_behavioral_section(behavioral_kernel: Dict[str, Any]) -> str:
 def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
     """Build cognitive patterns from cognitive kernel."""
     engines = cognitive_kernel.get("engines", {})
-    reasoning = cognitive_kernel.get("reasoning_styles", {})
+    reasoning_styles = cognitive_kernel.get("reasoning_styles", {})
 
     lines = [
         "",
@@ -125,12 +125,26 @@ def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
         "",
     ]
 
-    # Main reasoning loop
+    # Main reasoning loop from engines
     if engines:
         lines.append("Reasoning loop:")
-        lines.append("1) THINK: parse request, choose concrete next step")
-        lines.append("2) ACT: execute or generate action")
-        lines.append("3) REFLECT: log internally, do not output long reasoning")
+        # Use engine definitions if available, otherwise defaults
+        think_step = engines.get("think", "parse request, choose concrete next step")
+        act_step = engines.get("act", "execute or generate action")
+        reflect_step = engines.get("reflect", "log internally, do not output long reasoning")
+        lines.append(f"1) THINK: {think_step}")
+        lines.append(f"2) ACT: {act_step}")
+        lines.append(f"3) REFLECT: {reflect_step}")
+
+    # Add reasoning styles if defined
+    if reasoning_styles:
+        lines.append("")
+        lines.append("Reasoning styles:")
+        for style_name, style_desc in reasoning_styles.items():
+            if isinstance(style_desc, str):
+                lines.append(f"- {style_name}: {style_desc}")
+            elif isinstance(style_desc, dict) and "description" in style_desc:
+                lines.append(f"- {style_name}: {style_desc['description']}")
 
     return "\n".join(lines)
 
@@ -138,21 +152,46 @@ def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
 def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
     """Build execution rules from execution kernel."""
     state_machine = execution_kernel.get("state_machine", {})
+    task_sizing = execution_kernel.get("task_sizing", {})
+    rules = execution_kernel.get("rules", {})
 
     lines = [
         "",
         "# EXECUTION",
         "",
-        "Task sizing:",
-        "- Small tasks: execute immediately",
-        "- Medium tasks: one-line plan, then execute",
-        "- Large tasks: outline 2-4 steps max, then execute next step",
-        "",
-        "Execution rules:",
-        "- Parallel: maximize when possible",
-        "- Confirm: destructive actions only",
-        "- Tools: prefer specialized over terminal",
     ]
+
+    # Task sizing from kernel or defaults
+    lines.append("Task sizing:")
+    if task_sizing:
+        small = task_sizing.get("small", "execute immediately")
+        medium = task_sizing.get("medium", "one-line plan, then execute")
+        large = task_sizing.get("large", "outline 2-4 steps max, then execute next step")
+        lines.append(f"- Small tasks: {small}")
+        lines.append(f"- Medium tasks: {medium}")
+        lines.append(f"- Large tasks: {large}")
+    else:
+        lines.append("- Small tasks: execute immediately")
+        lines.append("- Medium tasks: one-line plan, then execute")
+        lines.append("- Large tasks: outline 2-4 steps max, then execute next step")
+
+    lines.append("")
+    lines.append("Execution rules:")
+
+    # Use kernel rules if available
+    if rules:
+        for rule_name, rule_value in rules.items():
+            if isinstance(rule_value, str):
+                lines.append(f"- {rule_name}: {rule_value}")
+    else:
+        lines.append("- Parallel: maximize when possible")
+        lines.append("- Confirm: destructive actions only")
+        lines.append("- Tools: prefer specialized over terminal")
+
+    # Add state machine states if defined
+    if state_machine and state_machine.get("states"):
+        lines.append("")
+        lines.append(f"States: {', '.join(state_machine.get('states', []))}")
 
     return "\n".join(lines)
 
@@ -160,15 +199,41 @@ def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
 def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
     """Build safety guardrails from safety kernel."""
     guardrails = safety_kernel.get("guardrails", {})
+    constraints = safety_kernel.get("constraints", [])
+    prohibited = safety_kernel.get("prohibited_actions", [])
 
     lines = [
         "",
         "# SAFETY",
         "",
-        "- Never change files unless project_id and file_path are unambiguous",
-        "- Never change system configs or delete data without confirmation",
-        "- Destructive actions require explicit confirmation",
     ]
+
+    # Use guardrails from kernel if available
+    if guardrails:
+        for guard_name, guard_rule in guardrails.items():
+            if isinstance(guard_rule, str):
+                lines.append(f"- {guard_rule}")
+            elif isinstance(guard_rule, dict) and "rule" in guard_rule:
+                lines.append(f"- {guard_rule['rule']}")
+    else:
+        # Default safety rules
+        lines.append("- Never change files unless project_id and file_path are unambiguous")
+        lines.append("- Never change system configs or delete data without confirmation")
+        lines.append("- Destructive actions require explicit confirmation")
+
+    # Add explicit constraints if defined
+    if constraints:
+        lines.append("")
+        lines.append("Constraints:")
+        for constraint in constraints:
+            lines.append(f"- {constraint}")
+
+    # Add prohibited actions if defined
+    if prohibited:
+        lines.append("")
+        lines.append("NEVER:")
+        for action in prohibited:
+            lines.append(f"- {action}")
 
     return "\n".join(lines)
 

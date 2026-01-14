@@ -353,7 +353,7 @@ class LCTOAgent(BaseAgent):
             # Note: Service is typically injected via executor, but we try to get it here
             # for direct agent memory emission
             from memory.substrate_service import init_service
-            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
+            from core.schemas import PacketEnvelopeIn, PacketMetadata
             import os
 
             # Try to initialize service (will use existing if already initialized)

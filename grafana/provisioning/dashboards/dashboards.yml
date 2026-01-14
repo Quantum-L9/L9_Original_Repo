@@ -1,3 +1,23 @@
+# =============================================================================
+# Grafana Dashboard Provisioning Config
+# =============================================================================
+#
+# PURPOSE: Tells Grafana "scan this folder for JSON dashboards"
+#
+# Compare with prometheus.yml (datasource config):
+# ┌─────────────────────────────────┬─────────────────────────────────────────┐
+# │ dashboards.yml (this file)      │ prometheus.yml                          │
+# ├─────────────────────────────────┼─────────────────────────────────────────┤
+# │ Tells Grafana WHERE dashboards  │ Tells Grafana WHERE Prometheus is       │
+# │ Points to provisioning/dashboards│ Points to http://prometheus:9090       │
+# │ JSON files = actual content     │ Metrics = actual content                │
+# └─────────────────────────────────┴─────────────────────────────────────────┘
+#
+# The dashboard JSON files in this folder (l9-*.json) contain the actual
+# panels, queries, and visualizations. This YAML just tells Grafana to load them.
+#
+# =============================================================================
+
 apiVersion: 1
 
 providers:

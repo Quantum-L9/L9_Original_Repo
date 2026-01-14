@@ -14,7 +14,7 @@ import sys
 import json
 import re
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 import asyncio
 import structlog
 from dotenv import load_dotenv

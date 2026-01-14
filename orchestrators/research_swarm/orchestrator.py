@@ -6,7 +6,6 @@ Runs concurrent research agents, analyst pass, convergence scoring.
 """
 
 import asyncio
-import os
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 

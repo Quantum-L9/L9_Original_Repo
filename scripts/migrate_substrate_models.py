@@ -44,6 +44,7 @@ LEGACY_ONLY_SYMBOLS = {
     "KnowledgeFact",
     "KnowledgeFactRow",
     "ExtractedInsight",
+    "EnrichmentResult",
 }
 
 # Files to skip (docs, the source file itself, etc.)
@@ -138,9 +139,9 @@ def generate_new_imports(symbols: list[str]) -> str:
     
     if v2_imports:
         if len(v2_imports) <= 3:
-            lines.append(f"from core.schemas.packet_envelope_v2 import {', '.join(sorted(v2_imports))}")
+            lines.append(f"from core.schemas import {', '.join(sorted(v2_imports))}")
         else:
-            lines.append("from core.schemas.packet_envelope_v2 import (")
+            lines.append("from core.schemas import (")
             for sym in sorted(v2_imports):
                 lines.append(f"    {sym},")
             lines.append(")")
@@ -223,7 +224,7 @@ def main():
             print(f"✗ Error processing {path}: {e}")
     
     print("\n" + "=" * 80)
-    print(f"Summary:")
+    print("Summary:")
     print(f"  Files {'would be ' if dry_run else ''}changed: {changed}")
     print(f"  Files skipped (no v2 symbols): {skipped}")
     if errors:

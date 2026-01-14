@@ -46,6 +46,7 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-13] **Symbolic Compose Env Hardening (GMP-76)** — Updated `services/symbolic_computation/docker-compose.yml` to use `POSTGRES_DB=l9_memory` and `POSTGRES_USER=postgres`; removed hardcoded `POSTGRES_PASSWORD` and `NEO4J_AUTH`. Validation: `py_compile` failed due to invalid files in `current_work/`, `ruff check` not installed. Report: `reports/Report_GMP-76-Symbolic-Compose-Env.md`.
 - [2026-01-13] **Memory Graph Cleanup (GMP-73)** — Deleted 2 trash embeddings containing error messages ("Sorry, I encountered a temporary error") from VPS PostgreSQL. Before: 14,773 embeddings → After: 14,771. Preserved 1 LESSON embedding documenting GMP-42 fix (false positive in detection). Cleanup scripts verified: `scripts/memory/generate_delete_sql.py`, `scripts/memory/cleanup_trash_embeddings_via_api.py`.
 - [2026-01-13] **Git Hooks Integration (GMP-72)** — Extracted 4 production-ready git hooks via `/harvest`: pre-commit (secret scanning, ruff format/lint, mypy, forbidden patterns), post-merge (8 checks: env sync, deps, migrations, docker, kernels, audit cache, pre-commit config, repo index), pre-push (smoke tests, large file blocker, schema validation). Installed to `.git/hooks/`. `reports/GMP_Report_GMP-72-Git-Hooks-Integration.md`
 - [2026-01-13] **Schema Migration substrate_models → packet_envelope_v2 (GMP-63)** — Migrated 88 files from deprecated `memory.substrate_models` to canonical `core.schemas.packet_envelope_v2`. Added `DeriveType` enum + provenance fields to v2 schema. Created automated migration script (`scripts/migrate_substrate_models.py`). Updated `PacketValidator` to use v2 schema + typed `PacketValidationError`. 22 new validation tests in `tests/memory/test_packet_validation_v2.py`.
@@ -68,6 +69,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Decision Log (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-13] Removed hardcoded DB/Neo4j passwords from `services/symbolic_computation/docker-compose.yml` and aligned DB defaults with L9 stack.
 - [2026-01-08] Auto-Discovery Tool Capabilities (GMP-44)
 - [2026-01-08] Two-Phase Kernel Activation
 - [2026-01-06] L's Memory Local Docker First
@@ -109,7 +111,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Cloudflare**: All DNS for quantumaipartners.com proxied via Cloudflare (HTTPS, DDoS protection)
 
 ---
-*Last updated: 2026-01-13 22:45 EST (MCP Memory Client Integration)*
+*Last updated: 2026-01-14 (Agent Persistence + Silent Failure Audit)*
 
 ## Next Steps (Current Session)
 1. **Fix MCP `/mcp/call` endpoint** — Schema conflict (`PacketMetadata got multiple values for 'agent'`) and DB pool not initialized
@@ -118,6 +120,8 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 4. **GMP-61: Capability Gating** - Enforce tool visibility by capability level (deferred from GMP-60)
 
 **Recent Sessions (7-day window):**
+- 2026-01-13: **GMP-76 Symbolic Compose Env Hardening** — Updated DB/user env vars, removed hardcoded passwords; validation gates failed (`py_compile`, `ruff` missing). Report: `reports/Report_GMP-76-Symbolic-Compose-Env.md`.
+- 2026-01-14: **Agent Persistence + Silent Failure Audit** — GMP-74: Created `memory/retention_engine.py` (checkpoint auto-cleanup), wired to `substrate_service.py`. Verified all 5 integration points (executor, server startup/shutdown, ingestion, approval_manager) are ACTIVE. Fixed 7 silent failures in `substrate_service.py` getters (now fail LOUD with logging). GMP-75: Fixed `runtime/kernel_loader.py` YAML parse errors (now raise RuntimeError instead of returning None). Lesson: `Optional[X] = None` + `try/except return None` is silent failure anti-pattern.
 - 2026-01-13: **MCP Memory Client Integration** — Moved `cursor-memory/` → `agents/cursor/`. Fixed API key (now uses `MCP_API_KEY_C` not `L9_EXECUTOR_API_KEY`). Updated `/gmp` command with mandatory canonical load from `codegen/C-GMP Suite/canonical/`. E2E test: Direct API (`/api/v1/memory/packet`) works ✅, MCP endpoint (`/mcp/call`) has schema conflicts ❌. Updated `mem.md` command + rules to use new paths.
 - 2026-01-13: Memory Graph Cleanup (GMP-73) — Deleted 2 trash embeddings containing error messages from VPS PostgreSQL. Before: 14,773 embeddings → After: 14,771. Scripts: `scripts/memory/generate_delete_sql.py`, `scripts/memory/cleanup_trash_embeddings_via_api.py`. One LESSON embedding preserved (documents GMP-42 fix).
 - 2026-01-13: GMP-72 Git Hooks Integration — Extracted 4 production-ready git hooks via /harvest (pre-commit, post-merge, pre-push, installer). Installed to .git/hooks/. Features: secret scanning, auto-format, lint, migrations, kernel reload, smoke tests. GMP report: reports/GMP_Report_GMP-72-Git-Hooks-Integration.md

@@ -17,7 +17,7 @@ from typing import Any, Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketWriteResult
+from core.schemas import PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)

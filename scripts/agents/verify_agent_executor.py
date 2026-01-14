@@ -13,7 +13,6 @@ It checks:
 
 import sys
 import structlog
-import os
 from pathlib import Path
 
 # Add the repo root to the Python path
@@ -102,13 +101,13 @@ def check_agent_registry():
         logger.info("Attempting to create kernel-aware agent registry...")
         agent_registry = create_kernel_aware_registry()
         
-        logger.info(f"✓ Agent registry created successfully")
+        logger.info("✓ Agent registry created successfully")
         logger.info(f"  Kernel state: {agent_registry.get_kernel_state()}")
         
         # Try to get a test agent config
         try:
             config = agent_registry.get_agent_config("l-cto")
-            logger.info(f"✓ Retrieved config for 'l-cto' agent")
+            logger.info("✓ Retrieved config for 'l-cto' agent")
             logger.info(f"  Agent ID: {config.agent_id}")
             logger.info(f"  Personality ID: {config.personality_id}")
         except Exception as e:
@@ -145,7 +144,7 @@ def check_executor_service():
             agent_registry=agent_registry,
         )
         
-        logger.info(f"✓ AgentExecutorService created successfully")
+        logger.info("✓ AgentExecutorService created successfully")
         logger.info(f"  Type: {type(executor).__name__}")
         
         return True

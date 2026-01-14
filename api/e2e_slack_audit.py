@@ -23,7 +23,6 @@ import hmac
 import hashlib
 import time
 from datetime import datetime
-from uuid import uuid4
 from typing import Any
 
 logger = structlog.get_logger(__name__)
@@ -70,7 +69,7 @@ async def audit_slack_configuration() -> AuditResult:
     result = AuditResult("Slack Configuration")
 
     try:
-        from config.settings import settings, get_integration_settings
+        from config.settings import get_integration_settings
 
         integration_settings = get_integration_settings()
 
@@ -251,7 +250,6 @@ async def audit_slack_routing() -> AuditResult:
     result = AuditResult("Slack Routing")
 
     try:
-        from config.settings import get_integration_settings
         from memory.slack_ingest import (
             L9_ENABLE_LEGACY_SLACK_ROUTER,
             _is_email_command,

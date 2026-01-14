@@ -30,7 +30,7 @@ Usage:
 
 import time
 from typing import List, Tuple, Optional, TYPE_CHECKING
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 import structlog
 

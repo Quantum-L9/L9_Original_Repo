@@ -42,13 +42,16 @@ from core.agents.schemas import (
     ToolBinding,
 )
 from core.agents.agent_instance import AgentInstance
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
+from core.schemas import PacketEnvelopeIn
 from memory.agent_persistence import AgentPersistenceService
 from core.governance.approvals import ApprovalManager
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
 from runtime.dora import emit_executor_trace
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+
+# Initialize logger early for import error handling
+logger = structlog.get_logger(__name__)
 
 # Self-reflection imports (optional - graceful degradation if not available)
 try:
@@ -87,8 +90,6 @@ try:
 except ImportError:
     _has_prompt_builder = False
     logger.warning("prompt_builder not available - kernel prompts disabled")
-
-logger = structlog.get_logger(__name__)
 
 
 # =============================================================================
@@ -759,7 +760,7 @@ class AgentExecutorService:
             return False
 
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas import PacketEnvelopeIn
 
             # Write task result packet
             packet = PacketEnvelopeIn(
@@ -1268,7 +1269,7 @@ class AgentExecutorService:
                 if resolved_tool_id != tool_call.tool_id:
                     logger.warning(
                         "tool_call_name_resolved",
-                        task_id=str(task.id),
+                        task_id=str(instance.task.id),
                         tool_name=tool_call.tool_id,
                         tool_id=resolved_tool_id,
                     )
@@ -1838,7 +1839,7 @@ class AgentExecutorService:
             # Persist reflection result to substrate
             if self._substrate_service:
                 try:
-                    from memory.substrate_models import PacketEnvelopeIn
+                    from core.schemas import PacketEnvelopeIn
 
                     reflection_packet = PacketEnvelopeIn(
                         packet_type="agent.reflection.result",

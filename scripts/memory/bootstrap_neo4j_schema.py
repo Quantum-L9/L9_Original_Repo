@@ -507,7 +507,7 @@ async def main():
     
     try:
         result = await bootstrap_l_governance(driver)
-        logger.info(f"\nBootstrap Complete:")
+        logger.info("\nBootstrap Complete:")
         logger.info(f"  Constraints created: {result.get('constraints_created', 0)}")
         logger.info(f"  Responsibilities:    {result.get('responsibilities', 0)}")
         logger.info(f"  Directives:          {result.get('directives', 0)}")

@@ -88,7 +88,7 @@ def run_phase(phase_num: int, verbose: bool = False) -> tuple[bool, str]:
         
         return result.returncode == 0, output
     except subprocess.TimeoutExpired:
-        return False, f"Timeout after 300s"
+        return False, "Timeout after 300s"
     except Exception as e:
         return False, f"Error: {e}"
 
@@ -189,7 +189,7 @@ def main():
         if passed == total:
             print("\n🎉 Dead code audit complete!")
             if 4 in phases_to_run:
-                print(f"   GMP TODO plan: reports/dead_code_gmp_todos.yaml")
+                print("   GMP TODO plan: reports/dead_code_gmp_todos.yaml")
         print("=" * 60)
     else:
         # Quiet mode - just summary line

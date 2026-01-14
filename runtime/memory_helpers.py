@@ -68,7 +68,7 @@ async def memory_search(
 
     try:
         from memory.substrate_service import get_service
-        from core.schemas.packet_envelope_v2 import SemanticSearchRequest
+        from core.schemas import SemanticSearchRequest
 
         service = get_service()
         if not service:
@@ -153,7 +153,7 @@ async def memory_write(
 
     try:
         from memory.ingestion import ingest_packet
-        from memory.substrate_models import PacketEnvelopeIn, PacketMetadata
+        from core.schemas import PacketEnvelopeIn, PacketMetadata
 
         # Create metadata with segment and agent
         packet_metadata = PacketMetadata(

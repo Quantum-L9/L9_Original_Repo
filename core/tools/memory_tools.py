@@ -183,7 +183,7 @@ async def memory_write(
         
         # Write via substrate
         if hasattr(substrate_service, 'write_packet'):
-            from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketKind
+            from core.schemas import PacketEnvelope, PacketKind
             
             packet = PacketEnvelope(
                 kind=PacketKind.MEMORY_WRITE,

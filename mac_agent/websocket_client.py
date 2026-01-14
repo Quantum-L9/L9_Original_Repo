@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import structlog
 import os
 import platform
@@ -37,6 +38,8 @@ from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
 from uuid import uuid4
 
+logger = structlog.get_logger(__name__)
+
 try:
     import websockets
     from websockets.client import WebSocketClientProtocol
@@ -46,9 +49,6 @@ except ImportError:
         "ERROR: websockets library required. Install with: pip install websockets"
     )
     sys.exit(1)
-
-
-logger = structlog.get_logger(__name__)
 
 
 # =============================================================================

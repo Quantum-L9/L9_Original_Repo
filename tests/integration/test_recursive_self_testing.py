@@ -12,7 +12,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from core.testing.test_generator import TestGenerator, generate_unit_tests, generate_integration_tests
-from core.testing.test_executor import TestExecutor, TestResults, TestResult
+from core.testing.test_executor import TestResults
 from core.testing.test_agent import TestAgent, TestAgentResult, spawn_test_agent
 
 
@@ -326,7 +326,7 @@ class TestApprovalIntegration:
 
     def test_format_approval_request_with_tests(self):
         """Test formatting approval request with test results."""
-        from unittest.mock import AsyncMock, patch, MagicMock
+        from unittest.mock import patch, MagicMock
         
         # Mock the imports in approvals module
         with patch.dict('sys.modules', {

@@ -11,8 +11,7 @@ Version: 1.0.0
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import uuid4
+from unittest.mock import AsyncMock, MagicMock
 
 # =============================================================================
 # Test: Transactional Core Writes
@@ -26,7 +25,7 @@ class TestTransactionalIngestion:
     async def test_ingestion_uses_transaction_for_core_writes(self):
         """Verify ingestion uses transaction for packet_store and memory_events."""
         from memory.ingestion import IngestionPipeline
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
         
         # Mock repository with transaction
         mock_repository = MagicMock()
@@ -56,7 +55,7 @@ class TestTransactionalIngestion:
     async def test_ingestion_rollback_on_core_write_failure(self):
         """Verify transaction rolls back on core write failure."""
         from memory.ingestion import IngestionPipeline
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
         
         # Mock repository with transaction that fails
         mock_repository = MagicMock()
@@ -89,7 +88,7 @@ class TestTransactionalIngestion:
     async def test_ingestion_best_effort_writes_outside_transaction(self):
         """Verify embedding and lineage writes are outside transaction (best-effort)."""
         from memory.ingestion import IngestionPipeline
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
         
         # Mock repository with transaction
         mock_repository = MagicMock()
@@ -131,7 +130,7 @@ class TestTransactionalIngestion:
     async def test_ingestion_embedding_failure_doesnt_block(self):
         """Verify embedding failure doesn't block core writes."""
         from memory.ingestion import IngestionPipeline
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
         
         # Mock repository with transaction
         mock_repository = MagicMock()

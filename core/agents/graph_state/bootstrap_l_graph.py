@@ -19,11 +19,9 @@ Created: 2026-01-05
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import structlog
-import yaml
 
 from .schema import (
     CREATE_AGENT_QUERY,

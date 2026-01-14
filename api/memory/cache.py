@@ -9,7 +9,7 @@ Used by cursor_memory_client.py for session context and fast lookups.
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 from api.auth import verify_api_key
-from typing import Optional, List, Any
+from typing import Optional, Any
 import structlog
 import json
 

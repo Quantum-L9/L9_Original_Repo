@@ -14,9 +14,7 @@ Tests cover:
 """
 
 import pytest
-import asyncio
-from unittest.mock import MagicMock, AsyncMock, patch
-from datetime import datetime
+from unittest.mock import MagicMock, AsyncMock
 
 
 # =============================================================================
@@ -118,7 +116,7 @@ class TestObservabilityModels:
 
     def test_span_creation(self):
         """Test Span model creation using start() factory method."""
-        from core.observability.models import Span, SpanKind, SpanStatus
+        from core.observability.models import Span, SpanKind
         
         # Use the start() factory method which sets start_time
         span = Span.start(
@@ -266,7 +264,7 @@ class TestFailureDetection:
     def test_recovery_actions_mapping(self):
         """Test that failure classes map to recovery actions."""
         from core.observability.failures import get_recovery_actions, RecoveryAction
-        from core.observability.models import FailureClass, RemediationAction
+        from core.observability.models import FailureClass
         
         # Tool timeout should suggest retry (returns list of RemediationAction)
         actions = get_recovery_actions(FailureClass.TOOL_TIMEOUT)

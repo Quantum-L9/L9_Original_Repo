@@ -19,7 +19,7 @@ Usage:
 # Packet Envelope (Memory.yaml v1.0.1)
 # =============================================================================
 
-from core.schemas.packet_envelope import (
+from core.schemas import (
     PacketConfidence,
     PacketEnvelope,
     PacketEnvelopeIn,

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import structlog
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import WebSocket
 

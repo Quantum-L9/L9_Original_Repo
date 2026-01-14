@@ -10,7 +10,7 @@ Version: 6.0.0
 
 from __future__ import annotations
 
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
 import structlog
 import sympy

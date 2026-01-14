@@ -119,7 +119,7 @@ async def ingest_email_event(
         HTTPException: If ingestion fails (fail loud policy)
     """
     from memory.ingestion import ingest_packet
-    from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+    from core.schemas import PacketEnvelopeIn
 
     packet_type = f"email_{phase}"
 

@@ -40,7 +40,7 @@ from typing import Any, Optional
 from uuid import UUID, uuid5
 from dataclasses import dataclass
 
-from core.schemas.packet_envelope import PacketEnvelopeIn, PacketEnvelope
+from core.schemas import PacketEnvelopeIn, PacketEnvelope
 
 logger = structlog.get_logger(__name__)
 

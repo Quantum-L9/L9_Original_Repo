@@ -9,7 +9,7 @@ v1.1.0: Added insight extraction, knowledge facts, world model integration,
         housekeeping engine, ingestion pipeline, retrieval pipeline.
 """
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketEnvelope,
     PacketEnvelopeIn,
     PacketWriteResult,
@@ -171,6 +171,13 @@ from memory.tool_router import (
     find_tools,
 )
 
+# Retention Engine (GMP-74: Checkpoint lifecycle management)
+from memory.retention_engine import (
+    RetentionEngine,
+    RetentionPolicy,
+    RetentionResult,
+)
+
 # Conversational Graph Memory (GMP-58)
 from memory.graph_memory import (
     ConversationGraphMemory,
@@ -278,6 +285,10 @@ __all__ = [
     "get_graph_memory",
     "store_message",
     "query_history",
+    # Retention Engine (GMP-74)
+    "RetentionEngine",
+    "RetentionPolicy",
+    "RetentionResult",
     # NOTE: These are available via direct import to avoid circular deps:
     # from memory.substrate_repository import SubstrateRepository, ...
     # from memory.substrate_dag import SubstrateDAG, ...

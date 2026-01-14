@@ -17,7 +17,6 @@ All operations are async-safe with proper logging.
 from __future__ import annotations
 
 import structlog
-from datetime import datetime
 from functools import lru_cache
 from typing import Optional, TYPE_CHECKING
 from uuid import uuid4
@@ -26,11 +25,11 @@ if TYPE_CHECKING:
     import asyncpg
     from memory.substrate_dag import SubstrateDAG
 
-from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
+from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_service import MemorySubstrateService
 from memory.graph_client import get_neo4j_client
 from memory.validators.packet_validator import PacketValidator, PacketValidationError
-from memory.audit_utils import has_injection_markers, prepare_packet_for_ingest
+from memory.audit_utils import prepare_packet_for_ingest
 
 logger = structlog.get_logger(__name__)
 

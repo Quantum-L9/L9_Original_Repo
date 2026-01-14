@@ -12,25 +12,21 @@ Verifies:
 - Error handling for unknown versions
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
 
 import pytest
 
 from core.schemas.schema_registry import (
     SchemaRegistry,
-    UpcasterNotFoundError,
     read_packet,
     read_packets,
     write_packet,
     detect_version,
     upcast,
-    SCHEMA_VERSION,
 )
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketEnvelope,
-    PacketMetadata,
-    PacketLineage,
 )
 
 

@@ -24,9 +24,8 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-from datetime import datetime
 
 # DO NOT import executor or kernel_registry at module level - they trigger
 # imports of memory.substrate_models before path is set
@@ -127,7 +126,7 @@ class TestLCTOEndToEnd:
         """
         # Import here to avoid module-level import issues
         from core.agents.schemas import AgentTask, TaskKind
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
         
         # Create task
         task = AgentTask(
@@ -152,7 +151,6 @@ class TestLCTOEndToEnd:
         assert mock_substrate_service.write_packet.called
         
         # Verify packet structure
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
         packet_calls = mock_substrate_service.write_packet.call_args_list
         assert len(packet_calls) > 0
         
@@ -254,7 +252,7 @@ class TestLCTOEndToEnd:
         """
         # Import here
         from core.agents.schemas import AgentTask, TaskKind
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
         
         task = AgentTask(
             id=uuid4(),

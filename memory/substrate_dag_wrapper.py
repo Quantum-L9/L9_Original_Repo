@@ -12,7 +12,7 @@ import structlog
 from typing import Optional
 
 from memory.substrate_dag import SubstrateDAG
-from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
+from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 
 logger = structlog.get_logger(__name__)
 
@@ -80,7 +80,6 @@ class SubstrateDagOrchestrator:
         except Exception as e:
             logger.error("DAG execution failed", error=str(e), packet_id=full_envelope.packet_id)
             # Return error result
-            from uuid import uuid4
             return PacketWriteResult(
                 packet_id=full_envelope.packet_id,
                 status="error",

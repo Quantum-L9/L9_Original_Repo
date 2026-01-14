@@ -30,13 +30,12 @@ import json
 from copy import deepcopy
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Callable
-from uuid import UUID, uuid4
-import warnings
+from typing import Callable
+from uuid import UUID
 
 import structlog
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketEnvelope,
     PacketMetadata,
     PacketLineage,

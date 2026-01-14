@@ -9,7 +9,7 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-from agents.codegenagent.c_gmp_engine import CGMPEngine, CGMPEngineError
+from agents.codegenagent.c_gmp_engine import CGMPEngine
 from agents.codegenagent.meta_loader import MetaLoader
 
 

@@ -6,7 +6,7 @@ Purpose: Load tool definitions, register in Neo4j, create tool→governance mapp
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 from dataclasses import dataclass
 from datetime import datetime
 

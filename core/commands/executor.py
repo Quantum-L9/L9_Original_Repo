@@ -16,17 +16,12 @@ from __future__ import annotations
 import structlog
 from datetime import datetime
 from typing import Any, Optional
-from uuid import UUID
 
 from core.commands.schemas import (
     Command,
     CommandResult,
     CommandType,
-    IntentModel,
-    NLPPrompt,
-    RiskLevel,
 )
-from core.commands.intent_extractor import extract_intent, confirm_intent
 
 logger = structlog.get_logger(__name__)
 

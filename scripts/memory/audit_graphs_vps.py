@@ -15,7 +15,7 @@ import os
 import sys
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
 import httpx
 
@@ -279,7 +279,7 @@ def print_report(results: Dict[str, Any]):
     # Packets
     packets = results.get("packets", {})
     if "error" not in packets:
-        print(f"\n📦 PACKETS:")
+        print("\n📦 PACKETS:")
         print(f"   Sample Retrieved:  {packets.get('total_found', 0)}")
         sample = packets.get("sample_packets", [])
         if sample:
@@ -296,7 +296,7 @@ def print_report(results: Dict[str, Any]):
     # Facts
     facts = results.get("facts", {})
     if "error" not in facts:
-        print(f"\n📚 KNOWLEDGE FACTS:")
+        print("\n📚 KNOWLEDGE FACTS:")
         print(f"   Total Facts:       {facts.get('total_facts', 0):,}")
         
         top_preds = facts.get("top_predicates", [])
@@ -314,7 +314,7 @@ def print_report(results: Dict[str, Any]):
     # Neo4j
     neo4j = results.get("neo4j", {})
     if "error" not in neo4j:
-        print(f"\n🕸️  NEO4J KNOWLEDGE GRAPH:")
+        print("\n🕸️  NEO4J KNOWLEDGE GRAPH:")
         
         node_stats = neo4j.get("node_stats", [])
         if node_stats:
@@ -363,7 +363,7 @@ def print_report(results: Dict[str, Any]):
                 count = item.get("count", 0)
                 print(f"   {node_type}: {count:,}")
     elif "error" in neo4j:
-        print(f"\n🕸️  NEO4J:")
+        print("\n🕸️  NEO4J:")
         print(f"   Error: {neo4j.get('error', 'Unknown error')}")
     
     print("\n" + "=" * 80)

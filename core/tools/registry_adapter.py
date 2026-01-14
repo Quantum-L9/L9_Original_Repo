@@ -86,7 +86,6 @@ from __future__ import annotations
 import asyncio
 import structlog
 import time
-from datetime import datetime
 from typing import Any, Optional, Protocol, TYPE_CHECKING
 from uuid import uuid4
 
@@ -94,7 +93,6 @@ from core.agents.schemas import (
     ToolBinding,
     ToolCallResult,
 )
-from core.schemas.capabilities import ToolName
 # GMP-45: Tool argument sanitization gate
 from core.tools.sanitizer import ToolInputSanitizer, ToolInputSanitizationError
 # NOTE: DEFAULT_L_CAPABILITIES is DEPRECATED - we now auto-discover from ToolDefinition.agent_id

@@ -3,7 +3,7 @@ Mac Agent API endpoints for polling and reporting task results.
 """
 
 import structlog
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional, List
 
@@ -73,7 +73,6 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
     
     Note: task_id is now a UUID string (file-based system), not an integer.
     """
-    from orchestrators.agent_execution.task_queue import mark_task_completed
     
     # Mark task as completed (file-based system)
     mark_task_completed(task_id)
@@ -96,7 +95,7 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
     # Ingest task result to memory (audit trail)
     try:
         from memory.ingestion import ingest_packet
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
 
         # Get task source/user from legacy system if available, otherwise use defaults
         source = task.source if task else "unknown"

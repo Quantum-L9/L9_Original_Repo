@@ -15,12 +15,12 @@ from __future__ import annotations
 
 import structlog
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Optional, List, Dict, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from memory.substrate_repository import SubstrateRepository
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+from core.schemas import PacketEnvelopeIn
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
@@ -432,23 +432,23 @@ class AgentPersistenceService:
 
         try:
             packet = PacketEnvelopeIn(
-                source_id="agent_persistence",
-                agent_id=agent_id,
-                thread_id=str(checkpoint_id) if checkpoint_id else str(uuid4()),
-                kind=event_type,
+                packet_type=event_type,
+                thread_id=UUID(str(checkpoint_id)) if checkpoint_id else uuid4(),
                 payload={
                     "event_type": event_type,
                     "agent_id": agent_id,
+                    "source_id": "agent_persistence",
                     "checkpoint_id": str(checkpoint_id) if checkpoint_id else None,
                     "reason": reason,
                     "state_keys": state_keys,
                     "timestamp": datetime.utcnow().isoformat(),
                 },
                 metadata={
+                    "agent": agent_id,
                     "component": "agent_persistence",
-                    "version": "1.0.0",
+                    "schema_version": "1.0.0",
                 },
-                confidence=1.0,
+                confidence={"score": 1.0, "level": "high"},
             )
 
             await self._service.write_packet(packet)

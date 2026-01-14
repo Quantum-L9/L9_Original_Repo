@@ -16,9 +16,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import structlog
 
@@ -31,8 +30,6 @@ except ImportError:
 from ir_engine.compile_meta_to_ir import (
     ModuleIR,
     GenerationTarget,
-    PacketSpec,
-    TestSpec,
 )
 
 logger = structlog.get_logger(__name__)

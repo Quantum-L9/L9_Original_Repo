@@ -32,7 +32,7 @@ set -euo pipefail
 # CONFIGURATION
 # =============================================================================
 
-MAC_REPO="/Users/ib-mac/Projects/L9"
+MAC_REPO="$HOME/Projects/L9"
 VPS_HOST="admin@157.180.73.53"
 VPS_REPO="/opt/l9"
 DEPLOY_LOG="/tmp/l9-deploy-10x-$(date +%s).log"
@@ -81,6 +81,22 @@ log_warn() {
 
 log_error() {
     echo -e "${RED}❌${NC} $1"
+}
+
+verify_vps_env_complete() {
+    log_step "Ensuring VPS .env defines all keys from .env.example..."
+    if ssh "$VPS_HOST" "cd $VPS_REPO && bash -lc 'set -euo pipefail; \
+        if [[ ! -f .env ]]; then echo \"Missing .env\"; exit 1; fi; \
+        if [[ ! -f .env.example ]]; then echo \"Missing .env.example\"; exit 1; fi; \
+        required_keys=\$(grep -E \"^[A-Z0-9_]+=\" .env.example | cut -d= -f1 | sort -u); \
+        present_keys=\$(grep -E \"^[A-Z0-9_]+=\" .env | cut -d= -f1 | sort -u); \
+        missing=\$(comm -23 <(echo \"\$required_keys\") <(echo \"\$present_keys\")); \
+        if [[ -n \"\$missing\" ]]; then echo \"Missing keys in .env:\"; echo \"\$missing\"; exit 1; fi'"; then
+        log_ok "VPS .env includes all .env.example keys"
+    else
+        log_error "VPS .env missing required keys"
+        rollback
+    fi
 }
 
 wait_with_spinner() {
@@ -296,6 +312,7 @@ fi
 log_header "PHASE 4: VPS Environment Verification"
 
 log_step "Running environment sync and verification..."
+verify_vps_env_complete
 ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/sync_env_vars.sh --quiet" || true
 ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/verify_vps_env.sh --quick" | tee -a "$DEPLOY_LOG"
 
@@ -374,6 +391,10 @@ fi
 # =============================================================================
 if [[ "$SKIP_MRI" == "false" ]]; then
     log_header "PHASE 8: Full MRI Diagnostic"
+    
+    log_step "Cleaning up Docker system (prune volumes, images, containers)..."
+    ssh "$VPS_HOST" "docker system prune -af --volumes" || log_warn "Docker prune failed (non-fatal)"
+    log_ok "Docker cleanup complete"
     
     log_step "Running vps-mri.sh..."
     ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/vps-mri.sh" 2>&1 | tee -a "$DEPLOY_LOG" | tail -50

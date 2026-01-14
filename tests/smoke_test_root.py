@@ -16,6 +16,7 @@ For full DB-connected tests, set MEMORY_DSN and run:
 
 import sys
 import asyncio
+import logging
 import structlog
 from pathlib import Path
 
@@ -84,7 +85,7 @@ def test_core_imports() -> tuple[bool, str]:
 
         # Memory imports may need DB drivers - skip gracefully
         try:
-            from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketEnvelopeIn
+            from core.schemas import PacketEnvelope, PacketEnvelopeIn
             from memory.substrate_dag import SubstrateDAG
             from memory.substrate_service import MemorySubstrateService
         except ImportError as e:
@@ -231,7 +232,7 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
     """Test that memory pipeline components can be instantiated."""
     try:
         from uuid import uuid4
-        from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketEnvelopeIn
+        from core.schemas import PacketEnvelope, PacketEnvelopeIn
 
         # Create a test packet
         packet = PacketEnvelopeIn(

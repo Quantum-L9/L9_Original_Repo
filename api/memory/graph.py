@@ -9,7 +9,7 @@ Used by cursor_memory_client.py for graph-enhanced context.
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 from api.auth import verify_api_key
-from typing import Optional, List, Any
+from typing import Optional, Any
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -354,4 +354,3 @@ async def get_session_graph(
             "available": False,
             "error": str(e),
         }
-

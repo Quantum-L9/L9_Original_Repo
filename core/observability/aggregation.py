@@ -6,10 +6,10 @@ Computes SRE metrics, KPIs, and detects regressions from spans.
 
 import structlog
 from typing import List, Dict, Optional, Any
-from datetime import datetime, timedelta
-from statistics import mean, stdev
+from datetime import datetime
+from statistics import mean
 
-from .models import Span, SREMetric, AgentKPI, SpanStatus
+from .models import Span, AgentKPI, SpanStatus
 
 logger = structlog.get_logger(__name__)
 

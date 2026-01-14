@@ -6,11 +6,9 @@ Tests the complete flow from MCP tool call → validation → handler → databa
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
-from pydantic import ValidationError
 
 from src.main import app
 from src.mcp_server import handle_tool_call, MCPToolCall
-from src.models import SaveMemoryArgs, SearchMemoryArgs
 
 
 # =============================================================================

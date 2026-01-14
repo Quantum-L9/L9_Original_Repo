@@ -15,7 +15,7 @@ Created: 2026-01-05
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional
 from dataclasses import dataclass, field
 
 import structlog
@@ -23,7 +23,6 @@ import structlog
 from .schema import (
     LOAD_AGENT_STATE_QUERY,
     AGENT_EXISTS_QUERY,
-    GET_RESPONSIBILITIES_QUERY,
     GET_DIRECTIVES_BY_SEVERITY_QUERY,
     GET_TOOLS_QUERY,
 )

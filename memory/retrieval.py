@@ -23,12 +23,12 @@ from __future__ import annotations
 
 import math
 import structlog
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import lru_cache
 from typing import Any, Optional
 from uuid import UUID
 
-from core.schemas.packet_envelope_v2 import SemanticHit, SemanticSearchResult
+from core.schemas import SemanticHit, SemanticSearchResult
 from memory.substrate_models import KnowledgeFactRow, PacketStoreRow
 
 logger = structlog.get_logger(__name__)
@@ -688,7 +688,6 @@ async def get_governance_patterns(
     Returns:
         List of governance pattern dicts sorted by relevance/recency
     """
-    from memory.governance_patterns import GovernancePattern
 
     pipeline = get_retrieval_pipeline()
 

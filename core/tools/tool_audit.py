@@ -11,7 +11,7 @@ import json
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List, Dict, Any, TYPE_CHECKING
+from typing import Optional, List, Any, TYPE_CHECKING
 from uuid import uuid4
 
 import structlog

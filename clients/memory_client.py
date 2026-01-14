@@ -252,7 +252,7 @@ class MemoryClient:
                 json=packet.model_dump(exclude_none=True),
             )
             response.raise_for_status()
-        except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+        except (httpx.ConnectError, httpx.ConnectTimeout):
             # VPS unavailable - try Docker fallback
             if await self._try_fallback():
                 logger.info("Retrying write_packet with Docker fallback")
@@ -314,7 +314,7 @@ class MemoryClient:
                 json=request.model_dump(exclude_none=True),
             )
             response.raise_for_status()
-        except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+        except (httpx.ConnectError, httpx.ConnectTimeout):
             # VPS unavailable - try Docker fallback
             if await self._try_fallback():
                 logger.info("Retrying semantic search with Docker fallback")

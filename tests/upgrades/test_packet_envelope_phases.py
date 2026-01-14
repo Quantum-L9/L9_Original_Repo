@@ -9,10 +9,8 @@ Tests cover:
   - Phase 5: Governance (retention, erasure, anonymization)
 """
 
-import asyncio
 import json
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
 
 import pytest
 

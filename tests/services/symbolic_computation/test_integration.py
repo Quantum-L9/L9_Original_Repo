@@ -14,10 +14,8 @@ Target: >=85% coverage, >=95% pass rate
 from __future__ import annotations
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from services.symbolic_computation.core.expression_evaluator import ExpressionEvaluator
-from services.symbolic_computation.core.code_generator import CodeGenerator
 from services.symbolic_computation.core.optimizer import Optimizer
 from services.symbolic_computation.core.validator import ExpressionValidator
 from services.symbolic_computation.core.cache_manager import CacheManager

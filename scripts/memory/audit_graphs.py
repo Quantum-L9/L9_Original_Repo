@@ -20,7 +20,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime
 import json
 
@@ -42,7 +42,6 @@ load_dotenv()
 async def audit_postgresql_graphs() -> Dict[str, Any]:
     """Audit PostgreSQL-based graphs."""
     try:
-        import asyncpg
         from memory.substrate_repository import SubstrateRepository
         
         database_url = os.getenv("DATABASE_URL")

@@ -338,7 +338,7 @@ async def create_evolution_plan(
     # Persist plan to substrate if service available
     if substrate_service:
         try:
-            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+            from core.schemas import PacketEnvelopeIn
 
             plan_packet = PacketEnvelopeIn(
                 packet_type="kernel.evolution.plan",

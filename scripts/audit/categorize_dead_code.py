@@ -220,18 +220,18 @@ def categorize_finding(finding: dict[str, Any]) -> CategorizedFinding:
         action = FixAction.DELETE
         action_reason = "Local variable assigned but never used"
         auto_fixable = False  # Need manual review
-        proposed_fix = f"Remove variable assignment or use the variable"
+        proposed_fix = "Remove variable assignment or use the variable"
         
     elif symbol_type == "argument":
         action = FixAction.REVIEW
         action_reason = "Unused argument—may be for API compatibility"
-        proposed_fix = f"Remove if not needed for API, or prefix with _ to indicate intentional"
+        proposed_fix = "Remove if not needed for API, or prefix with _ to indicate intentional"
         
     elif symbol_type == "method":
         if symbol.startswith("_"):
             action = FixAction.DELETE
             action_reason = "Private method never called internally"
-            proposed_fix = f"Delete method or add # noqa: vulture if intentional"
+            proposed_fix = "Delete method or add # noqa: vulture if intentional"
         else:
             action = FixAction.REVIEW
             action_reason = "Public method may be part of API"
@@ -243,7 +243,7 @@ def categorize_finding(finding: dict[str, Any]) -> CategorizedFinding:
         if symbol.startswith("_"):
             action = FixAction.DELETE
             action_reason = "Private function never called"
-            proposed_fix = f"Delete function or add # noqa: vulture if intentional"
+            proposed_fix = "Delete function or add # noqa: vulture if intentional"
         else:
             action = FixAction.REVIEW
             action_reason = "Public function may be imported elsewhere"

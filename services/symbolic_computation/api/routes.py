@@ -10,20 +10,17 @@ Version: 6.0.0
 
 from __future__ import annotations
 
-import time
 from typing import Any, Dict, List
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from services.symbolic_computation.config import SymbolicComputationConfig, get_config
+from services.symbolic_computation.config import get_config
 from services.symbolic_computation.core.models import (
-    BackendType,
     CodeGenRequest,
     CodeGenResult,
     CodeLanguage,
-    ComputationRequest,
     ComputationResult,
     HealthStatus,
     MetricsSummary,

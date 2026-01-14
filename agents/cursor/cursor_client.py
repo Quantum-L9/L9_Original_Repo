@@ -4,6 +4,7 @@ HTTP client wrapper for Cursor remote API.
 Simple POST wrapper with timeout and error handling.
 """
 
+import requests
 import structlog
 from typing import Dict, Any, Optional
 

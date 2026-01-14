@@ -9,20 +9,16 @@ Version: 6.0.0
 
 from __future__ import annotations
 
-import os
 import subprocess
-import tempfile
 import time
-from pathlib import Path
 from typing import Callable, List, Optional
 
 import structlog
 import sympy
 from sympy import sympify
-from sympy.utilities.codegen import codegen
 
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
-from services.symbolic_computation.core.models import CodeGenResult, CodeLanguage
+from services.symbolic_computation.core.models import CodeGenResult
 
 logger = structlog.get_logger(__name__)
 

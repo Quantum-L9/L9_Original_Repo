@@ -14,8 +14,6 @@ Coverage targets:
 - Non-blocking behavior
 """
 
-import asyncio
-from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -351,7 +349,7 @@ class TestIngestAuditPacket:
     async def test_ingest_audit_packet_success(self):
         """Contract: Successful ingestion completes silently."""
         from memory.tool_audit import _ingest_audit_packet
-        from core.schemas.packet_envelope_v2 import (
+        from core.schemas import (
     PacketConfidence,
     PacketEnvelopeIn,
     PacketMetadata,
@@ -381,7 +379,7 @@ class TestIngestAuditPacket:
     async def test_ingest_audit_packet_handles_error(self):
         """Contract: Ingestion errors are logged but don't raise."""
         from memory.tool_audit import _ingest_audit_packet
-        from core.schemas.packet_envelope_v2 import (
+        from core.schemas import (
     PacketConfidence,
     PacketEnvelopeIn,
     PacketMetadata,
@@ -408,7 +406,7 @@ class TestIngestAuditPacket:
     async def test_ingest_audit_packet_logs_partial_failure(self):
         """Contract: Partial ingestion status is logged."""
         from memory.tool_audit import _ingest_audit_packet
-        from core.schemas.packet_envelope_v2 import (
+        from core.schemas import (
     PacketConfidence,
     PacketEnvelopeIn,
     PacketMetadata,
@@ -447,8 +445,7 @@ class TestToolAuditTTL:
     @pytest.mark.asyncio
     async def test_packet_ttl_is_24_hours_from_now(self):
         """Contract: Packet TTL is set to 24 hours from creation."""
-        from memory.tool_audit import log_tool_invocation, TOOL_AUDIT_TTL_HOURS
-        from memory.substrate_models import PacketEnvelopeIn
+        from memory.tool_audit import log_tool_invocation
 
         call_id = uuid4()
         captured_packet = None

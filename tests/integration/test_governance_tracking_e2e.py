@@ -12,7 +12,6 @@ Version: 1.0.0
 """
 
 import pytest
-from datetime import datetime
 from uuid import uuid4
 
 from core.agents.schemas import AgentTask, AgentConfig, ExecutionResult, TaskKind
@@ -20,7 +19,6 @@ from core.agents.agent_instance import AgentInstance
 from core.agents.selfreflection import (
     TaskExecutionContext,
     analyze_task_execution,
-    detect_behavior_gaps,
     GovernanceBlockPattern,
     UserCorrectionPattern,
 )

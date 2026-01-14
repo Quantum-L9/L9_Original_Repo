@@ -17,7 +17,6 @@ Version: 1.0.0 (GMP-11)
 
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import uuid4
 
 # ============================================================================
 # Test: Structured Command Parsing (T1)

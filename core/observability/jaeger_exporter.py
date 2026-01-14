@@ -5,8 +5,7 @@ Exports spans to Jaeger via OTLP (OpenTelemetry Protocol) for distributed tracin
 """
 
 import structlog
-from typing import List, Optional, Dict, Any, TYPE_CHECKING
-from datetime import datetime
+from typing import List, Optional, Any, TYPE_CHECKING
 
 logger = structlog.get_logger(__name__)
 

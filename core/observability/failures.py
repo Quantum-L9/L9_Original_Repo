@@ -6,7 +6,7 @@ Maps failure classes to remediation actions (retry, fallback, degrade, escalate)
 
 import asyncio
 import structlog
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional
 from enum import Enum
 
 from .models import FailureSignal, RemediationAction, FailureClass, Span

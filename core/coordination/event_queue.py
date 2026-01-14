@@ -7,9 +7,8 @@ Purpose: Async message queue for agent coordination, replacing synchronous calls
 from __future__ import annotations
 
 import asyncio
-import json
 from typing import Dict, List, Callable, Any, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from uuid import uuid4

@@ -19,7 +19,7 @@ from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketConfidence,
     PacketEnvelope,
     PacketMetadata,

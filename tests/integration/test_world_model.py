@@ -8,24 +8,19 @@ Version: 1.0.0
 """
 
 import pytest
-from datetime import datetime
 from uuid import uuid4
 
 # Test the schema models
 from core.worldmodel.l9_schema import (
     L9Agent,
-    L9Repository,
     L9Infrastructure,
     L9Tool,
-    L9MemorySegment,
-    L9ExternalSystem,
     L9Relationship,
     L9RelationshipType,
     EntityType,
     InfrastructureType,
     ToolCategory,
     ToolRiskLevel,
-    ConnectionStatus,
 )
 
 # Test insight emitter

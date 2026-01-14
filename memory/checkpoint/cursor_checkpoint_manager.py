@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import structlog
 from typing import Any, Optional, Dict
-from uuid import UUID
 
 from memory.checkpoint.postgres_saver import L9PostgresSaver
 from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway

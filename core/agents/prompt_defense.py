@@ -25,7 +25,6 @@ import structlog
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional, Tuple
-from uuid import UUID
 
 logger = structlog.get_logger(__name__)
 

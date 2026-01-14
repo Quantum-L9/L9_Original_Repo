@@ -66,7 +66,6 @@ class KernelAwareAgentRegistry:
             from core.kernels.kernelloader import (
                 load_kernels,
                 require_kernel_activation,
-                verify_kernel_integrity,
             )
             from agents.l_cto import LCTOAgent
 

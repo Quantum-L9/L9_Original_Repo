@@ -14,13 +14,11 @@ Verifies:
 """
 
 import pytest
-from datetime import datetime
 from uuid import uuid4
 from unittest.mock import Mock, AsyncMock, patch
 
 from agents.cursor.integrations.cursor_langgraph import CursorAgentState
 from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway, CursorScopeViolationError
-from agents.cursor.integrations.cursor_executor import CursorExecutor, CursorTaskSpec
 from memory.substrate_dag_wrapper import SubstrateDagOrchestrator
 from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
 from memory.checkpoint.postgres_saver import L9PostgresSaver
@@ -37,7 +35,7 @@ class TestDecisionWrittenToPacketstoreV2:
     async def test_decision_written_to_packetstore_v2(self):
         """Run simple Cursor task and assert cursor_decision PacketEnvelope v2.0.0 is written."""
         # Mock dependencies
-        from core.schemas.packet_envelope_v2 import PacketWriteResult
+        from core.schemas import PacketWriteResult
         dag_orchestrator = Mock(spec=SubstrateDagOrchestrator)
         dag_orchestrator.ingest_packet = AsyncMock(return_value=PacketWriteResult(
             packet_id=uuid4(),

@@ -16,10 +16,7 @@ Created: 2026-01-08
 import pytest
 import sys
 import os
-from unittest.mock import AsyncMock, MagicMock, patch
-import json
-import hmac
-import hashlib
+from unittest.mock import AsyncMock, MagicMock
 import time
 
 # Ensure project root is in path
@@ -102,10 +99,6 @@ class TestSlackMetrics:
             record_signature_verification,
             record_slack_processing,
             record_aios_call,
-            record_idempotent_hit,
-            record_packet_write_error,
-            record_slack_reply_error,
-            record_rate_limit_hit,
         )
         # All imports should succeed
         assert callable(record_slack_request)
@@ -297,7 +290,7 @@ class TestPacketStorage:
     @pytest.mark.asyncio
     async def test_inbound_packet_stored(self, mock_substrate_service):
         """Test inbound packet is stored."""
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+        from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
         
         packet = PacketEnvelopeIn(
             packet_type="slack.in",
@@ -313,7 +306,7 @@ class TestPacketStorage:
     @pytest.mark.asyncio
     async def test_outbound_packet_stored(self, mock_substrate_service):
         """Test outbound packet is stored."""
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+        from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
         
         packet = PacketEnvelopeIn(
             packet_type="slack.out",
@@ -410,7 +403,6 @@ class TestErrorHandling:
         from telemetry.slack_metrics import (
             record_slack_request,
             record_signature_verification,
-            PROMETHEUS_AVAILABLE,
         )
         
         # These should never raise, even if prometheus is unavailable

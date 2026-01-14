@@ -154,6 +154,9 @@ services:
       l9-postgres:
         condition: service_healthy
     environment:
+      # Python path (required for 'from src.xxx' imports inside /app/mcp_memory/)
+      PYTHONPATH: /app:/app/mcp_memory
+      
       # Database (shared with l9-api)
       MEMORY_DSN: postgresql://${POSTGRES_USER:-l9_user}:${POSTGRES_PASSWORD:-YOUR_DB_PASSWORD_HERE}@l9-postgres:5432/${POSTGRES_DB:-l9_memory}
       

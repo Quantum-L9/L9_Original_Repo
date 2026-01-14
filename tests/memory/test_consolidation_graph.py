@@ -17,7 +17,6 @@ GMP: GMP-UKG-5 (Memory Consolidation Loop)
 
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import datetime
 
 
 # =============================================================================

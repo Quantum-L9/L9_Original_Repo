@@ -23,7 +23,6 @@ Features:
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, Tuple
 
@@ -33,7 +32,6 @@ import yaml
 from core.kernels.schemas import (
     KernelActivationResult,
     KernelManifest,
-    KernelMeta,
     KernelState,
     KernelValidationResult,
     ValidationError,

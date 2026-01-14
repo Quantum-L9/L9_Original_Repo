@@ -17,10 +17,10 @@ from __future__ import annotations
 import structlog
 import re
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
-from core.schemas.packet_envelope_v2 import PacketEnvelope
+from core.schemas import PacketEnvelope
 from memory.substrate_models import ExtractedInsight, KnowledgeFact
 
 logger = structlog.get_logger(__name__)
@@ -331,7 +331,7 @@ class InsightExtractionPipeline:
 
         for insight in insights:
             # Store insight as a packet
-            from memory.substrate_models import PacketEnvelope, PacketMetadata
+            from core.schemas import PacketEnvelope, PacketMetadata
 
             insight_packet = PacketEnvelope(
                 packet_type="insight",

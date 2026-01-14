@@ -20,7 +20,6 @@ from datetime import datetime
 from typing import Any, Optional, List
 from uuid import UUID
 
-from memory.substrate_models import PacketStoreRow
 from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)

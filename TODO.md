@@ -6,6 +6,21 @@
 
 ## 🔴 High Priority
 
+### Ruff Unused Variable Review (GMP-78)
+
+**Status:** Review needed for 4 cases
+
+| Case | File | Variable | Decision Needed |
+|------|------|----------|-----------------|
+| 3 | `orchestration/plan_executor.py:512` | `step_map` | DELETE or DEVELOP? Map created but iteration uses `plan.steps` directly. If O(1) lookup needed, wire it up. |
+| 7 | `core/governance/approval_manager.py:415` | `now` | Clarify: `is_expired()` calculates time internally. Is `now` needed for something else or truly dead? |
+| 9 | `ir_engine/ir_to_plan_adapter.py:450` | `removed` | Review: `removed = plan.steps.pop(idx)` — is removed step needed for logging? |
+| 10 | `ci/check_syntax.py:348` | `original_lines` | Add rollback logic (see `scripts/deployment/rollback_vps.sh` for pattern) or delete |
+
+**Reference:** GMP-78 /reasoning analysis
+
+---
+
 ### Dead Code Investigation (77 findings)
 
 **Status:** Audit complete, manual triage needed
@@ -102,6 +117,26 @@
 ---
 
 ## 🟣 Deferred Work
+
+### Symbolic Computation Service (DISABLED)
+
+**Status**: DISABLED (2026-01-13) — Not actively used
+
+**Location**: `services/symbolic_computation/`
+
+**What it is**: Standalone SymPy/NumPy service for symbolic math (Quantum AI Factory)
+
+**What was disabled**:
+- Dockerfile CMD changed from running pytest to echo message
+- Service has its own docker-compose.yml (NOT part of main L9 stack)
+
+**TODO** (when needed):
+- [ ] Review if this service is still needed
+- [ ] If yes, re-enable CMD in Dockerfile: `CMD ["python", "-m", "pytest", "tests/"]`
+- [ ] Consider converting to actual server if needed (currently just runs tests)
+- [ ] Integrate into main docker-compose.yml if production-ready
+
+---
 
 ### Frontier Memory Retrieval Architecture
 

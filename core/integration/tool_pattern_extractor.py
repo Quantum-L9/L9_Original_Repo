@@ -154,7 +154,7 @@ class ToolPatternExtractor:
             self._extraction_count += 1
             
             logger.info(
-                f"Tool pattern extraction complete",
+                "Tool pattern extraction complete",
                 extra={
                     "tools_analyzed": len(patterns.get("tool_stats", {})),
                     "total_invocations": patterns.get("total_invocations", 0),

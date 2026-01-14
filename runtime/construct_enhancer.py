@@ -32,7 +32,6 @@ from ir_engine.schema_validator import SchemaValidator
 from runtime.superprompt_emitter import (
     GapAnalysis,
     GapDetector,
-    SuperPrompt,
     SuperPromptEmitter,
     PerplexityEnricher,
     SpecPatcher,

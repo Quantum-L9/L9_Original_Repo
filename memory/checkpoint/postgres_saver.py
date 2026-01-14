@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import structlog
 from typing import Any, Optional, Dict
-from uuid import UUID
 
 # LangGraph checkpoint interface (if available)
 try:

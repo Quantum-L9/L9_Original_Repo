@@ -14,9 +14,9 @@ import structlog
 from typing import Any, Dict, Optional
 from dataclasses import dataclass
 
-from core.governance.approval_manager import ApprovalManager, ApprovalRequest, ApprovalDecision, ApprovalStatus
+from core.governance.approval_manager import ApprovalManager, ApprovalStatus
 from core.schemas.capabilities import ToolName, Capability
-from core.schemas.packet_envelope_v2 import PacketEnvelope
+from core.schemas import PacketEnvelope
 
 logger = structlog.get_logger(__name__)
 
@@ -199,7 +199,7 @@ def handle_governance_result(
             state.decisions[-1]["approval_id"] = escalation_result.request_id
         
         # Add reasoning block
-        from core.schemas.packet_envelope_v2 import StructuredReasoningBlock
+        from core.schemas import StructuredReasoningBlock
         from datetime import datetime
         from uuid import uuid4
         
@@ -226,7 +226,7 @@ def handle_governance_result(
             state.decisions[-1]["rejection_reason"] = escalation_result.rationale
         
         # Add guidance message
-        from core.schemas.packet_envelope_v2 import StructuredReasoningBlock
+        from core.schemas import StructuredReasoningBlock
         from datetime import datetime
         from uuid import uuid4
         

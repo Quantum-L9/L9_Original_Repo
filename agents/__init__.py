@@ -26,10 +26,10 @@ from agents.base_agent import (
     AgentResponse,
     AgentRole,
 )
-from agents.architect_agent_a import ArchitectAgentA
-from agents.architect_agent_b import ArchitectAgentB
-from agents.coder_agent_a import CoderAgentA
-from agents.coder_agent_b import CoderAgentB
+from agents.architect_agent.architect_agent_a import ArchitectAgentA
+from agents.architect_agent.architect_agent_b import ArchitectAgentB
+from agents.coder_agent.coder_agent_a import CoderAgentA
+from agents.coder_agent.coder_agent_b import CoderAgentB
 from agents.qa_agent import QAAgent
 from agents.reflection_agent import ReflectionAgent
 from agents.l_cto import LCTOAgent, create_l_cto_agent

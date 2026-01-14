@@ -16,7 +16,7 @@ import json
 import structlog
 from pathlib import Path
 from dataclasses import dataclass, asdict, field
-from typing import Optional, Dict, List, Any, Set, Callable
+from typing import Optional, Dict, List, Any, Set
 from datetime import datetime
 from collections import defaultdict
 import ast
@@ -234,7 +234,7 @@ class Reporter:
 
     def generate_html_template(self, title: str, summary: Dict[str, Any], content: str) -> str:
         """Generate basic HTML template."""
-        return f"""
+        html_content = f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -385,7 +385,7 @@ class ConfigValidator:
 
             # Check required
             if rule.required and value is None:
-                errors[var_name].append(f"Required variable missing")
+                errors[var_name].append("Required variable missing")
                 continue
 
             if value is None:

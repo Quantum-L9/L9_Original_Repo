@@ -56,7 +56,7 @@ def load_client_secrets(account: Optional[str] = None) -> Optional[Dict[str, Any
     if not secret_file.exists():
         logger.error(f"Client secrets not found at {secret_file}")
         if account:
-            logger.info(f"Run: python scripts/setup_gmail_accounts.py")
+            logger.info("Run: python scripts/setup_gmail_accounts.py")
         else:
             logger.info("Please download OAuth2 credentials from Google Cloud Console")
             logger.info("Save as: ~/.l9/gmail/client_secret.json")

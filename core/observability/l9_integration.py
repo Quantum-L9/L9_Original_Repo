@@ -11,10 +11,10 @@ This module instruments the actual L9 service methods:
 """
 
 import structlog
-from typing import Any, Optional
+from typing import Any
 
 from .instrumentation import (
-    trace_span, trace_llm_call, trace_tool_call, trace_governance_check,
+    trace_span, trace_tool_call, trace_governance_check,
 )
 from .models import SpanKind
 

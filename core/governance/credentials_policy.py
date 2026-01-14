@@ -375,8 +375,6 @@ __all__ = [
 # CREDENTIAL ROTATION POLICY (v1.1.0)
 # =============================================================================
 
-from datetime import timedelta
-from enum import auto
 
 
 class RotationStatus(Enum):

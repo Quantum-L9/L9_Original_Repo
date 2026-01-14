@@ -33,9 +33,8 @@ services:
     image: pgvector/pgvector:pg16
     container_name: symbolic_postgres
     environment:
-      - POSTGRES_DB=aios
-      - POSTGRES_USER=aios_user
-      - POSTGRES_PASSWORD=change_me
+      - POSTGRES_DB=l9_memory
+      - POSTGRES_USER=postgres
     ports:
       - "5432:5432"
     volumes:
@@ -47,7 +46,6 @@ services:
     image: neo4j:5.14
     container_name: symbolic_neo4j
     environment:
-      - NEO4J_AUTH=neo4j/change_me
       - NEO4J_PLUGINS=["apoc"]
     ports:
       - "7474:7474"

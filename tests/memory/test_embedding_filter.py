@@ -10,7 +10,6 @@ from pathlib import Path
 # Ensure project root is in path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-import pytest
 from memory.substrate_dag import _should_skip_embedding, SKIP_EMBEDDING_PATTERNS
 
 

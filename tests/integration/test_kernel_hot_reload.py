@@ -11,16 +11,11 @@ Verifies:
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
-import tempfile
-import shutil
 
 from core.kernels.kernelloader import (
     reload_kernels,
     load_kernels,
-    verify_kernel_activation,
-    verify_kernel_integrity,
     KERNEL_ORDER,
-    KernelReloadResult,
 )
 
 
@@ -200,7 +195,6 @@ class TestKernelEvolutionLogging:
         from core.memory.runtime import log_kernel_evolution
 
         # Use patch.object on the module after import to avoid path issues
-        import core.memory.runtime as runtime_module
 
         mock_substrate = AsyncMock()
         mock_substrate.ingest_packet = AsyncMock(

@@ -19,7 +19,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketConfidence,
     PacketEnvelope,
     PacketLineage,
@@ -248,7 +248,7 @@ class TestPacketEnvelopeInConversion:
 
     def test_envelope_in_to_envelope(self):
         """PacketEnvelopeIn.to_envelope() creates valid PacketEnvelope."""
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
 
         envelope_in = PacketEnvelopeIn(
             packet_type="input_test",

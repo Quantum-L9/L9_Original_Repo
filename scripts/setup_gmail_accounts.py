@@ -26,7 +26,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from email_agent.config import ACCOUNTS, get_account_config, VALID_ACCOUNTS
+from email_agent.config import get_account_config, VALID_ACCOUNTS
 
 # Gmail OAuth files in repo (private_auth folder)
 GMAIL_REPO_DIR = PROJECT_ROOT / "email_agent" / "private_auth"
@@ -59,7 +59,7 @@ def setup_account(account_name: str) -> dict:
     try:
         config.data_root.mkdir(parents=True, exist_ok=True)
         config.attachments_dir.mkdir(parents=True, exist_ok=True)
-        print(f"  + Created directories")
+        print("  + Created directories")
     except Exception as e:
         status["errors"].append(f"Failed to create directories: {e}")
         print(f"  ! Error creating directories: {e}")
@@ -154,7 +154,7 @@ def main():
             print("\n1. Run OAuth flow for accounts needing tokens:")
             for account in need_oauth:
                 print(f"   python -m email_agent.oauth_server --account {account}")
-                print(f"   Then visit: http://localhost:8080/oauth/start")
+                print("   Then visit: http://localhost:8080/oauth/start")
                 print()
 
         missing_secrets = [r for r in results if not r["client_secret_exists"]]

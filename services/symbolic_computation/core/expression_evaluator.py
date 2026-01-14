@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import hashlib
 import time
-from functools import lru_cache
 from typing import Any, Callable, Dict, List, Optional
 
 import structlog
@@ -22,8 +21,6 @@ from sympy.utilities.lambdify import lambdify
 
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import (
-    BackendType,
-    ComputationRequest,
     ComputationResult,
 )
 

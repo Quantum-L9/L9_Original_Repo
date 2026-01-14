@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import asyncio
+import logging
 import subprocess
 import structlog
 import json

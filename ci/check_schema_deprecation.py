@@ -5,11 +5,13 @@ CI Gate: Schema Deprecation Enforcement
 Ensures deprecated PacketEnvelope schemas are not used in new code.
 Enforces migration to core.schemas.packet_envelope_v2.
 
-Sunset Timeline:
-- 2026-01-05: Deprecation announced (warnings)
-- 2026-02-20: Sunset warning (errors in new files)
-- 2026-03-22: Write block (errors for all)
-- 2026-04-05: Read block (complete migration required)
+Architecture (GMP-74):
+- PacketEnvelope, PacketEnvelopeIn, etc. → core.schemas.packet_envelope_v2
+- PacketStoreRow, KnowledgeFact, etc. → memory.substrate_models (NOT deprecated)
+
+This checker looks for:
+1. Imports of PacketEnvelope from memory.substrate_models (will error - class removed)
+2. Imports from core.schemas.packet_envelope (old v1 location, use v2)
 
 Usage:
     python ci/check_schema_deprecation.py [--strict] [--phase N]
@@ -42,23 +44,29 @@ logger = structlog.get_logger(__name__)
 PROJECT_ROOT = Path(__file__).parent.parent
 
 # Deprecated import patterns (regex)
+# NOTE: memory.substrate_models is NOT deprecated - it contains valid DB DTOs
+# Only PacketEnvelope-related imports from there are deprecated (and removed as of GMP-74)
 DEPRECATED_PATTERNS = [
-    # Direct imports from deprecated modules
+    # PacketEnvelope from old locations (these will actually ImportError now)
     r"from\s+memory\.substrate_models\s+import\s+.*PacketEnvelope",
-    r"from\s+core\.schemas\.packet_envelope\s+import\s+.*PacketEnvelope",
-    # Import the deprecated module itself
-    r"import\s+memory\.substrate_models",
+    r"from\s+memory\.substrate_models\s+import\s+.*PacketEnvelopeIn",
+    r"from\s+memory\.substrate_models\s+import\s+.*PacketWriteResult",
+    r"from\s+memory\.substrate_models\s+import\s+.*SemanticSearchRequest",
+    r"from\s+memory\.substrate_models\s+import\s+.*SemanticHit",
+    # Imports from old v1 location (use v2)
+    r"from\s+core\.schemas\.packet_envelope\s+import",
     r"import\s+core\.schemas\.packet_envelope\b(?!_v2)",
-    # Any reference to old versions
+    # Any reference to old schema versions
     r"PacketEnvelope.*schema_version.*['\"]1\.[0-1]\.[0-9]['\"]",
 ]
 
 # Canonical import (what they should use)
-CANONICAL_IMPORT = "from core.schemas.packet_envelope_v2 import PacketEnvelope"
+CANONICAL_IMPORT = "from core.schemas import PacketEnvelope"
 
 # Files/directories to exclude from checking
 EXCLUDE_PATTERNS = [
     "archive/",
+    "_archived/",
     "tests/",  # Tests may intentionally test deprecated paths
     "__pycache__/",
     ".git/",
@@ -76,6 +84,12 @@ EXCLUDE_PATTERNS = [
     # Docs
     "docs/",
     "reports/",
+    # Work in progress
+    "current_work/",
+    # Audit snapshots (point-in-time copies)
+    "igor/audit-memory/",
+    # Code generation (templates, not production code)
+    "codegen/",
 ]
 
 # Sunset dates
@@ -224,9 +238,12 @@ def print_summary(
         logger.info("-" * 40)
         logger.info("")
         logger.info("Migration required:")
-        logger.info(f"  ❌ Old: from memory.substrate_models import PacketEnvelope")
-        logger.info(f"  ❌ Old: from core.schemas.packet_envelope import PacketEnvelope")
+        logger.info("  ❌ Old: from memory.substrate_models import PacketEnvelope  # REMOVED in GMP-74")
+        logger.info("  ❌ Old: from core.schemas.packet_envelope import PacketEnvelope  # Use v2")
         logger.info(f"  ✅ New: {CANONICAL_IMPORT}")
+        logger.info("")
+        logger.info("Note: memory.substrate_models is NOT deprecated for:")
+        logger.info("  PacketStoreRow, KnowledgeFact, ExtractedInsight, etc. (DB DTOs)")
         logger.info("")
         logger.info("For read operations with legacy data, use:")
         logger.info("  from core.schemas.schema_registry import read_packet")

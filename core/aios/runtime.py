@@ -281,16 +281,25 @@ class AIOSRuntime:
                     tool_request.arguments,
                 )
 
+                duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+                logger.info(
+                    "AIOS tool_call completed",
+                    tool_id=tool_request.tool_id,
+                    duration_ms=duration_ms,
+                    tokens_used=tokens_used,
+                )
                 return AIOSResult.tool_request(tool_request, tokens_used=tokens_used)
 
             # No tool call - return response
             content = message.content or ""
+            duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
 
-            logger.debug(
-                "AIOS response: %d chars, %d tokens, finish=%s",
-                len(content),
-                tokens_used,
-                finish_reason,
+            logger.info(
+                "AIOS response completed",
+                chars=len(content),
+                tokens=tokens_used,
+                finish_reason=finish_reason,
+                duration_ms=duration_ms,
             )
 
             return AIOSResult(
@@ -301,7 +310,8 @@ class AIOSRuntime:
             )
 
         except Exception as e:
-            logger.exception("AIOS reasoning failed: %s", str(e))
+            duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            logger.exception("AIOS reasoning failed", error=str(e), duration_ms=duration_ms)
             return AIOSResult.error_result(str(e))
 
     # =========================================================================

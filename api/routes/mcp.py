@@ -6,9 +6,8 @@ Routes /mcp/* requests to MCP tool handlers.
 """
 
 import structlog
-from fastapi import APIRouter, HTTPException, Depends, Header, Request
+from fastapi import APIRouter, HTTPException, Header, Request
 from pydantic import ValidationError
-from typing import Optional
 
 logger = structlog.get_logger(__name__)
 

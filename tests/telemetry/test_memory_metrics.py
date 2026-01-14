@@ -16,7 +16,6 @@ Coverage targets:
 - Graceful degradation when prometheus_client unavailable
 """
 
-from unittest.mock import patch, MagicMock
 import pytest
 
 

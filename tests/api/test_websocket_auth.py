@@ -13,9 +13,8 @@ Version: 1.0.0
 """
 
 import os
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch, MagicMock
 
-import pytest
 
 # =============================================================================
 # Configuration

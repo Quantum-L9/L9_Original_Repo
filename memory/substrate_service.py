@@ -10,7 +10,7 @@ import structlog
 from datetime import datetime
 from typing import Any, Optional
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketEnvelopeIn,
     PacketWriteResult,
     SemanticHit,
@@ -30,14 +30,13 @@ from memory.query_classifier import QueryClassifier, get_query_classifier
 from memory.reasoning_replay import ReasoningReplayPipeline
 from memory.consolidation import ConsolidationPipeline
 from memory.agent_persistence import AgentPersistenceService
+from memory.retention_engine import RetentionEngine
 from memory.saga import (
     SagaExecutor,
     SagaResult,
-    get_saga_executor,
 )
 from memory.saga_patterns import (
     SagaPatterns,
-    get_saga_patterns,
 )
 from memory.audit_utils import prepare_packet_for_ingest
 from telemetry.memory_metrics import (
@@ -109,6 +108,7 @@ class MemorySubstrateService:
         self._reasoning_replay: Optional[ReasoningReplayPipeline] = None
         self._consolidation: Optional[ConsolidationPipeline] = None
         self._agent_persistence: Optional[AgentPersistenceService] = None
+        self._retention_engine: Optional[RetentionEngine] = None
         
         # Initialize saga pattern (lazy initialization)
         self._saga_executor: Optional[SagaExecutor] = None
@@ -829,37 +829,45 @@ class MemorySubstrateService:
     # v3.1 Module Accessors
     # =========================================================================
 
-    def get_query_classifier(self) -> Optional[QueryClassifier]:
+    def get_query_classifier(self) -> QueryClassifier:
         """
         Get query classifier instance (lazy initialization).
         
         Returns:
-            QueryClassifier instance, or None if unavailable
+            QueryClassifier instance
+            
+        Raises:
+            Exception: If initialization fails (LOUD failure)
         """
-        if self._query_classifier is None:
-            try:
-                self._query_classifier = get_query_classifier()
-            except Exception as e:
-                logger.warning("Failed to initialize query classifier", error=str(e))
-                return None
+        if self._query_classifier is not None:
+            logger.debug("query_classifier already loaded")
+            return self._query_classifier
+        
+        logger.info("Initializing query_classifier...")
+        self._query_classifier = get_query_classifier()
+        logger.info("query_classifier loaded successfully")
         return self._query_classifier
 
-    def get_reasoning_replay(self) -> Optional[ReasoningReplayPipeline]:
+    def get_reasoning_replay(self) -> ReasoningReplayPipeline:
         """
         Get reasoning replay pipeline instance (lazy initialization).
         
         Returns:
-            ReasoningReplayPipeline instance, or None if unavailable
+            ReasoningReplayPipeline instance
+            
+        Raises:
+            Exception: If initialization fails (LOUD failure)
         """
-        if self._reasoning_replay is None:
-            try:
-                self._reasoning_replay = ReasoningReplayPipeline(repository=self._repository)
-            except Exception as e:
-                logger.warning("Failed to initialize reasoning replay", error=str(e))
-                return None
+        if self._reasoning_replay is not None:
+            logger.debug("reasoning_replay already loaded")
+            return self._reasoning_replay
+        
+        logger.info("Initializing reasoning_replay...")
+        self._reasoning_replay = ReasoningReplayPipeline(repository=self._repository)
+        logger.info("reasoning_replay loaded successfully")
         return self._reasoning_replay
 
-    def get_consolidation(self, dry_run: bool = False) -> Optional[ConsolidationPipeline]:
+    def get_consolidation(self, dry_run: bool = False) -> ConsolidationPipeline:
         """
         Get consolidation pipeline instance (lazy initialization).
         
@@ -867,36 +875,71 @@ class MemorySubstrateService:
             dry_run: If True, consolidation runs in dry-run mode
             
         Returns:
-            ConsolidationPipeline instance, or None if unavailable
+            ConsolidationPipeline instance
+            
+        Raises:
+            Exception: If initialization fails (LOUD failure)
         """
-        if self._consolidation is None:
-            try:
-                self._consolidation = ConsolidationPipeline(
-                    repository=self._repository,
-                    dry_run=dry_run,
-                )
-            except Exception as e:
-                logger.warning("Failed to initialize consolidation", error=str(e))
-                return None
+        if self._consolidation is not None:
+            logger.debug("consolidation already loaded")
+            return self._consolidation
+        
+        logger.info("Initializing consolidation...", dry_run=dry_run)
+        self._consolidation = ConsolidationPipeline(
+            repository=self._repository,
+            dry_run=dry_run,
+        )
+        logger.info("consolidation loaded successfully")
         return self._consolidation
 
-    def get_agent_persistence(self) -> Optional[AgentPersistenceService]:
+    def get_agent_persistence(self) -> AgentPersistenceService:
         """
         Get agent persistence service instance (lazy initialization).
         
         Returns:
-            AgentPersistenceService instance, or None if unavailable
+            AgentPersistenceService instance
+            
+        Raises:
+            Exception: If initialization fails (LOUD failure)
         """
-        if self._agent_persistence is None:
-            try:
-                self._agent_persistence = AgentPersistenceService(
-                    service=self,
-                    repository=self._repository,
-                )
-            except Exception as e:
-                logger.warning("Failed to initialize agent persistence", error=str(e))
-                return None
+        if self._agent_persistence is not None:
+            logger.debug("agent_persistence already loaded")
+            return self._agent_persistence
+        
+        logger.info("Initializing agent_persistence...")
+        self._agent_persistence = AgentPersistenceService(
+            service=self,
+            repository=self._repository,
+        )
+        logger.info("agent_persistence loaded successfully")
         return self._agent_persistence
+
+    def get_retention_engine(self) -> RetentionEngine:
+        """
+        Get retention engine instance (lazy initialization).
+        
+        The retention engine is wired with:
+        - persistence: From get_agent_persistence()
+        - repository: Direct reference to _repository
+        
+        Returns:
+            RetentionEngine instance
+            
+        Raises:
+            Exception: If initialization fails (LOUD failure)
+        """
+        if self._retention_engine is not None:
+            logger.debug("retention_engine already loaded")
+            return self._retention_engine
+        
+        logger.info("Initializing retention_engine...")
+        persistence = self.get_agent_persistence()
+        self._retention_engine = RetentionEngine(
+            persistence=persistence,
+            repository=self._repository,
+        )
+        logger.info("retention_engine loaded successfully")
+        return self._retention_engine
 
     # =========================================================================
     # Saga Pattern (GMP-56/57: Cross-DB Multi-Step Operations)
@@ -913,23 +956,31 @@ class MemorySubstrateService:
         
         Returns:
             SagaExecutor instance
-        """
-        if self._saga_executor is None:
-            # Get Neo4j client if available
-            neo4j_client = None
-            try:
-                from memory.graph_client import get_graph_client
-                neo4j_client = get_graph_client()
-            except Exception as e:
-                logger.debug(f"Neo4j client not available for saga: {e}")
             
-            self._saga_executor = SagaExecutor(
-                postgres_pool=self._repository._pool,
-                neo4j_client=neo4j_client,
-                semantic_service=self._semantic_service,
-            )
-            logger.info("SagaExecutor initialized")
+        Raises:
+            Exception: If initialization fails (LOUD failure)
+        """
+        if self._saga_executor is not None:
+            logger.debug("saga_executor already loaded")
+            return self._saga_executor
         
+        logger.info("Initializing saga_executor...")
+        
+        # Get Neo4j client if available (optional dependency)
+        neo4j_client = None
+        try:
+            from memory.graph_client import get_graph_client
+            neo4j_client = get_graph_client()
+            logger.debug("Neo4j client available for saga")
+        except Exception as e:
+            logger.debug(f"Neo4j client not available for saga: {e}")
+        
+        self._saga_executor = SagaExecutor(
+            postgres_pool=self._repository._pool,
+            neo4j_client=neo4j_client,
+            semantic_service=self._semantic_service,
+        )
+        logger.info("saga_executor loaded successfully")
         return self._saga_executor
 
     async def get_saga_patterns(self) -> SagaPatterns:
@@ -943,12 +994,18 @@ class MemorySubstrateService:
         
         Returns:
             SagaPatterns instance
+            
+        Raises:
+            Exception: If initialization fails (LOUD failure)
         """
-        if self._saga_patterns is None:
-            executor = await self.get_saga_executor()
-            self._saga_patterns = SagaPatterns(executor)
-            logger.info("SagaPatterns initialized")
+        if self._saga_patterns is not None:
+            logger.debug("saga_patterns already loaded")
+            return self._saga_patterns
         
+        logger.info("Initializing saga_patterns...")
+        executor = await self.get_saga_executor()
+        self._saga_patterns = SagaPatterns(executor)
+        logger.info("saga_patterns loaded successfully")
         return self._saga_patterns
 
     async def fetch_and_enrich(

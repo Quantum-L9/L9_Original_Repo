@@ -14,7 +14,7 @@ Coverage targets:
 """
 
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 import pytest
@@ -308,7 +308,6 @@ class TestExecutorRegistryWiring:
         import core.tools.registry_adapter as registry
 
         # Check that time is imported (used for duration calculation)
-        import time
         assert hasattr(registry, "time") or "time" in dir(registry)
 
     def test_registry_imports_audit_function(self):
@@ -325,7 +324,6 @@ class TestPacketStructure:
     async def test_packet_has_required_fields(self):
         """Contract: Tool audit packet contains all required fields."""
         from memory.tool_audit import log_tool_invocation
-        from memory.substrate_models import PacketEnvelopeIn
 
         call_id = uuid4()
         captured_coro = None
@@ -355,7 +353,6 @@ class TestPacketStructure:
     @pytest.mark.asyncio
     async def test_packet_type_is_tool_audit(self):
         """Contract: Packet type is set to 'tool_audit'."""
-        from memory.tool_audit import log_tool_invocation
         from memory.substrate_models import MemorySegment
 
         # The packet_type should match MemorySegment.TOOL_AUDIT.value

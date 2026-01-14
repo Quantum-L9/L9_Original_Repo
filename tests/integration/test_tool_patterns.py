@@ -17,7 +17,6 @@ GMP: GMP-UKG-4 (Tool Pattern Extraction)
 
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import datetime
 
 
 # =============================================================================

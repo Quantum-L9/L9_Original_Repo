@@ -1,27 +1,24 @@
 """
-L9 Memory Substrate - Pydantic Models
-Version: 1.1.1 (DEPRECATED)
+L9 Memory Substrate - Database DTOs and Memory-Specific Models
+Version: 2.0.0
 
-⚠️  DEPRECATION NOTICE ⚠️
-This module is DEPRECATED as of 2026-01-05.
-Use `core.schemas.packet_envelope_v2` for the canonical PacketEnvelope.
+This module contains:
+- Database row DTOs (PacketStoreRow, KnowledgeFactRow, etc.)
+- Memory-specific models (StructuredReasoningBlock, SubstrateState)
+- Knowledge extraction models (KnowledgeFact, ExtractedInsight)
+- Enrichment pipeline models (EnrichmentResult)
+- Memory segment enum (MemorySegment)
 
-Sunset timeline:
-- 2026-01-05: Deprecation announced
-- 2026-02-20: Sunset warning (45 days)
-- 2026-03-22: Write block (75 days)
-- 2026-04-05: Read block (90 days) - migration required
+For PacketEnvelope and related schemas, use:
+    from core.schemas import PacketEnvelope, PacketEnvelopeIn
 
-Migration:
-    # OLD (deprecated)
-    from memory.substrate_models import PacketEnvelope
-    
-    # NEW (canonical)
-    from core.schemas.packet_envelope_v2 import PacketEnvelope
+Changelog v2.0.0:
+- Removed duplicate PacketEnvelope classes (now in core.schemas.packet_envelope_v2)
+- Removed deprecation warning (this module is NOT deprecated)
+- Clarified purpose: DB DTOs and memory-specific models only
 
 Changelog v1.1.1:
 - Added frozen=True to enforce immutability (GMP#1)
-- DEPRECATED in favor of core.schemas.packet_envelope_v2
 
 Changelog v1.1.0:
 - Added PacketLineage model for DAG-style packet relationships
@@ -30,22 +27,12 @@ Changelog v1.1.0:
 - Updated PacketStoreRow with new DB columns
 """
 
-import warnings
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
-
-# Emit deprecation warning on import
-warnings.warn(
-    "memory.substrate_models is deprecated. "
-    "Use core.schemas.packet_envelope_v2 instead. "
-    "Sunset date: 2026-04-05",
-    DeprecationWarning,
-    stacklevel=2,
-)
 
 
 # =============================================================================
@@ -72,223 +59,6 @@ class MemorySegment(str, Enum):
 
     SESSION_CONTEXT = "session_context"
     """Short-term working memory, conversation context (TTL-based)."""
-
-
-# =============================================================================
-# PacketEnvelope Models
-# =============================================================================
-
-
-class PacketConfidence(BaseModel):
-    """Confidence score and rationale for a packet."""
-
-    score: Optional[float] = Field(
-        None, ge=0.0, le=1.0, description="Confidence score 0-1"
-    )
-    rationale: Optional[str] = Field(
-        None, description="Explanation of confidence level"
-    )
-
-    model_config = {"frozen": True}
-
-
-class PacketProvenance(BaseModel):
-    """Provenance information for packet traceability."""
-
-    parent_packet: Optional[UUID] = Field(
-        None, description="Parent packet ID if derived"
-    )
-    source: Optional[str] = Field(None, description="Source system or agent")
-    tool: Optional[str] = Field(None, description="Tool that generated this packet")
-
-    model_config = {"frozen": True}
-
-
-class PacketLineage(BaseModel):
-    """
-    Lineage information for packet genealogy tracking (v1.1.0).
-
-    Enables tracing the full derivation path of a packet through
-    the system, supporting multi-parent DAG relationships.
-    """
-
-    parent_ids: list[UUID] = Field(
-        default_factory=list, description="Parent packet IDs (multi-parent DAG)"
-    )
-    derivation_type: Optional[str] = Field(
-        None, description="How derived: 'split', 'merge', 'transform', 'inference', 'mutation'"
-    )
-    generation: int = Field(default=0, description="Generation number in lineage chain")
-    root_packet_id: Optional[UUID] = Field(
-        None, description="Original root packet if known"
-    )
-
-    model_config = {"frozen": True}
-
-
-class PacketMetadata(BaseModel):
-    """Metadata attached to a packet envelope."""
-
-    schema_version: Optional[str] = Field("1.1.1", description="Schema version")
-    reasoning_mode: Optional[str] = Field(None, description="Reasoning mode used")
-    agent: Optional[str] = Field(None, description="Agent identifier")
-    domain: Optional[str] = Field("l9", description="Domain context")
-
-    model_config = {"frozen": True, "extra": "allow"}
-
-
-class PacketEnvelope(BaseModel):
-    """
-    Canonical envelope for substrate writes and reasoning traces.
-
-    This is the core data structure for all agent events, memory writes,
-    and reasoning traces flowing through the memory substrate.
-
-    IMMUTABLE CONTRACT: PacketEnvelope is frozen once created. Any
-    modifications must use with_mutation() which creates a new packet
-    with proper lineage chain linking to the parent.
-
-    v1.1.0: Added thread_id, lineage, tags, ttl for enhanced
-    threading, DAG-style lineage, labeling, and memory expiration.
-    v1.1.1: Added model_config for immutability enforcement (frozen=True).
-    """
-
-    packet_id: UUID = Field(default_factory=uuid4, description="UUID for this packet")
-    packet_type: str = Field(
-        ...,
-        description="Type: 'event', 'memory_write', 'reasoning_trace', 'insight', etc.",
-    )
-    timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="ISO timestamp"
-    )
-    payload: dict[str, Any] = Field(
-        ..., description="JSON payload to persist or reason over"
-    )
-    metadata: Optional[PacketMetadata] = Field(default_factory=PacketMetadata)
-    provenance: Optional[PacketProvenance] = Field(None)
-    confidence: Optional[PacketConfidence] = Field(None)
-    reasoning_block: Optional[dict[str, Any]] = Field(
-        None, description="Optional StructuredReasoningBlock inline"
-    )
-
-    # v1.1.0 additions (backward compatible - all optional)
-    thread_id: Optional[UUID] = Field(
-        None, description="Logical conversation/task thread identifier"
-    )
-    lineage: Optional[PacketLineage] = Field(
-        None, description="Lineage metadata for DAG-style derivation tracking"
-    )
-    tags: list[str] = Field(
-        default_factory=list,
-        description="Lightweight labels for filtering and retrieval",
-    )
-    ttl: Optional[datetime] = Field(
-        None, description="Optional expiry timestamp for memory hygiene/GC"
-    )
-
-    # v1.1.1: IMMUTABILITY ENFORCEMENT (matches core/schemas/packet_envelope.py)
-    model_config = {
-        "frozen": True,  # IMMUTABILITY ENFORCED - packets cannot be mutated
-        "validate_assignment": True,
-        "extra": "forbid",
-    }
-
-    def with_mutation(self, **updates) -> "PacketEnvelope":
-        """
-        Create a new PacketEnvelope with updates, linking to this as parent.
-
-        This is the ONLY way to "modify" a packet (immutability preserved).
-        Creates proper lineage chain for audit trail and DAG relationships.
-
-        Args:
-            **updates: Fields to update in the new packet
-
-        Returns:
-            New PacketEnvelope with:
-            - New packet_id
-            - Updated timestamp
-            - Lineage linking to this packet as parent
-            - All other fields preserved or updated
-        """
-        # Build lineage chain
-        current_generation = self.lineage.generation if self.lineage else 0
-        root_id = (
-            self.lineage.root_packet_id
-            if self.lineage and self.lineage.root_packet_id
-            else self.packet_id
-        )
-
-        new_lineage = PacketLineage(
-            parent_ids=[self.packet_id],
-            derivation_type="mutation",
-            generation=current_generation + 1,
-            root_packet_id=root_id,
-        )
-
-        # Create new packet with updates
-        return self.model_copy(
-            update={
-                "packet_id": uuid4(),
-                "timestamp": datetime.utcnow(),
-                "lineage": new_lineage,
-                **updates,
-            }
-        )
-
-
-class PacketEnvelopeIn(BaseModel):
-    """
-    Input model for packet submission (allows partial fields).
-    packet_id and timestamp are auto-generated if not provided.
-
-    v1.1.0: Added thread_id, lineage, tags, ttl support.
-    """
-
-    packet_id: Optional[UUID] = Field(
-        None, description="UUID for this packet (auto-generated if omitted)"
-    )
-    packet_type: str = Field(
-        ...,
-        description="Type: 'event', 'memory_write', 'reasoning_trace', 'insight', etc.",
-    )
-    timestamp: Optional[datetime] = Field(
-        None, description="ISO timestamp (auto-generated if omitted)"
-    )
-    payload: dict[str, Any] = Field(
-        ..., description="JSON payload to persist or reason over"
-    )
-    metadata: Optional[PacketMetadata] = Field(None)
-    provenance: Optional[PacketProvenance] = Field(None)
-    confidence: Optional[PacketConfidence] = Field(None)
-    reasoning_block: Optional[dict[str, Any]] = Field(None)
-
-    # v1.1.0 additions
-    thread_id: Optional[UUID] = Field(
-        None, description="Thread UUID for conversation/session linking"
-    )
-    lineage: Optional[PacketLineage] = Field(
-        None, description="Packet derivation lineage"
-    )
-    tags: Optional[list[str]] = Field(None, description="Flexible tags for filtering")
-    ttl: Optional[datetime] = Field(None, description="Optional expiration timestamp")
-
-    def to_envelope(self) -> PacketEnvelope:
-        """Convert input to full PacketEnvelope with defaults."""
-        return PacketEnvelope(
-            packet_id=self.packet_id or uuid4(),
-            packet_type=self.packet_type,
-            timestamp=self.timestamp or datetime.utcnow(),
-            payload=self.payload,
-            metadata=self.metadata or PacketMetadata(),
-            provenance=self.provenance,
-            confidence=self.confidence,
-            reasoning_block=self.reasoning_block,
-            # v1.1.0 fields
-            thread_id=self.thread_id,
-            lineage=self.lineage,
-            tags=self.tags or [],
-            ttl=self.ttl,
-        )
 
 
 # =============================================================================
@@ -329,55 +99,6 @@ class StructuredReasoningBlock(BaseModel):
 
 
 # =============================================================================
-# Semantic Search Models
-# =============================================================================
-
-
-class SemanticSearchRequest(BaseModel):
-    """Request to search semantic memory."""
-
-    query: str = Field(..., min_length=1, description="Natural language query")
-    top_k: int = Field(10, ge=1, le=100, description="Number of neighbors to return")
-    agent_id: Optional[str] = Field(None, description="Filter by agent ID")
-    min_score: float = Field(0.5, ge=0.0, le=1.0, description="Minimum similarity score threshold")
-
-
-class SemanticHit(BaseModel):
-    """Single semantic search result."""
-
-    embedding_id: UUID = Field(..., description="Embedding record ID")
-    score: float = Field(..., description="Similarity score")
-    payload: dict[str, Any] = Field(..., description="Stored payload")
-
-
-class SemanticSearchResult(BaseModel):
-    """Top-k semantic hits."""
-
-    query: str = Field(..., description="Original query")
-    hits: list[SemanticHit] = Field(
-        default_factory=list, description="List of matching results"
-    )
-
-
-# =============================================================================
-# Packet Write Response Models
-# =============================================================================
-
-
-class PacketWriteResult(BaseModel):
-    """Result of writing a PacketEnvelope."""
-
-    packet_id: UUID = Field(..., description="Echoed packet ID")
-    written_tables: list[str] = Field(
-        default_factory=list, description="Tables updated"
-    )
-    status: str = Field("ok", description="'ok' or 'error'")
-    error_message: Optional[str] = Field(
-        None, description="Error details if status='error'"
-    )
-
-
-# =============================================================================
 # DAG State Models (for LangGraph)
 # =============================================================================
 
@@ -387,9 +108,11 @@ class SubstrateState(BaseModel):
     State object passed through the LangGraph DAG.
 
     Contains the packet being processed and accumulated results.
+    
+    Note: References PacketEnvelope from core.schemas.packet_envelope_v2
     """
 
-    envelope: PacketEnvelope
+    envelope: Any  # PacketEnvelope - imported at runtime to avoid circular imports
     reasoning_block: Optional[StructuredReasoningBlock] = None
     written_tables: list[str] = Field(default_factory=list)
     embedding_generated: bool = False

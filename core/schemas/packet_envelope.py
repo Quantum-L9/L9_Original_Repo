@@ -17,7 +17,7 @@ Migration:
     from core.schemas.packet_envelope import PacketEnvelope
     
     # NEW (canonical)
-    from core.schemas.packet_envelope_v2 import PacketEnvelope
+    from core.schemas import PacketEnvelope
 
 Generated from: Memory.yaml v1.0.1
 Module ID: memory.packet_envelope.v1.0.1

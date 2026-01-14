@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY requirements.txt /app/
+# Copy MCP-specific requirements (NOT root requirements.txt)
+COPY mcp_memory/requirements.txt /app/
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -33,8 +33,8 @@ COPY memory/ /app/memory/
 # Copy config (needed for settings)
 COPY config/ /app/config/
 
-# Set Python path
-ENV PYTHONPATH=/app
+# Set Python path (include /app/mcp_memory for 'from src.xxx' imports)
+ENV PYTHONPATH=/app:/app/mcp_memory
 
 # Expose MCP port
 EXPOSE 9002

@@ -10,9 +10,6 @@ Verifies:
 
 import pytest
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
-from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 from core.governance.session_startup import SessionStartup, StartupResult
 
@@ -153,8 +150,6 @@ class TestAPIServerStartupGate:
     @pytest.mark.asyncio
     async def test_health_endpoint_includes_startup_status(self):
         """Health endpoint includes startup readiness status."""
-        from fastapi.testclient import TestClient
-        from unittest.mock import patch
 
         # We need to mock the app.state before importing the app
         # This is a simplified test - full integration would use pytest-asyncio fixtures
@@ -304,7 +299,6 @@ class TestStartupErrorHandling:
     def test_startup_handles_insufficient_kernels(self):
         """SessionStartup reports error if fewer than 10 kernels."""
         import tempfile
-        import os
 
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create kernel directory with only 1 kernel

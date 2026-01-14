@@ -11,9 +11,7 @@ Version: 1.0.0 (GMP-19)
 from __future__ import annotations
 
 import ast
-import re
-from typing import Any, Dict, List, Optional
-from uuid import uuid4
+from typing import Any, List, Optional
 
 import structlog
 
@@ -240,7 +238,7 @@ async def test_integration_with_{dep_name}():
 
     def _generate_async_flow_test(self, module_name: Optional[str]) -> str:
         """Generate an async flow test."""
-        return f'''
+        return '''
 @pytest.mark.asyncio
 async def test_async_flow():
     """Test async operations complete successfully."""
@@ -250,7 +248,7 @@ async def test_async_flow():
 
     def _generate_error_handling_test(self, module_name: Optional[str]) -> str:
         """Generate an error handling test."""
-        return f'''
+        return '''
 def test_error_handling():
     """Test that errors are handled gracefully."""
     # TODO: Test error conditions and recovery

@@ -17,7 +17,7 @@ GMP: GMP-UKG-2 (Graph Merge)
 import pytest
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 from types import ModuleType
 
 # Ensure project root is on path
@@ -37,7 +37,6 @@ from core.tools.tool_graph import (
 )
 from core.agents.graph_state.schema import (
     ENSURE_AGENT_QUERY,
-    GET_AGENT_QUERY,
     CREATE_AGENT_QUERY,
 )
 

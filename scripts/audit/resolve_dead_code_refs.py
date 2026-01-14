@@ -396,13 +396,13 @@ class FalsePositiveDetector:
         # Check 7: Pydantic model (fields auto-serialized)
         if self.check_pydantic_model(class_name):
             resolved.is_false_positive = True
-            resolved.false_positive_reason = f"Pydantic model field (auto-serialized)"
+            resolved.false_positive_reason = "Pydantic model field (auto-serialized)"
             return resolved
         
         # Check 8: FastAPI response model
         if self.check_response_model(class_name):
             resolved.is_false_positive = True
-            resolved.false_positive_reason = f"FastAPI response model field"
+            resolved.false_positive_reason = "FastAPI response model field"
             return resolved
         
         # Check 9: Observability field (metrics, timestamps)

@@ -30,7 +30,7 @@ from datetime import datetime
 from typing import Any, Iterable, Optional, Set
 from uuid import UUID, NAMESPACE_URL, uuid5
 
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
+from core.schemas import PacketEnvelopeIn, PacketMetadata
 
 logger = structlog.get_logger(__name__)
 

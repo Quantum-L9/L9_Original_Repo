@@ -169,16 +169,11 @@ else
 fi
 echo ""
 
-header "E2. L9 SYSTEMD SERVICE"
-if [ -f /etc/systemd/system/l9.service ]; then
-    check "l9.service exists"
-    sudo systemctl status l9 --no-pager 2>/dev/null | head -8
-    echo ""
-    echo "Service file:"
-    cat /etc/systemd/system/l9.service 2>/dev/null
-else
-    echo "No l9.service (using Docker instead?)"
-fi
+header "E2. DOCKER CONTAINERS (Canonical Deployment)"
+echo "Docker is the ONLY supported deployment method."
+echo "Systemd services (l9.service, l9-mcp.service) are DEPRECATED."
+echo ""
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "l9-|NAME" || echo "No L9 containers running"
 echo ""
 
 header "E3. DOCKER-COMPOSE.YML"

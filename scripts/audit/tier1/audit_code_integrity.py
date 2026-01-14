@@ -26,14 +26,13 @@ Usage:
 """
 
 import re
-import sys
 import json
 import hashlib
 import asyncio
 from pathlib import Path
 from collections import defaultdict
 from dataclasses import dataclass, asdict, field
-from typing import NamedTuple, Optional, Set, List, Dict, Tuple, Any, Union
+from typing import Optional, Set, List, Dict, Tuple, Any, Union
 import ast
 import structlog
 

@@ -8,7 +8,6 @@ Verifies memory consolidation strategies and reporting.
 
 import os
 import pytest
-import asyncio
 
 from memory.consolidation import ConsolidationPipeline, ConsolidationReport
 from memory.substrate_service import MemorySubstrateService, init_service, close_service

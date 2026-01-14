@@ -17,7 +17,7 @@ from typing import Any, Iterable, Optional
 
 from pydantic import ValidationError
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketEnvelopeIn,
     VALID_DERIVE_TYPES,
 )

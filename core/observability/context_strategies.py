@@ -73,33 +73,36 @@ class RecencyBiasedWindowStrategy(ContextStrategy):
         recent_budget = int(max_tokens * self.recent_percent)
         anchor_budget = max_tokens - recent_budget
         result = []
-        token_count = 0
+        recent_token_count = 0
+        anchor_token_count = 0
 
-        # Recent messages (most important)
+        # Recent messages (most important) - use recent_budget
         recent_count = 0
         for msg in reversed(conversation):
             msg_tokens = len(msg.get("content", "").split())
-            if token_count + msg_tokens > recent_budget:
+            if recent_token_count + msg_tokens > recent_budget:
                 break
             result.append(f"{msg['role']}: {msg['content']}")
-            token_count += msg_tokens
+            recent_token_count += msg_tokens
             recent_count += 1
 
-        # Anchor messages (system prompts, initial context)
+        # Anchor messages (system prompts, initial context) - use anchor_budget
         anchor_count = 0
         for msg in conversation:
             if anchor_count >= 2:  # Keep just first 2 as anchors
                 break
             msg_tokens = len(msg.get("content", "").split())
-            if token_count + msg_tokens > max_tokens:
+            if anchor_token_count + msg_tokens > anchor_budget:
                 break
             result.insert(0, f"{msg['role']}: {msg['content']}")
-            token_count += msg_tokens
+            anchor_token_count += msg_tokens
             anchor_count += 1
 
+        total_tokens = recent_token_count + anchor_token_count
         logger.debug(
-            f"RecencyWindow: {recent_count} recent, {anchor_count} anchors, "
-            f"{token_count} tokens"
+            f"RecencyWindow: {recent_count} recent ({recent_token_count} tokens), "
+            f"{anchor_count} anchors ({anchor_token_count} tokens), "
+            f"total={total_tokens}/{max_tokens}"
         )
         return "\n".join(result)
 

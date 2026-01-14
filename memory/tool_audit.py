@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID, uuid4
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketConfidence,
     PacketEnvelopeIn,
     PacketMetadata,
@@ -72,7 +72,6 @@ async def log_tool_invocation(
     """
     try:
         # Import here to avoid circular dependency
-        from memory.ingestion import ingest_packet
 
         # Build audit packet payload
         payload = {

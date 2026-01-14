@@ -29,10 +29,7 @@ import httpx
 
 # Import auto-detection from conftest
 from .conftest import (
-    resolve_service_url,
-    get_execution_context,
     API_BASE_URL,
-    MCP_MEMORY_URL,
     MEMORY_API_BASE_URL,  # DEPRECATED alias for MCP_MEMORY_URL
 )
 

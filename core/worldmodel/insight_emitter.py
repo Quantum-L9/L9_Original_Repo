@@ -78,7 +78,7 @@ class InsightEmitter:
             return True
 
         try:
-            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+            from core.schemas import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 packet_type="world_model_insight",

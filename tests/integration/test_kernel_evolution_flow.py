@@ -10,7 +10,7 @@ GMP: kernel_boot_frontier_phase1
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 from core.agents.selfreflection import (
@@ -19,13 +19,11 @@ from core.agents.selfreflection import (
     ReflectionResult,
     detect_behavior_gaps,
     analyze_task_execution,
-    DEFAULT_PATTERNS,
 )
 from core.agents.kernelevolution import (
     KernelUpdateProposal,
     EvolutionPlan,
     generate_proposal_from_gap,
-    generate_proposals_from_reflection,
     create_evolution_plan,
     generate_gmp_spec_from_plan,
 )

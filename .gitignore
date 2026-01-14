@@ -119,3 +119,4 @@ codegen/
 .tmp.driveupload/
 tests/agents/codegenagent/
 tests/codegen/email_agent/private_auth/
+email_agent/private_auth/

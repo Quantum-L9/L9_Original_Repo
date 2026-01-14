@@ -1,12 +1,12 @@
 #!/bin/bash
 # =============================================================================
 # L9 VPS MRI - Comprehensive System Diagnostic
-# Version: 1.0.0
+# Version: 1.1.0 (NO SUDO - runs without password)
 #
 # USAGE (run on VPS):
-#   cd /opt/l9 && bash deploy/vps-mri.sh
+#   cd /opt/l9 && bash scripts/vps/vps-mri.sh
 #
-# Or paste entire script into terminal
+# NOTE: User must be in 'docker' group for docker commands to work
 # =============================================================================
 
 set -uo pipefail  # Removed -e to continue on errors (diagnostic script should be resilient)
@@ -39,6 +39,7 @@ fail() {
 
 echo "╔════════════════════════════════════════════════════════════════╗"
 echo "║           L9 VPS MRI - COMPLETE SYSTEM DIAGNOSTIC              ║"
+echo "║                    (NO SUDO VERSION v1.1)                      ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo "Timestamp: $(date -Iseconds)"
 echo "Hostname:  $(hostname)"
@@ -71,26 +72,26 @@ echo ""
 # =============================================================================
 
 header "B1. ALL LISTENING PORTS"
-sudo ss -tlnp 2>/dev/null | grep LISTEN || sudo netstat -tlnp 2>/dev/null | grep LISTEN
+ss -tln 2>/dev/null | grep LISTEN || netstat -tln 2>/dev/null | grep LISTEN || echo "Cannot list ports"
 echo ""
 
 header "B2. CRITICAL PORTS CHECK"
 echo "Port 80 (HTTP):"
-sudo ss -tlnp 2>/dev/null | grep ":80 " || echo "  Not listening"
+ss -tln 2>/dev/null | grep ":80 " || echo "  Not listening"
 echo "Port 443 (HTTPS):"
-sudo ss -tlnp 2>/dev/null | grep ":443 " || echo "  Not listening"
+ss -tln 2>/dev/null | grep ":443 " || echo "  Not listening"
 echo "Port 5432 (PostgreSQL):"
-sudo ss -tlnp 2>/dev/null | grep ":5432 " || echo "  Not listening"
+ss -tln 2>/dev/null | grep ":5432 " || echo "  Not listening"
 echo "Port 6379 (Redis):"
-sudo ss -tlnp 2>/dev/null | grep ":6379 " || echo "  Not listening"
+ss -tln 2>/dev/null | grep ":6379 " || echo "  Not listening"
 echo "Port 7687 (Neo4j Bolt):"
-sudo ss -tlnp 2>/dev/null | grep ":7687 " || echo "  Not listening"
+ss -tln 2>/dev/null | grep ":7687 " || echo "  Not listening"
 echo "Port 8000 (L9 API):"
-sudo ss -tlnp 2>/dev/null | grep ":8000 " || echo "  Not listening"
+ss -tln 2>/dev/null | grep ":8000 " || echo "  Not listening"
 echo ""
 
 header "B3. FIREWALL (UFW)"
-sudo ufw status numbered 2>/dev/null || echo "UFW not installed/active"
+ufw status 2>/dev/null || echo "UFW not accessible without sudo"
 echo ""
 
 # =============================================================================
@@ -100,7 +101,7 @@ echo ""
 header "C1. CADDY STATUS"
 if systemctl is-active caddy &>/dev/null; then
     check "Caddy is RUNNING"
-    sudo systemctl status caddy --no-pager 2>/dev/null | head -5
+    systemctl status caddy --no-pager 2>/dev/null | head -5 || echo "Cannot get status details"
 else
     warn "Caddy not running or not installed"
 fi
@@ -109,7 +110,7 @@ echo ""
 header "C2. CADDYFILE"
 if [ -f /etc/caddy/Caddyfile ]; then
     check "Caddyfile exists"
-    cat /etc/caddy/Caddyfile 2>/dev/null
+    cat /etc/caddy/Caddyfile 2>/dev/null || echo "Cannot read (permission denied)"
 else
     warn "No Caddyfile found"
 fi
@@ -118,10 +119,7 @@ echo ""
 header "C3. NGINX STATUS"
 if systemctl is-active nginx &>/dev/null; then
     check "Nginx is RUNNING"
-    sudo systemctl status nginx --no-pager 2>/dev/null | head -5
-    echo ""
-    echo "Nginx config:"
-    sudo nginx -T 2>/dev/null | head -50
+    systemctl status nginx --no-pager 2>/dev/null | head -5 || echo "Cannot get status details"
 else
     echo "Nginx not running or not installed"
 fi
@@ -145,15 +143,15 @@ fi
 echo ""
 
 header "D3. RUNNING CONTAINERS"
-sudo docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "Cannot list containers"
+docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "Cannot list containers (user not in docker group?)"
 echo ""
 
 header "D4. DOCKER IMAGES"
-sudo docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" 2>/dev/null | head -10
+docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" 2>/dev/null | head -10 || echo "Cannot list images"
 echo ""
 
 header "D5. DOCKER NETWORKS"
-sudo docker network ls 2>/dev/null
+docker network ls 2>/dev/null || echo "Cannot list networks"
 echo ""
 
 # =============================================================================
@@ -169,16 +167,11 @@ else
 fi
 echo ""
 
-header "E2. L9 SYSTEMD SERVICE"
-if [ -f /etc/systemd/system/l9.service ]; then
-    check "l9.service exists"
-    sudo systemctl status l9 --no-pager 2>/dev/null | head -8
-    echo ""
-    echo "Service file:"
-    cat /etc/systemd/system/l9.service 2>/dev/null
-else
-    echo "No l9.service (using Docker instead?)"
-fi
+header "E2. DOCKER CONTAINERS (Canonical Deployment)"
+echo "Docker is the ONLY supported deployment method."
+echo "Systemd services (l9.service, l9-mcp.service) are DEPRECATED."
+echo ""
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null | grep -E "l9-|NAME" || echo "No L9 containers running"
 echo ""
 
 header "E3. DOCKER-COMPOSE.YML"
@@ -210,7 +203,7 @@ fi
 echo ""
 
 header "E6. L9-API CONTAINER LOGS (last 30)"
-sudo docker logs l9-api 2>&1 | tail -30 || echo "No l9-api container"
+docker logs l9-api 2>&1 | tail -30 || echo "No l9-api container"
 echo ""
 
 # =============================================================================
@@ -218,28 +211,28 @@ echo ""
 # =============================================================================
 
 header "F1. POSTGRESQL"
-if systemctl is-active postgresql &>/dev/null; then
-    check "PostgreSQL systemd service is RUNNING"
-elif sudo docker ps 2>/dev/null | grep -q postgres; then
+if docker ps 2>/dev/null | grep -q postgres; then
     check "PostgreSQL running in Docker"
+elif systemctl is-active postgresql &>/dev/null; then
+    check "PostgreSQL systemd service is RUNNING"
 else
     warn "PostgreSQL status unknown"
 fi
-sudo ss -tlnp 2>/dev/null | grep 5432 || echo "Port 5432 not listening"
+ss -tln 2>/dev/null | grep 5432 || echo "Port 5432 not listening"
 echo ""
 
-header "F2. POSTGRESQL DATABASES"
-sudo -u postgres psql -l 2>/dev/null | head -15 || echo "Cannot list databases (may be in Docker)"
+header "F2. POSTGRESQL DATABASES (via Docker)"
+docker exec l9-postgres psql -U l9 -d l9_memory -c "\\l" 2>/dev/null | head -15 || echo "Cannot list databases"
 echo ""
 
-header "F3. L9_MEMORY TABLES"
-sudo -u postgres psql l9_memory -c "SELECT table_name FROM information_schema.tables WHERE table_schema='memory';" 2>/dev/null || echo "Cannot query (may be in Docker)"
+header "F3. L9_MEMORY TABLES (via Docker)"
+docker exec l9-postgres psql -U l9 -d l9_memory -c "SELECT table_name FROM information_schema.tables WHERE table_schema='memory';" 2>/dev/null || echo "Cannot query tables"
 echo ""
 
 header "F4. REDIS STATUS"
-if sudo docker ps 2>/dev/null | grep -q redis; then
+if docker ps 2>/dev/null | grep -q redis; then
     check "Redis running in Docker"
-    sudo docker exec l9-redis redis-cli ping 2>/dev/null || echo "Cannot ping Redis"
+    docker exec l9-redis redis-cli ping 2>/dev/null || echo "Cannot ping Redis"
 elif systemctl is-active redis &>/dev/null; then
     check "Redis systemd service is RUNNING"
 else
@@ -248,7 +241,7 @@ fi
 echo ""
 
 header "F5. NEO4J STATUS"
-if sudo docker ps 2>/dev/null | grep -q neo4j; then
+if docker ps 2>/dev/null | grep -q neo4j; then
     check "Neo4j running in Docker"
 else
     warn "Neo4j not detected"
@@ -298,18 +291,18 @@ echo ""
 # =============================================================================
 
 header "I1. JOURNALCTL - L9 SERVICE (last 20)"
-sudo journalctl -u l9 -n 20 --no-pager 2>/dev/null || echo "No l9 journal logs"
+journalctl -u l9 -n 20 --no-pager 2>/dev/null || echo "No l9 journal logs (or no permission)"
 echo ""
 
 header "I2. JOURNALCTL - CADDY ERRORS"
-sudo journalctl -u caddy -n 20 --no-pager 2>/dev/null | grep -iE "error|warn|fail" || echo "No Caddy errors"
+journalctl -u caddy -n 20 --no-pager 2>/dev/null | grep -iE "error|warn|fail" || echo "No Caddy errors (or no permission)"
 echo ""
 
 header "I3. DOCKER CONTAINER ERRORS"
 for container in l9-api l9-postgres l9-redis l9-neo4j; do
-    if sudo docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "^${container}$"; then
+    if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "^${container}$"; then
         echo "--- $container ---"
-        sudo docker logs "$container" 2>&1 | grep -iE "error|exception|fail|critical" | tail -5 || echo "No errors"
+        docker logs "$container" 2>&1 | grep -iE "error|exception|fail|critical" | tail -5 || echo "No errors"
     fi
 done
 echo ""
@@ -350,21 +343,21 @@ else
 fi
 
 # PostgreSQL
-if sudo ss -tlnp 2>/dev/null | grep -q ":5432 "; then
+if ss -tln 2>/dev/null | grep -q ":5432 "; then
     check "PostgreSQL: Listening"
 else
     warn "PostgreSQL: Not detected on 5432"
 fi
 
 # Redis
-if sudo ss -tlnp 2>/dev/null | grep -q ":6379 "; then
+if ss -tln 2>/dev/null | grep -q ":6379 "; then
     check "Redis: Listening"
 else
     warn "Redis: Not detected on 6379"
 fi
 
 # Neo4j
-if sudo ss -tlnp 2>/dev/null | grep -q ":7687 "; then
+if ss -tln 2>/dev/null | grep -q ":7687 "; then
     check "Neo4j: Listening"
 else
     warn "Neo4j: Not detected on 7687"
@@ -379,4 +372,3 @@ fi
 
 echo ""
 echo "Diagnostic completed at: $(date -Iseconds)"
-

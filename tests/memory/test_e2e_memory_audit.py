@@ -20,7 +20,7 @@ import structlog
 import os
 import sys
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
 from typing import Any
 
@@ -68,7 +68,7 @@ async def audit_redis() -> AuditResult:
     result = AuditResult("Redis Configuration")
 
     try:
-        from runtime.redis_client import get_redis_client, RedisClient
+        from runtime.redis_client import get_redis_client
 
         # Check 1: Redis available
         redis = await get_redis_client()
@@ -167,7 +167,7 @@ async def audit_neo4j() -> AuditResult:
     result = AuditResult("Neo4j Configuration")
 
     try:
-        from memory.graph_client import get_neo4j_client, Neo4jClient
+        from memory.graph_client import get_neo4j_client
 
         # Check 1: Neo4j available
         neo4j = await get_neo4j_client()
@@ -384,7 +384,7 @@ async def audit_ingestion_pipeline() -> AuditResult:
 
     try:
         from memory.ingestion import ingest_packet
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
         from memory.substrate_service import get_service
 
         service = await get_service()
@@ -469,9 +469,9 @@ async def audit_retrieval_pipeline() -> AuditResult:
     result = AuditResult("Retrieval Pipeline")
 
     try:
-        from memory.retrieval import get_retrieval_pipeline, init_retrieval_pipeline
+        from memory.retrieval import init_retrieval_pipeline
         from memory.substrate_service import get_service
-        from memory.substrate_models import SemanticSearchRequest
+        from core.schemas import SemanticSearchRequest
 
         service = await get_service()
 
@@ -551,7 +551,7 @@ async def audit_e2e_flow() -> AuditResult:
 
     try:
         from memory.ingestion import ingest_packet
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, SemanticSearchRequest
+        from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
         from memory.substrate_service import get_service
         from memory.graph_client import get_neo4j_client
         from runtime.redis_client import get_redis_client
@@ -655,7 +655,7 @@ async def audit_e2e_flow() -> AuditResult:
         result.add_check(
             "e2e_retrieval_by_type",
             found_by_type,
-            f"Found packet by type search",
+            "Found packet by type search",
         )
 
     except Exception as e:

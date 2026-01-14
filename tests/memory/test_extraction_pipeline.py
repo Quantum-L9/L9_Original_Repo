@@ -10,7 +10,7 @@ import os
 import pytest
 import asyncio
 
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+from core.schemas import PacketEnvelopeIn
 from memory.substrate_service import MemorySubstrateService, init_service, close_service
 
 

@@ -219,7 +219,6 @@ class ObservabilityService:
             return
 
         from .aggregation import MetricsAggregator
-        from collections import defaultdict
 
         # Group spans by agent
         agent_spans = defaultdict(list)

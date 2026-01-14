@@ -123,7 +123,7 @@ def check_tool_wiring() -> tuple[bool, list[str]]:
     if not any("High-risk" in e for e in errors):
         logger.info("   ✅ All high-risk tools have approval requirements")
     else:
-        logger.info(f"   ❌ High-risk tool governance issues found")
+        logger.info("   ❌ High-risk tool governance issues found")
     
     # =========================================================================
     # Check 4: Verify ToolDefinitions in register_l_tools match TOOL_EXECUTORS
@@ -180,7 +180,7 @@ def check_tool_wiring() -> tuple[bool, list[str]]:
         if not defs_without_executors and not executors_without_defs:
             logger.info("   ✅ All ToolDefinitions have matching executors")
         else:
-            logger.info(f"   ❌ Mismatch between ToolDefinitions and executors")
+            logger.info("   ❌ Mismatch between ToolDefinitions and executors")
             
     except Exception as e:
         errors.append(f"Failed to analyze registry_adapter.py: {e}")
@@ -212,7 +212,7 @@ def check_tool_wiring() -> tuple[bool, list[str]]:
         if not l_tools_only and not register_only:
             logger.info("   ✅ TOOL_EXECUTORS consistent between l_tools.py and register_l_tools()")
         else:
-            logger.info(f"   ⚠️  Inconsistency detected")
+            logger.info("   ⚠️  Inconsistency detected")
     
     # =========================================================================
     # Summary (GMP-44: Auto-discovery is source of truth)
@@ -225,7 +225,7 @@ def check_tool_wiring() -> tuple[bool, list[str]]:
     logger.info(f"\n   Tools in TOOL_EXECUTORS: {len(l_tools_executors)}")
     logger.info(f"   Tools in ToolName enum:  {len(toolname_values)} (informational)")
     logger.info(f"   Tools in L capabilities: {len(l_capability_tools)} (deprecated)")
-    logger.info(f"   ℹ️  GMP-44: Auto-discovery from ToolDefinition.agent_id is active")
+    logger.info("   ℹ️  GMP-44: Auto-discovery from ToolDefinition.agent_id is active")
     
     if errors:
         logger.info(f"\n   ❌ ERRORS: {len(errors)}")

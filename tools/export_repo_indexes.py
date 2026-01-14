@@ -17,7 +17,6 @@ import re
 import ast
 import fnmatch
 from collections import defaultdict
-from pathlib import Path
 
 # Configuration
 logger = structlog.get_logger(__name__)

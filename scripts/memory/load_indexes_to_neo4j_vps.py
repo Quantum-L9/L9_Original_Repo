@@ -21,10 +21,8 @@ Features:
 
 import os
 import sys
-import json
-import hashlib
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from datetime import datetime
 import httpx
 import structlog
@@ -466,7 +464,6 @@ USAGE: At session start, this summary provides instant repo context.
         
         # Import audit functions
         try:
-            import sys
             audit_script_path = REPO_DIR / "scripts" / "audit_graphs_vps.py"
             if not audit_script_path.exists():
                 logger.warning(f"Audit script not found: {audit_script_path}")

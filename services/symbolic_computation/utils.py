@@ -2,9 +2,8 @@
 Utility functions for symbolic computation module.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict
 import sympy as sp
-from sympy.utilities.iterables import flatten, variations
 from sympy.utilities.memoization import recurrence_memo
 
 

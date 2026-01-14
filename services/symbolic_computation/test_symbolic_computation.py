@@ -5,8 +5,6 @@ Uses pytest for testing with >80% coverage requirement.
 """
 
 import pytest
-import asyncio
-from typing import Dict, Any
 
 from symbolic_computation.core import (
     ExpressionEvaluator,
@@ -19,7 +17,6 @@ from symbolic_computation.models import (
     BackendType,
     CodeLanguage,
 )
-from symbolic_computation.exceptions import EvaluationError
 from symbolic_computation.utils import (
     validate_expression,
     extract_variables,

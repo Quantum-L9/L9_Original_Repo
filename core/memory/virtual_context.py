@@ -6,9 +6,7 @@ Purpose: MemGPT-style virtual context with automatic tier management.
 """
 from __future__ import annotations
 
-import asyncio
-import json
-from typing import List, Optional, Dict, Any, TYPE_CHECKING
+from typing import List, Optional, Any, TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
@@ -291,7 +289,7 @@ class MemoryConsolidationService:
             from core.agents.graph_state import AgentGraphLoader
             
             if self.neo4j_driver is None:
-                logger.warning(f"Neo4j driver not configured for consolidation")
+                logger.warning("Neo4j driver not configured for consolidation")
                 return {"status": "NOT_CONFIGURED", "agent_id": agent_id}
             
             loader = AgentGraphLoader(self.neo4j_driver)

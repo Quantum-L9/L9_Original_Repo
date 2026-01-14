@@ -42,25 +42,22 @@ import structlog
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent / "tier1"))
 from audit_shared_core import (
-    Reporter, GMPIntegration, ConfigValidator,
-    ObservabilityHooks, setup_logger
+    Reporter, GMPIntegration, ObservabilityHooks
 )
 
 # Import tier1 audit modules
 # Use CacheManager from audit_code_integrity (has result caching)
 from audit_code_integrity import (
     find_python_files, analyze_file_for_uncalled, analyze_file_for_orphans,
-    detect_circular_imports, REPO_ROOT as CODE_REPO_ROOT,
-    CacheManager  # Has load_results/save_results for full caching
+    detect_circular_imports, CacheManager  # Has load_results/save_results for full caching
 )
 from audit_capability_inventory import (
     get_exposed_tools, get_async_methods, assess_capability,
-    REPO_ROOT as CAP_REPO_ROOT, EXCLUDED_METHODS
+    EXCLUDED_METHODS
 )
 from audit_infrastructure_health import (
     TCPHealthProbe, HTTPHealthProbe, PythonModuleHealthProbe,
-    validate_config, verify_dependency_dag, compute_startup_order,
-    SERVICES, REPO_ROOT as INFRA_REPO_ROOT
+    validate_config, verify_dependency_dag, SERVICES
 )
 
 logger = structlog.get_logger(__name__)
@@ -424,7 +421,6 @@ class AuditOrchestrator:
 
     def _run_capability_audit(self) -> AuditResult:
         """Run capability inventory audit."""
-        import re
         
         try:
             # Get exposed tools from TOOL_EXECUTORS
@@ -505,7 +501,7 @@ class AuditOrchestrator:
     def _run_dead_code_audit(self) -> AuditResult:
         """Run dead code detection pipeline (Phases 1-4)."""
         try:
-            from scripts.audit.find_dead_code import run_dead_code_audit, get_python_files
+            from scripts.audit.find_dead_code import run_dead_code_audit
             from scripts.audit.resolve_dead_code_refs import resolve_dead_code_refs
             from scripts.audit.categorize_dead_code import categorize_dead_code
             from scripts.audit.generate_gmp_todos import generate_gmp_todos

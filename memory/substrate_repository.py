@@ -21,7 +21,7 @@ _current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
     "_current_rls_connection", default=None
 )
 
-from core.schemas.packet_envelope_v2 import PacketEnvelope, SemanticHit
+from core.schemas import PacketEnvelope, SemanticHit
 from memory.substrate_models import (
     AgentMemoryEventRow,
     GraphCheckpointRow,
@@ -1438,6 +1438,21 @@ def get_repository() -> SubstrateRepository:
     if _repository is None:
         raise RuntimeError("Repository not initialized. Call init_repository() first.")
     return _repository
+
+
+def get_substrate_repository(database_url: Optional[str] = None) -> SubstrateRepository:
+    """
+    Get or create a SubstrateRepository instance.
+    
+    If database_url is provided, creates a new repository instance.
+    If no database_url, returns the singleton (must be initialized first).
+    
+    This is an alias for world_model compatibility.
+    """
+    if database_url:
+        # Create new instance (caller must manage lifecycle)
+        return SubstrateRepository(database_url)
+    return get_repository()
 
 
 async def init_repository(database_url: str, **kwargs) -> SubstrateRepository:

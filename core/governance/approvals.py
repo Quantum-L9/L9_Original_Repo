@@ -14,7 +14,7 @@ import structlog
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+from core.schemas import PacketEnvelopeIn
 from memory.governance_patterns import (
     DecisionType,
     GovernancePattern,
@@ -123,7 +123,7 @@ class ApprovalManager:
                 logger.warning(f"Failed to send Slack notification: {e}")
         
         logger.info(
-            f"Approval request created",
+            "Approval request created",
             request_id=request_id,
             tool_id=tool_id,
             task_id=task_id,

@@ -12,10 +12,9 @@ from __future__ import annotations
 
 import structlog
 from typing import Any, List, Dict, Optional
-from uuid import UUID, uuid4
-from datetime import datetime
+from uuid import UUID
 
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketWriteResult
+from core.schemas import PacketEnvelopeIn
 from memory.substrate_dag_wrapper import SubstrateDagOrchestrator
 
 logger = structlog.get_logger(__name__)

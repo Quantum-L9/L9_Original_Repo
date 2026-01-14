@@ -797,7 +797,10 @@ def load_kernel_file(file_path: Path) -> Optional[Dict[str, Any]]:
         file_path: Path to kernel file
 
     Returns:
-        Parsed kernel dict, or None on failure
+        Parsed kernel dict, or None if file is empty
+        
+    Raises:
+        RuntimeError: If YAML parse fails or file cannot be read (LOUD failure)
     """
     try:
         with open(file_path, "r") as f:
@@ -814,10 +817,10 @@ def load_kernel_file(file_path: Path) -> Optional[Dict[str, Any]]:
 
     except yaml.YAMLError as e:
         logger.error(f"YAML parse error in {file_path}: {e}")
-        return None
+        raise RuntimeError(f"Kernel YAML parse error in {file_path}: {e}") from e
     except (IOError, OSError) as e:
         logger.error(f"Failed to read {file_path}: {e}")
-        return None
+        raise RuntimeError(f"Kernel file read error in {file_path}: {e}") from e
 
 
 def load_all_private_kernels(

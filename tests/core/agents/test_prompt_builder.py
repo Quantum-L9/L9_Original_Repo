@@ -10,7 +10,6 @@ Tests the building of system prompts from kernel stack:
 Version: 1.0.0
 """
 
-import pytest
 from unittest.mock import MagicMock
 
 from core.agents.prompt_builder import (

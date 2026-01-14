@@ -1,7 +1,7 @@
 """Health check endpoint."""
 
 from fastapi import APIRouter
-from src.db import pool
+from src import db  # Import module to access pool after init_db() updates it
 from src.config import settings
 
 router = APIRouter()
@@ -9,12 +9,12 @@ router = APIRouter()
 
 @router.get("/health")
 async def health_check():
-    db_ok = pool is not None
+    db_ok = db.pool is not None
     db_connected = False
     db_error = None
     if db_ok:
         try:
-            async with pool.acquire() as conn:
+            async with db.pool.acquire() as conn:
                 await conn.fetchval("SELECT 1")
                 db_connected = True
         except Exception as e:

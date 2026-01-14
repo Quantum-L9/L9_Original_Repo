@@ -16,7 +16,7 @@ GMP: GMP-UKG-1 (Schema Unification)
 import pytest
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 from types import ModuleType
 
 # Ensure project root is on path FIRST

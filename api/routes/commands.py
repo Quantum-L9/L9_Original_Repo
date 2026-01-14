@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import structlog
 from typing import Any, Optional
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -87,7 +86,6 @@ async def execute_command(
     from core.commands.parser import parse_command, Command, NLPPrompt
     from core.commands.intent_extractor import extract_intent, confirm_intent
     from core.commands.executor import CommandExecutor
-    from core.commands.schemas import CommandResult
     from core.compliance.audit_log import AuditLogger
 
     logger.info(
@@ -318,7 +316,6 @@ async def extract_intent_endpoint(
 
     # If already structured, return as-is
     if not isinstance(parsed, NLPPrompt):
-        from core.commands.schemas import IntentType
         return IntentExtractResponse(
             intent_type="structured_command",
             confidence=1.0,

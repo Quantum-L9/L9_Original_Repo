@@ -36,7 +36,6 @@ async def delete_trash_embeddings():
     
     try:
         import asyncpg
-        import json as json_lib
         
         logger.info("Connecting to database...")
         conn = await asyncpg.connect(DATABASE_URL)

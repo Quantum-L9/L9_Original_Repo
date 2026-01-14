@@ -6,8 +6,6 @@ Purpose: Continuous evaluation, LLM-as-judge scoring, CI/CD integration.
 """
 from __future__ import annotations
 
-import asyncio
-import json
 import statistics
 import time
 from typing import List, Optional, Dict, Any, TYPE_CHECKING

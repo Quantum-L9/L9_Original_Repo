@@ -10,7 +10,6 @@ Tests the detection of various prompt injection patterns:
 Version: 1.0.0
 """
 
-import pytest
 
 from core.agents.prompt_defense import (
     detect_prompt_injection,

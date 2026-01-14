@@ -4,12 +4,9 @@ Span exporters for sending telemetry to various backends.
 Includes console, file, substrate, and extensible composite exporter.
 """
 
-import json
 import structlog
-from typing import List, Optional, Any
+from typing import List, Any
 from abc import ABC, abstractmethod
-from datetime import datetime
-import structlog
 
 logger = structlog.get_logger(__name__)
 

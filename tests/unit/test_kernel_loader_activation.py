@@ -14,19 +14,14 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 from typing import Any, Dict
-from unittest.mock import MagicMock, patch
 
 import pytest
 import yaml
 
 from core.kernels.schemas import (
-    KernelActivationResult,
     KernelState,
-    KernelValidationResult,
-    ValidationError,
 )
 from core.kernels.kernelloader import (
-    KERNEL_ORDER,
     REQUIRED_KERNEL_COUNT,
     activate_kernels_phase2,
     load_kernels,

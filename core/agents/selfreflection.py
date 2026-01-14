@@ -16,7 +16,7 @@ import os
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 logger = structlog.get_logger(__name__)

@@ -3,7 +3,6 @@ Structured logging configuration for symbolic computation module.
 """
 
 import logging
-import json
 from typing import Any, Dict
 
 try:

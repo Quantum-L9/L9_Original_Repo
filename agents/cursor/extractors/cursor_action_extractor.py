@@ -5,6 +5,7 @@ Extracts and reconstructs ALL files, artifacts, kernels, specs, modules, and scr
 from chat history following the Cursor Action Prompt methodology.
 """
 
+import logging
 import re
 import yaml
 from pathlib import Path

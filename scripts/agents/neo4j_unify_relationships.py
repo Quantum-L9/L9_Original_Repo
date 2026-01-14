@@ -295,7 +295,7 @@ async def main():
                 logger.info("\n✅ Migration COMPLETE")
             else:
                 logger.info("\n⚠️ Migration PENDING")
-                logger.info(f"   Run: python scripts/neo4j_unify_relationships.py --delete-legacy")
+                logger.info("   Run: python scripts/neo4j_unify_relationships.py --delete-legacy")
         finally:
             await driver.close()
         return

@@ -23,7 +23,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, Optional
 from datetime import datetime
-from uuid import uuid4
 
 import structlog
 
@@ -313,7 +312,7 @@ class AgentSelfModifyTool:
             return
         
         try:
-            from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
+            from core.schemas import PacketEnvelopeIn, PacketMetadata
             
             packet = PacketEnvelopeIn(
                 packet_type="agent_self_modify",

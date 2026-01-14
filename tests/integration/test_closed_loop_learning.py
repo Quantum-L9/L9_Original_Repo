@@ -8,7 +8,6 @@ Tests:
 """
 
 import pytest
-from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 
@@ -169,7 +168,6 @@ class TestApprovalManagerPatternWriting:
             },
         ):
             # Import after mocking
-            import importlib
             import sys
 
             if "core.governance.approvals" in sys.modules:

@@ -291,7 +291,7 @@ class ConversationGraphMemory:
             self._store_message_fallback(message)
         
         logger.debug(
-            f"Stored message",
+            "Stored message",
             message_id=str(message.message_id),
             topics=message.topics,
         )

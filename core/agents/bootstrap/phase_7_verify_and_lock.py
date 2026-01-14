@@ -116,7 +116,7 @@ async def verify_and_lock(
     # Store audit in memory substrate if available
     if hasattr(substrate_service, 'write_packet'):
         try:
-            from memory.substrate_models import PacketEnvelopeIn
+            from core.schemas import PacketEnvelopeIn
             
             packet = PacketEnvelopeIn(
                 packet_type="memory_write",

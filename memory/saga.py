@@ -25,11 +25,10 @@ Version: 1.0.0
 from __future__ import annotations
 
 import structlog
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Generic, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 from uuid import UUID, uuid4
 
 logger = structlog.get_logger(__name__)

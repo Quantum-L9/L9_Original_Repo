@@ -181,7 +181,7 @@ async def _save_via_main_pipeline(
     substrate_service: Any,
 ) -> Dict[str, Any]:
     """Save memory via main L9 ingestion pipeline (full DAG)."""
-    from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+    from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
     from datetime import timedelta
     
     # Map MCP scope to DB scope

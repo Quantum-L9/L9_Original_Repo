@@ -9,7 +9,6 @@ Version: 1.0.0
 
 import pytest
 from datetime import datetime, timedelta
-from uuid import uuid4
 from unittest.mock import AsyncMock, MagicMock, patch
 
 

@@ -11,7 +11,6 @@ Centralizes all configuration for phases 2-5:
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
 
 # ============================================================================
 # ENVIRONMENT-BASED CONFIGURATION

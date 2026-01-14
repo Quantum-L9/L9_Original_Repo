@@ -14,10 +14,8 @@ Target: >=85% coverage, >=95% pass rate
 from __future__ import annotations
 
 import pytest
-from unittest.mock import AsyncMock
 
 from services.symbolic_computation.core.code_generator import CodeGenerator
-from services.symbolic_computation.config import SymbolicComputationConfig
 
 
 class TestCodeGenerator:

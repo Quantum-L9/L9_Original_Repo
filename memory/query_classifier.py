@@ -19,7 +19,6 @@ from __future__ import annotations
 import structlog
 import re
 from functools import lru_cache
-from typing import Optional
 
 logger = structlog.get_logger(__name__)
 

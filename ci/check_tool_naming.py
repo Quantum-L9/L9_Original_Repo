@@ -126,7 +126,7 @@ def main():
     logger.info("CI Check: Tool ID Naming Convention")
     logger.info("=" * 60)
     logger.info(f"Rule: Tool IDs must match pattern: {VALID_TOOL_ID_PATTERN.pattern}")
-    logger.info(f"      No dots, spaces, or special characters allowed.")
+    logger.info("      No dots, spaces, or special characters allowed.")
     logger.info("")
     
     violations = check_all_files(repo_root)

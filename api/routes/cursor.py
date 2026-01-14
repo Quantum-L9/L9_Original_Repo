@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import structlog
 from typing import Any, Dict, Optional
-from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -107,8 +106,7 @@ async def cursor_task(
     executor = get_cursor_executor(http_request)
     
     try:
-        from agents.cursor.integrations.cursor_executor import CursorTaskSpec, CursorExecutor
-        from agents.cursor.integrations.cursor_langgraph import CursorAgentState
+        from agents.cursor.integrations.cursor_executor import CursorTaskSpec
         
         # Build task spec
         task_spec = CursorTaskSpec(
@@ -159,7 +157,6 @@ async def cursor_resume(
     executor = get_cursor_executor(http_request)
     
     try:
-        from agents.cursor.integrations.cursor_executor import CursorExecutor
         
         # Resume thread
         result = await executor.resume_thread(request.thread_id)

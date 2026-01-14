@@ -27,7 +27,7 @@ class TestPacketEnvelope:
 
     def test_create_packet_with_required_fields(self):
         """Test creating a packet with only required fields."""
-        from memory.substrate_models import PacketEnvelope
+        from core.schemas import PacketEnvelope
 
         packet = PacketEnvelope(
             packet_type="event",
@@ -41,7 +41,7 @@ class TestPacketEnvelope:
 
     def test_create_packet_with_all_fields(self):
         """Test creating a packet with all fields."""
-        from core.schemas.packet_envelope_v2 import (
+        from core.schemas import (
     PacketConfidence,
     PacketEnvelope,
     PacketMetadata,
@@ -82,7 +82,7 @@ class TestPacketEnvelope:
 
     def test_packet_in_to_envelope(self):
         """Test converting PacketEnvelopeIn to PacketEnvelope."""
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
 
         packet_in = PacketEnvelopeIn(
             packet_type="memory_write",
@@ -374,7 +374,7 @@ class TestSubstrateDAGNoDB:
     @pytest.mark.asyncio
     async def test_full_dag_flow(self):
         """Test full DAG flow without database."""
-        from memory.substrate_models import PacketEnvelope
+        from core.schemas import PacketEnvelope
         from memory.substrate_dag import SubstrateDAG
 
         dag = SubstrateDAG(repository=None, semantic_service=None)
@@ -455,7 +455,7 @@ class TestSubstrateDAGDBIntegration:
     @pytest.mark.integration
     async def test_dag_with_db_writes_packet(self, repository):
         """Test DAG writes packet to real database."""
-        from memory.substrate_models import PacketEnvelope
+        from core.schemas import PacketEnvelope
         from memory.substrate_dag import SubstrateDAG
         import uuid
 
@@ -486,7 +486,7 @@ class TestSubstrateDAGDBIntegration:
     @pytest.mark.integration
     async def test_dag_with_db_creates_reasoning_trace(self, repository):
         """Test DAG creates reasoning trace in database."""
-        from memory.substrate_models import PacketEnvelope
+        from core.schemas import PacketEnvelope
         from memory.substrate_dag import SubstrateDAG
 
         envelope = PacketEnvelope(
@@ -504,7 +504,7 @@ class TestSubstrateDAGDBIntegration:
     @pytest.mark.integration
     async def test_dag_with_db_extracts_insights(self, repository):
         """Test DAG extracts and stores insights from structured payload."""
-        from memory.substrate_models import PacketEnvelope
+        from core.schemas import PacketEnvelope
         from memory.substrate_dag import SubstrateDAG
 
         # Payload with extractable insights
@@ -529,7 +529,7 @@ class TestSubstrateDAGDBIntegration:
     @pytest.mark.integration
     async def test_dag_with_db_creates_checkpoint(self, repository):
         """Test DAG creates checkpoint in database."""
-        from memory.substrate_models import PacketEnvelope
+        from core.schemas import PacketEnvelope
         from memory.substrate_dag import SubstrateDAG
 
         envelope = PacketEnvelope(

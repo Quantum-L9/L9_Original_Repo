@@ -10,9 +10,8 @@ Tests for Row-Level Security (RLS) scope isolation:
 Version: 1.0.0
 """
 
-import os
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 # =============================================================================
@@ -114,7 +113,7 @@ class TestRLSIsolation:
     async def test_repository_uses_rls_connection_when_available(self):
         """Verify repository methods use RLS connection when available."""
         from memory.substrate_repository import SubstrateRepository, _current_rls_connection
-        from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketMetadata, PacketProvenance
+        from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
         
         # Mock RLS connection in context
         mock_rls_conn = AsyncMock()
@@ -148,7 +147,7 @@ class TestRLSIsolation:
     async def test_repository_uses_pool_when_no_rls_connection(self):
         """Verify repository methods use pool when no RLS connection available."""
         from memory.substrate_repository import SubstrateRepository
-        from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketMetadata, PacketProvenance
+        from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
         
         # Mock connection pool
         mock_pool = MagicMock()
@@ -187,7 +186,7 @@ class TestWritePacketWithRLS:
     async def test_write_packet_uses_transaction_with_rls(self):
         """Verify write_packet uses transaction when RLS scope provided."""
         from memory.substrate_service import MemorySubstrateService
-        from memory.substrate_models import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
         from unittest.mock import AsyncMock, MagicMock
         
         # Mock repository with transaction
@@ -198,7 +197,7 @@ class TestWritePacketWithRLS:
         
         # Mock DAG
         mock_dag = AsyncMock()
-        from memory.substrate_models import PacketWriteResult
+        from core.schemas import PacketWriteResult
         mock_dag.run.return_value = PacketWriteResult(
             packet_id=uuid4(),
             written_tables=["packet_store", "agent_memory_events"],

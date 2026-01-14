@@ -6,7 +6,6 @@ Exposes observability metrics to Prometheus for Grafana visualization.
 
 import structlog
 from typing import Optional, Dict, Any
-from datetime import datetime
 
 logger = structlog.get_logger(__name__)
 

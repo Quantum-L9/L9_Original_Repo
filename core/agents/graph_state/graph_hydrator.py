@@ -15,12 +15,12 @@ Created: 2026-01-05
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional
 from dataclasses import dataclass
 
 import structlog
 
-from .agent_graph_loader import AgentGraphState, AgentGraphLoader
+from .agent_graph_loader import AgentGraphLoader
 
 # Import kernel prompt builder for system prompt generation
 try:
@@ -35,7 +35,6 @@ except ImportError:
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
-    from core.agents.agent_instance import AgentInstance
     from core.kernels.kernel_loader import KernelStack
 
 logger = structlog.get_logger(__name__)

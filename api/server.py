@@ -15,11 +15,12 @@ Version: 0.5.0 (Research Factory Integration)
 from config.settings import settings
 
 import os
-import asyncio
 from datetime import datetime
-from pathlib import Path
 import structlog
 from contextlib import asynccontextmanager
+
+# Initialize logger early for import error handling
+logger = structlog.get_logger(__name__)
 from fastapi import (
     FastAPI,
     WebSocket,
@@ -402,10 +403,6 @@ logger = structlog.get_logger(__name__)
 # Development mode flag
 LOCAL_DEV = os.getenv("LOCAL_DEV", "false").lower() == "true"
 
-# Initialize DB
-if not LOCAL_DEV:
-    db.init_db()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -500,6 +497,10 @@ async def lifespan(app: FastAPI):
         )
     else:
         try:
+            # Initialize DB schema (deferred from module-level for Docker DNS readiness)
+            if not LOCAL_DEV:
+                db.init_db()
+
             # Run migrations
             logger.info("Running database migrations...")
             migration_result = await run_migrations(database_url)
@@ -2252,7 +2253,7 @@ if settings.l9_enable_legacy_chat:
             raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
 
         from memory.ingestion import ingest_packet
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+        from core.schemas import PacketEnvelopeIn
 
         try:
             messages = []
@@ -2605,7 +2606,7 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
             # Ingest WebSocket event as packet (canonical memory entrypoint)
             try:
                 from memory.ingestion import ingest_packet
-                from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+                from core.schemas import PacketEnvelopeIn
 
                 packet_in = PacketEnvelopeIn(
                     packet_type="websocket_event",

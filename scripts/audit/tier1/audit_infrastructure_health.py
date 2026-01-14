@@ -32,7 +32,7 @@ import asyncio
 import json
 import os
 from dataclasses import dataclass, asdict, field
-from typing import Optional, Dict, List, Any, Coroutine, Callable
+from typing import Optional, Dict, List, Any
 from pathlib import Path
 from enum import Enum
 import structlog
@@ -182,7 +182,6 @@ class TCPHealthProbe(HealthProbe):
         self.timeout = timeout
 
     async def check(self) -> HealthCheck:
-        import socket
         import time
 
         start = time.time()
@@ -198,7 +197,7 @@ class TCPHealthProbe(HealthProbe):
             return HealthCheck(
                 service=self.service_name,
                 status=HealthStatus.HEALTHY,
-                message=f"TCP connection successful",
+                message="TCP connection successful",
                 latency_ms=latency,
                 details={
                     "host": self.host,

@@ -11,10 +11,9 @@ Version: 6.0.0
 from __future__ import annotations
 
 import re
-from typing import List, Optional, Set
+from typing import List, Optional
 
 import structlog
-import sympy
 from sympy import sympify
 
 from services.symbolic_computation.config import SymbolicComputationConfig, get_config

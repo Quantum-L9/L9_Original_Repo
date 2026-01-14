@@ -18,7 +18,6 @@ import structlog
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Optional
-from functools import lru_cache
 
 logger = structlog.get_logger(__name__)
 

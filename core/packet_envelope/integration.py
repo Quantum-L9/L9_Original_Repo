@@ -33,7 +33,6 @@ from core.packet_envelope.scalability import (
     CommandHandler,
     EventStore,
     ReadModel,
-    StreamConsumer,
 )
 from core.packet_envelope.governance import (
     AnonymizationEngine,

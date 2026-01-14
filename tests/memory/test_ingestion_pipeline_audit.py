@@ -19,7 +19,7 @@ Date: 2026-01-13
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
@@ -100,8 +100,6 @@ class TestDAGNodeCoverage:
             intake_node,
             reasoning_node,
             memory_write_node,
-            semantic_embed_node,
-            checkpoint_node,
         )
         from memory.substrate_models import PacketEnvelopeIn
 
@@ -522,7 +520,6 @@ class TestCrossSubstrateConsistency:
         from memory.substrate_models import (
             PacketStoreRow,
             AgentMemoryEventRow,
-            SemanticMemoryRow,
         )
 
         # PacketStoreRow has packet_id as primary
@@ -599,7 +596,6 @@ class TestSchemaCompliance:
     def test_packet_validator_validates_packet_type(self):
         """Verify PacketValidator checks packet_type."""
         from memory.validators.packet_validator import (
-            PacketValidator,
             ALLOWED_PACKET_TYPES,
         )
 

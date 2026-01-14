@@ -18,7 +18,6 @@ from __future__ import annotations
 import structlog
 from datetime import datetime, timedelta
 from typing import Any, Optional, List, Dict
-from uuid import UUID
 import asyncio
 
 from memory.substrate_repository import SubstrateRepository

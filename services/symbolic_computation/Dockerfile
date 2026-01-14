@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Set working directory
 WORKDIR /app
@@ -29,8 +29,10 @@ RUN mkdir -p /app/logs
 # Set Python path
 ENV PYTHONPATH=/app
 
-# Run tests on build (optional)
-# RUN pytest tests/ --cov=symbolic_computation
-
-# Default command
-CMD ["python", "-m", "pytest", "tests/"]
+# NOTE: Tests disabled - this service is not actively used
+# TODO: Review and re-enable symbolic_computation service when needed
+# See TODO.md for tracking
+# 
+# Original command (disabled):
+# CMD ["python", "-m", "pytest", "tests/"]
+CMD ["echo", "Symbolic computation service is disabled. See TODO.md"]

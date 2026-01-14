@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import hashlib
 import pickle
-from functools import lru_cache
 from typing import Any, Callable, Dict, Optional
 
 import structlog

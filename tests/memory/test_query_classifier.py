@@ -6,7 +6,6 @@ Tests for memory.query_classifier.QueryClassifier.
 Verifies query pattern classification and weight overrides.
 """
 
-import pytest
 
 from memory.query_classifier import QueryClassifier, get_query_classifier
 

@@ -4,8 +4,6 @@ Configuration management for symbolic computation module.
 Loads configuration from environment variables and provides defaults.
 """
 
-import os
-from typing import Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv

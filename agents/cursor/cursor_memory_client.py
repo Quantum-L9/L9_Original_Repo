@@ -58,7 +58,6 @@ Cursor Memory Client — Access L9 Memory Substrate via MCP Tools
     Session UUID: Date-based (same ID for entire day)
 """
 
-import sys
 import os
 import json
 import argparse
@@ -476,7 +475,7 @@ def cmd_mcp_test():
             results["message"] = "✅ MCP ROUND-TRIP SUCCESS: Write + Search both working"
         else:
             results["overall"] = "partial"
-            results["message"] = f"⚠️ MCP WRITE OK but test packet not found in search (may need indexing time)"
+            results["message"] = "⚠️ MCP WRITE OK but test packet not found in search (may need indexing time)"
     
     print(json.dumps(results, indent=2))
 

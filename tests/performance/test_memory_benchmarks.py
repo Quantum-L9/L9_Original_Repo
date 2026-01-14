@@ -23,7 +23,7 @@ from memory.audit_utils import (
     redact_pii,
     detect_injection_markers,
 )
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn
+from core.schemas import PacketEnvelopeIn
 
 
 # Skip benchmarks if pytest-benchmark is not installed

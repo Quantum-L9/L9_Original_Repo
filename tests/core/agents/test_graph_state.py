@@ -13,8 +13,7 @@ Created: 2026-01-05
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from dataclasses import dataclass
+from unittest.mock import AsyncMock, MagicMock
 
 
 # =============================================================================
@@ -316,7 +315,6 @@ def test_package_exports():
         GraphHydrator,
         bootstrap_l_graph,
         AGENT_LABEL,
-        LOAD_AGENT_STATE_QUERY,
     )
     
     assert AgentGraphLoader is not None

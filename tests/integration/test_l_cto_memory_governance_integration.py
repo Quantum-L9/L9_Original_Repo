@@ -28,10 +28,7 @@ if PROJECT_ROOT_STR not in sys.path:
 os.environ.setdefault('PYTHONPATH', PROJECT_ROOT_STR)
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import uuid4
 
-from core.agents.schemas import AgentTask, TaskKind
 from core.governance.validation import (
     validate_authority,
     validate_safety,
@@ -207,7 +204,7 @@ class TestLCTOMemoryPacketStructure:
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
+        from core.schemas import PacketEnvelopeIn, PacketMetadata
         
         packet = PacketEnvelopeIn(
             packet_type="agent.l_cto.reasoning",
@@ -234,7 +231,7 @@ class TestLCTOMemoryPacketStructure:
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
-        from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata
+        from core.schemas import PacketEnvelopeIn, PacketMetadata
         
         agent_id = "l-cto"
         

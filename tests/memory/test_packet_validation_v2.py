@@ -12,11 +12,10 @@ Tests for:
 """
 
 from datetime import datetime, timedelta
-from uuid import uuid4
 
 import pytest
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketEnvelopeIn,
     DeriveType,
     VALID_DERIVE_TYPES,

@@ -15,16 +15,10 @@ from pydantic import BaseModel, Field
 
 from agents.cursor.integrations.cursor_langgraph import (
     CursorAgentState,
-    build_cursor_langgraph,
 )
 from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
 from memory.substrate_dag_wrapper import SubstrateDagOrchestrator
 from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
-from core.governance.approval_gate import (
-    is_high_impact_decision,
-    escalate_to_igor,
-    handle_governance_result,
-)
 from core.governance.approval_manager import ApprovalManager
 
 logger = structlog.get_logger(__name__)

@@ -26,8 +26,6 @@ import yaml
 
 from ir_engine.meta_ir import (
     MetaContract,
-    AcceptanceCriterion,
-    OutboundCall,
 )
 
 logger = structlog.get_logger(__name__)

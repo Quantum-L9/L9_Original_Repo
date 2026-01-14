@@ -11,13 +11,11 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from uuid import uuid4
-import asyncio
 
 import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
-    from memory.agent_persistence import AgentPersistenceService
 
 logger = structlog.get_logger(__name__)
 
@@ -147,7 +145,7 @@ class ApprovalManager:
         # Persist to memory substrate if available
         if self.substrate and hasattr(self.substrate, 'write_packet'):
             try:
-                from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketKind
+                from core.schemas import PacketEnvelope, PacketKind
                 
                 packet = PacketEnvelope(
                     kind=PacketKind.MEMORY_WRITE,

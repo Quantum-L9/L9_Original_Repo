@@ -8,11 +8,10 @@ Verifies checkpoint management and state serialization.
 
 import os
 import pytest
-import asyncio
 from uuid import UUID, uuid4
 
-from memory.agent_persistence import AgentPersistenceService, Checkpoint
-from memory.substrate_service import MemorySubstrateService, init_service, close_service
+from memory.agent_persistence import AgentPersistenceService
+from memory.substrate_service import init_service, close_service
 
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")

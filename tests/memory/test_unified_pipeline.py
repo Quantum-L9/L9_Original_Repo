@@ -12,16 +12,15 @@ Tests:
 
 import asyncio
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-from datetime import datetime
 
-from core.schemas.packet_envelope_v2 import (
+from core.schemas import (
     PacketEnvelope,
     PacketEnvelopeIn,
     PacketWriteResult,
 )
-from memory.substrate_models import EnrichmentResult, KnowledgeFact, ExtractedInsight
+from memory.substrate_models import EnrichmentResult, KnowledgeFact
 
 
 # =============================================================================

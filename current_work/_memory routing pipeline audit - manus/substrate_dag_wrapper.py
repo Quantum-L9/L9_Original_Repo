@@ -80,7 +80,6 @@ class SubstrateDagOrchestrator:
         except Exception as e:
             logger.error("DAG execution failed", error=str(e), packet_id=full_envelope.packet_id)
             # Return error result
-            from uuid import uuid4
             return PacketWriteResult(
                 packet_id=full_envelope.packet_id,
                 status="error",

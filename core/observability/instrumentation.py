@@ -7,12 +7,11 @@ Provides @trace_span, @trace_llm_call, @trace_tool_call, @trace_governance_check
 import asyncio
 import functools
 import structlog
-from typing import Any, Callable, Optional, Type, TypeVar, Union
-from datetime import datetime
+from typing import Any, Callable, TypeVar
 
 from .models import (
     Span, LLMGenerationSpan, ToolCallSpan, GovernanceCheckSpan,
-    SpanKind, SpanStatus, TraceContext,
+    SpanKind, SpanStatus,
 )
 
 logger = structlog.get_logger(__name__)

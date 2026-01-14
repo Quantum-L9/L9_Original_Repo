@@ -25,7 +25,6 @@ from typing import Any, Dict, List, Optional
 import structlog
 import yaml
 
-from ir_engine.meta_ir import MetaContract, MetaContractValidationResult
 
 logger = structlog.get_logger(__name__)
 

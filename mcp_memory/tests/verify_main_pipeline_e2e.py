@@ -27,7 +27,6 @@ from typing import Dict, Any, Optional
 
 import asyncpg
 import httpx
-from pydantic import BaseModel
 
 
 # =============================================================================
@@ -340,7 +339,7 @@ async def verify_main_pipeline():
             logger.info(f"   Result: {json.dumps(save_result, indent=2)}")
             sys.exit(1)
         
-        logger.info(f"✅ Memory saved successfully!")
+        logger.info("✅ Memory saved successfully!")
         logger.info(f"   Packet ID: {packet_id}")
         logger.info(f"   Pipeline: {save_result.get('pipeline', 'unknown')}")
         
@@ -362,7 +361,7 @@ async def verify_main_pipeline():
         
         # Step 2: Search for memory
         logger.info("Step 2: Searching for saved memory...")
-        logger.info(f"   Query: 'E2E Test Memory'")
+        logger.info("   Query: 'E2E Test Memory'")
         logger.info()
         
         # Wait a moment for embeddings to be indexed
@@ -379,7 +378,7 @@ async def verify_main_pipeline():
         for result in results:
             if result.get("packet_id") == packet_id:
                 found = True
-                logger.info(f"✅ Memory found in search results!")
+                logger.info("✅ Memory found in search results!")
                 logger.info(f"   Similarity: {result.get('similarity', 0):.3f}")
                 logger.info(f"   Content: {result.get('content', '')[:60]}...")
                 break
@@ -421,7 +420,7 @@ async def verify_main_pipeline():
                 stages_missing.append("memory_embeddings")
             
             if trace["stages"]["knowledge_facts"]["found"]:
-                logger.info(f"✅ Stage 3: knowledge_facts (fact extraction)")
+                logger.info("✅ Stage 3: knowledge_facts (fact extraction)")
                 logger.info(f"   Facts extracted: {trace['stages']['knowledge_facts']['count']}")
                 for fact in trace["stages"]["knowledge_facts"]["facts"][:3]:
                     logger.info(f"   - {fact['subject']} {fact['predicate']} {fact['object'][:40]}...")

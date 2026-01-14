@@ -26,7 +26,7 @@ import json
 import argparse
 from pathlib import Path
 from typing import Dict, List, Set
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 
 # =============================================================================
 # CONFIGURATION

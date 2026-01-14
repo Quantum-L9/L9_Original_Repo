@@ -19,17 +19,16 @@ import asyncio
 import structlog
 from datetime import datetime
 from typing import Any, Optional, TypedDict
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from langgraph.graph import StateGraph, END
 from langchain_core.runnables import RunnableConfig
 
+from core.schemas import PacketEnvelope, PacketWriteResult
 from memory.substrate_models import (
     EnrichmentResult,
     ExtractedInsight,
     KnowledgeFact,
-    PacketEnvelope,
-    PacketWriteResult,
     StructuredReasoningBlock,
 )
 
@@ -549,15 +548,19 @@ async def extract_insights_node(
         if isinstance(value, dict) and len(str(value)) > 500:
             continue
 
+        # Convert UUID values to strings for JSON serialization
+        object_value = str(value) if isinstance(value, UUID) else value
+        source_packet_str = str(packet_id) if isinstance(packet_id, UUID) else packet_id
+
         fact = {
             "fact_id": str(uuid4()),
             "subject": payload.get(
                 "subject", payload.get("entity", payload.get("name", packet_type))
             ),
             "predicate": key,
-            "object": value,
+            "object": object_value,
             "confidence": 0.8,
-            "source_packet": packet_id,
+            "source_packet": source_packet_str,
             "created_at": datetime.utcnow().isoformat(),
         }
         facts.append(fact)
@@ -644,8 +647,15 @@ async def store_insights_node(
     
     # Get packet_id from envelope for linking facts to source packet
     envelope = state.get("envelope", {})
-    packet_id_str = envelope.get("packet_id")
-    packet_id = UUID(packet_id_str) if packet_id_str else None
+    packet_id_raw = envelope.get("packet_id")
+    # Handle both UUID object and string cases
+    if packet_id_raw:
+        if isinstance(packet_id_raw, UUID):
+            packet_id = packet_id_raw
+        else:
+            packet_id = UUID(str(packet_id_raw))
+    else:
+        packet_id = None
 
     if not insights and not facts:
         logger.debug("store_insights_node: No insights or facts to store")
@@ -685,6 +695,12 @@ async def store_insights_node(
             # Ensure source_packet is UUID
             if source_packet and isinstance(source_packet, str):
                 source_packet = UUID(source_packet)
+            elif isinstance(source_packet, UUID):
+                pass  # Already UUID, keep as is
+            
+            # Ensure object_value is JSON-serializable (convert UUID to string)
+            if isinstance(object_value, UUID):
+                object_value = str(object_value)
             
             await repository.insert_knowledge_fact(
                 fact_id=fact_id,

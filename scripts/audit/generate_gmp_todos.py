@@ -117,7 +117,7 @@ class GMPReport:
             "",
             f"**Generated:** {self.generated_at}",
             f"**Task:** {self.task_name}",
-            f"**Status:** ✅ COMPLETED (Auto-fixed)",
+            "**Status:** ✅ COMPLETED (Auto-fixed)",
             "",
             "=" * 76,
             "",

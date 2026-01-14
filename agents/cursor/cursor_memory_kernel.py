@@ -17,7 +17,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 import yaml
 
 import structlog
@@ -674,7 +674,7 @@ if __name__ == "__main__":
             if kernel.learn(title, content, severity):
                 logger.info(f"✅ Lesson saved: {title}")
             else:
-                logger.info(f"❌ Failed to save lesson")
+                logger.info("❌ Failed to save lesson")
         
         else:
             logger.info(f"Unknown command: {cmd}")

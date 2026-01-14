@@ -5,14 +5,13 @@ Tests the Vector-Graph Bridge that combines pgvector + Neo4j enrichment.
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID
 
 from memory.hybrid_rag import (
     EnrichmentStrategy,
     VectorHit,
     GraphEnrichment,
-    HybridResult,
     HybridSearchResult,
     EntityExtractor,
     GraphEnricher,

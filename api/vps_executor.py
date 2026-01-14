@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 import uvicorn
 import httpx
+import requests
 
 # Load from environment (required for server mode, optional for client imports)
 EXECUTOR_KEY = os.getenv("L9_EXECUTOR_API_KEY", "")

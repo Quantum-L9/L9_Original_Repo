@@ -17,11 +17,9 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-import json
 import re
 import structlog
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any, Callable, Optional
 
 logger = structlog.get_logger(__name__)

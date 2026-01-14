@@ -41,7 +41,7 @@ from time import time as current_time
 
 from api.slack_adapter import SlackRequestNormalizer
 from api.slack_client import SlackAPIClient, SlackClientError
-from core.schemas.packet_envelope_v2 import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
 from config.settings import settings
 
@@ -430,7 +430,7 @@ async def _route_to_email_task(
         
         # Respond in Slack
         if result.get("status") == "success":
-            response_msg = f"📧 Email task completed successfully."
+            response_msg = "📧 Email task completed successfully."
         else:
             error = result.get("data", {}).get("error", "Unknown error")
             response_msg = f"📧 Email task failed: {error}"
@@ -1417,7 +1417,7 @@ async def _retrieve_semantic_hits(
 
     Calls substrate_service.semantic_search for vector similarity search.
     """
-    from memory.substrate_models import SemanticSearchRequest
+    from core.schemas import SemanticSearchRequest
 
     try:
         request = SemanticSearchRequest(

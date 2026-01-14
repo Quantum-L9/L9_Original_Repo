@@ -57,7 +57,7 @@ OPTIONAL MATCH (a)-[r2:HAS_DIRECTIVE]->(dir:Directive)
 OPTIONAL MATCH (a)-[r3:HAS_SOP]->(sop:SOP)
 OPTIONAL MATCH (a)-[r4:CAN_EXECUTE]->(tool:Tool)
 OPTIONAL MATCH (a)-[r5:REPORTS_TO]->(supervisor:Agent)
-MATCH (a)-[r6:COLLABORATES_WITH]->(peer:Agent)
+OPTIONAL MATCH (a)-[r6:COLLABORATES_WITH]->(peer:Agent)
 RETURN a,
        collect(DISTINCT resp) as responsibilities,
        collect(DISTINCT dir) as directives,

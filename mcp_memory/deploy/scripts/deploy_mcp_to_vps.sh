@@ -1,49 +1,61 @@
 #!/bin/bash
-# Deploy MCP Memory Server to VPS
+# Deploy L9 to VPS using Docker Compose (CANONICAL METHOD)
 # Run this script ON THE VPS (not locally)
+#
+# IMPORTANT: Systemd services are DEPRECATED. Use Docker only.
 
 set -euo pipefail
 
-echo "=== MCP Memory Server VPS Deployment ==="
+echo "=== L9 VPS Deployment (Docker) ==="
+echo ""
+echo "⚠️  NOTE: Systemd services (l9.service, l9-mcp.service) are DEPRECATED."
+echo "         Docker Compose is the ONLY supported deployment method."
 echo ""
 
-# Step 1: Fix Caddy Routing
-echo "[1/3] Fixing Caddy routing for /mcp/* → 127.0.0.1:8000 (unified l9-api)..."
-cd /opt/l9 && \
-sudo cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.backup && \
-sudo sed -i 's#reverse_proxy /mcp/\* 127\.0\.0\.1:[0-9]\+#reverse_proxy 127.0.0.1:8000#' /etc/caddy/Caddyfile && \
-echo "✓ Caddyfile backed up and updated" && \
-grep -A3 '/mcp/' /etc/caddy/Caddyfile && \
-echo "" && \
-sudo systemctl reload caddy && \
-echo "✓ Caddy reloaded" && \
-sudo systemctl status caddy --no-pager | head -20
+# Step 1: Git pull
+echo "[1/4] Pulling latest code..."
+cd /opt/l9 && git pull origin main
+echo "✓ Code updated"
 
+# Step 2: Ensure no systemd services are running (cleanup)
 echo ""
-echo "[2/3] Installing and starting l9-mcp systemd service..."
-cd /opt/l9 && \
-sudo cp /opt/l9/mcp_memory/deploy/systemd/l9-mcp.service /etc/systemd/system/l9-mcp.service && \
-sudo systemctl daemon-reload && \
-sudo systemctl enable l9-mcp && \
-sudo systemctl start l9-mcp && \
-echo "✓ Service installed and started" && \
-sudo systemctl status l9-mcp --no-pager | head -20 && \
-echo "" && \
-sudo ss -tlnp | grep ':8000' || echo '⚠️  WARNING: Port 8000 not listening (l9-api container may be starting)'
+echo "[2/4] Checking for deprecated systemd services..."
+for svc in l9.service l9-mcp.service l9-agent.service; do
+    if systemctl is-active --quiet "$svc" 2>/dev/null; then
+        echo "⚠️  Stopping deprecated $svc..."
+        sudo systemctl stop "$svc" 2>/dev/null || true
+        sudo systemctl disable "$svc" 2>/dev/null || true
+    fi
+done
+echo "✓ Systemd cleanup complete"
 
+# Step 3: Docker Compose
 echo ""
-echo "[3/3] Testing MCP endpoints..."
-cd /opt/l9 && \
-set -a && source .env && set +a && \
-echo "Testing MCP tools endpoint..." && \
-curl -vk "https://l9.quantumaipartners.com/mcp/tools" \
-  -H "Authorization: Bearer ${MCP_API_KEYC:-$MCP_API_KEY_C}" || echo "⚠️  MCP endpoint test failed (check service logs)"
+echo "[3/4] Starting Docker containers..."
+cd /opt/l9 && docker compose up -d --build l9-api l9-mcp-memory
+echo "✓ Docker containers started (l9-api + l9-mcp-memory)"
+
+# Step 4: Health check
+echo ""
+echo "[4/4] Running health checks..."
+sleep 10
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep l9-
+echo ""
+echo "API Health:"
+curl -s http://127.0.0.1:8000/health | jq . || echo "⚠️  API health check failed"
+echo ""
+echo "MCP Memory Health:"
+curl -s http://127.0.0.1:9002/health | jq . || echo "⚠️  MCP memory health check failed"
 
 echo ""
 echo "=== Deployment Complete ==="
 echo ""
-echo "Next steps:"
-echo "  1. Check service logs: sudo journalctl -u l9-mcp -f"
-echo "  2. Test health: curl http://127.0.0.1:8000/health"
-echo "  3. Test via Caddy: curl https://l9.quantumaipartners.com/mcp/health"
+echo "Test endpoints:"
+echo "  API Health:    curl http://127.0.0.1:8000/health"
+echo "  MCP Health:    curl http://127.0.0.1:9002/health"
+echo "  MCP Tools:     curl -H 'Authorization: Bearer \$MCP_API_KEY_C' http://127.0.0.1:9002/mcp/tools"
+echo ""
+echo "View logs:"
+echo "  API:    docker logs l9-api -f"
+echo "  MCP:    docker logs l9-mcp-memory -f"
 
