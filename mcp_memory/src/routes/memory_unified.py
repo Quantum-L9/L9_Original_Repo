@@ -697,10 +697,11 @@ async def get_memory_stats(
             medium_count = r["cnt"] if r else 0
         
         if duration in ["all", "long"]:
+            # Count unique callers (L or C), not user_id (which is shared as l9-shared)
             query = f"""
             SELECT 
                 COUNT(*) as cnt,
-                COUNT(DISTINCT envelope->'metadata'->>'user_id') as users,
+                COUNT(DISTINCT envelope->'metadata'->>'caller') as users,
                 AVG(importance_score) as avg_imp
             FROM packet_store
             WHERE packet_type LIKE 'memory_write_%'

@@ -16,6 +16,22 @@ from uuid import UUID, uuid4
 
 import asyncpg
 
+
+async def _init_json_codecs(conn: asyncpg.Connection) -> None:
+    """Initialize connection with JSON codec for JSONB columns."""
+    await conn.set_type_codec(
+        'jsonb',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
+    await conn.set_type_codec(
+        'json',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
+
 # Context variable for RLS-scoped connection (used within transactions)
 _current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
     "_current_rls_connection", default=None
@@ -62,8 +78,9 @@ class SubstrateRepository:
                 self._database_url,
                 min_size=self._pool_size,
                 max_size=self._pool_size + self._max_overflow,
+                init=_init_json_codecs,  # Register JSON codecs for JSONB columns
             )
-            logger.info("Database connection pool initialized")
+            logger.info("Database connection pool initialized with JSON codecs")
 
     async def disconnect(self) -> None:
         """Close connection pool."""

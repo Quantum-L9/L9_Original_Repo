@@ -26,7 +26,25 @@ from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
+import asyncpg
+
 logger = structlog.get_logger(__name__)
+
+
+async def _init_json_codecs(conn: asyncpg.Connection) -> None:
+    """Initialize connection with JSON codec for JSONB columns."""
+    await conn.set_type_codec(
+        'jsonb',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
+    await conn.set_type_codec(
+        'json',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
 
 # =============================================================================
 # Database Configuration
@@ -51,10 +69,13 @@ async def get_pool():
     """Get or create connection pool."""
     global _pool
     if _pool is None:
-        import asyncpg
-
-        _pool = await asyncpg.create_pool(DATABASE_URL, min_size=2, max_size=10)
-        logger.info("World Model DB pool initialized")
+        _pool = await asyncpg.create_pool(
+            DATABASE_URL, 
+            min_size=2, 
+            max_size=10,
+            init=_init_json_codecs,  # Register JSON codecs for JSONB columns
+        )
+        logger.info("World Model DB pool initialized with JSON codecs")
     return _pool
 
 

@@ -6,6 +6,7 @@ Automatic, idempotent database migration execution.
 Tracks applied migrations in schema_migrations table.
 """
 
+import json
 import structlog
 import os
 from pathlib import Path
@@ -14,6 +15,22 @@ from typing import Optional
 import asyncpg
 
 logger = structlog.get_logger(__name__)
+
+
+async def _init_json_codecs(conn: asyncpg.Connection) -> None:
+    """Initialize connection with JSON codec for JSONB columns."""
+    await conn.set_type_codec(
+        'jsonb',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
+    await conn.set_type_codec(
+        'json',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
 
 
 class MigrationRunner:
@@ -46,8 +63,9 @@ class MigrationRunner:
                 self._database_url,
                 min_size=1,
                 max_size=2,
+                init=_init_json_codecs,  # Register JSON codecs for JSONB columns
             )
-            logger.info("Migration runner connected to database")
+            logger.info("Migration runner connected to database with JSON codecs")
 
     async def disconnect(self) -> None:
         """Close connection pool."""
