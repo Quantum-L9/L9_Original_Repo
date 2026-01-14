@@ -9,18 +9,18 @@ Usage:
     # Extract from schema file
     python scripts/factory_extract.py \\
         --schema path/to/schema.yaml \\
-        --output L9/agents/new_agent/
+        --output agents/new_agent/
     
     # With glue configuration
     python scripts/factory_extract.py \\
         --schema path/to/schema.yaml \\
         --glue path/to/glue.yaml \\
-        --output L9/agents/new_agent/
+        --output agents/new_agent/
     
     # Dry run (validate only)
     python scripts/factory_extract.py \\
         --schema path/to/schema.yaml \\
-        --output L9/agents/new_agent/ \\
+        --output agents/new_agent/ \\
         --dry-run
     
     # Validate only (no extraction)
@@ -29,12 +29,15 @@ Usage:
         --validate-only
 
 Version: 1.0.0
+
+Note: --output is resolved relative to the sandbox root (default: ~/.l9/generated).
+Override with L9_RESEARCH_FACTORY_BASE_DIR for admin-configured roots.
 """
 
 import argparse
-import structlog
 import asyncio
 import json
+import structlog
 import sys
 from pathlib import Path
 
@@ -48,6 +51,7 @@ from services.research_factory import (
     UniversalExtractor,
     load_glue_config,
 )
+from core.security.path_safety import PathSafetyError, resolve_base_dir, safe_resolve_path
 
 logger = structlog.get_logger(__name__)
 
@@ -220,9 +224,16 @@ async def main():
     # Extract
     extractor = UniversalExtractor(strict_validation=args.strict)
 
+    base_root = resolve_base_dir()
+    try:
+        safe_output_dir = safe_resolve_path(base_root, args.output)
+    except PathSafetyError as exc:
+        logger.error(f"Invalid output directory: {exc}")
+        sys.exit(2)
+
     result = await extractor.extract(
         schema=schema,
-        output_dir=args.output,
+        output_dir=str(safe_output_dir),
         glue=glue,
         overwrite=args.overwrite,
         dry_run=args.dry_run,

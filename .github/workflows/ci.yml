@@ -140,6 +140,58 @@ jobs:
           pytest tests/ -v --tb=short --ignore=tests/e2e || true
 
   # ===========================================================================
+  # JOB 3B: PATH-SAFETY — Targeted Tests + Semgrep Guard
+  # ===========================================================================
+  path-safety-tests:
+    name: Path Safety Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest fastapi httpx pydantic structlog
+
+      - name: Run path safety tests
+        run: |
+          pytest -q tests/core/security/test_path_safety.py tests/api/test_factory_path_safety.py tests/scripts/test_factory_extract_cli.py
+
+  path-safety-guard:
+    name: Path Safety Semgrep Guard
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+
+      - name: Run Semgrep path-join guard
+        run: |
+          semgrep --config .sec/semgrep.yaml api/routes scripts/research core/security
+
+  # ===========================================================================
   # JOB 4: DOCKER-SMOKE — Full Docker Smoke Test
   # ===========================================================================
   docker-smoke:
@@ -278,4 +330,3 @@ jobs:
           fi
           
           echo "✅ All critical checks passed"
-
