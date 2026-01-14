@@ -257,10 +257,9 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
     """
     try:
         payload = await request.json()
-        tool_name, tool_args = (
-            payload.get("tool_name"),
-            payload.get("arguments", {}),
-        )
+        # MCP protocol uses "name" for tool name, but support "tool_name" for backwards compat
+        tool_name = payload.get("name") or payload.get("tool_name")
+        tool_args = payload.get("arguments", {})
         # Use shared user_id from caller identity (not payload)
         # This enforces L + C operate in same semantic space
         user_id = caller.user_id
