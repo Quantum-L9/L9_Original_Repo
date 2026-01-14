@@ -92,13 +92,18 @@ async def call_tool(
         user_id = caller.user_id
         tool_call = MCPToolCall(name=tool_name, arguments=tool_args)
         
-        # Get substrate service from app state (if initialized)
-        # Try to get from l9-api's memory substrate service
+        # Get substrate service - prefer singleton (get_service) over app.state
+        # The singleton is initialized during startup with proper OpenAI embeddings
         substrate_service = None
-        if hasattr(request.app.state, "substrate_service"):
-            substrate_service = request.app.state.substrate_service
-        elif hasattr(request.app.state, "memory_substrate_service"):
-            substrate_service = request.app.state.memory_substrate_service
+        try:
+            from memory.substrate_service import get_service
+            substrate_service = await get_service()
+        except (ImportError, RuntimeError):
+            # Fallback to app.state if singleton not available
+            if hasattr(request.app.state, "substrate_service"):
+                substrate_service = request.app.state.substrate_service
+            elif hasattr(request.app.state, "memory_substrate_service"):
+                substrate_service = request.app.state.memory_substrate_service
         
         result = await handle_tool_call(
             tool_call, 
