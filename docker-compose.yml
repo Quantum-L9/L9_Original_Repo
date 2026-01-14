@@ -113,6 +113,10 @@ services:
       L9_ENABLE_LEGACY_CHAT: ${L9_ENABLE_LEGACY_CHAT:-false}
       L9_ENABLE_LEGACY_SLACK_ROUTER: ${L9_ENABLE_LEGACY_SLACK_ROUTER:-true}
 
+      # Embedding Configuration (for memory substrate)
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-large}
+
       # Email Adapter
       EMAIL_ENABLED: ${EMAIL_ENABLED:-false}
       EMAIL_ADAPTER_SIGNING_SECRET: ${EMAIL_ADAPTER_SIGNING_SECRET:-}

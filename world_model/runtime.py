@@ -294,6 +294,7 @@ class WorldModelRuntime:
         engine: Optional["WorldModelEngine"] = None,
         packet_source: Optional[PacketSource] = None,
         simulation_engine: Optional["SimulationEngine"] = None,
+        substrate_service: Optional["MemorySubstrateService"] = None,
     ):
         """
         Initialize the runtime.
@@ -304,6 +305,7 @@ class WorldModelRuntime:
             engine: WorldModelEngine instance (recommended)
             packet_source: Source for packet ingestion
             simulation_engine: Engine for running simulations
+            substrate_service: Existing MemorySubstrateService (avoids creating new one with stub embeddings)
         """
         self._config = config or RuntimeConfig()
         self._state = state or WorldModelState()
@@ -341,6 +343,9 @@ class WorldModelRuntime:
         self._ingestor: Optional["KnowledgeIngestor"] = None
         self._causal_mapper: Optional["CausalMapper"] = None
         self._reflection_memory: Optional["ReflectionMemory"] = None
+
+        # Substrate service (passed in to avoid creating duplicate with stub embeddings)
+        self._substrate_service: Optional["MemorySubstrateService"] = substrate_service
 
         logger.info("WorldModelRuntime initialized (v2.0.0)")
 
@@ -397,9 +402,18 @@ class WorldModelRuntime:
 
             # Initialize seed loader if not already done
             if not self._seed_loader:
-                # Get or create substrate service
-                repository = get_substrate_repository()
-                substrate = MemorySubstrateService(repository=repository)
+                # Use existing substrate_service if available (has proper OpenAI embeddings)
+                # Otherwise create new one (will use stub embeddings - not ideal)
+                if self._substrate_service:
+                    substrate = self._substrate_service
+                    logger.debug("Using existing substrate_service with embeddings")
+                else:
+                    logger.warning(
+                        "No substrate_service provided to runtime - creating new one with stub embeddings. "
+                        "Use create_runtime_with_substrate() to pass proper substrate_service."
+                    )
+                    repository = get_substrate_repository()
+                    substrate = MemorySubstrateService(repository=repository)
 
                 # Ensure ingestor is initialized
                 if not self._ingestor:
@@ -1861,13 +1875,15 @@ async def create_runtime_with_substrate(
         await engine.initialize_state()
 
     # Create runtime with all components wired
+    # Pass substrate_service so load_seed_library() can use it instead of creating a new one
     runtime = WorldModelRuntime(
         config=config or RuntimeConfig(),
         engine=engine,
         packet_source=packet_source,
+        substrate_service=substrate_service,
     )
 
-    logger.info("Created WorldModelRuntime with MemorySubstratePacketSource")
+    logger.info("Created WorldModelRuntime with MemorySubstratePacketSource and substrate_service")
     return runtime
 
 
