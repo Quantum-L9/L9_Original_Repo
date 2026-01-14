@@ -612,12 +612,9 @@ class SubstrateRepository:
         """
         created_at = datetime.utcnow()
         
-        # Serialize object_value to JSON if needed
-        object_json = (
-            json.dumps(object_value)
-            if not isinstance(object_value, str)
-            else object_value
-        )
+        # Serialize object_value to JSON (always required for JSONB column)
+        # Even strings must be JSON-encoded (wrapped in quotes) for PostgreSQL
+        object_json = json.dumps(object_value)
         
         # Use RLS-scoped connection if available, otherwise acquire new one
         rls_conn = _current_rls_connection.get()
