@@ -255,6 +255,25 @@ class SemanticService:
         logger.debug(f"Stored embedding {embedding_id}")
         return str(embedding_id)
 
+    async def generate_embedding(
+        self,
+        text: str,
+        payload: dict[str, Any],
+        agent_id: Optional[str] = None,
+    ) -> tuple[list[float], dict[str, Any], Optional[str]]:
+        """
+        Generate an embedding and return vector + enriched payload.
+
+        This is useful for transactional write paths where insertion is deferred.
+        """
+        vector = await self._provider.embed_text(text)
+        enriched_payload = {
+            **payload,
+            "_text": text,
+            "_model": getattr(self._provider, "_model", "unknown"),
+        }
+        return vector, enriched_payload, agent_id
+
     async def search(
         self,
         query: str,

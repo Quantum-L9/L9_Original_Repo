@@ -2,7 +2,6 @@
 
 import structlog
 import time
-from collections import defaultdict
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
@@ -14,6 +13,7 @@ from src.config import settings
 from src.db import init_db, close_db
 from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
 from src.routes import memory_unified as memory, health
+from src.rate_limiter import RateLimiter
 
 # Configure structlog
 # Use structlog log levels (no need for logging module)
@@ -53,11 +53,6 @@ RATE_LIMIT_WINDOW = 60  # Window in seconds (1 minute)
 FAILED_AUTH_LIMIT = 5  # Max failed auth attempts before block
 FAILED_AUTH_BLOCK_SECONDS = 300  # Block for 5 minutes after too many failures
 
-# Track requests per IP: {ip: [(timestamp, success), ...]}
-request_log: dict = defaultdict(list)
-# Track failed auth attempts: {ip: [timestamp, ...]}
-failed_auth_log: dict = defaultdict(list)
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -94,6 +89,13 @@ async def lifespan(app: FastAPI):
         )
         app.state.substrate_service = None
     
+    app.state.rate_limiter = RateLimiter(
+        request_limit=RATE_LIMIT_REQUESTS,
+        request_window_seconds=RATE_LIMIT_WINDOW,
+        failed_auth_limit=FAILED_AUTH_LIMIT,
+        failed_auth_block_seconds=FAILED_AUTH_BLOCK_SECONDS,
+    )
+
     asyncio.create_task(memory.cleanup_task())  # Background cleanup task
     yield
     logger.info("Closing database connections...")
@@ -121,38 +123,6 @@ def get_client_ip(request: Request) -> str:
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "unknown"
-
-
-def check_rate_limit(ip: str) -> None:
-    """Check if IP has exceeded rate limit. Raises 429 if so."""
-    now = time.time()
-    cutoff = now - RATE_LIMIT_WINDOW
-    
-    # Clean old entries
-    request_log[ip] = [(ts, ok) for ts, ok in request_log[ip] if ts > cutoff]
-    
-    if len(request_log[ip]) >= RATE_LIMIT_REQUESTS:
-        logger.warning(f"Rate limit exceeded for IP: {ip}")
-        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.")
-
-
-def check_auth_block(ip: str) -> None:
-    """Check if IP is blocked due to failed auth attempts."""
-    now = time.time()
-    cutoff = now - FAILED_AUTH_BLOCK_SECONDS
-    
-    # Clean old entries
-    failed_auth_log[ip] = [ts for ts in failed_auth_log[ip] if ts > cutoff]
-    
-    if len(failed_auth_log[ip]) >= FAILED_AUTH_LIMIT:
-        logger.warning(f"IP blocked due to failed auth attempts: {ip}")
-        raise HTTPException(status_code=403, detail="Too many failed attempts. Blocked temporarily.")
-
-
-def record_failed_auth(ip: str) -> None:
-    """Record a failed authentication attempt."""
-    failed_auth_log[ip].append(time.time())
-    logger.warning(f"Failed auth attempt from IP: {ip} (total: {len(failed_auth_log[ip])})")
 
 
 class CallerIdentity:
@@ -189,17 +159,38 @@ async def verify_api_key(request: Request, authorization: str = Header(None)) ->
     """
     ip = get_client_ip(request)
     
+    rate_limiter = getattr(request.app.state, "rate_limiter", None)
+    if rate_limiter is None:
+        rate_limiter = RateLimiter(
+            request_limit=RATE_LIMIT_REQUESTS,
+            request_window_seconds=RATE_LIMIT_WINDOW,
+            failed_auth_limit=FAILED_AUTH_LIMIT,
+            failed_auth_block_seconds=FAILED_AUTH_BLOCK_SECONDS,
+        )
+        request.app.state.rate_limiter = rate_limiter
+
     # Check if IP is blocked
-    check_auth_block(ip)
-    
+    if await rate_limiter.is_auth_blocked(ip):
+        logger.warning(f"IP blocked due to failed auth attempts: {ip}")
+        raise HTTPException(status_code=403, detail="Too many failed attempts. Blocked temporarily.")
+
     # Check rate limit
-    check_rate_limit(ip)
-    
+    if await rate_limiter.is_rate_limited(ip):
+        logger.warning(f"Rate limit exceeded for IP: {ip}")
+        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.")
+
     # Record this request
-    request_log[ip].append((time.time(), True))
+    await rate_limiter.record_request(ip, now=time.time())
     
     if not authorization or not authorization.startswith("Bearer "):
-        record_failed_auth(ip)
+        await rate_limiter.record_failed_auth(ip, now=time.time())
+        snapshot = await rate_limiter.snapshot(ip)
+        logger.warning(
+            "Failed auth attempt from IP",
+            ip=ip,
+            failed_auth_count=snapshot.failed_auth_count,
+            version=snapshot.version,
+        )
         raise HTTPException(
             status_code=401, detail="Missing or invalid Authorization header"
         )

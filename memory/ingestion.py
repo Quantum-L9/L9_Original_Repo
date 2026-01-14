@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import structlog
 from functools import lru_cache
-from typing import Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import uuid4
 
 if TYPE_CHECKING:
@@ -186,6 +186,14 @@ class IngestionPipeline:
                 update={"tags": list(set(envelope.tags + auto_tags))}
             )
 
+        embedding_payload = None
+        if should_embed and self._semantic_service:
+            try:
+                embedding_payload = await self._prepare_embedding(envelope)
+            except Exception as e:
+                logger.error(f"Failed to generate embedding vector: {e}")
+                errors.append(f"embedding: {str(e)}")
+
         # Core writes in transaction (atomic)
         # Wrap packet_store and agent_memory_events in transaction for atomicity
         if self._repository:
@@ -198,6 +206,15 @@ class IngestionPipeline:
                     # Store memory event (uses same transaction connection)
                     await self._store_memory_event_with_connection(envelope, conn)
                     written_tables.append("agent_memory_events")
+
+                    if embedding_payload:
+                        vector, payload, agent_id = embedding_payload
+                        await self._repository.insert_semantic_embedding(
+                            vector=vector,
+                            payload=payload,
+                            agent_id=agent_id,
+                        )
+                        written_tables.append("semantic_memory")
                     
                     # Transaction commits here (or rolls back on exception)
             except Exception as e:
@@ -208,16 +225,6 @@ class IngestionPipeline:
             # Fallback if repository not available (should not happen)
             logger.warning("Repository not available for transactional writes")
             errors.append("repository: not available")
-
-        # Generate and store embedding
-        if should_embed and self._semantic_service:
-            try:
-                embedded = await self._embed_content(envelope)
-                if embedded:
-                    written_tables.append("semantic_memory")
-            except Exception as e:
-                logger.error(f"Failed to embed content: {e}")
-                errors.append(f"embedding: {str(e)}")
 
         # Store artifacts
         try:
@@ -488,14 +495,16 @@ class IngestionPipeline:
             timestamp=envelope.timestamp,
         )
 
-    async def _embed_content(self, envelope: PacketEnvelope) -> bool:
+    async def _prepare_embedding(
+        self, envelope: PacketEnvelope
+    ) -> Optional[tuple[list[float], dict[str, Any], Optional[str]]]:
         """
-        Generate and store embedding for packet content.
+        Generate embedding vector and payload for packet content.
 
-        Returns True if embedding was created.
+        Returns (vector, payload, agent_id) if embedding is created.
         """
         if self._semantic_service is None:
-            return False
+            return None
 
         # Determine text to embed
         payload = envelope.payload
@@ -509,19 +518,18 @@ class IngestionPipeline:
 
         if not text_to_embed:
             # Skip packets without embeddable text
-            return False
+            return None
 
         if not isinstance(text_to_embed, str):
             text_to_embed = str(text_to_embed)
 
         # Minimum text length
         if len(text_to_embed) < 10:
-            return False
+            return None
 
-        # Generate and store embedding
         agent_id = envelope.metadata.agent if envelope.metadata else None
 
-        await self._semantic_service.embed_and_store(
+        return await self._semantic_service.generate_embedding(
             text=text_to_embed,
             payload={
                 "packet_id": str(envelope.packet_id),
@@ -531,8 +539,6 @@ class IngestionPipeline:
             },
             agent_id=agent_id,
         )
-
-        return True
 
     async def _store_artifacts(self, envelope: PacketEnvelope) -> int:
         """
