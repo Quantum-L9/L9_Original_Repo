@@ -6,24 +6,50 @@
 
 ## 🔴 High Priority
 
+### Dead Code Investigation (77 findings)
+
+**Status:** Audit complete, manual triage needed
+
+**Summary:**
+- Phase 1: Found 306 dataclass fields
+- Phase 2: Eliminated 229 false positives 
+- Remaining: 77 findings (45 HIGH, 21 MEDIUM, 11 LOW)
+
+**Actions:**
+- [ ] DELETE CalendarAdapterConfig entirely (not wired, unused)
+- [ ] DEPRECATE EmailAdapterConfig (replaced by email_agent/)
+- [ ] REVIEW Memory/RAG fields: `Memory.semantic_importance`, `HybridResult.vector_hit`, `HybridResult.enrichment` — likely bugs worth wiring up
+- [ ] REVIEW runtime/superprompt_emitter.py fields: `gaps_to_fill`, `expected_format`
+- [ ] REVIEW core/evaluation/evaluator.py fields: `expected_output`, `success_criteria`
+
+**Reports:**
+- `reports/dead_code_baseline.json` — Phase 1 raw findings
+- `reports/dead_code_resolved.json` — Phase 2 after false positive filtering
+- `reports/dead_code_risk_matrix.md` — Human-readable categorization
+
+**Note:** Many "HIGH" findings are config placeholders for future features (added to `.vultureignore`).
+
+---
+
 ### Memory Graph Cleanup
 
-**Status:** SQL generated, ready to execute
+**Status:** ✅ COMPLETE (2026-01-13)
 
-**Action Required:**
-- [ ] Execute SQL deletion to remove 52 trash embeddings containing error messages
-  - SQL file: `/tmp/delete_trash.sql`
-  - Command: `psql -d l9_memory -f /tmp/delete_trash.sql` (or via Docker/VPS)
-  - See: `scripts/DELETE_TRASH_INSTRUCTIONS.md` for options
+**Executed:**
+- [x] Deleted 2 trash embeddings containing error messages via VPS PostgreSQL
+  - `1a45f42c-0fbc-460e-b916-0344b12e7645` (SESSION 2026-01-11 with errors)
+  - `a3749a07-4b6b-40ca-ba77-53511a73e192` (SESSION 2026-01-09 with errors)
+  - Before: 14,773 embeddings → After: 14,771 embeddings
 
 **Context:**
-- Found 52 trash embeddings with error messages like "Sorry, I encountered a temporary error. Please try again."
-- These pollute semantic search results
+- Original estimate was 52 trash embeddings, but most were already cleaned or excluded
 - Re-indexing of high-value content is complete (GMP reports, errors, architecture, preferences, tool usage)
+- One LESSON embedding (`d77b0fd2...`) mentions error text but is VALID (documents GMP-42 fix)
 
-**Verification:**
-- After deletion, run: `python3 scripts/check_embeddings_via_api.py`
-- Semantic search should return better results (no error messages)
+**Verification (all 3 scripts run):**
+- [x] `python3 scripts/memory/cleanup_trash_embeddings_via_api.py --dry-run` — Only 1 false positive remains (valid LESSON)
+- [x] `python3 scripts/memory/generate_delete_sql.py` — Generated SQL, 2 trash IDs identified
+- [x] `python3 scripts/memory/check_embeddings_via_api.py` — Returns 0 results for test queries (search is clean)
 
 ### L's Memory — Local Docker Verification
 
@@ -76,6 +102,29 @@
 ---
 
 ## 🟣 Deferred Work
+
+### Frontier Memory Retrieval Architecture
+
+**Status**: 🚫 BLOCKED — Waiting on MCP memory testing & confirmation
+
+**Blocker**: Do NOT start until MCP memory is tested and confirmed working in production.
+
+**Scope**: Implement frontier-grade memory retrieval system based on elite AI lab patterns (Anthropic, OpenAI, DeepMind).
+
+**Key Components**:
+- 4-tier hierarchical memory (Identity → Project → Session → Working)
+- Dual semantic + episodic memory streams
+- Graph-based retrieval with multi-factor ranking
+- Active memory management (system decides what to encode)
+- SQL migrations: `semantic_facts`, `episodic_events`, `episodic_semantic_links`
+- Python services: `SemanticMemoryService`, `EpisodicMemoryService`
+- Context engineering: hierarchical injection per task
+
+**Reference**: `current_work/MEMORY RETRIEVAL ARCHITECTURE.md`
+
+**Estimated Effort**: 3 phases (Week 1-2: Fix immediate issues, Week 3-8: Architecture upgrade, Week 9-16: Context engineering)
+
+---
 
 ### Anti-Pattern Regression Tests (GMP-58 Follow-up)
 

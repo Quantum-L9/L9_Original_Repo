@@ -19,6 +19,8 @@ from email.mime.base import MIMEBase
 from email import encoders
 from email.utils import parseaddr
 
+from email_agent.config import ensure_dirs
+
 try:
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError

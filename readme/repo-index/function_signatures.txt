@@ -84,6 +84,37 @@ agents/cursor/cursor_client.py::_request(self, endpoint, method, data) - Make HT
 agents/cursor/cursor_client.py::health_check(self) - Check Cursor API health.
 agents/cursor/cursor_client.py::send_code(self, code) - Send code to Cursor.
 agents/cursor/cursor_client.py::send_command(self, command) - Send command to Cursor.
+agents/cursor/cursor_memory_client.py::api_request(method, path, data) - Legacy REST API request (DEPRECATED).
+agents/cursor/cursor_memory_client.py::cmd_cache_get(key) - Get value from Redis cache.
+agents/cursor/cursor_memory_client.py::cmd_cache_health() - Check Redis cache health via REST API.
+agents/cursor/cursor_memory_client.py::cmd_cache_list_sessions() - List recent sessions from Redis.
+agents/cursor/cursor_memory_client.py::cmd_cache_session_context(session_id) - Get session context from Redis.
+agents/cursor/cursor_memory_client.py::cmd_cache_set(key, value, ttl) - Set value in Redis cache.
+agents/cursor/cursor_memory_client.py::cmd_cache_set_session_context(context_json) - Set session context in Redis.
+agents/cursor/cursor_memory_client.py::cmd_dedupe_check(content) - Semantic Deduplication - check if conten
+agents/cursor/cursor_memory_client.py::cmd_fix_error(error_message) - Memory-Aware Error Recovery - search for
+agents/cursor/cursor_memory_client.py::cmd_graph_context(domain, limit) - Get graph context for a domain.
+agents/cursor/cursor_memory_client.py::cmd_graph_entity(entity_type, entity_id) - Get an entity from the graph.
+agents/cursor/cursor_memory_client.py::cmd_graph_health() - Check Neo4j graph health via REST API.
+agents/cursor/cursor_memory_client.py::cmd_graph_query(query, params) - Run a Cypher query on Neo4j.
+agents/cursor/cursor_memory_client.py::cmd_graph_relationships(entity_type, entity_id, direction) - Get relationships for an entity.
+agents/cursor/cursor_memory_client.py::cmd_health() - Check memory health via MCP server.
+agents/cursor/cursor_memory_client.py::cmd_inject(task_description, layers) - Layered Context Injection - injects cont
+agents/cursor/cursor_memory_client.py::cmd_resume_for(task) - Resume for a specific task - finds most 
+agents/cursor/cursor_memory_client.py::cmd_search(query, limit, min_confidence, sort_by) - Semantic search via MCP with confidence 
+agents/cursor/cursor_memory_client.py::cmd_session() - Show current daily session ID.
+agents/cursor/cursor_memory_client.py::cmd_session_close() - Close session and create embedding ancho
+agents/cursor/cursor_memory_client.py::cmd_session_diff() - Session Diff - compare current session t
+agents/cursor/cursor_memory_client.py::cmd_session_resume(task_description) - Resume session by finding relevant previ
+agents/cursor/cursor_memory_client.py::cmd_stats() - Get memory stats via MCP.
+agents/cursor/cursor_memory_client.py::cmd_suggest(context) - Proactive Suggestion Engine - pattern-ba
+agents/cursor/cursor_memory_client.py::cmd_temporal(query, since, until) - Temporal Context Windowing - time-scoped
+agents/cursor/cursor_memory_client.py::cmd_warn(task_description) - Proactive Anti-Pattern Warning - surface
+agents/cursor/cursor_memory_client.py::cmd_write(content, kind, thread_id) - Write to memory via MCP using PacketEnve
+agents/cursor/cursor_memory_client.py::compute_content_hash(payload) - Compute SHA-256 content hash for PacketE
+agents/cursor/cursor_memory_client.py::get_daily_session_id() - Generate deterministic session UUID base
+agents/cursor/cursor_memory_client.py::main() - 
+agents/cursor/cursor_memory_client.py::mcp_call_tool(tool_name, arguments) - Call MCP tool via /mcp/call endpoint.
 agents/cursor/cursor_memory_kernel.py::__init__(self, config_path) - 
 agents/cursor/cursor_memory_kernel.py::_get_rls_prefix() - Generate RLS session variable SET comman
 agents/cursor/cursor_memory_kernel.py::_load_config(self) - Load kernel YAML configuration.
@@ -117,6 +148,9 @@ agents/cursor/cursor_memory_kernel.py::should_display_todos(self) - Check if TOD
 agents/cursor/cursor_memory_kernel.py::write_kernel_activation(session_id, kernel_id) - Write kernel activation packet.
 agents/cursor/cursor_memory_kernel.py::write_lesson(title, content, severity, tags) - Write a new lesson to memory.
 agents/cursor/cursor_memory_kernel.py::write_session_todos(session_id, todos) - Write/update session TODOs.
+agents/cursor/cursor_neo4j_query.py::format_results(result) - Format Neo4j results for display.
+agents/cursor/cursor_neo4j_query.py::main() - 
+agents/cursor/cursor_neo4j_query.py::query_neo4j(cypher) - Execute a Cypher query against Neo4j.
 agents/cursor/extractors/cursor_action_extractor.py::create_directory_structure(self, output_root) - Create all required directories.
 agents/cursor/extractors/cursor_action_extractor.py::extract(self, input_path, output_root) - Extract and reconstruct all files from c
 agents/cursor/extractors/cursor_action_extractor.py::extract_components(self, content) - Extract all component definitions.
@@ -168,32 +202,6 @@ agents/research_agent.py::extract_code_snippets(response) - Extract code blocks 
 agents/research_agent.py::extract_concepts(response) - Extract key concepts using heuristics.
 agents/research_agent.py::extract_unique_insights(self) - Find novel insights unique to fewer vari
 agents/research_agent.py::generate_synthesis_result(self) - Generate comprehensive synthesis result.
-aios/bootstrap.py::__init__(self, config_path) - 
-aios/bootstrap.py::bootstrap(self) - Complete bootstrap sequence.
-aios/bootstrap.py::init_controller(self) - Initialize the controller.
-aios/bootstrap.py::init_cursor_client(self) - Initialize Cursor client.
-aios/bootstrap.py::init_local_api(self) - Initialize local API for safe shell/file
-aios/bootstrap.py::init_router(self) - Initialize the router.
-aios/bootstrap.py::load_settings(self) - Load configuration from YAML file.
-aios/controller.py::__init__(self, settings, local_api, cursor_client) - 
-aios/controller.py::handle_cursor(self, message) - Handle Cursor protocol messages.
-aios/controller.py::handle_local(self, message) - Handle local API requests.
-aios/controller.py::handle_mac(self, message) - Handle Mac protocol messages (reverse tu
-aios/controller.py::handle_test(self, message) - Handle test/debug messages.
-aios/local_api.py::__init__(self, settings) - 
-aios/local_api.py::execute_shell(self, command, cwd) - Execute shell command safely.
-aios/local_api.py::list_directory(self, dir_path) - List directory contents.
-aios/local_api.py::read_file(self, file_path, limit) - Read file safely.
-aios/local_api.py::validate_command(self, cmd) - Validate command against whitelist and b
-aios/local_api.py::write_file(self, file_path, content) - Write file safely.
-aios/router.py::__init__(self, controller) - 
-aios/router.py::get_available_types(self) - Return list of available message types.
-aios/router.py::route(self, message) - Route message to appropriate handler.
-aios/runtime.py::__init__(self, config_path) - 
-aios/runtime.py::_signal_handler(self, signum, frame) - Handle shutdown signals.
-aios/runtime.py::main() - Main entrypoint for systemd service.
-aios/runtime.py::shutdown(self) - Clean shutdown.
-aios/runtime.py::start(self) - Start the runtime loop.
 api/adapters/calendar_adapter/__init__.py::_validate_startup() - Validate required configuration at modul
 api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py::__init__(self, substrate_service, aios_runtime_client, memory_service_client) - Initialize adapter with dependencies.
 api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py::__post_init__(self) - 
@@ -289,8 +297,10 @@ api/e2e_slack_audit.py::finalize(self) -
 api/llm.py::chat_with_l9(user_message) - Call LLM and return:
 api/llm.py::get_client() - 
 api/llm.py::get_system_prompt() - Get the system prompt, either from kerne
+api/memory/router.py::_saga_result_to_response(result) - Convert SagaResult to SagaResponse.
 api/memory/router.py::get_memory_orchestrator(request) - Get MemoryOrchestrator from app.state.
 api/routes/cursor.py::get_cursor_executor(request) - Get CursorExecutor from app.state.
+api/routes/mcp.py::get_verify_api_key() - Get verify_api_key dependency or raise i
 api/routes/modules.py::_get_module_registry(request) - 
 api/routes/reasoning.py::get_reasoning_orchestrator(request) - Get ReasoningOrchestrator from app.state
 api/routes/research.py::get_research_swarm_orchestrator(request) - Get ResearchSwarmOrchestrator from app.s
@@ -720,6 +730,7 @@ codegen/compiler/emitters/ial_candidates.py::emit(ials) -
 codegen/compiler/emitters/invariants.py::emit(invariants) - 
 codegen/compiler/emitters/lexer.py::extract_claims(text) - 
 codegen/compiler/emitters/work_packets.py::emit(tasks) - 
+codegen/compiler/schemas.py::validate_schema(artifact_name, artifact) - Validate artifact structure against expe
 codegen/compiler/transcript_compiler.py::compile(self, transcript_text) - 
 codegen/compiler/validator_bridge.py::validate_outputs(artifacts) - 
 codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py::__init__(self, reasoning_engine, packet_router, governance_bridge) - 
@@ -817,7 +828,7 @@ collaborative_cells/reviewer_cell.py::_apply_revisions(self, output, critique) -
 collaborative_cells/reviewer_cell.py::_ensure_client(self) - Ensure OpenAI client is initialized.
 config/cursor_langgraph_config.py::get_cursor_langgraph_config() - Get singleton CursorLangGraphConfig inst
 config/cursor_langgraph_config.py::reset_cursor_langgraph_config() - Reset singleton (for testing).
-config/memory_substrate_settings.py::get_settings() - Get or create settings singleton.
+config/memory_substrate_settings.py::get_settings() - Get or create settings singleton. CACHED
 config/memory_substrate_settings.py::reset_settings() - Reset settings (useful for testing).
 config/research_settings.py::get_research_settings() - Get or create research settings singleto
 config/research_settings.py::reset_research_settings() - Reset settings (useful for testing).
@@ -893,6 +904,21 @@ core/agents/kernelevolution.py::generate_proposal_from_gap(gap) - Generate a ker
 core/agents/kernelevolution.py::generate_proposals_from_reflection(reflection) - Generate kernel update proposals from a 
 core/agents/kernelevolution.py::to_dict(self) - Convert to dictionary for serialization.
 core/agents/kernelevolution.py::to_gmp_spec(self) - Generate a GMP specification for this pr
+core/agents/prompt_builder.py::_extract_behavioral_section(kernels) - Extract behavioral patterns from kernels
+core/agents/prompt_builder.py::_extract_execution_section(kernels) - Extract execution rules from kernels.
+core/agents/prompt_builder.py::_extract_identity_section(kernels) - Extract identity information from kernel
+core/agents/prompt_builder.py::_extract_kernel_content(kernel_data, section_keys) - Extract content from kernel data by sect
+core/agents/prompt_builder.py::_extract_safety_section(kernels) - Extract safety constraints from kernels.
+core/agents/prompt_builder.py::build_kernel_system_prompt(agent, include_safety_prefix, include_identity, include_safety, include_behavioral, include_execution) - Build a system prompt from the agent's k
+core/agents/prompt_builder.py::build_runtime_prompt(task_payload, memory_context, channel) - Build runtime context to append to syste
+core/agents/prompt_builder.py::get_kernel_section(self, section) - Get content from a specific kernel secti
+core/agents/prompt_builder.py::get_safety_prefix() - Get the immutable safety prefix.
+core/agents/prompt_defense.py::_check_patterns(text, patterns) - Check text against a list of regex patte
+core/agents/prompt_defense.py::_redact_input(text, max_length) - Redact input for safe logging.
+core/agents/prompt_defense.py::detect_prompt_injection(user_input, context) - Detect prompt injection in user input.
+core/agents/prompt_defense.py::get_blocked_response(detection_result) - Get the response message for a blocked r
+core/agents/prompt_defense.py::should_block_request(detection_result) - Determine if request should be blocked b
+core/agents/prompt_defense.py::to_dict(self) - Convert to dict for packet storage.
 core/agents/registry.py::__contains__(self, agent_id) - Check if agent is registered.
 core/agents/registry.py::__init__(self, config_dir) - Initialize the registry.
 core/agents/registry.py::__len__(self) - Return number of registered agents.
@@ -984,15 +1010,34 @@ core/governance/approvals.py::__init__(self, substrate_service, slack_client, no
 core/governance/approvals.py::format_approval_request_with_tests(self, task_id, proposal_summary, test_summary) - Format an approval request message inclu
 core/governance/approvals.py::get_high_risk_tools(self) - Get list of high-risk tool IDs
 core/governance/approvals.py::requires_approval(self, tool_id) - Check if a tool requires Igor approval.
+core/governance/credentials_policy.py::__init__(self) - Initialize credential rotation policy.
 core/governance/credentials_policy.py::__init__(self) - Initialize with default secret patterns.
+core/governance/credentials_policy.py::_generate_recommendations(self, non_compliant) - Generate recommendations based on non-co
 core/governance/credentials_policy.py::_generate_recommendations(self, violations) - Generate recommendations based on violat
 core/governance/credentials_policy.py::_load_default_patterns(self) - Load default secret detection patterns.
 core/governance/credentials_policy.py::add_pattern(self, pattern) - Add a custom secret pattern.
+core/governance/credentials_policy.py::check_compliance(self) - Check if all credentials are compliant w
 core/governance/credentials_policy.py::create_credentials_policy() - Create a CredentialsPolicy instance with
+core/governance/credentials_policy.py::create_rotation_policy() - Create a CredentialRotationPolicy instan
+core/governance/credentials_policy.py::days_since_rotation(self) - Days since last rotation (or creation if
+core/governance/credentials_policy.py::days_until_due(self) - Days until rotation is due. Negative if 
+core/governance/credentials_policy.py::export_state(self) - Export current state for persistence.
+core/governance/credentials_policy.py::get_all_credentials(self) - Get all registered credentials.
 core/governance/credentials_policy.py::get_audit_report(self, content) - Generate security audit report for conte
+core/governance/credentials_policy.py::get_credential(self, credential_id) - Get a credential record by ID.
+core/governance/credentials_policy.py::get_credentials_by_status(self, status) - Get credentials with a specific status.
+core/governance/credentials_policy.py::get_expired_credentials(self) - Get all expired credentials (need immedi
+core/governance/credentials_policy.py::get_rotation_history(self, credential_id, limit) - Get rotation history.
+core/governance/credentials_policy.py::get_rotation_report(self) - Generate a comprehensive rotation report
+core/governance/credentials_policy.py::get_warning_credentials(self) - Get credentials approaching expiration.
+core/governance/credentials_policy.py::import_state(self, state) - Import state from persistence.
 core/governance/credentials_policy.py::patterns(self) - Get all loaded patterns.
+core/governance/credentials_policy.py::record_rotation(self, credential_id, rotated_at, rotated_by, notes) - Record that a credential was rotated.
 core/governance/credentials_policy.py::redact(self, content) - Redact all detected secrets from content
+core/governance/credentials_policy.py::register_credential(self, credential_id, credential_type, name, created_at, rotation_period_days, owner, notes) - Register a credential for rotation track
 core/governance/credentials_policy.py::scan(self, content) - Scan content for exposed secrets.
+core/governance/credentials_policy.py::status(self) - Current rotation status.
+core/governance/credentials_policy.py::to_dict(self) - Convert to dictionary.
 core/governance/credentials_policy.py::validate_env_file(self, env_content) - Validate .env file format and content.
 core/governance/engine.py::__init__(self, policy_dir, default_effect, substrate_service) - Initialize the governance engine.
 core/governance/engine.py::_calculate_duration_ms(self, start_time) - Calculate duration in milliseconds.
@@ -1098,12 +1143,13 @@ core/kernel_wiring/worldmodel_wiring.py::get_worldmodel_schema() -
 core/kernels/__init__.py::__getattr__(name) - 
 core/kernels/integrity.py::__init__(self, path, change_type, old_hash, new_hash) - 
 core/kernels/integrity.py::__repr__(self) - 
+core/kernels/integrity.py::_load_kernel_hashes_cached(hash_file) - Internal cached implementation.
 core/kernels/integrity.py::check_kernel_integrity(base_path, auto_update) - Check integrity of kernel files against 
 core/kernels/integrity.py::compute_kernel_hashes(base_path) - Compute hashes for all kernel YAML files
 core/kernels/integrity.py::get_detailed_changes(base_path) - Get detailed change information for kern
 core/kernels/integrity.py::hash_file(path) - Compute SHA256 hash of a file.
 core/kernels/integrity.py::initialize_kernel_hashes(base_path, force) - Initialize kernel hash file from current
-core/kernels/integrity.py::load_kernel_hashes(hash_file) - Load stored kernel hashes from file.
+core/kernels/integrity.py::load_kernel_hashes(hash_file) - Load stored kernel hashes from file. CAC
 core/kernels/integrity.py::save_kernel_hashes(hashes, hash_file) - Save kernel hashes to file.
 core/kernels/integrity.py::verify_specific_file(file_path) - Verify a specific kernel file against st
 core/kernels/kernelloader.py::__init__(self, success, kernels_reloaded, modified_kernels, errors, previous_hashes, new_hashes) - 
@@ -1221,6 +1267,65 @@ core/observability/service.py::get(cls) - Get global instance.
 core/observability/service.py::get_observability_service() - Get the global observability service ins
 core/observability/service.py::set_global(cls, service) - Set global instance.
 core/observability/service.py::set_trace_context(self, ctx) - Set trace context (e.g., from incoming r
+core/packet_envelope/config.py::_get_env(key, default) - Get environment variable with fallback
+core/packet_envelope/config.py::_get_env_bool(key, default) - Get boolean environment variable
+core/packet_envelope/config.py::_get_env_int(key, default) - Get integer environment variable
+core/packet_envelope/config.py::get_config() - Get singleton configuration instance
+core/packet_envelope/config.py::reload_config() - Reload configuration from environment
+core/packet_envelope/governance.py::__init__(self) - 
+core/packet_envelope/governance.py::__init__(self) - 
+core/packet_envelope/governance.py::__init__(self, audit_log) - 
+core/packet_envelope/governance.py::__init__(self, config) - 
+core/packet_envelope/governance.py::__init__(self, config) - 
+core/packet_envelope/governance.py::_sign_proof(self, data_hash) - HMAC sign proof
+core/packet_envelope/governance.py::get_expiration_date(self, aggregate_id, created_at) - Get expiration date
+core/packet_envelope/governance.py::get_retention_policy(self, aggregate_id) - Get retention policy for aggregate
+core/packet_envelope/governance.py::is_expired(self, aggregate_id, created_at) - Check if aggregate has expired
+core/packet_envelope/governance.py::register_rule(self, rule) - Register anonymization rule
+core/packet_envelope/governance.py::set_retention_policy(self, aggregate_id, policy) - Set retention policy for aggregate
+core/packet_envelope/integration.py::__init__(self) - 
+core/packet_envelope/integration.py::__init__(self, upgrade_engine) - 
+core/packet_envelope/integration.py::_register_standard_schemas(self) - Register standard L9 event schemas
+core/packet_envelope/integration.py::get_upgrade_status(self) - Get current upgrade status
+core/packet_envelope/observability.py::__init__(self, config) - 
+core/packet_envelope/observability.py::__init__(self, observability) - 
+core/packet_envelope/observability.py::_init_metrics(self) - Initialize Prometheus metrics
+core/packet_envelope/observability.py::attach_to_frame(self, frame_data) - Attach W3C trace context to WebSocket fr
+core/packet_envelope/observability.py::create_observability(enabled) - Factory function for observability
+core/packet_envelope/observability.py::decorator(func) - 
+core/packet_envelope/observability.py::extract_from_frame(self, frame_data) - Extract trace context from received WebS
+core/packet_envelope/observability.py::extract_trace_context(self, headers) - Extract W3C Trace Context from HTTP head
+core/packet_envelope/observability.py::inject_trace_context(self, headers) - Inject W3C Trace Context into headers fo
+core/packet_envelope/observability.py::record_packet_metrics(self, packet_id, size_bytes, lineage_depth, operation) - Record packet-specific metrics
+core/packet_envelope/observability.py::sync_wrapper() - 
+core/packet_envelope/observability.py::to_json(self) - Serialize to JSON for centralized loggin
+core/packet_envelope/observability.py::trace_operation(self, operation_name, attributes, should_trace) - Decorator for tracing operations
+core/packet_envelope/scalability.py::__init__(self) - 
+core/packet_envelope/scalability.py::__init__(self) - 
+core/packet_envelope/scalability.py::__init__(self, batch_size, max_concurrent_batches, db_pool_size) - 
+core/packet_envelope/scalability.py::__init__(self, consumer_group, event_handlers) - 
+core/packet_envelope/scalability.py::__init__(self, snapshot_interval) - 
+core/packet_envelope/scalability.py::_validate_packet(self, packet) - Validate individual packet
+core/packet_envelope/standardization.py::__init__(self) - 
+core/packet_envelope/standardization.py::create_packet_ingested_event(packet_id, source, packet_data, trace_id, user_id) - Factory for packet ingested events
+core/packet_envelope/standardization.py::deserialize(self, data) - Deserialize event from protocol format
+core/packet_envelope/standardization.py::deserialize(self, headers, body) - Deserialize from HTTP binary mode
+core/packet_envelope/standardization.py::deserialize(self, headers, body) - Deserialize from HTTP structured mode
+core/packet_envelope/standardization.py::from_dict(cls, data) - Deserialize from dict
+core/packet_envelope/standardization.py::from_json(cls, json_str) - Deserialize batch from JSON
+core/packet_envelope/standardization.py::from_json(cls, json_str) - Deserialize from JSON
+core/packet_envelope/standardization.py::get_schema(self, event_type, version) - Get schema (latest version if not specif
+core/packet_envelope/standardization.py::register_schema(self, event_type, version, schema) - Register event schema
+core/packet_envelope/standardization.py::serialize(self, event) - Serialize event to protocol format
+core/packet_envelope/standardization.py::serialize(self, event) - Serialize to HTTP binary mode
+core/packet_envelope/standardization.py::serialize(self, event) - Serialize to HTTP structured mode
+core/packet_envelope/standardization.py::to_dict(self) - Convert to CloudEvents dict representati
+core/packet_envelope/standardization.py::to_json(self) - Serialize batch to JSON array
+core/packet_envelope/standardization.py::to_json(self) - Serialize to JSON
+core/packet_envelope/standardization.py::validate(self) - Validate CloudEvents compliance
+core/packet_envelope/standardization.py::validate_event(self, event) - Validate event against registered schema
+core/resilience/retry.py::__init__(self, message, last_error, attempts) - 
+core/resilience/retry.py::calculate_delay(self, attempt) - Calculate delay for given attempt number
 core/retrievers/substrate_retriever.py::__init__(self, service, agent_id, top_k) - 
 core/retrievers/substrate_retriever.py::_get_relevant_documents(self, query) - Synchronous wrapper required by BaseRetr
 core/schemas/capabilities.py::get_capability(self, tool) - Get the capability for a specific tool.
@@ -1444,6 +1549,15 @@ core/worldmodel/l9_schema.py::to_node_dict(self) - Convert to world model node d
 core/worldmodel/l9_schema.py::to_node_dict(self) - Convert to world model node dict.
 core/worldmodel/service.py::__init__(self, substrate_service) - Initialize WorldModelService.
 core/worldmodel/service.py::get_world_model_service(substrate_service) - Get or create the global WorldModelServi
+current_work/_memory routing pipeline audit - manus/substrate_dag_wrapper.py::__init__(self, dag) - Initialize DAG orchestrator.
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py::__init__(self, repo_root, verbose) - 
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py::check_protected_modules_unchanged(self) - Warn if protected L9 modules might be in
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py::log(self, msg, level) - 
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py::main() - 
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py::run(self) - Run full audit. Return exit code.
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py::scan_audit_cache(self) - Check .audit_cache/manifest.json for sta
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py::scan_docs_for_stale_refs(self) - Scan documentation files for stale path 
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py::verify_canonical_routers_exist(self) - Verify that all canonical routers exist 
 dev/tools/global_state_audit.py::__init__(self, filename) - 
 dev/tools/global_state_audit.py::generic_visit(self, node) - 
 dev/tools/global_state_audit.py::iter_python_files() - 
@@ -1556,14 +1670,19 @@ docs/_archived/legacy_slack/webhook_slack.py::__init__(self, max_size, ttl_secon
 docs/_archived/legacy_slack/webhook_slack.py::clear(self) - Clear the cache (for testing).
 docs/_archived/legacy_slack/webhook_slack.py::is_duplicate(self, event_id) - Check if event_id was recently processed
 docs/_archived/legacy_slack/webhook_slack.py::verify_slack_signature(body, timestamp, signature, signing_secret) - Verify Slack request signature.
-email_agent/client.py::execute_email_task(task) - Execute an email task from Mac Agent run
-email_agent/config.py::ensure_dirs() - Ensure all required directories exist.
-email_agent/credentials.py::create_flow(redirect_uri) - Create OAuth2 flow for Gmail authenticat
-email_agent/credentials.py::exchange_code_for_tokens(authorization_code, redirect_uri) - Exchange authorization code for access/r
-email_agent/credentials.py::load_client_secrets() - Load OAuth client secrets from ~/.l9/gma
-email_agent/credentials.py::load_tokens() - Load OAuth tokens from ~/.l9/gmail/token
-email_agent/credentials.py::save_tokens(credentials) - Save OAuth tokens to ~/.l9/gmail/tokens.
-email_agent/gmail_client.py::__init__(self) - Initialize Gmail client with auto-refres
+email_agent/client.py::execute_email_task(task, account) - Execute an email task from Mac Agent run
+email_agent/config.py::__post_init__(self) - Validate and normalize config after init
+email_agent/config.py::attachments_dir(self) - Path to attachments directory for this a
+email_agent/config.py::client_secret_file(self) - Path to client_secret.json for this acco
+email_agent/config.py::ensure_dirs(account) - Ensure all required directories exist.
+email_agent/config.py::get_account_config(account) - Get account configuration by name.
+email_agent/config.py::tokens_file(self) - Path to tokens.json for this account.
+email_agent/credentials.py::create_flow(redirect_uri, account) - Create OAuth2 flow for Gmail authenticat
+email_agent/credentials.py::exchange_code_for_tokens(authorization_code, redirect_uri, account) - Exchange authorization code for access/r
+email_agent/credentials.py::load_client_secrets(account) - Load OAuth client secrets.
+email_agent/credentials.py::load_tokens(account) - Load OAuth tokens.
+email_agent/credentials.py::save_tokens(credentials, account) - Save OAuth tokens.
+email_agent/gmail_client.py::__init__(self, account) - Initialize Gmail client.
 email_agent/gmail_client.py::_authenticate(self) - Authenticate with Gmail API using stored
 email_agent/gmail_client.py::draft_email(self, to, subject, body, attachments) - Create email draft with optional attachm
 email_agent/gmail_client.py::extract_part(part, parent_path) - Recursively extract body and attachments
@@ -1577,7 +1696,7 @@ email_agent/oauth_server.py::do_GET(self) - Handle GET requests.
 email_agent/oauth_server.py::handle_callback(self, query_string) - Handle OAuth callback - exchange code fo
 email_agent/oauth_server.py::handle_start(self) - Start OAuth flow - redirect to Google co
 email_agent/oauth_server.py::log_message(self, format) - Override to use our logger.
-email_agent/oauth_server.py::main() - Run OAuth server.
+email_agent/oauth_server.py::main() - Run OAuth server with CLI args.
 email_agent/parser.py::__init__(self) - 
 email_agent/parser.py::extract_from_part(part) - Recursively extract body from message pa
 email_agent/parser.py::extract_from_part(part, parent_path) - Recursively extract attachments from mes
@@ -1590,6 +1709,7 @@ email_agent/parser.py::parse_attachments(payload, msg_id, attachments_dir) - Par
 email_agent/parser.py::parse_body(payload) - Parse email body from Gmail payload.
 email_agent/parser.py::parse_headers(payload) - Parse email headers from Gmail payload.
 email_agent/router.py::generate_trace_id() - Generate a unique trace ID for request t
+email_agent/router.py::validate_account(account) - Validate account name.
 email_agent/triage.py::_simple_summary(message_details) - Fallback simple summary without LLM.
 email_agent/triage.py::run_daily_digest() - Generate daily email digest for Slack.
 email_agent/triage.py::summarize_inbox(limit) - Summarize recent inbox messages using LL
@@ -2211,6 +2331,8 @@ mcp_memory/tests/test_mcp_server_smoke.py::test_health_endpoint(client) - Test /
 mcp_memory/tests/test_mcp_server_smoke.py::test_mcp_tools_auth_failure(client) - Test /mcp/tools endpoint rejects invalid
 mcp_memory/tests/test_mcp_server_smoke.py::test_mcp_tools_endpoint(client, mock_env) - Test /mcp/tools endpoint lists available
 mcp_memory/tests/test_mcp_server_smoke.py::test_mcp_tools_missing_auth(client) - Test /mcp/tools endpoint rejects request
+mcp_memory/tests/verify_main_pipeline_e2e.py::__init__(self, base_url, api_key) - 
+mcp_memory/tests/verify_main_pipeline_e2e.py::__init__(self, dsn) - 
 memory/agent_persistence.py::__init__(self, checkpoint_id, agent_id, state, reason, created_at) - 
 memory/agent_persistence.py::__init__(self, service, repository) - Initialize agent persistence service.
 memory/agent_persistence.py::_serialize_value(self, value) - Recursively serialize a value.
@@ -2218,6 +2340,22 @@ memory/agent_persistence.py::deserialize_agent_state(self, state) - Deserialize 
 memory/agent_persistence.py::serialize_agent_state(self, agent) - Serialize an agent object to a state dic
 memory/agent_persistence.py::set_repository(self, repository) - Set or update repository reference.
 memory/agent_persistence.py::set_service(self, service) - Set or update service reference.
+memory/audit_utils.py::_extract_text_content(packet) - Extract text content from packet payload
+memory/audit_utils.py::_hash_payload(value) - Compute SHA256 hash of payload.
+memory/audit_utils.py::_redact_value(value) - 
+memory/audit_utils.py::_stable_json_dumps(value) - Create stable JSON representation for ha
+memory/audit_utils.py::compute_content_hash(payload, metadata_projection) - Compute SHA256 over normalized payload +
+memory/audit_utils.py::concern_count(self) - Total number of security concerns detect
+memory/audit_utils.py::detect_injection_markers(text) - Detect all injection markers in text.
+memory/audit_utils.py::detect_pii_types(payload) - Detect PII categories present in payload
+memory/audit_utils.py::extract_strings(payload) - Yield all string values from a payload f
+memory/audit_utils.py::has_injection_markers(packet) - Quick check for injection markers in pac
+memory/audit_utils.py::has_pii(self) - Check if any PII was detected.
+memory/audit_utils.py::has_security_concerns(self) - Check if any security concerns were dete
+memory/audit_utils.py::normalize_payload(value) - Recursively normalize string values insi
+memory/audit_utils.py::normalize_text(text) - Normalize text using NFC, strip zero-wid
+memory/audit_utils.py::prepare_packet_for_ingest(packet, deep_scan, redact_pii_enabled, normalize_enabled) - Prepare a packet for ingestion with secu
+memory/audit_utils.py::redact_pii(payload) - Redact PII in payload, returning updated
 memory/checkpoint/cursor_checkpoint_manager.py::__init__(self, postgres_saver, memory_gateway) - Initialize checkpoint manager.
 memory/checkpoint/postgres_saver.py::__init__(self, repository) - Initialize L9 PostgresSaver.
 memory/checkpoint/postgres_saver.py::repository(self) - Get repository instance.
@@ -2226,6 +2364,13 @@ memory/consolidation.py::__init__(self) -
 memory/consolidation.py::__init__(self, repository, dry_run) - Initialize consolidation pipeline.
 memory/consolidation.py::set_repository(self, repository) - Set or update repository reference.
 memory/consolidation.py::to_dict(self) - Convert report to dict.
+memory/cypher_templates.py::__init__(self, templates) - Initialize template library.
+memory/cypher_templates.py::_substitute_label_params(self, query, params) - Substitute label parameters (Neo4j doesn
+memory/cypher_templates.py::add_template(self, template) - Add a custom template to the library.
+memory/cypher_templates.py::get_template(self, name) - Get a specific template by name.
+memory/cypher_templates.py::get_template_cached(name) - Get a Cypher template by name. CACHED.
+memory/cypher_templates.py::get_template_library() - Get singleton template library. CACHED.
+memory/cypher_templates.py::list_templates(self, category) - List available templates.
 memory/extractor/agent_config_extractor.py::extract(self, input_path, output_root) - Extract agent configuration from input.
 memory/extractor/agent_config_extractor.py::extract_config(self, content, mode) - Extract configuration based on mode.
 memory/extractor/agent_config_extractor.py::extract_issues(self, content) - Extract known issues.
@@ -2258,6 +2403,13 @@ memory/graph_client.py::__init__(self, uri, user, password, database) - Initiali
 memory/graph_client.py::driver(self) - Expose the raw AsyncDriver for component
 memory/graph_client.py::is_available(self) - Check if Neo4j is available.
 memory/graph_client.py::session(self, database) - Create a session (AsyncDriver-compatible
+memory/graph_memory.py::__init__(self, neo4j_client, topic_extractor) - Initialize graph memory.
+memory/graph_memory.py::_is_available(self) - Check if Neo4j is available.
+memory/graph_memory.py::_query_history_fallback(self, user_id, topic, time_range_days, limit) - Query history from memory fallback.
+memory/graph_memory.py::_store_message_fallback(self, message) - Store message in memory fallback.
+memory/graph_memory.py::extract_entities(self, content) - Extract entities from content.
+memory/graph_memory.py::extract_topics(self, content) - Extract topics from content.
+memory/graph_memory.py::to_prompt_context(self) - Format as prompt context.
 memory/graph_search_cache.py::_compute_query_hash(query, params) - Compute hash for query + params.
 memory/graph_search_cache.py::_compute_ttl(ctx, is_governance) - Compute TTL with jitter.
 memory/graph_search_cache.py::compute_graph_schema_version() - Compute GRAPH_CACHE_SCHEMA_VERSION from 
@@ -2266,13 +2418,20 @@ memory/housekeeping.py::get_housekeeping_engine() - Get or create the housekeepi
 memory/housekeeping.py::init_housekeeping_engine(repository) - Initialize the housekeeping engine with 
 memory/housekeeping.py::set_repository(self, repository) - Set or update the repository reference.
 memory/housekeeping.py::stats(self) - Return current housekeeping statistics.
+memory/hybrid_rag.py::__init__(self, neo4j_client) - Initialize with Neo4j client.
+memory/hybrid_rag.py::__init__(self, semantic_service, neo4j_client, entity_extractor, graph_enricher) - Initialize hybrid RAG pipeline.
+memory/hybrid_rag.py::__init__(self, use_llm, llm_client) - Initialize entity extractor.
+memory/hybrid_rag.py::_calculate_combined_score(self, hit, enrichment) - Calculate combined relevance score.
+memory/hybrid_rag.py::_extract_by_patterns(self, text) - Extract entities using regex patterns.
 memory/index_syncer.py::__init__(self, repository) - 
-memory/ingestion.py::__init__(self, repository, semantic_service, agent_persistence, auto_embed, auto_tag) - Initialize ingestion pipeline.
+memory/ingestion.py::__init__(self, repository, semantic_service, agent_persistence, auto_embed, auto_tag, dag, enable_enrichment, enrichment_timeout) - Initialize ingestion pipeline.
 memory/ingestion.py::_generate_tags(self, envelope) - Auto-generate tags from packet content.
-memory/ingestion.py::_validate_packet(self, packet) - Validate packet structure.
+memory/ingestion.py::_validate_packet(self, packet) - Validate packet structure using centrali
 memory/ingestion.py::get_ingestion_pipeline() - Get or create the ingestion pipeline sin
 memory/ingestion.py::init_ingestion_pipeline(repository, semantic_service) - Initialize the ingestion pipeline with d
 memory/ingestion.py::set_agent_persistence(self, service) - Set or update the agent persistence serv
+memory/ingestion.py::set_dag(self, dag) - Set or update the DAG reference for enri
+memory/ingestion.py::set_enable_enrichment(self, enable) - Enable or disable DAG enrichment (v2.1.0
 memory/ingestion.py::set_repository(self, repository) - Set or update the repository reference.
 memory/ingestion.py::set_semantic_service(self, service) - Set or update the semantic service refer
 memory/insight_extraction.py::__init__(self, repository) - Initialize insight extraction pipeline.
@@ -2292,17 +2451,40 @@ memory/packet_serializer.py::envelope_to_json(envelope) - Dump a PacketEnvelope 
 memory/packet_serializer.py::packet_in_from_dict(data) - Construct a PacketEnvelopeIn from a dict
 memory/query_classifier.py::__init__(self) - Initialize query classifier with pattern
 memory/query_classifier.py::classify_query(self, query) - Classify a query into one of the retriev
-memory/query_classifier.py::get_query_classifier() - Get singleton QueryClassifier instance.
+memory/query_classifier.py::get_query_classifier() - Get singleton QueryClassifier instance. 
 memory/query_classifier.py::get_weight_overrides(self, pattern) - Get weight overrides for a query pattern
 memory/reasoning_replay.py::__init__(self, chain_id, start_packet_id, packets, depth, is_complete) - 
 memory/reasoning_replay.py::__init__(self, repository) - Initialize reasoning replay pipeline.
 memory/reasoning_replay.py::set_repository(self, repository) - Set or update repository reference.
 memory/retrieval.py::__init__(self, repository, semantic_service) - Initialize retrieval pipeline.
 memory/retrieval.py::_matches_filters(self, packet, filters) - Check if packet matches structured filte
+memory/retrieval.py::apply_temporal_decay(score, timestamp, half_life_days, reference_time) - Apply exponential temporal decay to a sc
 memory/retrieval.py::get_retrieval_pipeline() - Get or create the retrieval pipeline sin
 memory/retrieval.py::init_retrieval_pipeline(repository, semantic_service) - Initialize the retrieval pipeline with d
+memory/retrieval.py::reciprocal_rank_fusion(rankings, k) - Combine multiple rankings using Reciproc
 memory/retrieval.py::set_repository(self, repository) - Set or update the repository reference.
 memory/retrieval.py::set_semantic_service(self, service) - Set or update the semantic service refer
+memory/saga.py::__init__(self, name, description) - 
+memory/saga.py::__init__(self, name, steps, description, output_builder) - Initialize saga definition.
+memory/saga.py::__init__(self, postgres_pool, neo4j_client, redis_client, semantic_service) - Initialize saga executor with database c
+memory/saga.py::_get_clients_for_step(self, step) - Get appropriate database clients for a s
+memory/saga.py::add_entities(self, entities) - Add extracted entities to context.
+memory/saga.py::add_relationships(self, relationships) - Add relationships to context.
+memory/saga.py::add_step(self, name, database, execute_fn, description, compensate_fn, condition_fn, required, max_retries) - Add a step to the saga.
+memory/saga.py::build(self) - Build the saga.
+memory/saga.py::build_output(self, context) - Build final output from context.
+memory/saga.py::get_step_output(self, step_name) - Get output from a previous step.
+memory/saga.py::is_success(self) - 
+memory/saga.py::set_step_output(self, step_name, output) - Set output for current step.
+memory/saga.py::to_dict(self) - Convert to dictionary for serialization.
+memory/saga.py::with_output_builder(self, builder) - Set custom output builder.
+memory/saga_patterns.py::__init__(self, executor) - 
+memory/saga_patterns.py::create_entity_enrichment_saga() - Create entity enrichment saga.
+memory/saga_patterns.py::create_fetch_and_enrich_saga() - Create the canonical "fetch_and_enrich" 
+memory/saga_patterns.py::create_timeline_correlation_saga() - Create timeline correlation saga.
+memory/schema_introspection.py::__init__(self, neo4j_client) - Initialize with Neo4j client.
+memory/schema_introspection.py::__init__(self, pool) - Initialize with connection pool.
+memory/schema_introspection.py::__init__(self, postgres_pool, neo4j_client) - Initialize with database connections.
 memory/slack_ingest.py::_build_system_prompt(thread_context, semantic_hits, user_id, channel_id) - Build system prompt that includes thread
 memory/slack_ingest.py::_is_email_command(text) - Detect if text is an email-related comma
 memory/slack_ingest.py::_process_file_attachments(files) - Process Slack file attachments (download
@@ -2313,11 +2495,15 @@ memory/slack_ingest.py::record_slack_reply_error() -
 memory/state_manager.py::__init__(self, service, agent_id) - 
 memory/state_manager.py::agent_id(self) - 
 memory/strategymemory.py::__init__(self) - Initialize the stub service.
+memory/substrate_dag.py::__init__(self, repository, semantic_service, world_model_service) - Initialize DAG with dependencies.
+memory/substrate_dag.py::_default_state() - Create default state.
+memory/substrate_dag.py::_extract_text_for_routing(envelope) - Extract text content from envelope for r
+memory/substrate_dag.py::_get_config_dependency(config, key, default) - Safely extract a configurable dependency
+memory/substrate_dag.py::_should_skip_embedding(text) - Check if text matches known low-value pa
+memory/substrate_dag.py::build_enrichment_graph() - Build enrichment-only DAG (skips intake,
+memory/substrate_dag.py::build_substrate_graph() - Build the LangGraph DAG for memory subst
+memory/substrate_dag.py::route_after_memory_write(state) - Route after memory_write_node: skip sema
 memory/substrate_dag_wrapper.py::__init__(self, dag) - Initialize DAG orchestrator.
-memory/substrate_graph.py::__init__(self, repository, semantic_service, world_model_service) - Initialize DAG with dependencies.
-memory/substrate_graph.py::_default_state() - Create default state.
-memory/substrate_graph.py::_should_skip_embedding(text) - Check if text matches known low-value pa
-memory/substrate_graph.py::build_substrate_graph() - Build the LangGraph DAG for memory subst
 memory/substrate_models.py::to_envelope(self) - Convert input to full PacketEnvelope wit
 memory/substrate_models.py::with_mutation(self) - Create a new PacketEnvelope with updates
 memory/substrate_repository.py::__init__(self, database_url, pool_size, max_overflow) - Initialize repository with database URL.
@@ -2325,12 +2511,13 @@ memory/substrate_repository.py::_row_to_packet_store(self, row) - Convert a data
 memory/substrate_repository.py::get_repository() - Get repository singleton (must be initia
 memory/substrate_semantic.py::__init__(self, dimensions) - 
 memory/substrate_semantic.py::__init__(self, embedding_provider, repository) - Initialize semantic service.
-memory/substrate_semantic.py::__init__(self, model, dimensions, api_key) - 
+memory/substrate_semantic.py::__init__(self, model, dimensions, api_key, max_retries, base_backoff) - 
 memory/substrate_semantic.py::_get_client(self) - Lazy initialization of OpenAI client.
 memory/substrate_semantic.py::create_embedding_provider(provider_type, model, dimensions, api_key) - Factory function to create embedding pro
 memory/substrate_semantic.py::dimensions(self) - 
 memory/substrate_semantic.py::dimensions(self) - 
 memory/substrate_semantic.py::dimensions(self) - Return the embedding dimensions.
+memory/substrate_semantic.py::score_hit(hit) - 
 memory/substrate_service.py::__init__(self, repository, embedding_provider) - Initialize the substrate service.
 memory/substrate_service.py::get_agent_persistence(self) - Get agent persistence service instance (
 memory/substrate_service.py::get_consolidation(self, dry_run) - Get consolidation pipeline instance (laz
@@ -2338,8 +2525,23 @@ memory/substrate_service.py::get_query_classifier(self) - Get query classifier i
 memory/substrate_service.py::get_reasoning_replay(self) - Get reasoning replay pipeline instance (
 memory/timeline_service.py::__init__(self, repository) - 
 memory/tool_audit.py::_sanitize_arguments(arguments) - Sanitize tool arguments for audit loggin
-memory/validators/packet_validator.py::allowed_types() - 
-memory/validators/packet_validator.py::validate(packet_in) - Perform custom validation:
+memory/tool_router.py::__init__(self, embedding_provider, repository, cache_embeddings) - Initialize tool router.
+memory/tool_router.py::_cosine_similarity(a, b) - Compute cosine similarity between vector
+memory/tool_router.py::_text_match_cache(self, query, limit, category_filter) - Simple text matching fallback.
+memory/tool_router.py::compute_hash(self) - Compute content hash for change detectio
+memory/tool_router.py::get_stats(self) - Get router statistics.
+memory/tool_router.py::get_tool_context(self, result, include_metadata) - Format search result for prompt injectio
+memory/tool_router.py::list_embedded_tools(self) - List all embedded tool names.
+memory/tool_router.py::to_prompt_context(self) - Generate context string for prompt injec
+memory/tool_router.py::to_prompt_format(self) - Format for prompt injection.
+memory/tool_router.py::to_searchable_text(self) - Generate text for embedding.
+memory/validators/packet_validator.py::__init__(self, message, field, value, error_code) - Initialize validation error with structu
+memory/validators/packet_validator.py::_validate_provenance(packet_in) - Validate provenance fields if present.
+memory/validators/packet_validator.py::allowed_types() - Return all allowed packet types (core + 
+memory/validators/packet_validator.py::core_types() - Return core packet types only.
+memory/validators/packet_validator.py::extended_types() - Return extended packet types only.
+memory/validators/packet_validator.py::scan_security(packet_in) - Scan packet payload for PII and injectio
+memory/validators/packet_validator.py::validate(packet_in, strict) - Perform custom validation:
 orchestration/cell_orchestrator.py::__init__(self, config) - Initialize the cell orchestrator.
 orchestration/cell_orchestrator.py::_build_step_task(self, step, workflow) - Build task dict for a step from context 
 orchestration/cell_orchestrator.py::_extract_requirements_from_ir(self, ir_graph) - Extract requirements text from IR graph.
@@ -2532,15 +2734,18 @@ runtime/kernel_loader.py::_sha256_of_file(path) - Compute SHA256 hash of a file.
 runtime/kernel_loader.py::_sort_key(k) - 
 runtime/kernel_loader.py::absorb_kernel(self, kernel_data) - Absorb a kernel into the agent's configu
 runtime/kernel_loader.py::as_dict(self) - 
+runtime/kernel_loader.py::ensure_kernel_integrity(agent) - Ensure kernel integrity or raise Runtime
 runtime/kernel_loader.py::get_enabled_rules(base_path) - Get all enabled rules from all kernels.
 runtime/kernel_loader.py::get_hash(self, filename) - 
 runtime/kernel_loader.py::get_kernel(self, kernel_id) - 
 runtime/kernel_loader.py::get_kernel_by_name(name, base_path) - Get a specific kernel by name.
+runtime/kernel_loader.py::get_kernel_cached(kernel_id) - Get kernel by ID from the default kernel
 runtime/kernel_loader.py::get_rule(self, kernel_id, path, default) - Convenience accessor.
+runtime/kernel_loader.py::get_rule_cached(kernel_id, path) - Get a nested rule from a kernel by dot-p
 runtime/kernel_loader.py::get_rules_by_type(rule_type, base_path) - Get all enabled rules of a specific type
 runtime/kernel_loader.py::guarded_execute(agent, tool_id, payload) - Execute a tool call with kernel enforcem
 runtime/kernel_loader.py::load_all_private_kernels(base_path, check_integrity, fail_on_tamper) - Load all private kernel YAML files from 
-runtime/kernel_loader.py::load_kernel_file(file_path) - Load a single kernel YAML file.
+runtime/kernel_loader.py::load_kernel_file(file_path) - Load a single kernel YAML file. CACHED.
 runtime/kernel_loader.py::load_kernel_stack(base_dir, verify_integrity) - Deterministically load the 10 consolidat
 runtime/kernel_loader.py::load_kernels(agent, base_path) - Load all kernels into an agent in the co
 runtime/kernel_loader.py::load_layered_kernels(base_path, check_integrity) - Convenience alias for load_all_private_k
@@ -2550,12 +2755,19 @@ runtime/kernel_loader.py::validate_all_kernels(base_path) - Validate all kernels
 runtime/kernel_loader.py::validate_kernel_structure(kernel) - Validate kernel structure against expect
 runtime/kernel_loader.py::validate_packet_protocol_rules() - Validate kernel load order against 10_pa
 runtime/kernel_loader.py::verify_kernel_activation(agent) - Verify that an agent has properly activa
+runtime/kernel_loader.py::verify_kernel_integrity(agent) - Verify that all required kernels are loa
 runtime/l_tools.py::_get_symbolic_codegen() - Lazy import symbolic_codegen to avoid st
 runtime/l_tools.py::_get_symbolic_compute() - Lazy import symbolic_compute to avoid st
 runtime/l_tools.py::_get_symbolic_optimize() - Lazy import symbolic_optimize to avoid s
 runtime/l_tools.py::_missing() - 
 runtime/l_tools.py::get_tool_executor(tool_name) - Get executor function for a tool by name
 runtime/l_tools.py::list_available_tools() - List all available tool names.
+runtime/local_api.py::__init__(self, settings) - Initialize LocalAPI.
+runtime/local_api.py::execute_shell(self, command, cwd) - Execute shell command safely.
+runtime/local_api.py::list_directory(self, dir_path) - List directory contents safely.
+runtime/local_api.py::read_file(self, file_path, limit) - Read file safely with path traversal pro
+runtime/local_api.py::validate_command(self, cmd) - Validate command against whitelist and b
+runtime/local_api.py::write_file(self, file_path, content) - Write file safely with path traversal pr
 runtime/mcp_client.py::__init__(self) - Initialize MCP client with server config
 runtime/mcp_client.py::__init__(self, name, description, input_schema) - 
 runtime/mcp_client.py::__init__(self, server_id, command, env) - 
@@ -2604,29 +2816,6 @@ scripts/agents/verify_agent_executor.py::check_imports() - Verify all critical i
 scripts/agents/verify_agent_executor.py::check_kernel_files() - Verify kernel files exist and are readab
 scripts/agents/verify_agent_executor.py::main() - Run all verification checks.
 scripts/agents/verify_agent_executor.py::print_section(title) - Print a formatted section header.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::__init__(self, filepath) - 
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::__init__(self, repo_root) - 
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::__init__(self, repo_root) - 
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::_check_stub(self, node, content) - Check if class is a stub implementation.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::_get_base_name(self, base_node) - Extract base class name.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::_get_call_target(self, func_node) - Extract function name being called.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::_has_framework_decorator(self, lines, func_idx) - Check for framework decorators above fun
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::_is_referenced(self, func_name) - Check if function is called/referenced.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::analyze_file(self, filepath) - Extract classes from file.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::analyze_file(self, filepath) - Extract functions from file.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::build_index(self, files) - Build searchable index of all code.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::find_python_files(repo_root) - Find all Python files to audit.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::main() - Run complete code integrity audit.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::visit_AsyncFunctionDef(self, node) - 
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::visit_Call(self, node) - 
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py::visit_FunctionDef(self, node) - 
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py::__init__(self) - 
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py::_calculate_overall_status(self) - Determine overall system health.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py::_check_dependencies(self) - Check dependency graph for violations.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py::_generate_recommendations(self) - Generate actionable recommendations.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py::_topological_sort(self) - Generate startup order using topological
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py::_validate_config(self) - Validate environment configuration.
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py::visit(node_name) - 
 scripts/audit/audit_shared_core.py::__init__(self) - 
 scripts/audit/audit_shared_core.py::__init__(self, audit_name) - 
 scripts/audit/audit_shared_core.py::__init__(self, audit_name, repo_root) - 
@@ -2655,6 +2844,84 @@ scripts/audit/audit_shared_core.py::visit_AsyncFunctionDef(self, node) -
 scripts/audit/audit_shared_core.py::visit_Call(self, node) - 
 scripts/audit/audit_shared_core.py::visit_ClassDef(self, node) - 
 scripts/audit/audit_shared_core.py::visit_FunctionDef(self, node) - 
+scripts/audit/categorize_dead_code.py::categorize_dead_code(resolved_file, repo_root, output_file) - Categorize resolved findings by risk and
+scripts/audit/categorize_dead_code.py::categorize_finding(finding) - Categorize a single finding by risk and 
+scripts/audit/categorize_dead_code.py::generate_markdown_report(result, output_file) - Generate a human-readable markdown repor
+scripts/audit/categorize_dead_code.py::main() - CLI entry point.
+scripts/audit/categorize_dead_code.py::to_dict(self) - 
+scripts/audit/categorize_dead_code.py::to_dict(self) - 
+scripts/audit/cleanup_audit_reports.py::archive_files(files, dry_run) - Move files to _archived/ directory.
+scripts/audit/cleanup_audit_reports.py::delete_files(files, dry_run) - Permanently delete files.
+scripts/audit/cleanup_audit_reports.py::format_file_info(filepath) - Format file info for display.
+scripts/audit/cleanup_audit_reports.py::get_audit_files() - Get all audit report files (flat list fo
+scripts/audit/cleanup_audit_reports.py::get_audit_files_by_type() - Get all audit report files grouped by ty
+scripts/audit/cleanup_audit_reports.py::get_file_age_days(filepath) - Get file age in days.
+scripts/audit/cleanup_audit_reports.py::get_report_type(filepath) - Determine the report type for a file.
+scripts/audit/cleanup_audit_reports.py::list_files(files) - Display files that would be affected.
+scripts/audit/cleanup_audit_reports.py::main() - 
+scripts/audit/cleanup_audit_reports.py::matches_protected(filename) - Check if filename matches any protected 
+scripts/audit/find_dead_code.py::__init__(self, filepath) - 
+scripts/audit/find_dead_code.py::_parse_vulture_message(message) - Parse vulture message to extract symbol 
+scripts/audit/find_dead_code.py::_ruff_code_to_type(code) - Convert ruff error code to symbol type.
+scripts/audit/find_dead_code.py::analyze_dataclass_fields(all_fields, all_files) - Find dataclass fields that are never use
+scripts/audit/find_dead_code.py::confidence_to_level(conf) - 
+scripts/audit/find_dead_code.py::extract_dataclass_fields(filepath) - Extract all dataclass fields from a file
+scripts/audit/find_dead_code.py::find_field_usages(field, all_files) - Search for usages of a dataclass field a
+scripts/audit/find_dead_code.py::find_unwired_agents(repo_root) - Find agent YAML configs never referenced
+scripts/audit/find_dead_code.py::find_unwired_background_tasks(repo_root) - Find async functions designed for Backgr
+scripts/audit/find_dead_code.py::find_unwired_dependencies(repo_root) - Find FastAPI dependency functions never 
+scripts/audit/find_dead_code.py::find_unwired_event_handlers(repo_root) - Find startup/shutdown event handlers tha
+scripts/audit/find_dead_code.py::find_unwired_kernels(repo_root) - Find YAML kernel files not listed in KER
+scripts/audit/find_dead_code.py::find_unwired_middleware(repo_root) - Find middleware classes never added to t
+scripts/audit/find_dead_code.py::find_unwired_orchestrators(repo_root) - Find orchestrator interface classes neve
+scripts/audit/find_dead_code.py::find_unwired_pydantic_models(repo_root) - Find Pydantic models (BaseModel subclass
+scripts/audit/find_dead_code.py::find_unwired_routers(repo_root) - Find FastAPI routers that are defined bu
+scripts/audit/find_dead_code.py::find_unwired_services(repo_root) - Find service classes that are defined bu
+scripts/audit/find_dead_code.py::find_unwired_tools(repo_root) - Find tool definitions not registered in 
+scripts/audit/find_dead_code.py::find_unwired_websocket_routes(repo_root) - Find WebSocket route handlers in unmount
+scripts/audit/find_dead_code.py::generate_sarif_output(result, tool_name) - Generate SARIF (Static Analysis Results 
+scripts/audit/find_dead_code.py::get_confidence_tier(confidence) - Classify confidence into tiers for displ
+scripts/audit/find_dead_code.py::get_python_files(repo_root, exclude_dirs) - Get all Python files in the repo.
+scripts/audit/find_dead_code.py::main() - CLI entry point.
+scripts/audit/find_dead_code.py::print_findings_by_confidence_tier(findings) - Print findings grouped by confidence tie
+scripts/audit/find_dead_code.py::run_dead_code_audit(repo_root, min_vulture_confidence, exclude_dirs, parallel_workers, output_file, wiring_only) - Run comprehensive dead code audit.
+scripts/audit/find_dead_code.py::run_ruff(files) - Run ruff with unused code rules.
+scripts/audit/find_dead_code.py::run_vulture(files, min_confidence) - Run vulture on files and parse results.
+scripts/audit/find_dead_code.py::scan_file_for_dataclass_fields(filepath) - Scan a single file for dataclass fields 
+scripts/audit/find_dead_code.py::to_dict(self) - 
+scripts/audit/find_dead_code.py::to_dict(self) - 
+scripts/audit/find_dead_code.py::visit_ClassDef(self, node) - 
+scripts/audit/generate_gmp_todos.py::auto_fix_dead_code(categorized_file, repo_root, gmp_id, dry_run, output_file) - Auto-fix dead code and generate GMP Repo
+scripts/audit/generate_gmp_todos.py::is_false_positive(finding) - Check if a finding is likely a false pos
+scripts/audit/generate_gmp_todos.py::main() - CLI entry point.
+scripts/audit/generate_gmp_todos.py::run_ruff_fix(file_path) - Run ruff --fix on a single file.
+scripts/audit/generate_gmp_todos.py::should_autofix(finding) - Determine if a finding can be safely aut
+scripts/audit/generate_gmp_todos.py::to_gmp_report(self) - Generate canonical GMP Report format.
+scripts/audit/generate_gmp_todos.py::todo_hash(self) - Generate deterministic hash of fixes.
+scripts/audit/generate_gmp_todos.py::validate_file(file_path) - Validate a Python file compiles.
+scripts/audit/resolve_dead_code_refs.py::__init__(self, repo_root) - 
+scripts/audit/resolve_dead_code_refs.py::_build_inheritance_map(self, files) - Build map of class inheritance relations
+scripts/audit/resolve_dead_code_refs.py::_load_codebase_content(self, files) - Load all codebase content for pattern ma
+scripts/audit/resolve_dead_code_refs.py::_scan_protocol_implementations(self, files) - Find Protocol/ABC implementations.
+scripts/audit/resolve_dead_code_refs.py::_scan_pydantic_models(self, files) - Find all Pydantic BaseModel subclasses.
+scripts/audit/resolve_dead_code_refs.py::_scan_registry_patterns(self, files) - Find symbols registered via decorator pa
+scripts/audit/resolve_dead_code_refs.py::_scan_response_models(self, files) - Find models used as FastAPI response_mod
+scripts/audit/resolve_dead_code_refs.py::check_dynamic_access(self, symbol, content) - Check if symbol is accessed dynamically 
+scripts/audit/resolve_dead_code_refs.py::check_dynamic_import(self, symbol, content) - Check if symbol might be loaded via impo
+scripts/audit/resolve_dead_code_refs.py::check_excluded_directory(self, filepath) - Check if file is in an excluded director
+scripts/audit/resolve_dead_code_refs.py::check_inheritance_usage(self, symbol, class_name) - Check if symbol is used in subclasses.
+scripts/audit/resolve_dead_code_refs.py::check_observability_field(self, symbol) - Check if symbol matches observability fi
+scripts/audit/resolve_dead_code_refs.py::check_protocol_implementation(self, symbol) - Check if symbol is a Protocol/ABC method
+scripts/audit/resolve_dead_code_refs.py::check_pydantic_model(self, class_name) - Check if class is a Pydantic model (fiel
+scripts/audit/resolve_dead_code_refs.py::check_registry_pattern(self, symbol) - Check if symbol is registered via decora
+scripts/audit/resolve_dead_code_refs.py::check_response_model(self, class_name) - Check if class is used as FastAPI respon
+scripts/audit/resolve_dead_code_refs.py::check_serialization_usage(self, symbol, content) - Check if symbol might be used in seriali
+scripts/audit/resolve_dead_code_refs.py::check_test_fixture(self, filepath, symbol) - Check if symbol is a test fixture or moc
+scripts/audit/resolve_dead_code_refs.py::main() - CLI entry point.
+scripts/audit/resolve_dead_code_refs.py::resolve_dead_code_refs(baseline_file, repo_root, output_file) - Resolve false positives from Phase 1 bas
+scripts/audit/resolve_dead_code_refs.py::resolve_finding(self, finding, all_content, files) - Resolve a single finding for false posit
+scripts/audit/resolve_dead_code_refs.py::to_dict(self) - 
+scripts/audit/resolve_dead_code_refs.py::to_dict(self) - 
 scripts/audit/run_all.py::__init__(self, repo_root, cache_enabled, parallel_jobs, output_formats) - 
 scripts/audit/run_all.py::_build_summary(self) - Build audit run summary.
 scripts/audit/run_all.py::_generate_html_report(self) - Generate HTML report.
@@ -2666,10 +2933,14 @@ scripts/audit/run_all.py::_get_tier_audits(self, tier) - Get audits for tier.
 scripts/audit/run_all.py::_log_summary(self, run) - Log audit run summary.
 scripts/audit/run_all.py::_run_capability_audit(self) - Run capability inventory audit.
 scripts/audit/run_all.py::_run_code_integrity_audit(self) - Run code integrity audit (call graph + u
+scripts/audit/run_all.py::_run_dead_code_audit(self) - Run dead code detection pipeline (Phases
 scripts/audit/run_all.py::_run_infrastructure_audit(self) - Run infrastructure health audit.
 scripts/audit/run_all.py::main() - Command-line interface.
 scripts/audit/run_all.py::run_all(self, tier, only) - Run all audits for given tier.
 scripts/audit/run_all.py::run_audit(self, audit_type, tier) - Execute single audit.
+scripts/audit/run_all.py::validate_no_deprecated_paths(cache_dir) - Fail loudly if deprecated paths appear i
+scripts/audit/run_dead_code_audit.py::main() - 
+scripts/audit/run_dead_code_audit.py::run_phase(phase_num, verbose) - Run a single phase and return (success, 
 scripts/audit/tier1/audit_capability_inventory.py::assess_capability(method) - Assess capability for impact/risk/effort
 scripts/audit/tier1/audit_capability_inventory.py::build_parameters_from_signature(func) - Extract parameters from function signatu
 scripts/audit/tier1/audit_capability_inventory.py::extract_type_hint(annotation) - Convert type annotation to string.
@@ -2715,6 +2986,25 @@ scripts/audit/tier1/audit_infrastructure_health.py::compute_startup_order(depend
 scripts/audit/tier1/audit_infrastructure_health.py::generate_report(health_checks, config_validations, dependency_checks, startup_sequence) - Generate complete infrastructure report.
 scripts/audit/tier1/audit_infrastructure_health.py::validate_config() - Validate environment configuration.
 scripts/audit/tier1/audit_infrastructure_health.py::verify_dependency_dag() - Verify dependency graph and startup orde
+scripts/audit/verify_memory_spec_v3.py::check_contracts(spec, verbose) - Basic validation that contract targets e
+scripts/audit/verify_memory_spec_v3.py::check_feature_flags(spec, verbose) - Verify feature flags are defined in code
+scripts/audit/verify_memory_spec_v3.py::check_no_duplicate_specs(verbose) - Ensure memory_spec_v3.0.yaml is the ONLY
+scripts/audit/verify_memory_spec_v3.py::check_required_methods(spec, verbose) - Verify all required_methods from spec ar
+scripts/audit/verify_memory_spec_v3.py::check_required_modules(spec, verbose) - Verify all modules referenced in spec ex
+scripts/audit/verify_memory_spec_v3.py::extract_class_methods(file_path) - Extract all method names from classes in
+scripts/audit/verify_memory_spec_v3.py::extract_function_names(file_path) - Extract all top-level function names fro
+scripts/audit/verify_memory_spec_v3.py::load_spec() - Load and parse the memory spec v3.0.
+scripts/audit/verify_memory_spec_v3.py::main() - 
+scripts/audit/verify_memory_spec_v3.py::parse_method_signature(sig) - Extract method name from signature like 
+scripts/audit/verify_memory_spec_v3.py::run_verification(verbose, fix_suggestions) - Run all verification checks.
+scripts/audit/verify_wiring_alignment.py::extract_paths_from_file(filepath) - Extract all path references from a file.
+scripts/audit/verify_wiring_alignment.py::is_green(self) - 
+scripts/audit/verify_wiring_alignment.py::main() - Main entry point.
+scripts/audit/verify_wiring_alignment.py::print_json(result) - Print verification result as JSON.
+scripts/audit/verify_wiring_alignment.py::print_summary(result, verbose) - Print verification summary.
+scripts/audit/verify_wiring_alignment.py::scan_repository() - Scan repository for wiring alignment iss
+scripts/audit/verify_wiring_alignment.py::should_skip(filepath) - Check if a file should be skipped.
+scripts/audit/verify_wiring_alignment.py::verify_canonical_files() - Verify all canonical files exist.
 scripts/batch/batch_generate_specs.py::__init__(self, config) - 
 scripts/batch/batch_generate_specs.py::__init__(self, config) - 
 scripts/batch/batch_generate_specs.py::__init__(self, rate_per_minute) - 
@@ -2748,6 +3038,12 @@ scripts/memory/load_indexes_to_neo4j.py::main() -
 scripts/memory/load_indexes_to_neo4j.py::print_summary(self) - Print loading summary.
 scripts/memory/load_indexes_to_neo4j_vps.py::__init__(self, dry_run, verbose) - 
 scripts/memory/load_indexes_to_neo4j_vps.py::print_summary(self) - Print loading summary.
+scripts/migrate_substrate_models.py::find_files_to_migrate(root) - Find all Python files that import from m
+scripts/migrate_substrate_models.py::generate_new_imports(symbols) - Generate new import statements based on 
+scripts/migrate_substrate_models.py::main() - 
+scripts/migrate_substrate_models.py::migrate_file(path, dry_run) - Migrate a single file.
+scripts/migrate_substrate_models.py::parse_imports(content) - Parse the substrate_models import statem
+scripts/migrate_substrate_models.py::should_skip(path) - Check if file should be skipped.
 scripts/research/delegate_deep_research.py::extract_prompt_from_payload(payload_path) - Extract the prompt section from a payloa
 scripts/research/delegate_deep_research.py::extract_yaml_from_response(response) - Extract YAML spec from API response.
 scripts/research/extract_perplexity_pack.py::extract_files(content, output_dir) - Extract files from Perplexity multi-file
@@ -2759,6 +3055,8 @@ scripts/research/run_single_deep_research.py::get_api_key() -
 scripts/research/send_perplexity_spec_request.py::load_env() - Load API key from .env file.
 scripts/research/send_perplexity_spec_request.py::load_file(path) - Load file content.
 scripts/research/send_perplexity_spec_request.py::main() - 
+scripts/setup_gmail_accounts.py::main() - Main entry point.
+scripts/setup_gmail_accounts.py::setup_account(account_name) - Setup credentials for one account.
 scripts/workspace/init_workspace.py::init_workspace(workspace_root, verbose) - Initialize workspace by loading all gove
 scripts/workspace/init_workspace.py::main() - Main entry point.
 scripts/workspace/init_workspace.py::print_banner(result) - Print final status banner.
@@ -2834,16 +3132,16 @@ services/symbolic_computation/api/routes.py::get_generator() - Get or create gen
 services/symbolic_computation/api/routes.py::get_metrics() - Get or create metrics instance.
 services/symbolic_computation/api/routes.py::get_optimizer() - Get or create optimizer instance.
 services/symbolic_computation/api/routes.py::get_validator() - Get or create validator instance.
+services/symbolic_computation/computation.py::__init__(self) - Initialize code generator.
+services/symbolic_computation/computation.py::__init__(self, cache_size) - Initialize evaluator.
+services/symbolic_computation/computation.py::__init__(self, cache_size, enable_metrics) - Initialize symbolic computation engine.
+services/symbolic_computation/computation.py::__init__(self, maxsize) - Initialize cache with maximum size.
+services/symbolic_computation/computation.py::evaluate_sync(self, request) - Synchronous version of evaluate.
+services/symbolic_computation/computation.py::generate_sync(self, request) - Synchronous version of generate.
+services/symbolic_computation/computation.py::get_lambdified(self, expression, variables, backend) - Get or create lambdified function with c
+services/symbolic_computation/computation.py::get_metrics(self) - Get evaluation metrics.
 services/symbolic_computation/config.py::get_config() - Get configuration instance.
 services/symbolic_computation/config.py::reload_config() - Reload configuration from environment.
-services/symbolic_computation/core.py::__init__(self) - Initialize code generator.
-services/symbolic_computation/core.py::__init__(self, cache_size) - Initialize evaluator.
-services/symbolic_computation/core.py::__init__(self, cache_size, enable_metrics) - Initialize symbolic computation engine.
-services/symbolic_computation/core.py::__init__(self, maxsize) - Initialize cache with maximum size.
-services/symbolic_computation/core.py::evaluate_sync(self, request) - Synchronous version of evaluate.
-services/symbolic_computation/core.py::generate_sync(self, request) - Synchronous version of generate.
-services/symbolic_computation/core.py::get_lambdified(self, expression, variables, backend) - Get or create lambdified function with c
-services/symbolic_computation/core.py::get_metrics(self) - Get evaluation metrics.
 services/symbolic_computation/core/cache_manager.py::__init__(self, config, redis_client) - Initialize the cache manager.
 services/symbolic_computation/core/cache_manager.py::_cache_l1_result(self, key, value) - Cache result in L1 (in-memory) with size
 services/symbolic_computation/core/cache_manager.py::_hash_expression(self, expr) - Generate hash for expression.
@@ -2959,11 +3257,18 @@ simulation/simulation_engine.py::path_length(action_id, memo) -
 simulation/simulation_engine.py::set_memory_substrate(substrate) - Set the memory substrate for packet emis
 simulation/simulation_engine.py::to_dict(self) - 
 telemetry/memory_metrics.py::init_metrics() - Initialize memory metrics.
+telemetry/memory_metrics.py::record_latency(metric, duration_seconds) - Record latency for DAG/embed/search/fusi
+telemetry/memory_metrics.py::record_memory_dedup(reason, count) - Record deduplication events.
+telemetry/memory_metrics.py::record_memory_ingest(status) - Record a memory ingest operation.
+telemetry/memory_metrics.py::record_memory_poison_suspect(signal, count) - Record potential poisoning signals.
+telemetry/memory_metrics.py::record_memory_quarantine(reason, count) - Record quarantined packet events.
 telemetry/memory_metrics.py::record_memory_search(segment, hit_count, search_type) - Record a memory search operation.
 telemetry/memory_metrics.py::record_memory_write(segment, status, duration_seconds) - Record a memory write operation.
+telemetry/memory_metrics.py::record_retrieval_quality(recall_at_k, mrr, ndcg_at_k) - Record retrieval quality metrics.
 telemetry/memory_metrics.py::record_tool_invocation(tool_id, status, duration_ms) - Record a tool invocation.
 telemetry/memory_metrics.py::set_memory_substrate_health(healthy) - Set the memory substrate health gauge.
 telemetry/memory_metrics.py::update_packet_store_size(segment, count) - Update the packet store size gauge for a
+telemetry/memory_metrics.py::update_vector_index_size(segment, count) - Update vector index size gauge for a seg
 telemetry/slack_metrics.py::init_slack_metrics() - Initialize Slack metrics.
 telemetry/slack_metrics.py::record_aios_call(agent_type, duration_seconds) - Record AIOS/Agent call duration.
 telemetry/slack_metrics.py::record_idempotent_hit(team_id) - Record a deduplicated event.
@@ -3014,6 +3319,14 @@ tests/agents/test_base_agent.py::test_agent_config_creation() - Contract: AgentC
 tests/agents/test_base_agent.py::test_agent_config_custom_values() - Contract: AgentConfig accepts custom val
 tests/agents/test_base_agent.py::test_base_agent_has_required_methods() - Contract: BaseAgent defines required abs
 tests/agents/test_base_agent.py::test_base_agent_instantiation() - Contract: BaseAgent cannot be instantiat
+tests/api/test_agent_auth.py::api_client_no_auth() - HTTP client without authentication.
+tests/api/test_agent_auth.py::api_client_with_auth() - HTTP client with valid authentication.
+tests/api/test_agent_auth.py::test_agent_execute_requires_auth(self, api_client_no_auth) - Verify /agent/execute requires authentic
+tests/api/test_agent_auth.py::test_agent_execute_with_invalid_auth(self, api_client_no_auth) - Verify /agent/execute rejects invalid au
+tests/api/test_agent_auth.py::test_agent_execute_with_valid_auth(self, api_client_with_auth) - Verify /agent/execute works with valid a
+tests/api/test_agent_auth.py::test_agent_task_requires_auth(self, api_client_no_auth) - Verify /agent/task requires authenticati
+tests/api/test_agent_auth.py::test_agent_task_with_invalid_auth(self, api_client_no_auth) - Verify /agent/task rejects invalid auth 
+tests/api/test_agent_auth.py::test_agent_task_with_valid_auth(self, api_client_with_auth) - Verify /agent/task works with valid auth
 tests/api/test_auth.py::test_auth_empty_token(self) - Contract: Empty token is rejected.
 tests/api/test_auth.py::test_auth_very_long_token(self) - Contract: Excessively long token is reje
 tests/api/test_auth.py::test_auth_whitespace_token(self) - Contract: Whitespace-only token is rejec
@@ -3054,6 +3367,11 @@ tests/api/test_slack_adapter.py::test_slack_normalizer_imports(self) - Test Slac
 tests/api/test_slack_adapter.py::test_slack_validator_imports(self) - Test SlackRequestValidator imports.
 tests/api/test_slack_adapter.py::test_thread_uuid_generation(self, sample_slack_event) - Test deterministic thread UUID generatio
 tests/api/test_slack_adapter.py::test_valid_signature_accepted(self, mock_slack_validator) - Test valid signature is accepted.
+tests/api/test_websocket_auth.py::test_verify_websocket_auth_no_config(self) - Verify auth helper returns False when ke
+tests/api/test_websocket_auth.py::test_verify_websocket_auth_rejects_invalid_token(self) - Verify auth helper rejects invalid token
+tests/api/test_websocket_auth.py::test_verify_websocket_auth_rejects_missing_token(self) - Verify auth helper rejects missing token
+tests/api/test_websocket_auth.py::test_verify_websocket_auth_with_param_token(self) - Verify auth helper accepts valid token f
+tests/api/test_websocket_auth.py::test_verify_websocket_auth_with_query_token(self) - Verify auth helper accepts valid token f
 tests/clients/test_memory_client.py::test_client_initialization() - Contract: MemoryClient can be instantiat
 tests/codegen/test_codegen_pipeline.py::contract(valid_spec) - Create a MetaContract from valid spec.
 tests/codegen/test_codegen_pipeline.py::file_emitter() - Create file emitter in dry-run mode.
@@ -3184,6 +3502,63 @@ tests/core/agents/test_graph_state.py::test_l_tools() - Test L has tools with ap
 tests/core/agents/test_graph_state.py::test_load_agent_state_query_structure() - Test that LOAD_AGENT_STATE_QUERY has exp
 tests/core/agents/test_graph_state.py::test_package_exports() - Test that __init__.py exports expected s
 tests/core/agents/test_graph_state.py::test_schema_constants() - Test that schema constants are defined c
+tests/core/agents/test_prompt_builder.py::__init__(self, kernels, kernel_state) - 
+tests/core/agents/test_prompt_builder.py::test_active_kernels_includes_safety_prefix(self) - Should include safety prefix when kernel
+tests/core/agents/test_prompt_builder.py::test_agent_with_none_kernels(self) - Should handle agent with None kernels.
+tests/core/agents/test_prompt_builder.py::test_agent_without_kernels_attr(self) - Should handle agent without kernels attr
+tests/core/agents/test_prompt_builder.py::test_can_disable_safety_prefix(self) - Should allow disabling safety prefix (fo
+tests/core/agents/test_prompt_builder.py::test_can_disable_sections(self) - Should allow disabling individual sectio
+tests/core/agents/test_prompt_builder.py::test_empty_kernels_returns_safety_prefix(self) - Should return safety prefix when no kern
+tests/core/agents/test_prompt_builder.py::test_extracts_behavioral_section(self) - Should extract behavioral section from k
+tests/core/agents/test_prompt_builder.py::test_extracts_execution_section(self) - Should extract execution section from ke
+tests/core/agents/test_prompt_builder.py::test_extracts_identity_section(self) - Should extract identity section from ker
+tests/core/agents/test_prompt_builder.py::test_extracts_safety_section(self) - Should extract safety section from kerne
+tests/core/agents/test_prompt_builder.py::test_handles_empty_memory_context(self) - Should handle empty memory context.
+tests/core/agents/test_prompt_builder.py::test_handles_list_kernel_content(self) - Should handle list kernel content struct
+tests/core/agents/test_prompt_builder.py::test_handles_nested_kernel_content(self) - Should handle nested kernel content stru
+tests/core/agents/test_prompt_builder.py::test_handles_none_memory_context(self) - Should handle None memory context.
+tests/core/agents/test_prompt_builder.py::test_inactive_kernel_state_warns(self) - Should include warning when kernel state
+tests/core/agents/test_prompt_builder.py::test_includes_channel(self) - Should include channel in runtime prompt
+tests/core/agents/test_prompt_builder.py::test_includes_semantic_hits(self) - Should include semantic hits when provid
+tests/core/agents/test_prompt_builder.py::test_includes_thread_context(self) - Should include thread context when provi
+tests/core/agents/test_prompt_builder.py::test_kernel_with_content_key(self) - Should extract from 'content' key.
+tests/core/agents/test_prompt_builder.py::test_kernel_with_description_key(self) - Should extract from 'description' key as
+tests/core/agents/test_prompt_builder.py::test_multiple_kernels(self) - Should handle multiple kernel files.
+tests/core/agents/test_prompt_builder.py::test_no_matching_kernel_file(self) - Should handle missing kernel files grace
+tests/core/agents/test_prompt_builder.py::test_safety_prefix_constant(self) - Safety prefix should match SAFETY_PREFIX
+tests/core/agents/test_prompt_builder.py::test_safety_prefix_contains_constraints(self) - Safety prefix should contain key constra
+tests/core/agents/test_prompt_builder.py::test_safety_prefix_not_empty(self) - Safety prefix should not be empty.
+tests/core/agents/test_prompt_defense.py::test_act_no_restrictions(self) - Should detect 'act without restrictions'
+tests/core/agents/test_prompt_defense.py::test_authority_spoofing(self) - Should detect authority spoofing pattern
+tests/core/agents/test_prompt_defense.py::test_bypass_governance(self) - Should detect governance bypass pattern.
+tests/core/agents/test_prompt_defense.py::test_code_review_request(self) - Code review requests should not be flagg
+tests/core/agents/test_prompt_defense.py::test_critical_response(self) - Critical block should have appropriate m
+tests/core/agents/test_prompt_defense.py::test_dan_jailbreak(self) - Should detect DAN jailbreak pattern.
+tests/core/agents/test_prompt_defense.py::test_educational_bypass(self) - Should detect educational bypass pattern
+tests/core/agents/test_prompt_defense.py::test_empty_input(self) - Empty input should not be flagged.
+tests/core/agents/test_prompt_defense.py::test_gmprun_without_approval(self) - Should detect GMPRUN bypass pattern.
+tests/core/agents/test_prompt_defense.py::test_high_response(self) - High block should have appropriate messa
+tests/core/agents/test_prompt_defense.py::test_ignore_all_instructions(self) - Should detect 'ignore all instructions' 
+tests/core/agents/test_prompt_defense.py::test_ignore_previous_instructions(self) - Should detect 'ignore previous instructi
+tests/core/agents/test_prompt_defense.py::test_injection_curiosity(self) - Should detect but not block curiosity ab
+tests/core/agents/test_prompt_defense.py::test_instruction_extraction(self) - Should detect instruction extraction pat
+tests/core/agents/test_prompt_defense.py::test_long_input_truncated(self) - Long inputs should be truncated.
+tests/core/agents/test_prompt_defense.py::test_mixed_case(self) - Should detect mixed case patterns.
+tests/core/agents/test_prompt_defense.py::test_none_context(self) - Should handle None context gracefully.
+tests/core/agents/test_prompt_defense.py::test_normal_question(self) - Normal questions should not be flagged.
+tests/core/agents/test_prompt_defense.py::test_override_safety(self) - Should detect safety override pattern.
+tests/core/agents/test_prompt_defense.py::test_pretend_unrestricted(self) - Should detect 'pretend unrestricted' pat
+tests/core/agents/test_prompt_defense.py::test_roleplay_evil(self) - Should detect roleplay jailbreak pattern
+tests/core/agents/test_prompt_defense.py::test_safety_curiosity(self) - Should detect but not block curiosity ab
+tests/core/agents/test_prompt_defense.py::test_short_input_not_truncated(self) - Short inputs should not be truncated.
+tests/core/agents/test_prompt_defense.py::test_should_block_critical(self) - Critical severity should be blocked.
+tests/core/agents/test_prompt_defense.py::test_should_block_high(self) - High severity should be blocked.
+tests/core/agents/test_prompt_defense.py::test_should_not_block_low(self) - Low severity should not be blocked.
+tests/core/agents/test_prompt_defense.py::test_should_not_block_medium(self) - Medium severity should not be blocked (d
+tests/core/agents/test_prompt_defense.py::test_show_system_prompt(self) - Should detect prompt extraction pattern.
+tests/core/agents/test_prompt_defense.py::test_system_admin_task(self) - Legitimate system admin tasks should not
+tests/core/agents/test_prompt_defense.py::test_to_dict(self) - Result should serialize to dict correctl
+tests/core/agents/test_prompt_defense.py::test_uppercase(self) - Should detect uppercase patterns.
 tests/core/aios/test_runtime.py::test_runtime_initialization() - Contract: AIOSRuntime can be instantiate
 tests/core/governance/test_engine.py::conditional_policy() - A policy with conditions.
 tests/core/governance/test_engine.py::create_policy_file(directory, filename, policies) - Helper to create a policy YAML file.
@@ -3276,6 +3651,8 @@ tests/core/tools/test_tool_graph_unified.py::test_module_exports() - Test that m
 tests/core/tools/test_tool_graph_unified.py::test_tool_definition_defaults() - Test ToolDefinition default values.
 tests/core/tools/test_tool_graph_unified.py::test_tool_definition_with_agent() - Test ToolDefinition with agent_id.
 tests/core/tools/test_tool_graph_unified.py::test_unified_relationship_constant() - Test that unified relationship constant 
+tests/docker/conftest.py::get_execution_context() - Detect if running inside Docker or on ho
+tests/docker/conftest.py::resolve_service_url(service_name, port) - Auto-resolve service URL based on execut
 tests/docker/test_env_validation.py::test_api_port_is_numeric(self) - Port environment variables should be val
 tests/docker/test_env_validation.py::test_critical_vars_present(self, var) - Critical environment variables must be s
 tests/docker/test_env_validation.py::test_database_url_format(self) - DATABASE_URL should be a valid PostgreSQ
@@ -3310,8 +3687,33 @@ tests/docker/test_stack_smoke.py::test_os_health(self, api_client) - OS layer he
 tests/docker/test_stack_smoke.py::test_os_status(self, api_client) - OS status endpoint is wired.
 tests/docker/test_stack_smoke.py::test_root_endpoint(self, api_client) - Root / endpoint returns API info.
 tests/docker/test_stack_smoke.py::test_root_health(self, api_client) - Root /health endpoint (Docker healthchec
-tests/email_agent/test_email_router.py::test_route_email_to_correct_handler() - Contract: Email router routes requests t
-tests/email_agent/test_email_router.py::test_unknown_sender_handling() - Contract: Router handles unknown senders
+tests/email_agent/test_email_router.py::app() - Create FastAPI app with email router.
+tests/email_agent/test_email_router.py::auth_headers() - Valid auth headers.
+tests/email_agent/test_email_router.py::client(app) - Create test client.
+tests/email_agent/test_email_router.py::mock_gmail_client() - Mock GmailClient that returns empty resu
+tests/email_agent/test_email_router.py::mock_memory_ingest() - Mock memory ingestion.
+tests/email_agent/test_email_router.py::test_draft_returns_draft_id(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Draft endpoint returns draft ID.
+tests/email_agent/test_email_router.py::test_forward_returns_success(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Forward endpoint returns success.
+tests/email_agent/test_email_router.py::test_get_account_config_invalid(self) - get_account_config raises for invalid ac
+tests/email_agent/test_email_router.py::test_get_account_config_valid(self) - get_account_config returns config for va
+tests/email_agent/test_email_router.py::test_get_request_requires_id(self) - GetRequest requires id field.
+tests/email_agent/test_email_router.py::test_get_returns_message(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Get endpoint returns full message.
+tests/email_agent/test_email_router.py::test_gmail_client_no_account_uses_legacy(self) - GmailClient with no account param uses l
+tests/email_agent/test_email_router.py::test_gmail_client_receives_account(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - GmailClient is initialized with correct 
+tests/email_agent/test_email_router.py::test_gmail_client_with_account(self) - GmailClient with account param uses acco
+tests/email_agent/test_email_router.py::test_igor_account_accepted(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Igor account is valid.
+tests/email_agent/test_email_router.py::test_invalid_account_returns_422(self, client, auth_headers) - Invalid account name returns 422 (path v
+tests/email_agent/test_email_router.py::test_l_account_accepted(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - L account is valid.
+tests/email_agent/test_email_router.py::test_no_auth_returns_401(self, client, endpoint) - Request without API key returns 401.
+tests/email_agent/test_email_router.py::test_query_request_custom(self) - QueryRequest accepts custom values.
+tests/email_agent/test_email_router.py::test_query_request_defaults(self) - QueryRequest has correct defaults.
+tests/email_agent/test_email_router.py::test_query_returns_messages(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Query endpoint returns messages array.
+tests/email_agent/test_email_router.py::test_reply_returns_success(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Reply endpoint returns success.
+tests/email_agent/test_email_router.py::test_send_requires_fields_for_direct(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Direct send requires to, subject, body.
+tests/email_agent/test_email_router.py::test_send_returns_message_id(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Send endpoint returns message ID.
+tests/email_agent/test_email_router.py::test_valid_accounts_defined(self) - VALID_ACCOUNTS contains expected account
+tests/email_agent/test_email_router.py::test_valid_api_key_passes_auth(self, client, auth_headers, mock_gmail_client, mock_memory_ingest) - Request with valid API key passes auth c
+tests/email_agent/test_email_router.py::test_wrong_api_key_returns_401(self, client, endpoint) - Request with wrong API key returns 401.
 tests/email_agent/test_email_triage.py::test_priority_assignment() - Contract: Priority classification functi
 tests/email_agent/test_email_triage.py::test_triage_classification() - Contract: Triage functions can be called
 tests/integration/test_api_agent_integration.py::client() - Test client with mocked DB.
@@ -3627,6 +4029,16 @@ tests/memory/test_consolidation.py::test_initialization_with_dry_run_false(self,
 tests/memory/test_consolidation_graph.py::test_consolidation_service_has_graph_method() - Test that consolidate_graph_state method
 tests/memory/test_consolidation_graph.py::test_get_metrics_includes_graph_snapshots() - Test that get_metrics returns graph_stat
 tests/memory/test_consolidation_graph.py::test_memory_consolidation_service_import() - Test that MemoryConsolidationService can
+tests/memory/test_cypher_templates.py::test_add_custom_template(self) - Test adding custom template.
+tests/memory/test_cypher_templates.py::test_all_templates_have_required_fields(self) - Verify all default templates have requir
+tests/memory/test_cypher_templates.py::test_all_templates_return_something(self) - Verify all templates have RETURN clause.
+tests/memory/test_cypher_templates.py::test_get_template(self) - Test retrieving specific template.
+tests/memory/test_cypher_templates.py::test_get_template_library_singleton(self) - Test that get_template_library returns s
+tests/memory/test_cypher_templates.py::test_label_substitution(self) - Test that label parameters are safely su
+tests/memory/test_cypher_templates.py::test_label_validation(self) - Test that invalid labels are rejected.
+tests/memory/test_cypher_templates.py::test_library_initialization(self) - Test library initializes with default te
+tests/memory/test_cypher_templates.py::test_list_templates_by_category(self) - Test filtering templates by category.
+tests/memory/test_cypher_templates.py::test_traversal_templates_have_depth_limits(self) - Ensure traversal templates don't allow u
 tests/memory/test_e2e_memory_audit.py::__init__(self, name) - 
 tests/memory/test_e2e_memory_audit.py::add_check(self, name, passed, details) - 
 tests/memory/test_e2e_memory_audit.py::add_recommendation(self, recommendation) - 
@@ -3641,6 +4053,79 @@ tests/memory/test_embedding_filter.py::test_skip_exact_error_patterns(self) - Kn
 tests/memory/test_embedding_filter.py::test_skip_patterns_are_strings(self) - All skip patterns should be non-empty st
 tests/memory/test_embedding_filter.py::test_skip_patterns_list_not_empty(self) - SKIP_EMBEDDING_PATTERNS should contain p
 tests/memory/test_embedding_filter.py::test_skip_very_short_content(self) - Content under 10 chars should be skipped
+tests/memory/test_graph_memory.py::test_context_with_messages(self) - Test context with messages formatting.
+tests/memory/test_graph_memory.py::test_empty_context(self) - Test empty context formatting.
+tests/memory/test_graph_memory.py::test_extract_file_entities(self) - Test extracting file paths.
+tests/memory/test_graph_memory.py::test_extract_function_entities(self) - Test extracting function definitions.
+tests/memory/test_graph_memory.py::test_extract_gmp_entities(self) - Test extracting GMP references.
+tests/memory/test_graph_memory.py::test_extract_known_topics(self) - Test extracting known topics.
+tests/memory/test_graph_memory.py::test_extract_no_topics(self) - Test content with no matching topics.
+tests/memory/test_graph_memory.py::test_message_creation(self) - Test creating a message.
+tests/memory/test_graph_memory.py::test_message_with_topics(self) - Test message with topics.
+tests/memory/test_graph_memory.py::test_role_from_string(self) - Test creating role from string.
+tests/memory/test_graph_memory.py::test_role_values(self) - Test role enum values.
+tests/memory/test_hybrid_rag.py::_create_mock_neo4j(self, available, query_results) - Create mock Neo4j client.
+tests/memory/test_hybrid_rag.py::_create_mock_semantic_service(self, results) - Create mock semantic service.
+tests/memory/test_hybrid_rag.py::test_strategies_exist(self) - Verify all strategies are defined.
+tests/memory/test_hybrid_rag.py::test_vector_hit_creation(self) - Test creating a VectorHit.
+tests/memory/test_hybrid_rag.py::test_vector_hit_with_entities(self) - Test VectorHit with extracted entities.
+tests/memory/test_ingestion_audit.py::test_clean_text_no_markers(self) - Clean text should not be flagged.
+tests/memory/test_ingestion_audit.py::test_detect_api_key(self) - API keys should be detected.
+tests/memory/test_ingestion_audit.py::test_detect_email(self) - Email addresses should be detected.
+tests/memory/test_ingestion_audit.py::test_detect_ignore_previous(self) - 'Ignore previous instructions' should be
+tests/memory/test_ingestion_audit.py::test_detect_phone(self) - Phone numbers should be detected.
+tests/memory/test_ingestion_audit.py::test_detect_ssn(self) - SSN patterns should be detected.
+tests/memory/test_ingestion_audit.py::test_detect_system_prompt(self) - System prompt markers should be flagged.
+tests/memory/test_ingestion_audit.py::test_detects_pii_and_injection(self) - Both PII and injection markers should be
+tests/memory/test_ingestion_audit.py::test_deterministic_packet_id(self) - Same content should produce same packet_
+tests/memory/test_ingestion_audit.py::test_normalize_payload_recursive(self) - Normalization should work recursively on
+tests/memory/test_ingestion_audit.py::test_normalize_text_collapses_whitespace(self) - Multiple spaces should collapse to singl
+tests/memory/test_ingestion_audit.py::test_normalize_text_removes_zero_width_chars(self) - Zero-width characters should be stripped
+tests/memory/test_ingestion_audit.py::test_normalizes_and_hashes(self) - Packet should be normalized and hashed.
+tests/memory/test_ingestion_audit.py::test_preserves_original_when_no_redaction(self) - Packet should be unchanged when redactio
+tests/memory/test_ingestion_audit.py::test_redact_pii(self) - PII should be redacted with markers.
+tests/memory/test_ingestion_audit.py::test_redact_pii_when_enabled(self) - PII should be redacted when enabled.
+tests/memory/test_ingestion_pipeline_audit.py::test_all_eight_nodes_defined_as_functions(self) - Verify all 8 node functions are defined 
+tests/memory/test_ingestion_pipeline_audit.py::test_all_nodes_registered_in_graph(self) - Verify graph builder registers all 8 exp
+tests/memory/test_ingestion_pipeline_audit.py::test_audit_utils_prepare_packet_exists(self) - Verify prepare_packet_for_ingest exists.
+tests/memory/test_ingestion_pipeline_audit.py::test_content_normalization(self) - Verify content normalization works.
+tests/memory/test_ingestion_pipeline_audit.py::test_cross_substrate_category(self) - Cross-Substrate audit category.
+tests/memory/test_ingestion_pipeline_audit.py::test_dag_alignment_category(self) - DAG Alignment audit category.
+tests/memory/test_ingestion_pipeline_audit.py::test_dual_pipeline_category(self) - Dual Pipeline audit category.
+tests/memory/test_ingestion_pipeline_audit.py::test_embedding_decoupled_from_core_writes(self) - Verify embedding is separate from core p
+tests/memory/test_ingestion_pipeline_audit.py::test_error_prefix_patterns_skipped(self) - Error message variants with prefixes sho
+tests/memory/test_ingestion_pipeline_audit.py::test_feature_separation_documentation(self) - Verify feature separation matches WIRING
+tests/memory/test_ingestion_pipeline_audit.py::test_gmp42_category(self) - GMP-42 Filter audit category.
+tests/memory/test_ingestion_pipeline_audit.py::test_gmp42_skip_filter_blocks_error_messages(self) - Verify GMP-42 patterns are NOT embedded.
+tests/memory/test_ingestion_pipeline_audit.py::test_graph_has_correct_edge_definitions(self) - Verify graph builder has expected edge d
+tests/memory/test_ingestion_pipeline_audit.py::test_ingestion_pipeline_has_auto_tagging(self) - Verify IngestionPipeline has auto-taggin
+tests/memory/test_ingestion_pipeline_audit.py::test_ingestion_pipeline_has_neo4j_sync(self) - Verify IngestionPipeline has Neo4j sync 
+tests/memory/test_ingestion_pipeline_audit.py::test_ingestion_pipeline_uses_transaction_context(self) - Verify IngestionPipeline wraps writes in
+tests/memory/test_ingestion_pipeline_audit.py::test_injection_detection(self) - Verify injection marker detection works.
+tests/memory/test_ingestion_pipeline_audit.py::test_neo4j_sync_is_best_effort(self) - Verify Neo4j sync failures don't block i
+tests/memory/test_ingestion_pipeline_audit.py::test_packet_envelope_has_v11_fields(self) - Verify PacketEnvelope has v1.1.0 fields.
+tests/memory/test_ingestion_pipeline_audit.py::test_packet_envelope_immutability(self) - Verify PacketEnvelope is immutable (froz
+tests/memory/test_ingestion_pipeline_audit.py::test_packet_id_used_across_tables(self) - Verify packet_id is the correlation key.
+tests/memory/test_ingestion_pipeline_audit.py::test_packet_store_row_has_tenant_fields(self) - Verify PacketStoreRow has multi-tenant f
+tests/memory/test_ingestion_pipeline_audit.py::test_packet_validator_exists(self) - Verify PacketValidator class exists.
+tests/memory/test_ingestion_pipeline_audit.py::test_packet_validator_validates_packet_type(self) - Verify PacketValidator checks packet_typ
+tests/memory/test_ingestion_pipeline_audit.py::test_pii_detection(self) - Verify PII detection works.
+tests/memory/test_ingestion_pipeline_audit.py::test_rls_category(self) - RLS Compliance audit category.
+tests/memory/test_ingestion_pipeline_audit.py::test_rls_function_documented(self) - Verify RLS function l9_set_scope is refe
+tests/memory/test_ingestion_pipeline_audit.py::test_schema_compliance_category(self) - Schema Compliance audit category.
+tests/memory/test_ingestion_pipeline_audit.py::test_set_session_scope_exists(self) - Verify set_session_scope method exists.
+tests/memory/test_ingestion_pipeline_audit.py::test_set_session_scope_parameters(self) - Verify set_session_scope has correct par
+tests/memory/test_ingestion_pipeline_audit.py::test_short_text_skipped(self) - Text <10 chars should not be embedded.
+tests/memory/test_ingestion_pipeline_audit.py::test_should_skip_embedding_function_exists(self) - Verify _should_skip_embedding function i
+tests/memory/test_ingestion_pipeline_audit.py::test_skip_patterns_list_exists(self) - Verify SKIP_EMBEDDING_PATTERNS is define
+tests/memory/test_ingestion_pipeline_audit.py::test_storage_tables_documented(self) - Verify all storage tables are modeled.
+tests/memory/test_ingestion_pipeline_audit.py::test_substrate_dag_has_insight_extraction(self) - Verify SubstrateDAG has insight extracti
+tests/memory/test_ingestion_pipeline_audit.py::test_substrate_dag_has_no_neo4j_node(self) - Verify SubstrateDAG does not have Neo4j 
+tests/memory/test_ingestion_pipeline_audit.py::test_substrate_dag_has_reasoning_trace(self) - Verify SubstrateDAG generates reasoning 
+tests/memory/test_ingestion_pipeline_audit.py::test_transaction_category(self) - Transaction Atomicity audit category.
+tests/memory/test_ingestion_pipeline_audit.py::test_transaction_commits_on_success(self) - Verify transaction commits when both wri
+tests/memory/test_ingestion_pipeline_audit.py::test_transaction_methods_exist(self) - Verify transaction helper methods exist.
+tests/memory/test_ingestion_pipeline_audit.py::test_valid_text_not_skipped(self) - Valid text content should be embedded.
 tests/memory/test_memory_adapter_basic.py::__init__(self, status_code, json_data) - 
 tests/memory/test_memory_adapter_basic.py::json(self) - 
 tests/memory/test_memory_adapter_basic.py::raise_for_status(self) - 
@@ -3660,6 +4145,26 @@ tests/memory/test_packet_envelope_immutability.py::test_supporting_models_also_i
 tests/memory/test_packet_envelope_immutability.py::test_with_mutation_chain_increments_generation(self) - Chained mutations increment generation c
 tests/memory/test_packet_envelope_immutability.py::test_with_mutation_creates_new_packet(self) - with_mutation(payload={"new": "data"}) →
 tests/memory/test_packet_envelope_immutability.py::test_with_mutation_creates_proper_lineage(self) - Verify new packet.lineage.parent_ids == 
+tests/memory/test_packet_validation_v2.py::test_confidence_above_one_rejected(self) - Confidence score > 1.0 raises PacketVali
+tests/memory/test_packet_validation_v2.py::test_confidence_below_zero_rejected(self) - Confidence score < 0.0 raises PacketVali
+tests/memory/test_packet_validation_v2.py::test_confidence_none_accepted(self) - No confidence field is valid.
+tests/memory/test_packet_validation_v2.py::test_core_packet_type_accepted(self) - Core packet types pass validation.
+tests/memory/test_packet_validation_v2.py::test_derive_type_none_treated_as_direct(self) - derive_type=None is valid (interpreted a
+tests/memory/test_packet_validation_v2.py::test_derive_type_values(self) - DeriveType enum has expected values.
+tests/memory/test_packet_validation_v2.py::test_empty_provenance_accepted(self) - Empty provenance dict is valid.
+tests/memory/test_packet_validation_v2.py::test_error_backwards_compatible(self) - Error can be raised with just message (b
+tests/memory/test_packet_validation_v2.py::test_error_has_field_attribute(self) - PacketValidationError includes field pat
+tests/memory/test_packet_validation_v2.py::test_invalid_derive_type_rejected(self) - derive_type not in valid set raises Pack
+tests/memory/test_packet_validation_v2.py::test_no_provenance_accepted(self) - No provenance field is valid (optional).
+tests/memory/test_packet_validation_v2.py::test_source_timestamp_in_future_rejected(self) - source_timestamp in the future raises Pa
+tests/memory/test_packet_validation_v2.py::test_source_timestamp_in_past_accepted(self) - source_timestamp in the past is valid.
+tests/memory/test_packet_validation_v2.py::test_ttl_in_future_accepted(self) - TTL in the future is valid.
+tests/memory/test_packet_validation_v2.py::test_ttl_in_past_rejected(self) - TTL in the past raises PacketValidationE
+tests/memory/test_packet_validation_v2.py::test_unknown_packet_type_rejected_in_strict(self) - Unknown packet_type raises in strict mod
+tests/memory/test_packet_validation_v2.py::test_unknown_packet_type_warns_in_non_strict(self) - Unknown packet_type logs warning but pas
+tests/memory/test_packet_validation_v2.py::test_valid_confidence_accepted(self) - Confidence score in [0.0, 1.0] passes va
+tests/memory/test_packet_validation_v2.py::test_valid_derive_type_accepted(self) - Valid derive_type values pass validation
+tests/memory/test_packet_validation_v2.py::test_valid_derive_types_set(self) - VALID_DERIVE_TYPES contains all enum val
 tests/memory/test_query_classifier.py::test_classifier_initialization(self) - Test QueryClassifier can be instantiated
 tests/memory/test_query_classifier.py::test_classify_default(self) - Test default pattern for unrecognized qu
 tests/memory/test_query_classifier.py::test_classify_entity_lookup(self) - Test entity lookup pattern classificatio
@@ -3676,6 +4181,56 @@ tests/memory/test_query_classifier.py::test_get_weight_overrides_temporal(self) 
 tests/memory/test_query_classifier.py::test_get_weight_overrides_unknown_pattern(self) - Test weight overrides fallback for unkno
 tests/memory/test_query_classifier.py::test_singleton_pattern(self) - Test get_query_classifier returns single
 tests/memory/test_reasoning_replay.py::reasoning_replay_pipeline(memory_substrate_service) - Provide a ReasoningReplayPipeline instan
+tests/memory/test_retrieval_audit.py::test_basic_fusion(self) - Basic RRF should combine rankings.
+tests/memory/test_retrieval_audit.py::test_consensus_ranking(self) - Item ranked well in both lists should be
+tests/memory/test_retrieval_audit.py::test_consistent_winner(self) - Item ranked first in both lists should s
+tests/memory/test_retrieval_audit.py::test_empty_rankings(self) - Empty rankings should return empty score
+tests/memory/test_retrieval_audit.py::test_future_timestamp_no_decay(self) - Future timestamps should not have negati
+tests/memory/test_retrieval_audit.py::test_half_decay_at_half_life(self) - Score should be halved at exactly one ha
+tests/memory/test_retrieval_audit.py::test_k_parameter_effect(self) - Lower k should amplify rank differences.
+tests/memory/test_retrieval_audit.py::test_no_decay_for_recent(self) - Very recent items should have minimal de
+tests/memory/test_retrieval_audit.py::test_preserves_relative_scores(self) - Decay should preserve relative ordering 
+tests/memory/test_retrieval_audit.py::test_quarter_decay_at_two_half_lives(self) - Score should be quartered at two half-li
+tests/memory/test_retrieval_audit.py::test_recent_beats_old(self) - Recent items should always score higher 
+tests/memory/test_retrieval_audit.py::test_single_ranking(self) - Single ranking should still produce scor
+tests/memory/test_saga.py::custom_output(context) - 
+tests/memory/test_saga.py::should_run_step2(context) - 
+tests/memory/test_saga.py::test_build_simple_saga(self) - Test building a simple saga.
+tests/memory/test_saga.py::test_context_creation(self) - Test creating a saga context.
+tests/memory/test_saga.py::test_custom_output_builder(self) - Test saga with custom output builder.
+tests/memory/test_saga.py::test_entity_accumulation(self) - Test adding entities to context.
+tests/memory/test_saga.py::test_entity_enrichment_saga_structure(self) - Test entity_enrichment saga has correct 
+tests/memory/test_saga.py::test_fetch_and_enrich_saga_structure(self) - Test fetch_and_enrich saga has correct s
+tests/memory/test_saga.py::test_relationship_accumulation(self) - Test adding relationships to context.
+tests/memory/test_saga.py::test_result_to_dict(self) - Test converting result to dictionary.
+tests/memory/test_saga.py::test_step_output_management(self) - Test setting and getting step outputs.
+tests/memory/test_saga.py::test_timeline_correlation_saga_structure(self) - Test timeline_correlation saga has corre
+tests/memory/test_substrate_dag_native.py::make_mock_repository() - Create a mock repository with async meth
+tests/memory/test_substrate_dag_native.py::make_mock_semantic_service() - Create a mock semantic service.
+tests/memory/test_substrate_dag_native.py::make_mock_world_model_service() - Create a mock world model service.
+tests/memory/test_substrate_dag_native.py::make_test_envelope(text, packet_type) - Create a test PacketEnvelope.
+tests/memory/test_substrate_dag_native.py::test_dont_skip_valid_content(self) - Valid content should NOT be skipped.
+tests/memory/test_substrate_dag_native.py::test_enrichment_graph_compiles(self) - build_enrichment_graph() returns compile
+tests/memory/test_substrate_dag_native.py::test_route_embed_for_memory_type(self) - Memory packet type should route to embed
+tests/memory/test_substrate_dag_native.py::test_route_embed_for_semantic_type(self) - Semantic packet type should route to emb
+tests/memory/test_substrate_dag_native.py::test_route_handles_empty_envelope(self) - Empty envelope should default to do_embe
+tests/memory/test_substrate_dag_native.py::test_route_handles_missing_envelope(self) - Missing envelope should default to do_em
+tests/memory/test_substrate_dag_native.py::test_route_handles_none_state(self) - None or bad state should not crash.
+tests/memory/test_substrate_dag_native.py::test_route_skip_for_error_content(self) - GMP-42: Error messages should skip embed
+tests/memory/test_substrate_dag_native.py::test_route_skip_for_non_embeddable_type(self) - Non-embeddable packet type should skip.
+tests/memory/test_substrate_dag_native.py::test_route_skip_for_short_content(self) - GMP-42: Short content should skip embedd
+tests/memory/test_substrate_dag_native.py::test_skip_empty_text(self) - Empty text should be skipped.
+tests/memory/test_substrate_dag_native.py::test_skip_error_prefix(self) - Error message prefixes should be skipped
+tests/memory/test_substrate_dag_native.py::test_skip_known_patterns(self) - Known error patterns should be skipped.
+tests/memory/test_substrate_dag_native.py::test_skip_short_text(self) - Text < 10 chars should be skipped.
+tests/memory/test_substrate_dag_native.py::test_substrate_graph_compiles(self) - build_substrate_graph() returns compiled
+tests/memory/test_substrate_dag_native.py::test_with_custom_default(self) - Missing key returns custom default.
+tests/memory/test_substrate_dag_native.py::test_with_empty_config(self) - Empty config returns default.
+tests/memory/test_substrate_dag_native.py::test_with_empty_configurable(self) - Config with empty configurable returns d
+tests/memory/test_substrate_dag_native.py::test_with_missing_configurable(self) - Config without configurable key returns 
+tests/memory/test_substrate_dag_native.py::test_with_missing_key(self) - Config with different key returns defaul
+tests/memory/test_substrate_dag_native.py::test_with_none_config(self) - None config returns default.
+tests/memory/test_substrate_dag_native.py::test_with_valid_config(self) - Config with valid configurable dict retu
 tests/memory/test_tool_audit.py::test_all_exports(self) - Contract: __all__ contains expected expo
 tests/memory/test_tool_audit.py::test_exports_log_tool_invocation(self) - Contract: log_tool_invocation is exporte
 tests/memory/test_tool_audit.py::test_exports_ttl_constant(self) - Contract: TOOL_AUDIT_TTL_HOURS is export
@@ -3690,6 +4245,28 @@ tests/memory/test_tool_audit.py::test_sanitize_removes_secret(self) - Contract: 
 tests/memory/test_tool_audit.py::test_sanitize_removes_token(self) - Contract: Token fields are redacted.
 tests/memory/test_tool_audit.py::test_sanitize_truncates_long_strings(self) - Contract: Strings longer than 500 chars 
 tests/memory/test_tool_audit.py::test_ttl_constant_exists(self) - Contract: TOOL_AUDIT_TTL_HOURS constant 
+tests/memory/test_tool_router.py::__init__(self, name, description, category, risk_level, is_destructive, external_apis) - 
+tests/memory/test_tool_router.py::test_content_hash(self) - Test content hash computation.
+tests/memory/test_tool_router.py::test_embedding_creation(self) - Test creating a tool embedding.
+tests/memory/test_tool_router.py::test_empty_result(self) - Test empty search result.
+tests/memory/test_tool_router.py::test_get_stats(self) - Test statistics retrieval.
+tests/memory/test_tool_router.py::test_identical_vectors(self) - Test similarity of identical vectors.
+tests/memory/test_tool_router.py::test_opposite_vectors(self) - Test similarity of opposite vectors.
+tests/memory/test_tool_router.py::test_orthogonal_vectors(self) - Test similarity of orthogonal vectors.
+tests/memory/test_tool_router.py::test_prompt_format(self) - Test formatting for prompt injection.
+tests/memory/test_tool_router.py::test_prompt_format_destructive(self) - Test formatting for destructive tool.
+tests/memory/test_tool_router.py::test_result_with_matches(self) - Test result with matches.
+tests/memory/test_tool_router.py::test_searchable_text(self) - Test generating searchable text.
+tests/memory/test_tool_router.py::test_zero_vector(self) - Test handling of zero vectors.
+tests/memory/test_unified_pipeline.py::mock_dag() - Create a mock SubstrateDAG that returns 
+tests/memory/test_unified_pipeline.py::mock_repository() - Create a mock SubstrateRepository.
+tests/memory/test_unified_pipeline.py::mock_semantic_service() - Create a mock SemanticService.
+tests/memory/test_unified_pipeline.py::sample_packet_in() - Create a sample PacketEnvelopeIn for tes
+tests/memory/test_unified_pipeline.py::test_enrichment_result_fields(self) - EnrichmentResult includes all expected f
+tests/memory/test_unified_pipeline.py::test_packet_write_result_defaults(self) - PacketWriteResult has correct defaults.
+tests/memory/test_unified_pipeline.py::test_packet_write_result_has_enrichment_fields(self) - PacketWriteResult includes enrichment fi
+tests/memory/test_unified_pipeline.py::test_settings_default_enrichment_disabled(self) - Default for enable_dag_enrichment is Fal
+tests/memory/test_unified_pipeline.py::test_settings_has_enable_dag_enrichment(self) - MemorySubstrateSettings has enable_dag_e
 tests/memory/test_vector_index.py::test_cursor_empty_query(postgres_cursor) - Test cursor handles queries with no resu
 tests/memory/test_vector_index.py::test_cursor_fetchall(postgres_cursor) - Test cursor fetchall returns list.
 tests/memory/test_vector_index.py::test_index_exists(postgres_cursor) - Test that vector index definition is ret
@@ -3761,6 +4338,17 @@ tests/os/test_bootstrap.py::test_bootstrap_module_loadable() - Contract: Bootstr
 tests/os/test_controller.py::get_os_module(module_name) - Import a module from the project's aios/
 tests/os/test_controller.py::test_controller_initialization() - Contract: Controller can be instantiated
 tests/os/test_controller.py::test_controller_start_stop() - Contract: Controller has methods for sta
+tests/performance/test_memory_benchmarks.py::test_benchmark_detect_injection(self, benchmark) - Benchmark injection marker detection.
+tests/performance/test_memory_benchmarks.py::test_benchmark_detect_injection_with_markers(self, benchmark) - Benchmark injection detection with actua
+tests/performance/test_memory_benchmarks.py::test_benchmark_detect_pii(self, benchmark) - Benchmark PII detection.
+tests/performance/test_memory_benchmarks.py::test_benchmark_normalize_payload_nested(self, benchmark) - Benchmark payload normalization with nes
+tests/performance/test_memory_benchmarks.py::test_benchmark_normalize_text(self, benchmark) - Benchmark text normalization.
+tests/performance/test_memory_benchmarks.py::test_benchmark_prepare_packet_simple(self, benchmark) - Benchmark prepare_packet_for_ingest with
+tests/performance/test_memory_benchmarks.py::test_benchmark_prepare_packet_with_pii(self, benchmark) - Benchmark prepare_packet_for_ingest with
+tests/performance/test_memory_benchmarks.py::test_benchmark_prepare_packet_with_redaction(self, benchmark) - Benchmark prepare_packet_for_ingest with
+tests/performance/test_memory_benchmarks.py::test_benchmark_redact_pii(self, benchmark) - Benchmark PII redaction.
+tests/performance/test_memory_benchmarks.py::test_large_payload_performance(self) - Large payloads should complete in reason
+tests/performance/test_memory_benchmarks.py::test_prepare_packet_returns_valid_result(self) - Prepare packet should return valid tuple
 tests/performance/test_state_bloat.py::create_initial_state(query, thread_id, request_id, user_id) - Create an initial research graph state f
 tests/performance/test_state_bloat.py::test_error_accumulation() - Test error accumulation stays bounded.
 tests/performance/test_state_bloat.py::test_evidence_accumulation() - Test evidence accumulation doesn't bloat
@@ -4198,63 +4786,6 @@ tools/export_repo_indexes.py::main() - Generate index files and export them.
 tools/export_repo_indexes.py::walk_dir(path, prefix, max_depth, current_depth, rel_path_prefix) - 
 tools/mac_protocol.py::create_mac_response(success, output, error, exit_code, timestamp) - Create Mac protocol response dict.
 tools/mac_protocol.py::parse_mac_message(data) - Parse and validate Mac protocol message.
-upgrades/packet_envelope/config.py::_get_env(key, default) - Get environment variable with fallback
-upgrades/packet_envelope/config.py::_get_env_bool(key, default) - Get boolean environment variable
-upgrades/packet_envelope/config.py::_get_env_int(key, default) - Get integer environment variable
-upgrades/packet_envelope/config.py::get_config() - Get singleton configuration instance
-upgrades/packet_envelope/config.py::reload_config() - Reload configuration from environment
-upgrades/packet_envelope/governance.py::__init__(self) - 
-upgrades/packet_envelope/governance.py::__init__(self) - 
-upgrades/packet_envelope/governance.py::__init__(self, audit_log) - 
-upgrades/packet_envelope/governance.py::__init__(self, config) - 
-upgrades/packet_envelope/governance.py::__init__(self, config) - 
-upgrades/packet_envelope/governance.py::_sign_proof(self, data_hash) - HMAC sign proof
-upgrades/packet_envelope/governance.py::get_expiration_date(self, aggregate_id, created_at) - Get expiration date
-upgrades/packet_envelope/governance.py::get_retention_policy(self, aggregate_id) - Get retention policy for aggregate
-upgrades/packet_envelope/governance.py::is_expired(self, aggregate_id, created_at) - Check if aggregate has expired
-upgrades/packet_envelope/governance.py::register_rule(self, rule) - Register anonymization rule
-upgrades/packet_envelope/governance.py::set_retention_policy(self, aggregate_id, policy) - Set retention policy for aggregate
-upgrades/packet_envelope/integration.py::__init__(self) - 
-upgrades/packet_envelope/integration.py::__init__(self, upgrade_engine) - 
-upgrades/packet_envelope/integration.py::_register_standard_schemas(self) - Register standard L9 event schemas
-upgrades/packet_envelope/integration.py::get_upgrade_status(self) - Get current upgrade status
-upgrades/packet_envelope/observability.py::__init__(self, config) - 
-upgrades/packet_envelope/observability.py::__init__(self, observability) - 
-upgrades/packet_envelope/observability.py::_init_metrics(self) - Initialize Prometheus metrics
-upgrades/packet_envelope/observability.py::attach_to_frame(self, frame_data) - Attach W3C trace context to WebSocket fr
-upgrades/packet_envelope/observability.py::create_observability(enabled) - Factory function for observability
-upgrades/packet_envelope/observability.py::decorator(func) - 
-upgrades/packet_envelope/observability.py::extract_from_frame(self, frame_data) - Extract trace context from received WebS
-upgrades/packet_envelope/observability.py::extract_trace_context(self, headers) - Extract W3C Trace Context from HTTP head
-upgrades/packet_envelope/observability.py::inject_trace_context(self, headers) - Inject W3C Trace Context into headers fo
-upgrades/packet_envelope/observability.py::record_packet_metrics(self, packet_id, size_bytes, lineage_depth, operation) - Record packet-specific metrics
-upgrades/packet_envelope/observability.py::sync_wrapper() - 
-upgrades/packet_envelope/observability.py::to_json(self) - Serialize to JSON for centralized loggin
-upgrades/packet_envelope/observability.py::trace_operation(self, operation_name, attributes, should_trace) - Decorator for tracing operations
-upgrades/packet_envelope/scalability.py::__init__(self) - 
-upgrades/packet_envelope/scalability.py::__init__(self) - 
-upgrades/packet_envelope/scalability.py::__init__(self, batch_size, max_concurrent_batches, db_pool_size) - 
-upgrades/packet_envelope/scalability.py::__init__(self, consumer_group, event_handlers) - 
-upgrades/packet_envelope/scalability.py::__init__(self, snapshot_interval) - 
-upgrades/packet_envelope/scalability.py::_validate_packet(self, packet) - Validate individual packet
-upgrades/packet_envelope/standardization.py::__init__(self) - 
-upgrades/packet_envelope/standardization.py::create_packet_ingested_event(packet_id, source, packet_data, trace_id, user_id) - Factory for packet ingested events
-upgrades/packet_envelope/standardization.py::deserialize(self, data) - Deserialize event from protocol format
-upgrades/packet_envelope/standardization.py::deserialize(self, headers, body) - Deserialize from HTTP binary mode
-upgrades/packet_envelope/standardization.py::deserialize(self, headers, body) - Deserialize from HTTP structured mode
-upgrades/packet_envelope/standardization.py::from_dict(cls, data) - Deserialize from dict
-upgrades/packet_envelope/standardization.py::from_json(cls, json_str) - Deserialize batch from JSON
-upgrades/packet_envelope/standardization.py::from_json(cls, json_str) - Deserialize from JSON
-upgrades/packet_envelope/standardization.py::get_schema(self, event_type, version) - Get schema (latest version if not specif
-upgrades/packet_envelope/standardization.py::register_schema(self, event_type, version, schema) - Register event schema
-upgrades/packet_envelope/standardization.py::serialize(self, event) - Serialize event to protocol format
-upgrades/packet_envelope/standardization.py::serialize(self, event) - Serialize to HTTP binary mode
-upgrades/packet_envelope/standardization.py::serialize(self, event) - Serialize to HTTP structured mode
-upgrades/packet_envelope/standardization.py::to_dict(self) - Convert to CloudEvents dict representati
-upgrades/packet_envelope/standardization.py::to_json(self) - Serialize batch to JSON array
-upgrades/packet_envelope/standardization.py::to_json(self) - Serialize to JSON
-upgrades/packet_envelope/standardization.py::validate(self) - Validate CloudEvents compliance
-upgrades/packet_envelope/standardization.py::validate_event(self, event) - Validate event against registered schema
 world_model/causal_graph.py::__init__(self) - Initialize empty causal graph.
 world_model/causal_graph.py::add_edge(self, edge) - Add causal edge (cause → effect).
 world_model/causal_graph.py::add_node(self, node) - Add node to causal graph.

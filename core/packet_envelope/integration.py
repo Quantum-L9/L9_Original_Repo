@@ -1,11 +1,11 @@
 """
-l9/upgrades/packet_envelope/integration.py
-Integration layer for PacketEnvelope phases 2-5
+core/packet_envelope/integration.py
+Integration layer for PacketEnvelope infrastructure
 
-Orchestrates all upgrade phases:
-  • Phase 2 observability → Phase 3 standardization
-  • Phase 3 standardization → Phase 4 scalability
-  • Phase 4 scalability → Phase 5 governance
+Orchestrates all capabilities:
+  • Observability → Standardization
+  • Standardization → Scalability
+  • Scalability → Governance
 
 Maintains backward compatibility with existing PacketEnvelope.
 """
@@ -16,26 +16,26 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from upgrades.packet_envelope.observability import (
+from core.packet_envelope.observability import (
     ObservabilityConfig,
     PacketEnvelopeObservability,
     WebSocketTracePropagator,
 )
-from upgrades.packet_envelope.standardization import (
+from core.packet_envelope.standardization import (
     CloudEvent,
     EventType,
     HTTPBinaryBinding,
     HTTPStructuredBinding,
     SchemaRegistry,
 )
-from upgrades.packet_envelope.scalability import (
+from core.packet_envelope.scalability import (
     BatchIngestionEngine,
     CommandHandler,
     EventStore,
     ReadModel,
     StreamConsumer,
 )
-from upgrades.packet_envelope.governance import (
+from core.packet_envelope.governance import (
     AnonymizationEngine,
     ComplianceAuditLog,
     ComplianceExporter,
@@ -341,7 +341,7 @@ class PacketEnvelopeAdapter:
             return f"packet-{datetime.utcnow().timestamp()}"
 
         # Use new batch ingestion
-        from upgrades.packet_envelope.scalability import BatchIngestRequest
+        from core.packet_envelope.scalability import BatchIngestRequest
 
         batch_request = BatchIngestRequest(
             batch_id=f"batch-{datetime.utcnow().timestamp()}",

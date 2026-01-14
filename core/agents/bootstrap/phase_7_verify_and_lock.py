@@ -116,23 +116,24 @@ async def verify_and_lock(
     # Store audit in memory substrate if available
     if hasattr(substrate_service, 'write_packet'):
         try:
-            from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketKind
+            from memory.substrate_models import PacketEnvelopeIn
             
-            packet = PacketEnvelope(
-                kind=PacketKind.MEMORY_WRITE,
-                agent_id=instance.agent_id,
+            packet = PacketEnvelopeIn(
+                packet_type="memory_write",
                 payload={
                     "chunk_type": "audit",
                     "event": audit_entry["event"],
                     "initialization_signature": signature,
                     "kernel_count": len(kernels),
                     "timestamp": audit_entry["timestamp"],
+                    "agent_id": instance.agent_id,
                 },
+                metadata={"agent": instance.agent_id, "schema_version": "1.0.0"},
             )
             await substrate_service.write_packet(packet)
             logger.info("✓ Audit trail written")
         except ImportError:
-            logger.debug("PacketEnvelope not available, audit logged only")
+            logger.debug("PacketEnvelopeIn not available, audit logged only")
     
     # Update agent state in Neo4j
     if neo4j_client:

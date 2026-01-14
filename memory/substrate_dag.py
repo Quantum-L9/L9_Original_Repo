@@ -15,18 +15,21 @@ All memory operations flow through MCP-Memory's unified ingestion pipeline.
 
 from __future__ import annotations
 
+import asyncio
 import structlog
 from datetime import datetime
 from typing import Any, Optional, TypedDict
 from uuid import uuid4
 
 from langgraph.graph import StateGraph, END
+from langchain_core.runnables import RunnableConfig
 
-from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketWriteResult
 from memory.substrate_models import (
     EnrichmentResult,
     ExtractedInsight,
     KnowledgeFact,
+    PacketEnvelope,
+    PacketWriteResult,
     StructuredReasoningBlock,
 )
 
@@ -90,6 +93,31 @@ def _should_skip_embedding(text: str) -> bool:
 
 
 # =============================================================================
+# Config Helper (for RunnableConfig dependency injection)
+# =============================================================================
+
+
+def _get_config_dependency(config: RunnableConfig, key: str, default=None):
+    """
+    Safely extract a configurable dependency from RunnableConfig.
+
+    Args:
+        config: RunnableConfig or None
+        key: Key to extract from configurable dict
+        default: Default value if not found
+
+    Returns:
+        The dependency value or default
+    """
+    if not config:
+        return default
+    configurable = config.get("configurable", {})
+    if not configurable:
+        return default
+    return configurable.get(key, default)
+
+
+# =============================================================================
 # State Definition
 # =============================================================================
 
@@ -142,7 +170,7 @@ def _default_state() -> SubstrateGraphState:
 
 
 async def intake_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Entry node: validates and normalizes the PacketEnvelope.
@@ -151,6 +179,7 @@ async def intake_node(
     - Ensures packet_id and timestamp are set
     - Prepares state for downstream processing
     """
+    repository = _get_config_dependency(config, "repository")
     logger.debug("intake_node: Processing packet")
 
     envelope = state.get("envelope", {})
@@ -189,7 +218,7 @@ async def intake_node(
 
 
 async def reasoning_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Reasoning node: generates StructuredReasoningBlock from packet.
@@ -199,6 +228,7 @@ async def reasoning_node(
     - Generates confidence scores
     - Determines memory write operations
     """
+    repository = _get_config_dependency(config, "repository")
     logger.debug("reasoning_node: Generating reasoning block")
 
     envelope = state.get("envelope", {})
@@ -267,7 +297,7 @@ async def reasoning_node(
 
 
 async def memory_write_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Memory write node: persists packet and reasoning to database.
@@ -277,6 +307,7 @@ async def memory_write_node(
     - agent_memory_events
     - reasoning_traces (if reasoning block present)
     """
+    repository = _get_config_dependency(config, "repository")
     logger.debug("memory_write_node: Writing to database")
 
     envelope = state.get("envelope", {})
@@ -338,13 +369,15 @@ async def memory_write_node(
 
 
 async def semantic_embed_node(
-    state: SubstrateGraphState, repository=None, semantic_service=None
+    state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Semantic embedding node: generates and stores embedding for payload.
 
     Only embeds if payload contains text content suitable for semantic search.
     """
+    repository = _get_config_dependency(config, "repository")
+    semantic_service = _get_config_dependency(config, "semantic_service")
     logger.debug("semantic_embed_node: Processing embedding")
 
     envelope = state.get("envelope", {})
@@ -421,13 +454,14 @@ async def semantic_embed_node(
 
 
 async def checkpoint_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Checkpoint node: saves graph state for recovery.
 
     Final node in the DAG - persists state to graph_checkpoints.
     """
+    repository = _get_config_dependency(config, "repository")
     logger.debug("checkpoint_node: Saving checkpoint")
 
     envelope = state.get("envelope", {})
@@ -477,7 +511,7 @@ async def checkpoint_node(
 
 
 async def extract_insights_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Extract insights from packet payload and reasoning block.
@@ -487,6 +521,7 @@ async def extract_insights_node(
     - Conclusion-like statements in text
     - Entity mentions and relationships
     """
+    repository = _get_config_dependency(config, "repository")
     logger.debug("extract_insights_node: Extracting insights")
 
     envelope = state.get("envelope", {})
@@ -585,7 +620,7 @@ async def extract_insights_node(
 
 
 async def store_insights_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Store extracted insights and facts to database (v2.1.0 - GMP-67).
@@ -599,6 +634,7 @@ async def store_insights_node(
     """
     from uuid import UUID
     
+    repository = _get_config_dependency(config, "repository")
     logger.debug("store_insights_node: Storing insights and facts")
 
     insights = state.get("insights", [])
@@ -676,7 +712,7 @@ async def store_insights_node(
 
 
 async def world_model_trigger_node(
-    state: SubstrateGraphState, repository=None, world_model_service=None
+    state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
     Trigger world model update based on extracted insights.
@@ -688,6 +724,8 @@ async def world_model_trigger_node(
     - Uses world_model.service.WorldModelService for DB-backed updates
     - Falls back to orchestrator if service not available
     """
+    repository = _get_config_dependency(config, "repository")
+    world_model_service = _get_config_dependency(config, "world_model_service")
     logger.debug("world_model_trigger_node: Checking for world model updates")
 
     insights = state.get("insights", [])
@@ -741,18 +779,88 @@ async def world_model_trigger_node(
 
 
 # =============================================================================
+# Routing Functions (Conditional Edges)
+# =============================================================================
+
+
+def _extract_text_for_routing(envelope: dict) -> str:
+    """Extract text content from envelope for routing decisions."""
+    if not envelope:
+        return ""
+    payload = envelope.get("payload", {})
+    if not isinstance(payload, dict):
+        return ""
+    return (
+        payload.get("text")
+        or payload.get("content")
+        or payload.get("description")
+        or ""
+    )
+
+
+def route_after_memory_write(state: SubstrateGraphState) -> str:
+    """
+    Route after memory_write_node: skip semantic_embed if low-value content.
+
+    GMP-42: Implements skip pattern at graph level (more efficient than in-node check).
+
+    Returns:
+        "do_embed" to run semantic_embed_node
+        "skip_embed" to skip directly to extract_insights_node
+    """
+    try:
+        envelope = state.get("envelope", {})
+
+        # Guard: empty or invalid envelope
+        if not envelope:
+            logger.warning("route_after_memory_write: Empty envelope, defaulting to 'do_embed'")
+            return "do_embed"
+
+        payload = envelope.get("payload", {})
+        packet_type = envelope.get("packet_type", "")
+
+        # Check if content type is embeddable
+        should_embed = (
+            "semantic" in packet_type.lower()
+            or "memory" in packet_type.lower()
+            or "text" in payload
+            or "content" in payload
+            or "description" in payload
+        )
+
+        if not should_embed:
+            logger.debug(f"route_after_memory_write: packet_type={packet_type} not embeddable, skip")
+            return "skip_embed"
+
+        # Check GMP-42 skip patterns
+        text = _extract_text_for_routing(envelope)
+        if _should_skip_embedding(text):
+            logger.debug("route_after_memory_write: GMP-42 skip pattern matched, skip")
+            return "skip_embed"
+
+        return "do_embed"
+
+    except Exception as e:
+        logger.error(f"route_after_memory_write: Error in routing: {e}, defaulting to 'do_embed'")
+        return "do_embed"
+
+
+# =============================================================================
 # Graph Builder
 # =============================================================================
 
 
 def build_substrate_graph() -> StateGraph:
     """
-    Build the LangGraph DAG for memory substrate processing.
+    Build the LangGraph DAG for memory substrate processing with conditional routing.
 
-    Graph structure (v1.1.0+):
-        intake_node → reasoning_node → memory_write_node → extract_insights_node
-                                    ↘ semantic_embed_node ↗            ↓
-                                                          store_insights_node → world_model_trigger_node → checkpoint_node
+    Graph structure (v2.0.0 - Native LangGraph Execution):
+        intake_node → reasoning_node → memory_write_node → [CONDITIONAL]
+                                                            ├─ do_embed → semantic_embed_node → extract_insights_node
+                                                            └─ skip_embed → extract_insights_node
+        extract_insights_node → store_insights_node → world_model_trigger_node → checkpoint_node
+
+    GMP-42: Conditional routing skips semantic_embed_node for low-value content.
 
     Returns:
         Compiled StateGraph
@@ -770,17 +878,59 @@ def build_substrate_graph() -> StateGraph:
     graph.add_node("world_model_trigger_node", world_model_trigger_node)
     graph.add_node("checkpoint_node", checkpoint_node)
 
-    # Add edges (v1.1.0 extended pipeline)
+    # Linear edges (entry through memory_write)
     graph.set_entry_point("intake_node")
     graph.add_edge("intake_node", "reasoning_node")
     graph.add_edge("reasoning_node", "memory_write_node")
-    graph.add_edge("reasoning_node", "semantic_embed_node")
-    graph.add_edge("memory_write_node", "extract_insights_node")
+
+    # CONDITIONAL: Route after memory_write based on content (GMP-42)
+    graph.add_conditional_edges(
+        "memory_write_node",
+        route_after_memory_write,
+        {
+            "do_embed": "semantic_embed_node",
+            "skip_embed": "extract_insights_node",
+        }
+    )
+
+    # Continue from semantic_embed to insights
     graph.add_edge("semantic_embed_node", "extract_insights_node")
+
+    # Rest of pipeline (linear)
     graph.add_edge("extract_insights_node", "store_insights_node")
     graph.add_edge("store_insights_node", "world_model_trigger_node")
     graph.add_edge("world_model_trigger_node", "checkpoint_node")
     graph.add_edge("checkpoint_node", END)
+
+    return graph.compile()
+
+
+def build_enrichment_graph() -> StateGraph:
+    """
+    Build enrichment-only DAG (skips intake, memory_write, semantic_embed, checkpoint).
+
+    Graph structure:
+        reasoning_node → extract_insights_node → store_insights_node → world_model_trigger_node
+
+    Used by SubstrateDAG.enrich() for post-ingestion enrichment of already-persisted packets.
+
+    Returns:
+        Compiled StateGraph
+    """
+    graph = StateGraph(SubstrateGraphState)
+
+    # Add only enrichment nodes
+    graph.add_node("reasoning_node", reasoning_node)
+    graph.add_node("extract_insights_node", extract_insights_node)
+    graph.add_node("store_insights_node", store_insights_node)
+    graph.add_node("world_model_trigger_node", world_model_trigger_node)
+
+    # Linear enrichment pipeline
+    graph.set_entry_point("reasoning_node")
+    graph.add_edge("reasoning_node", "extract_insights_node")
+    graph.add_edge("extract_insights_node", "store_insights_node")
+    graph.add_edge("store_insights_node", "world_model_trigger_node")
+    graph.add_edge("world_model_trigger_node", END)
 
     return graph.compile()
 
@@ -810,10 +960,14 @@ class SubstrateDAG:
         self._semantic_service = semantic_service
         self._world_model_service = world_model_service
         self._graph = build_substrate_graph()
+        self._enrichment_graph = build_enrichment_graph()
 
     async def run(self, envelope: PacketEnvelope) -> PacketWriteResult:
         """
-        Run the substrate DAG for a PacketEnvelope.
+        Run the substrate DAG using native LangGraph execution.
+
+        Uses graph.ainvoke() with config-based dependency injection for all nodes.
+        Conditional routing (GMP-42) skips semantic_embed_node for low-value content.
 
         Args:
             envelope: PacketEnvelope to process
@@ -821,7 +975,11 @@ class SubstrateDAG:
         Returns:
             PacketWriteResult with status and written tables
         """
-        # Prepare initial state (v1.1.0+ with insights)
+        # Validate envelope shape before invoke
+        if not isinstance(envelope, PacketEnvelope):
+            raise ValueError(f"envelope must be PacketEnvelope, got {type(envelope)}")
+
+        # Prepare initial state (v2.0.0 - Native LangGraph Execution)
         initial_state: SubstrateGraphState = {
             "envelope": envelope.model_dump(mode="json"),
             "reasoning_block": None,
@@ -834,47 +992,59 @@ class SubstrateDAG:
             "errors": [],
         }
 
-        # Inject dependencies into node functions
-        # Note: LangGraph doesn't directly support dependency injection,
-        # so we use a wrapper pattern
+        # Validate state shape
+        if not isinstance(initial_state["envelope"], dict):
+            raise ValueError("envelope must serialize to dict")
 
-        # Run each node manually with dependencies
-        state = initial_state
+        # Config with dependencies for all nodes (RunnableConfig pattern)
+        config: RunnableConfig = {
+            "configurable": {
+                "repository": self._repository,
+                "semantic_service": self._semantic_service,
+                "world_model_service": self._world_model_service,
+            }
+        }
 
-        state = await intake_node(state, repository=self._repository)
-        state = await reasoning_node(state, repository=self._repository)
+        # Native LangGraph execution with structured error handling
+        try:
+            final_state = await asyncio.wait_for(
+                self._graph.ainvoke(initial_state, config=config),
+                timeout=60.0  # 60 second timeout for DAG execution
+            )
+        except asyncio.TimeoutError:
+            logger.error(f"DAG execution timed out for packet {envelope.packet_id}")
+            return PacketWriteResult(
+                packet_id=envelope.packet_id,
+                written_tables=[],
+                status="error",
+                error_message="DAG execution timeout (60s)",
+            )
+        except ValueError as e:
+            if "configurable" in str(e).lower():
+                logger.error(f"Missing dependency in config: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"DAG execution failed: {e}", exc_info=True)
+            return PacketWriteResult(
+                packet_id=envelope.packet_id,
+                written_tables=[],
+                status="error",
+                error_message=str(e),
+            )
 
-        # Parallel execution of memory_write and semantic_embed
-        # (simplified to sequential for now)
-        state = await memory_write_node(state, repository=self._repository)
-        state = await semantic_embed_node(
-            state, repository=self._repository, semantic_service=self._semantic_service
-        )
-
-        # Insight extraction pipeline (v1.1.0+)
-        state = await extract_insights_node(state, repository=self._repository)
-        state = await store_insights_node(state, repository=self._repository)
-        state = await world_model_trigger_node(
-            state,
-            repository=self._repository,
-            world_model_service=self._world_model_service,
-        )
-
-        state = await checkpoint_node(state, repository=self._repository)
-
-        # Build result
-        errors = state.get("errors", [])
+        # Build result from final state
+        errors = final_state.get("errors", [])
         if errors:
             return PacketWriteResult(
                 packet_id=envelope.packet_id,
-                written_tables=state.get("written_tables", []),
+                written_tables=final_state.get("written_tables", []),
                 status="error",
                 error_message="; ".join(errors),
             )
 
         return PacketWriteResult(
             packet_id=envelope.packet_id,
-            written_tables=state.get("written_tables", []),
+            written_tables=final_state.get("written_tables", []),
             status="ok",
         )
 
@@ -884,7 +1054,7 @@ class SubstrateDAG:
         preload_state: Optional[dict[str, Any]] = None,
     ) -> EnrichmentResult:
         """
-        Run ENRICHMENT ONLY pipeline on already-persisted packet (v2.1.0 - GMP-67).
+        Run ENRICHMENT ONLY pipeline using native LangGraph execution (v2.1.0 - GMP-67).
         
         SKIPS: intake_node, memory_write_node, semantic_embed_node (already done by IngestionPipeline)
         RUNS: reasoning_node → extract_insights_node → store_insights_node → world_model_trigger_node
@@ -918,7 +1088,7 @@ class SubstrateDAG:
         
         # Pre-hydrate state from envelope (skip intake_node's validation)
         # State matches SubstrateGraphState TypedDict structure
-        state: SubstrateGraphState = preload_state or {
+        initial_state: SubstrateGraphState = preload_state or {
             "envelope": envelope.model_dump(mode="json"),
             "reasoning_block": None,
             "written_tables": [],  # Not writing core tables
@@ -930,16 +1100,27 @@ class SubstrateDAG:
             "errors": [],
         }
         
-        # Run ENRICHMENT nodes ONLY (skip intake, memory_write, semantic_embed)
-        # These nodes extract insights/facts but don't write to packet_store
-        state = await reasoning_node(state, repository=self._repository)
-        state = await extract_insights_node(state, repository=self._repository)
-        state = await store_insights_node(state, repository=self._repository)
-        state = await world_model_trigger_node(
-            state,
-            repository=self._repository,
-            world_model_service=self._world_model_service,
-        )
+        # Config with dependencies for all nodes (RunnableConfig pattern)
+        config: RunnableConfig = {
+            "configurable": {
+                "repository": self._repository,
+                "semantic_service": self._semantic_service,
+                "world_model_service": self._world_model_service,
+            }
+        }
+        
+        # Native LangGraph execution for enrichment
+        try:
+            final_state = await asyncio.wait_for(
+                self._enrichment_graph.ainvoke(initial_state, config=config),
+                timeout=30.0  # 30 second timeout for enrichment
+            )
+        except asyncio.TimeoutError:
+            logger.error(f"Enrichment timed out for packet {envelope.packet_id}")
+            raise
+        except Exception as e:
+            logger.error(f"Enrichment failed: {e}", exc_info=True)
+            raise
         
         # Build EnrichmentResult
         duration_ms = (time.time() - start_time) * 1000
@@ -947,13 +1128,13 @@ class SubstrateDAG:
         # Convert dicts back to typed models
         facts = [
             KnowledgeFact(**f) if isinstance(f, dict) else f
-            for f in state.get("facts", [])
+            for f in final_state.get("facts", [])
         ]
         insights = [
             ExtractedInsight(**i) if isinstance(i, dict) else i
-            for i in state.get("insights", [])
+            for i in final_state.get("insights", [])
         ]
-        reasoning_block = state.get("reasoning_block")
+        reasoning_block = final_state.get("reasoning_block")
         reasoning_trace = (
             StructuredReasoningBlock(**reasoning_block)
             if reasoning_block and isinstance(reasoning_block, dict)
@@ -961,11 +1142,11 @@ class SubstrateDAG:
         )
         
         logger.info(
-            "DAG enrichment completed",
+            "DAG enrichment completed (native execution)",
             packet_id=str(envelope.packet_id),
             facts_count=len(facts),
             insights_count=len(insights),
-            world_model_triggered=state.get("world_model_triggered", False),
+            world_model_triggered=final_state.get("world_model_triggered", False),
             duration_ms=duration_ms,
         )
         
@@ -975,6 +1156,6 @@ class SubstrateDAG:
             insights=insights,
             reasoning_trace=reasoning_trace,
             facts_inserted=len(facts),
-            world_model_triggered=state.get("world_model_triggered", False),
+            world_model_triggered=final_state.get("world_model_triggered", False),
             enrichment_duration_ms=duration_ms,
         )

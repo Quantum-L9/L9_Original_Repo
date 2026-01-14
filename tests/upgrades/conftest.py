@@ -13,10 +13,9 @@ PROJECT_ROOT = os.path.realpath(str(Path(__file__).resolve().parent.parent.paren
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# Force import of upgrades package to verify path is correct
+# Force import of core.packet_envelope to verify path is correct
 try:
-    import upgrades
-    import upgrades.packet_envelope
+    import core.packet_envelope
 except ImportError:
     # If still not found, try adding explicitly
     pass

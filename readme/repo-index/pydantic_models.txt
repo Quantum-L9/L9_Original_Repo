@@ -90,6 +90,7 @@ ContextInjectionRequest @ mcp_memory/src/models.py - Request for auto context in
 ContextInjectionResponse @ igor/audit-memory/mcp_memory_src_models.py - Context memories to inject into system prompt.
 ContextInjectionResponse @ mcp_memory/src/models.py - Context memories to inject into system prompt.
 ContextRead @ ir_engine/meta_ir.py - Context read operation.
+CorrelateTimelineRequest @ api/memory/router.py - Request model for timeline correlation saga.
 CrossAgentSharingConfig @ codegen/code-gen-files/schema_parser.py - Cross-agent memory sharing configuration.
 CursorAgentState @ agents/cursor/integrations/cursor_langgraph.py - LangGraph state model for Cursor agent execution.
 CursorInstructionsBlock @ codegen/code-gen-files/schema_parser.py - File generation directives for code extraction.
@@ -110,6 +111,8 @@ EmailAdapterRequest @ api/adapters/email_adapter/schemas.py - Inbound request sc
 EmailAdapterRequest @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/schemas.py - Inbound request schema for Email Adapter.
 EmailAdapterResponse @ api/adapters/email_adapter/schemas.py - Response schema for Email Adapter.
 EmailAdapterResponse @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/schemas.py - Response schema for Email Adapter.
+EnrichEntitiesRequest @ api/memory/router.py - Request model for entity enrichment saga.
+EnrichmentResult @ memory/substrate_models.py - Result of SubstrateDAG.enrich() execution (v2.1.0 
 EntityData @ clients/world_model_client.py - Entity data from API.
 EntityListResponse @ api/world_model_api.py - List of entities response.
 EntityRequest @ api/memory/graph.py - Request model for entity operations.
@@ -139,6 +142,7 @@ ExtractSessionLearningsArgs @ mcp_memory/src/models.py - Validation model for ex
 ExtractedInsight @ igor/audit-memory/memory_substrate_models.py - An insight extracted from packet reasoning.
 ExtractedInsight @ memory/substrate_models.py - An insight extracted from packet reasoning.
 FailureSignal @ core/observability/models.py - Signal indicating a failure event.
+FetchAndEnrichRequest @ api/memory/router.py - Request model for fetch_and_enrich saga.
 FlexibleModel @ core/kernels/schemas.py - Base model that allows extra fields for forward co
 ForwardRequest @ email_agent/router.py - Request model for forwarding email.
 GMPRunInput @ core/schemas/l_tools.py - Input schema for GMP run tool (high-risk, requires
@@ -300,7 +304,7 @@ PacketRequest @ igor/audit-memory/api_memory_router.py - Request model for packe
 PacketResponse @ api/memory/router.py - Response model for packet ingestion.
 PacketResponse @ igor/audit-memory/api_memory_router.py - Response model for packet ingestion.
 PacketStoreRow @ igor/audit-memory/memory_substrate_models.py - DTO for packet_store table (v1.1.0 extended).
-PacketStoreRow @ memory/substrate_models.py - DTO for packet_store table (v1.1.0 extended).
+PacketStoreRow @ memory/substrate_models.py - DTO for packet_store table (v2.0 - all columns fro
 PacketWriteResult @ clients/memory_client.py - Response from packet write endpoint.
 PacketWriteResult @ core/schemas/packet_envelope.py - Returned after DAG processing for a packet write.
 PacketWriteResult @ core/schemas/packet_envelope_v2.py - Result of writing a PacketEnvelope.
@@ -352,6 +356,7 @@ RetryConfig @ ir_engine/meta_ir.py - Retry configuration.
 RuntimeTouchpoints @ ir_engine/meta_ir.py - Section 10: What runtime resources this module tou
 RuntimeWiringSpec @ ir_engine/meta_ir.py - Section 3: SINGLE SOURCE OF TRUTH for docker-compo
 SREMetric @ core/observability/models.py - SRE-level metric.
+SagaResponse @ api/memory/router.py - Response model for saga operations.
 SaveMemoryArgs @ mcp_memory/src/models.py - Validation model for save_memory tool arguments.
 SaveMemoryRequest @ igor/audit-memory/mcp_memory_src_models.py - 
 SaveMemoryRequest @ mcp_memory/src/models.py - 
@@ -487,4 +492,4 @@ WorldModelQueryInput @ igor/audit-tools/core_schemas_l_tools.py - Input schema f
 WorldModelRequest @ orchestrators/world_model/interface.py - Request to world_model orchestrator.
 WorldModelResponse @ orchestrators/world_model/interface.py - Response from world_model orchestrator.
 
-# Total: 483 Pydantic models
+# Total: 488 Pydantic models

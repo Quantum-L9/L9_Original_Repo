@@ -7,37 +7,40 @@
 |-----------|-------|---------------|
 | `@abstractmethod` | 28 | agents/base_agent.py, collaborative_cells/base_cell.py, core/observability/context_strategies.py |
 | `@acceptance` | 1 | docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py |
-| `@asynccontextmanager` | 6 | api/server.py, docs/Slack-Debug-2/server.py, igor/audit-memory/mcp_memory_src_main.py |
-| `@asyncio` | 687 | api/adapters/calendar_adapter/tests/test_calendar_adapter.py, api/adapters/email_adapter/tests/test_email_adapter.py, api/adapters/twilio_adapter/tests/test_twilio_adapter.py |
+| `@asynccontextmanager` | 7 | api/server.py, docs/Slack-Debug-2/server.py, igor/audit-memory/mcp_memory_src_main.py |
+| `@asyncio` | 784 | api/adapters/calendar_adapter/tests/test_calendar_adapter.py, api/adapters/email_adapter/tests/test_email_adapter.py, api/adapters/twilio_adapter/tests/test_twilio_adapter.py |
+| `@benchmark(...)` | 9 | tests/performance/test_memory_benchmarks.py |
 | `@classmethod` | 43 | api/adapters/calendar_adapter/config.py, api/adapters/email_adapter/config.py, api/adapters/twilio_adapter/config.py |
-| `@dataclass` | 298 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/readme_generator.py |
+| `@dataclass` | 325 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/readme_generator.py |
 | `@dataclass(...)` | 3 | core/moduleregistry.py, core/tools/sanitizer.py |
 | `@delete(...)` | 2 | api/memory/cache.py, api/memory/graph.py |
+| `@dict(...)` | 10 | tests/api/test_agent_auth.py, tests/api/test_websocket_auth.py |
 | `@exception_handler(...)` | 7 | api/server.py, docs/Slack-Debug-2/server.py, igor/audit-memory/mcp_memory_src_main.py |
 | `@field_validator(...)` | 7 | codegen/code-gen-files/schema_parser.py, core/kernels/schemas.py, core/schemas/research_factory_models.py |
-| `@fixture` | 259 | api/adapters/calendar_adapter/tests/conftest.py, api/adapters/calendar_adapter/tests/test_calendar_adapter.py, api/adapters/calendar_adapter/tests/test_calendar_adapter_integration.py |
+| `@fixture` | 270 | api/adapters/calendar_adapter/tests/conftest.py, api/adapters/calendar_adapter/tests/test_calendar_adapter.py, api/adapters/calendar_adapter/tests/test_calendar_adapter_integration.py |
 | `@fixture(...)` | 11 | igor/audit-memory/tests_memory_test_substrate_api.py, igor/audit-memory/tests_memory_test_vector_search.py, tests/docker/test_stack_smoke.py |
-| `@get(...)` | 105 | api/adapters/calendar_adapter/routes/calendar_adapter.py, api/adapters/email_adapter/routes/email_adapter.py, api/adapters/twilio_adapter/routes/twilio_adapter.py |
+| `@get(...)` | 107 | api/adapters/calendar_adapter/routes/calendar_adapter.py, api/adapters/email_adapter/routes/email_adapter.py, api/adapters/twilio_adapter/routes/twilio_adapter.py |
 | `@integration` | 6 | docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/test-slack-adapter-integration.py, tests/test_memory_substrate_basic.py |
 | `@l9_traced(...)` | 1 | codegen/templates/python/dora-template.py |
-| `@lru_cache(...)` | 2 | core/schemas/schema_registry.py, services/symbolic_computation/core.py |
+| `@lru_cache(...)` | 20 | api/routes/upgrades.py, config/memory_substrate_settings.py, config/research_settings.py |
 | `@model_validator(...)` | 3 | core/observability/config.py, ir_engine/meta_ir.py |
 | `@on_event(...)` | 4 | api/server.py, docs/Slack-Debug-2/server.py |
-| `@parametrize(...)` | 4 | tests/docker/test_env_validation.py, tests/test_imports.py |
+| `@parametrize(...)` | 6 | tests/docker/test_env_validation.py, tests/email_agent/test_email_router.py, tests/test_imports.py |
 | `@patch(...)` | 7 | tests/test_research_graph.py |
-| `@post(...)` | 98 | api/adapters/calendar_adapter/routes/calendar_adapter.py, api/adapters/email_adapter/routes/email_adapter.py, api/adapters/twilio_adapter/routes/twilio_adapter.py |
-| `@property` | 99 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/file_emitter.py |
+| `@post(...)` | 102 | api/adapters/calendar_adapter/routes/calendar_adapter.py, api/adapters/email_adapter/routes/email_adapter.py, api/adapters/twilio_adapter/routes/twilio_adapter.py |
+| `@property` | 111 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/file_emitter.py |
 | `@recurrence_memo(...)` | 1 | services/symbolic_computation/utils.py |
 | `@register(...)` | 4 | core/schemas/schema_registry.py |
 | `@retry(...)` | 3 | agents/research_agent.py, codegen/Perplexity-Search-Pack/autonomous-research-agent.py, codegen/scripts/generate_spec.py |
-| `@skip(...)` | 6 | tests/integration/test_graph_state_integration.py, tests/integration/test_l_bootstrap.py, tests/unit/test_lcto_bootstrap.py |
-| `@skipif(...)` | 2 | tests/runtime/test_websocket_orchestrator_basic.py, tests/unit/test_guarded_execution.py |
-| `@staticmethod` | 70 | agents/research_agent.py, api/slack_adapter.py, codegen/Perplexity-Search-Pack/autonomous-research-agent.py |
+| `@skip(...)` | 7 | tests/integration/test_graph_state_integration.py, tests/integration/test_l_bootstrap.py, tests/memory/test_unified_pipeline.py |
+| `@skipif(...)` | 3 | tests/performance/test_memory_benchmarks.py, tests/runtime/test_websocket_orchestrator_basic.py, tests/unit/test_guarded_execution.py |
+| `@slow` | 1 | tests/memory/test_unified_pipeline.py |
+| `@staticmethod` | 75 | agents/research_agent.py, api/slack_adapter.py, codegen/Perplexity-Search-Pack/autonomous-research-agent.py |
 | `@trace_governance_check(...)` | 1 | core/observability/l9_integration.py |
 | `@trace_span(...)` | 8 | core/observability/l9_integration.py, tests/core/observability/test_observability_integration.py |
 | `@trace_tool_call(...)` | 1 | core/observability/l9_integration.py |
 | `@validator(...)` | 3 | igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py, services/symbolic_computation/models.py |
 | `@websocket(...)` | 4 | api/server.py, docs/Slack-Debug-2/server.py |
-| `@wraps(...)` | 12 | core/observability/instrumentation.py, runtime/dora.py, upgrades/packet_envelope/observability.py |
+| `@wraps(...)` | 12 | core/observability/instrumentation.py, core/packet_envelope/observability.py, runtime/dora.py |
 
-# Total: 34 unique decorators
+# Total: 37 unique decorators

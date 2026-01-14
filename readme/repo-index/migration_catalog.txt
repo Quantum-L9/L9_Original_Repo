@@ -15,10 +15,12 @@
 | `0007_init_world_model_snapshots.sql` | ============================================================ |
 | `0008_memory_substrate_10x.sql` | ============================================================ |
 | `0009_feedback_and_effectiveness.sql` | ============================================================ |
+| `0010_add_fact_deprecation.sql` | ============================================================ |
 | `0011_tool_audit_log.sql` | Migration: Add tool audit log table |
 | `0012_fix_graph_checkpoints_unique.sql` | Migration: 0012_fix_graph_checkpoints_unique |
 | `0013_mcp_audit_columns.sql` | ============================================================ |
 | `0014_multi_checkpoint_support.sql` | Migration: 0014_multi_checkpoint_support |
+| `0015_knowledge_facts_upsert_key.sql` | ============================================================ |
 
 ## Key Tables Created
 

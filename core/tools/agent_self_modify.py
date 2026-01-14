@@ -346,6 +346,9 @@ class AgentSelfModifyTool:
 # TOOL DEFINITIONS FOR REGISTRY
 # =============================================================================
 
+# LEGITIMATE: Tool definitions used for schema validation and test fixtures.
+# These are intentionally not auto-registered - registration happens via
+# AgentSelfModifyTool class instantiation in the tool graph.
 AGENT_SELF_MODIFY_TOOL_DEFINITIONS = [
     {
         "tool_id": "agent_add_directive",

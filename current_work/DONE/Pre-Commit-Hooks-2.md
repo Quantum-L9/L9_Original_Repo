@@ -1,13 +1,15 @@
 # 🚀 Production-Ready Git Hooks for L9 (Frontier AI Lab Grade)
 
-I'll generate **3 production-ready scripts** you can drop into your repo immediately.
+ **3 production-ready scripts** you can drop into your repo immediately.
 
 ***
 
 ## 📦 DELIVERABLES
 
 ### **Script 1: `pre-commit` (Secret Scanning + Auto-Format + Lint)**
+
 ### **Script 2: `post-merge` (Enhanced with Kernel Reload + Cache Invalidation)**
+
 ### **Script 3: `pre-push` (Smoke Tests + Large File Blocker + Schema Validation)**
 ### **Bonus: Installation Script + Pre-Commit Config**
 

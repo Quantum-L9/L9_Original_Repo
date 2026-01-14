@@ -675,76 +675,18 @@ class IngestionPipeline:
 # Singleton / Factory
 # =============================================================================
 
-# Module-level singleton (NOT lru_cache to allow re-init with different settings)
-_ingestion_pipeline: Optional[IngestionPipeline] = None
-
-
+@lru_cache(maxsize=1)
 def get_ingestion_pipeline() -> IngestionPipeline:
-    """
-    Get the ingestion pipeline singleton.
-    
-    First call creates pipeline with settings from environment:
-    - ENABLE_DAG_ENRICHMENT (default: False)
-    - DAG_ENRICHMENT_TIMEOUT (default: 30.0)
-    
-    Use init_ingestion_pipeline() to wire dependencies (repository, dag, etc.)
-    """
-    global _ingestion_pipeline
-    
-    if _ingestion_pipeline is None:
-        # Read settings from environment (GMP-67: proper wiring)
-        from config.memory_substrate_settings import get_settings
-        settings = get_settings()
-        
-        _ingestion_pipeline = IngestionPipeline(
-            enable_enrichment=settings.enable_dag_enrichment,
-            enrichment_timeout=settings.dag_enrichment_timeout_seconds,
-        )
-        logger.info(
-            "IngestionPipeline singleton created from settings",
-            enable_enrichment=settings.enable_dag_enrichment,
-            enrichment_timeout=settings.dag_enrichment_timeout_seconds,
-        )
-    
-    return _ingestion_pipeline
+    """Get or create the ingestion pipeline singleton. CACHED."""
+    return IngestionPipeline()
 
 
-def reset_ingestion_pipeline() -> None:
-    """Reset the singleton (useful for testing or re-initialization)."""
-    global _ingestion_pipeline
-    _ingestion_pipeline = None
-
-
-def init_ingestion_pipeline(
-    repository,
-    semantic_service=None,
-    dag=None,
-    agent_persistence=None,
-) -> IngestionPipeline:
-    """
-    Initialize the ingestion pipeline with dependencies.
-    
-    Args:
-        repository: SubstrateRepository instance
-        semantic_service: Optional SemanticService for embeddings
-        dag: Optional SubstrateDAG for enrichment (facts, insights)
-        agent_persistence: Optional AgentPersistenceService for checkpoints
-        
-    Returns:
-        Configured IngestionPipeline singleton
-    """
+def init_ingestion_pipeline(repository, semantic_service=None) -> IngestionPipeline:
+    """Initialize the ingestion pipeline with dependencies."""
     pipeline = get_ingestion_pipeline()
     pipeline.set_repository(repository)
-    
     if semantic_service:
         pipeline.set_semantic_service(semantic_service)
-    
-    if dag:
-        pipeline.set_dag(dag)
-    
-    if agent_persistence:
-        pipeline.set_agent_persistence(agent_persistence)
-    
     return pipeline
 
 
@@ -762,21 +704,18 @@ async def ingest_packet(
 
     This is the SINGLE POINT OF ENTRY for all packet ingestion.
     All runtime packets MUST pass through this function.
-    
-    Pipeline behavior controlled by environment variables:
-    - ENABLE_DAG_ENRICHMENT: Enable fact/insight extraction (default: False)
-    - DAG_ENRICHMENT_TIMEOUT: Max seconds for enrichment (default: 30)
-    
-    When enrichment is enabled and DAG is available, runs:
-    - Core writes (packet_store, embeddings, neo4j) - ALWAYS
-    - DAG enrichment (reasoning, facts, insights, world model) - IF ENABLED
+
+    SIMPLIFIED PATH (2026-01-13):
+    Routes through IngestionPipeline ONLY (no DAG) for reliability.
+    DAG path (reasoning, insight extraction) can be wired in later
+    once the core pipeline is stable.
 
     Args:
         packet_in: PacketEnvelopeIn to ingest
         service: Optional MemorySubstrateService (uses singleton if not provided)
 
     Returns:
-        PacketWriteResult with status, written tables, and enrichment status
+        PacketWriteResult with status and written tables
 
     Raises:
         RuntimeError: If memory system is not initialized
@@ -791,7 +730,9 @@ async def ingest_packet(
                 "Memory system not initialized. Call memory.init_service() at startup."
             )
 
-    # Get pipeline (created with settings from environment)
+    # SIMPLIFIED: Use IngestionPipeline directly (no DAG)
+    # This path includes: validation, embedding, packet_store, neo4j sync, checkpoints
+    # DAG features (reasoning, insights, world model) can be added later
     pipeline = get_ingestion_pipeline()
     pipeline.set_repository(service._repository)
     pipeline.set_semantic_service(service._semantic_service)
@@ -800,11 +741,5 @@ async def ingest_packet(
     agent_persistence = service.get_agent_persistence()
     if agent_persistence:
         pipeline.set_agent_persistence(agent_persistence)
-    
-    # Wire DAG for enrichment if available on service (GMP-67)
-    # DAG is only used if ENABLE_DAG_ENRICHMENT=true in environment
-    dag = getattr(service, "_dag", None) or getattr(service, "dag", None)
-    if dag:
-        pipeline.set_dag(dag)
     
     return await pipeline.ingest(packet_in)

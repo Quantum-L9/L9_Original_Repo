@@ -27,9 +27,8 @@ if PROJECT_ROOT_STR not in sys.path:
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-# Pre-import upgrades package to ensure it's available
+# Pre-import core.packet_envelope to ensure it's available
 try:
-    import upgrades
-    import upgrades.packet_envelope
+    import core.packet_envelope
 except ImportError:
     pass  # Will be reported as test failure

@@ -1,11 +1,10 @@
- 4# 🧠 L-CTO Abilities & Tool Inventory
+# 🧠 L-CTO Abilities & Tool Inventory
 
 **Agent:** L-CTO (L9 Chief Technology Officer)  
-**Version:** 2026-01-08 (Post GMP-44 Auto-Discovery)  
-**Total Tools:** 71  
-**Capability Discovery:** Auto (from ToolDefinition.agent_id)  
-
-> **GMP-44 (2026-01-08):** Tools are now auto-discovered from `ToolDefinition.agent_id="L"`. No manual enum or capability list updates needed.
+**Version:** 2026-01-06 (Post GMP-31 + GMP-32)  
+**Total Tools:** 70  
+**GMP-31 Added:** 33  
+**GMP-32 Added:** 17  
 
 ---
 
@@ -21,8 +20,7 @@
 | Governance/Execution | 4 | ✅ Full Access |
 | Symbolic Computation | 3 | ✅ Full Access |
 | Orchestration | 2 | ✅ Full Access |
-| Simulation | 1 | ✅ Full Access |
-| **TOTAL** | **71** | |
+| **TOTAL** | **70** | |
 
 ---
 
@@ -234,12 +232,6 @@ Via `mcp_call_tool`, L can access:
 
 ## 📈 Capability Evolution
 
-### GMP-44 (2026-01-08) — Auto-Discovery
-- **Eliminated manual capability lists** — tools auto-discovered from `ToolDefinition.agent_id`
-- `DEFAULT_L_CAPABILITIES` deprecated
-- `ToolName` enum informational only
-- Adding new tools now requires only 2 entries (executor + ToolDefinition)
-
 ### GMP-30 (2026-01-06)
 - Added `neo4j_query` for graph access
 - Added `redis_get`, `redis_set`, `redis_keys` for cache
@@ -273,14 +265,13 @@ Via `mcp_call_tool`, L can access:
 
 ---
 
-## 📁 Adding New Tools (GMP-44 Pattern)
+## 📁 Files Modified
 
-| Step | File | What to Add |
-|------|------|-------------|
-| 1 | `runtime/l_tools.py` | Async executor function + TOOL_EXECUTORS entry |
-| 2 | `core/tools/registry_adapter.py` | ToolDefinition with `agent_id="L"` in `register_l_tools()` |
-
-> **That's it!** No ToolName enum, no DEFAULT_L_CAPABILITIES entry needed. Auto-discovery handles the rest.
+| File | Purpose |
+|------|---------|
+| `runtime/l_tools.py` | Tool executor functions |
+| `core/tools/registry_adapter.py` | Schemas and definitions |
+| `core/tools/tool_graph.py` | Neo4j graph definitions |
 
 ---
 
@@ -299,5 +290,5 @@ These ~8+ methods remain internal by design.
 
 ---
 
-*Generated: 2026-01-08 20:15 EST*  
-*Source: GMP-31 + GMP-32 + GMP-44 (Auto-Discovery)*
+*Generated: 2026-01-06 13:00 EST*  
+*Source: GMP-31 + GMP-32 Systematic Capability Enabling*

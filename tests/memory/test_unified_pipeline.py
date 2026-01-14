@@ -359,16 +359,15 @@ class TestSubstrateDAGEnrichPrevalidation:
     async def test_enrich_requires_packet_id(self, mock_repository):
         """enrich() raises if envelope has no packet_id."""
         from memory.substrate_dag import SubstrateDAG
-        from unittest.mock import MagicMock
         
         dag = SubstrateDAG(repository=mock_repository)
         
-        # Create a mock envelope with missing packet_id
-        # (Pydantic won't allow None, so we mock the object)
-        envelope = MagicMock(spec=PacketEnvelope)
-        envelope.packet_id = None  # Missing!
-        envelope.packet_type = "test"
-        envelope.payload = {"content": "test"}
+        # Create envelope without packet_id
+        envelope = PacketEnvelope(
+            packet_id=None,  # Missing!
+            packet_type="test",
+            payload={"content": "test"},
+        )
         
         with pytest.raises(ValueError, match="packet_id"):
             await dag.enrich(envelope)
@@ -377,15 +376,16 @@ class TestSubstrateDAGEnrichPrevalidation:
     async def test_enrich_requires_packet_type(self, mock_repository):
         """enrich() raises if envelope has no packet_type."""
         from memory.substrate_dag import SubstrateDAG
-        from unittest.mock import MagicMock
         
         dag = SubstrateDAG(repository=mock_repository)
         
-        # Create a mock envelope with empty packet_type
-        envelope = MagicMock(spec=PacketEnvelope)
-        envelope.packet_id = uuid4()
-        envelope.packet_type = ""  # Empty = falsy
-        envelope.payload = {"content": "test"}
+        # Create envelope without packet_type (Pydantic won't allow this easily,
+        # so we test with empty string)
+        envelope = PacketEnvelope(
+            packet_id=uuid4(),
+            packet_type="",  # Empty = falsy
+            payload={"content": "test"},
+        )
         
         with pytest.raises(ValueError, match="packet_type"):
             await dag.enrich(envelope)
@@ -423,25 +423,43 @@ class TestFeatureFlagIntegration:
 class TestMCPTieredFallback:
     """Test MCP tiered fallback behavior."""
 
-    @pytest.mark.skip(reason="MCP module has internal import issues - test manually")
     @pytest.mark.asyncio
     async def test_mcp_returns_enrichment_fields_on_success(self):
         """MCP response includes enrichment fields when pipeline succeeds."""
-        # This test requires MCP server module structure to be fixed
-        # For now, we verify the PacketWriteResult contract is correct
-        pass
+        from mcp_memory.src.routes.memory_unified import save_memory_handler
+        
+        # Mock substrate service
+        mock_service = AsyncMock()
+        mock_service.write_packet = AsyncMock(return_value=PacketWriteResult(
+            status="ok",
+            packet_id=uuid4(),
+            written_tables=["packet_store", "knowledge_facts"],
+            enrichment_status="success",
+            enrichment_error=None,
+            enrichment_facts_count=3,
+            write_tier_used="full",
+            warnings=[],
+        ))
+        
+        result = await save_memory_handler(
+            user_id="test",
+            content="Test content",
+            kind="fact",
+            substrate_service=mock_service,
+        )
+        
+        assert result["enrichment_status"] == "success"
+        assert result["enrichment_facts_count"] == 3
+        assert result["tier_used"] == "full"
 
-    @pytest.mark.skip(reason="MCP module has internal import issues - test manually")
     @pytest.mark.asyncio
     async def test_mcp_returns_200_on_enrichment_failure(self):
         """Enrichment failure = 200 with enrichment_status='failed'."""
-        # This test requires MCP server module structure to be fixed
-        # For now, we verify the PacketWriteResult contract is correct
-        pass
-
-    def test_packet_write_result_supports_enrichment_failure_response(self):
-        """Verify PacketWriteResult can represent enrichment failure with core success."""
-        result = PacketWriteResult(
+        from mcp_memory.src.routes.memory_unified import save_memory_handler
+        
+        # Mock substrate service that returns enrichment failure
+        mock_service = AsyncMock()
+        mock_service.write_packet = AsyncMock(return_value=PacketWriteResult(
             status="ok",  # Core write succeeded!
             packet_id=uuid4(),
             written_tables=["packet_store"],
@@ -450,12 +468,19 @@ class TestMCPTieredFallback:
             enrichment_facts_count=0,
             write_tier_used="core_only",
             warnings=["DAG timeout"],
+        ))
+        
+        result = await save_memory_handler(
+            user_id="test",
+            content="Test content",
+            kind="fact",
+            substrate_service=mock_service,
         )
         
-        assert result.status == "ok"
-        assert result.enrichment_status == "failed"
-        assert result.write_tier_used == "core_only"
-        assert "DAG timeout" in result.warnings
+        # Should return 200 (not raise)
+        assert result["enrichment_status"] == "failed"
+        assert result["tier_used"] == "core_only"
+        assert "packet_id" in result  # Core write succeeded
 
 
 # =============================================================================

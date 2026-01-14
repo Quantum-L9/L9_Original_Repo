@@ -6,7 +6,6 @@
   ..adapters.twilio_adapter_adapter
   ..config
   ..schemas
-  ..tools.cursor_client
   .action_tool.orchestrator
   .adapter
   .adapter_node
@@ -18,20 +17,21 @@
   .approval_manager
   .assembler
   .base_extractor
-  .bootstrap
   .bootstrap_l_graph
   .c_gmp_engine
   .circuit_breaker
   .classifier
   .code_extractor
   .codegen_agent
+  .computation
   .config
+  .conftest
   .context_strategies
-  .controller
   .convergence
-  .core
   .credentials_policy
   .decision_synthesizer
+  .emitters
+  .emitters.lexer
   .evaluator
   .event_queue
   .evolution.orchestrator
@@ -48,7 +48,7 @@
   .interface
   .jaeger_exporter
   .l9_integration
-  .local_api
+  .lexer
   .logger
   .memory.orchestrator
   .memory_bridge
@@ -75,7 +75,6 @@
   .reasoning.orchestrator
   .reasoning_engine
   .research_swarm.orchestrator
-  .router
   .scheduler
   .schema
   .schemas
@@ -85,7 +84,9 @@
   .task_queue
   .tokenizer
   .tool_pattern_extractor
+  .transcript_compiler
   .validator
+  .validator_bridge
   .websocket_client
   .world_model.orchestrator
   .ws_bridge
@@ -181,12 +182,6 @@
   collections
 # compile_module_spec
   compile_module_spec
-# compiler
-  compiler.classifier
-  compiler.emitters
-  compiler.lexer
-  compiler.schemas
-  compiler.validator_bridge
 # concurrent
   concurrent.futures
 # config
@@ -195,6 +190,8 @@
   config.settings
 # contextlib
   contextlib
+# contextvars
+  contextvars
 # copy
   copy
 # core
@@ -202,6 +199,8 @@
   core.agents.executor
   core.agents.graph_state.schema
   core.agents.kernelevolution
+  core.agents.prompt_builder
+  core.agents.prompt_defense
   core.agents.schemas
   core.agents.selfreflection
   core.aios.runtime
@@ -225,6 +224,13 @@
   core.kernels.schemas
   core.observability.circuit_breaker
   core.observability.models
+  core.packet_envelope
+  core.packet_envelope.governance
+  core.packet_envelope.integration
+  core.packet_envelope.observability
+  core.packet_envelope.scalability
+  core.packet_envelope.standardization
+  core.resilience.retry
   core.retrievers.substrate_retriever
   core.schemas.capabilities
   core.schemas.event_stream
@@ -275,6 +281,7 @@
   email_agent.config
   email_agent.credentials
   email_agent.gmail_client
+  email_agent.router
   email_agent.triage
 # enum
   enum
@@ -335,6 +342,7 @@
 # langchain_core
   langchain_core.documents
   langchain_core.retrievers
+  langchain_core.runnables
 # langgraph
   langgraph.graph
 # logging
@@ -343,16 +351,22 @@
   mac_agent.config
   mac_agent.executor
   mac_agent.helpers.logging
+# math
+  math
 # memory
   memory.agent_persistence
+  memory.audit_utils
   memory.checkpoint.cursor_checkpoint_manager
   memory.checkpoint.postgres_saver
   memory.consolidation
+  memory.cypher_templates
   memory.extractors.base_extractor
   memory.governance_patterns
   memory.graph_client
+  memory.graph_memory
   memory.graph_search_cache
   memory.housekeeping
+  memory.hybrid_rag
   memory.ingestion
   memory.insight_extraction
   memory.migration_runner
@@ -361,10 +375,14 @@
   memory.query_classifier
   memory.reasoning_replay
   memory.retrieval
+  memory.saga
+  memory.saga_patterns
+  memory.schema_introspection
   memory.semantic_search
   memory.slack_ingest
   memory.strategymemory
   memory.substrate_alignment
+  memory.substrate_dag
   memory.substrate_dag_wrapper
   memory.substrate_graph
   memory.substrate_models
@@ -373,6 +391,7 @@
   memory.substrate_service
   memory.substratemodels
   memory.substrateservice
+  memory.tool_router
   memory.validators.packet_validator
 # mocks
   mocks.kernel_mocks
@@ -383,17 +402,6 @@
   neo4j
 # openai
   openai
-# opentelemetry
-  opentelemetry
-  opentelemetry.baggage.propagation
-  opentelemetry.exporter.jaeger.thrift
-  opentelemetry.exporter.prometheus
-  opentelemetry.propagators.composite
-  opentelemetry.sdk.metrics
-  opentelemetry.sdk.metrics.export
-  opentelemetry.sdk.trace
-  opentelemetry.sdk.trace.export
-  opentelemetry.trace.propagation.tracecontext
 # orchestration
   orchestration.cell_orchestrator
   orchestration.long_plan_graph
@@ -428,8 +436,6 @@
   pydantic_settings
 # pytest
   pytest
-# pythonjsonlogger
-  pythonjsonlogger
 # random
   random
 # re
@@ -513,6 +519,8 @@
   src.models
   src.routes
   src.routes.memory_unified
+# ssl
+  ssl
 # statistics
   statistics
 # structlog
@@ -566,17 +574,14 @@
   types
 # typing
   typing
+# unicodedata
+  unicodedata
 # unittest
   unittest.mock
-# upgrades
-  upgrades.packet_envelope
-  upgrades.packet_envelope.governance
-  upgrades.packet_envelope.integration
-  upgrades.packet_envelope.observability
-  upgrades.packet_envelope.scalability
-  upgrades.packet_envelope.standardization
 # urllib
+  urllib.error
   urllib.parse
+  urllib.request
 # uuid
   uuid
 # uvicorn

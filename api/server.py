@@ -364,16 +364,15 @@ except ImportError:
 
 # Optional: Email Agent (Gmail multi-account)
 # Toggleable via EMAIL_AGENT_ENABLED=false in .env
-try:
-    from email_agent.router import router as email_agent_router
-
-    _has_email_agent = True
-except ImportError:
-    _has_email_agent = False
-
-# Runtime toggle: disable via .env even if code exists
-if _has_email_agent and not settings.email_agent_enabled:
-    _has_email_agent = False
+_has_email_agent = False
+if settings.email_agent_enabled:
+    try:
+        from email_agent.router import router as email_agent_router
+        _has_email_agent = True
+    except ImportError as e:
+        logger.warning(f"Email Agent import failed: {e}")
+        _has_email_agent = False
+else:
     logger.info("Email Agent DISABLED via EMAIL_AGENT_ENABLED=false")
 
 # Note: Slack handled by api/routes/slack.py → memory/slack_ingest.py
@@ -562,6 +561,31 @@ async def lifespan(app: FastAPI):
             app.state.substrate_service = None
             app.state.agent_persistence = None
             app.state.restored_agent_state = None
+
+    # Initialize MCP Memory DB pool (for /mcp/call routes)
+    # This is REQUIRED for MCP tools to work when routed through l9-api
+    if database_url:
+        try:
+            import sys
+            from pathlib import Path
+            mcp_path = Path(__file__).parent.parent / "mcp_memory"
+            if str(mcp_path) not in sys.path:
+                sys.path.insert(0, str(mcp_path))
+            
+            from src.db import init_db as mcp_init_db
+            from src.config import settings as mcp_settings
+            
+            # Set MCP config to use same database
+            mcp_settings.MEMORY_DSN = database_url
+            
+            await mcp_init_db()
+            app.state.mcp_db_initialized = True
+            logger.info("MCP Memory DB pool initialized (for /mcp/call routes)")
+        except Exception as e:
+            logger.warning(f"Failed to initialize MCP Memory DB pool: {e}")
+            app.state.mcp_db_initialized = False
+    else:
+        app.state.mcp_db_initialized = False
 
     # Initialize Quantum Research Factory (if enabled)
     if _has_research and database_url:
@@ -1781,6 +1805,15 @@ async def lifespan(app: FastAPI):
         logger.info("Memory service closed")
     except Exception as e:
         logger.error(f"Error closing memory service: {e}")
+
+    # Cleanup MCP Memory DB pool
+    if getattr(app.state, "mcp_db_initialized", False):
+        try:
+            from src.db import close_db as mcp_close_db
+            await mcp_close_db()
+            logger.info("MCP Memory DB pool closed")
+        except Exception as e:
+            logger.warning(f"Error closing MCP Memory DB pool: {e}")
 
 
 # FastAPI App

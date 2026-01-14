@@ -1,7 +1,7 @@
 # --- Private/Secrets ---
 private/
 secrets/
-l9/igor/
+igor/
 
 # --- Build artifacts & caches (also in .gitignore) ---
 venv/

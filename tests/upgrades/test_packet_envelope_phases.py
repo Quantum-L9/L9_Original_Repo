@@ -26,7 +26,7 @@ class TestPhase2Observability:
 
     def test_observability_config_defaults(self):
         """Test observability config has sensible defaults"""
-        from upgrades.packet_envelope.observability import (
+        from core.packet_envelope.observability import (
             ObservabilityConfig,
         )
 
@@ -41,7 +41,7 @@ class TestPhase2Observability:
 
     def test_observability_disabled_mode(self):
         """Test observability can be disabled"""
-        from upgrades.packet_envelope.observability import (
+        from core.packet_envelope.observability import (
             ObservabilityConfig,
             PacketEnvelopeObservability,
         )
@@ -54,7 +54,7 @@ class TestPhase2Observability:
 
     def test_trace_context_extraction(self):
         """Test W3C trace context extraction from headers"""
-        from upgrades.packet_envelope.observability import (
+        from core.packet_envelope.observability import (
             ObservabilityConfig,
             PacketEnvelopeObservability,
         )
@@ -73,7 +73,7 @@ class TestPhase2Observability:
 
     def test_structured_log_event_serialization(self):
         """Test structured log event JSON serialization"""
-        from upgrades.packet_envelope.observability import StructuredLogEvent
+        from core.packet_envelope.observability import StructuredLogEvent
 
         event = StructuredLogEvent(
             timestamp=datetime(2026, 1, 5, 12, 0, 0),
@@ -106,7 +106,7 @@ class TestPhase3Standardization:
 
     def test_cloudevent_creation(self):
         """Test basic CloudEvent creation"""
-        from upgrades.packet_envelope.standardization import CloudEvent
+        from core.packet_envelope.standardization import CloudEvent
 
         event = CloudEvent(
             type="l9.packet.ingested",
@@ -122,7 +122,7 @@ class TestPhase3Standardization:
 
     def test_cloudevent_validation_success(self):
         """Test CloudEvent passes validation with required fields"""
-        from upgrades.packet_envelope.standardization import CloudEvent
+        from core.packet_envelope.standardization import CloudEvent
 
         event = CloudEvent(
             type="l9.packet.ingested",
@@ -135,7 +135,7 @@ class TestPhase3Standardization:
 
     def test_cloudevent_validation_failure(self):
         """Test CloudEvent fails validation without required fields"""
-        from upgrades.packet_envelope.standardization import CloudEvent
+        from core.packet_envelope.standardization import CloudEvent
 
         event = CloudEvent()  # Missing type and source
 
@@ -146,7 +146,7 @@ class TestPhase3Standardization:
 
     def test_cloudevent_json_roundtrip(self):
         """Test CloudEvent serialization/deserialization"""
-        from upgrades.packet_envelope.standardization import CloudEvent
+        from core.packet_envelope.standardization import CloudEvent
 
         original = CloudEvent(
             type="l9.packet.ingested",
@@ -165,7 +165,7 @@ class TestPhase3Standardization:
 
     def test_http_binary_binding_serialization(self):
         """Test HTTP binary binding serialization"""
-        from upgrades.packet_envelope.standardization import (
+        from core.packet_envelope.standardization import (
             CloudEvent,
             HTTPBinaryBinding,
         )
@@ -187,7 +187,7 @@ class TestPhase3Standardization:
 
     def test_http_structured_binding_serialization(self):
         """Test HTTP structured binding serialization"""
-        from upgrades.packet_envelope.standardization import (
+        from core.packet_envelope.standardization import (
             CloudEvent,
             HTTPStructuredBinding,
         )
@@ -207,7 +207,7 @@ class TestPhase3Standardization:
 
     def test_schema_registry_registration(self):
         """Test schema registration and retrieval"""
-        from upgrades.packet_envelope.standardization import SchemaRegistry
+        from core.packet_envelope.standardization import SchemaRegistry
 
         registry = SchemaRegistry()
 
@@ -230,7 +230,7 @@ class TestPhase3Standardization:
 
     def test_cloudevent_batch(self):
         """Test CloudEvent batch serialization"""
-        from upgrades.packet_envelope.standardization import (
+        from core.packet_envelope.standardization import (
             CloudEvent,
             CloudEventBatch,
         )
@@ -258,7 +258,7 @@ class TestPhase4Scalability:
     @pytest.mark.asyncio
     async def test_batch_ingestion_success(self):
         """Test batch ingestion with valid packets"""
-        from upgrades.packet_envelope.scalability import (
+        from core.packet_envelope.scalability import (
             BatchIngestRequest,
             BatchIngestionEngine,
         )
@@ -283,7 +283,7 @@ class TestPhase4Scalability:
     @pytest.mark.asyncio
     async def test_batch_ingestion_validation_failure(self):
         """Test batch ingestion with invalid packets"""
-        from upgrades.packet_envelope.scalability import (
+        from core.packet_envelope.scalability import (
             BatchIngestRequest,
             BatchIngestionEngine,
         )
@@ -302,7 +302,7 @@ class TestPhase4Scalability:
     @pytest.mark.asyncio
     async def test_command_handler_ingest_packet(self):
         """Test command handler produces correct events"""
-        from upgrades.packet_envelope.scalability import (
+        from core.packet_envelope.scalability import (
             Command,
             CommandHandler,
             CommandType,
@@ -331,7 +331,7 @@ class TestPhase4Scalability:
     @pytest.mark.asyncio
     async def test_read_model_event_handling(self):
         """Test read model updates on event"""
-        from upgrades.packet_envelope.scalability import Event, ReadModel
+        from core.packet_envelope.scalability import Event, ReadModel
 
         read_model = ReadModel()
 
@@ -352,7 +352,7 @@ class TestPhase4Scalability:
     @pytest.mark.asyncio
     async def test_event_store_append_and_get(self):
         """Test event store append and retrieval"""
-        from upgrades.packet_envelope.scalability import Event, EventStore
+        from core.packet_envelope.scalability import Event, EventStore
 
         store = EventStore(snapshot_interval=100)
 
@@ -381,7 +381,7 @@ class TestPhase5Governance:
 
     def test_retention_policy_expiration(self):
         """Test retention policy expiration calculation"""
-        from upgrades.packet_envelope.governance import (
+        from core.packet_envelope.governance import (
             RetentionManager,
             RetentionPolicy,
         )
@@ -401,7 +401,7 @@ class TestPhase5Governance:
 
     def test_retention_policy_permanent(self):
         """Test permanent retention never expires"""
-        from upgrades.packet_envelope.governance import (
+        from core.packet_envelope.governance import (
             RetentionManager,
             RetentionPolicy,
         )
@@ -416,7 +416,7 @@ class TestPhase5Governance:
     @pytest.mark.asyncio
     async def test_erasure_request_flow(self):
         """Test GDPR erasure request lifecycle"""
-        from upgrades.packet_envelope.governance import ErasureEngine
+        from core.packet_envelope.governance import ErasureEngine
 
         engine = ErasureEngine()
 
@@ -447,7 +447,7 @@ class TestPhase5Governance:
     @pytest.mark.asyncio
     async def test_erasure_requires_approval(self):
         """Test erasure fails without approval"""
-        from upgrades.packet_envelope.governance import (
+        from core.packet_envelope.governance import (
             DataRetentionConfig,
             ErasureEngine,
         )
@@ -468,7 +468,7 @@ class TestPhase5Governance:
     @pytest.mark.asyncio
     async def test_anonymization_strategies(self):
         """Test anonymization strategies"""
-        from upgrades.packet_envelope.governance import (
+        from core.packet_envelope.governance import (
             AnonymizationEngine,
             AnonymizationRule,
             AnonymizationStrategy,
@@ -518,7 +518,7 @@ class TestPhase5Governance:
     @pytest.mark.asyncio
     async def test_compliance_audit_logging(self):
         """Test compliance audit log"""
-        from upgrades.packet_envelope.governance import ComplianceAuditLog
+        from core.packet_envelope.governance import ComplianceAuditLog
 
         audit_log = ComplianceAuditLog()
 
@@ -551,7 +551,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_upgrade_engine_phase_sequence(self):
         """Test upgrade engine activates phases in sequence"""
-        from upgrades.packet_envelope.integration import PacketEnvelopeUpgradeEngine
+        from core.packet_envelope.integration import PacketEnvelopeUpgradeEngine
 
         engine = PacketEnvelopeUpgradeEngine()
 
@@ -587,7 +587,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_upgrade_engine_phase_dependency(self):
         """Test phase activation respects dependencies"""
-        from upgrades.packet_envelope.integration import PacketEnvelopeUpgradeEngine
+        from core.packet_envelope.integration import PacketEnvelopeUpgradeEngine
 
         engine = PacketEnvelopeUpgradeEngine()
 
@@ -604,7 +604,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_upgrade_engine_all_phases(self):
         """Test activate_all_phases convenience method"""
-        from upgrades.packet_envelope.integration import PacketEnvelopeUpgradeEngine
+        from core.packet_envelope.integration import PacketEnvelopeUpgradeEngine
 
         engine = PacketEnvelopeUpgradeEngine()
 
@@ -617,7 +617,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_deployment_validation(self):
         """Test deployment validation returns expected structure"""
-        from upgrades.packet_envelope.integration import validate_deployment
+        from core.packet_envelope.integration import validate_deployment
 
         validation = await validate_deployment()
 

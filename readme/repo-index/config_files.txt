@@ -1,5 +1,3 @@
-.audit_cache/analysis_results.json
-.audit_cache/manifest.json
 .github/workflows/ci.yml
 .github/workflows/terminology-guard.yml
 .mypy_cache/3.12/PIL/ExifTags.data.json
@@ -2460,6 +2458,7 @@ agents/codegenagent/patches/patches-done/runtime_kernel_hot_patch.yaml
 agents/codegenagent/patches/patches-done/runtime_patch_AutoLinter_Injector.yaml
 agents/codegenagent/patches/patches-done/runtime_perplexity_Construct_Enhancer_From_PPX.yaml
 agents/codegenagent/patches/patches-done/ui_patch_audit_viewer.yaml
+agents/cursor/l9.workflow_todo_kernel.v2.yaml
 api/adapters/calendar_adapter/Module-Spec-v2.6-calendar_adapter.yaml
 api/adapters/email_adapter/Module-Spec-v2.6-email_adapter.yaml
 api/adapters/twilio_adapter/Module-Spec-v2.6-twilio_adapter.yaml
@@ -2586,6 +2585,7 @@ codegen/schemas/samples/sympy_schema_v6.yaml
 codegen/schemas/simple_agent.yaml
 codegen/schemas/sympy_schema_v6.yaml
 codegen/specs/L9_Canonical_v4.1_Unified.yaml
+codegen/specs/config_loader.yaml
 codegen/sympy_extraction_glue.yaml
 codegen/templates/_spec-files-to-build/spec-sympy-symbolic-computation.yaml
 config/agents/l9-standard-v1.yaml
@@ -2594,14 +2594,16 @@ config/boot_overlay.yaml
 config/policies/defaults.yaml
 config/policies/tool_usage.yaml
 config/settings.yaml
+docker-compose-README.md
 docker-compose.local.dev.yml
 docker-compose.override.yml.example
 docker-compose.yml
 docker/prometheus.yml
 docs/_archived/codegen_slack_adapter/module.slack_adapter/Module-Spec-v2.6.yaml
 docs/_archived/codegen_slack_adapter/slack_webhook_example.yaml
-generated/specs/config_loader.yaml
-grafana/dashboards/l9-tool-observability.json
+email_agent/private_auth/google_oauth_L.json
+email_agent/private_auth/google_oauth_igor.json
+grafana/provisioning/dashboards/dashboards.yml
 grafana/provisioning/dashboards/l9-five-tier-observability.json
 grafana/provisioning/dashboards/l9-tool-observability.json
 grafana/provisioning/datasources/prometheus.yml
@@ -2614,7 +2616,7 @@ igor/l-cto-Setup/l-cto-yaml-files/L-CTO.yaml
 igor/l-cto-Setup/l-cto-yaml-files/L9 AGENT MANIFEST — L-CTO v1.0.yaml
 igor/l-cto-Setup/l-cto-yaml-files/personality_kernel.yaml
 mac_agent/config.yaml
-memory/memory-yaml2.0.yaml
+mcp_memory/Dockerfile
 memory/memory_spec_v3.0.yaml
 openapi.json
 private/kernels/00_system/01_master_kernel.yaml
@@ -2658,14 +2660,16 @@ reports/GMP Reports/audit_run_audit_run_20260106_195956_316d174c.json
 reports/GMP Reports/audit_run_audit_run_20260106_200021_4401ad50.json
 reports/GMP Reports/audit_run_audit_run_20260106_203324_ce365722.json
 reports/GMP Reports/audit_run_audit_run_20260106_221652_9a004d6c.json
-reports/graph_audit_20260109_123744.json
-reports/graph_audit_vps_20260109_123825.json
-reports/graph_audit_vps_20260109_123905.json
-reports/graph_audit_vps_20260109_123933.json
-reports/graph_audit_vps_20260109_131338.json
+reports/_archived/wiring_audit.json
+reports/dead_code_audit_20260113_200227.json
+reports/dead_code_gmp_todos.yaml
+reports/dead_code_resolved.json
+reports/phase1_check.json
+reports/phase2_check_routers.json
+reports/phase2_final.json
+reports/post_cleanup_audit.json
 runtime/Dockerfile
 scripts/audit/audit.yaml
 scripts/reports/audit_infrastructure_health.json
 services/symbolic_computation/Dockerfile
 services/symbolic_computation/docker-compose.yml
-tests/test-wirein-memory-yaml2.0.yaml

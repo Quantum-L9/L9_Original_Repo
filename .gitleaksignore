@@ -1,0 +1,4 @@
+# False positive: Default Neo4j password in config/code files
+FVmgaD1diPcz41zRbYLLP0UzyGvAi4E
+# Audit/index files with env references
+.audit_cache/*

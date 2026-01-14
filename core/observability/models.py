@@ -109,17 +109,40 @@ class Span(BaseModel):
         kind: SpanKind = SpanKind.INTERNAL,
         **attributes: Any,
     ) -> "Span":
-        """Create and start a new span."""
+        """Create and start a new span.
+        
+        For subclasses with required fields (e.g., ToolCallSpan.tool_name),
+        those fields are extracted from attributes and passed directly.
+        """
         span_id = str(uuid.uuid4()).replace("-", "")[:16]
-        return cls(
-            trace_id=trace_id,
-            span_id=span_id,
-            parent_span_id=parent_span_id,
-            name=name,
-            kind=kind,
-            start_time=datetime.utcnow(),
-            attributes=attributes,
-        )
+        
+        # Build base kwargs
+        kwargs: Dict[str, Any] = {
+            "trace_id": trace_id,
+            "span_id": span_id,
+            "parent_span_id": parent_span_id,
+            "name": name,
+            "kind": kind,
+            "start_time": datetime.utcnow(),
+        }
+        
+        # Extract subclass-specific fields from attributes
+        # ToolCallSpan requires: tool_name, tool_input
+        subclass_fields = {"tool_name", "tool_input", "tool_output", "tool_error",
+                          "model", "prompt_tokens", "completion_tokens", "total_tokens",
+                          "cost_usd", "temperature", "strategy", "tokens_used",
+                          "tokens_available", "truncation_occurred", "overflow_event"}
+        
+        remaining_attrs = {}
+        for key, value in attributes.items():
+            if key in subclass_fields:
+                kwargs[key] = value
+            else:
+                remaining_attrs[key] = value
+        
+        kwargs["attributes"] = remaining_attrs
+        
+        return cls(**kwargs)
 
 
 class LLMGenerationSpan(Span):

@@ -668,7 +668,7 @@ class AgentExecutorService:
             # Try to get task context from Redis cache first
             from runtime.redis_client import get_redis_client
 
-            redis_client = get_redis_client()
+            redis_client = await get_redis_client()
             if redis_client and redis_client.is_available():
                 cached_context = await redis_client.get_task_context(task_id)
                 if cached_context:
@@ -784,7 +784,7 @@ class AgentExecutorService:
                 try:
                     from runtime.redis_client import get_redis_client
 
-                    redis_client = get_redis_client()
+                    redis_client = await get_redis_client()
                     if redis_client and redis_client.is_available():
                         await redis_client.set_task_context(
                             task_id, result, ttl=3600
@@ -1767,10 +1767,7 @@ class AgentExecutorService:
                 packet_type=packet_type,
                 payload=payload,
                 thread_id=thread_id,
-                metadata=PacketMetadata(
-                    agent=agent_id,
-                    schema_version="1.0.0",
-                ),
+                metadata={"agent": agent_id, "schema_version": "1.0.0"},
             )
             await self._substrate_service.write_packet(packet)
 

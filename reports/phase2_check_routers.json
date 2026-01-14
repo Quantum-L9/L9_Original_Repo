@@ -1,0 +1,758 @@
+{
+  "total_files_scanned": 536,
+  "total_findings": 75,
+  "findings": [
+    {
+      "file": "core/tools/registry_adapter.py",
+      "line": 153,
+      "symbol": "ToolExecutor",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'ToolExecutor' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "core/observability/failures.py",
+      "line": 82,
+      "symbol": "RecoveryExecutor",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'RecoveryExecutor' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "memory/state_manager.py",
+      "line": 26,
+      "symbol": "MemoryStateManager",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'MemoryStateManager' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "memory/timeline_service.py",
+      "line": 17,
+      "symbol": "TimelineService",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'TimelineService' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "memory/strategymemory.py",
+      "line": 184,
+      "symbol": "StrategyMemoryService",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'StrategyMemoryService' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "memory/checkpoint_manager.py",
+      "line": 16,
+      "symbol": "CheckpointManager",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'CheckpointManager' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "agents/cursor/integrations/cursor_executor.py",
+      "line": 63,
+      "symbol": "CursorExecutor",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'CursorExecutor' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "api/adapters/calendar_adapter/services/calendar_adapter_service.py",
+      "line": 40,
+      "symbol": "CalendarAdapterService",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'CalendarAdapterService' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "api/adapters/email_adapter/services/email_adapter_service.py",
+      "line": 37,
+      "symbol": "EmailAdapterService",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'EmailAdapterService' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "api/adapters/twilio_adapter/services/twilio_adapter_service.py",
+      "line": 37,
+      "symbol": "TwilioAdapterService",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'TwilioAdapterService' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "email_agent/oauth_server.py",
+      "line": 35,
+      "symbol": "OAuthHandler",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'OAuthHandler' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "core/tools/agent_self_modify.py",
+      "line": 349,
+      "symbol": "AGENT_SELF_MODIFY_TOOL_DEFINITIONS",
+      "symbol_type": "unwired_tool",
+      "confidence": 0.85,
+      "source": "wiring_scan",
+      "message": "Tool array 'AGENT_SELF_MODIFY_TOOL_DEFINITIONS' defined but may not be registered",
+      "context": "Check for ToolGraph.register_tool() or register_*_tools() calls"
+    },
+    {
+      "file": "api/world_model_api.py",
+      "line": 98,
+      "symbol": "InsightInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'InsightInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/event_stream.py",
+      "line": 150,
+      "symbol": "HandshakeResponse",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'HandshakeResponse' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/l_tools.py",
+      "line": 15,
+      "symbol": "MemorySearchInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'MemorySearchInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/l_tools.py",
+      "line": 46,
+      "symbol": "MemoryWriteInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'MemoryWriteInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/l_tools.py",
+      "line": 72,
+      "symbol": "GMPRunInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'GMPRunInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/l_tools.py",
+      "line": 95,
+      "symbol": "GitCommitInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'GitCommitInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/l_tools.py",
+      "line": 119,
+      "symbol": "MacAgentExecInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'MacAgentExecInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/l_tools.py",
+      "line": 144,
+      "symbol": "MCPCallToolInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'MCPCallToolInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/l_tools.py",
+      "line": 167,
+      "symbol": "WorldModelQueryInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'WorldModelQueryInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "core/schemas/l_tools.py",
+      "line": 190,
+      "symbol": "KernelReadInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'KernelReadInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 65,
+      "symbol": "get_agent_executor",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.85,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_agent_executor' defined but never used with Depends()",
+      "context": "Check for Depends({func_name}) in route parameters"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 84,
+      "symbol": "get_governance_engine",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.85,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_governance_engine' defined but never used with Depends()",
+      "context": "Check for Depends({func_name}) in route parameters"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 127,
+      "symbol": "get_neo4j_client",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.85,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_neo4j_client' defined but never used with Depends()",
+      "context": "Check for Depends({func_name}) in route parameters"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 146,
+      "symbol": "get_redis_client",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.85,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_redis_client' defined but never used with Depends()",
+      "context": "Check for Depends({func_name}) in route parameters"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 170,
+      "symbol": "get_observability_service",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.85,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_observability_service' defined but never used with Depends()",
+      "context": "Check for Depends({func_name}) in route parameters"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 192,
+      "symbol": "get_world_model_service",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.85,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_world_model_service' defined but never used with Depends()",
+      "context": "Check for Depends({func_name}) in route parameters"
+    },
+    {
+      "file": "private/kernels/bootstrap/kernel_manifest.yaml",
+      "line": 1,
+      "symbol": "kernel_manifest",
+      "symbol_type": "unwired_kernel",
+      "confidence": 0.95,
+      "source": "wiring_scan",
+      "message": "Kernel 'private/kernels/bootstrap/kernel_manifest.yaml' not in KERNEL_ORDER",
+      "context": "Add to KERNEL_ORDER in core/kernels/kernelloader.py"
+    },
+    {
+      "file": "orchestrators/action_tool/interface.py",
+      "line": 46,
+      "symbol": "IActionToolOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'IActionToolOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/memory/interface.py",
+      "line": 54,
+      "symbol": "IMemoryOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'IMemoryOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/meta/interface.py",
+      "line": 93,
+      "symbol": "IMetaOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'IMetaOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/meta/orchestrator.py",
+      "line": 25,
+      "symbol": "MetaOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'MetaOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/world_model/interface.py",
+      "line": 47,
+      "symbol": "IWorldModelOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'IWorldModelOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/world_model/orchestrator.py",
+      "line": 25,
+      "symbol": "WorldModelOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'WorldModelOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/reasoning/interface.py",
+      "line": 44,
+      "symbol": "IReasoningOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'IReasoningOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/research_swarm/interface.py",
+      "line": 31,
+      "symbol": "IResearchSwarmOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'IResearchSwarmOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/evolution/interface.py",
+      "line": 107,
+      "symbol": "IEvolutionOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'IEvolutionOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/evolution/orchestrator.py",
+      "line": 26,
+      "symbol": "EvolutionOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'EvolutionOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/agent_execution/interface.py",
+      "line": 50,
+      "symbol": "IAgentExecutionOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'IAgentExecutionOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1898,
+      "symbol": "startup_health",
+      "symbol_type": "unwired_event",
+      "confidence": 0.65,
+      "source": "wiring_scan",
+      "message": "Event handler 'startup_health' (startup) may not be registered",
+      "context": "Check for @app.on_event('startup') decorator"
+    },
+    {
+      "file": "services/research/graph_runtime.py",
+      "line": 175,
+      "symbol": "shutdown_runtime",
+      "symbol_type": "unwired_event",
+      "confidence": 0.65,
+      "source": "wiring_scan",
+      "message": "Event handler 'shutdown_runtime' (shutdown) may not be registered",
+      "context": "Check for @app.on_event('shutdown') decorator"
+    },
+    {
+      "file": "core/singleton_registry.py",
+      "line": 188,
+      "symbol": "get_async",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'get_async' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "core/singleton_registry.py",
+      "line": 263,
+      "symbol": "close_async",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'close_async' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "core/singleton_registry.py",
+      "line": 313,
+      "symbol": "close_all_async",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'close_all_async' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "core/agents/executor.py",
+      "line": 473,
+      "symbol": "start_agent_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'start_agent_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "core/observability/exporters.py",
+      "line": 132,
+      "symbol": "export_async",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'export_async' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "core/observability/l9_integration.py",
+      "line": 45,
+      "symbol": "traced_start_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'traced_start_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "core/observability/l9_integration.py",
+      "line": 57,
+      "symbol": "_start_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task '_start_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "core/governance/approvals.py",
+      "line": 217,
+      "symbol": "approve_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'approve_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "core/governance/approvals.py",
+      "line": 272,
+      "symbol": "reject_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'reject_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "memory/tool_router.py",
+      "line": 491,
+      "symbol": "get_tools_for_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'get_tools_for_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "memory/slack_ingest.py",
+      "line": 334,
+      "symbol": "_route_to_mac_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task '_route_to_mac_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "memory/slack_ingest.py",
+      "line": 395,
+      "symbol": "_route_to_email_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task '_route_to_email_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_approval.py",
+      "line": 53,
+      "symbol": "get_gmp_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'get_gmp_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_approval.py",
+      "line": 77,
+      "symbol": "approve_gmp_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'approve_gmp_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_approval.py",
+      "line": 92,
+      "symbol": "reject_gmp_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'reject_gmp_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_worker.py",
+      "line": 117,
+      "symbol": "_execute_gmp_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task '_execute_gmp_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_worker.py",
+      "line": 311,
+      "symbol": "start_gmp_worker",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'start_gmp_worker' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_worker.py",
+      "line": 330,
+      "symbol": "stop_gmp_worker",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'stop_gmp_worker' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_worker.py",
+      "line": 339,
+      "symbol": "store_pending_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'store_pending_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_worker.py",
+      "line": 351,
+      "symbol": "get_pending_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'get_pending_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/gmp_worker.py",
+      "line": 376,
+      "symbol": "remove_pending_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'remove_pending_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/redis_client.py",
+      "line": 153,
+      "symbol": "enqueue_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'enqueue_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/redis_client.py",
+      "line": 203,
+      "symbol": "dequeue_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'dequeue_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/l_tools.py",
+      "line": 802,
+      "symbol": "mac_agent_exec_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'mac_agent_exec_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/l_tools.py",
+      "line": 1927,
+      "symbol": "redis_enqueue_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'redis_enqueue_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "runtime/l_tools.py",
+      "line": 1960,
+      "symbol": "redis_dequeue_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'redis_dequeue_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "agents/cursor/integrations/cursor_executor.py",
+      "line": 95,
+      "symbol": "run_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'run_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "mcp_memory/src/routes/memory_unified.py",
+      "line": 960,
+      "symbol": "cleanup_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'cleanup_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "orchestration/unified_controller.py",
+      "line": 1168,
+      "symbol": "broadcast_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'broadcast_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "api/agent_routes.py",
+      "line": 90,
+      "symbol": "submit_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'submit_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "api/agent_routes.py",
+      "line": 132,
+      "symbol": "execute_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'execute_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "api/vps_executor.py",
+      "line": 142,
+      "symbol": "send_mac_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'send_mac_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    },
+    {
+      "file": "api/routes/cursor.py",
+      "line": 94,
+      "symbol": "cursor_task",
+      "symbol_type": "unwired_background",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Background task 'cursor_task' may never be scheduled",
+      "context": "Check for background_tasks.add_task() or asyncio.create_task()"
+    }
+  ],
+  "dataclass_fields_analyzed": 0,
+  "errors": []
+}

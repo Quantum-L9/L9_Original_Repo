@@ -15,7 +15,7 @@ from typing import Any, Dict
 
 from fastapi import APIRouter, HTTPException
 
-from upgrades.packet_envelope import (
+from core.packet_envelope import (
     PacketEnvelopeUpgradeEngine,
     validate_deployment,
 )

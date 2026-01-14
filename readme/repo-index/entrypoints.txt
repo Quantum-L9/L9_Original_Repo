@@ -1,15 +1,18 @@
 # Entry Points
 
+agents/cursor/cursor_memory_client.py
+  Type: Script
+  Has __main__ block: Yes
 agents/cursor/cursor_memory_kernel.py
+  Type: Script
+  Has __main__ block: Yes
+agents/cursor/cursor_neo4j_query.py
   Type: Script
   Has __main__ block: Yes
 agents/cursor/scripts/cursor_check_mistakes.py
   Type: Script
   Has __main__ block: Yes
 agents/research_agent.py
-  Type: Script
-  Has __main__ block: Yes
-aios/runtime.py
   Type: Script
   Has __main__ block: Yes
 api/e2e_slack_audit.py
@@ -69,9 +72,34 @@ ci/validate_codegen.py
 ci/validate_spec_v25.py
   Type: Script
   Has __main__ block: Yes
+current_work/wiring-audit-perplexity/validate_wiring_alignment.py
+  Type: Script
+  Has __main__ block: Yes
 dev/tools/global_state_audit.py
   Type: Script
   Has __main__ block: Yes
+docs/Slack-Debug-2/server.py
+  Type: FastAPI
+  Title: L9 Phase 2 Secure AI OS
+  Routes (14):
+    - GET /
+    - GET /health
+    - GET /health/startup
+    - POST /kernels/reload
+    - GET /health/neo4j
+    - POST /lchat
+    - POST /chat
+    - WEBSOCKET /ws/agent
+    - WEBSOCKET /lws
+    - ROUTER /os/*
+    ... and 4 more
+docs/Slack-Debug-2/verify_agent_executor.py
+  Type: Script
+  Has __main__ block: Yes
+docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
+  Type: FastAPI
+  Routes (1):
+    - POST /events
 email_agent/oauth_server.py
   Type: Script
   Has __main__ block: Yes
@@ -113,13 +141,25 @@ scripts/agents/run_bootstrap_l_graph.py
 scripts/agents/verify_agent_executor.py
   Type: Script
   Has __main__ block: Yes
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
+scripts/audit/categorize_dead_code.py
   Type: Script
   Has __main__ block: Yes
-scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py
+scripts/audit/cleanup_audit_reports.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/find_dead_code.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/generate_gmp_todos.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/resolve_dead_code_refs.py
   Type: Script
   Has __main__ block: Yes
 scripts/audit/run_all.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/run_dead_code_audit.py
   Type: Script
   Has __main__ block: Yes
 scripts/audit/tier1/audit_capability_inventory.py
@@ -129,6 +169,12 @@ scripts/audit/tier1/audit_code_integrity.py
   Type: Script
   Has __main__ block: Yes
 scripts/audit/tier1/audit_infrastructure_health.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/verify_memory_spec_v3.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/verify_wiring_alignment.py
   Type: Script
   Has __main__ block: Yes
 scripts/batch/batch_generate_specs.py
@@ -194,6 +240,9 @@ scripts/memory/load_indexes_to_neo4j_vps.py
 scripts/memory/migrate_kernels_to_graph.py
   Type: Script
   Has __main__ block: Yes
+scripts/migrate_substrate_models.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/research/delegate_deep_research.py
   Type: Script
   Has __main__ block: Yes
@@ -204,6 +253,9 @@ scripts/research/factory_extract.py
   Type: Script
   Has __main__ block: Yes
 scripts/research/send_perplexity_spec_request.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/setup_gmail_accounts.py
   Type: Script
   Has __main__ block: Yes
 scripts/workspace/init_workspace.py

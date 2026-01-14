@@ -11,10 +11,12 @@
 - `tests/core/security/test_permission_graph.py` (2 tests)
 - `tests/core/aios/test_runtime.py` (2 tests)
 - `tests/core/agents/test_executor_governance.py` (5 tests)
+- `tests/core/agents/test_prompt_defense.py` (31 tests)
 - `tests/core/agents/test_graph_state.py` (13 tests)
 - `tests/core/agents/test_bootstrap_phases.py` (14 tests)
 - `tests/core/agents/test_agent_self_modify.py` (14 tests)
 - `tests/core/agents/test_executor.py` (18 tests)
+- `tests/core/agents/test_prompt_builder.py` (25 tests)
 - `tests/core/observability/test_observability_integration.py` (32 tests)
 - `tests/core/schemas/test_content_hash_integrity.py` (14 tests)
 - `tests/core/schemas/test_schema_registry.py` (20 tests)
@@ -52,13 +54,23 @@
 
 ### tests/memory/
 
+- `tests/memory/test_saga.py` (19 tests)
 - `tests/memory/test_substrate_api.py` (2 tests)
 - `tests/memory/test_embedding_filter.py` (9 tests)
+- `tests/memory/test_ingestion_transaction.py` (4 tests)
+- `tests/memory/test_graph_memory.py` (24 tests)
+- `tests/memory/test_ingestion_audit.py` (16 tests)
+- `tests/memory/test_tool_router.py` (23 tests)
 - `tests/memory/test_pruning.py` (5 tests)
 - `tests/memory/test_query_classifier.py` (15 tests)
+- `tests/memory/test_hybrid_rag.py` (19 tests)
+- `tests/memory/test_rls_isolation.py` (5 tests)
 - `tests/memory/test_memory_adapter_basic.py` (3 tests)
 - `tests/memory/test_consolidation.py` (7 tests)
 - `tests/memory/test_agent_persistence.py` (12 tests)
+- `tests/memory/test_ingestion_pipeline_audit.py` (50 tests)
+- `tests/memory/test_retrieval_audit.py` (12 tests)
+- `tests/memory/test_unified_pipeline.py` (17 tests)
 - `tests/memory/test_e2e_memory_audit.py` (7 tests)
 - `tests/memory/test_packet_envelope.py` (2 tests)
 - `tests/memory/test_memory_ingestion.py` (10 tests)
@@ -69,7 +81,10 @@
 - `tests/memory/test_consolidation_graph.py` (11 tests)
 - `tests/memory/test_reasoning_replay.py` (11 tests)
 - `tests/memory/test_vector_index.py` (5 tests)
+- `tests/memory/test_packet_validation_v2.py` (23 tests)
+- `tests/memory/test_substrate_dag_native.py` (32 tests)
 - `tests/memory/test_tool_audit.py` (27 tests)
+- `tests/memory/test_cypher_templates.py` (14 tests)
 
 ### tests/telemetry/
 
@@ -78,14 +93,16 @@
 ### tests/api/
 
 - `tests/api/test_server_health.py` (3 tests)
+- `tests/api/test_agent_auth.py` (6 tests)
 - `tests/api/test_auth.py` (8 tests)
 - `tests/api/test_slack_adapter.py` (26 tests)
+- `tests/api/test_websocket_auth.py` (5 tests)
 - `tests/api/test_e2e_slack_audit.py` (0 tests)
 
 ## Summary
 
-- **Total test files**: 63
-- **Total test functions**: 689
+- **Total test files**: 80
+- **Total test functions**: 1014
 
 ## Running Tests
 

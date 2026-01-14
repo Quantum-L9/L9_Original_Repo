@@ -1,16 +1,4 @@
 PHASE 0: CURSOR INTEGRATION PACK — TODO PLAN (LOCKED)
-Status: ⏸️ AWAITING APPROVAL
-
-EXECUTIVE SUMMARY
-This integration pack enables full Cursor IDE access to L9's phased GMP model (phases 0–6) while respecting:
-
-Governance model (Igor authority, approval gates, capability enforcement)
-
-Protected systems (websocket_orchestrator, kernel_loader, docker-compose, memory substrates)
-
-GMP phases (locked TODO planning → approval-gated execution → evidence-driven completion)
-
-Total artifacts: 7 | Total deliverables: ~3,500 lines | Scope: Governance-aware prompts + workspace rules + runbook
 
 LOCKED TODO PLAN
 TODO ID	Artifact Name	Type	Purpose	Phase
@@ -982,10 +970,7 @@ These invariants are enforced by:
 
 ---
 
-This completes the integration pack artifacts T1–T11 at the level of prompts, rules, and documentation, respecting governance and GMP constraints.
-<span style="display:none">[^10][^11][^12][^13][^14][^15][^16][^17][^18][^19][^20][^3][^4][^5][^6][^7][^8][^9]</span>
-
-<div align="center">⁂</div>
+This completes the integration pack artifacts T1–T11 at the level of prompts, rules, and documentation, respecting governance and GMP constraints.]
 
 [^1]: governance_model.txt
 [^2]: pydantic_models.txt

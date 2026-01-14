@@ -41,7 +41,7 @@ AgentTrajectorySpan::Span @ core/observability/models.py
 AlertLevel::str,Enum @ ir_engine/meta_ir.py
 AmbiguityError::CompilerError @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
 AnomalySeverity::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
-AnonymizationStrategy::Enum @ upgrades/packet_envelope/governance.py
+AnonymizationStrategy::Enum @ core/packet_envelope/governance.py
 ApplyDecayArgs::BaseModel @ mcp_memory/src/models.py
 ApprovalFeedbackRequest::BaseModel @ api/routes/commands.py
 ApprovalFeedbackResponse::BaseModel @ api/routes/commands.py
@@ -84,7 +84,6 @@ CalendarAdapterRequest::BaseModel @ api/adapters/calendar_adapter/schemas.py
 CalendarAdapterRequest::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/schemas.py
 CalendarAdapterResponse::BaseModel @ api/adapters/calendar_adapter/schemas.py
 CalendarAdapterResponse::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/schemas.py
-CallGraphBuilder::NodeVisitor @ scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_code_integrity.py
 CallGraphBuilder::NodeVisitor @ scripts/audit/audit_shared_core.py
 CallGraphBuilder::NodeVisitor @ scripts/audit/tier1/audit_code_integrity.py
 CallableFrom::str,Enum @ ir_engine/meta_ir.py
@@ -125,7 +124,7 @@ Command::BaseModel @ core/commands/schemas.py
 CommandExecuteRequest::BaseModel @ api/routes/commands.py
 CommandExecuteResponse::BaseModel @ api/routes/commands.py
 CommandResult::BaseModel @ core/commands/schemas.py
-CommandType::Enum @ upgrades/packet_envelope/scalability.py
+CommandType::Enum @ core/packet_envelope/scalability.py
 CommandType::str,Enum @ core/commands/schemas.py
 CommunicationHarmonizationConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 CommunicationStackBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
@@ -152,7 +151,7 @@ ConsolidationResponse::BaseModel @ api/memory/router.py
 ConstraintNode::IRNodeBase @ ir_engine/ir_schema.py
 ConstraintStatus::str,Enum @ ir_engine/ir_schema.py
 ConstraintType::str,Enum @ ir_engine/ir_schema.py
-ContentMode::Enum @ upgrades/packet_envelope/standardization.py
+ContentMode::Enum @ core/packet_envelope/standardization.py
 ContextAssemblySpan::Span @ core/observability/models.py
 ContextInjectionRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
 ContextInjectionRequest::BaseModel @ mcp_memory/src/models.py
@@ -161,6 +160,7 @@ ContextInjectionResponse::BaseModel @ mcp_memory/src/models.py
 ContextRead::BaseModel @ ir_engine/meta_ir.py
 ContextStrategy::ABC @ core/observability/context_strategies.py
 ControllerPhase::str,Enum @ orchestration/unified_controller.py
+CorrelateTimelineRequest::BaseModel @ api/memory/router.py
 CriterionType::str,Enum @ simulation/outcome_evaluator.py
 CriticAgent::BaseAgent @ services/research/agents/critic_agent.py
 CrossAgentSharingConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
@@ -175,12 +175,16 @@ CursorScopeViolationError::Exception @ agents/cursor/integrations/cursor_gateway
 CursorTaskRequest::BaseModel @ api/routes/cursor.py
 CursorTaskResponse::BaseModel @ api/routes/cursor.py
 CursorTaskSpec::BaseModel @ agents/cursor/integrations/cursor_executor.py
+CypherTemplateCategory::str,Enum @ memory/cypher_templates.py
+DatabaseType::str,Enum @ memory/saga.py
+DataclassFieldVisitor::NodeVisitor @ scripts/audit/find_dead_code.py
 DecisionType::str,Enum @ igor/audit-memory/memory_governance_patterns.py
 DecisionType::str,Enum @ memory/governance_patterns.py
 DeleteExpiredMemoriesArgs::BaseModel @ mcp_memory/src/models.py
 DependencySpec::BaseModel @ ir_engine/meta_ir.py
 DeploymentBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 DerivationType::str,Enum @ core/schemas/packet_envelope_v2.py
+DeriveType::str,Enum @ core/schemas/packet_envelope_v2.py
 DeriveType::str,Enum @ igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py
 DeveloperKernelData::FlexibleModel @ core/kernels/schemas.py
 DraftRequest::BaseModel @ email_agent/router.py
@@ -193,6 +197,9 @@ EmailAdapterResponse::BaseModel @ api/adapters/email_adapter/schemas.py
 EmailAdapterResponse::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/schemas.py
 EmbeddingProvider::ABC @ igor/audit-memory/memory_substrate_semantic.py
 EmbeddingProvider::ABC @ memory/substrate_semantic.py
+EnrichEntitiesRequest::BaseModel @ api/memory/router.py
+EnrichmentResult::BaseModel @ memory/substrate_models.py
+EnrichmentStrategy::str,Enum @ memory/hybrid_rag.py
 EntityData::BaseModel @ clients/world_model_client.py
 EntityListResponse::BaseModel @ api/world_model_api.py
 EntityRequest::BaseModel @ api/memory/graph.py
@@ -216,7 +223,7 @@ EvaluationVerdict::str,Enum @ simulation/outcome_evaluator.py
 EventKind::Enum @ core/coordination/event_queue.py
 EventMessage::BaseModel @ core/schemas/ws_event_stream.py
 EventMessage::BaseModel @ igor/audit-memory/core_schemas_ws_event_stream.py
-EventType::Enum @ upgrades/packet_envelope/standardization.py
+EventType::Enum @ core/packet_envelope/standardization.py
 EventType::str,Enum @ core/schemas/ws_event_stream.py
 EventType::str,Enum @ igor/audit-memory/core_schemas_ws_event_stream.py
 Evidence::TypedDict @ services/research/graph_state.py
@@ -240,6 +247,8 @@ ExtractedInsight::BaseModel @ igor/audit-memory/memory_substrate_models.py
 ExtractedInsight::BaseModel @ memory/substrate_models.py
 FailureClass::str,Enum @ core/observability/models.py
 FailureSignal::BaseModel @ core/observability/models.py
+FetchAndEnrichRequest::BaseModel @ api/memory/router.py
+FixAction::str,Enum @ scripts/audit/categorize_dead_code.py
 FlexibleModel::BaseModel @ core/kernels/schemas.py
 ForwardRequest::BaseModel @ email_agent/router.py
 GMPRunInput::BaseModel @ core/schemas/l_tools.py
@@ -269,9 +278,9 @@ GraphSearchContext::BaseModel @ memory/graph_search_cache.py
 GraphSearchResult::BaseModel @ memory/graph_search_cache.py
 GuardrailConfig::FlexibleModel @ core/kernels/schemas.py
 HTMLToTextParser::HTMLParser @ email_agent/parser.py
-HTTPBinaryBinding::ProtocolBinding @ upgrades/packet_envelope/standardization.py
+HTTPBinaryBinding::ProtocolBinding @ core/packet_envelope/standardization.py
 HTTPHealthProbe::HealthProbe @ scripts/audit/tier1/audit_infrastructure_health.py
-HTTPStructuredBinding::ProtocolBinding @ upgrades/packet_envelope/standardization.py
+HTTPStructuredBinding::ProtocolBinding @ core/packet_envelope/standardization.py
 HTTPTool::BaseTool @ igor/audit-tools/services_research_tools_tool_wrappers.py
 HTTPTool::BaseTool @ services/research/tools/tool_wrappers.py
 HandshakeResponse::BaseModel @ core/schemas/event_stream.py
@@ -280,7 +289,6 @@ HandshakeStatus::str,Enum @ core/schemas/event_stream.py
 HandshakeStatus::str,Enum @ igor/audit-memory/core_schemas_event_stream.py
 HealthResponse::BaseModel @ api/routes/factory.py
 HealthStatus::BaseModel @ services/symbolic_computation/core/models.py
-HealthStatus::Enum @ scripts/audit/L9_AUDIT_SUITE_EXPANSION/audit_infrastructure_health.py
 HealthStatus::str,Enum @ scripts/audit/tier1/audit_infrastructure_health.py
 HierarchicalSummarizationStrategy::ContextStrategy @ core/observability/context_strategies.py
 HttpClientStandard::BaseModel @ ir_engine/meta_ir.py
@@ -318,6 +326,7 @@ Impact::str,Enum @ scripts/audit/tier1/audit_capability_inventory.py
 InboundInterface::BaseModel @ ir_engine/meta_ir.py
 IncompleteSpecError::GeneratorError @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/generate_module_code.py
 InfrastructureType::str,Enum @ core/worldmodel/l9_schema.py
+InjectionSeverity::str,Enum @ core/agents/prompt_defense.py
 Insight::BaseModel @ core/worldmodel/insight_emitter.py
 InsightInput::BaseModel @ api/world_model_api.py
 InsightsRequest::BaseModel @ api/world_model_api.py
@@ -337,6 +346,7 @@ InvalidPolicyError::PolicyLoadError @ core/governance/loader.py
 InvalidSchemaVersionError::Exception @ core/schemas/schema_registry.py
 JSONFileExporter::SpanExporter @ core/observability/exporters.py
 KernelActivationResult::FlexibleModel @ core/kernels/schemas.py
+KernelAwareAgent::Protocol @ core/agents/prompt_builder.py
 KernelAwareAgent::Protocol @ core/kernels/kernelloader.py
 KernelAwareAgent::Protocol @ igor/audit-tools/Current Config/runtime_kernel_loader.py
 KernelAwareAgent::Protocol @ runtime/kernel_loader.py
@@ -430,6 +440,7 @@ MemoryTier::Enum @ core/memory/virtual_context.py
 MemoryTopologyBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 MemoryWriteInput::BaseModel @ core/schemas/l_tools.py
 MemoryWriteInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
+MessageRole::str,Enum @ memory/graph_memory.py
 MetaContract::BaseModel @ ir_engine/meta_ir.py
 MetaContractValidationError::BaseModel @ ir_engine/meta_ir.py
 MetaContractValidationResult::BaseModel @ ir_engine/meta_ir.py
@@ -479,7 +490,7 @@ PacketEnvelopeIn::BaseModel @ core/schemas/packet_envelope_v2.py
 PacketEnvelopeIn::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
 PacketEnvelopeIn::BaseModel @ igor/audit-memory/memory_substrate_models.py
 PacketEnvelopeIn::BaseModel @ memory/substrate_models.py
-PacketEnvelopeUpgradePhase::Enum @ upgrades/packet_envelope/integration.py
+PacketEnvelopeUpgradePhase::Enum @ core/packet_envelope/integration.py
 PacketKind::str,Enum @ core/schemas/packet_envelope.py
 PacketKind::str,Enum @ core/schemas/packet_envelope_v2.py
 PacketKind::str,Enum @ igor/audit-memory/core_schemas_packet_envelope.py
@@ -536,7 +547,7 @@ ProactiveRecallRequest::BaseModel @ mcp_memory/src/models.py
 ProactiveRecallResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
 ProactiveRecallResponse::BaseModel @ mcp_memory/src/models.py
 Prohibition::FlexibleModel @ core/kernels/schemas.py
-ProtocolBinding::ABC @ upgrades/packet_envelope/standardization.py
+ProtocolBinding::ABC @ core/packet_envelope/standardization.py
 PythonModuleHealthProbe::HealthProbe @ scripts/audit/tier1/audit_infrastructure_health.py
 QAAgent::BaseAgent @ agents/qa_agent.py
 Query::BaseModel @ core/schemas/research_factory_models.py
@@ -567,6 +578,7 @@ ReflectionPriority::str,Enum @ world_model/reflection_memory.py
 ReflectionType::str,Enum @ world_model/reflection_memory.py
 RegressionError::Exception @ core/evaluation/evaluator.py
 RelationshipRequest::BaseModel @ api/memory/graph.py
+RelationshipType::str,Enum @ memory/graph_memory.py
 RemediationAction::BaseModel @ core/observability/models.py
 RepeatedToolFailurePattern::GapDetectionPattern @ core/agents/selfreflection.py
 ReplyRequest::BaseModel @ email_agent/router.py
@@ -590,12 +602,15 @@ ResearcherAgent::BaseAgent @ services/research/agents/researcher_agent.py
 RestoreRequest::BaseModel @ api/world_model_api.py
 RestoreResponse::BaseModel @ api/world_model_api.py
 RestoreResult::BaseModel @ clients/world_model_client.py
-RetentionPolicy::Enum @ upgrades/packet_envelope/governance.py
+RetentionPolicy::Enum @ core/packet_envelope/governance.py
 RetrievalBatch::BaseModel @ core/schemas/research_factory_models.py
 RetryConfig::BaseModel @ ir_engine/meta_ir.py
+RetryExhaustedError::Exception @ core/resilience/retry.py
 ReviewerCell::BaseCell @ collaborative_cells/reviewer_cell.py
 Risk::str,Enum @ scripts/audit/tier1/audit_capability_inventory.py
 RiskLevel::str,Enum @ core/commands/schemas.py
+RiskLevel::str,Enum @ scripts/audit/categorize_dead_code.py
+RotationStatus::Enum @ core/governance/credentials_policy.py
 RouterState::TypedDict @ orchestration/ws_task_router.py
 RuleType::str,Enum @ core/kernels/schemas.py
 RuntimeMode::str,Enum @ world_model/runtime.py
@@ -604,6 +619,9 @@ RuntimeWiringSpec::BaseModel @ ir_engine/meta_ir.py
 SREMetric::BaseModel @ core/observability/models.py
 SSOTViolation::CompilerError @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
 SafetyKernelData::FlexibleModel @ core/kernels/schemas.py
+SagaResponse::BaseModel @ api/memory/router.py
+SagaStatus::str,Enum @ memory/saga.py
+SagaStepStatus::str,Enum @ memory/saga.py
 SaveMemoryArgs::BaseModel @ mcp_memory/src/models.py
 SaveMemoryRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
 SaveMemoryRequest::BaseModel @ mcp_memory/src/models.py
@@ -717,7 +735,7 @@ SubstrateConnectionError::SubstrateException @ docs/DONE/Phased Upgrades/Stage 1
 SubstrateException::Exception @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubstrateExporter::AsyncSpanExporter @ core/observability/exporters.py
 SubstrateGraphState::TypedDict @ igor/audit-memory/memory_substrate_graph.py
-SubstrateGraphState::TypedDict @ memory/substrate_graph.py
+SubstrateGraphState::TypedDict @ memory/substrate_dag.py
 SubstrateProtocol::Protocol @ core/governance/engine.py
 SubstrateRetriever::BaseRetriever @ core/retrievers/substrate_retriever.py
 SubstrateService::Protocol @ docs/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
@@ -757,6 +775,7 @@ TemporalQueryResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
 TemporalQueryResponse::BaseModel @ mcp_memory/src/models.py
 TestModel::BaseModel @ tests/memory/test_agent_persistence.py
 TestScope::BaseModel @ ir_engine/meta_ir.py
+TestState::TypedDict @ tests/memory/test_substrate_dag_native.py
 ThresholdsConfig::FlexibleModel @ core/kernels/schemas.py
 TokenOverusePattern::GapDetectionPattern @ core/agents/selfreflection.py
 TokenUsage::BaseModel @ core/schemas/packet_envelope.py
@@ -827,4 +846,4 @@ WorldModelQueryInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
 WorldModelRequest::BaseModel @ orchestrators/world_model/interface.py
 WorldModelResponse::BaseModel @ orchestrators/world_model/interface.py
 
-# Total: 823 classes with inheritance
+# Total: 842 classes with inheritance

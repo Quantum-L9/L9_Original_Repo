@@ -84,11 +84,10 @@ async def load_identity_persona(
         # Write to memory substrate if available
         if hasattr(substrate_service, 'write_packet'):
             try:
-                from core.schemas.packet_envelope_v2 import PacketEnvelope, PacketKind
+                from memory.substrate_models import PacketEnvelopeIn
                 
-                packet = PacketEnvelope(
-                    kind=PacketKind.MEMORY_WRITE,
-                    agent_id=instance.agent_id,
+                packet = PacketEnvelopeIn(
+                    packet_type="memory_write",
                     payload={
                         "chunk_type": "identity",
                         "designation": identity_chunk["designation"],
@@ -98,12 +97,14 @@ async def load_identity_persona(
                         "traits": identity_chunk["personality_traits"],
                         "authority": identity_chunk["authority_level"],
                         "allegiance": identity_chunk["allegiance"],
+                        "agent_id": instance.agent_id,
                         "timestamp": datetime.utcnow().isoformat(),
                     },
+                    metadata={"agent": instance.agent_id, "schema_version": "1.0.0"},
                 )
                 await substrate_service.write_packet(packet)
             except ImportError:
-                logger.debug("PacketEnvelope not available, skipping memory write")
+                logger.debug("PacketEnvelopeIn not available, skipping memory write")
         
         logger.info(
             "Loaded identity",

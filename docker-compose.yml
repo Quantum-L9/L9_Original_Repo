@@ -141,6 +141,51 @@ services:
       - "com.l9.version=1.1.0"
 
   # ===========================================================================
+  # MCP Memory Server (Cursor IDE memory protocol)
+  # This is the ONLY supported memory path - l9-memory-api is DEPRECATED
+  # ===========================================================================
+  l9-mcp-memory:
+    build:
+      context: .
+      dockerfile: mcp_memory/Dockerfile
+    container_name: l9-mcp-memory
+    restart: unless-stopped
+    depends_on:
+      l9-postgres:
+        condition: service_healthy
+    environment:
+      # Database (shared with l9-api)
+      MEMORY_DSN: postgresql://${POSTGRES_USER:-l9_user}:${POSTGRES_PASSWORD:-YOUR_DB_PASSWORD_HERE}@l9-postgres:5432/${POSTGRES_DB:-l9_memory}
+      
+      # MCP Server Config
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 9002
+      MCP_ENV: ${MCP_ENV:-development}
+      
+      # API Keys (from .env)
+      MCP_API_KEY_L: ${MCP_API_KEY_L:-}
+      MCP_API_KEY_C: ${MCP_API_KEY_C:-}
+      MCP_API_KEY: ${MCP_API_KEY:-}
+      
+      # OpenAI Embeddings
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-YOUR_OPENAI_KEY_HERE}
+      OPENAI_EMBED_MODEL: ${OPENAI_EMBED_MODEL:-text-embedding-3-small}
+    ports:
+      - "127.0.0.1:${MCP_PORT:-9002}:9002"
+    command: uvicorn mcp_memory.src.main:app --host 0.0.0.0 --port 9002
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - l9-network
+    labels:
+      - "com.l9.service=mcp-memory"
+      - "com.l9.version=1.0.0"
+
+  # ===========================================================================
   # PostgreSQL with pgvector (Memory storage)
   # ===========================================================================
   l9-postgres:

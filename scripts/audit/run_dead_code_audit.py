@@ -4,17 +4,23 @@ L9 Dead Code Audit - Consolidated Runner
 =========================================
 
 Runs all 4 phases of dead code audit in sequence:
-1. find_dead_code.py      → Baseline static analysis (vulture + ruff)
+1. find_dead_code.py        → Baseline static analysis (vulture + ruff)
 2. resolve_dead_code_refs.py → Attempt resolution of references
 3. categorize_dead_code.py   → Risk categorization (HIGH/MEDIUM/LOW)
-4. generate_gmp_todos.py     → Generate GMP TODO plan
+4. generate_gmp_todos.py     → AUTO-FIX + Generate completed GMP Report
+
+Phase 4 automatically:
+- Fixes safe dead code (unused imports, variables) via ruff --fix
+- Skips false positives (test fixtures, exports, config fields)
+- Generates completed GMP Report documenting all fixes
 
 Usage:
-  python scripts/audit/run_dead_code_audit.py           # Full audit
-  python scripts/audit/run_dead_code_audit.py --quick   # Skip GMP generation
+  python scripts/audit/run_dead_code_audit.py           # Full audit + auto-fix
+  python scripts/audit/run_dead_code_audit.py --quick   # Skip auto-fix (phases 1-3 only)
   python scripts/audit/run_dead_code_audit.py --phase 1 # Run specific phase only
+  python scripts/audit/run_dead_code_audit.py --dry-run # Show what would be fixed
 
-Version: 1.0.0
+Version: 2.0.0
 """
 
 import subprocess
@@ -47,10 +53,10 @@ PHASES = [
         "description": "Risk categorization (HIGH/MEDIUM/LOW)",
     },
     {
-        "name": "Phase 4: Generate GMP TODOs",
+        "name": "Phase 4: Auto-Fix + GMP Report",
         "script": "generate_gmp_todos.py",
-        "output": "dead_code_gmp_todos.yaml",
-        "description": "Auto-generate GMP Phase 0 TODO plan",
+        "output": "GMP_Report_DeadCode_*.md",
+        "description": "AUTO-FIX safe items + generate completed GMP Report",
     },
 ]
 

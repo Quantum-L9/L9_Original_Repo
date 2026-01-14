@@ -118,4 +118,4 @@ codegen/extractions/
 codegen/
 .tmp.driveupload/
 tests/agents/codegenagent/
-tests/codegen/
+tests/codegen/email_agent/private_auth/

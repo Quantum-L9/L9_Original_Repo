@@ -4,7 +4,6 @@ agents/cursor/ -
 agents/cursor/extractors/ - No module docstring
 agents/cursor/integrations/ - No module docstring
 agents/cursor/scripts/ - No module docstring
-aios/ - 
 api/ - 
 api/adapters/calendar_adapter/ - No module docstring
 api/adapters/email_adapter/ - No module docstring
@@ -19,6 +18,8 @@ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calenda
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/ - No module docstring
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/ - No module docstring
 codegen/code-gen-files/jinja2-templates/ - 
+codegen/compiler/ - 
+codegen/compiler/emitters/ - 
 codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/ - 
 codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/ - No module docstring
 collaborative_cells/ - 
@@ -38,6 +39,8 @@ core/integration/ -
 core/kernel_wiring/ - 
 core/kernels/ - 
 core/observability/ - 
+core/packet_envelope/ - 
+core/resilience/ - 
 core/retrievers/ - L9 Core Retrievers
 core/schemas/ - 
 core/schemas/tests/ - L9 Core Schemas Test Suite.
@@ -75,6 +78,8 @@ orchestrators/world_model/ -
 private/ - 
 private/security/ - 
 runtime/ - 
+scripts/ - No module docstring
+scripts/memory/ - No module docstring
 services/ - 
 services/research/ - 
 services/research/agents/ - 
@@ -112,6 +117,5 @@ tests/upgrades/ -
 tests/world_model/ - World Model Tests
 tools/ - 
 upgrades/ - 
-upgrades/packet_envelope/ - 
 world_model/ - 
 world_model/nodes/ - 

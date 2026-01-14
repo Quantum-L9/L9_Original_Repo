@@ -46,6 +46,7 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-13] **Memory Graph Cleanup (GMP-73)** — Deleted 2 trash embeddings containing error messages ("Sorry, I encountered a temporary error") from VPS PostgreSQL. Before: 14,773 embeddings → After: 14,771. Preserved 1 LESSON embedding documenting GMP-42 fix (false positive in detection). Cleanup scripts verified: `scripts/memory/generate_delete_sql.py`, `scripts/memory/cleanup_trash_embeddings_via_api.py`.
 - [2026-01-13] **Git Hooks Integration (GMP-72)** — Extracted 4 production-ready git hooks via `/harvest`: pre-commit (secret scanning, ruff format/lint, mypy, forbidden patterns), post-merge (8 checks: env sync, deps, migrations, docker, kernels, audit cache, pre-commit config, repo index), pre-push (smoke tests, large file blocker, schema validation). Installed to `.git/hooks/`. `reports/GMP_Report_GMP-72-Git-Hooks-Integration.md`
 - [2026-01-13] **Schema Migration substrate_models → packet_envelope_v2 (GMP-63)** — Migrated 88 files from deprecated `memory.substrate_models` to canonical `core.schemas.packet_envelope_v2`. Added `DeriveType` enum + provenance fields to v2 schema. Created automated migration script (`scripts/migrate_substrate_models.py`). Updated `PacketValidator` to use v2 schema + typed `PacketValidationError`. 22 new validation tests in `tests/memory/test_packet_validation_v2.py`.
 - [2026-01-13] **L-CTO Runtime Hardening (GMP-60)** — Created kernel-aware prompt builder + prompt injection defense layer. Wired both to AgentExecutorService. Added kernel integrity verification to loader. Deprecated legacy Slack AIOS flow. Renamed aios/runtime.py to aios/daemon.py. 56 new tests. `reports/GMP_Report_GMP-60-LCTO-Runtime-Hardening.md`
@@ -97,23 +98,28 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - Always use search_replace for edits, never rewrite files
 - Test on both macOS local and Linux VPS
 - **Domain**: `l9.quantumaipartners.com` (Cloudflare proxied)
-- **Ports**: 8000=l9-api, 9001=mcp-memory (both via Caddy, no SSH tunnel needed)
+- **Ports**: 8000=l9-api (unified - handles all traffic including MCP)
+- **Memory Client**: `agents/cursor/cursor_memory_client.py` (moved from `.cursor-commands/cursor-memory/`)
+- **Memory API Keys**: `MCP_API_KEY_C` for Cursor, `MCP_API_KEY_L` for L-CTO (NOT `L9_EXECUTOR_API_KEY`)
 - **Memory scopes**: shared (both), cursor (Cursor→L read), l-private (L only)
+- **Direct API**: `/api/v1/memory/packet` WORKS ✅ | MCP `/mcp/call` has schema conflicts ❌
 - **Slack credentials**: Already in VPS `.env` ✅ (SLACK_APP_ENABLED=true)
 - **Slack code**: `api/routes/slack.py` → `memory/slack_ingest.py` ✅ (handle_slack_with_l_agent ported)
 - **Missing for Slack DMs**: Set `L9_ENABLE_LEGACY_SLACK_ROUTER=false`, add `message.im` subscription in Slack App
 - **Cloudflare**: All DNS for quantumaipartners.com proxied via Cloudflare (HTTPS, DDoS protection)
 
 ---
-*Last updated: 2026-01-13 (GMP-72 Git Hooks Integration) EST*
+*Last updated: 2026-01-13 22:45 EST (MCP Memory Client Integration)*
 
 ## Next Steps (Current Session)
-1. **Test git hooks** - Stage a Python file, commit, verify pre-commit runs
-2. **Install gitleaks** - `brew install gitleaks` for full secret scanning
-3. **Test in Docker** - Verify all imports work in containerized environment
+1. **Fix MCP `/mcp/call` endpoint** — Schema conflict (`PacketMetadata got multiple values for 'agent'`) and DB pool not initialized
+2. **Test git hooks** - Stage a Python file, commit, verify pre-commit runs
+3. **Install gitleaks** - `brew install gitleaks` for full secret scanning
 4. **GMP-61: Capability Gating** - Enforce tool visibility by capability level (deferred from GMP-60)
 
 **Recent Sessions (7-day window):**
+- 2026-01-13: **MCP Memory Client Integration** — Moved `cursor-memory/` → `agents/cursor/`. Fixed API key (now uses `MCP_API_KEY_C` not `L9_EXECUTOR_API_KEY`). Updated `/gmp` command with mandatory canonical load from `codegen/C-GMP Suite/canonical/`. E2E test: Direct API (`/api/v1/memory/packet`) works ✅, MCP endpoint (`/mcp/call`) has schema conflicts ❌. Updated `mem.md` command + rules to use new paths.
+- 2026-01-13: Memory Graph Cleanup (GMP-73) — Deleted 2 trash embeddings containing error messages from VPS PostgreSQL. Before: 14,773 embeddings → After: 14,771. Scripts: `scripts/memory/generate_delete_sql.py`, `scripts/memory/cleanup_trash_embeddings_via_api.py`. One LESSON embedding preserved (documents GMP-42 fix).
 - 2026-01-13: GMP-72 Git Hooks Integration — Extracted 4 production-ready git hooks via /harvest (pre-commit, post-merge, pre-push, installer). Installed to .git/hooks/. Features: secret scanning, auto-format, lint, migrations, kernel reload, smoke tests. GMP report: reports/GMP_Report_GMP-72-Git-Hooks-Integration.md
 - ✅ 2026-01-13: GMP-61 aios/ Directory Elimination — Deleted orphaned VPS daemon (6 files, 24KB). Relocated LocalAPI to runtime/local_api.py, updated mac_agent import. Removed naming confusion. GMP report: reports/GMP_Report_GMP-61-AIOS-Directory-Elimination.md
 - 2026-01-13: GMP-62/63 Schema Migration — Extended packet_envelope_v2 with DeriveType enum + provenance fields. Updated PacketValidator with typed errors. Migrated 88 files from substrate_models → packet_envelope_v2 via automated script. 22 new validation tests.

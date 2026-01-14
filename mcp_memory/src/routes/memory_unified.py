@@ -223,6 +223,7 @@ async def _save_via_main_pipeline(
     )
     
     # Create PacketEnvelopeIn for main ingestion pipeline
+    # Note: 'agent' is already in envelope_metadata, don't pass it twice
     packet_in = PacketEnvelopeIn(
         packet_type=f"memory.{kind}",  # e.g., "memory.preference", "memory.lesson"
         payload={
@@ -233,9 +234,8 @@ async def _save_via_main_pipeline(
         },
         metadata=PacketMetadata(
             schema_version="2.0.0",
-            agent="l-cto" if caller_id == "L" else "cursor-ide",
             domain="l9",
-            **envelope_metadata,  # Extra fields allowed
+            **envelope_metadata,  # Contains agent, creator, source, etc.
         ),
         provenance=provenance,
         tags=tags or [],

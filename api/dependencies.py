@@ -62,7 +62,7 @@ def get_substrate_service(request: Request) -> Any:
     return service
 
 
-def get_agent_executor(request: Request) -> Any:
+def get_agent_executor(request: Request) -> Any:  # LEGITIMATE: Scaffolding for agent routes
     """
     Get AgentExecutorService from app.state.
     
@@ -81,11 +81,14 @@ def get_agent_executor(request: Request) -> Any:
     return executor
 
 
-def get_governance_engine(request: Request) -> Any:
+def get_governance_engine(request: Request) -> Any:  # SCAFFOLDING: Awaiting governance route integration
     """
     Get GovernanceEngineService from app.state.
     
     Returns the governance engine for policy evaluation.
+    
+    SCAFFOLDING: This dependency is prepared for future governance routes.
+    Currently, governance engine is accessed directly via app.state in lifespan.
     
     Raises:
         HTTPException: If governance engine is not initialized.
@@ -124,11 +127,14 @@ def get_tool_registry(request: Request) -> Any:
 # =============================================================================
 
 
-def get_neo4j_client(request: Request) -> Any:
+def get_neo4j_client(request: Request) -> Any:  # SCAFFOLDING: Routes use own lazy import
     """
     Get Neo4j client from app.state.
     
     Returns the Neo4j async client for graph operations.
+    
+    SCAFFOLDING: This dependency is prepared for future routes.
+    Currently, api/memory/graph.py uses its own get_neo4j() lazy import.
     
     Raises:
         HTTPException: If Neo4j client is not initialized.
@@ -143,11 +149,14 @@ def get_neo4j_client(request: Request) -> Any:
     return client
 
 
-def get_redis_client(request: Request) -> Any:
+def get_redis_client(request: Request) -> Any:  # SCAFFOLDING: Routes use own lazy import
     """
     Get Redis client from app.state.
     
     Returns the Redis client for caching and state management.
+    
+    SCAFFOLDING: This dependency is prepared for future routes.
+    Currently, api/memory/cache.py uses its own get_redis() lazy import.
     
     Raises:
         HTTPException: If Redis client is not initialized.
@@ -167,11 +176,14 @@ def get_redis_client(request: Request) -> Any:
 # =============================================================================
 
 
-def get_observability_service(request: Request) -> Optional[Any]:
+def get_observability_service(request: Request) -> Optional[Any]:  # SCAFFOLDING: Awaiting observability routes
     """
     Get ObservabilityService from app.state.
     
     Returns the observability service for tracing/metrics, or None if not enabled.
+    
+    SCAFFOLDING: This dependency is prepared for future observability routes.
+    Currently, observability is accessed directly via app.state in lifespan.
     
     Note: Does not raise - observability is optional.
     """
@@ -189,11 +201,14 @@ def get_memory_orchestrator(request: Request) -> Optional[Any]:
     return getattr(request.app.state, "memory_orchestrator", None)
 
 
-def get_world_model_service(request: Request) -> Optional[Any]:
+def get_world_model_service(request: Request) -> Optional[Any]:  # SCAFFOLDING: Awaiting world model routes
     """
     Get WorldModelService from app.state.
     
     Returns the world model service, or None if not available.
+    
+    SCAFFOLDING: This dependency is prepared for future world model routes.
+    Currently, world model service is accessed directly via app.state.
     
     Note: Does not raise - world model is optional.
     """
