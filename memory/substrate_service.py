@@ -1117,27 +1117,94 @@ async def create_substrate_service(
 
     Returns:
         Configured MemorySubstrateService
+
+    Raises:
+        RuntimeError: With detailed diagnostic info if initialization fails
     """
-    # Create repository
-    repository = SubstrateRepository(
-        database_url=database_url,
-        pool_size=db_pool_size,
-        max_overflow=db_max_overflow,
-    )
-    await repository.connect()
-
-    # Create embedding provider
-    embedding_provider = create_embedding_provider(
-        provider_type=embedding_provider_type,
-        model=embedding_model,
-        api_key=openai_api_key,
+    # === DIAGNOSTIC LOGGING ===
+    logger.info(
+        "substrate_service.init_start",
+        database_url_set=bool(database_url),
+        database_url_prefix=database_url[:30] + "..." if database_url else "NONE",
+        embedding_provider_type=embedding_provider_type,
+        embedding_model=embedding_model,
+        openai_api_key_set=bool(openai_api_key),
+        openai_api_key_prefix=openai_api_key[:8] + "..." if openai_api_key else "NONE",
+        db_pool_size=db_pool_size,
     )
 
-    # Create and return service
-    return MemorySubstrateService(
-        repository=repository,
-        embedding_provider=embedding_provider,
-    )
+    # Step 1: Create repository
+    try:
+        logger.info("substrate_service.step1_repository_create")
+        repository = SubstrateRepository(
+            database_url=database_url,
+            pool_size=db_pool_size,
+            max_overflow=db_max_overflow,
+        )
+    except Exception as e:
+        logger.error(
+            "substrate_service.step1_repository_create_FAILED",
+            error=str(e),
+            error_type=type(e).__name__,
+        )
+        raise RuntimeError(f"SubstrateRepository creation failed: {e}") from e
+
+    # Step 2: Connect repository to database
+    try:
+        logger.info("substrate_service.step2_repository_connect")
+        await repository.connect()
+        logger.info("substrate_service.step2_repository_connect_SUCCESS")
+    except Exception as e:
+        logger.error(
+            "substrate_service.step2_repository_connect_FAILED",
+            error=str(e),
+            error_type=type(e).__name__,
+            database_url_prefix=database_url[:30] + "..." if database_url else "NONE",
+        )
+        raise RuntimeError(f"Database connection failed: {e}") from e
+
+    # Step 3: Create embedding provider
+    try:
+        logger.info(
+            "substrate_service.step3_embedding_provider_create",
+            provider_type=embedding_provider_type,
+            model=embedding_model,
+        )
+        embedding_provider = create_embedding_provider(
+            provider_type=embedding_provider_type,
+            model=embedding_model,
+            api_key=openai_api_key,
+        )
+        logger.info(
+            "substrate_service.step3_embedding_provider_create_SUCCESS",
+            provider_class=type(embedding_provider).__name__,
+        )
+    except Exception as e:
+        logger.error(
+            "substrate_service.step3_embedding_provider_FAILED",
+            error=str(e),
+            error_type=type(e).__name__,
+            provider_type=embedding_provider_type,
+            api_key_set=bool(openai_api_key),
+        )
+        raise RuntimeError(f"Embedding provider creation failed: {e}") from e
+
+    # Step 4: Create and return service
+    try:
+        logger.info("substrate_service.step4_service_create")
+        service = MemorySubstrateService(
+            repository=repository,
+            embedding_provider=embedding_provider,
+        )
+        logger.info("substrate_service.init_SUCCESS")
+        return service
+    except Exception as e:
+        logger.error(
+            "substrate_service.step4_service_create_FAILED",
+            error=str(e),
+            error_type=type(e).__name__,
+        )
+        raise RuntimeError(f"MemorySubstrateService creation failed: {e}") from e
 
 
 # Singleton instance

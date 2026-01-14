@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# L9 VPS CONSOLIDATED MRI (UPDATED 2026-01-09)
+# L9 VPS CONSOLIDATED MRI (UPDATED 2026-01-14)
 # Host assumptions:
 # - Code: /opt/l9
 # - Docker Compose: /opt/l9/docker-compose.yml
 # - Services: l9-api, l9-postgres, redis, neo4j, prometheus, grafana, jaeger
+# - Optional: l9-mcp-memory (port 9002)
 # - Caddy: systemd service, Caddyfile at /etc/caddy/Caddyfile
+# - Slack Adapter: SLACK_APP_ENABLED, SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
 
 set -euo pipefail
 
@@ -41,6 +43,16 @@ echo
 echo "A4) DISK SPACE (KEY PATHS)"
 echo "--------------------------"
 df -h / /opt /var /tmp 2>/dev/null || true
+
+echo
+echo "A5) MEMORY (RAM)"
+echo "----------------"
+free -h
+
+echo
+echo "A6) SYSTEM LOAD"
+echo "---------------"
+uptime
 
 ###############################################################################
 # PART B: GIT + REPO STATE
@@ -94,6 +106,26 @@ echo
 echo "Explicit port checks (8000, 9001, 5432, 7474, 7687, 6379, 9090, 3000, 16686):"
 sudo ss -tlnp 2>/dev/null | grep -E '(:8000|:9001|:5432|:7474|:7687|:6379|:9090|:3000|:16686)' || echo "No matches for those ports"
 
+echo
+echo "C5) DOCKER IMAGES"
+echo "-----------------"
+docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" | head -15 || echo "Cannot list images"
+
+echo
+echo "C6) DOCKER NETWORKS"
+echo "-------------------"
+docker network ls || echo "Cannot list networks"
+
+echo
+echo "C7) DOCKER CONTAINER ERRORS (RECENT)"
+echo "------------------------------------"
+for container in l9-api l9-postgres redis neo4j; do
+    if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "$container"; then
+        echo "--- $container ---"
+        docker logs "$container" 2>&1 | grep -iE "error|exception|fail|critical" | tail -5 || echo "No recent errors"
+    fi
+done
+
 ###############################################################################
 # PART D: CONFIG (.env, CADDYFILE, COMPOSE)
 ###############################################################################
@@ -103,9 +135,25 @@ echo "D1) .env (SANITIZED KEYS ONLY)"
 echo "------------------------------"
 cd /opt/l9
 if [ -f .env ]; then
-  sed 's/=.*/=REDACTED/' .env | grep -E 'POSTGRES|DATABASE_URL|NEO4J_|REDIS|OPENAI|SLACK|L9_API_KEY|L9_EXECUTOR_API_KEY|PERPLEXITY|ANTHROPIC|QDRANT|MACAGENT|PROMETHEUS|GRAFANA' | sort
+  sed 's/=.*/=REDACTED/' .env | grep -E 'POSTGRES|DATABASE_URL|NEO4J_|REDIS|OPENAI|SLACK|L9_API_KEY|L9_EXECUTOR_API_KEY|PERPLEXITY|ANTHROPIC|QDRANT|MACAGENT|PROMETHEUS|GRAFANA|MCP_API_KEY' | sort
 else
   echo ".env not found in /opt/l9"
+fi
+
+echo
+echo "D1b) SLACK ADAPTER VARS CHECK"
+echo "-----------------------------"
+if [ -f .env ]; then
+  echo "SLACK_APP_ENABLED:"
+  grep -E '^SLACK_APP_ENABLED=' .env || echo "  NOT SET (default: true)"
+  echo "SLACK_BOT_TOKEN:"
+  grep -E '^SLACK_BOT_TOKEN=' .env | sed 's/=.*/=SET/' || echo "  NOT SET"
+  echo "SLACK_SIGNING_SECRET:"
+  grep -E '^SLACK_SIGNING_SECRET=' .env | sed 's/=.*/=SET/' || echo "  NOT SET"
+  echo "L9_ENABLE_LEGACY_SLACK_ROUTER:"
+  grep -E '^L9_ENABLE_LEGACY_SLACK_ROUTER=' .env || echo "  NOT SET (default: false = new routing)"
+else
+  echo ".env not found – skipping Slack var check"
 fi
 
 echo
@@ -149,10 +197,10 @@ echo "----------------------------------"
 curl -sS http://127.0.0.1:8000/health || echo "API health on 8000 not responding"
 
 echo
-echo "E2) L9 API WORLD MODEL HEALTH"
-echo "-----------------------------"
-curl -sS http://127.0.0.1:8000/api/v1/worldmodel/state-version || echo "worldmodel state-version not responding"
-curl -sS http://127.0.0.1:8000/api/v1/worldmodel/entities | head -200 || echo "worldmodel entities not responding"
+echo "E2) L9 MEMORY ENDPOINTS"
+echo "-----------------------"
+curl -sS http://127.0.0.1:8000/memory/stats || echo "memory/stats not responding"
+curl -sS http://127.0.0.1:8000/memory/health || echo "memory/health not responding"
 
 echo
 echo "E3) MCP / CADDY FRONT DOOR HEALTH (9001)"
@@ -164,12 +212,26 @@ echo "HTTPS → /health:"
 curl -kfsS https://127.0.0.1:9001/health || echo "HTTPS /health on 9001 not responding (check Caddy and certs)"
 
 echo
-echo "E4) PUBLIC HEALTH VIA DOMAIN (IF DNS CONFIGURED)"
+echo "E4) DNS RESOLUTION + PUBLIC IP"
+echo "------------------------------"
+echo "Public IP:"
+curl -s --max-time 5 ifconfig.me 2>/dev/null || echo "Cannot reach ifconfig.me"
+echo
+echo "DNS resolution for l9.quantumaipartners.com:"
+getent hosts l9.quantumaipartners.com 2>/dev/null || echo "DNS not resolving"
+
+echo
+echo "E5) PUBLIC HEALTH VIA DOMAIN (IF DNS CONFIGURED)"
 echo "-----------------------------------------------"
 echo "Public API health (443):"
 curl -kfsS https://l9.quantumaipartners.com/health || echo "Public /health failed (DNS, Caddy, or cert issue)"
 echo "Public world model state-version (443):"
 curl -kfsS https://l9.quantumaipartners.com/api/v1/worldmodel/state-version || echo "Public worldmodel state-version failed"
+
+echo
+echo "E6) API ROUTES AVAILABLE (via OpenAPI)"
+echo "--------------------------------------"
+curl -s --max-time 5 http://127.0.0.1:8000/openapi.json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('\n'.join(sorted(d.get('paths',{}).keys())[:25]))" 2>/dev/null || echo "Cannot fetch OpenAPI spec"
 
 ###############################################################################
 # PART F: DATABASES (POSTGRES, NEO4J, REDIS)
@@ -229,20 +291,24 @@ sudo ss -tlnp 2>/dev/null | grep 6379 || echo "No process listening on 6379"
 ###############################################################################
 
 echo
-echo "G1) MEMORY SUBSTRATE STATS"
-echo "--------------------------"
-curl -sS http://127.0.0.1:8000/api/v1/memory/stats || echo "memorystats endpoint not responding (or path differs)"
+echo "G1) MEMORY SUBSTRATE DETAILED"
+echo "-----------------------------"
+echo "Memory stats:"
+curl -sS http://127.0.0.1:8000/memory/stats || echo "memory/stats not responding"
 echo
-echo "Memory healthcheck:"
-curl -sS http://127.0.0.1:8000/api/v1/memory/health || echo "memory health endpoint not responding (or path differs)"
+echo "Memory GC stats:"
+curl -sS http://127.0.0.1:8000/memory/gc/stats || echo "memory/gc/stats not responding"
+echo
+echo "Semantic search test (empty query):"
+curl -sS -X POST http://127.0.0.1:8000/memory/semantic/search -H "Content-Type: application/json" -d '{"query":"test","limit":1}' 2>/dev/null | head -100 || echo "semantic search not responding"
 
 echo
-echo "G2) WORLD MODEL SNAPSHOT"
+echo "G2) SLACK ADAPTER STATUS"
 echo "------------------------"
-echo "World model health (via /healthneo4j if present):"
-curl -sS http://127.0.0.1:8000/healthneo4j || echo "/healthneo4j not responding (optional)"
-echo "World model entities (first page via API):"
-curl -sS "http://127.0.0.1:8000/api/v1/worldmodel/entities?limit=10" || echo "worldmodel entities list not responding"
+echo "Slack commands endpoint:"
+curl -sS http://127.0.0.1:8000/slack/commands -X POST -d "" 2>/dev/null | head -5 || echo "Slack commands endpoint not responding (expected without valid payload)"
+echo "Slack events endpoint:"
+curl -sS http://127.0.0.1:8000/slack/events -X POST -d "" 2>/dev/null | head -5 || echo "Slack events endpoint not responding (expected without valid payload)"
 
 ###############################################################################
 # PART H: OBSERVABILITY (PROMETHEUS, GRAFANA, JAEGER)
@@ -266,17 +332,93 @@ echo "-----------------"
 docker ps --filter name=jaeger --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" || echo "No jaeger container in docker ps"
 curl -sS http://127.0.0.1:16686 2>/dev/null | head -5 || echo "Jaeger UI not reachable on 16686"
 
+echo
+echo "H4) MCP MEMORY SERVER STATUS (OPTIONAL)"
+echo "---------------------------------------"
+docker ps --filter name=mcp-memory --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" || echo "No l9-mcp-memory container (optional service)"
+curl -sS http://127.0.0.1:9002/health 2>/dev/null || echo "MCP Memory server not responding on 9002 (may not be deployed)"
+
+echo
+echo "H5) PYTHON/UVICORN PROCESSES (OUTSIDE DOCKER)"
+echo "---------------------------------------------"
+ps aux | grep -E "python|uvicorn" | grep -v grep || echo "No Python/Uvicorn processes outside Docker"
+echo
+echo "Python version:"
+python3 --version 2>&1
+
 ###############################################################################
-# PART I: SUMMARY HINTS
+# PART I: QUICK STATUS SUMMARY
+###############################################################################
+
+echo
+echo "===== QUICK STATUS SUMMARY ====="
+echo "--------------------------------"
+
+# Docker
+if systemctl is-active docker &>/dev/null; then
+    echo "✓ Docker: Running"
+else
+    echo "✗ Docker: NOT Running"
+fi
+
+# Caddy
+if systemctl is-active caddy &>/dev/null; then
+    echo "✓ Reverse Proxy: Caddy"
+elif systemctl is-active nginx &>/dev/null; then
+    echo "✓ Reverse Proxy: Nginx"
+else
+    echo "✗ Reverse Proxy: NONE RUNNING"
+fi
+
+# L9 API
+if curl -fs --max-time 3 http://127.0.0.1:8000/health &>/dev/null; then
+    echo "✓ L9 API: Healthy"
+else
+    echo "✗ L9 API: NOT Responding"
+fi
+
+# PostgreSQL
+if sudo ss -tlnp 2>/dev/null | grep -q ":5432 "; then
+    echo "✓ PostgreSQL: Listening"
+else
+    echo "⚠ PostgreSQL: Not detected on 5432"
+fi
+
+# Redis
+if sudo ss -tlnp 2>/dev/null | grep -q ":6379 "; then
+    echo "✓ Redis: Listening"
+else
+    echo "⚠ Redis: Not detected on 6379"
+fi
+
+# Neo4j
+if sudo ss -tlnp 2>/dev/null | grep -q ":7687 "; then
+    echo "✓ Neo4j: Listening"
+else
+    echo "⚠ Neo4j: Not detected on 7687"
+fi
+
+# Public endpoint
+if curl -kfs --max-time 5 https://l9.quantumaipartners.com/health &>/dev/null; then
+    echo "✓ Public HTTPS: Accessible"
+else
+    echo "✗ Public HTTPS: NOT Accessible"
+fi
+
+###############################################################################
+# PART J: SUMMARY HINTS
 ###############################################################################
 
 echo
 echo "===== MRI SUMMARY HINTS (READ OUTPUT ABOVE) ====="
 echo "- If l9-api is unhealthy or degraded in docker compose ps, check /health payload and logs for failing optional backends (Neo4j, observability)."
-echo "- If Postgres 5432 is not listening, memory + world model will be broken."
+echo "- If Postgres 5432 is not listening, memory system will be broken."
 echo "- If Neo4j container is up but NEO4J_* vars missing in .env, graph features are effectively OFF."
 echo "- If Caddy on 9001 responds with 'HTTP request to HTTPS server' over HTTP, that is expected (TLS only)."
 echo "- If DNS for l9.quantumaipartners.com fails, public HTTPS access will fail; use IP or fix DNS."
+echo "- SLACK ADAPTER: Requires SLACK_APP_ENABLED=true, SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET in .env"
+echo "- SLACK ROUTING: If using new routing, agent_executor must initialize successfully (check startup logs)"
+echo "- If l9-api crashes with 'Agent Executor required for new Slack routing', set L9_ENABLE_LEGACY_SLACK_ROUTER=true as workaround"
 
 echo
 echo "===== END OF L9 VPS MRI ====="

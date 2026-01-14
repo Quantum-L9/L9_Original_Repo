@@ -172,7 +172,7 @@ class CursorActionExtractor(BaseExtractor):
             yaml_text = exec_match.group(1)
             try:
                 return yaml.safe_load(yaml_text)
-            except:
+            except Exception:
                 logging.exception("L9 runtime exception", exc_info=True)
 
         # Fallback: construct from references

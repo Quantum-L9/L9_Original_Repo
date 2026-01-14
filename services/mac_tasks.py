@@ -228,40 +228,6 @@ def enqueue_task(task_dict: Dict[str, Any]) -> str:
         raise
 
 
-def get_next_task() -> Optional[Dict[str, Any]]:
-    """
-    Get the oldest unpublished task file.
-
-    Once returned, move file to in_progress/ directory.
-
-    Returns:
-        Task dictionary if available, None otherwise
-    """
-    try:
-        # Find oldest task file
-        task_files = sorted(TASKS_DIR.glob("*.json"), key=lambda p: p.stat().st_mtime)
-
-        if not task_files:
-            return None
-
-        task_file = task_files[0]
-
-        # Read task
-        with open(task_file, "r") as f:
-            task_dict = json.load(f)
-
-        # Move to in_progress
-        in_progress_file = IN_PROGRESS_DIR / task_file.name
-        shutil.move(str(task_file), str(in_progress_file))
-
-        logger.info(f"Retrieved task {task_dict.get('task_id')} from {task_file.name}")
-        return task_dict
-
-    except Exception as e:
-        logger.error(f"Error getting next task: {e}", exc_info=True)
-        return None
-
-
 def mark_task_completed(task_id: str):
     """
     Mark a task as completed by moving it to completed/ directory.

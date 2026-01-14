@@ -1,4 +1,72 @@
 ###############################################################################
+# PART J: SUMMARY HINTS
+###############################################################################
+
+echo
+echo "===== MRI SUMMARY HINTS (READ OUTPUT ABOVE) ====="
+echo "- If l9-api is unhealthy or degraded in docker compose ps, check /health payload and lo✓ L9 API: Healthy
+ib-mac@Mac ~ % 
+ib-mac@Mac ~ % # PostgreSQL
+zsh: command not found: #
+ib-mac@Mac ~ % if sudo ss -tlnp 2>/dev/null | grep -q ":5432 "; then
+then>     echo "✓ PostgreSQL: Listening"
+then> else
+else>     echo "⚠ PostgreSQL: Not detected on 5432"
+else> fi
+Password:
+Sorry, try again.
+Password:
+Sorry, try again.
+Password:
+ib-mac@Mac ~ % ssh l9
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-88-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Jan 14 08:12:07 PM UTC 2026
+
+  System load:  0.03               Processes:             187
+  Usage of /:   71.2% of 37.23GB   Users logged in:       1
+  Memory usage: 43%                IPv4 address for eth0: 157.180.73.53
+  Swap usage:   0%
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+Expanded Security Maintenance for Applications is not enabled.
+
+46 updates can be applied immediately.
+2 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+13 additional security updates can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+*** System restart required ***
+Last login: Wed Jan 14 19:57:23 2026 from 190.108.207.98
+admin@L9:~$ #!/usr/bin/env bash
+# L9 VPS CONSOLIDATED MRI (UPDATED 2026-01-14)
+# Host assumptions:
+# - Code: /opt/l9
+# - Docker Compose: /opt/l9/docker-compose.yml
+# - Services: l9-api, l9-postgres, redis, neo4j, prometheus, grafana, jaeger
+# - Optional: l9-mcp-memory (port 9002)
+# - Caddy: systemd service, Caddyfile at /etc/caddy/Caddyfile
+# - Slack Adapter: SLACK_APP_ENABLED, SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
+
+set -euo pipefail
+
+echo
+echo "===== L9 VPS MRI – UPDATED FULL DIAGNOSTIC ====="
+date
+echo
+
+###############################################################################
 # PART A: SYSTEM-LEVEL DIAGNOSTICS
 ###############################################################################
 
@@ -7,10 +75,22 @@ echo "A1) SYSTEM IDENTITY"
 echo "-------------------"
 hostname
 whoami
-echo "===== END OF L9 VPS MRI ====="ers.com fails, public HTTPS access will fail
+ip addr show | grep 'inet ' | grep -v '127.0.0.1'
+uname -a
+
+echo
+echo "A2) ALL LISTENING PORTS (TOP 50)"
+echo "--------------------------------"
+sudo ss -tlnp 2>/dev/null | head -50 || true
+
+echo
+echo "A3) FIREWALL STATUS (UFW + CLOUD-FIREWALL HINT)"
+echo "----------------------------------------------"
+sudo ufw status numbered 2>/dev/null || echo "UFW not active or not installed"
+echo "===== END OF L9 VPS MRI ====="t Executor required for new Slack routing', set L9_ENABLE_LEGACY_SLACK_ROUTER=true as
 
 ===== L9 VPS MRI – UPDATED FULL DIAGNOSTIC =====
-Wed Jan 14 07:06:07 PM UTC 2026
+Wed Jan 14 08:12:25 PM UTC 2026
 
 
 A1) SYSTEM IDENTITY
@@ -19,28 +99,28 @@ L9
 admin
     inet 157.180.73.53/32 metric 100 scope global dynamic eth0
     inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
-    inet 172.18.0.1/16 brd 172.18.255.255 scope global br-3311ea13e9b0
+    inet 172.18.0.1/16 brd 172.18.255.255 scope global br-1e6017fa3bc4
 Linux L9 6.8.0-88-generic #89-Ubuntu SMP PREEMPT_DYNAMIC Sat Oct 11 01:02:46 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
 
 A2) ALL LISTENING PORTS (TOP 50)
 --------------------------------
 [sudo] password for admin: 
 State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                   
-LISTEN 0      4096       127.0.0.1:3000       0.0.0.0:*    users:(("docker-proxy",pid=73815,fd=7))  
+LISTEN 0      4096       127.0.0.1:3000       0.0.0.0:*    users:(("docker-proxy",pid=263681,fd=7)) 
 LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=656,fd=17))
-LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*    users:(("docker-proxy",pid=72817,fd=7))  
-LISTEN 0      4096       127.0.0.1:16686      0.0.0.0:*    users:(("docker-proxy",pid=72943,fd=7))  
+LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*    users:(("docker-proxy",pid=263292,fd=7)) 
+LISTEN 0      4096       127.0.0.1:16686      0.0.0.0:*    users:(("docker-proxy",pid=263270,fd=7)) 
 LISTEN 0      200       172.17.0.1:5432       0.0.0.0:*    users:(("postgres",pid=1366480,fd=7))    
-LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=72783,fd=7))  
-LISTEN 0      2048       127.0.0.1:8000       0.0.0.0:*    users:(("python",pid=214532,fd=13))      
+LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=254331,fd=7)) 
+LISTEN 0      2048       127.0.0.1:8000       0.0.0.0:*    users:(("python",pid=259745,fd=13))      
 LISTEN 0      4096       127.0.0.1:2019       0.0.0.0:*    users:(("caddy",pid=9230,fd=15))         
-LISTEN 0      4096       127.0.0.1:14268      0.0.0.0:*    users:(("docker-proxy",pid=72926,fd=7))  
-LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=72880,fd=7))  
+LISTEN 0      4096       127.0.0.1:14268      0.0.0.0:*    users:(("docker-proxy",pid=263254,fd=7)) 
+LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=254300,fd=7)) 
 LISTEN 0      128          0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=954,fd=3))            
 LISTEN 0      128        127.0.0.1:22222      0.0.0.0:*    users:(("sshd",pid=164710,fd=7))         
 LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=656,fd=15))
-LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=72860,fd=7))  
-LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=72733,fd=7))  
+LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=254283,fd=7)) 
+LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=254257,fd=7)) 
 LISTEN 0      4096         0.0.0.0:631        0.0.0.0:*    users:(("cupsd",pid=1349,fd=9))          
 LISTEN 0      4096               *:443              *:*    users:(("caddy",pid=9230,fd=19))         
 LISTEN 0      128            [::1]:22222         [::]:*    users:(("sshd",pid=164710,fd=5))         
@@ -73,10 +153,20 @@ If ports look blocked externally, check cloud firewall rules (TCP 22, 80, 443, 9
 A4) DISK SPACE (KEY PATHS)
 --------------------------
 Filesystem      Size  Used Avail Use% Mounted on
-/dev/sda1        38G   30G  6.0G  84% /
-/dev/sda1        38G   30G  6.0G  84% /
-/dev/sda1        38G   30G  6.0G  84% /
-/dev/sda1        38G   30G  6.0G  84% /
+/dev/sda1        38G   27G  9.2G  75% /
+/dev/sda1        38G   27G  9.2G  75% /
+/dev/sda1        38G   27G  9.2G  75% /
+/dev/sda1        38G   27G  9.2G  75% /
+
+A5) MEMORY (RAM)
+----------------
+               total        used        free      shared  buff/cache   available
+Mem:           3.7Gi       1.5Gi       279Mi        41Mi       2.2Gi       2.2Gi
+Swap:             0B          0B          0B
+
+A6) SYSTEM LOAD
+---------------
+ 20:12:28 up 30 days, 17:12,  9 users,  load average: 0.02, 0.10, 0.20
 
 B1) GIT STATE (/opt/l9)
 -----------------------
@@ -85,135 +175,9 @@ Git status:
 On branch main
 Your branch is up to date with 'origin/main'.
 
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-	modified:   readme/repo-index/orchestrator_catalog.txt
-
-Unmerged paths:
-  (use "git restore --staged <file>..." to unstage)
-  (use "git add <file>..." to mark resolution)
-	both modified:   readme/repo-index/api_surfaces.txt
-	both modified:   readme/repo-index/architecture.txt
-	both modified:   readme/repo-index/async_function_map.txt
-	both modified:   readme/repo-index/class_definitions.txt
-	both modified:   readme/repo-index/config_files.txt
-	both modified:   readme/repo-index/decorator_catalog.txt
-	both modified:   readme/repo-index/dynamic_tool_catalog.txt
-	both modified:   readme/repo-index/entrypoints.txt
-	both modified:   readme/repo-index/env_refs.txt
-	both modified:   readme/repo-index/feature_flags.txt
-	both modified:   readme/repo-index/file_metrics.txt
-	both modified:   readme/repo-index/function_signatures.txt
-	both modified:   readme/repo-index/imports.txt
-	both modified:   readme/repo-index/inheritance_graph.txt
-	both modified:   readme/repo-index/method_catalog.txt
-	both modified:   readme/repo-index/pydantic_models.txt
-	both modified:   readme/repo-index/route_handlers.txt
-	both modified:   readme/repo-index/test_catalog.txt
-	both modified:   readme/repo-index/tree.txt
-
+nothing to commit, working tree clean
 
 Git diff (HEAD vs working tree, first 100 lines):
-diff --cc readme/repo-index/api_surfaces.txt
-index 0918c48,ad76f23..0000000
---- a/readme/repo-index/api_surfaces.txt
-+++ b/readme/repo-index/api_surfaces.txt
-@@@ -20,6 -17,9 +20,12 @@@
-    api/routes/slack.py::router
-    api/routes/upgrades.py::router
-    api/routes/worldmodel.py::router
-++<<<<<<< Updated upstream
-++=======
-+   api/tools/router.py::router
-+   api/webhook_mac_agent.py::router
-+   api/webhook_slack.py::router
-++>>>>>>> Stashed changes
-  
-  # SERVICES Surface:
-    services/research/research_api.py::router
-diff --cc readme/repo-index/architecture.txt
-index a5d96c9,17ee309..0000000
---- a/readme/repo-index/architecture.txt
-+++ b/readme/repo-index/architecture.txt
-@@@ -13,15 -13,6 +13,18 @@@ api/routes/ - API routes package
-  api/tools/ - 
-  ci/ - 
-  clients/ - 
-++<<<<<<< Updated upstream
- +codegen/code-gen-files/ - 
- +codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/ - No module docstring
- +codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/ - No module docstring
- +codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/ - No module docstring
- +codegen/code-gen-files/jinja2-templates/ - 
- +codegen/compiler/ - 
- +codegen/compiler/emitters/ - 
- +codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/ - 
- +codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/ - No module docstring
-++=======
-++>>>>>>> Stashed changes
-  collaborative_cells/ - 
-  config/ - L9 Configuration Module.
-  core/ - 
-@@@ -48,12 -37,8 +51,10 @@@ core/security/ 
-  core/testing/ - 
-  core/tools/ - 
-  core/worldmodel/ - 
-- dev/ - No module docstring
-- dev/tools/ - No module docstring
-  email_agent/ - L9 Email Agent - Gmail API integration.
-  graph_adapter/ - L9 LangGraph Integration - PacketNodeAdapter for memory-logg
- +igor/01-09-2025/tokenizer/core/tokenizer/ - 
- +igor/01-09-2025/tokenizer/core/tokenizer/tests/ - 
-  ir_engine/ - 
-  mac_agent/ - L9 Mac Agent package.
-  mac_agent/helpers/ - Mac Agent helper utilities.
-@@@ -90,32 -69,8 +91,7 @@@ services/symbolic_computation/core/ 
-  services/symbolic_computation/tools/ - 
-  simulation/ - 
-  telemetry/ - L9 Telemetry module.
-- tests/ - 
-- tests/api/ - 
-- tests/clients/ - 
-- tests/codegen/ - Tests for CodeGenAgent and IR Engine code generation.
-- tests/collaborative_cells/ - 
-- tests/core/agents/ - Tests for core.agents module.
-- tests/core/aios/ - 
-- tests/core/governance/ - Tests for governance engine.
-- tests/core/observability/ - Tests for core.observability module.
-- tests/core/security/ - 
-- tests/core/tools/ - 
-- tests/docker/ - Docker smoke tests for L9 stack validation.
-- tests/email_agent/ - 
-- tests/ir_engine/ - 
-- tests/kernel/ - Kernel Tests
-- tests/mac_agent/ - 
-- tests/memory/ - Memory Tests
-- tests/mocks/ - 
-- tests/orchestrators/ - 
-- tests/os/ - 
-- tests/performance/ - Performance Tests
-- tests/simulation/ - 
-- tests/telemetry/ - 
-- tests/upgrades/ - 
-- tests/world_model/ - World Model Tests
-  tools/ - 
-  upgrades/ - 
- -upgrades/packet_envelope/ - 
-  world_model/ - 
-  world_model/nodes/ - 
-diff --cc readme/repo-index/async_function_map.txt
-index 03ba156,63bbfb4..0000000
---- a/readme/repo-index/async_function_map.txt
-+++ b/readme/repo-index/async_function_map.txt
-@@@ -8,32 -9,14 +9,41 @@@ async __aenter__() @ api/adapters/email
-  async __aenter__() @ api/adapters/twilio_adapter/clients/twilio_adapter_client.py
-  async __aenter__() @ clients/memory_client.py
-  async __aenter__() @ clients/world_model_client.py
-++<<<<<<< Updated upstream
- +async __aenter__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/clients/calendar_adapter_client.py
- +async __aenter__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/clients/email_adapter_client.py
- +async __aenter__() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py
- +async __aenter__() @ docs/_archived/codegen_slack_adapter/module.slack_adapter/clients/slack_webhook_client.py
 
 Untracked files (first 20):
 
@@ -225,97 +189,16 @@ active
 
 C2) DOCKER COMPOSE PS
 ----------------------
-NAME            IMAGE                           COMMAND                  SERVICE       CREATED       STATUS                         PORTS
-l9-api          l9-l9-api                       "uvicorn api.server:…"   l9-api        3 hours ago   Restarting (1) 5 seconds ago   
-l9-grafana      grafana/grafana:10.2.0          "/run.sh"                grafana       3 hours ago   Up 3 hours (healthy)           127.0.0.1:3000->3000/tcp
-l9-jaeger       jaegertracing/all-in-one:1.52   "/go/bin/all-in-one-…"   jaeger        3 hours ago   Up 3 hours (healthy)           4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
-l9-neo4j        neo4j:5-community               "tini -g -- /startup…"   neo4j         3 hours ago   Up 3 hours (healthy)           127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
-l9-postgres     pgvector/pgvector:pg16          "docker-entrypoint.s…"   l9-postgres   3 hours ago   Up 3 hours (healthy)           127.0.0.1:5432->5432/tcp
-l9-prometheus   prom/prometheus:v2.48.0         "/bin/prometheus --c…"   prometheus    3 hours ago   Up 3 hours (healthy)           127.0.0.1:9090->9090/tcp
-l9-redis        redis:7-alpine                  "docker-entrypoint.s…"   redis         3 hours ago   Up 3 hours (healthy)           127.0.0.1:6379->6379/tcp
+NAME            IMAGE                           COMMAND                  SERVICE       CREATED          STATUS                    PORTS
+l9-grafana      grafana/grafana:10.2.0          "/run.sh"                grafana       23 minutes ago   Up 23 minutes (healthy)   127.0.0.1:3000->3000/tcp
+l9-jaeger       jaegertracing/all-in-one:1.52   "/go/bin/all-in-one-…"   jaeger        23 minutes ago   Up 23 minutes (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
+l9-neo4j        neo4j:5-community               "tini -g -- /startup…"   neo4j         34 minutes ago   Up 34 minutes (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
+l9-postgres     pgvector/pgvector:pg16          "docker-entrypoint.s…"   l9-postgres   34 minutes ago   Up 34 minutes (healthy)   127.0.0.1:5432->5432/tcp
+l9-prometheus   prom/prometheus:v2.48.0         "/bin/prometheus --c…"   prometheus    23 minutes ago   Up 23 minutes (healthy)   127.0.0.1:9090->9090/tcp
+l9-redis        redis:7-alpine                  "docker-entrypoint.s…"   redis         34 minutes ago   Up 34 minutes (healthy)   127.0.0.1:6379->6379/tcp
 
 C3) CONTAINER LOGS (l9-api last 80 lines)
 -----------------------------------------
-l9-api  |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
-l9-api  |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-l9-api  |   File "/app/api/server.py", line 407, in <module>
-l9-api  |     db.init_db()
-l9-api  |   File "/app/api/db.py", line 14, in init_db
-l9-api  |     with psycopg.connect(MEMORY_DSN, autocommit=True) as conn:
-l9-api  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/psycopg/connection.py", line 100, in connect
-l9-api  |     attempts = conninfo_attempts(params)
-l9-api  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/psycopg/_conninfo_attempts.py", line 55, in conninfo_attempts
-l9-api  |     raise last_exc
-l9-api  | psycopg.OperationalError: failed to resolve host 'l9-postgres': [Errno -3] Temporary failure in name resolution
-l9-api  | 2026-01-14 19:06:05 [info     ] WebSocketOrchestrator initialized
-l9-api  | 2026-01-14 19:06:05 [debug    ] selfreflection.thresholds_loaded iteration_threshold=8 token_threshold=50000 tool_failure_threshold=3
-l9-api  | 2026-01-14 19:06:06 [debug    ] Calendar Adapter not enabled (CALENDAR_ADAPTER_ENABLED != true)
-l9-api  | 2026-01-14 19:06:06 [debug    ] Email Adapter not enabled (EMAIL_ENABLED != true)
-l9-api  | 2026-01-14 19:06:06 [debug    ] Twilio Adapter not enabled (TWILIO_ENABLED != true)
-l9-api  | 2026-01-14 19:06:06 [warning  ] Gmail API libraries not available
-l9-api  | 2026-01-14 19:06:06 [warning  ] Gmail OAuth libraries not available
-l9-api  | Traceback (most recent call last):
-l9-api  |   File "/usr/local/bin/uvicorn", line 7, in <module>
-l9-api  |     sys.exit(main())
-l9-api  |              ^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1485, in __call__
-l9-api  |     return self.main(*args, **kwargs)
-l9-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1406, in main
-l9-api  |     rv = self.invoke(ctx)
-l9-api  |          ^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1269, in invoke
-l9-api  |     return ctx.invoke(self.callback, **ctx.params)
-l9-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/click/core.py", line 824, in invoke
-l9-api  |     return callback(*args, **kwargs)
-l9-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/main.py", line 424, in main
-l9-api  |     run(
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/main.py", line 594, in run
-l9-api  |     server.run()
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/server.py", line 67, in run
-l9-api  |     return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
-l9-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/asyncio/runners.py", line 195, in run
-l9-api  |     return runner.run(main)
-l9-api  |            ^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
-l9-api  |     return self._loop.run_until_complete(task)
-l9-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/server.py", line 71, in serve
-l9-api  |     await self._serve(sockets)
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/server.py", line 78, in _serve
-l9-api  |     config.load()
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/config.py", line 439, in load
-l9-api  |     self.loaded_app = import_from_string(self.app)
-l9-api  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/uvicorn/importer.py", line 19, in import_from_string
-l9-api  |     module = importlib.import_module(module_str)
-l9-api  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/importlib/__init__.py", line 90, in import_module
-l9-api  |     return _bootstrap._gcd_import(name[level:], package, level)
-l9-api  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
-l9-api  |   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
-l9-api  |   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
-l9-api  |   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
-l9-api  |   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
-l9-api  |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
-l9-api  |   File "/app/api/server.py", line 407, in <module>
-l9-api  |     db.init_db()
-l9-api  |   File "/app/api/db.py", line 14, in init_db
-l9-api  |     with psycopg.connect(MEMORY_DSN, autocommit=True) as conn:
-l9-api  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/psycopg/connection.py", line 100, in connect
-l9-api  |     attempts = conninfo_attempts(params)
-l9-api  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
-l9-api  |   File "/usr/local/lib/python3.12/site-packages/psycopg/_conninfo_attempts.py", line 55, in conninfo_attempts
-l9-api  |     raise last_exc
-l9-api  | psycopg.OperationalError: failed to resolve host 'l9-postgres': [Errno -3] Temporary failure in name resolution
 
 C4) DOCKER NETWORK + PORTS OF INTEREST
 --------------------------------------
@@ -324,25 +207,66 @@ docker0 / bridge networks:
     inet6 fe80::f414:77ff:fe38:57f9/64 scope link 
 
 Explicit port checks (8000, 9001, 5432, 7474, 7687, 6379, 9090, 3000, 16686):
-LISTEN 0      4096       127.0.0.1:3000       0.0.0.0:*    users:(("docker-proxy",pid=73815,fd=7))  
-LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*    users:(("docker-proxy",pid=72817,fd=7))  
-LISTEN 0      4096       127.0.0.1:16686      0.0.0.0:*    users:(("docker-proxy",pid=72943,fd=7))  
+LISTEN 0      4096       127.0.0.1:3000       0.0.0.0:*    users:(("docker-proxy",pid=263681,fd=7)) 
+LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*    users:(("docker-proxy",pid=263292,fd=7)) 
+LISTEN 0      4096       127.0.0.1:16686      0.0.0.0:*    users:(("docker-proxy",pid=263270,fd=7)) 
 LISTEN 0      200       172.17.0.1:5432       0.0.0.0:*    users:(("postgres",pid=1366480,fd=7))    
-LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=72783,fd=7))  
-LISTEN 0      2048       127.0.0.1:8000       0.0.0.0:*    users:(("python",pid=214532,fd=13))      
-LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=72880,fd=7))  
-LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=72860,fd=7))  
-LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=72733,fd=7))  
+LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=254331,fd=7)) 
+LISTEN 0      2048       127.0.0.1:8000       0.0.0.0:*    users:(("python",pid=259745,fd=13))      
+LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=254300,fd=7)) 
+LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=254283,fd=7)) 
+LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=254257,fd=7)) 
 LISTEN 0      4096               *:9001             *:*    users:(("caddy",pid=9230,fd=20))         
 LISTEN 0      200            [::1]:5432          [::]:*    users:(("postgres",pid=1366480,fd=6))    
+
+C5) DOCKER IMAGES
+-----------------
+REPOSITORY                 TAG           SIZE
+l9-l9-api                  latest        2.2GB
+neo4j                      5-community   853MB
+pgvector/pgvector          pg16          723MB
+redis                      7-alpine      61.2MB
+jaegertracing/all-in-one   1.52          109MB
+prom/prometheus            v2.48.0       349MB
+grafana/grafana            10.2.0        538MB
+
+C6) DOCKER NETWORKS
+-------------------
+NETWORK ID     NAME            DRIVER    SCOPE
+028436097e20   bridge          bridge    local
+7fd8092b1eee   host            host      local
+1e6017fa3bc4   l9_l9-network   bridge    local
+8e2e6b859253   none            null      local
+
+C7) DOCKER CONTAINER ERRORS (RECENT)
+------------------------------------
+--- l9-api ---
+No recent errors
+--- l9-postgres ---
+No recent errors
+--- redis ---
+Error response from daemon: No such container: redis
+No recent errors
+--- neo4j ---
+Error response from daemon: No such container: neo4j
+No recent errors
 
 D1) .env (SANITIZED KEYS ONLY)
 ------------------------------
 DATABASE_URL=REDACTED
+GRAFANA_PASSWORD=REDACTED
+GRAFANA_PORT=REDACTED
+GRAFANA_USER=REDACTED
 L9_API_KEY=REDACTED
+L9_ENABLE_LEGACY_SLACK_ROUTER=REDACTED
 L9_ENABLE_LEGACY_SLACK_ROUTER=REDACTED
 L9_EXECUTOR_API_KEY=REDACTED
 L_SLACK_USER_ID=REDACTED
+MCP_API_KEY_C=REDACTED
+MCP_API_KEY_C=REDACTED
+MCP_API_KEY_L=REDACTED
+MCP_API_KEY_L=REDACTED
+MCP_API_KEY=REDACTED
 NEO4J_PASSWORD=REDACTED
 NEO4J_URI=REDACTED
 NEO4J_URL=REDACTED
@@ -353,6 +277,7 @@ PERPLEXITY_API_KEY=REDACTED
 POSTGRES_DB=REDACTED
 POSTGRES_PASSWORD=REDACTED
 POSTGRES_USER=REDACTED
+PROMETHEUS_PORT=REDACTED
 QDRANT_HOST=REDACTED
 QDRANT_PORT=REDACTED
 REDIS_HOST=REDACTED
@@ -365,6 +290,18 @@ SLACK_CLIENT_ID=REDACTED
 SLACK_CLIENT_SECRET=REDACTED
 SLACK_SIGNING_SECRET=REDACTED
 SLACK_VERIFICATION_TOKEN=REDACTED
+
+D1b) SLACK ADAPTER VARS CHECK
+-----------------------------
+SLACK_APP_ENABLED:
+SLACK_APP_ENABLED=true
+SLACK_BOT_TOKEN:
+SLACK_BOT_TOKEN=SET
+SLACK_SIGNING_SECRET:
+SLACK_SIGNING_SECRET=SET
+L9_ENABLE_LEGACY_SLACK_ROUTER:
+L9_ENABLE_LEGACY_SLACK_ROUTER=false
+L9_ENABLE_LEGACY_SLACK_ROUTER=true
 
 D2) NEO4J ENV VARS PRESENCE CHECK
 ---------------------------------
@@ -446,10 +383,10 @@ services:
 60:      neo4j:
 94:      NEO4J_URL: ${NEO4J_URL:-bolt://neo4j:7687}
 95:      NEO4J_USER: ${NEO4J_USER:-neo4j}
-291:  neo4j_data:
-293:    name: l9-neo4j-data
-294:  neo4j_logs:
-296:    name: l9-neo4j-logs
+294:  neo4j_data:
+296:    name: l9-neo4j-data
+297:  neo4j_logs:
+299:    name: l9-neo4j-logs
 
 D4) CADDY CONFIG (TOP 80 LINES)
 -------------------------------
@@ -488,9 +425,9 @@ l9.quantumaipartners.com {
 E1) L9 API HEALTH (DIRECT ON 8000)
 ----------------------------------
 {"status":"healthy","service":"L9 Phase 2 Memory System","version":"0.3.0","database":"connected","memory_system":"operational"}
-E2) L9 API WORLD MODEL HEALTH
------------------------------
-{"detail":"Not Found"}{"detail":"Not Found"}
+E2) L9 MEMORY ENDPOINTS
+-----------------------
+{"detail":"Unauthorized"}{"detail":"Unauthorized"}
 E3) MCP / CADDY FRONT DOOR HEALTH (9001)
 ----------------------------------------
 HTTP → expect 'Client sent an HTTP request to an HTTPS server' if TLS-only:
@@ -500,12 +437,48 @@ HTTPS → /health:
 curl: (35) OpenSSL/3.0.13: error:0A000438:SSL routines::tlsv1 alert internal error
 HTTPS /health on 9001 not responding (check Caddy and certs)
 
-E4) PUBLIC HEALTH VIA DOMAIN (IF DNS CONFIGURED)
+E4) DNS RESOLUTION + PUBLIC IP
+------------------------------
+Public IP:
+157.180.73.53
+DNS resolution for l9.quantumaipartners.com:
+2a06:98c1:3120::3 l9.quantumaipartners.com
+2a06:98c1:3121::3 l9.quantumaipartners.com
+
+E5) PUBLIC HEALTH VIA DOMAIN (IF DNS CONFIGURED)
 -----------------------------------------------
 Public API health (443):
 {"status":"healthy","service":"L9 Phase 2 Memory System","version":"0.3.0","database":"connected","memory_system":"operational"}Public world model state-version (443):
 curl: (22) The requested URL returned error: 404
 Public worldmodel state-version failed
+
+E6) API ROUTES AVAILABLE (via OpenAPI)
+--------------------------------------
+/
+/chat
+/health
+/memory/batch
+/memory/compact
+/memory/consolidation/run
+/memory/facts
+/memory/gc/run
+/memory/gc/stats
+/memory/health
+/memory/hybrid/search
+/memory/insights
+/memory/lineage/{packet_id}
+/memory/packet
+/memory/packet/{packet_id}
+/memory/reasoning/replay
+/memory/saga/correlate-timeline
+/memory/saga/enrich-entities
+/memory/saga/fetch-and-enrich
+/memory/semantic/search
+/memory/stats
+/memory/test
+/memory/thread/{thread_id}
+/slack/commands
+/slack/events
 
 F1) POSTGRES STATUS + DB LIST
 -----------------------------
@@ -519,7 +492,7 @@ Notice: journal has been rotated since unit was started, output may be incomplet
 
 Port 5432 listeners:
 LISTEN 0      200       172.17.0.1:5432       0.0.0.0:*    users:(("postgres",pid=1366480,fd=7))    
-LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=72733,fd=7))  
+LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=254257,fd=7)) 
 LISTEN 0      200            [::1]:5432          [::]:*    users:(("postgres",pid=1366480,fd=6))    
 
 Database list (first 15):
@@ -540,12 +513,12 @@ Database list (first 15):
 
 F2) NEO4J CONTAINER + PORTS
 ---------------------------
-CONTAINER ID   IMAGE               STATUS                 PORTS
-8f00855f4472   neo4j:5-community   Up 3 hours (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
+CONTAINER ID   IMAGE               STATUS                    PORTS
+18f7d5684f9f   neo4j:5-community   Up 34 minutes (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
 
 Neo4j ports:
-LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=72880,fd=7))  
-LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=72860,fd=7))  
+LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=254300,fd=7)) 
+LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=254283,fd=7)) 
 
 F3) NEO4J BOLT CONNECTIVITY (IF PASSWORD SET)
 --------------------------------------------
@@ -554,31 +527,34 @@ Neo4j Python driver test failed (driver not installed or auth error)
 
 F4) REDIS STATUS (IF USED)
 --------------------------
-CONTAINER ID   IMAGE            STATUS                 PORTS
-5713abddbcba   redis:7-alpine   Up 3 hours (healthy)   127.0.0.1:6379->6379/tcp
+CONTAINER ID   IMAGE            STATUS                    PORTS
+4c5d09fdf245   redis:7-alpine   Up 34 minutes (healthy)   127.0.0.1:6379->6379/tcp
 
-LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=72783,fd=7))  
+LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=254331,fd=7)) 
 
-G1) MEMORY SUBSTRATE STATS
---------------------------
-{"detail":"Not Found"}
-Memory healthcheck:
-{"detail":"Not Found"}
-G2) WORLD MODEL SNAPSHOT
+G1) MEMORY SUBSTRATE DETAILED
+-----------------------------
+Memory stats:
+{"detail":"Unauthorized"}
+Memory GC stats:
+{"detail":"Unauthorized"}
+Semantic search test (empty query):
+{"detail":"Unauthorized"}
+G2) SLACK ADAPTER STATUS
 ------------------------
-World model health (via /healthneo4j if present):
-{"detail":"Not Found"}World model entities (first page via API):
-{"detail":"Not Found"}
+Slack commands endpoint:
+Internal Server ErrorSlack events endpoint:
+Internal Server Error
 H1) PROMETHEUS STATUS
 ---------------------
-CONTAINER ID   IMAGE                     STATUS                 PORTS
-2e40135c11e0   prom/prometheus:v2.48.0   Up 3 hours (healthy)   127.0.0.1:9090->9090/tcp
+CONTAINER ID   IMAGE                     STATUS                    PORTS
+b8e4d7cf9509   prom/prometheus:v2.48.0   Up 23 minutes (healthy)   127.0.0.1:9090->9090/tcp
 Prometheus Server is Healthy.
 
 H2) GRAFANA STATUS
 ------------------
-CONTAINER ID   IMAGE                    STATUS                 PORTS
-a1f178431ac3   grafana/grafana:10.2.0   Up 3 hours (healthy)   127.0.0.1:3000->3000/tcp
+CONTAINER ID   IMAGE                    STATUS                    PORTS
+0e619ad97f39   grafana/grafana:10.2.0   Up 23 minutes (healthy)   127.0.0.1:3000->3000/tcp
 {
   "commit": "895fbafb7a",
   "database": "ok",
@@ -586,19 +562,45 @@ a1f178431ac3   grafana/grafana:10.2.0   Up 3 hours (healthy)   127.0.0.1:3000->3
 }
 H3) JAEGER STATUS
 -----------------
-CONTAINER ID   IMAGE                           STATUS                 PORTS
-1ea229e1998c   jaegertracing/all-in-one:1.52   Up 3 hours (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
+CONTAINER ID   IMAGE                           STATUS                    PORTS
+027456ea4a1a   jaegertracing/all-in-one:1.52   Up 23 minutes (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+H4) MCP MEMORY SERVER STATUS (OPTIONAL)
+---------------------------------------
+CONTAINER ID   IMAGE     STATUS    PORTS
+MCP Memory server not responding on 9002 (may not be deployed)
+
+H5) PYTHON/UVICORN PROCESSES (OUTSIDE DOCKER)
+---------------------------------------------
+root         979  0.0  0.3 109688 13568 ?        Ssl   2025   0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+l9        259745  0.3  3.8 500900 150740 ?       Ssl  19:44   0:05 /opt/l9/venv/bin/python -m uvicorn api.server_memory:app --host 127.0.0.1 --port 8000
+
+Python version:
+Python 3.12.3
+
+===== QUICK STATUS SUMMARY =====
+--------------------------------
+✓ Docker: Running
+✓ Reverse Proxy: Caddy
+✓ L9 API: Healthy
+✓ PostgreSQL: Listening
+✓ Redis: Listening
+✓ Neo4j: Listening
+✓ Public HTTPS: Accessible
+
 ===== MRI SUMMARY HINTS (READ OUTPUT ABOVE) =====
 - If l9-api is unhealthy or degraded in docker compose ps, check /health payload and logs for failing optional backends (Neo4j, observability).
-- If Postgres 5432 is not listening, memory + world model will be broken.
+- If Postgres 5432 is not listening, memory system will be broken.
 - If Neo4j container is up but NEO4J_* vars missing in .env, graph features are effectively OFF.
 - If Caddy on 9001 responds with 'HTTP request to HTTPS server' over HTTP, that is expected (TLS only).
 - If DNS for l9.quantumaipartners.com fails, public HTTPS access will fail; use IP or fix DNS.
+- SLACK ADAPTER: Requires SLACK_APP_ENABLED=true, SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET in .env
+- SLACK ROUTING: If using new routing, agent_executor must initialize successfully (check startup logs)
+- If l9-api crashes with 'Agent Executor required for new Slack routing', set L9_ENABLE_LEGACY_SLACK_ROUTER=true as workaround
 
 ===== END OF L9 VPS MRI =====

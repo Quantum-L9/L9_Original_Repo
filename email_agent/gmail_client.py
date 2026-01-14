@@ -599,7 +599,7 @@ class GmailClient:
                     .execute()
                 )
                 thread_id = original_msg.get("threadId")
-            except:
+            except Exception:
                 thread_id = None
 
             raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")

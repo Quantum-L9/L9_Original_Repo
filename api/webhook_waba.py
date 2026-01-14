@@ -223,7 +223,7 @@ async def waba_webhook(request: Request):
                             "body": "Error processing message. Please try again.",
                         },
                     )
-                except:
+                except Exception:
                     pass
 
     return JSONResponse(content={"status": "ok"})

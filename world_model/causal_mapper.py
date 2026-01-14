@@ -668,7 +668,7 @@ class CausalMapper:
             # v1.2.0 additions
             "decisions": [d.to_dict() for d in self._decisions.values()],
             "outcomes": [o.to_dict() for o in self._outcomes.values()],
-            "causal_links": [l.to_dict() for l in self._causal_links.values()],
+            "causal_links": [link.to_dict() for link in self._causal_links.values()],
         }
 
     def from_dict(self, data: dict[str, Any]) -> None:
@@ -929,8 +929,8 @@ class CausalMapper:
             for decision_id, decision in self._decisions.items():
                 # Check if link already exists
                 existing = any(
-                    l.decision_id == decision_id and l.outcome_id == outcome_id
-                    for l in self._causal_links.values()
+                    link.decision_id == decision_id and link.outcome_id == outcome_id
+                    for link in self._causal_links.values()
                 )
                 if existing:
                     continue

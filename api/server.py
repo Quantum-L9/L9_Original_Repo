@@ -557,8 +557,17 @@ async def lifespan(app: FastAPI):
                 app.state.restored_agent_state = None
 
         except Exception as e:
-            logger.error(f"Failed to initialize memory system: {e}", exc_info=True)
-            # Don't fail startup, but log error
+            logger.error(
+                "memory_system.init_FAILED",
+                error=str(e),
+                error_type=type(e).__name__,
+                database_url_set=bool(database_url),
+                openai_api_key_set=bool(os.getenv("OPENAI_API_KEY")),
+                embedding_provider=os.getenv("EMBEDDING_PROVIDER", "openai"),
+                exc_info=True,
+            )
+            # Store error for downstream diagnostics (Agent Executor will read this)
+            app.state._substrate_init_error = str(e)
             app.state.substrate_service = None
             app.state.agent_persistence = None
             app.state.restored_agent_state = None
@@ -911,7 +920,15 @@ async def lifespan(app: FastAPI):
             app.state.tool_registry = None
             app.state.agent_registry = None
     elif _has_agent_executor:
-        logger.warning("Agent Executor not initialized: substrate_service required")
+        # Log detailed reason WHY substrate_service is missing
+        substrate_error = getattr(app.state, "_substrate_init_error", "unknown - no error stored")
+        logger.error(
+            "agent_executor.SKIPPED",
+            reason="substrate_service_not_available",
+            substrate_init_error=substrate_error,
+            substrate_service_exists=hasattr(app.state, "substrate_service"),
+            substrate_service_is_none=getattr(app.state, "substrate_service", None) is None,
+        )
         app.state.agent_executor = None
         app.state.aios_runtime = None
         app.state.tool_registry = None

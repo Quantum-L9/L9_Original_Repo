@@ -622,7 +622,7 @@ class SchemaIntrospector:
         if not self._neo4j:
             return []
         labels = await self._neo4j.get_labels()
-        return [l.label for l in labels]
+        return [lbl.label for lbl in labels]
     
     async def get_neo4j_relationship_types(self) -> list[str]:
         """Get list of relationship types (convenience method)."""

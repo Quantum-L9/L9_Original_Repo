@@ -4,7 +4,7 @@
 # Version: 1.1.0 (NO SUDO - runs without password)
 #
 # USAGE (run on VPS):
-#   cd /opt/l9 && bash scripts/vps/vps-mri.sh
+#   cd /opt/l9 && bash scripts/deployment/vps-mri.sh
 #
 # NOTE: User must be in 'docker' group for docker commands to work
 # =============================================================================
@@ -110,7 +110,7 @@ echo ""
 header "C2. CADDYFILE"
 if [ -f /etc/caddy/Caddyfile ]; then
     check "Caddyfile exists"
-    cat /etc/caddy/Caddyfile 2>/dev/null || echo "Cannot read (permission denied)"
+    cat /etc/caddy/Caddyfile 2>/dev/null
 else
     warn "No Caddyfile found"
 fi
@@ -372,3 +372,4 @@ fi
 
 echo ""
 echo "Diagnostic completed at: $(date -Iseconds)"
+

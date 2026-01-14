@@ -184,7 +184,7 @@ class ValidationResult:
             with open(self.spec_path, "r") as f:
                 spec = yaml.safe_load(f)
                 return str(spec.get("schema_version", "unknown"))
-        except:
+        except (OSError, yaml.YAMLError):
             return "unknown"
 
     def print_report(self) -> None:

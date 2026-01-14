@@ -292,7 +292,7 @@ async def hybrid_search(
             body = await request.json()
             if isinstance(body, dict):
                 filters = body
-        except:
+        except (json.JSONDecodeError, ValueError):
             # No body or invalid JSON - use empty filters
             pass
 
