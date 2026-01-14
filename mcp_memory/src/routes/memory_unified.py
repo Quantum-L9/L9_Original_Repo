@@ -224,6 +224,7 @@ async def _save_via_main_pipeline(
     
     # Create PacketEnvelopeIn for main ingestion pipeline
     # Note: 'agent' is already in envelope_metadata, don't pass it twice
+    # PacketEnvelopeIn expects dict for metadata/provenance, not Pydantic models
     packet_in = PacketEnvelopeIn(
         packet_type=f"memory.{kind}",  # e.g., "memory.preference", "memory.lesson"
         payload={
@@ -232,12 +233,12 @@ async def _save_via_main_pipeline(
             "scope": scope,
             "project_id": project_id,
         },
-        metadata=PacketMetadata(
-            schema_version="2.0.0",
-            domain="l9",
+        metadata={
+            "schema_version": "2.0.0",
+            "domain": "l9",
             **envelope_metadata,  # Contains agent, creator, source, etc.
-        ),
-        provenance=provenance,
+        },
+        provenance=provenance.model_dump(),  # Convert Pydantic model to dict
         tags=tags or [],
         ttl=ttl,
     )
