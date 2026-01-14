@@ -23,6 +23,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 import hashlib
+import asyncio
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -163,6 +164,8 @@ class ToolRouter:
         # In-memory cache for testing without DB
         self._tool_cache: dict[str, ToolEmbedding] = {}
         self._embedding_cache: dict[str, list[float]] = {}
+        self._cache_lock = asyncio.Lock()
+        self._cache_version = 0
         
         # Track if tools have been embedded
         self._tools_embedded = False
@@ -202,15 +205,16 @@ class ToolRouter:
         embedding.content_hash = embedding.compute_hash()
         
         # Check if already embedded with same content
-        if tool_name in self._tool_cache:
-            cached = self._tool_cache[tool_name]
-            if cached.content_hash == embedding.content_hash:
-                logger.debug(f"Tool already embedded: {tool_name}")
-                return cached
+        async with self._cache_lock:
+            cached = self._tool_cache.get(tool_name)
+        if cached and cached.content_hash == embedding.content_hash:
+            logger.debug(f"Tool already embedded: {tool_name}")
+            return cached
         
         # Generate embedding
         searchable_text = embedding.to_searchable_text()
         
+        vector = None
         if self._provider:
             try:
                 vector = await self._provider.embed_text(searchable_text)
@@ -220,15 +224,19 @@ class ToolRouter:
                     await self._store_embedding(embedding, vector)
                 
                 # Cache
-                if self._cache_embeddings:
-                    self._embedding_cache[tool_name] = vector
-                
             except Exception as e:
                 logger.error(f"Failed to embed tool {tool_name}: {e}")
                 return None
-        
-        embedding.embedded_at = datetime.utcnow()
-        self._tool_cache[tool_name] = embedding
+
+        async with self._cache_lock:
+            cached = self._tool_cache.get(tool_name)
+            if cached and cached.content_hash == embedding.content_hash:
+                return cached
+            if vector is not None and self._cache_embeddings:
+                self._embedding_cache[tool_name] = vector
+            embedding.embedded_at = datetime.utcnow()
+            self._tool_cache[tool_name] = embedding
+            self._cache_version += 1
         
         logger.debug(f"Embedded tool: {tool_name}")
         return embedding
@@ -249,7 +257,9 @@ class ToolRouter:
             if result:
                 count += 1
         
-        self._tools_embedded = True
+        async with self._cache_lock:
+            self._tools_embedded = True
+            self._cache_version += 1
         logger.info(f"Embedded {count}/{len(tools)} tools")
         return count
     
@@ -342,8 +352,10 @@ class ToolRouter:
             except Exception as e:
                 logger.warning(f"pgvector search failed, falling back to cache: {e}")
         
+        tool_cache, _, _, _ = await self._snapshot_cache()
+
         # Fallback to in-memory cache search
-        if not matches and self._tool_cache:
+        if not matches and tool_cache:
             matches = await self._search_cache(query, limit, min_similarity, category_filter)
         
         search_time = (time.time() - start_time) * 1000
@@ -352,7 +364,7 @@ class ToolRouter:
             query=query,
             matches=matches,
             search_time_ms=search_time,
-            total_tools=len(self._tool_cache),
+            total_tools=len(tool_cache),
         )
     
     async def _search_cache(
@@ -363,24 +375,25 @@ class ToolRouter:
         category_filter: Optional[str],
     ) -> list[ToolMatch]:
         """Search in-memory cache (fallback)."""
+        tool_cache, embedding_cache, _, _ = await self._snapshot_cache()
         if not self._provider:
             # Without embeddings, do simple text matching
-            return self._text_match_cache(query, limit, category_filter)
+            return self._text_match_cache(tool_cache, query, limit, category_filter)
         
         try:
             query_vector = await self._provider.embed_text(query)
         except Exception:
-            return self._text_match_cache(query, limit, category_filter)
+            return self._text_match_cache(tool_cache, query, limit, category_filter)
         
         # Compute similarities
         scored: list[tuple[float, ToolEmbedding]] = []
         
-        for tool_name, tool in self._tool_cache.items():
+        for tool_name, tool in tool_cache.items():
             if category_filter and tool.category != category_filter:
                 continue
             
-            if tool_name in self._embedding_cache:
-                tool_vector = self._embedding_cache[tool_name]
+            if tool_name in embedding_cache:
+                tool_vector = embedding_cache[tool_name]
                 similarity = self._cosine_similarity(query_vector, tool_vector)
                 
                 if similarity >= min_similarity:
@@ -401,9 +414,21 @@ class ToolRouter:
             )
             for score, tool in scored[:limit]
         ]
+
+    async def _snapshot_cache(
+        self,
+    ) -> tuple[dict[str, ToolEmbedding], dict[str, list[float]], bool, int]:
+        async with self._cache_lock:
+            return (
+                dict(self._tool_cache),
+                dict(self._embedding_cache),
+                self._tools_embedded,
+                self._cache_version,
+            )
     
     def _text_match_cache(
         self,
+        tool_cache: dict[str, ToolEmbedding],
         query: str,
         limit: int,
         category_filter: Optional[str],
@@ -414,7 +439,7 @@ class ToolRouter:
         
         scored: list[tuple[int, ToolEmbedding]] = []
         
-        for tool in self._tool_cache.values():
+        for tool in tool_cache.values():
             if category_filter and tool.category != category_filter:
                 continue
             
@@ -506,21 +531,24 @@ class ToolRouter:
         result = await self.find_relevant_tools(task_description, limit=limit)
         return self.get_tool_context(result)
     
-    def list_embedded_tools(self) -> list[str]:
+    async def list_embedded_tools(self) -> list[str]:
         """List all embedded tool names."""
-        return list(self._tool_cache.keys())
+        tool_cache, _, _, _ = await self._snapshot_cache()
+        return list(tool_cache.keys())
     
-    def get_stats(self) -> dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get router statistics."""
+        tool_cache, embedding_cache, tools_embedded, cache_version = await self._snapshot_cache()
         categories = {}
-        for tool in self._tool_cache.values():
+        for tool in tool_cache.values():
             categories[tool.category] = categories.get(tool.category, 0) + 1
         
         return {
-            "total_tools": len(self._tool_cache),
-            "tools_with_embeddings": len(self._embedding_cache),
+            "total_tools": len(tool_cache),
+            "tools_with_embeddings": len(embedding_cache),
             "categories": categories,
-            "is_ready": self._tools_embedded,
+            "is_ready": tools_embedded,
+            "cache_version": cache_version,
         }
 
 

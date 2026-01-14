@@ -777,22 +777,41 @@ class SubstrateRepository:
             embedding_id of the inserted record
         """
         embedding_id = uuid4()
-        async with self.acquire() as conn:
-            # pgvector expects vector as string format '[x,y,z,...]'
-            vector_str = f"[{','.join(str(v) for v in vector)}]"
-            await conn.execute(
-                """
-                INSERT INTO semantic_memory (embedding_id, agent_id, vector, payload, created_at)
-                VALUES ($1, $2, $3::vector, $4, $5)
-                """,
-                embedding_id,
-                agent_id,
-                vector_str,
-                json.dumps(payload),
-                datetime.utcnow(),
+        rls_conn = _current_rls_connection.get()
+        if rls_conn:
+            await self._insert_semantic_embedding_with_connection(
+                rls_conn, embedding_id, vector, payload, agent_id
             )
-            logger.debug(f"Inserted semantic embedding {embedding_id}")
             return embedding_id
+
+        async with self.acquire() as conn:
+            await self._insert_semantic_embedding_with_connection(
+                conn, embedding_id, vector, payload, agent_id
+            )
+            return embedding_id
+
+    async def _insert_semantic_embedding_with_connection(
+        self,
+        conn: asyncpg.Connection,
+        embedding_id: UUID,
+        vector: list[float],
+        payload: dict[str, Any],
+        agent_id: Optional[str],
+    ) -> None:
+        """Helper to insert semantic embedding using provided connection."""
+        vector_str = f"[{','.join(str(v) for v in vector)}]"
+        await conn.execute(
+            """
+            INSERT INTO semantic_memory (embedding_id, agent_id, vector, payload, created_at)
+            VALUES ($1, $2, $3::vector, $4, $5)
+            """,
+            embedding_id,
+            agent_id,
+            vector_str,
+            json.dumps(payload),
+            datetime.utcnow(),
+        )
+        logger.debug(f"Inserted semantic embedding {embedding_id}")
 
     async def search_semantic_memory(
         self,

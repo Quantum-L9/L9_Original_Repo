@@ -151,6 +151,7 @@ async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
         top_k=req.top_k,
         threshold=req.threshold,
         duration=req.duration,
+        track_access=req.track_access,
     )
 
 
@@ -162,6 +163,7 @@ async def search_memory_handler(
     top_k: int = 5,
     threshold: float = 0.7,
     duration: str = "all",
+    track_access: bool = False,
 ) -> Dict[str, Any]:
     try:
         embed_start = time.time()
@@ -213,7 +215,7 @@ async def search_memory_handler(
             """
             rows = await fetch_all(query_sql, *params)
 
-            if dur == "long" and rows:
+            if track_access and dur == "long" and rows:
                 await execute(
                     "UPDATE memory.long_term SET last_accessed_at = CURRENT_TIMESTAMP, access_count = access_count + 1 WHERE id = ANY($1::bigint[]);",
                     [r["id"] for r in rows],

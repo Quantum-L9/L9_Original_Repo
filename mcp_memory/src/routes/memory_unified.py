@@ -449,6 +449,7 @@ async def search_memory_handler(
     threshold: float = 0.7,
     duration: str = "all",
     caller_id: str = "unknown",  # Perplexity: for audit logging
+    track_access: bool = False,
 ) -> Dict[str, Any]:
     """
     Search unified L9 substrate using memory_embeddings with packet_store join.
@@ -533,8 +534,8 @@ async def search_memory_handler(
         
         rows = await fetch_all(search_query, *params)
         
-        # Update access tracking
-        if rows:
+        # Update access tracking (explicit opt-in)
+        if track_access and rows:
             packet_ids = [r["packet_id"] for r in rows]
             await execute(
                 """
@@ -636,6 +637,7 @@ async def search_memory_route(req: Dict[str, Any]) -> Dict[str, Any]:
         top_k=req.get("top_k", 5),
         threshold=req.get("threshold", 0.7),
         duration=req.get("duration", "all"),
+        track_access=req.get("track_access", False),
     )
 
 
@@ -1465,4 +1467,3 @@ async def save_memory_with_confidence(
     except Exception as e:
         logger.exception("Error saving memory with confidence")
         raise HTTPException(status_code=500, detail=str(e))
-

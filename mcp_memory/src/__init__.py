@@ -10,4 +10,8 @@ Modified: 2026-01-01
 Author: L9 Team
 """
 
+from src.rate_limiter import RateLimiter
+
 __version__ = "1.0.0"
+
+__all__ = ["RateLimiter"]

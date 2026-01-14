@@ -37,6 +37,7 @@ class SearchMemoryRequest(BaseModel):
     top_k: Optional[int] = 5
     threshold: Optional[float] = 0.7
     duration: Optional[str] = "all"
+    track_access: Optional[bool] = False
 
 
 class SearchMemoryResponse(BaseModel):
