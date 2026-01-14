@@ -550,7 +550,13 @@ async def search_memory_handler(
         results = []
         for row in rows:
             envelope = row["envelope"]
-            payload = envelope.get("payload", {})
+            # Defensive: Handle case where envelope is returned as string (missing JSON codec)
+            if isinstance(envelope, str):
+                try:
+                    envelope = json.loads(envelope)
+                except json.JSONDecodeError:
+                    envelope = {}
+            payload = envelope.get("payload", {}) if isinstance(envelope, dict) else {}
             mcp_scope = map_db_scope_to_mcp_scope(row["db_scope"])
             
             results.append({
@@ -1046,7 +1052,13 @@ async def get_context_injection(
             
             for row in recent_rows:
                 envelope = row["envelope"]
-                payload = envelope.get("payload", {})
+                # Defensive: Handle case where envelope is returned as string
+                if isinstance(envelope, str):
+                    try:
+                        envelope = json.loads(envelope)
+                    except json.JSONDecodeError:
+                        envelope = {}
+                payload = envelope.get("payload", {}) if isinstance(envelope, dict) else {}
                 recent_memories.append({
                     "packet_id": str(row["packet_id"]),
                     "content": payload.get("content", ""),
@@ -1355,7 +1367,13 @@ async def query_temporal(
         formatted_memories = []
         for m in memories:
             envelope = m["envelope"]
-            payload = envelope.get("payload", {})
+            # Defensive: Handle case where envelope is returned as string
+            if isinstance(envelope, str):
+                try:
+                    envelope = json.loads(envelope)
+                except json.JSONDecodeError:
+                    envelope = {}
+            payload = envelope.get("payload", {}) if isinstance(envelope, dict) else {}
             formatted_memories.append({
                 "packet_id": str(m["packet_id"]),
                 "content": payload.get("content", ""),

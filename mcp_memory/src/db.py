@@ -3,12 +3,29 @@ PostgreSQL async client with pgvector support.
 """
 
 import asyncpg
+import json
 import structlog
 from typing import List, Dict, Any, Optional
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
 pool: Optional[asyncpg.Pool] = None
+
+
+async def _init_connection(conn: asyncpg.Connection) -> None:
+    """Initialize connection with JSON codec for JSONB columns."""
+    await conn.set_type_codec(
+        'jsonb',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
+    await conn.set_type_codec(
+        'json',
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema='pg_catalog'
+    )
 
 
 async def init_db():
@@ -18,9 +35,10 @@ async def init_db():
         min_size=5,
         max_size=20,
         command_timeout=60,
+        init=_init_connection,  # Register JSON codecs on each connection
     )
     await pool.execute("CREATE EXTENSION IF NOT EXISTS vector;")
-    logger.info("Database pool initialized")
+    logger.info("Database pool initialized with JSON codecs")
 
 
 async def close_db():
