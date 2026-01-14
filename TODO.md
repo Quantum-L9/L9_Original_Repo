@@ -6,6 +6,37 @@
 
 ## 🔴 High Priority
 
+### UUID Standardization Refactor
+
+**Status:** Deferred — bigger refactor for later
+
+**Issue:** L9 mixes UUID objects and UUID strings, causing conversions like:
+```python
+UUID(source_packet) if isinstance(source_packet, str) else source_packet
+```
+
+**Decision needed:** Standardize on:
+- Always store as `str` (simpler, JSON-friendly)
+- Always store as `UUID` object (type-safe, DB-native)
+
+**Files affected:** `memory/substrate_repository.py`, `core/schemas/packet_envelope.py`, many others
+
+---
+
+### Gmail Client Thread ID Logic Review
+
+**Status:** Review needed
+
+**File:** `email_agent/gmail_client.py:597-603`
+
+**Issue:** When forwarding email, if thread lookup fails, we set `thread_id = None` and continue. This may cause:
+- Forward appears as new thread instead of reply
+- Potential conversation fragmentation
+
+**Question:** Is this acceptable fallback or should we fail/warn?
+
+---
+
 ### Ruff Unused Variable Review (GMP-78)
 
 **Status:** Review needed for 4 cases

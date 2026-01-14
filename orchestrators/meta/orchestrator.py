@@ -39,6 +39,8 @@ class MetaOrchestrator(IMetaOrchestrator):
         self, request: MetaOrchestratorRequest
     ) -> MetaOrchestratorResponse:
         """Evaluate multiple blueprints and select the best one."""
+        from .interface import BlueprintEvaluation
+
         logger.info(f"Evaluating {len(request.blueprints)} blueprints")
 
         evaluations: List[BlueprintEvaluation] = []
@@ -46,9 +48,6 @@ class MetaOrchestrator(IMetaOrchestrator):
             scores = await self._adapter.score_blueprint(
                 blueprint, request.criteria, request.context
             )
-            # TODO: Convert scores to BlueprintEvaluation
-            # For now, create a placeholder evaluation
-            from .interface import BlueprintEvaluation
 
             weighted_total = (
                 sum(
