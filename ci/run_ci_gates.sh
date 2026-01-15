@@ -418,6 +418,31 @@ gate_11_agent_executor() {
 }
 
 # =============================================================================
+# GATE 12: WIRING ALIGNMENT VERIFICATION
+# =============================================================================
+
+gate_12_wiring_alignment() {
+    log_header "GATE 12: WIRING ALIGNMENT VERIFICATION"
+    
+    if [ ! -f "$REPO_ROOT/scripts/audit/verify_wiring_alignment.py" ]; then
+        log_warn "Wiring alignment verifier not found, skipping"
+        return 0
+    fi
+    
+    log_info "Checking documentation path references..."
+    
+    if ! python3 "$REPO_ROOT/scripts/audit/verify_wiring_alignment.py"; then
+        log_error "WIRING ALIGNMENT CHECK FAILED"
+        log_error "Documentation contains stale or deprecated path references"
+        log_error "Run: python3 scripts/audit/verify_wiring_alignment.py --verbose"
+        return 1
+    fi
+    
+    log_info "✅ Wiring alignment check passed"
+    return 0
+}
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
@@ -469,6 +494,7 @@ main() {
     gate_9_schema_deprecation || exit 1
     gate_10_tool_naming || exit 1
     gate_11_agent_executor || exit 1
+    gate_12_wiring_alignment || exit 1
     run_test_presence_check "$spec_file" "${files[@]}" || exit 1
     
     log_header "🎉 ALL CI GATES PASSED"

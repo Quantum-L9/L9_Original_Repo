@@ -1,96 +1,5 @@
-###############################################################################
-# PART J: SUMMARY HINTS
-###############################################################################
-
-echo
-echo "===== MRI SUMMARY HINTS (READ OUTPUT ABOVE) ====="
-echo "- If l9-api is unhealthy or degraded in docker compose ps, check /health payload and lo✓ L9 API: Healthy
-ib-mac@Mac ~ % 
-ib-mac@Mac ~ % # PostgreSQL
-zsh: command not found: #
-ib-mac@Mac ~ % if sudo ss -tlnp 2>/dev/null | grep -q ":5432 "; then
-then>     echo "✓ PostgreSQL: Listening"
-then> else
-else>     echo "⚠ PostgreSQL: Not detected on 5432"
-else> fi
-Password:
-Sorry, try again.
-Password:
-Sorry, try again.
-Password:
-ib-mac@Mac ~ % ssh l9
-Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-88-generic x86_64)
-
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/pro
-
- System information as of Wed Jan 14 08:12:07 PM UTC 2026
-
-  System load:  0.03               Processes:             187
-  Usage of /:   71.2% of 37.23GB   Users logged in:       1
-  Memory usage: 43%                IPv4 address for eth0: 157.180.73.53
-  Swap usage:   0%
-
- * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
-   just raised the bar for easy, resilient and secure K8s cluster deployment.
-
-   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
-
-Expanded Security Maintenance for Applications is not enabled.
-
-46 updates can be applied immediately.
-2 of these updates are standard security updates.
-To see these additional updates run: apt list --upgradable
-
-13 additional security updates can be applied with ESM Apps.
-Learn more about enabling ESM Apps service at https://ubuntu.com/esm
-
-
-*** System restart required ***
-Last login: Wed Jan 14 19:57:23 2026 from 190.108.207.98
-admin@L9:~$ #!/usr/bin/env bash
-# L9 VPS CONSOLIDATED MRI (UPDATED 2026-01-14)
-# Host assumptions:
-# - Code: /opt/l9
-# - Docker Compose: /opt/l9/docker-compose.yml
-# - Services: l9-api, l9-postgres, redis, neo4j, prometheus, grafana, jaeger
-# - Optional: l9-mcp-memory (port 9002)
-# - Caddy: systemd service, Caddyfile at /etc/caddy/Caddyfile
-# - Slack Adapter: SLACK_APP_ENABLED, SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
-
-set -euo pipefail
-
-echo
-echo "===== L9 VPS MRI – UPDATED FULL DIAGNOSTIC ====="
-date
-echo
-
-###############################################################################
-# PART A: SYSTEM-LEVEL DIAGNOSTICS
-###############################################################################
-
-echo
-echo "A1) SYSTEM IDENTITY"
-echo "-------------------"
-hostname
-whoami
-ip addr show | grep 'inet ' | grep -v '127.0.0.1'
-uname -a
-
-echo
-echo "A2) ALL LISTENING PORTS (TOP 50)"
-echo "--------------------------------"
-sudo ss -tlnp 2>/dev/null | head -50 || true
-
-echo
-echo "A3) FIREWALL STATUS (UFW + CLOUD-FIREWALL HINT)"
-echo "----------------------------------------------"
-sudo ufw status numbered 2>/dev/null || echo "UFW not active or not installed"
-echo "===== END OF L9 VPS MRI ====="t Executor required for new Slack routing', set L9_ENABLE_LEGACY_SLACK_ROUTER=true as
-
 ===== L9 VPS MRI – UPDATED FULL DIAGNOSTIC =====
-Wed Jan 14 08:12:25 PM UTC 2026
+Wed Jan 14 08:49:14 PM UTC 2026
 
 
 A1) SYSTEM IDENTITY
@@ -104,7 +13,6 @@ Linux L9 6.8.0-88-generic #89-Ubuntu SMP PREEMPT_DYNAMIC Sat Oct 11 01:02:46 UTC
 
 A2) ALL LISTENING PORTS (TOP 50)
 --------------------------------
-[sudo] password for admin: 
 State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                   
 LISTEN 0      4096       127.0.0.1:3000       0.0.0.0:*    users:(("docker-proxy",pid=263681,fd=7)) 
 LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=656,fd=17))
@@ -112,18 +20,18 @@ LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*    users:(("docker-proxy
 LISTEN 0      4096       127.0.0.1:16686      0.0.0.0:*    users:(("docker-proxy",pid=263270,fd=7)) 
 LISTEN 0      200       172.17.0.1:5432       0.0.0.0:*    users:(("postgres",pid=1366480,fd=7))    
 LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=254331,fd=7)) 
-LISTEN 0      2048       127.0.0.1:8000       0.0.0.0:*    users:(("python",pid=259745,fd=13))      
+LISTEN 0      4096       127.0.0.1:8000       0.0.0.0:*    users:(("docker-proxy",pid=323420,fd=7)) 
 LISTEN 0      4096       127.0.0.1:2019       0.0.0.0:*    users:(("caddy",pid=9230,fd=15))         
 LISTEN 0      4096       127.0.0.1:14268      0.0.0.0:*    users:(("docker-proxy",pid=263254,fd=7)) 
 LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=254300,fd=7)) 
 LISTEN 0      128          0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=954,fd=3))            
-LISTEN 0      128        127.0.0.1:22222      0.0.0.0:*    users:(("sshd",pid=164710,fd=7))         
+LISTEN 0      128        127.0.0.1:22222      0.0.0.0:*    users:(("sshd",pid=290448,fd=7))         
 LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=656,fd=15))
 LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=254283,fd=7)) 
 LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=254257,fd=7)) 
 LISTEN 0      4096         0.0.0.0:631        0.0.0.0:*    users:(("cupsd",pid=1349,fd=9))          
 LISTEN 0      4096               *:443              *:*    users:(("caddy",pid=9230,fd=19))         
-LISTEN 0      128            [::1]:22222         [::]:*    users:(("sshd",pid=164710,fd=5))         
+LISTEN 0      128            [::1]:22222         [::]:*    users:(("sshd",pid=290448,fd=5))         
 LISTEN 0      128             [::]:22            [::]:*    users:(("sshd",pid=954,fd=4))            
 LISTEN 0      4096               *:80               *:*    users:(("caddy",pid=9230,fd=10))         
 LISTEN 0      4096               *:9001             *:*    users:(("caddy",pid=9230,fd=20))         
@@ -153,20 +61,20 @@ If ports look blocked externally, check cloud firewall rules (TCP 22, 80, 443, 9
 A4) DISK SPACE (KEY PATHS)
 --------------------------
 Filesystem      Size  Used Avail Use% Mounted on
-/dev/sda1        38G   27G  9.2G  75% /
-/dev/sda1        38G   27G  9.2G  75% /
-/dev/sda1        38G   27G  9.2G  75% /
-/dev/sda1        38G   27G  9.2G  75% /
+/dev/sda1        38G   28G  8.4G  77% /
+/dev/sda1        38G   28G  8.4G  77% /
+/dev/sda1        38G   28G  8.4G  77% /
+/dev/sda1        38G   28G  8.4G  77% /
 
 A5) MEMORY (RAM)
 ----------------
                total        used        free      shared  buff/cache   available
-Mem:           3.7Gi       1.5Gi       279Mi        41Mi       2.2Gi       2.2Gi
+Mem:           3.7Gi       1.6Gi       142Mi        47Mi       2.3Gi       2.1Gi
 Swap:             0B          0B          0B
 
 A6) SYSTEM LOAD
 ---------------
- 20:12:28 up 30 days, 17:12,  9 users,  load average: 0.02, 0.10, 0.20
+ 20:49:14 up 30 days, 17:49,  9 users,  load average: 0.33, 0.52, 0.47
 
 B1) GIT STATE (/opt/l9)
 -----------------------
@@ -189,16 +97,97 @@ active
 
 C2) DOCKER COMPOSE PS
 ----------------------
-NAME            IMAGE                           COMMAND                  SERVICE       CREATED          STATUS                    PORTS
-l9-grafana      grafana/grafana:10.2.0          "/run.sh"                grafana       23 minutes ago   Up 23 minutes (healthy)   127.0.0.1:3000->3000/tcp
-l9-jaeger       jaegertracing/all-in-one:1.52   "/go/bin/all-in-one-…"   jaeger        23 minutes ago   Up 23 minutes (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
-l9-neo4j        neo4j:5-community               "tini -g -- /startup…"   neo4j         34 minutes ago   Up 34 minutes (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
-l9-postgres     pgvector/pgvector:pg16          "docker-entrypoint.s…"   l9-postgres   34 minutes ago   Up 34 minutes (healthy)   127.0.0.1:5432->5432/tcp
-l9-prometheus   prom/prometheus:v2.48.0         "/bin/prometheus --c…"   prometheus    23 minutes ago   Up 23 minutes (healthy)   127.0.0.1:9090->9090/tcp
-l9-redis        redis:7-alpine                  "docker-entrypoint.s…"   redis         34 minutes ago   Up 34 minutes (healthy)   127.0.0.1:6379->6379/tcp
+NAME            IMAGE                           COMMAND                  SERVICE       CREATED             STATUS                       PORTS
+l9-api          l9-l9-api                       "uvicorn api.server:…"   l9-api        35 seconds ago      Up 34 seconds (healthy)      127.0.0.1:8000->8000/tcp
+l9-grafana      grafana/grafana:10.2.0          "/run.sh"                grafana       About an hour ago   Up About an hour (healthy)   127.0.0.1:3000->3000/tcp
+l9-jaeger       jaegertracing/all-in-one:1.52   "/go/bin/all-in-one-…"   jaeger        About an hour ago   Up About an hour (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
+l9-neo4j        neo4j:5-community               "tini -g -- /startup…"   neo4j         About an hour ago   Up About an hour (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
+l9-postgres     pgvector/pgvector:pg16          "docker-entrypoint.s…"   l9-postgres   About an hour ago   Up About an hour (healthy)   127.0.0.1:5432->5432/tcp
+l9-prometheus   prom/prometheus:v2.48.0         "/bin/prometheus --c…"   prometheus    About an hour ago   Up About an hour (healthy)   127.0.0.1:9090->9090/tcp
+l9-redis        redis:7-alpine                  "docker-entrypoint.s…"   redis         About an hour ago   Up About an hour (healthy)   127.0.0.1:6379->6379/tcp
 
 C3) CONTAINER LOGS (l9-api last 80 lines)
 -----------------------------------------
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_hybrid_search"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_hybrid_search'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.422588Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_fetch_lineage"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_fetch_lineage'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.422834Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_fetch_thread"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_fetch_thread'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.423082Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_fetch_facts_api"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_fetch_facts_api'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.423360Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_fetch_insights"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_fetch_insights'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.423611Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_gc_stats"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_gc_stats'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.423864Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "gmp_run"}, "event": "Neo4j unavailable - tool graph disabled for 'gmp_run'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.424115Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "git_commit"}, "event": "Neo4j unavailable - tool graph disabled for 'git_commit'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.424390Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "mac_agent_exec_task"}, "event": "Neo4j unavailable - tool graph disabled for 'mac_agent_exec_task'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.424642Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "mcp_list_servers"}, "event": "Neo4j unavailable - tool graph disabled for 'mcp_list_servers'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.424888Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "mcp_list_tools"}, "event": "Neo4j unavailable - tool graph disabled for 'mcp_list_tools'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.425153Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "mcp_call_tool"}, "event": "Neo4j unavailable - tool graph disabled for 'mcp_call_tool'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.425426Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "mcp_discover_and_register"}, "event": "Neo4j unavailable - tool graph disabled for 'mcp_discover_and_register'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.425710Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_query"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_query'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.425962Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "kernel_read"}, "event": "Neo4j unavailable - tool graph disabled for 'kernel_read'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.426203Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "long_plan_execute"}, "event": "Neo4j unavailable - tool graph disabled for 'long_plan_execute'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.426568Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "long_plan_simulate"}, "event": "Neo4j unavailable - tool graph disabled for 'long_plan_simulate'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.426834Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "neo4j_query"}, "event": "Neo4j unavailable - tool graph disabled for 'neo4j_query'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.427092Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_get"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_get'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.427419Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_set"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_set'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.427667Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_keys"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_keys'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.427911Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_delete"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_delete'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.428150Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_enqueue_task"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_enqueue_task'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.428488Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_dequeue_task"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_dequeue_task'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.428748Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_queue_size"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_queue_size'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.429035Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_get_task_context"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_get_task_context'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.429324Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_set_task_context"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_set_task_context'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.429577Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_list_all"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_list_all'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.429874Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_list_enabled"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_list_enabled'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.430272Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_get_metadata"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_get_metadata'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.430616Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_get_schema"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_get_schema'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.430984Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_get_by_type"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_get_by_type'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.431312Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_get_for_role"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_get_for_role'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.431572Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_get_entity"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_get_entity'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.431818Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_list_entities"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_list_entities'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.432063Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_snapshot"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_snapshot'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.432334Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_list_snapshots"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_list_snapshots'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.432665Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_send_insights"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_send_insights'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.433055Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_get_state_version"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_get_state_version'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.433479Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "symbolic_compute"}, "event": "Neo4j unavailable - tool graph disabled for 'symbolic_compute'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.433856Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "symbolic_codegen"}, "event": "Neo4j unavailable - tool graph disabled for 'symbolic_codegen'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.434281Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "symbolic_optimize"}, "event": "Neo4j unavailable - tool graph disabled for 'symbolic_optimize'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.434673Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "simulation"}, "event": "Neo4j unavailable - tool graph disabled for 'simulation'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.435072Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "mcp_start_server"}, "event": "Neo4j unavailable - tool graph disabled for 'mcp_start_server'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.435497Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "mcp_stop_server"}, "event": "Neo4j unavailable - tool graph disabled for 'mcp_stop_server'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.435851Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "mcp_stop_all_servers"}, "event": "Neo4j unavailable - tool graph disabled for 'mcp_stop_all_servers'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.436132Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_get_rate_limit"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_get_rate_limit'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.436420Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_set_rate_limit"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_set_rate_limit'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.436714Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_increment_rate_limit"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_increment_rate_limit'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.436959Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "redis_decrement_rate_limit"}, "event": "Neo4j unavailable - tool graph disabled for 'redis_decrement_rate_limit'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.437198Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_get_checkpoint"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_get_checkpoint'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.437465Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_trigger_world_model_update"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_trigger_world_model_update'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.437770Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "memory_health_check"}, "event": "Neo4j unavailable - tool graph disabled for 'memory_health_check'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.438043Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_get_api_dependents"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_get_api_dependents'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.438326Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_get_dependencies"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_get_dependencies'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.438630Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_get_blast_radius"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_get_blast_radius'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.438965Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_detect_circular_deps"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_detect_circular_deps'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.439462Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "tools_get_catalog"}, "event": "Neo4j unavailable - tool graph disabled for 'tools_get_catalog'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.439754Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_restore"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_restore'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.440016Z"}
+l9-api  | {"extra": {"alert": "neo4j_unavailable", "tool_name": "world_model_list_updates"}, "event": "Neo4j unavailable - tool graph disabled for 'world_model_list_updates'. Governance queries (blast radius, dependencies) unavailable.", "logger": "core.tools.tool_graph", "level": "warning", "timestamp": "2026-01-14T20:48:47.440300Z"}
+l9-api  | {"event": "\u26a0\ufe0f Stage 5 not started: neo4j_client not available", "logger": "api.server", "level": "warning", "timestamp": "2026-01-14T20:48:47.444815Z"}
+l9-api  | {"event": "Neo4j driver not configured for GraphToWorldModelSync", "logger": "core.integration.graph_to_wm_sync", "level": "warning", "timestamp": "2026-01-14T20:48:47.452048Z"}
+l9-api  | {"event": "No graph state found for agent L", "logger": "core.integration.graph_to_wm_sync", "level": "warning", "timestamp": "2026-01-14T20:48:47.452172Z"}
+l9-api  | INFO:     Application startup complete.
+l9-api  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+l9-api  | INFO:     127.0.0.1:36358 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.6:37618 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
+l9-api  | INFO:     172.18.0.6:37618 - "GET /metrics/ HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.1:55702 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     127.0.0.1:53360 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.1:43034 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.1:43048 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.1:43050 - "GET /openapi.json HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.1:43052 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.6:52082 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
+l9-api  | INFO:     172.18.0.6:52082 - "GET /metrics/ HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.1:43048 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     127.0.0.1:50404 - "GET /health HTTP/1.1" 200 OK
+l9-api  | INFO:     172.18.0.6:57722 - "GET /metrics HTTP/1.1" 307 Temporary Redirect
+l9-api  | INFO:     172.18.0.6:57722 - "GET /metrics/ HTTP/1.1" 200 OK
 
 C4) DOCKER NETWORK + PORTS OF INTEREST
 --------------------------------------
@@ -212,7 +201,7 @@ LISTEN 0      4096       127.0.0.1:9090       0.0.0.0:*    users:(("docker-proxy
 LISTEN 0      4096       127.0.0.1:16686      0.0.0.0:*    users:(("docker-proxy",pid=263270,fd=7)) 
 LISTEN 0      200       172.17.0.1:5432       0.0.0.0:*    users:(("postgres",pid=1366480,fd=7))    
 LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=254331,fd=7)) 
-LISTEN 0      2048       127.0.0.1:8000       0.0.0.0:*    users:(("python",pid=259745,fd=13))      
+LISTEN 0      4096       127.0.0.1:8000       0.0.0.0:*    users:(("docker-proxy",pid=323420,fd=7)) 
 LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=254300,fd=7)) 
 LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*    users:(("docker-proxy",pid=254283,fd=7)) 
 LISTEN 0      4096       127.0.0.1:5432       0.0.0.0:*    users:(("docker-proxy",pid=254257,fd=7)) 
@@ -222,7 +211,7 @@ LISTEN 0      200            [::1]:5432          [::]:*    users:(("postgres",pi
 C5) DOCKER IMAGES
 -----------------
 REPOSITORY                 TAG           SIZE
-l9-l9-api                  latest        2.2GB
+l9-l9-api                  latest        1.31GB
 neo4j                      5-community   853MB
 pgvector/pgvector          pg16          723MB
 redis                      7-alpine      61.2MB
@@ -241,9 +230,12 @@ NETWORK ID     NAME            DRIVER    SCOPE
 C7) DOCKER CONTAINER ERRORS (RECENT)
 ------------------------------------
 --- l9-api ---
-No recent errors
+2026-01-14 20:48:44 [debug    ] selfreflection.thresholds_loaded iteration_threshold=8 token_threshold=50000 tool_failure_threshold=3
+{"event": "Seed loading failed: 'NoneType' object is not iterable", "logger": "world_model.runtime", "level": "error", "timestamp": "2026-01-14T20:48:47.064818Z"}
+{"event": "Neo4j connection failed: Couldn't connect to localhost:7687 (resolved to ('[::1]:7687', '127.0.0.1:7687')):\nFailed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [Errno 111] Connect call failed ('::1', 7687, 0, 0))\nFailed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [Errno 111] Connect call failed ('127.0.0.1', 7687))", "logger": "memory.graph_client", "level": "warning", "timestamp": "2026-01-14T20:48:47.066053Z"}
+{"event": "store_insights_node: Failed to store: invalid input syntax for type json\nDETAIL:  Token \"audit\" is invalid.", "logger": "memory.substrate_dag", "level": "error", "timestamp": "2026-01-14T20:48:47.252718Z"}
 --- l9-postgres ---
-No recent errors
+2026-01-14 20:48:47.251 UTC [6827] ERROR:  invalid input syntax for type json
 --- redis ---
 Error response from daemon: No such container: redis
 No recent errors
@@ -258,7 +250,6 @@ GRAFANA_PASSWORD=REDACTED
 GRAFANA_PORT=REDACTED
 GRAFANA_USER=REDACTED
 L9_API_KEY=REDACTED
-L9_ENABLE_LEGACY_SLACK_ROUTER=REDACTED
 L9_ENABLE_LEGACY_SLACK_ROUTER=REDACTED
 L9_EXECUTOR_API_KEY=REDACTED
 L_SLACK_USER_ID=REDACTED
@@ -300,7 +291,6 @@ SLACK_BOT_TOKEN=SET
 SLACK_SIGNING_SECRET:
 SLACK_SIGNING_SECRET=SET
 L9_ENABLE_LEGACY_SLACK_ROUTER:
-L9_ENABLE_LEGACY_SLACK_ROUTER=false
 L9_ENABLE_LEGACY_SLACK_ROUTER=true
 
 D2) NEO4J ENV VARS PRESENCE CHECK
@@ -383,10 +373,10 @@ services:
 60:      neo4j:
 94:      NEO4J_URL: ${NEO4J_URL:-bolt://neo4j:7687}
 95:      NEO4J_USER: ${NEO4J_USER:-neo4j}
-294:  neo4j_data:
-296:    name: l9-neo4j-data
-297:  neo4j_logs:
-299:    name: l9-neo4j-logs
+298:  neo4j_data:
+300:    name: l9-neo4j-data
+301:  neo4j_logs:
+303:    name: l9-neo4j-logs
 
 D4) CADDY CONFIG (TOP 80 LINES)
 -------------------------------
@@ -424,10 +414,10 @@ l9.quantumaipartners.com {
 
 E1) L9 API HEALTH (DIRECT ON 8000)
 ----------------------------------
-{"status":"healthy","service":"L9 Phase 2 Memory System","version":"0.3.0","database":"connected","memory_system":"operational"}
+{"status":"ok","service":"l9-api","startup_ready":true}
 E2) L9 MEMORY ENDPOINTS
 -----------------------
-{"detail":"Unauthorized"}{"detail":"Unauthorized"}
+{"detail":"Not Found"}{"detail":"Not Found"}
 E3) MCP / CADDY FRONT DOOR HEALTH (9001)
 ----------------------------------------
 HTTP → expect 'Client sent an HTTP request to an HTTPS server' if TLS-only:
@@ -448,37 +438,37 @@ DNS resolution for l9.quantumaipartners.com:
 E5) PUBLIC HEALTH VIA DOMAIN (IF DNS CONFIGURED)
 -----------------------------------------------
 Public API health (443):
-{"status":"healthy","service":"L9 Phase 2 Memory System","version":"0.3.0","database":"connected","memory_system":"operational"}Public world model state-version (443):
+{"status":"ok","service":"l9-api","startup_ready":true}Public world model state-version (443):
 curl: (22) The requested URL returned error: 404
 Public worldmodel state-version failed
 
 E6) API ROUTES AVAILABLE (via OpenAPI)
 --------------------------------------
 /
-/chat
-/health
-/memory/batch
-/memory/compact
-/memory/consolidation/run
-/memory/facts
-/memory/gc/run
-/memory/gc/stats
-/memory/health
-/memory/hybrid/search
-/memory/insights
-/memory/lineage/{packet_id}
-/memory/packet
-/memory/packet/{packet_id}
-/memory/reasoning/replay
-/memory/saga/correlate-timeline
-/memory/saga/enrich-entities
-/memory/saga/fetch-and-enrich
-/memory/semantic/search
-/memory/stats
-/memory/test
-/memory/thread/{thread_id}
-/slack/commands
-/slack/events
+/agent/execute
+/agent/health
+/agent/status
+/agent/task
+/api/v1/memory/batch
+/api/v1/memory/cache/delete/{key}
+/api/v1/memory/cache/get/{key}
+/api/v1/memory/cache/health
+/api/v1/memory/cache/keys/{pattern}
+/api/v1/memory/cache/rate-limit/{key}
+/api/v1/memory/cache/rate-limit/{key}/increment
+/api/v1/memory/cache/session/context
+/api/v1/memory/cache/session/context/{session_id}
+/api/v1/memory/cache/session/list
+/api/v1/memory/cache/set
+/api/v1/memory/cache/task/context/{task_id}
+/api/v1/memory/compact
+/api/v1/memory/consolidation/run
+/api/v1/memory/facts
+/api/v1/memory/gc/run
+/api/v1/memory/gc/stats
+/api/v1/memory/graph/context/{domain}
+/api/v1/memory/graph/entity
+/api/v1/memory/graph/entity/{entity_type}/{entity_id}
 
 F1) POSTGRES STATUS + DB LIST
 -----------------------------
@@ -513,8 +503,8 @@ Database list (first 15):
 
 F2) NEO4J CONTAINER + PORTS
 ---------------------------
-CONTAINER ID   IMAGE               STATUS                    PORTS
-18f7d5684f9f   neo4j:5-community   Up 34 minutes (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
+CONTAINER ID   IMAGE               STATUS                       PORTS
+18f7d5684f9f   neo4j:5-community   Up About an hour (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
 
 Neo4j ports:
 LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*    users:(("docker-proxy",pid=254300,fd=7)) 
@@ -527,34 +517,34 @@ Neo4j Python driver test failed (driver not installed or auth error)
 
 F4) REDIS STATUS (IF USED)
 --------------------------
-CONTAINER ID   IMAGE            STATUS                    PORTS
-4c5d09fdf245   redis:7-alpine   Up 34 minutes (healthy)   127.0.0.1:6379->6379/tcp
+CONTAINER ID   IMAGE            STATUS                       PORTS
+4c5d09fdf245   redis:7-alpine   Up About an hour (healthy)   127.0.0.1:6379->6379/tcp
 
 LISTEN 0      4096       127.0.0.1:6379       0.0.0.0:*    users:(("docker-proxy",pid=254331,fd=7)) 
 
 G1) MEMORY SUBSTRATE DETAILED
 -----------------------------
 Memory stats:
-{"detail":"Unauthorized"}
+{"detail":"Not Found"}
 Memory GC stats:
-{"detail":"Unauthorized"}
+{"detail":"Not Found"}
 Semantic search test (empty query):
-{"detail":"Unauthorized"}
+{"detail":"Not Found"}
 G2) SLACK ADAPTER STATUS
 ------------------------
 Slack commands endpoint:
-Internal Server ErrorSlack events endpoint:
-Internal Server Error
+{"detail":"Unauthorized"}Slack events endpoint:
+{"detail":"Unauthorized"}
 H1) PROMETHEUS STATUS
 ---------------------
-CONTAINER ID   IMAGE                     STATUS                    PORTS
-b8e4d7cf9509   prom/prometheus:v2.48.0   Up 23 minutes (healthy)   127.0.0.1:9090->9090/tcp
+CONTAINER ID   IMAGE                     STATUS                       PORTS
+b8e4d7cf9509   prom/prometheus:v2.48.0   Up About an hour (healthy)   127.0.0.1:9090->9090/tcp
 Prometheus Server is Healthy.
 
 H2) GRAFANA STATUS
 ------------------
-CONTAINER ID   IMAGE                    STATUS                    PORTS
-0e619ad97f39   grafana/grafana:10.2.0   Up 23 minutes (healthy)   127.0.0.1:3000->3000/tcp
+CONTAINER ID   IMAGE                    STATUS                       PORTS
+0e619ad97f39   grafana/grafana:10.2.0   Up About an hour (healthy)   127.0.0.1:3000->3000/tcp
 {
   "commit": "895fbafb7a",
   "database": "ok",
@@ -562,8 +552,8 @@ CONTAINER ID   IMAGE                    STATUS                    PORTS
 }
 H3) JAEGER STATUS
 -----------------
-CONTAINER ID   IMAGE                           STATUS                    PORTS
-027456ea4a1a   jaegertracing/all-in-one:1.52   Up 23 minutes (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
+CONTAINER ID   IMAGE                           STATUS                       PORTS
+027456ea4a1a   jaegertracing/all-in-one:1.52   Up About an hour (healthy)   4317-4318/tcp, 5775/udp, 5778/tcp, 9411/tcp, 127.0.0.1:14268->14268/tcp, 14250/tcp, 6832/udp, 127.0.0.1:6831->6831/udp, 127.0.0.1:16686->16686/tcp
 <!doctype html>
 <html lang="en">
   <head>
@@ -578,7 +568,7 @@ MCP Memory server not responding on 9002 (may not be deployed)
 H5) PYTHON/UVICORN PROCESSES (OUTSIDE DOCKER)
 ---------------------------------------------
 root         979  0.0  0.3 109688 13568 ?        Ssl   2025   0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
-l9        259745  0.3  3.8 500900 150740 ?       Ssl  19:44   0:05 /opt/l9/venv/bin/python -m uvicorn api.server_memory:app --host 127.0.0.1 --port 8000
+admin     323369 18.2  5.6 763464 219076 ?       Ssl  20:48   0:06 /usr/local/bin/python /usr/local/bin/uvicorn api.server:app --host 0.0.0.0 --port 8000
 
 Python version:
 Python 3.12.3

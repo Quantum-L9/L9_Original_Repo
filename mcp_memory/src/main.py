@@ -9,6 +9,7 @@ import asyncpg
 from contextlib import asynccontextmanager
 import asyncio
 
+from fastapi import APIRouter
 from src.config import settings
 from src.db import init_db, close_db
 from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
@@ -59,13 +60,13 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing database...")
     await init_db()
     logger.info("✓ Database initialized")
-    
+
     # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
     logger.info("Initializing L9 Memory Substrate Service...")
     try:
         from memory.substrate_service import init_service
         import os
-        
+
         database_url = settings.MEMORY_DSN or os.getenv("DATABASE_URL")
         if not database_url:
             logger.warning(
@@ -81,14 +82,16 @@ async def lifespan(app: FastAPI):
             )
             # Store in app state for route handlers
             app.state.substrate_service = substrate_service
-            logger.info("✓ L9 Memory Substrate Service initialized (full DAG pipeline enabled)")
+            logger.info(
+                "✓ L9 Memory Substrate Service initialized (full DAG pipeline enabled)"
+            )
     except Exception as e:
         logger.warning(
             f"Failed to initialize Memory Substrate Service: {e}. "
             "MCP memory will fall back to direct DB access."
         )
         app.state.substrate_service = None
-    
+
     app.state.rate_limiter = RateLimiter(
         request_limit=RATE_LIMIT_REQUESTS,
         request_window_seconds=RATE_LIMIT_WINDOW,
@@ -100,12 +103,13 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Closing database connections...")
     await close_db()
-    
+
     # Close memory service if initialized
     if hasattr(app.state, "substrate_service") and app.state.substrate_service:
         from memory.substrate_service import close_service
+
         await close_service()
-    
+
     logger.info("✓ Shutdown complete")
 
 
@@ -127,38 +131,41 @@ def get_client_ip(request: Request) -> str:
 
 class CallerIdentity:
     """Caller identity determined from API key.
-    
+
     See: mcp_memory/memory-setup-instructions.md for governance spec.
     - L: L-CTO kernel (full read/write/delete for shared userid)
     - C: Cursor IDE (read all, write/delete own memories only)
     """
+
     def __init__(self, caller_id: str, user_id: str):
         self.caller_id = caller_id  # "L" or "C"
-        self.user_id = user_id      # Shared userid
+        self.user_id = user_id  # Shared userid
         self.is_l = caller_id == "L"
         self.is_c = caller_id == "C"
-    
+
     @property
     def creator(self) -> str:
         """Metadata creator value for this caller."""
         return "L-CTO" if self.is_l else "Cursor-IDE"
-    
+
     @property
     def source(self) -> str:
         """Metadata source value for this caller."""
         return "l9-kernel" if self.is_l else "cursor-ide"
 
 
-async def verify_api_key(request: Request, authorization: str = Header(None)) -> CallerIdentity:
+async def verify_api_key(
+    request: Request, authorization: str = Header(None)
+) -> CallerIdentity:
     """Verify API key and return caller identity with rate limiting and brute-force protection.
-    
+
     Returns CallerIdentity with:
     - caller_id: "L" or "C"
     - user_id: Shared userid (L_CTO_USER_ID)
     - creator/source: For metadata enforcement
     """
     ip = get_client_ip(request)
-    
+
     rate_limiter = getattr(request.app.state, "rate_limiter", None)
     if rate_limiter is None:
         rate_limiter = RateLimiter(
@@ -172,16 +179,20 @@ async def verify_api_key(request: Request, authorization: str = Header(None)) ->
     # Check if IP is blocked
     if await rate_limiter.is_auth_blocked(ip):
         logger.warning(f"IP blocked due to failed auth attempts: {ip}")
-        raise HTTPException(status_code=403, detail="Too many failed attempts. Blocked temporarily.")
+        raise HTTPException(
+            status_code=403, detail="Too many failed attempts. Blocked temporarily."
+        )
 
     # Check rate limit
     if await rate_limiter.is_rate_limited(ip):
         logger.warning(f"Rate limit exceeded for IP: {ip}")
-        raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.")
+        raise HTTPException(
+            status_code=429, detail="Rate limit exceeded. Try again later."
+        )
 
     # Record this request
     await rate_limiter.record_request(ip, now=time.time())
-    
+
     if not authorization or not authorization.startswith("Bearer "):
         await rate_limiter.record_failed_auth(ip, now=time.time())
         snapshot = await rate_limiter.snapshot(ip)
@@ -195,13 +206,13 @@ async def verify_api_key(request: Request, authorization: str = Header(None)) ->
             status_code=401, detail="Missing or invalid Authorization header"
         )
     token = authorization.replace("Bearer ", "")
-    
+
     # Determine caller from API key (with legacy fallback support)
     from src.config import get_api_key_l, get_api_key_c
-    
+
     api_key_l = get_api_key_l()
     api_key_c = get_api_key_c()
-    
+
     # Primary keys first
     if api_key_l and token == api_key_l:
         return CallerIdentity(caller_id="L", user_id=settings.L_CTO_USER_ID)
@@ -209,11 +220,15 @@ async def verify_api_key(request: Request, authorization: str = Header(None)) ->
         return CallerIdentity(caller_id="C", user_id=settings.L_CTO_USER_ID)
     # Legacy fallback: MCP_API_KEY / MCPL9MEMORYKEY → shared identity (defaults to L)
     elif settings.MCP_API_KEY and token == settings.MCP_API_KEY:
-        return CallerIdentity(caller_id="L", user_id=settings.L_CTO_USER_ID)  # Legacy → L
+        return CallerIdentity(
+            caller_id="L", user_id=settings.L_CTO_USER_ID
+        )  # Legacy → L
     elif settings.MCPL9MEMORYKEY and token == settings.MCPL9MEMORYKEY:
-        return CallerIdentity(caller_id="L", user_id=settings.L_CTO_USER_ID)  # Legacy → L
+        return CallerIdentity(
+            caller_id="L", user_id=settings.L_CTO_USER_ID
+        )  # Legacy → L
     else:
-        record_failed_auth(ip)
+        await rate_limiter.record_failed_auth(ip, now=time.time())
         raise HTTPException(status_code=403, detail="Invalid API key")
 
 
@@ -232,14 +247,16 @@ async def health_check():
 
 
 @app.get("/mcp/tools")
-async def list_tools(request: Request, caller: CallerIdentity = Depends(verify_api_key)):
+async def list_tools(
+    request: Request, caller: CallerIdentity = Depends(verify_api_key)
+):
     return {"tools": get_mcp_tools(), "caller": caller.caller_id}
 
 
 @app.post("/mcp/call")
 async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_api_key)):
     """Execute MCP tool with caller-enforced governance.
-    
+
     Caller identity (L or C) determines:
     - user_id: Shared L_CTO_USER_ID (L and C collaborate in same space)
     - metadata.creator: "L-CTO" or "Cursor-IDE" (enforced server-side)
@@ -266,13 +283,44 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Memory routes (direct API)
-app.include_router(memory.router, prefix="/memory", tags=["memory"])
+# =============================================================================
+# Memory Routes - Governance Hardening
+# =============================================================================
+# When GOVERNANCE_HARDENING_ENABLED=True, ALL memory routes require authentication.
+# This prevents bypass vectors identified in the governance audit.
 
-# Backward compatibility: /api/v1/memory/* routes for cursor_memory_client.py
-# The client calls /api/v1/memory/* but MCP server exposes /memory/*
-# Add /api/v1 prefix for backward compatibility
-app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
+
+def create_authenticated_memory_router() -> APIRouter:
+    """Create memory router with mandatory authentication on all routes.
+
+    This wraps the memory router with a Depends(verify_api_key) dependency,
+    ensuring that ALL routes under /memory/* require authentication.
+    """
+    authenticated_router = APIRouter(
+        dependencies=[Depends(verify_api_key)],  # MANDATORY for all routes
+    )
+    authenticated_router.include_router(memory.router)
+    return authenticated_router
+
+
+if settings.GOVERNANCE_HARDENING_ENABLED:
+    # Governance mode: ALL memory routes require authentication
+    logger.info(
+        "Governance hardening ENABLED",
+        enforcement_mode=settings.GOVERNANCE_ENFORCEMENT_MODE,
+    )
+    auth_memory_router = create_authenticated_memory_router()
+    app.include_router(auth_memory_router, prefix="/memory", tags=["memory"])
+    app.include_router(auth_memory_router, prefix="/api/v1/memory", tags=["memory"])
+else:
+    # Legacy mode: Memory routes do not require authentication (DEPRECATED)
+    # This mode will be removed in a future release
+    logger.warning(
+        "Governance hardening DISABLED - memory routes are unauthenticated. "
+        "Set GOVERNANCE_HARDENING_ENABLED=True to enforce authentication."
+    )
+    app.include_router(memory.router, prefix="/memory", tags=["memory"])
+    app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
 
 
 @app.exception_handler(HTTPException)
@@ -286,18 +334,19 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     """Handle Pydantic validation errors."""
     logger.warning("Validation error", errors=exc.errors())
     return JSONResponse(
-        status_code=422,
-        content={"detail": "Validation error", "errors": exc.errors()}
+        status_code=422, content={"detail": "Validation error", "errors": exc.errors()}
     )
 
 
 @app.exception_handler(asyncpg.PostgresError)
 async def postgres_exception_handler(request: Request, exc: asyncpg.PostgresError):
     """Handle PostgreSQL database errors."""
-    logger.error("Database error", error=str(exc), error_code=getattr(exc, 'code', None))
+    logger.error(
+        "Database error", error=str(exc), error_code=getattr(exc, "code", None)
+    )
     return JSONResponse(
         status_code=500,
-        content={"detail": "Database error", "error_code": getattr(exc, 'code', None)}
+        content={"detail": "Database error", "error_code": getattr(exc, "code", None)},
     )
 
 

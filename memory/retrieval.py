@@ -45,32 +45,32 @@ def reciprocal_rank_fusion(
 ) -> dict[str, float]:
     """
     Combine multiple rankings using Reciprocal Rank Fusion (RRF).
-    
+
     RRF is effective for combining results from different retrieval systems
     (e.g., semantic search + keyword search + graph traversal).
-    
+
     Formula: RRF(d) = Σ 1 / (k + rank(d))
-    
+
     Args:
         rankings: List of rankings, each is a list of item IDs in ranked order
         k: Constant to prevent high ranks from dominating (default 60)
-        
+
     Returns:
         Dict mapping item IDs to their fused scores (higher = better)
-        
+
     Example:
         >>> rankings = [["a", "b", "c"], ["b", "c", "a"]]
         >>> scores = reciprocal_rank_fusion(rankings, k=60)
         >>> # "b" ranks 2nd and 1st, so scores highest
     """
     scores: dict[str, float] = {}
-    
+
     for ranking in rankings:
         for rank, item_id in enumerate(ranking, start=1):
             if item_id not in scores:
                 scores[item_id] = 0.0
             scores[item_id] += 1.0 / (k + rank)
-    
+
     return scores
 
 
@@ -82,21 +82,21 @@ def apply_temporal_decay(
 ) -> float:
     """
     Apply exponential temporal decay to a score based on age.
-    
+
     Newer items get higher scores, with exponential decay based on
     half-life. Useful for recency-weighted retrieval.
-    
+
     Formula: decayed_score = score * 2^(-age_days / half_life_days)
-    
+
     Args:
         score: Original score to decay
         timestamp: Timestamp of the item
         half_life_days: Days until score is halved (default 30)
         reference_time: Reference time for age calculation (default: now)
-        
+
     Returns:
         Decayed score value
-        
+
     Example:
         >>> now = datetime.utcnow()
         >>> recent_score = apply_temporal_decay(1.0, now, half_life_days=30)
@@ -107,13 +107,13 @@ def apply_temporal_decay(
     """
     if reference_time is None:
         reference_time = datetime.utcnow()
-    
+
     age_days = (reference_time - timestamp).total_seconds() / 86400.0
-    
+
     if age_days < 0:
         # Future timestamp - no decay
         return score
-    
+
     decay_factor = math.pow(2, -age_days / half_life_days)
     return score * decay_factor
 
@@ -210,9 +210,15 @@ class RetrievalPipeline:
         filters: Optional[dict[str, Any]] = None,
         agent_id: Optional[str] = None,
         min_score: float = 0.5,
+        rrf_k: int = 60,
+        temporal_half_life_days: float = 30.0,
     ) -> dict[str, Any]:
         """
         Perform hybrid search combining semantic and structured filters.
+
+        Uses Reciprocal Rank Fusion (RRF) to combine rankings from semantic
+        search and structured filtering, with optional temporal decay to
+        prefer more recent results.
 
         Args:
             query: Natural language search query
@@ -220,6 +226,8 @@ class RetrievalPipeline:
             filters: Structured filters (packet_type, tags, date_range, etc.)
             agent_id: Optional agent filter
             min_score: Minimum similarity score threshold
+            rrf_k: RRF constant (higher = less weight to top ranks, default 60)
+            temporal_half_life_days: Days until score halves due to age (default 30)
 
         Returns:
             Dict with semantic_hits, filtered_packets, and combined results
@@ -257,16 +265,46 @@ class RetrievalPipeline:
                 if packet and self._matches_filters(packet, filters):
                     filtered_packets.append(packet)
 
-        # Step 4: Combine and rank
+        # Step 4: Combine and rank with RRF + temporal decay
+        # Build rankings for RRF: semantic order and filter-match order
+        semantic_ranking = [
+            hit.payload.get("packet_id")
+            for hit in semantic_hits
+            if hit.payload.get("packet_id")
+        ]
+        filter_ranking = [str(p.packet_id) for p in filtered_packets]
+
+        # Compute RRF scores across both rankings
+        rrf_scores = reciprocal_rank_fusion(
+            [semantic_ranking, filter_ranking],
+            k=rrf_k,
+        )
+
         combined = []
         for hit in semantic_hits:
             packet_id = hit.payload.get("packet_id")
             matching_packet = next(
                 (p for p in filtered_packets if str(p.packet_id) == packet_id), None
             )
+
+            # Use RRF score if available, else fall back to semantic score
+            base_score = rrf_scores.get(packet_id, hit.score)
+
+            # Apply temporal decay if we have a timestamp
+            if matching_packet and matching_packet.timestamp:
+                final_score = apply_temporal_decay(
+                    base_score,
+                    matching_packet.timestamp,
+                    half_life_days=temporal_half_life_days,
+                )
+            else:
+                final_score = base_score
+
             combined.append(
                 {
-                    "score": hit.score,
+                    "score": final_score,
+                    "rrf_score": rrf_scores.get(packet_id),
+                    "semantic_score": hit.score,
                     "embedding_id": str(hit.embedding_id),
                     "packet_id": packet_id,
                     "payload": hit.payload,
@@ -276,7 +314,7 @@ class RetrievalPipeline:
                 }
             )
 
-        # Sort by score and limit
+        # Sort by final score and limit
         combined.sort(key=lambda x: x["score"], reverse=True)
         combined = combined[:top_k]
 
@@ -646,6 +684,7 @@ class RetrievalPipeline:
 # =============================================================================
 # Singleton / Factory
 # =============================================================================
+
 
 @lru_cache(maxsize=1)
 def get_retrieval_pipeline() -> RetrievalPipeline:

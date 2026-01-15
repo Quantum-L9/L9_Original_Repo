@@ -19,7 +19,7 @@ class IntegrationSettings(BaseSettings):
     Configuration for L9 external integrations.
 
     Environment variables:
-    - SLACK_APP_ENABLED: Enable Slack integration (default: false)
+    - SLACK_APP_ENABLED: Enable Slack integration (default: true)
     - MAC_AGENT_ENABLED: Enable Mac Agent integration (default: false)
     - EMAIL_ENABLED: Enable Email integration (default: false)
     - INBOX_PARSER_ENABLED: Enable Inbox Parser integration (default: false)
@@ -41,7 +41,9 @@ class IntegrationSettings(BaseSettings):
     )
 
     email_enabled: bool = Field(
-        default=False, alias="EMAIL_ENABLED", description="Enable Email integration (legacy)"
+        default=False,
+        alias="EMAIL_ENABLED",
+        description="Enable Email integration (legacy)",
     )
 
     email_agent_enabled: bool = Field(

@@ -21,10 +21,20 @@ from memory.housekeeping import get_housekeeping_engine
 from orchestrators.memory.interface import MemoryRequest, MemoryOperation
 from orchestrators.memory.orchestrator import MemoryOrchestrator
 from memory.saga import SagaResult
+from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
+
+_batch_circuit_breaker = CircuitBreaker(
+    CircuitBreakerConfig(
+        failure_threshold=10,
+        window_seconds=60,
+        reset_timeout=30,
+        name="memory_batch",
+    )
+)
 
 
 # ============================================================================
@@ -92,11 +102,14 @@ async def create_packet(
         thread_uuid = None
         if request.thread_id:
             from uuid import UUID as UUIDType
+
             try:
                 thread_uuid = UUIDType(request.thread_id)
             except ValueError:
-                raise HTTPException(status_code=400, detail=f"Invalid thread_id: {request.thread_id}")
-        
+                raise HTTPException(
+                    status_code=400, detail=f"Invalid thread_id: {request.thread_id}"
+                )
+
         # Convert request to PacketEnvelopeIn (v2.0 compatible)
         packet_in = PacketEnvelopeIn(
             packet_type=request.packet_type,
@@ -329,7 +342,7 @@ async def get_facts(
     """Query knowledge facts."""
     try:
         service = await get_service()
-        
+
         # If source_packet provided, filter by it
         if source_packet:
             try:
@@ -493,6 +506,21 @@ async def batch_write(
 
     This endpoint processes packets in batches for efficient bulk ingestion.
     """
+    if _batch_circuit_breaker.is_open():
+        cb_stats = _batch_circuit_breaker.get_stats()
+        logger.warning(
+            "batch_circuit_breaker_open",
+            failures_in_window=cb_stats["failures_in_window"],
+        )
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Circuit breaker open: "
+                f"{cb_stats['failures_in_window']} failures in "
+                f"{cb_stats['window_seconds']}s"
+            ),
+        )
+
     try:
         logger.info(
             "Batch write request",
@@ -507,12 +535,15 @@ async def batch_write(
 
         result = await orchestrator.execute(mem_request)
 
+        _batch_circuit_breaker.record_success()
+
         return BatchResponse(
             success=result.success,
             processed_count=result.processed_count,
             errors=result.errors,
         )
     except Exception as e:
+        _batch_circuit_breaker.record_failure(str(e))
         logger.error(f"Batch write failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Batch write failed: {str(e)}")
 
@@ -553,7 +584,7 @@ async def compact_storage(
 
 class ReasoningReplayRequest(BaseModel):
     """Request model for reasoning replay."""
-    
+
     packet_id: str
     max_depth: Optional[int] = None
     format: str = "narrative"  # json, narrative, graph_viz, mermaid
@@ -561,7 +592,7 @@ class ReasoningReplayRequest(BaseModel):
 
 class ReasoningReplayResponse(BaseModel):
     """Response model for reasoning replay."""
-    
+
     chain_id: str
     start_packet_id: str
     depth: int
@@ -578,7 +609,7 @@ async def reasoning_replay(
 ):
     """
     Reconstruct and explain a decision chain (v3.1).
-    
+
     Per memory_spec_v3.0.yaml pipelines.reasoning_replay:
     - reconstruct_chain(packet_id) -> ReasoningChain
     - explain_decision(packet_id, format) -> str
@@ -586,21 +617,21 @@ async def reasoning_replay(
     try:
         service = await get_service()
         replay = service.get_reasoning_replay()
-        
+
         if replay is None:
             raise HTTPException(
                 status_code=503,
                 detail="Reasoning replay pipeline not available",
             )
-        
+
         packet_id = UUID(request.packet_id)
-        
+
         # Reconstruct chain
         chain = await replay.reconstruct_chain(packet_id, max_depth=request.max_depth)
-        
+
         # Explain decision
         explanation = await replay.explain_decision(packet_id, format=request.format)
-        
+
         return ReasoningReplayResponse(
             chain_id=str(chain.chain_id),
             start_packet_id=str(chain.start_packet_id),
@@ -615,12 +646,14 @@ async def reasoning_replay(
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logger.error(f"Reasoning replay failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Reasoning replay failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Reasoning replay failed: {str(e)}"
+        )
 
 
 class ConsolidationRequest(BaseModel):
     """Request model for consolidation."""
-    
+
     dry_run: bool = False
     batch_size: int = 1000
     sleep_between_batches_ms: int = 100
@@ -628,7 +661,7 @@ class ConsolidationRequest(BaseModel):
 
 class ConsolidationResponse(BaseModel):
     """Response model for consolidation."""
-    
+
     success: bool
     deduplication_count: int
     archived_count: int
@@ -647,7 +680,7 @@ async def run_consolidation(
 ):
     """
     Run memory consolidation pipeline (v3.1).
-    
+
     Per memory_spec_v3.0.yaml pipelines.consolidation:
     - deduplication, archival, summarization, ttl_expiration
     - Schedule: weekly_saturday_2am_utc (manual trigger via this endpoint)
@@ -655,21 +688,21 @@ async def run_consolidation(
     try:
         service = await get_service()
         consolidation = service.get_consolidation(dry_run=request.dry_run)
-        
+
         if consolidation is None:
             raise HTTPException(
                 status_code=503,
                 detail="Consolidation pipeline not available",
             )
-        
+
         # Run consolidation
         report = await consolidation.run_consolidation(
             batch_size=request.batch_size,
             sleep_between_batches_ms=request.sleep_between_batches_ms,
         )
-        
+
         report_dict = report.to_dict()
-        
+
         return ConsolidationResponse(
             success=len(report.errors) == 0,
             deduplication_count=report.deduplication_count,
@@ -694,7 +727,7 @@ async def run_consolidation(
 
 class FetchAndEnrichRequest(BaseModel):
     """Request model for fetch_and_enrich saga."""
-    
+
     query: str
     limit: int = 10
     min_similarity: float = 0.5
@@ -702,14 +735,14 @@ class FetchAndEnrichRequest(BaseModel):
 
 class EnrichEntitiesRequest(BaseModel):
     """Request model for entity enrichment saga."""
-    
+
     entity_ids: List[str]
     entity_type: str = "Entity"
 
 
 class CorrelateTimelineRequest(BaseModel):
     """Request model for timeline correlation saga."""
-    
+
     start_time: Optional[str] = None
     end_time: Optional[str] = None
     event_type: Optional[str] = None
@@ -718,7 +751,7 @@ class CorrelateTimelineRequest(BaseModel):
 
 class SagaResponse(BaseModel):
     """Response model for saga operations."""
-    
+
     saga_id: str
     saga_name: str
     status: str
@@ -755,13 +788,13 @@ async def saga_fetch_and_enrich(
 ):
     """
     Execute fetch_and_enrich saga (GMP-56/57).
-    
+
     Cross-DB operation that:
     1. Searches vectors in Postgres for semantically similar content
     2. Extracts entity IDs from results (UUIDs, GMPs, file paths)
     3. Enriches with Neo4j graph relationships (if available)
     4. Returns combined result
-    
+
     This reduces LLM reasoning steps by bundling related database
     operations into a single atomic workflow.
     """
@@ -789,7 +822,7 @@ async def saga_enrich_entities(
 ):
     """
     Execute entity enrichment saga (GMP-56/57).
-    
+
     For when you already have entity IDs and want graph context:
     1. Lookup entities by ID in Neo4j
     2. Discover relationships to neighboring entities
@@ -818,7 +851,7 @@ async def saga_correlate_timeline(
 ):
     """
     Execute timeline correlation saga (GMP-56/57).
-    
+
     For analyzing event sequences and causal chains:
     1. Fetch events in time range from Neo4j
     2. Trace causal chains (TRIGGERED relationships)

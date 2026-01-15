@@ -1,6 +1,6 @@
 """
 L9 Memory - Agent Persistence Service
-Version: 1.0.0
+Version: 1.1.0
 
 Agent persistence layer for checkpoint management and state serialization.
 Implements memory_spec_v3.0.yaml memory_layers.persistence contract.
@@ -9,6 +9,8 @@ Responsibilities:
 - Checkpoint management (create, restore, list, delete)
 - State serialization (serialize, deserialize, validate)
 - Checkpoint triggers: on_agent_shutdown, on_session_boundary, on_critical_decision, scheduled_hourly
+- Cryptographic integrity validation (SHA-256 checksums)
+- Prometheus metrics for observability
 """
 
 from __future__ import annotations
@@ -21,6 +23,8 @@ from uuid import UUID, uuid4
 
 from memory.substrate_repository import SubstrateRepository
 from core.schemas import PacketEnvelopeIn
+from memory.checkpoint_validator import CheckpointValidator
+from memory.checkpoint_metrics import CheckpointMetrics, get_metrics
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
@@ -30,7 +34,7 @@ logger = structlog.get_logger(__name__)
 
 class Checkpoint:
     """Represents an agent checkpoint."""
-    
+
     def __init__(
         self,
         checkpoint_id: UUID,
@@ -49,7 +53,7 @@ class Checkpoint:
 class AgentPersistenceService:
     """
     Agent persistence service for checkpoint management.
-    
+
     Per memory_spec_v3.0.yaml memory_layers.persistence:
     - create_checkpoint(agent_id, state, reason) -> UUID
     - restore_checkpoint(agent_id, checkpoint_id) -> dict
@@ -59,22 +63,28 @@ class AgentPersistenceService:
     - deserialize_agent_state(state) -> dict
     - validate_checkpoint_integrity(checkpoint_id) -> bool
     """
-    
+
     def __init__(
         self,
         service: Optional[MemorySubstrateService] = None,
         repository: Optional[SubstrateRepository] = None,
+        enable_checksums: bool = True,
     ):
         """
         Initialize agent persistence service.
-        
+
         Args:
             service: MemorySubstrateService for checkpoint operations
             repository: SubstrateRepository (alternative to service)
+            enable_checksums: Enable SHA-256 checksum validation (default: True)
         """
         self._service = service
         self._repository = repository
-        
+        self._enable_checksums = enable_checksums
+
+        # Initialize validator for integrity checks
+        self._validator = CheckpointValidator()
+
         # Retention policy per spec
         self._retention_policy = {
             "keep_last_n": 10,
@@ -82,8 +92,11 @@ class AgentPersistenceService:
             "keep_weekly_for_weeks": 12,
             "keep_monthly_for_months": 6,
         }
-        
-        logger.info("AgentPersistenceService initialized")
+
+        logger.info(
+            "AgentPersistenceService initialized",
+            checksums_enabled=enable_checksums,
+        )
 
     def set_service(self, service: MemorySubstrateService) -> None:
         """Set or update service reference."""
@@ -110,48 +123,66 @@ class AgentPersistenceService:
         Returns:
             Checkpoint UUID
         """
-        logger.debug(
-            "Creating checkpoint",
-            agent_id=agent_id,
-            reason=reason,
-            state_keys=list(state.keys()),
-        )
+        metrics = get_metrics(agent_id)
 
-        # Store checkpoint reason in state for later retrieval
-        state_with_meta = {**state, "_checkpoint_reason": reason}
-
-        checkpoint_id: Optional[UUID] = None
-
-        if self._service:
-            checkpoint_id = await self._service.save_checkpoint(
+        with metrics.time_create(reason):
+            logger.debug(
+                "Creating checkpoint",
                 agent_id=agent_id,
-                state=state_with_meta,
+                reason=reason,
+                state_keys=list(state.keys()),
             )
-        elif self._repository:
-            checkpoint_id = await self._repository.save_checkpoint(
+
+            # Store checkpoint reason in state for later retrieval
+            state_with_meta = {**state, "_checkpoint_reason": reason}
+
+            # Add checksum for integrity validation
+            if self._enable_checksums:
+                state_with_meta = self._validator.add_checksum_to_state(state_with_meta)
+
+            checkpoint_id: Optional[UUID] = None
+
+            if self._service:
+                checkpoint_id = await self._service.save_checkpoint(
+                    agent_id=agent_id,
+                    state=state_with_meta,
+                )
+            elif self._repository:
+                checkpoint_id = await self._repository.save_checkpoint(
+                    agent_id=agent_id,
+                    graph_state=state_with_meta,
+                )
+            else:
+                raise RuntimeError("Neither service nor repository set")
+
+            # Record checkpoint size metric
+            state_size = len(json.dumps(state_with_meta, default=str))
+            metrics.record_size(state_size)
+
+            logger.info(
+                "Checkpoint created",
+                checkpoint_id=str(checkpoint_id),
                 agent_id=agent_id,
-                graph_state=state_with_meta,
+                size_bytes=state_size,
+                checksum_enabled=self._enable_checksums,
             )
-        else:
-            raise RuntimeError("Neither service nor repository set")
 
-        logger.info("Checkpoint created", checkpoint_id=str(checkpoint_id), agent_id=agent_id)
+            # Emit PacketEnvelope for audit trail (best-effort)
+            await self._emit_checkpoint_packet(
+                event_type="checkpoint_created",
+                agent_id=agent_id,
+                checkpoint_id=checkpoint_id,
+                reason=reason,
+                state_keys=list(state.keys()),
+            )
 
-        # Emit PacketEnvelope for audit trail (best-effort)
-        await self._emit_checkpoint_packet(
-            event_type="checkpoint_created",
-            agent_id=agent_id,
-            checkpoint_id=checkpoint_id,
-            reason=reason,
-            state_keys=list(state.keys()),
-        )
-
-        return checkpoint_id
+            return checkpoint_id
 
     async def restore_checkpoint(
         self,
         agent_id: str,
         checkpoint_id: Optional[UUID] = None,
+        validate_integrity: bool = True,
     ) -> Optional[Dict[str, Any]]:
         """
         Restore a checkpoint for an agent.
@@ -161,34 +192,68 @@ class AgentPersistenceService:
         Args:
             agent_id: Agent identifier
             checkpoint_id: Optional specific checkpoint UUID
+            validate_integrity: Validate checksum before restore (default: True)
 
         Returns:
             Agent state dict, or None if not found
+
+        Raises:
+            ValueError: If checkpoint integrity validation fails
         """
-        logger.debug("Restoring checkpoint", agent_id=agent_id, checkpoint_id=str(checkpoint_id) if checkpoint_id else "latest")
+        metrics = get_metrics(agent_id)
 
-        state: Optional[Dict[str, Any]] = None
-        restored_checkpoint_id: Optional[UUID] = None
+        with metrics.time_restore():
+            logger.debug(
+                "Restoring checkpoint",
+                agent_id=agent_id,
+                checkpoint_id=str(checkpoint_id) if checkpoint_id else "latest",
+            )
 
-        if self._service:
-            state = await self._service.get_checkpoint(agent_id=agent_id)
-            if state:
-                logger.info("Checkpoint restored", agent_id=agent_id)
-        elif self._repository:
-            checkpoint = await self._repository.get_checkpoint(agent_id=agent_id)
-            if checkpoint:
-                state = checkpoint.graph_state
-                restored_checkpoint_id = checkpoint.checkpoint_id
-                logger.info("Checkpoint restored", agent_id=agent_id, checkpoint_id=str(checkpoint.checkpoint_id))
-        else:
-            raise RuntimeError("Neither service nor repository set")
+            state: Optional[Dict[str, Any]] = None
+            restored_checkpoint_id: Optional[UUID] = None
 
-        # Emit PacketEnvelope for audit trail (best-effort)
-        if state is not None:
+            if self._service:
+                state = await self._service.get_checkpoint(agent_id=agent_id)
+                if state:
+                    logger.info("Checkpoint restored", agent_id=agent_id)
+            elif self._repository:
+                checkpoint = await self._repository.get_checkpoint(agent_id=agent_id)
+                if checkpoint:
+                    state = checkpoint.graph_state
+                    restored_checkpoint_id = checkpoint.checkpoint_id
+                    logger.info(
+                        "Checkpoint restored",
+                        agent_id=agent_id,
+                        checkpoint_id=str(checkpoint.checkpoint_id),
+                    )
+            else:
+                raise RuntimeError("Neither service nor repository set")
+
+            if state is None:
+                return None
+
+            # Validate checksum if enabled
+            if self._enable_checksums and validate_integrity:
+                is_valid, error_msg = self._validator.validate_checksum(state)
+                metrics.record_validation(is_valid)
+
+                if not is_valid:
+                    metrics.record_corruption()
+                    logger.error(
+                        "Checkpoint integrity validation FAILED",
+                        agent_id=agent_id,
+                        checkpoint_id=str(restored_checkpoint_id),
+                        error=error_msg,
+                    )
+                    raise ValueError(
+                        f"Checkpoint integrity validation failed: {error_msg}"
+                    )
+
             # Remove internal metadata before returning
-            state_clean = {k: v for k, v in state.items() if not k.startswith("_checkpoint_")}
+            state_clean = self._validator.strip_metadata_for_restore(state)
             reason = state.get("_checkpoint_reason", "unknown")
 
+            # Emit PacketEnvelope for audit trail (best-effort)
             await self._emit_checkpoint_packet(
                 event_type="checkpoint_restored",
                 agent_id=agent_id,
@@ -198,8 +263,6 @@ class AgentPersistenceService:
             )
 
             return state_clean
-
-        return None
 
     async def list_checkpoints(
         self,
@@ -229,7 +292,11 @@ class AgentPersistenceService:
         checkpoints = []
         for row in rows:
             # Extract reason from graph_state if present, default to "unknown"
-            reason = row.graph_state.get("_checkpoint_reason", "unknown") if isinstance(row.graph_state, dict) else "unknown"
+            reason = (
+                row.graph_state.get("_checkpoint_reason", "unknown")
+                if isinstance(row.graph_state, dict)
+                else "unknown"
+            )
             checkpoints.append(
                 Checkpoint(
                     checkpoint_id=row.checkpoint_id,
@@ -262,6 +329,8 @@ class AgentPersistenceService:
         Returns:
             Number of checkpoints deleted
         """
+        metrics = get_metrics(agent_id)
+
         logger.debug("Deleting old checkpoints", agent_id=agent_id, keep_last=keep_last)
 
         if self._repository is None:
@@ -280,7 +349,15 @@ class AgentPersistenceService:
             )
 
         if count > 0:
-            logger.info("Deleted old checkpoints", agent_id=agent_id, deleted_count=count, kept=keep_last)
+            # Record deletion metrics
+            metrics.record_delete(count, reason="retention")
+
+            logger.info(
+                "Deleted old checkpoints",
+                agent_id=agent_id,
+                deleted_count=count,
+                kept=keep_last,
+            )
 
             # Emit PacketEnvelope for audit trail
             await self._emit_checkpoint_packet(
@@ -296,10 +373,10 @@ class AgentPersistenceService:
     def serialize_agent_state(self, agent: Any) -> Dict[str, Any]:
         """
         Serialize an agent object to a state dict.
-        
+
         Args:
             agent: Agent object to serialize
-            
+
         Returns:
             Serialized state dict
         """
@@ -340,10 +417,10 @@ class AgentPersistenceService:
     def deserialize_agent_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Deserialize a state dict back to agent-compatible format.
-        
+
         Args:
             state: Serialized state dict
-            
+
         Returns:
             Deserialized state dict (ready for agent restoration)
         """
@@ -351,24 +428,30 @@ class AgentPersistenceService:
         # In production, might need to restore UUIDs, datetimes, etc.
         return state
 
-    async def validate_checkpoint_integrity(self, checkpoint_id: UUID) -> bool:
+    async def validate_checkpoint_integrity(
+        self,
+        checkpoint_id: UUID,
+        agent_id: Optional[str] = None,
+    ) -> bool:
         """
         Validate checkpoint integrity.
-        
+
         Checks:
         - Checkpoint exists
         - State is valid JSON
+        - SHA-256 checksum matches (if present)
         - Required fields present
-        
+
         Args:
             checkpoint_id: Checkpoint UUID to validate
-            
+            agent_id: Optional agent ID for metrics (auto-detected if not provided)
+
         Returns:
             True if valid, False otherwise
         """
         if self._repository is None:
             raise RuntimeError("Repository not set")
-        
+
         try:
             async with self._repository.acquire() as conn:
                 row = await conn.fetchrow(
@@ -379,27 +462,67 @@ class AgentPersistenceService:
                     """,
                     checkpoint_id,
                 )
-                
+
                 if not row:
-                    logger.warning("Checkpoint not found", checkpoint_id=str(checkpoint_id))
+                    logger.warning(
+                        "Checkpoint not found", checkpoint_id=str(checkpoint_id)
+                    )
                     return False
-                
-                # Validate state is valid JSON
-                state = row["graph_state"]
-                if isinstance(state, str):
-                    json.loads(state)  # Raises if invalid
-                elif not isinstance(state, dict):
-                    logger.warning("Invalid state type", checkpoint_id=str(checkpoint_id))
-                    return False
-                
-                logger.debug("Checkpoint integrity valid", checkpoint_id=str(checkpoint_id))
-                return True
-        
+
+                detected_agent_id = row["agent_id"]
+                metrics = get_metrics(agent_id or detected_agent_id)
+
+                with metrics.time_validate():
+                    # Validate state is valid JSON
+                    state = row["graph_state"]
+                    if isinstance(state, str):
+                        state = json.loads(state)  # Raises if invalid
+                    elif not isinstance(state, dict):
+                        logger.warning(
+                            "Invalid state type", checkpoint_id=str(checkpoint_id)
+                        )
+                        metrics.record_validation(False)
+                        return False
+
+                    # Validate checksum if enabled
+                    if self._enable_checksums:
+                        is_valid, error_msg = self._validator.validate_checksum(state)
+                        metrics.record_validation(is_valid)
+
+                        if not is_valid:
+                            metrics.record_corruption()
+                            logger.error(
+                                "Checkpoint checksum validation FAILED",
+                                checkpoint_id=str(checkpoint_id),
+                                agent_id=detected_agent_id,
+                                error=error_msg,
+                            )
+                            return False
+                    else:
+                        metrics.record_validation(True)
+
+                    logger.debug(
+                        "Checkpoint integrity valid",
+                        checkpoint_id=str(checkpoint_id),
+                        agent_id=detected_agent_id,
+                        checksum_validated=self._enable_checksums,
+                    )
+                    return True
+
         except json.JSONDecodeError as e:
-            logger.error("Invalid JSON in checkpoint", checkpoint_id=str(checkpoint_id), error=str(e))
+            logger.error(
+                "Invalid JSON in checkpoint",
+                checkpoint_id=str(checkpoint_id),
+                error=str(e),
+            )
             return False
         except Exception as e:
-            logger.error("Checkpoint validation failed", checkpoint_id=str(checkpoint_id), error=str(e), exc_info=True)
+            logger.error(
+                "Checkpoint validation failed",
+                checkpoint_id=str(checkpoint_id),
+                error=str(e),
+                exc_info=True,
+            )
             return False
 
     # =========================================================================
@@ -427,7 +550,9 @@ class AgentPersistenceService:
             state_keys: List of keys in the checkpoint state
         """
         if self._service is None:
-            logger.debug("No service available for packet emission", event_type=event_type)
+            logger.debug(
+                "No service available for packet emission", event_type=event_type
+            )
             return
 
         try:
@@ -467,4 +592,3 @@ class AgentPersistenceService:
                 agent_id=agent_id,
                 error=str(e),
             )
-

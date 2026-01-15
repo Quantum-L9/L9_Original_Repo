@@ -1,6 +1,6 @@
 # TODO
 
-> **Last Updated:** 2026-01-13
+> **Last Updated:** 2026-01-14
 
 ---
 
@@ -115,6 +115,11 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 
 ## 📋 Immediate Next Steps
 
+- [x] **Fix PATH for git hooks**: ✅ DONE (2026-01-14) — Added to `~/.zshrc`:
+  ```bash
+  export PATH="$HOME/Library/Python/3.9/bin:$PATH"
+  ```
+
 - [ ] **Test deployment script** locally: `./scripts/deploy_agent_executor.sh`
 - [ ] **Test server startup** to verify fail-loudly behavior (GMP-47 removed silent stubs)
 - [ ] **Test Slack integration** after deployment to verify agent_executor responds
@@ -148,6 +153,100 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 ---
 
 ## 🟣 Deferred Work
+
+### CI/CD Enhancements (GMP-78 Review)
+
+**Status**: Deferred — Nice-to-have, not urgent
+
+**Source**: Frontier AI Lab patterns review (Pre-Commit-Hooks-1.md)
+
+| Enhancement | Description | Effort | Priority |
+|-------------|-------------|--------|----------|
+| **Claude PR Reviewer** | GitHub Action that uses Claude to review PRs | 2-4 hrs | 🟡 Medium |
+| **Performance Regression** | Track response times, flag >20% slowdowns | 4-8 hrs | 🟡 Medium |
+
+**Claude PR Reviewer Implementation:**
+```yaml
+# .github/workflows/pr_review.yml
+name: Claude PR Review
+on: [pull_request]
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Claude Code Review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 scripts/ci/claude_pr_reviewer.py \
+            --pr-number ${{ github.event.pull_request.number }}
+```
+
+**Performance Regression Implementation:**
+- Requires baseline metrics from Prometheus/Grafana first
+- Track: API latency p50/p95, memory query time, embedding generation time
+- Alert on >20% degradation
+
+**Prerequisites:**
+- [ ] Prometheus/Grafana stack fully operational
+- [ ] Baseline metrics collected for 1+ weeks
+- [ ] GitHub Actions configured for L9 repo
+
+---
+
+### Cross-DB Conflict Resolution Loop
+
+**Status**: Deferred — Future enhancement
+
+**Source**: `current_work/10-TODO's.md` analysis (2026-01-14)
+
+**Problem**: When both PostgreSQL and Neo4j return data for the same query, results may conflict (e.g., "Sum of Sales" in SQL vs "Count of Nodes" in Graph).
+
+**Solution**: Implement a "Reflector" step where the agent compares outputs from both databases and identifies discrepancies before answering.
+
+**Scope**:
+- [ ] Add discrepancy detector to Saga pattern (`memory/saga.py`)
+- [ ] Create `ConflictResolver` class that compares PG vs Neo4j results
+- [ ] Define conflict types: count mismatch, value drift, missing entity
+- [ ] Add resolution strategies: prefer PG, prefer Neo4j, merge, escalate
+- [ ] Emit PacketEnvelope with `kind=CONFLICT_DETECTED` for audit trail
+
+**Estimated Effort**: 4-6 hours
+
+**Priority**: 🟡 Medium — Useful for complex cross-DB queries
+
+---
+
+### Multi-Agent Specialization (DB-Specific Agents)
+
+**Status**: Deferred — Future enhancement
+
+**Source**: `current_work/10-TODO's.md` analysis (2026-01-14)
+
+**Problem**: Current agents see all tools (SQL + Cypher), causing "context dilution" and reducing accuracy.
+
+**Solution**: Split into specialized agents: **Postgres Analyst** (SQL only), **Neo4j Cartographer** (Cypher only), **Manager** (routing).
+
+**Benefits**:
+- Smaller context window per agent = higher accuracy
+- Each agent is expert in one DB type
+- Manager routes to appropriate specialist
+
+**Scope**:
+- [ ] Create `PostgresAnalystAgent` — SQL tools only
+- [ ] Create `Neo4jCartographerAgent` — Cypher tools only  
+- [ ] Create `DBManagerAgent` — routes queries to specialists
+- [ ] Update tool registry with agent-type filtering
+- [ ] Wire into existing orchestration layer
+
+**Estimated Effort**: 8-12 hours
+
+**Priority**: 🟡 Medium — Improves accuracy for DB-heavy workloads
+
+**Note**: Partially exists in `orchestration/` but not fully specialized per DB type.
+
+---
 
 ### Symbolic Computation Service (DISABLED)
 
@@ -342,6 +441,50 @@ ingest_packet() → IngestionPipeline.ingest()
 
 **Reference**: `docs/__Notes/agent_persistence.py/` (8 GMP stage files + runbook)
 
+### Memory Files Packet (Advanced Memory Features)
+
+**Status**: Partially implemented (~30-40%)
+
+**Location**: `current_work/Memory Files/`
+
+**Overview**: 6 specification/research documents for advanced memory and AI system concepts.
+
+| File | Purpose | Status |
+|------|---------|--------|
+| `Data_Pipeline_Orchestration_v4.0.md` | ERP/Odoo data pipeline (Mack domain) | ❌ External to L9 |
+| `chunking-protocol.md` | Build orchestrator for chunked code gen | ❌ Prompt protocol only |
+| `DSL_Compiler_Description.md` | Governance rules MD→FOL JSON compiler | ❌ Not implemented |
+| `enforceable_recursive_extractor.prompt.md` | Schema-enforced preference/SOP extractor | ⚠️ Partial (extractors exist) |
+| `implement belief calibration in LLM driven agents.md` | Belief calibration with confidence tracking | ⚠️ Partial (fields exist) |
+| `inverse reinforcement learning (IRL).md` | Intent detection via IRL | ❌ Research only |
+
+**What's IMPLEMENTED:**
+- ✅ Confidence fields (`confidence_scores`, `KnowledgeFact.confidence`, etc.)
+- ✅ Semantic search with pgvector
+- ✅ Packet ingestion DAG with validation
+- ✅ TTL expiration in `ConsolidationPipeline`
+- ✅ Idempotency patterns in executor/adapters
+
+**What's STUB/PARTIAL:**
+- ⚠️ Deduplication (`consolidation.py` — marked "not fully implemented")
+- ⚠️ Archival (basic query exists, actual logic is TODO)
+- ⚠️ Summarization (structure only, marked TODO)
+
+**What's NOT IMPLEMENTED:**
+- [ ] DSL Compiler (Markdown → FOL JSON) for governance rules
+- [ ] Belief Calibration Loop (ECE/Brier tracking, confidence adjustment)
+- [ ] Multi-Agent Belief Consensus (BCCS-style weighted coordination)
+- [ ] Complete consolidation strategies (dedup, archival, summarization)
+
+**Next Steps (if prioritized):**
+1. Complete `ConsolidationPipeline` strategies (dedup, archival, summarization)
+2. Build belief calibration module with confidence tracking over time
+3. Create DSL compiler for governance rule enforcement (if needed)
+
+**Reference**: Analysis performed 2026-01-14
+
+---
+
 ### Emma/L9 Substrate Integration
 
 **Status**: Analysis complete, most enhancements done. Remaining items:
@@ -391,6 +534,75 @@ ingest_packet() → IngestionPipeline.ingest()
 
 - [x] GMP-48 — Agent Executor Deployment Automation (verification script, deployment script, CI integration)
 - [x] Unstub ResearchSwarmOrchestrator (GMP-47)
+
+---
+
+## 🔮 Future GMPs — Memory Architecture
+
+> **Source:** `current_work/MEMORY-TIER-DESIGN.md` (GMP-68)
+> **Added:** 2026-01-14
+
+### GMP-69: Semantic + Episodic Memory Schema
+
+**Status:** Planned — Future enhancement
+
+**Scope:** Add `semantic_facts` and `episodic_events` tables with linking
+
+**Why:** Current `packet_store` doesn't distinguish facts (timeless) from events (temporal). Frontier labs (Anthropic, DeepMind) use dual memory streams.
+
+**Tables:**
+- `memory.semantic_facts` — Facts with importance, tags, triplets
+- `memory.episodic_events` — Events with timestamps, severity, entities
+- `memory.episodic_semantic_links` — Links events to facts they reference
+
+---
+
+### GMP-70: Strategy-Based Retrieval Router
+
+**Status:** Planned — Future enhancement
+
+**Scope:** Add retrieval strategy router to `hybrid_search()`
+
+**Strategies:**
+- `core_identity` — Tier 1 facts (preferences, values)
+- `project_context` — Project-scoped facts
+- `temporal_recall` — Recent episodes
+- `association` — Facts + linked episodes
+- `uncertainty_fill` — High-confidence facts for uncertain agent
+
+---
+
+### GMP-71: Tier-Based Context Injection
+
+**Status:** Planned — Future enhancement
+
+**Scope:** Add `TierManager` class with precedence-based context injection
+
+**Tiers:**
+1. Identity (highest precedence)
+2. Project
+3. Session/Temporal
+4. Working memory (lowest precedence)
+
+---
+
+### GMP-72: Active Memory Management
+
+**Status:** Planned — Future enhancement (High complexity)
+
+**Scope:** System decides what to encode, not user-explicit
+
+**Features:**
+- Auto-extraction of learnings from task outcomes
+- Importance elevation on repeated retrieval
+- Auto-consolidation of old episodes
+- Deduplication with similarity threshold
+
+**Integration Points:**
+- `executor.py` — Task completion hook
+- `slack_ingest.py` — Conversation extraction
+- `/gmp` command — Pattern extraction
+- User feedback — Correction extraction
 
 ---
 

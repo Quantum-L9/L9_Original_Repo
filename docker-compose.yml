@@ -181,6 +181,10 @@ services:
       # OpenAI Embeddings
       OPENAI_API_KEY: ${OPENAI_API_KEY:-YOUR_OPENAI_KEY_HERE}
       OPENAI_EMBED_MODEL: ${OPENAI_EMBED_MODEL:-text-embedding-3-small}
+      
+      # Governance Hardening (default: disabled for safe rollout)
+      GOVERNANCE_HARDENING_ENABLED: ${GOVERNANCE_HARDENING_ENABLED:-False}
+      GOVERNANCE_ENFORCEMENT_MODE: ${GOVERNANCE_ENFORCEMENT_MODE:-log_only}
     ports:
       - "127.0.0.1:${MCP_PORT:-9002}:9002"
     command: uvicorn mcp_memory.src.main:app --host 0.0.0.0 --port 9002

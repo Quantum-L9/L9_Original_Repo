@@ -116,6 +116,13 @@ async def chat(
 # Mount memory router with prefix
 app.include_router(memory_router, prefix="/memory")
 
+# === Initialize default app state values ===
+# These may be overwritten by integration initializers below
+app.state.substrate_service = None  # Memory substrate (optional for basic Slack)
+app.state.rate_limiter = None  # Rate limiter (optional)
+app.state.permission_graph = None  # Permission graph (optional)
+app.state.neo4j_client = None  # Neo4j client (optional)
+
 # === Integration Routers (gated by toggle flags) ===
 
 # Slack Events API
@@ -132,16 +139,42 @@ if settings.slack_app_enabled:
             "Set SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET. "
             "Slack routes will NOT be mounted."
         )
+        app.state.slack_validator = None
+        app.state.slack_client = None
     else:
         try:
+            # Initialize Slack adapter components (required for route dependencies)
+            import httpx
+            from api.slack_adapter import SlackRequestValidator
+            from api.slack_client import SlackAPIClient
+
+            validator = SlackRequestValidator(slack_signing_secret)
+            http_client = httpx.AsyncClient()
+            slack_client = SlackAPIClient(
+                bot_token=slack_bot_token,
+                http_client=http_client,
+            )
+
+            # Store in app state for route dependencies
+            app.state.slack_validator = validator
+            app.state.slack_client = slack_client
+            app.state.aios_base_url = os.getenv(
+                "AIOS_BASE_URL", "http://localhost:8000"
+            )
+            app.state.http_client = http_client
+
             # Use new Slack router (v2.0+) from api/routes/slack.py
             # Legacy webhook_slack.py archived to _archived/legacy_slack/
             from api.routes.slack import router as slack_router
 
             app.include_router(slack_router)
-            logger.info("Slack router mounted successfully (v2.0+)")
+            logger.info(
+                "Slack router mounted successfully (v2.0+) with validator initialized"
+            )
         except Exception as e:
             logger.error(f"WARNING: Failed to load Slack router: {e}")
+            app.state.slack_validator = None
+            app.state.slack_client = None
 
 # Mac Agent API
 if settings.mac_agent_enabled:

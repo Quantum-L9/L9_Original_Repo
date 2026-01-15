@@ -1,0 +1,352 @@
+"""
+L9 Memory - Checkpoint Metrics
+Version: 1.0.0
+
+Prometheus metrics for checkpoint operations.
+Implements memory_spec_v3.0.yaml observability requirements.
+
+Responsibilities:
+- Track checkpoint create/restore latency
+- Count operations (success/failure)
+- Monitor checkpoint sizes and storage
+- Expose metrics for Prometheus scraping
+"""
+
+from __future__ import annotations
+
+import time
+import structlog
+from contextlib import contextmanager
+from typing import Generator, Optional
+
+try:
+    from prometheus_client import Counter, Histogram, Gauge, REGISTRY
+
+    PROMETHEUS_AVAILABLE = True
+except ImportError:
+    PROMETHEUS_AVAILABLE = False
+
+    # Stub classes for when prometheus_client is not installed
+    class Counter:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def labels(self, **kwargs):
+            return self
+
+        def inc(self, amount=1):
+            pass
+
+    class Histogram:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def labels(self, **kwargs):
+            return self
+
+        def observe(self, value):
+            pass
+
+    class Gauge:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def labels(self, **kwargs):
+            return self
+
+        def set(self, value):
+            pass
+
+        def inc(self, amount=1):
+            pass
+
+        def dec(self, amount=1):
+            pass
+
+
+logger = structlog.get_logger(__name__)
+
+
+# =============================================================================
+# Metric Definitions
+# =============================================================================
+
+# Latency histograms
+CHECKPOINT_CREATE_LATENCY = Histogram(
+    "l9_checkpoint_create_latency_seconds",
+    "Time to create a checkpoint",
+    ["agent_id", "reason"],
+    buckets=[0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0],
+)
+
+CHECKPOINT_RESTORE_LATENCY = Histogram(
+    "l9_checkpoint_restore_latency_seconds",
+    "Time to restore a checkpoint",
+    ["agent_id"],
+    buckets=[0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0],
+)
+
+CHECKPOINT_VALIDATE_LATENCY = Histogram(
+    "l9_checkpoint_validate_latency_seconds",
+    "Time to validate checkpoint integrity",
+    ["agent_id"],
+    buckets=[0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5],
+)
+
+# Operation counters
+CHECKPOINT_CREATE_TOTAL = Counter(
+    "l9_checkpoint_create_total",
+    "Total checkpoints created",
+    ["agent_id", "reason", "status"],
+)
+
+CHECKPOINT_RESTORE_TOTAL = Counter(
+    "l9_checkpoint_restore_total",
+    "Total checkpoint restore attempts",
+    ["agent_id", "status"],
+)
+
+CHECKPOINT_DELETE_TOTAL = Counter(
+    "l9_checkpoint_delete_total",
+    "Total checkpoints deleted",
+    ["agent_id", "reason"],
+)
+
+CHECKPOINT_VALIDATION_TOTAL = Counter(
+    "l9_checkpoint_validation_total",
+    "Total checkpoint validations",
+    ["agent_id", "status"],
+)
+
+CHECKPOINT_CORRUPTION_DETECTED = Counter(
+    "l9_checkpoint_corruption_detected_total",
+    "Total corrupted checkpoints detected",
+    ["agent_id"],
+)
+
+# Size histograms
+CHECKPOINT_SIZE_BYTES = Histogram(
+    "l9_checkpoint_size_bytes",
+    "Size of checkpoint state in bytes",
+    ["agent_id"],
+    buckets=[100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000],
+)
+
+# Gauges
+ACTIVE_CHECKPOINTS = Gauge(
+    "l9_active_checkpoints",
+    "Number of active checkpoints per agent",
+    ["agent_id"],
+)
+
+
+# =============================================================================
+# Metric Helpers
+# =============================================================================
+
+
+class CheckpointMetrics:
+    """
+    Helper class for checkpoint metric instrumentation.
+
+    Provides context managers and methods for recording metrics.
+    """
+
+    def __init__(self, agent_id: str):
+        """
+        Initialize metrics helper for an agent.
+
+        Args:
+            agent_id: Agent identifier for labeling metrics
+        """
+        self.agent_id = agent_id
+
+    @contextmanager
+    def time_create(self, reason: str) -> Generator[None, None, None]:
+        """
+        Context manager to time checkpoint creation.
+
+        Args:
+            reason: Checkpoint trigger reason
+
+        Yields:
+            None (timing is automatic)
+        """
+        start = time.perf_counter()
+        status = "success"
+        try:
+            yield
+        except Exception:
+            status = "error"
+            raise
+        finally:
+            duration = time.perf_counter() - start
+            CHECKPOINT_CREATE_LATENCY.labels(
+                agent_id=self.agent_id,
+                reason=reason,
+            ).observe(duration)
+            CHECKPOINT_CREATE_TOTAL.labels(
+                agent_id=self.agent_id,
+                reason=reason,
+                status=status,
+            ).inc()
+
+            logger.debug(
+                "checkpoint.create.metrics",
+                agent_id=self.agent_id,
+                reason=reason,
+                duration_ms=duration * 1000,
+                status=status,
+            )
+
+    @contextmanager
+    def time_restore(self) -> Generator[None, None, None]:
+        """
+        Context manager to time checkpoint restoration.
+
+        Yields:
+            None (timing is automatic)
+        """
+        start = time.perf_counter()
+        status = "success"
+        try:
+            yield
+        except Exception:
+            status = "error"
+            raise
+        finally:
+            duration = time.perf_counter() - start
+            CHECKPOINT_RESTORE_LATENCY.labels(
+                agent_id=self.agent_id,
+            ).observe(duration)
+            CHECKPOINT_RESTORE_TOTAL.labels(
+                agent_id=self.agent_id,
+                status=status,
+            ).inc()
+
+            logger.debug(
+                "checkpoint.restore.metrics",
+                agent_id=self.agent_id,
+                duration_ms=duration * 1000,
+                status=status,
+            )
+
+    @contextmanager
+    def time_validate(self) -> Generator[None, None, None]:
+        """
+        Context manager to time checkpoint validation.
+
+        Yields:
+            None (timing is automatic)
+        """
+        start = time.perf_counter()
+        status = "success"
+        try:
+            yield
+        except Exception:
+            status = "error"
+            raise
+        finally:
+            duration = time.perf_counter() - start
+            CHECKPOINT_VALIDATE_LATENCY.labels(
+                agent_id=self.agent_id,
+            ).observe(duration)
+
+            logger.debug(
+                "checkpoint.validate.metrics",
+                agent_id=self.agent_id,
+                duration_ms=duration * 1000,
+                status=status,
+            )
+
+    def record_size(self, size_bytes: int) -> None:
+        """
+        Record checkpoint size.
+
+        Args:
+            size_bytes: Size of checkpoint state in bytes
+        """
+        CHECKPOINT_SIZE_BYTES.labels(
+            agent_id=self.agent_id,
+        ).observe(size_bytes)
+
+    def record_delete(self, count: int, reason: str = "retention") -> None:
+        """
+        Record checkpoint deletion.
+
+        Args:
+            count: Number of checkpoints deleted
+            reason: Deletion reason (retention, manual, etc.)
+        """
+        CHECKPOINT_DELETE_TOTAL.labels(
+            agent_id=self.agent_id,
+            reason=reason,
+        ).inc(count)
+
+    def record_corruption(self) -> None:
+        """Record detected checkpoint corruption."""
+        CHECKPOINT_CORRUPTION_DETECTED.labels(
+            agent_id=self.agent_id,
+        ).inc()
+
+    def record_validation(self, valid: bool) -> None:
+        """
+        Record validation result.
+
+        Args:
+            valid: Whether checkpoint was valid
+        """
+        CHECKPOINT_VALIDATION_TOTAL.labels(
+            agent_id=self.agent_id,
+            status="valid" if valid else "invalid",
+        ).inc()
+
+    def set_active_count(self, count: int) -> None:
+        """
+        Set active checkpoint count for agent.
+
+        Args:
+            count: Number of active checkpoints
+        """
+        ACTIVE_CHECKPOINTS.labels(
+            agent_id=self.agent_id,
+        ).set(count)
+
+
+# =============================================================================
+# Module-level helper
+# =============================================================================
+
+
+def get_metrics(agent_id: str) -> CheckpointMetrics:
+    """
+    Get metrics helper for an agent.
+
+    Args:
+        agent_id: Agent identifier
+
+    Returns:
+        CheckpointMetrics instance
+    """
+    return CheckpointMetrics(agent_id)
+
+
+# =============================================================================
+# Public API
+# =============================================================================
+
+__all__ = [
+    "CheckpointMetrics",
+    "get_metrics",
+    "CHECKPOINT_CREATE_LATENCY",
+    "CHECKPOINT_RESTORE_LATENCY",
+    "CHECKPOINT_VALIDATE_LATENCY",
+    "CHECKPOINT_CREATE_TOTAL",
+    "CHECKPOINT_RESTORE_TOTAL",
+    "CHECKPOINT_DELETE_TOTAL",
+    "CHECKPOINT_VALIDATION_TOTAL",
+    "CHECKPOINT_CORRUPTION_DETECTED",
+    "CHECKPOINT_SIZE_BYTES",
+    "ACTIVE_CHECKPOINTS",
+    "PROMETHEUS_AVAILABLE",
+]

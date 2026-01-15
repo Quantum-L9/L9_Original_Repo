@@ -44,6 +44,7 @@ from telemetry.memory_metrics import (
     record_memory_search,
     set_memory_substrate_health,
     record_memory_quarantine,
+    record_memory_ingest,
 )
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 
@@ -109,7 +110,7 @@ class MemorySubstrateService:
         self._consolidation: Optional[ConsolidationPipeline] = None
         self._agent_persistence: Optional[AgentPersistenceService] = None
         self._retention_engine: Optional[RetentionEngine] = None
-        
+
         # Initialize saga pattern (lazy initialization)
         self._saga_executor: Optional[SagaExecutor] = None
         self._saga_patterns: Optional[SagaPatterns] = None
@@ -219,7 +220,11 @@ class MemorySubstrateService:
         try:
             PacketValidator.validate(packet_in, strict=False)
         except PacketValidationError as e:
-            logger.error("packet_validation_failed", error=str(e), packet_type=packet_in.packet_type)
+            logger.error(
+                "packet_validation_failed",
+                error=str(e),
+                packet_type=packet_in.packet_type,
+            )
             return PacketWriteResult(
                 status="error",
                 packet_id=packet_in.packet_id or None,
@@ -310,6 +315,7 @@ class MemorySubstrateService:
             segment=packet_in.packet_type or "unknown",
             status=result.status,
         )
+        record_memory_ingest(status=result.status)
 
         logger.info(
             f"Packet {envelope.packet_id} processed: "
@@ -523,7 +529,9 @@ class MemorySubstrateService:
         Returns:
             SemanticSearchResult with hits
         """
-        logger.info(f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}")
+        logger.info(
+            f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}"
+        )
 
         # Get more results to allow filtering by min_score
         hits = await self._semantic_service.search(
@@ -534,9 +542,9 @@ class MemorySubstrateService:
 
         # Filter by min_score threshold
         filtered_hits = [h for h in hits if h.get("score", 0.0) >= request.min_score]
-        
+
         # Limit to top_k after filtering
-        filtered_hits = filtered_hits[:request.top_k]
+        filtered_hits = filtered_hits[: request.top_k]
 
         # Record Prometheus metrics for semantic search
         record_memory_search(
@@ -832,17 +840,17 @@ class MemorySubstrateService:
     def get_query_classifier(self) -> QueryClassifier:
         """
         Get query classifier instance (lazy initialization).
-        
+
         Returns:
             QueryClassifier instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._query_classifier is not None:
             logger.debug("query_classifier already loaded")
             return self._query_classifier
-        
+
         logger.info("Initializing query_classifier...")
         self._query_classifier = get_query_classifier()
         logger.info("query_classifier loaded successfully")
@@ -851,17 +859,17 @@ class MemorySubstrateService:
     def get_reasoning_replay(self) -> ReasoningReplayPipeline:
         """
         Get reasoning replay pipeline instance (lazy initialization).
-        
+
         Returns:
             ReasoningReplayPipeline instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._reasoning_replay is not None:
             logger.debug("reasoning_replay already loaded")
             return self._reasoning_replay
-        
+
         logger.info("Initializing reasoning_replay...")
         self._reasoning_replay = ReasoningReplayPipeline(repository=self._repository)
         logger.info("reasoning_replay loaded successfully")
@@ -870,20 +878,20 @@ class MemorySubstrateService:
     def get_consolidation(self, dry_run: bool = False) -> ConsolidationPipeline:
         """
         Get consolidation pipeline instance (lazy initialization).
-        
+
         Args:
             dry_run: If True, consolidation runs in dry-run mode
-            
+
         Returns:
             ConsolidationPipeline instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._consolidation is not None:
             logger.debug("consolidation already loaded")
             return self._consolidation
-        
+
         logger.info("Initializing consolidation...", dry_run=dry_run)
         self._consolidation = ConsolidationPipeline(
             repository=self._repository,
@@ -895,17 +903,17 @@ class MemorySubstrateService:
     def get_agent_persistence(self) -> AgentPersistenceService:
         """
         Get agent persistence service instance (lazy initialization).
-        
+
         Returns:
             AgentPersistenceService instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._agent_persistence is not None:
             logger.debug("agent_persistence already loaded")
             return self._agent_persistence
-        
+
         logger.info("Initializing agent_persistence...")
         self._agent_persistence = AgentPersistenceService(
             service=self,
@@ -917,21 +925,21 @@ class MemorySubstrateService:
     def get_retention_engine(self) -> RetentionEngine:
         """
         Get retention engine instance (lazy initialization).
-        
+
         The retention engine is wired with:
         - persistence: From get_agent_persistence()
         - repository: Direct reference to _repository
-        
+
         Returns:
             RetentionEngine instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._retention_engine is not None:
             logger.debug("retention_engine already loaded")
             return self._retention_engine
-        
+
         logger.info("Initializing retention_engine...")
         persistence = self.get_agent_persistence()
         self._retention_engine = RetentionEngine(
@@ -948,33 +956,34 @@ class MemorySubstrateService:
     async def get_saga_executor(self) -> SagaExecutor:
         """
         Get saga executor instance (lazy initialization).
-        
+
         The executor is wired with:
         - postgres_pool: From repository
         - semantic_service: For vector search steps
         - neo4j_client: From graph_client (if available)
-        
+
         Returns:
             SagaExecutor instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._saga_executor is not None:
             logger.debug("saga_executor already loaded")
             return self._saga_executor
-        
+
         logger.info("Initializing saga_executor...")
-        
+
         # Get Neo4j client if available (optional dependency)
         neo4j_client = None
         try:
             from memory.graph_client import get_graph_client
+
             neo4j_client = get_graph_client()
             logger.debug("Neo4j client available for saga")
         except Exception as e:
             logger.debug(f"Neo4j client not available for saga: {e}")
-        
+
         self._saga_executor = SagaExecutor(
             postgres_pool=self._repository._pool,
             neo4j_client=neo4j_client,
@@ -986,22 +995,22 @@ class MemorySubstrateService:
     async def get_saga_patterns(self) -> SagaPatterns:
         """
         Get saga patterns instance (lazy initialization).
-        
+
         Provides high-level API for pre-built sagas:
         - fetch_and_enrich: Vector search → Entity extraction → Graph enrichment
         - enrich_entities: Entity lookup → Relationship discovery
         - correlate_timeline: Event timeline → Causal chain analysis
-        
+
         Returns:
             SagaPatterns instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._saga_patterns is not None:
             logger.debug("saga_patterns already loaded")
             return self._saga_patterns
-        
+
         logger.info("Initializing saga_patterns...")
         executor = await self.get_saga_executor()
         self._saga_patterns = SagaPatterns(executor)
@@ -1016,18 +1025,18 @@ class MemorySubstrateService:
     ) -> SagaResult:
         """
         Execute fetch_and_enrich saga: Vector search → Entity extraction → Graph enrichment.
-        
+
         This is the canonical cross-DB search pattern that:
         1. Searches vectors in Postgres for semantically similar content
         2. Extracts entity IDs from results (UUIDs, GMPs, file paths)
         3. Enriches with Neo4j graph relationships (if available)
         4. Returns combined result
-        
+
         Args:
             query: Search query
             limit: Max vector results
             min_similarity: Minimum similarity threshold
-            
+
         Returns:
             SagaResult with combined vector + graph data
         """
@@ -1045,13 +1054,13 @@ class MemorySubstrateService:
     ) -> SagaResult:
         """
         Execute entity enrichment saga: Entity lookup → Relationship discovery.
-        
+
         For when you already have entity IDs and want graph context.
-        
+
         Args:
             entity_ids: List of entity IDs to enrich
             entity_type: Node label type (e.g., "User", "Agent", "GMP")
-            
+
         Returns:
             SagaResult with entity data and relationships
         """
@@ -1070,15 +1079,15 @@ class MemorySubstrateService:
     ) -> SagaResult:
         """
         Execute timeline correlation saga: Event timeline → Causal chain analysis.
-        
+
         For analyzing event sequences and causal chains in Neo4j.
-        
+
         Args:
             start_time: ISO timestamp start
             end_time: ISO timestamp end
             event_type: Filter by event type
             limit: Max events
-            
+
         Returns:
             SagaResult with events and causal chains
         """

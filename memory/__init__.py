@@ -178,6 +178,25 @@ from memory.retention_engine import (
     RetentionResult,
 )
 
+# Checkpoint Validator (GMP-PERSIST: Integrity validation)
+from memory.checkpoint_validator import (
+    CheckpointValidator,
+    SchemaVersion,
+)
+
+# Checkpoint Metrics (GMP-PERSIST: Prometheus observability)
+from memory.checkpoint_metrics import (
+    CheckpointMetrics,
+    get_metrics as get_checkpoint_metrics,
+    PROMETHEUS_AVAILABLE as CHECKPOINT_PROMETHEUS_AVAILABLE,
+)
+
+# Cross-Substrate Alignment (GMP-78)
+from memory.substrate_alignment import (
+    AlignmentReport,
+    SubstrateAlignmentChecker,
+)
+
 # Conversational Graph Memory (GMP-58)
 from memory.graph_memory import (
     ConversationGraphMemory,
@@ -289,6 +308,15 @@ __all__ = [
     "RetentionEngine",
     "RetentionPolicy",
     "RetentionResult",
+    # Cross-Substrate Alignment (GMP-78)
+    "AlignmentReport",
+    "SubstrateAlignmentChecker",
+    # Checkpoint Validator + Metrics (GMP-PERSIST)
+    "CheckpointValidator",
+    "SchemaVersion",
+    "CheckpointMetrics",
+    "get_checkpoint_metrics",
+    "CHECKPOINT_PROMETHEUS_AVAILABLE",
     # NOTE: These are available via direct import to avoid circular deps:
     # from memory.substrate_repository import SubstrateRepository, ...
     # from memory.substrate_dag import SubstrateDAG, ...

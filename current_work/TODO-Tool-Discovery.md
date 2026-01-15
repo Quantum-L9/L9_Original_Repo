@@ -125,4 +125,3 @@ Dynamic selection becomes dangerous if the agent generates raw SQL/Cypher (Text2
 * **Schema Exposure:** If you must use dynamic generation, provide the agent with a "dynamic schema fetcher" tool so it can inspect the table/label names before writing the query.
 
 #To deploy an autonomous agent using **PostgreSQL** and **Neo4j** right now, you should focus on bridging the "Relational-Graph Divide." The goal is to let the agent treat Postgres as your "Memory & Facts" engine and Neo4j as your "Context & Connection" engine.
-

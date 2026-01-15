@@ -39,10 +39,18 @@ try:
     )
 except ImportError:
     # Stub functions when telemetry not available
-    def record_slack_request(*args, **kwargs): pass
-    def record_signature_verification(*args, **kwargs): pass
-    def record_slack_processing(*args, **kwargs): pass
-    def record_rate_limit_hit(*args, **kwargs): pass
+    def record_slack_request(*args, **kwargs):
+        pass
+
+    def record_signature_verification(*args, **kwargs):
+        pass
+
+    def record_slack_processing(*args, **kwargs):
+        pass
+
+    def record_rate_limit_hit(*args, **kwargs):
+        pass
+
 
 logger = structlog.get_logger(__name__)
 
@@ -149,7 +157,11 @@ async def slack_events(
     if payload.get("type") == "url_verification":
         challenge = payload.get("challenge", "")
         logger.info("slack_url_verification_challenge", challenge=challenge[:20])
-        record_slack_processing(event_type="url_verification", duration_seconds=current_time() - start_time, status="success")
+        record_slack_processing(
+            event_type="url_verification",
+            duration_seconds=current_time() - start_time,
+            status="success",
+        )
         return {"challenge": challenge}
 
     # Rate limit check (100 events per minute per team)
@@ -217,10 +229,12 @@ async def slack_events(
 
     # Route to handler
     try:
-        # Inject dependencies
-        substrate_service = request.app.state.substrate_service
-        slack_client = request.app.state.slack_client
-        aios_base_url = request.app.state.aios_base_url
+        # Inject dependencies (use getattr for graceful degradation if not initialized)
+        substrate_service = getattr(request.app.state, "substrate_service", None)
+        slack_client = getattr(request.app.state, "slack_client", None)
+        aios_base_url = getattr(
+            request.app.state, "aios_base_url", "http://localhost:8000"
+        )
 
         result = await handle_slack_events(
             request_body=request_body,
@@ -348,10 +362,10 @@ async def slack_commands(
         except Exception as e:
             logger.warning("slack_command_rate_limit_check_failed", error=str(e))
 
-    # Inject dependencies
-    substrate_service = request.app.state.substrate_service
-    slack_client = request.app.state.slack_client
-    aios_base_url = request.app.state.aios_base_url
+    # Inject dependencies (use getattr for graceful degradation if not initialized)
+    substrate_service = getattr(request.app.state, "substrate_service", None)
+    slack_client = getattr(request.app.state, "slack_client", None)
+    aios_base_url = getattr(request.app.state, "aios_base_url", "http://localhost:8000")
 
     # Return 200 ACK immediately (Slack requires response < 3 seconds)
     # Then process async in background
