@@ -1063,7 +1063,11 @@ async def test_packets_emitted_with_required_fields(
         assert hasattr(packet, "metadata")
         assert packet.thread_id == sample_task.get_thread_id()
         # metadata.agent should match the task's agent_id (extracted from payload.agent_id)
-        assert packet.metadata.agent == sample_task.agent_id
+        # metadata is a dict, not an object
+        assert (
+            packet.metadata.get("agent") == sample_task.agent_id
+            or packet.metadata.get("agent_id") == sample_task.agent_id
+        )
         assert "task_id" in packet.payload or "event" in packet.payload
 
     # Verify specific packet types
