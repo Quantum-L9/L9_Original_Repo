@@ -92,7 +92,8 @@ async def lifespan(app: FastAPI):
         )
         app.state.substrate_service = None
 
-    app.state.rate_limiter = RateLimiter(
+    # Use mcp_rate_limiter to avoid collision with runtime.rate_limiter in api/server.py
+    app.state.mcp_rate_limiter = RateLimiter(
         request_limit=RATE_LIMIT_REQUESTS,
         request_window_seconds=RATE_LIMIT_WINDOW,
         failed_auth_limit=FAILED_AUTH_LIMIT,
@@ -166,7 +167,9 @@ async def verify_api_key(
     """
     ip = get_client_ip(request)
 
-    rate_limiter = getattr(request.app.state, "rate_limiter", None)
+    # Use mcp_rate_limiter to avoid collision with runtime.rate_limiter in api/server.py
+    # The runtime.RateLimiter has different API (no is_auth_blocked method)
+    rate_limiter = getattr(request.app.state, "mcp_rate_limiter", None)
     if rate_limiter is None:
         rate_limiter = RateLimiter(
             request_limit=RATE_LIMIT_REQUESTS,
@@ -174,7 +177,7 @@ async def verify_api_key(
             failed_auth_limit=FAILED_AUTH_LIMIT,
             failed_auth_block_seconds=FAILED_AUTH_BLOCK_SECONDS,
         )
-        request.app.state.rate_limiter = rate_limiter
+        request.app.state.mcp_rate_limiter = rate_limiter
 
     # Check if IP is blocked
     if await rate_limiter.is_auth_blocked(ip):
