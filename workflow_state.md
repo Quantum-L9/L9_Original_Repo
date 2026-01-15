@@ -46,6 +46,7 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-14] **MCP Memory E2E Fix** — Fixed HTTP 500 in `/mcp/call` search_memory. Added JSON codecs (`_init_json_codecs()`) to all 4 asyncpg pools: `mcp_memory/src/db.py`, `memory/substrate_repository.py`, `memory/migration_runner.py`, `world_model/repository.py`. Fixed client key mismatch (results→memories). Fixed unique_users to count by caller (L/C) not shared user_id. Commits: 516f32c1, ed88cf26, a2bda4f4.
 - [2026-01-13] **Symbolic Compose Env Hardening (GMP-76)** — Updated `services/symbolic_computation/docker-compose.yml` to use `POSTGRES_DB=l9_memory` and `POSTGRES_USER=postgres`; removed hardcoded `POSTGRES_PASSWORD` and `NEO4J_AUTH`. Validation: `py_compile` failed due to invalid files in `current_work/`, `ruff check` not installed. Report: `reports/Report_GMP-76-Symbolic-Compose-Env.md`.
 - [2026-01-13] **Memory Graph Cleanup (GMP-73)** — Deleted 2 trash embeddings containing error messages ("Sorry, I encountered a temporary error") from VPS PostgreSQL. Before: 14,773 embeddings → After: 14,771. Preserved 1 LESSON embedding documenting GMP-42 fix (false positive in detection). Cleanup scripts verified: `scripts/memory/generate_delete_sql.py`, `scripts/memory/cleanup_trash_embeddings_via_api.py`.
 - [2026-01-13] **Git Hooks Integration (GMP-72)** — Extracted 4 production-ready git hooks via `/harvest`: pre-commit (secret scanning, ruff format/lint, mypy, forbidden patterns), post-merge (8 checks: env sync, deps, migrations, docker, kernels, audit cache, pre-commit config, repo index), pre-push (smoke tests, large file blocker, schema validation). Installed to `.git/hooks/`. `reports/GMP_Report_GMP-72-Git-Hooks-Integration.md`
@@ -69,6 +70,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Decision Log (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-14] Applied JSON codecs to ALL asyncpg pools (not just MCP) to prevent JSONB decode issues across entire codebase. Changed unique_users to count by `caller` (L or C) instead of shared `user_id`.
 - [2026-01-13] Removed hardcoded DB/Neo4j passwords from `services/symbolic_computation/docker-compose.yml` and aligned DB defaults with L9 stack.
 - [2026-01-08] Auto-Discovery Tool Capabilities (GMP-44)
 - [2026-01-08] Two-Phase Kernel Activation
@@ -104,22 +106,24 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Memory Client**: `agents/cursor/cursor_memory_client.py` (moved from `.cursor-commands/cursor-memory/`)
 - **Memory API Keys**: `MCP_API_KEY_C` for Cursor, `MCP_API_KEY_L` for L-CTO (NOT `L9_EXECUTOR_API_KEY`)
 - **Memory scopes**: shared (both), cursor (Cursor→L read), l-private (L only)
-- **Direct API**: `/api/v1/memory/packet` WORKS ✅ | MCP `/mcp/call` has schema conflicts ❌
+- **Direct API**: `/api/v1/memory/packet` WORKS ✅ | MCP `/mcp/call` WORKS ✅ (JSON codec fix applied)
 - **Slack credentials**: Already in VPS `.env` ✅ (SLACK_APP_ENABLED=true)
 - **Slack code**: `api/routes/slack.py` → `memory/slack_ingest.py` ✅ (handle_slack_with_l_agent ported)
 - **Missing for Slack DMs**: Set `L9_ENABLE_LEGACY_SLACK_ROUTER=false`, add `message.im` subscription in Slack App
 - **Cloudflare**: All DNS for quantumaipartners.com proxied via Cloudflare (HTTPS, DDoS protection)
 
 ---
-*Last updated: 2026-01-14 (Agent Persistence + Silent Failure Audit)*
+*Last updated: 2026-01-14 (MCP Memory E2E Fix)*
 
 ## Next Steps (Current Session)
-1. **Fix MCP `/mcp/call` endpoint** — Schema conflict (`PacketMetadata got multiple values for 'agent'`) and DB pool not initialized
+1. ~~**Fix MCP `/mcp/call` endpoint**~~ ✅ DONE — JSON codec fix applied to all asyncpg pools
 2. **Test git hooks** - Stage a Python file, commit, verify pre-commit runs
 3. **Install gitleaks** - `brew install gitleaks` for full secret scanning
 4. **GMP-61: Capability Gating** - Enforce tool visibility by capability level (deferred from GMP-60)
+5. **Fix local Docker OpenAI key** — Local stack has invalid OPENAI_API_KEY (401 errors)
 
 **Recent Sessions (7-day window):**
+- ✅ 2026-01-14: **MCP Memory E2E Fix** — Fixed HTTP 500 "'str' object has no attribute 'get'" error in search_memory. Root cause: asyncpg pools missing JSON codecs for JSONB columns. Applied `_init_json_codecs()` to 4 files: `mcp_memory/src/db.py`, `memory/substrate_repository.py`, `memory/migration_runner.py`, `world_model/repository.py`. Also fixed: client key mismatch (results vs memories), unique_users count (now counts by caller L/C instead of shared user_id). E2E test: health ✅, write ✅, search ✅. Commits: 516f32c1, ed88cf26, a2bda4f4.
 - 2026-01-13: **GMP-76 Symbolic Compose Env Hardening** — Updated DB/user env vars, removed hardcoded passwords; validation gates failed (`py_compile`, `ruff` missing). Report: `reports/Report_GMP-76-Symbolic-Compose-Env.md`.
 - 2026-01-14: **Agent Persistence + Silent Failure Audit** — GMP-74: Created `memory/retention_engine.py` (checkpoint auto-cleanup), wired to `substrate_service.py`. Verified all 5 integration points (executor, server startup/shutdown, ingestion, approval_manager) are ACTIVE. Fixed 7 silent failures in `substrate_service.py` getters (now fail LOUD with logging). GMP-75: Fixed `runtime/kernel_loader.py` YAML parse errors (now raise RuntimeError instead of returning None). Lesson: `Optional[X] = None` + `try/except return None` is silent failure anti-pattern.
 - 2026-01-13: **MCP Memory Client Integration** — Moved `cursor-memory/` → `agents/cursor/`. Fixed API key (now uses `MCP_API_KEY_C` not `L9_EXECUTOR_API_KEY`). Updated `/gmp` command with mandatory canonical load from `codegen/C-GMP Suite/canonical/`. E2E test: Direct API (`/api/v1/memory/packet`) works ✅, MCP endpoint (`/mcp/call`) has schema conflicts ❌. Updated `mem.md` command + rules to use new paths.
