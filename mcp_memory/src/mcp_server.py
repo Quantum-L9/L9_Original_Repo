@@ -5,6 +5,7 @@ MCP (Model Context Protocol) Server Implementation.
 import structlog
 from typing import Any, Dict, List
 from pydantic import BaseModel, ValidationError
+from src.config import settings
 
 logger = structlog.get_logger(__name__)
 
