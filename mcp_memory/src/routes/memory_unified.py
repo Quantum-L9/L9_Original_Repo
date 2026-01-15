@@ -17,7 +17,7 @@ import uuid
 import asyncpg
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException, Query, Request, Depends
+from fastapi import APIRouter, HTTPException, Query, Request
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -27,6 +27,7 @@ import asyncio
 from src.db import fetch_all, fetch_one, execute
 from src.embeddings import embed_text
 from src.config import settings
+from memory.governance_gate import require_governance_context
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
@@ -108,6 +109,13 @@ async def save_memory_handler(
         source: "l9-kernel" or "cursor-ide" (server-enforced)
         substrate_service: Optional MemorySubstrateService instance
     """
+    # GMP-68: Governance enforcement
+    ctx = require_governance_context("mcp_memory.save_memory")
+    if scope != ctx.scope:
+        raise HTTPException(
+            status_code=403, detail=f"Scope '{scope}' not authorized for this context"
+        )
+
     pipeline_error = None
 
     # Tier 1: Full pipeline (preferred path)
@@ -195,7 +203,7 @@ async def _save_via_main_pipeline(
     substrate_service: Any,
 ) -> Dict[str, Any]:
     """Save memory via main L9 ingestion pipeline (full DAG)."""
-    from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+    from core.schemas import PacketEnvelopeIn, PacketProvenance
     from datetime import timedelta
 
     # Map MCP scope to DB scope
@@ -490,130 +498,69 @@ async def search_memory_handler(
         query_embedding_str = f"[{','.join(str(v) for v in query_embedding)}]"
 
         # Map MCP scopes to DB scopes
+        # Also include 'shared' for backward compatibility with legacy data
         db_scopes = [
             map_mcp_scope_to_db_scope(s) for s in (scopes or ["developer", "global"])
         ]
+        # IMPORTANT: Include 'shared' scope when 'developer' is requested (legacy data)
+        if "developer" in db_scopes and "shared" not in db_scopes:
+            db_scopes.append("shared")
 
         search_start = time.time()
 
-        # Build WHERE clause for scope filtering
-        scope_filter = ""
+        # Simplified search using semantic_memory (MCP Direct path)
+        # NOTE: Changed from memory_embeddings to semantic_memory (where MCP writes go)
+        # semantic_memory.payload contains: packet_id, packet_type, _text, source_payload
+        #
+        # Params: $1=vector, $2=threshold, $3=limit, $4+=scopes
         params = [query_embedding_str, threshold, top_k]
-        param_idx = 4
 
-        if db_scopes:
-            scope_placeholders = ", ".join(
-                [f"${i}" for i in range(param_idx, param_idx + len(db_scopes))]
-            )
-            scope_filter = f"AND ps.scope IN ({scope_placeholders})"
-            params.extend(db_scopes)
-            param_idx += len(db_scopes)
+        # Build scope filter for semantic_memory
+        scope_placeholders = ", ".join([f"${i}" for i in range(4, 4 + len(db_scopes))])
+        params.extend(db_scopes)
 
-        # Build WHERE clause for kind filtering (from envelope payload)
-        # SECURITY: Use parameterized queries to prevent SQL injection
-        kind_filter = ""
-        if kinds:
-            # Filter by packet_type (contains kind) or envelope->>'payload'->>'kind'
-            # Use parameterized query for safety
-            kind_placeholders = ", ".join(
-                [f"${i}" for i in range(param_idx, param_idx + len(kinds))]
-            )
-            kind_conditions = []
-            for i, kind in enumerate(kinds):
-                kind_conditions.append(
-                    f"ps.packet_type LIKE '%' || ${param_idx + i} || '%'"
-                )
-            kind_filter = f"AND ({' OR '.join(kind_conditions)})"
-            params.extend(kinds)
-            param_idx += len(kinds)
-
-        # Build WHERE clause for duration (TTL-based)
-        duration_filter = ""
-        if duration == "short":
-            duration_filter = "AND ps.ttl > CURRENT_TIMESTAMP AND ps.ttl < CURRENT_TIMESTAMP + INTERVAL '24 hours'"
-        elif duration == "medium":
-            duration_filter = "AND ps.ttl > CURRENT_TIMESTAMP AND ps.ttl < CURRENT_TIMESTAMP + INTERVAL '7 days'"
-        elif duration == "long":
-            duration_filter = (
-                "AND (ps.ttl IS NULL OR ps.ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')"
-            )
-        # "all" = no duration filter
-
-        # GOVERNANCE: Project isolation filter using COALESCE for backward compatibility
-        # Legacy packets without project_id default to 'l9'
-        project_filter = (
-            f"AND COALESCE(ps.envelope->'metadata'->>'project_id', 'l9') = ${param_idx}"
-        )
-        params.append(project_id)
-        param_idx += 1
-
-        # Governance hardened: SQL-level scope + project enforcement
-        # Vector similarity search with packet_store join
-        # Enforce scope and project filtering in SQL (defense in depth)
         search_query = f"""
         SELECT 
-            ps.packet_id,
-            ps.packet_type,
-            ps.envelope,
-            ps.scope as db_scope,
-            ps.timestamp,
-            ps.importance_score,
-            ps.tags,
-            me.embedding_id,
-            me.chunk_text,
-            1 - (me.vector <-> $1::vector) as similarity
-        FROM memory_embeddings me
-        INNER JOIN packet_store ps ON me.packet_id = ps.packet_id
-        WHERE me.embedding_type = 'content'
-        {scope_filter}
-        {project_filter}
-        {kind_filter}
-        {duration_filter}
-        AND 1 - (me.vector <-> $1::vector) >= $2
+            sm.embedding_id,
+            sm.payload->>'packet_id' as packet_id,
+            sm.payload->>'packet_type' as packet_type,
+            sm.payload->'source_payload'->>'kind' as kind,
+            COALESCE(sm.payload->>'_text', sm.payload->'source_payload'->>'content') as chunk_text,
+            sm.scope as db_scope,
+            sm.created_at as timestamp,
+            sm.importance_score,
+            1 - (sm.vector <=> $1::vector) as similarity
+        FROM semantic_memory sm
+        WHERE sm.vector IS NOT NULL
+        AND sm.scope IN ({scope_placeholders})
+        AND 1 - (sm.vector <=> $1::vector) >= $2
         ORDER BY similarity DESC
         LIMIT $3;
         """
 
         rows = await fetch_all(search_query, *params)
 
-        # Update access tracking (explicit opt-in)
-        if track_access and rows:
-            packet_ids = [r["packet_id"] for r in rows]
-            await execute(
-                """
-                UPDATE packet_store 
-                SET access_count = access_count + 1,
-                    last_accessed = CURRENT_TIMESTAMP
-                WHERE packet_id = ANY($1::uuid[]);
-                """,
-                packet_ids,
-            )
-
-        # Format results
+        # Format results (simplified for semantic_memory query)
         results = []
         for row in rows:
-            envelope = row["envelope"]
-            # Defensive: Handle case where envelope is returned as string (missing JSON codec)
-            if isinstance(envelope, str):
-                try:
-                    envelope = json.loads(envelope)
-                except json.JSONDecodeError:
-                    envelope = {}
-            payload = envelope.get("payload", {}) if isinstance(envelope, dict) else {}
-            mcp_scope = map_db_scope_to_mcp_scope(row["db_scope"])
+            mcp_scope = (
+                map_db_scope_to_mcp_scope(row["db_scope"])
+                if row["db_scope"]
+                else "developer"
+            )
 
             results.append(
                 {
-                    "packet_id": str(row["packet_id"]),
+                    "packet_id": str(row["packet_id"]) if row["packet_id"] else None,
                     "embedding_id": str(row["embedding_id"]),
-                    "content": payload.get("content", row.get("chunk_text", "")),
-                    "kind": payload.get("kind", "unknown"),
+                    "content": row.get("chunk_text", ""),
+                    "kind": row.get("kind", "unknown"),
                     "scope": mcp_scope,
                     "similarity": float(row["similarity"]),
                     "importance": float(row["importance_score"])
                     if row["importance_score"]
                     else 0.5,
-                    "tags": row["tags"] or [],
+                    "tags": [],  # semantic_memory doesn't have tags
                     "created_at": row["timestamp"].isoformat()
                     if isinstance(row["timestamp"], datetime)
                     else str(row["timestamp"]),
