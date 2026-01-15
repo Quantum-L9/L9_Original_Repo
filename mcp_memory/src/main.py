@@ -61,13 +61,49 @@ async def lifespan(app: FastAPI):
     await init_db()
     logger.info("✓ Database initialized")
 
+    # ========================================================================
+    # Run database migrations BEFORE initializing services
+    # This ensures all tables exist regardless of which container starts first
+    # ========================================================================
+    import os
+
+    database_url = settings.MEMORY_DSN or os.getenv("DATABASE_URL")
+
+    if database_url:
+        try:
+            from memory.migration_runner import run_migrations
+
+            logger.info("Running database migrations...")
+            migration_result = await run_migrations(database_url)
+            logger.info(
+                "Migrations complete",
+                applied=migration_result["applied"],
+                skipped=migration_result["skipped"],
+                errors=migration_result["errors"],
+            )
+            if migration_result["errors"]:
+                logger.error(
+                    "Migration errors occurred",
+                    error_details=migration_result["error_details"],
+                )
+        except Exception as e:
+            logger.error(
+                "Failed to run migrations",
+                error=str(e),
+                error_type=type(e).__name__,
+            )
+            # Continue startup - migrations may have been run by l9-api already
+    else:
+        logger.warning(
+            "MEMORY_DSN not set. Skipping migrations. "
+            "Set MEMORY_DSN to enable automatic migrations."
+        )
+
     # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
     logger.info("Initializing L9 Memory Substrate Service...")
     try:
         from memory.substrate_service import init_service
-        import os
 
-        database_url = settings.MEMORY_DSN or os.getenv("DATABASE_URL")
         if not database_url:
             logger.warning(
                 "MEMORY_DSN not set. MCP memory will use direct DB access. "

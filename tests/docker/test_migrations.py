@@ -31,12 +31,17 @@ class TestMigrationFileStructure:
         )
 
     def test_migrations_have_sql_extension(self):
-        """All migration files should have .sql extension."""
+        """All migration files should have .sql extension (excludes docs like README)."""
         if not MIGRATIONS_DIR.exists():
             pytest.skip("Migrations directory not found")
 
+        # Allowed non-SQL files in migrations directory
+        allowed_non_sql = {"README.md", "SCHEMA_DIAGRAM.txt"}
+
         for file in MIGRATIONS_DIR.iterdir():
             if file.is_file() and not file.name.startswith("."):
+                if file.name in allowed_non_sql:
+                    continue  # Documentation files are allowed
                 assert file.suffix == ".sql", (
                     f"Migration file has wrong extension: {file.name} (expected .sql)"
                 )
