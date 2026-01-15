@@ -4,6 +4,7 @@ Virtual Context Management
 Harvested from: L9-Implementation-Suite-Ready-to-Deploy.md
 Purpose: MemGPT-style virtual context with automatic tier management.
 """
+
 from __future__ import annotations
 
 from typing import List, Optional, Any, TYPE_CHECKING
@@ -21,14 +22,16 @@ logger = structlog.get_logger(__name__)
 
 class MemoryTier(Enum):
     """Memory organization tiers (like OS virtual memory)"""
-    MAIN_CONTEXT = "main"          # Always loaded (system + recent)
-    WORKING_MEMORY = "working"     # Current task context
-    ARCHIVAL_MEMORY = "archival"   # Long-term storage (on-demand)
+
+    MAIN_CONTEXT = "main"  # Always loaded (system + recent)
+    WORKING_MEMORY = "working"  # Current task context
+    ARCHIVAL_MEMORY = "archival"  # Long-term storage (on-demand)
 
 
 @dataclass
 class Memory:
     """Single memory chunk"""
+
     id: str
     agent_id: str
     content: str
@@ -42,6 +45,7 @@ class Memory:
 @dataclass
 class Context:
     """Agent execution context (main + working loaded, archival on-demand)"""
+
     agent_id: str
     task_id: str
     main_context: List[Memory]
@@ -51,7 +55,7 @@ class Context:
 
 class VirtualContextManager:
     """MemGPT-style virtual context with automatic tier management"""
-    
+
     def __init__(
         self,
         substrate_service: "MemorySubstrateService",
@@ -71,14 +75,14 @@ class VirtualContextManager:
             "evictions": 0,
             "consolidations": 0,
         }
-    
+
     async def load_context(
         self,
         agent_id: str,
         task_id: str,
     ) -> Context:
         """Load context for agent execution (main + working only)"""
-        
+
         try:
             # Load main context (system instructions + recent memories)
             main_context = await self._load_tier(
@@ -86,7 +90,7 @@ class VirtualContextManager:
                 MemoryTier.MAIN_CONTEXT,
                 limit=self.main_context_size // 50,
             )
-            
+
             # Load working memory (current task context)
             working_memory = await self._load_tier(
                 agent_id,
@@ -94,7 +98,7 @@ class VirtualContextManager:
                 limit=self.working_memory_size // 50,
                 task_id=task_id,
             )
-            
+
             context = Context(
                 agent_id=agent_id,
                 task_id=task_id,
@@ -102,7 +106,7 @@ class VirtualContextManager:
                 working_memory=working_memory,
                 archival_memory=None,
             )
-            
+
             self.metrics["contexts_loaded"] += 1
             logger.info(
                 "Loaded context",
@@ -111,11 +115,11 @@ class VirtualContextManager:
                 working_count=len(working_memory),
             )
             return context
-        
+
         except Exception as e:
             logger.error("Failed to load context", error=str(e))
             raise
-    
+
     async def page_fault_handler(
         self,
         agent_id: str,
@@ -123,9 +127,9 @@ class VirtualContextManager:
         limit: int = 10,
     ) -> List[Memory]:
         """Retrieve from archival when agent needs it (like OS page fault)"""
-        
+
         try:
-            if hasattr(self.substrate, 'memory_search'):
+            if hasattr(self.substrate, "memory_search"):
                 results = await self.substrate.memory_search(
                     agent_id=agent_id,
                     query=query,
@@ -133,7 +137,7 @@ class VirtualContextManager:
                 )
             else:
                 results = []
-            
+
             self.metrics["page_faults"] += 1
             logger.info(
                 "Page fault resolved",
@@ -141,11 +145,11 @@ class VirtualContextManager:
                 results=len(results) if results else 0,
             )
             return results or []
-        
+
         except Exception as e:
             logger.error("Page fault error", error=str(e))
             return []
-    
+
     async def evict_to_archival(
         self,
         agent_id: str,
@@ -153,37 +157,37 @@ class VirtualContextManager:
         strategy: str = "lru",
     ) -> None:
         """Move old memories to archival tier"""
-        
+
         try:
             if strategy == "lru":
                 await self._evict_lru(context)
-            
+
             self.metrics["evictions"] += 1
-        
+
         except Exception as e:
             logger.error("Eviction error", error=str(e))
-    
+
     async def _evict_lru(self, context: Context) -> None:
         """Simple LRU: move oldest 50% to archival"""
-        
+
         memories_by_age = sorted(
             context.main_context,
             key=lambda m: m.created_at,
             reverse=True,
         )
-        
+
         cutoff = len(memories_by_age) // 2
         to_archive = memories_by_age[cutoff:]
-        
+
         for memory in to_archive:
-            if hasattr(self.substrate, 'update_memory_tier'):
+            if hasattr(self.substrate, "update_memory_tier"):
                 await self.substrate.update_memory_tier(
                     memory_id=memory.id,
                     new_tier=MemoryTier.ARCHIVAL_MEMORY,
                 )
-        
+
         logger.info("LRU eviction complete", archived=len(to_archive))
-    
+
     async def _load_tier(
         self,
         agent_id: str,
@@ -192,20 +196,20 @@ class VirtualContextManager:
         task_id: Optional[str] = None,
     ) -> List[Memory]:
         """Load memories from specific tier"""
-        
+
         try:
-            if hasattr(self.substrate, 'memory_search'):
+            if hasattr(self.substrate, "memory_search"):
                 results = await self.substrate.memory_search(
                     agent_id=agent_id,
                     limit=limit,
                 )
                 return results or []
             return []
-        
+
         except Exception as e:
             logger.error("Failed to load tier", tier=tier.value, error=str(e))
             return []
-    
+
     def get_metrics(self) -> dict:
         """Get virtual context metrics"""
         return self.metrics
@@ -213,92 +217,109 @@ class VirtualContextManager:
 
 class MemoryConsolidationService:
     """Automatic memory consolidation"""
-    
+
     def __init__(
         self,
         substrate_service: "MemorySubstrateService",
         llm_service: Any = None,
+        neo4j_driver: Any = None,
     ):
         self.substrate = substrate_service
         self.llm = llm_service
+        self.neo4j_driver = neo4j_driver
         self.metrics = {
             "facts_extracted": 0,
             "consolidations": 0,
         }
-    
+
     async def consolidate(
         self,
         agent_id: str,
         conversation_text: str,
     ) -> None:
         """Extract and consolidate memories from conversation"""
-        
+
         try:
             # Simple extraction without LLM for now
             facts = self._simple_extract(conversation_text)
             self.metrics["facts_extracted"] += len(facts)
-            
+
             # Store facts
-            if hasattr(self.substrate, 'write_memories'):
+            if hasattr(self.substrate, "write_memories"):
                 await self.substrate.write_memories(agent_id, facts)
-            
+
             self.metrics["consolidations"] += 1
             logger.info(
                 "Consolidation complete",
                 agent_id=agent_id,
                 facts=len(facts),
             )
-        
+
         except Exception as e:
             logger.error("Consolidation error", error=str(e))
-    
+
     def _simple_extract(self, text: str) -> List[str]:
         """Simple fact extraction (sentences with key patterns)"""
-        sentences = text.split('.')
+        sentences = text.split(".")
         facts = []
-        
+
         for sentence in sentences:
             sentence = sentence.strip()
-            if len(sentence) > 20 and any(kw in sentence.lower() for kw in [
-                'is', 'are', 'was', 'were', 'should', 'must', 'will',
-                'prefer', 'want', 'need', 'like', 'use',
-            ]):
+            if len(sentence) > 20 and any(
+                kw in sentence.lower()
+                for kw in [
+                    "is",
+                    "are",
+                    "was",
+                    "were",
+                    "should",
+                    "must",
+                    "will",
+                    "prefer",
+                    "want",
+                    "need",
+                    "like",
+                    "use",
+                ]
+            ):
                 facts.append(sentence)
-        
+
         return facts[:10]  # Limit to top 10
-    
+
     async def consolidate_graph_state(
         self,
         agent_id: str = "L",
     ) -> dict:
         """
         Consolidate graph state into memory (UKG Phase 5).
-        
+
         This method:
         1. Loads agent state from Neo4j Graph State
         2. Creates a snapshot of responsibilities, directives, tools
         3. Stores the snapshot in consolidation output
-        
+
         Args:
             agent_id: Agent to consolidate (default "L")
-            
+
         Returns:
             dict with consolidation results
         """
         try:
             from core.agents.graph_state import AgentGraphLoader
-            
+
             if self.neo4j_driver is None:
                 logger.warning("Neo4j driver not configured for consolidation")
                 return {"status": "NOT_CONFIGURED", "agent_id": agent_id}
-            
+
             loader = AgentGraphLoader(self.neo4j_driver)
-            graph_state = await loader.load(agent_id)  # Returns AgentGraphState dataclass
-            
+            graph_state = await loader.load(
+                agent_id
+            )  # Returns AgentGraphState dataclass
+
             if not graph_state:
                 logger.warning(f"No graph state found for agent {agent_id}")
                 return {"status": "NOT_FOUND", "agent_id": agent_id}
-            
+
             # Create snapshot (graph_state is AgentGraphState dataclass)
             snapshot = {
                 "agent_id": agent_id,
@@ -309,7 +330,7 @@ class MemoryConsolidationService:
                 "designation": graph_state.designation,
                 "status": graph_state.status,
             }
-            
+
             # Store as a consolidation fact
             fact = (
                 f"Agent {agent_id} graph state snapshot: "
@@ -317,35 +338,34 @@ class MemoryConsolidationService:
                 f"{snapshot['tools_count']} tools, "
                 f"responsibilities: {', '.join(snapshot['responsibilities'][:5])}"
             )
-            
-            if hasattr(self.substrate, 'write_memories'):
+
+            if hasattr(self.substrate, "write_memories"):
                 await self.substrate.write_memories(agent_id, [fact])
-            
+
             self.metrics["consolidations"] += 1
             if "graph_state_snapshots" not in self.metrics:
                 self.metrics["graph_state_snapshots"] = 0
             self.metrics["graph_state_snapshots"] += 1
-            
+
             logger.info(
                 "Graph state consolidated",
                 agent_id=agent_id,
                 directives=snapshot["directives_count"],
                 tools=snapshot["tools_count"],
             )
-            
+
             return {
                 "status": "SUCCESS",
                 "snapshot": snapshot,
             }
-            
+
         except ImportError:
             logger.warning("AgentGraphLoader not available for graph consolidation")
             return {"status": "UNAVAILABLE", "agent_id": agent_id}
         except Exception as e:
             logger.error(f"Graph state consolidation failed: {e}", exc_info=True)
             return {"status": "ERROR", "error": str(e)}
-    
+
     def get_metrics(self) -> dict:
         """Get consolidation metrics"""
         return self.metrics
-

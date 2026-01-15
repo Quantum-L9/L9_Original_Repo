@@ -84,6 +84,9 @@ _l9_GHOST_REPO-DON'T USE/
 Module Production/
 igor/
 
+# --- Working files (local only) ---
+current_work/
+
 # Local Docker overrides (machine-specific)
 # docker-compose.yml is now TRACKED (VPS production config with full observability)
 docker-compose.override.yml

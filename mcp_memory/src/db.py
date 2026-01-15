@@ -7,6 +7,7 @@ import json
 import structlog
 from typing import List, Dict, Any, Optional
 from src.config import settings
+from memory.governance_gate import require_governance_context
 
 logger = structlog.get_logger(__name__)
 pool: Optional[asyncpg.Pool] = None
@@ -15,16 +16,10 @@ pool: Optional[asyncpg.Pool] = None
 async def _init_connection(conn: asyncpg.Connection) -> None:
     """Initialize connection with JSON codec for JSONB columns."""
     await conn.set_type_codec(
-        'jsonb',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
     await conn.set_type_codec(
-        'json',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
 
 
@@ -52,6 +47,7 @@ async def close_db():
 async def execute(query: str, *args) -> Any:
     if not pool:
         raise RuntimeError("Database pool not initialized")
+    require_governance_context("mcp_memory.execute")
     async with pool.acquire() as conn:
         return await conn.execute(query, *args)
 
@@ -59,6 +55,7 @@ async def execute(query: str, *args) -> Any:
 async def fetch_one(query: str, *args) -> Optional[Dict[str, Any]]:
     if not pool:
         raise RuntimeError("Database pool not initialized")
+    require_governance_context("mcp_memory.fetch_one")
     async with pool.acquire() as conn:
         row = await conn.fetchrow(query, *args)
         return dict(row) if row else None
@@ -67,6 +64,7 @@ async def fetch_one(query: str, *args) -> Optional[Dict[str, Any]]:
 async def fetch_all(query: str, *args) -> List[Dict[str, Any]]:
     if not pool:
         raise RuntimeError("Database pool not initialized")
+    require_governance_context("mcp_memory.fetch_all")
     async with pool.acquire() as conn:
         rows = await conn.fetch(query, *args)
         return [dict(row) for row in rows]
@@ -75,6 +73,7 @@ async def fetch_all(query: str, *args) -> List[Dict[str, Any]]:
 async def insert_many(query: str, args_list: List[tuple]) -> int:
     if not pool:
         raise RuntimeError("Database pool not initialized")
+    require_governance_context("mcp_memory.insert_many")
     async with pool.acquire() as conn:
         result = await conn.executemany(query, args_list)
     count = int(result.split()[-1]) if result else 0

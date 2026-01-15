@@ -142,12 +142,12 @@ class AuditLogger:
                 logger.error(
                     "Audit DB write failed, attempting fallback",
                     error=str(e),
-                    circuit_state=self.circuit_breaker.get_state().value,
+                    circuit_state=self.circuit_breaker.get_state(),
                 )
         else:
             logger.warning(
                 "Audit circuit breaker open, using fallback",
-                circuit_state=self.circuit_breaker.get_state().value,
+                circuit_state=self.circuit_breaker.get_state(),
             )
 
         # Fallback: Write to local JSONL file
@@ -169,14 +169,14 @@ class AuditLogger:
             # FAIL-CLOSED: Both DB and fallback failed - reject operation
             logger.critical(
                 "AUDIT FAILURE: Both DB and fallback failed - rejecting operation",
-                db_circuit_state=self.circuit_breaker.get_state().value,
+                db_circuit_state=self.circuit_breaker.get_state(),
                 fallback_error=str(fallback_error),
                 fallback_path=str(self.fallback_path),
                 tool_name=tool_name,
             )
             raise RuntimeError(
                 f"Audit logging required but unavailable. "
-                f"DB circuit: {self.circuit_breaker.get_state().value}, "
+                f"DB circuit: {self.circuit_breaker.get_state()}, "
                 f"Fallback error: {fallback_error}"
             )
 

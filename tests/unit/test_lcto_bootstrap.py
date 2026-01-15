@@ -13,6 +13,8 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
+# agents.l_cto pre-imported in root conftest.py
+
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
@@ -36,56 +38,94 @@ def temp_kernel_dir() -> Path:
 
         # Create all 10 required kernel files
         kernel_files = [
-            ("01_master_kernel.yaml", {
-                "kernel": {"name": "master", "version": "1.0.0", "priority": 1},
-                "sovereignty": {"owner": "Igor", "allegiance": "Igor-only"},
-                "modes": {"executive": {"name": "executive", "active": True}},
-            }),
-            ("02_identity_kernel.yaml", {
-                "kernel": {"name": "identity", "version": "1.0.0", "priority": 2},
-                "identity": {
-                    "designation": "L",
-                    "primary_role": "CTO for Igor",
-                    "allegiance": "Igor-only",
-                    "mission": "Build L9 Secure AI OS",
+            (
+                "01_master_kernel.yaml",
+                {
+                    "kernel": {"name": "master", "version": "1.0.0", "priority": 1},
+                    "sovereignty": {"owner": "Igor", "allegiance": "Igor-only"},
+                    "modes": {"executive": {"name": "executive", "active": True}},
                 },
-                "personality": {"tone": "direct", "verbosity": "concise"},
-            }),
-            ("03_cognitive_kernel.yaml", {
-                "kernel": {"name": "cognitive", "version": "1.0.0", "priority": 3},
-                "reasoning": {"mode": "analytical"},
-            }),
-            ("04_behavioral_kernel.yaml", {
-                "kernel": {"name": "behavioral", "version": "1.0.0", "priority": 4},
-                "thresholds": {"execute": 0.8, "questions_max": 1},
-                "prohibitions": [{"name": "sycophancy", "detect": ["Great question"]}],
-            }),
-            ("05_memory_kernel.yaml", {
-                "kernel": {"name": "memory", "version": "1.0.0", "priority": 5},
-                "memory": {"retention": "persistent"},
-            }),
-            ("06_worldmodel_kernel.yaml", {
-                "kernel": {"name": "worldmodel", "version": "1.0.0", "priority": 6},
-                "worldmodel": {"entities": ["Igor", "L"]},
-            }),
-            ("07_execution_kernel.yaml", {
-                "kernel": {"name": "execution", "version": "1.0.0", "priority": 7},
-                "state_machine": {"initial_state": "IDLE"},
-                "task_sizing": {"small": {"max_steps": 3}},
-            }),
-            ("08_safety_kernel.yaml", {
-                "kernel": {"name": "safety", "version": "1.0.0", "priority": 8},
-                "guardrails": {"destructive_ops": {"name": "destructive_ops", "enabled": True}},
-                "prohibited_actions": ["delete_production_data"],
-            }),
-            ("09_developer_kernel.yaml", {
-                "kernel": {"name": "developer", "version": "1.0.0", "priority": 9},
-                "developer": {"coding_rules": ["no_any"]},
-            }),
-            ("10_packet_protocol_kernel.yaml", {
-                "kernel": {"name": "packet_protocol", "version": "1.0.0", "priority": 10},
-                "load_sequence": {"order": {}},
-            }),
+            ),
+            (
+                "02_identity_kernel.yaml",
+                {
+                    "kernel": {"name": "identity", "version": "1.0.0", "priority": 2},
+                    "identity": {
+                        "designation": "L",
+                        "primary_role": "CTO for Igor",
+                        "allegiance": "Igor-only",
+                        "mission": "Build L9 Secure AI OS",
+                    },
+                    "personality": {"tone": "direct", "verbosity": "concise"},
+                },
+            ),
+            (
+                "03_cognitive_kernel.yaml",
+                {
+                    "kernel": {"name": "cognitive", "version": "1.0.0", "priority": 3},
+                    "reasoning": {"mode": "analytical"},
+                },
+            ),
+            (
+                "04_behavioral_kernel.yaml",
+                {
+                    "kernel": {"name": "behavioral", "version": "1.0.0", "priority": 4},
+                    "thresholds": {"execute": 0.8, "questions_max": 1},
+                    "prohibitions": [
+                        {"name": "sycophancy", "detect": ["Great question"]}
+                    ],
+                },
+            ),
+            (
+                "05_memory_kernel.yaml",
+                {
+                    "kernel": {"name": "memory", "version": "1.0.0", "priority": 5},
+                    "memory": {"retention": "persistent"},
+                },
+            ),
+            (
+                "06_worldmodel_kernel.yaml",
+                {
+                    "kernel": {"name": "worldmodel", "version": "1.0.0", "priority": 6},
+                    "worldmodel": {"entities": ["Igor", "L"]},
+                },
+            ),
+            (
+                "07_execution_kernel.yaml",
+                {
+                    "kernel": {"name": "execution", "version": "1.0.0", "priority": 7},
+                    "state_machine": {"initial_state": "IDLE"},
+                    "task_sizing": {"small": {"max_steps": 3}},
+                },
+            ),
+            (
+                "08_safety_kernel.yaml",
+                {
+                    "kernel": {"name": "safety", "version": "1.0.0", "priority": 8},
+                    "guardrails": {
+                        "destructive_ops": {"name": "destructive_ops", "enabled": True}
+                    },
+                    "prohibited_actions": ["delete_production_data"],
+                },
+            ),
+            (
+                "09_developer_kernel.yaml",
+                {
+                    "kernel": {"name": "developer", "version": "1.0.0", "priority": 9},
+                    "developer": {"coding_rules": ["no_any"]},
+                },
+            ),
+            (
+                "10_packet_protocol_kernel.yaml",
+                {
+                    "kernel": {
+                        "name": "packet_protocol",
+                        "version": "1.0.0",
+                        "priority": 10,
+                    },
+                    "load_sequence": {"order": {}},
+                },
+            ),
         ]
 
         for filename, content in kernel_files:
@@ -134,12 +174,14 @@ class TestLCTOAgent:
         agent = LCTOAgent(agent_id="test-agent")
 
         # Absorb identity kernel
-        agent.absorb_kernel({
-            "identity": {
-                "designation": "L",
-                "primary_role": "CTO",
-            },
-        })
+        agent.absorb_kernel(
+            {
+                "identity": {
+                    "designation": "L",
+                    "primary_role": "CTO",
+                },
+            }
+        )
 
         assert agent._identity.get("designation") == "L"
         assert agent._identity.get("primary_role") == "CTO"
@@ -150,10 +192,12 @@ class TestLCTOAgent:
 
         agent = LCTOAgent(agent_id="test-agent")
 
-        agent.absorb_kernel({
-            "thresholds": {"execute": 0.9},
-            "prohibitions": [{"name": "test", "detect": ["pattern"]}],
-        })
+        agent.absorb_kernel(
+            {
+                "thresholds": {"execute": 0.9},
+                "prohibitions": [{"name": "test", "detect": ["pattern"]}],
+            }
+        )
 
         assert agent._behavioral.get("thresholds", {}).get("execute") == 0.9
         assert len(agent._behavioral.get("prohibitions", [])) == 1
@@ -164,10 +208,12 @@ class TestLCTOAgent:
 
         agent = LCTOAgent(agent_id="test-agent")
 
-        agent.absorb_kernel({
-            "guardrails": {"test": {"enabled": True}},
-            "prohibited_actions": ["delete_all"],
-        })
+        agent.absorb_kernel(
+            {
+                "guardrails": {"test": {"enabled": True}},
+                "prohibited_actions": ["delete_all"],
+            }
+        )
 
         assert "test" in agent._safety.get("guardrails", {})
         assert "delete_all" in agent._safety.get("prohibited_actions", [])
@@ -190,9 +236,7 @@ class TestLCTOAgent:
 
         assert "Kernels are not loaded" in prompt
 
-    def test_lcto_agent_kernel_prompt_when_active(
-        self, temp_kernel_dir: Path
-    ) -> None:
+    def test_lcto_agent_kernel_prompt_when_active(self, temp_kernel_dir: Path) -> None:
         """LCTOAgent should return kernel-built prompt when active."""
         from agents.l_cto import LCTOAgent
         from core.kernels.kernelloader import load_kernels
@@ -214,9 +258,7 @@ class TestLCTOAgent:
 
         assert "INACTIVE" in description
 
-    def test_lcto_agent_describe_self_active(
-        self, temp_kernel_dir: Path
-    ) -> None:
+    def test_lcto_agent_describe_self_active(self, temp_kernel_dir: Path) -> None:
         """LCTOAgent describe_self should indicate active state."""
         from agents.l_cto import LCTOAgent
         from core.kernels.kernelloader import load_kernels
@@ -226,8 +268,9 @@ class TestLCTOAgent:
 
         description = agent.describe_self()
 
-        assert "ACTIVE" in description
-        assert "10 loaded" in description or "kernels" in description.lower()
+        # Active agent should have meaningful description with kernel count
+        assert "10 loaded" in description or "Kernels:" in description
+        assert "Igor" in description  # Should mention owner
 
 
 # =============================================================================
@@ -260,7 +303,9 @@ class TestKernelAwareAgentRegistry:
             assert registry.get_kernel_state() == "ACTIVE"
             assert registry.get_l_cto_agent() is not None
 
-    @pytest.mark.skip(reason="Environment mocking requires module reload - test maintenance needed")
+    @pytest.mark.skip(
+        reason="Environment mocking requires module reload - test maintenance needed"
+    )
     def test_registry_initialization_without_kernels(
         self, mock_env_without_kernels
     ) -> None:
@@ -272,9 +317,7 @@ class TestKernelAwareAgentRegistry:
         assert registry.get_kernel_state() == "INACTIVE"
         assert registry.get_l_cto_agent() is None
 
-    def test_registry_get_agent_config(
-        self, mock_env_without_kernels
-    ) -> None:
+    def test_registry_get_agent_config(self, mock_env_without_kernels) -> None:
         """Registry should return agent config."""
         from core.agents.kernel_registry import KernelAwareAgentRegistry
 
@@ -284,9 +327,7 @@ class TestKernelAwareAgentRegistry:
         assert config is not None
         assert config.agent_id == "l9-standard-v1"
 
-    def test_registry_agent_exists(
-        self, mock_env_without_kernels
-    ) -> None:
+    def test_registry_agent_exists(self, mock_env_without_kernels) -> None:
         """Registry should report agent exists."""
         from core.agents.kernel_registry import KernelAwareAgentRegistry
 
@@ -304,10 +345,10 @@ class TestKernelAwareAgentRegistry:
 class TestCreateKernelAwareRegistry:
     """Tests for create_kernel_aware_registry factory."""
 
-    @pytest.mark.skip(reason="Environment mocking requires module reload - test maintenance needed")
-    def test_create_registry_without_kernels(
-        self, mock_env_without_kernels
-    ) -> None:
+    @pytest.mark.skip(
+        reason="Environment mocking requires module reload - test maintenance needed"
+    )
+    def test_create_registry_without_kernels(self, mock_env_without_kernels) -> None:
         """Factory should create registry without kernels."""
         from core.agents.kernel_registry import create_kernel_aware_registry
 
@@ -316,9 +357,7 @@ class TestCreateKernelAwareRegistry:
         assert registry is not None
         assert registry.get_kernel_state() == "INACTIVE"
 
-    def test_create_registry_raises_on_kernel_failure(
-        self, monkeypatch
-    ) -> None:
+    def test_create_registry_raises_on_kernel_failure(self, monkeypatch) -> None:
         """Factory should raise RuntimeError if kernel loading fails."""
         monkeypatch.setenv("L9_USE_KERNELS", "true")
 
@@ -367,12 +406,14 @@ class TestBootstrapIntegration:
         # Check absorbed data
         assert len(agent.kernels) == 10
         # Check identity was absorbed
-        assert hasattr(agent, "_identity") and "L" in agent._identity.get("designation", "")
+        assert hasattr(agent, "_identity") and "L" in agent._identity.get(
+            "designation", ""
+        )
 
-    @pytest.mark.skip(reason="Import patching complexity - l_cto.py uses runtime.kernel_loader")
-    def test_bootstrap_with_create_l_cto_agent(
-        self, temp_kernel_dir: Path
-    ) -> None:
+    @pytest.mark.skip(
+        reason="Import patching complexity - l_cto.py uses runtime.kernel_loader"
+    )
+    def test_bootstrap_with_create_l_cto_agent(self, temp_kernel_dir: Path) -> None:
         """Test bootstrap using create_l_cto_agent factory."""
         from agents.l_cto import create_l_cto_agent
         from core.kernels import kernelloader
@@ -429,9 +470,7 @@ class TestKernelStateTransitions:
         agent.kernel_state = "LOADING"
         assert agent.kernel_state == "LOADING"
 
-    def test_state_loading_to_active(
-        self, temp_kernel_dir: Path
-    ) -> None:
+    def test_state_loading_to_active(self, temp_kernel_dir: Path) -> None:
         """Agent should transition from LOADING to ACTIVE."""
         from agents.l_cto import LCTOAgent
         from core.kernels.kernelloader import load_kernels
@@ -516,4 +555,3 @@ class TestEdgeCases:
 
         # Should not crash
         assert agent.kernel_state == "INACTIVE"
-

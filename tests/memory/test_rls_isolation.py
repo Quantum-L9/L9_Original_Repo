@@ -39,19 +39,33 @@ class TestRLSScopeTransaction:
     async def test_rls_scope_set_in_transaction(self):
         """Verify RLS scope is set within transaction."""
         from memory.substrate_repository import SubstrateRepository
-        
-        # Mock connection pool
+        from contextlib import asynccontextmanager
+
+        # Mock connection pool with proper async context managers
         mock_pool = MagicMock()
         mock_conn = AsyncMock()
-        mock_transaction = AsyncMock()
-        mock_conn.transaction.return_value.__aenter__ = AsyncMock(return_value=mock_transaction)
-        mock_conn.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
-        mock_pool.acquire.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
-        mock_pool.acquire.return_value.__aexit__ = AsyncMock(return_value=None)
-        
+
+        # Create an actual async context manager for transaction()
+        @asynccontextmanager
+        async def mock_transaction_cm():
+            yield mock_conn
+
+        mock_conn.transaction = MagicMock(
+            return_value=mock_transaction_cm().__aenter__()
+        )
+        # Make transaction return an async context manager
+        mock_conn.transaction = lambda: mock_transaction_cm()
+
+        # Create async context manager for pool.acquire()
+        @asynccontextmanager
+        async def mock_acquire_cm():
+            yield mock_conn
+
+        mock_pool.acquire = lambda: mock_acquire_cm()
+
         repository = SubstrateRepository("postgresql://test/test")
         repository._pool = mock_pool
-        
+
         # Use transaction with RLS scope
         async with repository.transaction(
             tenant_id=TEST_TENANT_A,
@@ -71,20 +85,33 @@ class TestRLSScopeTransaction:
     @pytest.mark.asyncio
     async def test_rls_connection_available_in_context(self):
         """Verify RLS connection is available in context variable during transaction."""
-        from memory.substrate_repository import SubstrateRepository, _current_rls_connection
-        
-        # Mock connection pool
+        from memory.substrate_repository import (
+            SubstrateRepository,
+            _current_rls_connection,
+        )
+        from contextlib import asynccontextmanager
+
+        # Mock connection pool with proper async context managers
         mock_pool = MagicMock()
         mock_conn = AsyncMock()
-        mock_transaction = AsyncMock()
-        mock_conn.transaction.return_value.__aenter__ = AsyncMock(return_value=mock_transaction)
-        mock_conn.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
-        mock_pool.acquire.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
-        mock_pool.acquire.return_value.__aexit__ = AsyncMock(return_value=None)
-        
+
+        # Create an actual async context manager for transaction()
+        @asynccontextmanager
+        async def mock_transaction_cm():
+            yield mock_conn
+
+        mock_conn.transaction = lambda: mock_transaction_cm()
+
+        # Create async context manager for pool.acquire()
+        @asynccontextmanager
+        async def mock_acquire_cm():
+            yield mock_conn
+
+        mock_pool.acquire = lambda: mock_acquire_cm()
+
         repository = SubstrateRepository("postgresql://test/test")
         repository._pool = mock_pool
-        
+
         # Use transaction with RLS scope
         async with repository.transaction(
             tenant_id=TEST_TENANT_A,
@@ -95,7 +122,7 @@ class TestRLSScopeTransaction:
             context_conn = _current_rls_connection.get()
             assert context_conn is not None
             assert context_conn == conn
-        
+
         # Verify context is cleared after transaction
         context_conn_after = _current_rls_connection.get()
         assert context_conn_after is None
@@ -112,19 +139,22 @@ class TestRLSIsolation:
     @pytest.mark.asyncio
     async def test_repository_uses_rls_connection_when_available(self):
         """Verify repository methods use RLS connection when available."""
-        from memory.substrate_repository import SubstrateRepository, _current_rls_connection
+        from memory.substrate_repository import (
+            SubstrateRepository,
+            _current_rls_connection,
+        )
         from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
-        
+
         # Mock RLS connection in context
         mock_rls_conn = AsyncMock()
         token = _current_rls_connection.set(mock_rls_conn)
-        
+
         try:
             # Mock repository
             mock_pool = MagicMock()
             repository = SubstrateRepository("postgresql://test/test")
             repository._pool = mock_pool
-            
+
             # Create test envelope
             envelope = PacketEnvelope(
                 packet_id=uuid4(),
@@ -133,10 +163,10 @@ class TestRLSIsolation:
                 metadata=PacketMetadata(agent="test-agent"),
                 provenance=PacketProvenance(),
             )
-            
+
             # Insert packet - should use RLS connection
             await repository.insert_packet(envelope)
-            
+
             # Verify RLS connection was used (not pool.acquire)
             mock_rls_conn.execute.assert_called()
             mock_pool.acquire.assert_not_called()
@@ -148,16 +178,16 @@ class TestRLSIsolation:
         """Verify repository methods use pool when no RLS connection available."""
         from memory.substrate_repository import SubstrateRepository
         from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
-        
+
         # Mock connection pool
         mock_pool = MagicMock()
         mock_conn = AsyncMock()
         mock_pool.acquire.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
         mock_pool.acquire.return_value.__aexit__ = AsyncMock(return_value=None)
-        
+
         repository = SubstrateRepository("postgresql://test/test")
         repository._pool = mock_pool
-        
+
         # Create test envelope
         envelope = PacketEnvelope(
             packet_id=uuid4(),
@@ -166,10 +196,10 @@ class TestRLSIsolation:
             metadata=PacketMetadata(agent="test-agent"),
             provenance=PacketProvenance(),
         )
-        
+
         # Insert packet - should use pool
         await repository.insert_packet(envelope)
-        
+
         # Verify pool was used
         mock_pool.acquire.assert_called()
 
@@ -188,44 +218,63 @@ class TestWritePacketWithRLS:
         from memory.substrate_service import MemorySubstrateService
         from core.schemas import PacketEnvelopeIn
         from unittest.mock import AsyncMock, MagicMock
-        
+        from memory.governance_gate import build_governance_context, governance_context
+
         # Mock repository with transaction
         mock_repository = MagicMock()
         mock_transaction = AsyncMock()
-        mock_repository.transaction.return_value.__aenter__ = AsyncMock(return_value=mock_transaction)
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
-        
+        mock_repository.transaction.return_value.__aenter__ = AsyncMock(
+            return_value=mock_transaction
+        )
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
+            return_value=None
+        )
+
         # Mock DAG
         mock_dag = AsyncMock()
         from core.schemas import PacketWriteResult
+
         mock_dag.run.return_value = PacketWriteResult(
             packet_id=uuid4(),
             written_tables=["packet_store", "agent_memory_events"],
             status="ok",
         )
-        
+
+        # Create service with mock repository (API v2.0)
         service = MemorySubstrateService(
-            database_url="postgresql://test/test",
-            embedding_provider_type="stub",
+            repository=mock_repository,
+            embedding_provider=None,  # Uses stub
         )
-        service._repository = mock_repository
         service._dag = mock_dag
-        
+
         # Create test packet
         packet_in = PacketEnvelopeIn(
             packet_type="test",
             payload={"test": "data"},
         )
-        
-        # Write with RLS scope
-        result = await service.write_packet(
-            packet_in,
+
+        # Set up governance context (required since GMP-70)
+        gov_ctx = build_governance_context(
+            caller_id="test",
+            role="end_user",
+            scope="developer",
+            project_id="l9",
+            allowed_scopes=["developer"],
             tenant_id=TEST_TENANT_A,
             org_id=TEST_ORG_A,
             user_id=TEST_USER_A,
-            role="end_user",
         )
-        
+
+        # Write with RLS scope
+        async with governance_context(gov_ctx):
+            result = await service.write_packet(
+                packet_in,
+                tenant_id=TEST_TENANT_A,
+                org_id=TEST_ORG_A,
+                user_id=TEST_USER_A,
+                role="end_user",
+            )
+
         # Verify transaction was used
         mock_repository.transaction.assert_called_once_with(
             tenant_id=TEST_TENANT_A,
@@ -233,9 +282,9 @@ class TestWritePacketWithRLS:
             user_id=TEST_USER_A,
             role="end_user",
         )
-        
+
         # Verify DAG was run
         mock_dag.run.assert_called_once()
-        
+
         # Verify result
         assert result.status == "ok"

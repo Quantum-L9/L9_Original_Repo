@@ -108,7 +108,7 @@ class SubstrateState(BaseModel):
     State object passed through the LangGraph DAG.
 
     Contains the packet being processed and accumulated results.
-    
+
     Note: References PacketEnvelope from core.schemas.packet_envelope_v2
     """
 
@@ -211,7 +211,9 @@ class GraphCheckpointRow(BaseModel):
     agent_id: str
     graph_state: dict[str, Any]
     updated_at: datetime
-    reason: Optional[str] = None  # Added in migration 0014, optional for backward compat
+    reason: Optional[str] = (
+        None  # Added in migration 0014, optional for backward compat
+    )
     checkpoint_number: Optional[int] = None  # Added in migration 0014
 
 
@@ -283,15 +285,15 @@ class ExtractedInsight(BaseModel):
 class EnrichmentResult(BaseModel):
     """
     Result of SubstrateDAG.enrich() execution (v2.1.0 - GMP-67).
-    
+
     Returned by DAG enrichment when running in enrichment-only mode
     (after core writes have been completed by IngestionPipeline).
-    
+
     Contains extracted facts, insights, reasoning traces, and metrics.
     """
-    
+
     packet_id: UUID = Field(..., description="Source packet that was enriched")
-    
+
     # Extracted data
     facts: list[KnowledgeFact] = Field(
         default_factory=list, description="Extracted knowledge facts (SPO triples)"
@@ -302,7 +304,7 @@ class EnrichmentResult(BaseModel):
     reasoning_trace: Optional[StructuredReasoningBlock] = Field(
         None, description="Reasoning trace if generated during enrichment"
     )
-    
+
     # Persistence metrics
     facts_inserted: int = Field(
         default=0, description="Number of facts persisted to knowledge_facts table"
@@ -310,8 +312,144 @@ class EnrichmentResult(BaseModel):
     world_model_triggered: bool = Field(
         default=False, description="Whether world model update was triggered"
     )
-    
+
     # Timing metrics
     enrichment_duration_ms: float = Field(
         default=0.0, description="Total enrichment execution time in milliseconds"
     )
+
+
+# =============================================================================
+# Semantic Facts Row DTO (Migration 0018 - Memory Spec v3.1)
+# =============================================================================
+
+
+class SemanticFactRow(BaseModel):
+    """
+    DTO for semantic_facts table (frontier-grade fact storage).
+
+    Supports triplet structure, importance scoring, and tiered memory.
+    Part of dual semantic+episodic memory architecture.
+    """
+
+    fact_id: UUID
+
+    # Ownership
+    tenant_id: UUID
+    org_id: UUID
+    user_id: UUID
+    agent_id: Optional[str] = None
+
+    # Fact content
+    fact_text: str
+    triplet: dict[str, Any] = Field(
+        default_factory=dict
+    )  # {subject, predicate, object}
+
+    # Embedding (optional - not always loaded)
+    embedding: Optional[list[float]] = None  # 3072 dimensions
+
+    # Importance and ranking
+    importance: float = 0.5
+    access_count: int = 0
+    last_accessed: Optional[datetime] = None
+
+    # Categorization
+    tags: list[str] = Field(default_factory=list)
+    tier: str = "general"  # identity, project, session, general
+
+    # Source tracking
+    source: Optional[str] = None
+    source_packet_id: Optional[UUID] = None
+
+    # Confidence and validation
+    confidence: float = 0.8
+    validated_at: Optional[datetime] = None
+    validated_by: Optional[str] = None
+
+    # Timestamps
+    created_at: datetime
+    updated_at: datetime
+
+
+# =============================================================================
+# Episodic Events Row DTO (Migration 0019 - Memory Spec v3.1)
+# =============================================================================
+
+
+class EpisodicEventRow(BaseModel):
+    """
+    DTO for episodic_events table (temporal event storage).
+
+    Stores events with timestamps, entities, and decay factors.
+    Part of dual semantic+episodic memory architecture.
+    """
+
+    event_id: UUID
+
+    # Ownership
+    tenant_id: UUID
+    org_id: UUID
+    user_id: UUID
+    agent_id: Optional[str] = None
+
+    # Event content
+    observation: str  # What happened
+    event_type: str = "general"
+
+    # Temporal information (CRITICAL)
+    event_timestamp: datetime  # When it occurred
+    duration_seconds: Optional[int] = None
+
+    # Entity references
+    entities: list[str] = Field(default_factory=list)
+
+    # Context and outcome
+    context: dict[str, Any] = Field(default_factory=dict)
+    outcome: Optional[str] = None
+
+    # Importance and ranking
+    severity: float = 0.5
+    impact_score: float = 0.5
+
+    # Lineage
+    source_packet_id: Optional[UUID] = None
+    parent_event_id: Optional[UUID] = None
+
+    # Session/thread grouping
+    session_id: Optional[UUID] = None
+    thread_id: Optional[UUID] = None
+
+    # Decay and retention
+    decay_factor: float = 1.0
+    last_recalled: Optional[datetime] = None
+    recall_count: int = 0
+
+    # Timestamps
+    created_at: datetime
+    updated_at: datetime
+
+
+# =============================================================================
+# Episodic-Semantic Link Row DTO (Migration 0019 - Memory Spec v3.1)
+# =============================================================================
+
+
+class EpisodicSemanticLinkRow(BaseModel):
+    """
+    DTO for episodic_semantic_links junction table.
+
+    Links episodic events to semantic facts (many-to-many).
+    Enables queries like "find all events involving fact X".
+    """
+
+    link_id: UUID
+    event_id: UUID
+    fact_id: UUID
+
+    # Link metadata
+    relationship_type: str = "involves"  # involves, confirms, contradicts, updates
+    strength: float = 1.0
+
+    # Timestamp
+    created_at: datetime

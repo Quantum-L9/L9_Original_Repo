@@ -1,6 +1,6 @@
 """
 L9 Memory API Router
-Version: 1.1.0
+Version: 1.2.0 (GMP-68: Governance Gate)
 
 Memory substrate API endpoints using MemorySubstrateService.
 All packets are automatically ingested via canonical ingest_packet().
@@ -9,9 +9,10 @@ All packets are automatically ingested via canonical ingest_packet().
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
 from api.auth import verify_api_key
-from typing import Optional, List
+from typing import Optional, List, AsyncGenerator
 from uuid import UUID
 import structlog
+import os
 
 from memory.substrate_service import get_service
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
@@ -22,10 +23,32 @@ from orchestrators.memory.interface import MemoryRequest, MemoryOperation
 from orchestrators.memory.orchestrator import MemoryOrchestrator
 from memory.saga import SagaResult
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+from memory.governance_gate import (
+    build_governance_context,
+    governance_context,
+)
 
 logger = structlog.get_logger(__name__)
 
-router = APIRouter()
+
+async def memory_governance_context_dependency(
+    _: bool = Depends(verify_api_key),
+) -> AsyncGenerator[None, None]:
+    """Dependency that establishes governance context for memory routes."""
+    scope = os.getenv("L9_MEMORY_SCOPE", "shared")
+    project_id = os.getenv("L9_PROJECT_ID", "l9")
+    ctx = build_governance_context(
+        caller_id="api",
+        role="end_user",
+        scope=scope,
+        project_id=project_id,
+        allowed_scopes=[scope],
+    )
+    async with governance_context(ctx):
+        yield
+
+
+router = APIRouter(dependencies=[Depends(memory_governance_context_dependency)])
 
 _batch_circuit_breaker = CircuitBreaker(
     CircuitBreakerConfig(

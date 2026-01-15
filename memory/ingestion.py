@@ -30,6 +30,10 @@ from memory.substrate_service import MemorySubstrateService
 from memory.graph_client import get_neo4j_client
 from memory.validators.packet_validator import PacketValidator, PacketValidationError
 from memory.audit_utils import prepare_packet_for_ingest
+from memory.governance_gate import (
+    enforce_packet_governance,
+    require_governance_context,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -86,12 +90,12 @@ class IngestionPipeline:
         self._agent_persistence = agent_persistence
         self._auto_embed = auto_embed
         self._auto_tag = auto_tag
-        
+
         # DAG enrichment (v2.1.0 - GMP-67)
         self._dag = dag
         self._enable_enrichment = enable_enrichment
         self._enrichment_timeout = enrichment_timeout
-        
+
         logger.info(
             "IngestionPipeline initialized",
             enable_enrichment=enable_enrichment,
@@ -144,6 +148,10 @@ class IngestionPipeline:
         Returns:
             PacketWriteResult with status and written tables
         """
+        # GMP-70: Governance enforcement (fail-closed)
+        ctx = require_governance_context("ingestion.ingest")
+        packet_in = enforce_packet_governance(packet_in, ctx)
+
         logger.info(f"Ingesting packet: type={packet_in.packet_type}")
 
         should_embed = embed if embed is not None else self._auto_embed
@@ -196,13 +204,19 @@ class IngestionPipeline:
 
         # Core writes in transaction (atomic)
         # Wrap packet_store and agent_memory_events in transaction for atomicity
+        # GMP-80: Pass RLS UUIDs from governance context to enable row-level security
         if self._repository:
             try:
-                async with self._repository.transaction() as conn:
+                async with self._repository.transaction(
+                    tenant_id=ctx.tenant_id,
+                    org_id=ctx.org_id,
+                    user_id=ctx.user_id,
+                    role=ctx.role,
+                ) as conn:
                     # Store structured packet (uses transaction connection)
                     await self._store_packet_with_connection(envelope, conn)
                     written_tables.append("packet_store")
-                    
+
                     # Store memory event (uses same transaction connection)
                     await self._store_memory_event_with_connection(envelope, conn)
                     written_tables.append("agent_memory_events")
@@ -215,7 +229,7 @@ class IngestionPipeline:
                             agent_id=agent_id,
                         )
                         written_tables.append("semantic_memory")
-                    
+
                     # Transaction commits here (or rolls back on exception)
             except Exception as e:
                 logger.error(f"Transaction failed for core writes: {e}")
@@ -257,7 +271,10 @@ class IngestionPipeline:
         )
 
         # Trigger checkpoint for critical packets per memory_spec_v3.0.yaml
-        if status in ("ok", "partial") and packet_in.packet_type in self.CRITICAL_PACKET_TYPES:
+        if (
+            status in ("ok", "partial")
+            and packet_in.packet_type in self.CRITICAL_PACKET_TYPES
+        ):
             await self._trigger_critical_checkpoint(envelope)
 
         # =================================================================
@@ -267,10 +284,10 @@ class IngestionPipeline:
         enrichment_status = "not_attempted"
         enrichment_error = None
         enrichment_facts_count = 0
-        
+
         if self._enable_enrichment and self._dag and status in ("ok", "partial"):
             import asyncio
-            
+
             try:
                 # Run enrichment with timeout (NO RETRY on failure)
                 enrichment_result = await asyncio.wait_for(
@@ -279,13 +296,13 @@ class IngestionPipeline:
                 )
                 enrichment_status = "success"
                 enrichment_facts_count = enrichment_result.facts_inserted
-                
+
                 # Add enrichment tables to written_tables
                 if enrichment_facts_count > 0:
                     written_tables.append("knowledge_facts")
                 if enrichment_result.reasoning_trace:
                     written_tables.append("reasoning_traces")
-                
+
                 logger.info(
                     "DAG enrichment succeeded",
                     packet_id=str(envelope.packet_id),
@@ -294,7 +311,9 @@ class IngestionPipeline:
                 )
             except asyncio.TimeoutError:
                 enrichment_status = "failed"
-                enrichment_error = f"Enrichment timed out after {self._enrichment_timeout}s"
+                enrichment_error = (
+                    f"Enrichment timed out after {self._enrichment_timeout}s"
+                )
                 logger.warning(
                     enrichment_error,
                     packet_id=str(envelope.packet_id),
@@ -351,7 +370,9 @@ class IngestionPipeline:
                 "packet_type": envelope.packet_type,
                 "source_id": envelope.source_id,
                 "thread_id": str(envelope.thread_id) if envelope.thread_id else None,
-                "timestamp": envelope.timestamp.isoformat() if envelope.timestamp else None,
+                "timestamp": envelope.timestamp.isoformat()
+                if envelope.timestamp
+                else None,
             }
 
             checkpoint_id = await self._agent_persistence.create_checkpoint(
@@ -456,7 +477,7 @@ class IngestionPipeline:
         """Store packet using provided connection (for transactions)."""
         if self._repository is None:
             raise RuntimeError("Repository not configured")
-        
+
         # Use repository's insert_packet which will detect RLS connection from context
         # The connection is stored in context variable by transaction()
         await self._repository.insert_packet(envelope)
@@ -680,6 +701,7 @@ class IngestionPipeline:
 # Singleton / Factory
 # =============================================================================
 
+
 @lru_cache(maxsize=1)
 def get_ingestion_pipeline() -> IngestionPipeline:
     """Get or create the ingestion pipeline singleton. CACHED."""
@@ -725,6 +747,10 @@ async def ingest_packet(
     Raises:
         RuntimeError: If memory system is not initialized
     """
+    # GMP-70: Governance enforcement (defense in depth)
+    ctx = require_governance_context("ingestion.ingest_packet")
+    packet_in = enforce_packet_governance(packet_in, ctx)
+
     from memory.substrate_service import get_service
 
     if service is None:
@@ -741,10 +767,108 @@ async def ingest_packet(
     pipeline = get_ingestion_pipeline()
     pipeline.set_repository(service._repository)
     pipeline.set_semantic_service(service._semantic_service)
-    
+
     # Wire agent persistence for critical checkpoints
     agent_persistence = service.get_agent_persistence()
     if agent_persistence:
         pipeline.set_agent_persistence(agent_persistence)
-    
+
     return await pipeline.ingest(packet_in)
+
+
+# =============================================================================
+# Active Memory Encoding (GMP-80-A7)
+# =============================================================================
+
+
+async def on_task_completion(
+    task_id: str,
+    task_type: str = "general",
+    description: str = "",
+    outcome_text: str = "",
+    success: bool = True,
+    learnings: Optional[list[str]] = None,
+    entities: Optional[list[str]] = None,
+    impact_score: float = 0.5,
+    agent_id: Optional[str] = None,
+    project_id: Optional[str] = None,
+    session_id: Optional[str] = None,
+    metadata: Optional[dict] = None,
+) -> dict:
+    """
+    Process task completion and trigger active memory encoding.
+
+    This is the frontier-grade approach where the system automatically
+    decides what to encode from task outcomes.
+
+    Args:
+        task_id: Unique identifier for the task
+        task_type: Type of task (e.g., "code_review", "planning")
+        description: Task description
+        outcome_text: What happened / result description
+        success: Whether the task succeeded
+        learnings: Explicit learnings to encode
+        entities: Entities involved in the task
+        impact_score: Impact score 0.0-1.0
+        agent_id: Agent that completed the task
+        project_id: Project context
+        session_id: Session context
+        metadata: Additional metadata
+
+    Returns:
+        Dict with encoding results
+    """
+    from uuid import UUID
+    from memory.active_encoder import (
+        get_active_encoder,
+        TaskOutcome,
+    )
+
+    logger.info(
+        "Processing task completion for active encoding",
+        task_id=task_id,
+        task_type=task_type,
+    )
+
+    # Build TaskOutcome
+    outcome = TaskOutcome(
+        task_id=UUID(task_id) if isinstance(task_id, str) else task_id,
+        task_type=task_type,
+        description=description,
+        outcome_text=outcome_text,
+        success=success,
+        learnings=learnings or [],
+        entities_involved=entities or [],
+        impact_score=impact_score,
+        agent_id=agent_id,
+        project_id=project_id,
+        session_id=UUID(session_id) if session_id else None,
+        metadata=metadata or {},
+    )
+
+    # Get encoder and process
+    encoder = get_active_encoder()
+
+    # Wire repository if available
+    if encoder._repository is None:
+        try:
+            from memory.substrate_service import get_service
+
+            service = await get_service()
+            encoder.set_repository(service._repository)
+        except Exception as e:
+            logger.warning(f"Could not wire repository to encoder: {e}")
+
+    # Process task completion
+    result = await encoder.on_task_completion(outcome)
+
+    return {
+        "task_id": task_id,
+        "facts_created": result.facts_created,
+        "facts_updated": result.facts_updated,
+        "episodes_created": result.episodes_created,
+        "links_created": result.links_created,
+        "consolidation_triggered": result.consolidation_triggered,
+        "execution_time_ms": result.execution_time_ms,
+        "errors": result.errors,
+    }

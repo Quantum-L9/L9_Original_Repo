@@ -16,11 +16,11 @@ Version: 1.0.0
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Dict, Optional, TYPE_CHECKING
 import structlog
 
 if TYPE_CHECKING:
-    from runtime.kernel_state import KernelState
+    pass
 
 logger = structlog.get_logger(__name__)
 
@@ -33,18 +33,18 @@ logger = structlog.get_logger(__name__)
 def post_execution_introspection(agent: Any) -> Dict[str, Any]:
     """
     Self-audit after every request (GODMODE Part 7.1).
-    
+
     Runs after response generation, before returning to Igor.
     This is L's self-reflection checkpoint.
-    
+
     Args:
         agent: The kernel-aware agent with kernel_state
-        
+
     Returns:
         Audit results dict
     """
     kernel_state: Optional[Any] = getattr(agent, "kernel_state", None)
-    
+
     if kernel_state is None or not hasattr(kernel_state, "initialized"):
         logger.warning("introspection.no_kernel_state")
         return {
@@ -52,24 +52,19 @@ def post_execution_introspection(agent: Any) -> Dict[str, Any]:
             "valid": False,
             "error": "No kernel_state available for introspection",
         }
-    
+
     audit = {
         "timestamp": datetime.now().isoformat(),
         "session_id": kernel_state.session_id,
         "valid": True,
-        
         # 1. Decision audit
         "decision_audit": _audit_decisions(kernel_state),
-        
         # 2. Confidence calibration
         "confidence_calibration": _audit_confidence(kernel_state),
-        
         # 3. Tool execution review
         "tool_execution_review": _audit_tools(kernel_state),
-        
         # 4. Kernel state consistency
         "kernel_state_consistency": _audit_kernel_state(kernel_state),
-        
         # 5. Igor alignment (placeholder - needs user feedback)
         "igor_alignment": {
             "corrections_applied": 0,
@@ -77,10 +72,10 @@ def post_execution_introspection(agent: Any) -> Dict[str, Any]:
             "awaiting_feedback": True,
         },
     }
-    
+
     # Overall assessment
     audit["overall"] = _compute_overall_assessment(audit)
-    
+
     logger.info(
         "introspection.complete",
         session_id=kernel_state.session_id,
@@ -88,7 +83,7 @@ def post_execution_introspection(agent: Any) -> Dict[str, Any]:
         tools=audit["tool_execution_review"]["total"],
         escalations=audit["decision_audit"]["escalations"],
     )
-    
+
     return audit
 
 
@@ -96,14 +91,16 @@ def _audit_decisions(kernel_state: Any) -> Dict[str, Any]:
     """Audit decisions made during the session."""
     decisions = kernel_state.decisions
     escalations = kernel_state.escalations
-    
+
     return {
         "total": len(decisions),
         "successful": sum(1 for d in decisions if d.get("outcome") == "success"),
         "failed": sum(1 for d in decisions if d.get("outcome") == "failure"),
         "pending": sum(1 for d in decisions if d.get("outcome") == "pending"),
         "escalations": len(escalations),
-        "critical_escalations": sum(1 for e in escalations if e.get("severity") == "CRITICAL"),
+        "critical_escalations": sum(
+            1 for e in escalations if e.get("severity") == "CRITICAL"
+        ),
         "high_escalations": sum(1 for e in escalations if e.get("severity") == "HIGH"),
         "recent_decisions": decisions[-5:] if decisions else [],
     }
@@ -112,7 +109,7 @@ def _audit_decisions(kernel_state: Any) -> Dict[str, Any]:
 def _audit_confidence(kernel_state: Any) -> Dict[str, Any]:
     """Audit confidence calibration."""
     decisions = kernel_state.decisions
-    
+
     if not decisions:
         return {
             "avg_confidence": 0.0,
@@ -121,9 +118,9 @@ def _audit_confidence(kernel_state: Any) -> Dict[str, Any]:
             "low_confidence_count": 0,
             "calibration_feedback": "No decisions to calibrate",
         }
-    
+
     confidences = [d.get("confidence", 0.0) for d in decisions if d.get("confidence")]
-    
+
     if not confidences:
         return {
             "avg_confidence": 0.0,
@@ -132,10 +129,10 @@ def _audit_confidence(kernel_state: Any) -> Dict[str, Any]:
             "low_confidence_count": 0,
             "calibration_feedback": "No confidence scores recorded",
         }
-    
+
     avg = sum(confidences) / len(confidences)
     low_confidence = sum(1 for c in confidences if c < 0.70)
-    
+
     return {
         "avg_confidence": avg,
         "min_confidence": min(confidences),
@@ -160,7 +157,7 @@ def _get_calibration_feedback(avg: float, low_count: int) -> str:
 def _audit_tools(kernel_state: Any) -> Dict[str, Any]:
     """Audit tool executions."""
     tools = kernel_state.tools_executed
-    
+
     return {
         "total": len(tools),
         "successful": sum(1 for t in tools if t.get("status") == "success"),
@@ -179,7 +176,8 @@ def _audit_kernel_state(kernel_state: Any) -> Dict[str, Any]:
         "owner_valid": kernel_state.owner == "igor",
         "mode": kernel_state.mode,
         "active_kernels": len(kernel_state.active_kernels),
-        "kernel_count_valid": len(kernel_state.active_kernels) >= 4,  # MINIMUM_KERNEL_COUNT
+        "kernel_count_valid": len(kernel_state.active_kernels)
+        >= 4,  # MINIMUM_KERNEL_COUNT
         "state_consistent": (
             kernel_state.initialized
             and kernel_state.owner == "igor"
@@ -194,36 +192,36 @@ def _compute_overall_assessment(audit: Dict[str, Any]) -> Dict[str, Any]:
     confidence = audit["confidence_calibration"]
     tools = audit["tool_execution_review"]
     kernel = audit["kernel_state_consistency"]
-    
+
     # Calculate health score
     health_factors = []
-    
+
     # Kernel state health (weight: 30%)
     if kernel["state_consistent"]:
         health_factors.append(1.0 * 0.30)
     else:
         health_factors.append(0.0 * 0.30)
-    
+
     # Decision success rate (weight: 25%)
     if decision_audit["total"] > 0:
         success_rate = decision_audit["successful"] / decision_audit["total"]
         health_factors.append(success_rate * 0.25)
     else:
         health_factors.append(1.0 * 0.25)  # No decisions = neutral
-    
+
     # Tool success rate (weight: 25%)
     if tools["total"] > 0:
         tool_success = tools["successful"] / tools["total"]
         health_factors.append(tool_success * 0.25)
     else:
         health_factors.append(1.0 * 0.25)  # No tools = neutral
-    
+
     # Confidence calibration (weight: 20%)
     avg_confidence = confidence.get("avg_confidence", 0.5)
     health_factors.append(avg_confidence * 0.20)
-    
+
     health_score = sum(health_factors)
-    
+
     # Determine status
     if decision_audit["critical_escalations"] > 0:
         status = "CRITICAL"
@@ -233,7 +231,7 @@ def _compute_overall_assessment(audit: Dict[str, Any]) -> Dict[str, Any]:
         status = "DEGRADED"
     else:
         status = "UNHEALTHY"
-    
+
     return {
         "health_score": health_score,
         "status": status,
@@ -250,30 +248,31 @@ def _compute_overall_assessment(audit: Dict[str, Any]) -> Dict[str, Any]:
 def export_session_memory(kernel_state: Any) -> Dict[str, Any]:
     """
     Export complete session memory for audit/persistence (GODMODE Part 7.2).
-    
+
     This creates a complete snapshot of the session for:
     - Audit trail
     - Cross-session learning
     - Debugging
     - Compliance
-    
+
     Args:
         kernel_state: The KernelState object
-        
+
     Returns:
         Complete session memory dict
     """
+
     # Run introspection first
     class MockAgent:
         pass
+
     mock = MockAgent()
     mock.kernel_state = kernel_state
     audit = post_execution_introspection(mock)
-    
+
     return {
         "export_timestamp": datetime.now().isoformat(),
         "export_version": "1.0.0",
-        
         # Session metadata
         "session": {
             "id": kernel_state.session_id,
@@ -282,25 +281,20 @@ def export_session_memory(kernel_state: Any) -> Dict[str, Any]:
             "start_time": kernel_state.timestamp.isoformat(),
             "mode": kernel_state.mode,
         },
-        
         # Kernel state
         "kernel_state": {
             "initialized": kernel_state.initialized,
             "active_kernels": list(kernel_state.active_kernels.keys()),
             "kernel_count": len(kernel_state.active_kernels),
         },
-        
         # Execution records
         "decisions": kernel_state.decisions,
         "escalations": kernel_state.escalations,
         "tools_executed": kernel_state.tools_executed,
-        
         # Calibration data
         "confidence_calibrations": kernel_state.confidence_calibrations,
-        
         # Introspection results
         "final_audit": audit,
-        
         # Summary statistics
         "summary": {
             "total_decisions": len(kernel_state.decisions),
@@ -325,9 +319,9 @@ def record_confidence_outcome(
 ) -> None:
     """
     Record confidence prediction vs actual outcome for calibration learning.
-    
+
     Over time, this allows L to improve confidence estimation.
-    
+
     Args:
         kernel_state: The KernelState object
         claim_id: Identifier for the claim
@@ -336,14 +330,14 @@ def record_confidence_outcome(
     """
     if not hasattr(kernel_state, "confidence_calibrations"):
         kernel_state.confidence_calibrations = {}
-    
+
     kernel_state.confidence_calibrations[claim_id] = {
         "predicted": predicted_confidence,
         "actual": 1.0 if actual_outcome else 0.0,
         "error": abs(predicted_confidence - (1.0 if actual_outcome else 0.0)),
         "timestamp": datetime.now().isoformat(),
     }
-    
+
     logger.debug(
         "introspection.confidence_recorded",
         claim_id=claim_id,
@@ -355,24 +349,24 @@ def record_confidence_outcome(
 def get_calibration_score(kernel_state: Any) -> float:
     """
     Calculate how well calibrated L's confidence estimates are.
-    
+
     Perfect calibration = 1.0 (predictions match outcomes)
     Poor calibration = 0.0 (predictions don't match outcomes)
-    
+
     Args:
         kernel_state: The KernelState object
-        
+
     Returns:
         Calibration score (0.0 - 1.0)
     """
     calibrations = getattr(kernel_state, "confidence_calibrations", {})
-    
+
     if not calibrations:
         return 0.5  # No data, assume neutral
-    
+
     errors = [c["error"] for c in calibrations.values()]
     avg_error = sum(errors) / len(errors)
-    
+
     # Convert error to score (0 error = 1.0 score)
     return 1.0 - avg_error
 
@@ -385,7 +379,7 @@ def get_calibration_score(kernel_state: Any) -> float:
 def on_session_start(agent: Any) -> None:
     """
     Hook called at session start.
-    
+
     Initialize any session-specific tracking.
     """
     kernel_state = getattr(agent, "kernel_state", None)
@@ -400,27 +394,27 @@ def on_session_start(agent: Any) -> None:
 def on_session_end(agent: Any) -> Dict[str, Any]:
     """
     Hook called at session end.
-    
+
     Export session memory and run final introspection.
-    
+
     Returns:
         Session export dict
     """
     kernel_state = getattr(agent, "kernel_state", None)
-    
+
     if kernel_state is None:
         logger.warning("introspection.session_end.no_state")
         return {"error": "No kernel_state available"}
-    
+
     export = export_session_memory(kernel_state)
-    
+
     logger.info(
         "introspection.session_end",
         session_id=kernel_state.session_id,
         health_score=export["summary"]["health_score"],
         status=export["summary"]["status"],
     )
-    
+
     return export
 
 

@@ -416,7 +416,9 @@ class AgentExecutorService:
         logger.info("agent.executor.shutdown: starting checkpoint creation")
 
         if self._agent_persistence is None:
-            logger.warning("agent.executor.shutdown: persistence not available, skipping checkpoints")
+            logger.warning(
+                "agent.executor.shutdown: persistence not available, skipping checkpoints"
+            )
             return
 
         try:
@@ -424,9 +426,13 @@ class AgentExecutorService:
             state = {
                 "agent_id": self._default_agent_id,
                 "processed_task_count": len(self._processed_tasks),
-                "processed_task_ids": list(self._processed_tasks.keys())[-20:],  # Last 20 task IDs
+                "processed_task_ids": list(self._processed_tasks.keys())[
+                    -20:
+                ],  # Last 20 task IDs
                 "max_iterations": self._max_iterations,
-                "kernel_agent_state": getattr(self._kernel_aware_agent, "kernel_state", None),
+                "kernel_agent_state": getattr(
+                    self._kernel_aware_agent, "kernel_state", None
+                ),
                 "shutdown_timestamp": datetime.utcnow().isoformat(),
             }
 
@@ -525,7 +531,7 @@ class AgentExecutorService:
                         "source_id": task.source_id,
                     },
                 )
-                
+
                 if should_block_request(injection_result):
                     # Emit violation packet
                     await self._emit_packet(
@@ -534,20 +540,24 @@ class AgentExecutorService:
                             "event": "prompt_injection_blocked",
                             "task_id": task_id_str,
                             "agent_id": task.agent_id,
-                            "severity": injection_result.severity.value if injection_result.severity else "unknown",
+                            "severity": injection_result.severity.value
+                            if injection_result.severity
+                            else "unknown",
                             "patterns": injection_result.patterns_matched,
                             "redacted_input": injection_result.redacted_input,
                         },
                         thread_id=task.get_thread_id(),
                     )
-                    
+
                     logger.warning(
                         "agent.executor.prompt_injection_blocked",
                         task_id=task_id_str,
-                        severity=injection_result.severity.value if injection_result.severity else "unknown",
+                        severity=injection_result.severity.value
+                        if injection_result.severity
+                        else "unknown",
                         patterns=injection_result.patterns_matched,
                     )
-                    
+
                     # Return blocked response
                     blocked_message = get_blocked_response(injection_result)
                     return ExecutionResult(
@@ -555,7 +565,9 @@ class AgentExecutorService:
                         status="blocked",
                         result=blocked_message,
                         iterations=0,
-                        duration_ms=int((datetime.utcnow() - start_time).total_seconds() * 1000),
+                        duration_ms=int(
+                            (datetime.utcnow() - start_time).total_seconds() * 1000
+                        ),
                         error="Prompt injection detected",
                     )
 
@@ -628,6 +640,10 @@ class AgentExecutorService:
                 errors=[result.error] if result.error else None,
                 patterns=["agent_execution", "reasoning_loop"],
             )
+
+            # Active memory encoding hook (GMP-80-A7: Frontier Memory)
+            # System automatically extracts and encodes learnings from task outcomes
+            await self._run_active_memory_encoding(task, result, instance)
 
             # Self-reflection hook (v3.4+ / GMP-KERNEL-BOOT)
             # Analyze task execution for behavioral gaps
@@ -704,6 +720,7 @@ class AgentExecutorService:
                     MEMORY_SEGMENT_GOVERNANCE_META,
                     MEMORY_SEGMENT_PROJECT_HISTORY,
                 )
+
                 _has_memory_helpers = True
             except ImportError:
                 _has_memory_helpers = False
@@ -939,7 +956,7 @@ class AgentExecutorService:
             kernel_state = getattr(self._kernel_aware_agent, "kernel_state", None)
             if kernel_state == "ACTIVE":
                 kernel_prompt = build_kernel_system_prompt(self._kernel_aware_agent)
-                
+
                 # Build runtime context from task
                 memory_context = task.context or {}
                 runtime_prompt = build_runtime_prompt(
@@ -947,12 +964,12 @@ class AgentExecutorService:
                     memory_context=memory_context,
                     channel=task.source_id,
                 )
-                
+
                 # Combine kernel prompt with existing system prompt
                 existing_prompt = config.system_prompt or ""
                 full_prompt = kernel_prompt + runtime_prompt + "\n\n" + existing_prompt
                 config.system_prompt = full_prompt
-                
+
                 logger.info(
                     "agent.executor.kernel_prompt_injected",
                     agent_id=task.agent_id,
@@ -995,7 +1012,8 @@ class AgentExecutorService:
                     "user.message",
                 }
                 relevant_packets = [
-                    p for p in history
+                    p
+                    for p in history
                     if p.get("packet_type") in relevant_types
                     or p.get("payload", {}).get("event") in ("start", "iteration")
                 ]
@@ -1027,7 +1045,10 @@ class AgentExecutorService:
                         context_text = "\n".join(context_lines)
                         instance.add_user_message(
                             f"[SYSTEM CONTEXT]\n{context_text}\n[END CONTEXT]",
-                            metadata={"hydrated": True, "packet_count": len(context_packets)},
+                            metadata={
+                                "hydrated": True,
+                                "packet_count": len(context_packets),
+                            },
                         )
 
                 logger.info(
@@ -1162,12 +1183,37 @@ class AgentExecutorService:
         )
 
         # Initialize with task payload as first message
-        if instance.task.payload.get("message"):
-            instance.add_user_message(instance.task.payload["message"])
-        elif instance.task.payload.get("query"):
-            instance.add_user_message(instance.task.payload["query"])
-        elif instance.task.payload.get("content"):
-            instance.add_user_message(instance.task.payload["content"])
+        user_message = (
+            instance.task.payload.get("message")
+            or instance.task.payload.get("query")
+            or instance.task.payload.get("content")
+            or ""
+        )
+        if user_message:
+            instance.add_user_message(user_message)
+
+        # GMP-78: Semantic tool shortlisting
+        # Instead of binding all 100+ tools, find the most relevant ones
+        if user_message and hasattr(self._tool_registry, "get_relevant_tools"):
+            try:
+                relevant_tools = await self._tool_registry.get_relevant_tools(
+                    agent_id=instance.task.agent_id,
+                    principal_id=instance.task.principal_id,
+                    query=user_message,
+                    top_k=7,  # Slightly more than 5 to account for governance filtering
+                )
+                if relevant_tools:
+                    instance.bind_tools(relevant_tools)
+                    logger.info(
+                        "agent.executor.tools.shortlisted",
+                        task_id=str(instance.task.id),
+                        tool_count=len(relevant_tools),
+                        tools=[t.tool_id for t in relevant_tools],
+                    )
+            except Exception as e:
+                logger.warning(
+                    f"Tool shortlisting failed, using all approved tools: {e}"
+                )
 
         # Transition to reasoning
         instance.transition_to(ExecutorState.REASONING)
@@ -1177,6 +1223,16 @@ class AgentExecutorService:
 
         while instance.iteration < max_iterations:
             iteration = instance.increment_iteration()
+
+            # GMP-78: Warn when approaching max iterations (loop guard enhancement)
+            if iteration >= max_iterations - 2:
+                logger.warning(
+                    "agent.executor.approaching_max_iterations",
+                    task_id=str(instance.task.id),
+                    iteration=iteration,
+                    max_iterations=max_iterations,
+                    message="Consider stopping and providing partial answer",
+                )
 
             # Log iteration
             logger.debug(
@@ -1316,7 +1372,9 @@ class AgentExecutorService:
                     task_id=str(instance.task.id),
                     error=error,
                     circuit_state=_aios_circuit_breaker.get_state(),
-                    failures_in_window=_aios_circuit_breaker.get_stats()["failures_in_window"],
+                    failures_in_window=_aios_circuit_breaker.get_stats()[
+                        "failures_in_window"
+                    ],
                 )
                 # Only fail immediately if circuit breaker not yet tripped
                 # (let circuit breaker handle escalation on next iteration)
@@ -1381,7 +1439,9 @@ class AgentExecutorService:
         for tr in instance.tool_results:
             tool_call_results.append(
                 ToolCallResult(
-                    call_id=UUID(tr["call_id"]) if isinstance(tr.get("call_id"), str) else tr.get("call_id", uuid4()),
+                    call_id=UUID(tr["call_id"])
+                    if isinstance(tr.get("call_id"), str)
+                    else tr.get("call_id", uuid4()),
                     tool_id=tr.get("tool_id", "unknown"),
                     result=tr.get("result"),
                     success=tr.get("success", True),
@@ -1399,8 +1459,12 @@ class AgentExecutorService:
             trace_id=instance.instance_id,
             tool_calls=tool_call_results if tool_call_results else None,
             tokens_used=instance.total_tokens,
-            governance_blocks=instance.governance_blocks if instance.governance_blocks else None,
-            user_corrections=instance.user_corrections if instance.user_corrections else None,
+            governance_blocks=instance.governance_blocks
+            if instance.governance_blocks
+            else None,
+            user_corrections=instance.user_corrections
+            if instance.user_corrections
+            else None,
         )
 
     # =========================================================================
@@ -1482,7 +1546,9 @@ class AgentExecutorService:
                 # Get adaptive context from past patterns for high-risk tools
                 adaptive_context = ""
                 try:
-                    from core.agents.adaptive_prompting import get_adaptive_context_for_tool
+                    from core.agents.adaptive_prompting import (
+                        get_adaptive_context_for_tool,
+                    )
 
                     adaptive_context = await get_adaptive_context_for_tool(
                         tool_call.tool_id
@@ -1782,6 +1848,96 @@ class AgentExecutorService:
             )
 
     # =========================================================================
+    # Active Memory Encoding (GMP-80-A7: Frontier Memory)
+    # =========================================================================
+
+    async def _run_active_memory_encoding(
+        self,
+        task: AgentTask,
+        result: ExecutionResult,
+        instance: AgentInstance,
+    ) -> None:
+        """
+        Run active memory encoding on completed task execution.
+
+        Extracts learnings from task outcomes and encodes them as semantic facts,
+        creates episodic records, and updates importance scores.
+
+        Args:
+            task: The completed task
+            result: The execution result
+            instance: The agent instance that executed the task
+        """
+        try:
+            from memory.ingestion import on_task_completion
+        except ImportError:
+            logger.debug("Active memory encoding not available - skipping")
+            return
+
+        try:
+            # Extract learnings from result
+            learnings = []
+            if result.result:
+                result_str = str(result.result)
+                # Simple heuristic: extract sentences with learning indicators
+                if any(
+                    kw in result_str.lower()
+                    for kw in ["prefer", "should", "always", "never", "learned"]
+                ):
+                    # Truncate to reasonable length
+                    learnings.append(
+                        result_str[:500] if len(result_str) > 500 else result_str
+                    )
+
+            # Only encode if task completed successfully and has meaningful output
+            if result.status != "completed" or not result.result:
+                return
+
+            # Call on_task_completion with task outcome
+            encoding_result = await on_task_completion(
+                task_id=str(task.id),
+                task_type=task.kind.value
+                if hasattr(task.kind, "value")
+                else str(task.kind),
+                description=task.payload.get("message", "") if task.payload else "",
+                outcome_text=str(result.result)[:1000] if result.result else "",
+                success=result.status == "completed",
+                learnings=learnings,
+                entities=task.payload.get("entities", []) if task.payload else [],
+                impact_score=0.5 + (0.3 if result.status == "completed" else -0.2),
+                agent_id=task.agent_id,
+                project_id=task.project_id if hasattr(task, "project_id") else None,
+                session_id=str(task.get_thread_id())
+                if hasattr(task, "get_thread_id")
+                else None,
+                metadata={
+                    "iterations": result.iterations,
+                    "duration_ms": result.duration_ms,
+                    "tool_calls": len(result.tool_calls) if result.tool_calls else 0,
+                },
+            )
+
+            if (
+                encoding_result.get("facts_created", 0) > 0
+                or encoding_result.get("facts_updated", 0) > 0
+            ):
+                logger.info(
+                    "agent.executor.memory_encoded",
+                    task_id=str(task.id),
+                    facts_created=encoding_result.get("facts_created", 0),
+                    facts_updated=encoding_result.get("facts_updated", 0),
+                    episodes_created=encoding_result.get("episodes_created", 0),
+                )
+
+        except Exception as e:
+            # Don't fail task execution if memory encoding fails
+            logger.warning(
+                "agent.executor.memory_encoding_failed",
+                task_id=str(task.id),
+                error=str(e),
+            )
+
+    # =========================================================================
     # Self-Reflection (v3.4+ / GMP-KERNEL-BOOT)
     # =========================================================================
 
@@ -1810,7 +1966,9 @@ class AgentExecutorService:
             context = TaskExecutionContext(
                 task_id=str(task.id),
                 agent_id=task.agent_id,
-                task_kind=task.kind.value if hasattr(task.kind, "value") else str(task.kind),
+                task_kind=task.kind.value
+                if hasattr(task.kind, "value")
+                else str(task.kind),
                 success=result.status == "completed",
                 duration_ms=float(result.duration_ms),
                 tool_calls=[
@@ -1826,10 +1984,13 @@ class AgentExecutorService:
                 tokens_used=result.tokens_used or 0,
                 governance_blocks=result.governance_blocks or [],
                 user_corrections=[
-                    uc.get("correction", str(uc)) for uc in (result.user_corrections or [])
+                    uc.get("correction", str(uc))
+                    for uc in (result.user_corrections or [])
                 ],
                 metadata={
-                    "thread_id": str(task.get_thread_id()) if task.get_thread_id() else None,
+                    "thread_id": str(task.get_thread_id())
+                    if task.get_thread_id()
+                    else None,
                 },
             )
 
@@ -1844,14 +2005,20 @@ class AgentExecutorService:
                     reflection_packet = PacketEnvelopeIn(
                         packet_type="agent.reflection.result",
                         agent_id=task.agent_id,
-                        thread_id=str(task.get_thread_id()) if task.get_thread_id() else None,
+                        thread_id=str(task.get_thread_id())
+                        if task.get_thread_id()
+                        else None,
                         payload={
                             "reflection_id": reflection_result.reflection_id,
                             "task_id": str(task.id),
                             "gaps_detected": [
                                 {
-                                    "gap_type": gap.gap_type.value if hasattr(gap.gap_type, "value") else str(gap.gap_type),
-                                    "severity": gap.severity.value if hasattr(gap.severity, "value") else str(gap.severity),
+                                    "gap_type": gap.gap_type.value
+                                    if hasattr(gap.gap_type, "value")
+                                    else str(gap.gap_type),
+                                    "severity": gap.severity.value
+                                    if hasattr(gap.severity, "value")
+                                    else str(gap.severity),
                                     "description": gap.description,
                                     "suggested_action": gap.suggested_action,
                                 }

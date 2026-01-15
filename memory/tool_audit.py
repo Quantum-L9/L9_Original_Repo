@@ -24,12 +24,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID, uuid4
 
-from core.schemas import (
-    PacketConfidence,
-    PacketEnvelopeIn,
-    PacketMetadata,
-    PacketProvenance,
-)
+from core.schemas import PacketEnvelopeIn
 from memory.substrate_models import MemorySegment
 from telemetry.memory_metrics import record_tool_invocation
 
@@ -94,23 +89,24 @@ async def log_tool_invocation(
             payload["result_summary"] = result_summary[:200]
 
         # Create packet envelope
+        # Note: PacketEnvelopeIn expects metadata/provenance/confidence as dicts
         packet = PacketEnvelopeIn(
             packet_id=uuid4(),
             packet_type=MemorySegment.TOOL_AUDIT.value,
             payload=payload,
-            metadata=PacketMetadata(
-                schema_version="1.0.0",
-                agent=agent_id,
-                domain="tool_audit",
-            ),
-            provenance=PacketProvenance(
-                source="ExecutorToolRegistry",
-                tool=tool_id,
-            ),
-            confidence=PacketConfidence(
-                score=1.0,  # Tool audit is always high confidence
-                rationale="Direct tool invocation observation",
-            ),
+            metadata={
+                "schema_version": "1.0.0",
+                "agent": agent_id,
+                "domain": "tool_audit",
+            },
+            provenance={
+                "source": "ExecutorToolRegistry",
+                "tool": tool_id,
+            },
+            confidence={
+                "score": 1.0,  # Tool audit is always high confidence
+                "rationale": "Direct tool invocation observation",
+            },
             tags=[
                 f"tool:{tool_id}",
                 f"agent:{agent_id}",
@@ -123,15 +119,17 @@ async def log_tool_invocation(
         asyncio.create_task(_ingest_audit_packet(packet))
 
         # Also write to dedicated tool_audit_log Postgres table (fire-and-forget)
-        asyncio.create_task(_write_to_audit_table(
-            call_id=call_id,
-            tool_id=tool_id,
-            agent_id=agent_id,
-            status=status,
-            duration_ms=duration_ms,
-            error=error,
-            arguments=payload.get("arguments"),
-        ))
+        asyncio.create_task(
+            _write_to_audit_table(
+                call_id=call_id,
+                tool_id=tool_id,
+                agent_id=agent_id,
+                status=status,
+                duration_ms=duration_ms,
+                error=error,
+                arguments=payload.get("arguments"),
+            )
+        )
 
         # Record Prometheus metrics (real-time observability)
         record_tool_invocation(
@@ -283,4 +281,3 @@ __all__ = [
     "log_tool_invocation",
     "TOOL_AUDIT_TTL_HOURS",
 ]
-

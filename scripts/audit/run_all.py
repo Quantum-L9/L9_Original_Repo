@@ -41,23 +41,30 @@ import structlog
 # Import audit components
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent / "tier1"))
-from audit_shared_core import (
-    Reporter, GMPIntegration, ObservabilityHooks
-)
+from audit_shared_core import Reporter, GMPIntegration, ObservabilityHooks
 
 # Import tier1 audit modules
 # Use CacheManager from audit_code_integrity (has result caching)
 from audit_code_integrity import (
-    find_python_files, analyze_file_for_uncalled, analyze_file_for_orphans,
-    detect_circular_imports, CacheManager  # Has load_results/save_results for full caching
+    find_python_files,
+    analyze_file_for_uncalled,
+    analyze_file_for_orphans,
+    detect_circular_imports,
+    CacheManager,  # Has load_results/save_results for full caching
 )
 from audit_capability_inventory import (
-    get_exposed_tools, get_async_methods, assess_capability,
-    EXCLUDED_METHODS
+    get_exposed_tools,
+    get_async_methods,
+    assess_capability,
+    EXCLUDED_METHODS,
 )
 from audit_infrastructure_health import (
-    TCPHealthProbe, HTTPHealthProbe, PythonModuleHealthProbe,
-    validate_config, verify_dependency_dag, SERVICES
+    TCPHealthProbe,
+    HTTPHealthProbe,
+    PythonModuleHealthProbe,
+    validate_config,
+    verify_dependency_dag,
+    SERVICES,
 )
 
 logger = structlog.get_logger(__name__)
@@ -88,35 +95,36 @@ DEPRECATED_CURSOR_PATHS = [
 def validate_no_deprecated_paths(cache_dir: Path) -> List[str]:
     """
     Fail loudly if deprecated paths appear in audit cache.
-    
+
     This guardrail ensures that file moves documented in architecture_decisions.md
     are properly reflected in the audit cache. If a deprecated path appears,
     it means the audit is scanning files that no longer exist at those locations.
-    
+
     Returns:
         List of violation messages (empty = all good)
     """
     manifest_path = cache_dir / "manifest.json"
     if not manifest_path.exists():
         return []
-    
+
     try:
         manifest = json.loads(manifest_path.read_text())
     except (json.JSONDecodeError, IOError):
         return ["Could not read manifest.json"]
-    
+
     violations = []
     for path in manifest.keys():
         for deprecated in DEPRECATED_CURSOR_PATHS:
             if deprecated in path:
                 violations.append(f"DEPRECATED: {path} (moved to agents/cursor/)")
-    
+
     return violations
 
 
 # =============================================================================
 # DATA MODELS
 # =============================================================================
+
 
 class AuditType(str, Enum):
     CODE_INTEGRITY = "code_integrity"
@@ -125,10 +133,15 @@ class AuditType(str, Enum):
     GOVERNANCE_COMPLIANCE = "governance_compliance"
     CONFIGURATION_DRIFT = "configuration_drift"
     DEAD_CODE = "dead_code"  # Phase 1-4 dead code detection pipeline
+    WIRING_ALIGNMENT = "wiring_alignment"  # Doc-code path alignment (v1.0)
+    MEMORY_SPEC = "memory_spec"  # Memory spec v3.0 verification
+    API_SIGNATURES = "api_signatures"  # API signature mismatch detection (v1.0)
+
 
 @dataclass
 class AuditResult:
     """Result from single audit."""
+
     audit_type: AuditType
     status: str  # 'success', 'failure', 'partial'
     duration_ms: float
@@ -141,9 +154,11 @@ class AuditResult:
     data: Dict[str, Any] = field(default_factory=dict)
     file_outputs: Dict[str, Path] = field(default_factory=dict)  # {format: path}
 
+
 @dataclass
 class AuditRun:
     """Complete audit run with all results."""
+
     run_id: str
     timestamp: str
     tier: int
@@ -151,9 +166,11 @@ class AuditRun:
     results: Dict[AuditType, AuditResult] = field(default_factory=dict)
     summary: Dict[str, Any] = field(default_factory=dict)
 
+
 # =============================================================================
 # AUDIT ORCHESTRATOR
 # =============================================================================
+
 
 class AuditOrchestrator:
     """Orchestrate all audits with caching and parallel execution."""
@@ -170,13 +187,13 @@ class AuditOrchestrator:
         self.cache_enabled = cache_enabled
         self.parallel_jobs = parallel_jobs
         self.output_formats = output_formats or ["json", "html"]
-        
+
         # Initialize components
         self.cache_mgr = CacheManager(CACHE_DIR) if cache_enabled else None
         self.reporter = Reporter("master", repo_root)
         self.gmp_integration = GMPIntegration("master_audit")
         self.observability = ObservabilityHooks(substrate_enabled=False)
-        
+
         # Audit state
         self.run_id = self._generate_run_id()
         self.audit_results: Dict[AuditType, AuditResult] = {}
@@ -186,6 +203,7 @@ class AuditOrchestrator:
         """Generate unique run ID."""
         import uuid
         from datetime import datetime
+
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         uid = str(uuid.uuid4())[:8]
         return f"audit_run_{ts}_{uid}"
@@ -209,6 +227,12 @@ class AuditOrchestrator:
                 result = self._run_capability_audit()
             elif audit_type == AuditType.DEAD_CODE:
                 result = self._run_dead_code_audit()
+            elif audit_type == AuditType.WIRING_ALIGNMENT:
+                result = self._run_wiring_alignment_audit()
+            elif audit_type == AuditType.MEMORY_SPEC:
+                result = self._run_memory_spec_audit()
+            elif audit_type == AuditType.API_SIGNATURES:
+                result = self._run_api_signatures_audit()
             else:
                 result = AuditResult(
                     audit_type=audit_type,
@@ -247,7 +271,7 @@ class AuditOrchestrator:
         try:
             # Find all Python files
             all_files = find_python_files(self.repo_root)
-            
+
             # Try to use cached results (fast path)
             # Check if we have valid cached results before doing expensive analysis
             if self.cache_mgr:
@@ -257,7 +281,7 @@ class AuditOrchestrator:
                     orphans = cached_results.get("orphans", [])
                     circular = cached_results.get("circular", [])
                     total_items = uncalled_count + len(orphans) + len(circular)
-                    
+
                     logger.info("Using cached code integrity results")
                     return AuditResult(
                         audit_type=AuditType.CODE_INTEGRITY,
@@ -275,24 +299,26 @@ class AuditOrchestrator:
                             "cached": True,
                         },
                     )
-            
+
             # Full analysis (slow path)
             # Build content index with caching
             all_content = None
             if self.cache_mgr:
                 all_content = self.cache_mgr.load_content_index(all_files)
-            
+
             if all_content is None:
                 all_content = ""
                 for f in all_files:
                     try:
-                        all_content += f.read_text(encoding="utf-8", errors="ignore") + "\n"
+                        all_content += (
+                            f.read_text(encoding="utf-8", errors="ignore") + "\n"
+                        )
                     except Exception:
                         pass
-                
+
                 if self.cache_mgr:
                     self.cache_mgr.save_content_index(all_files, all_content)
-            
+
             # Analyze for uncalled functions and orphan classes
             uncalled = []
             orphans = []
@@ -302,17 +328,17 @@ class AuditOrchestrator:
                     orphans.extend(analyze_file_for_orphans(filepath, all_content))
                 except Exception:
                     pass
-            
+
             # Detect circular imports
             circular = detect_circular_imports(self.repo_root)
-            
+
             # Save results for next run
             if self.cache_mgr:
                 self.cache_mgr.save_results(uncalled, orphans, circular)
                 self.cache_mgr.update_manifest(all_files)
-            
+
             total_items = len(uncalled) + len(orphans) + len(circular)
-            
+
             return AuditResult(
                 audit_type=AuditType.CODE_INTEGRITY,
                 status="success",
@@ -339,35 +365,41 @@ class AuditOrchestrator:
                 items_medium=0,
                 items_low=0,
                 errors=[str(e)],
-        )
+            )
 
     def _run_infrastructure_audit(self) -> AuditResult:
         """Run infrastructure health audit."""
         import asyncio
-        
+
         try:
             # Run health probes
             probes = []
             for service_name, service_config in SERVICES.items():
                 probe_type = service_config.get("probe_type", "tcp")
                 if probe_type == "tcp":
-                    probes.append(TCPHealthProbe(
-                        name=service_name,
-                        host=service_config.get("host", "127.0.0.1"),
-                        port=service_config.get("port", 0),
-                    ))
+                    probes.append(
+                        TCPHealthProbe(
+                            name=service_name,
+                            host=service_config.get("host", "127.0.0.1"),
+                            port=service_config.get("port", 0),
+                        )
+                    )
                 elif probe_type == "http":
-                    probes.append(HTTPHealthProbe(
-                        name=service_name,
-                        url=service_config.get("url", ""),
-                    ))
+                    probes.append(
+                        HTTPHealthProbe(
+                            name=service_name,
+                            url=service_config.get("url", ""),
+                        )
+                    )
                 elif probe_type == "python_module":
-                    probes.append(PythonModuleHealthProbe(
-                        name=service_name,
-                        module_path=service_config.get("module_path", ""),
-                        class_name=service_config.get("class_name", ""),
-                    ))
-            
+                    probes.append(
+                        PythonModuleHealthProbe(
+                            name=service_name,
+                            module_path=service_config.get("module_path", ""),
+                            class_name=service_config.get("class_name", ""),
+                        )
+                    )
+
             # Run probes async
             async def run_probes():
                 results = []
@@ -375,21 +407,23 @@ class AuditOrchestrator:
                     result = await probe.check()
                     results.append(result)
                 return results
-            
+
             health_results = asyncio.run(run_probes())
-            
+
             # Validate config
             config_validations = validate_config()
-            
+
             # Check dependency DAG
             dep_checks = verify_dependency_dag()
-            
+
             # Count results
-            failed_probes = sum(1 for r in health_results if r.status.value == "unhealthy")
+            failed_probes = sum(
+                1 for r in health_results if r.status.value == "unhealthy"
+            )
             config_errors = sum(1 for v in config_validations if not v.valid)
-            
+
             total_items = len(health_results) + len(config_validations)
-            
+
             return AuditResult(
                 audit_type=AuditType.INFRASTRUCTURE_HEALTH,
                 status="success" if failed_probes == 0 else "partial",
@@ -421,11 +455,11 @@ class AuditOrchestrator:
 
     def _run_capability_audit(self) -> AuditResult:
         """Run capability inventory audit."""
-        
+
         try:
             # Get exposed tools from TOOL_EXECUTORS
             exposed_tools = get_exposed_tools(self.repo_root)
-            
+
             # Scan for async methods in key infrastructure files
             target_files = [
                 self.repo_root / "runtime" / "l_tools.py",
@@ -434,12 +468,12 @@ class AuditOrchestrator:
                 self.repo_root / "runtime" / "redis_client.py",
                 self.repo_root / "core" / "tools" / "tool_graph.py",
             ]
-            
+
             all_methods = []
             for filepath in target_files:
                 if filepath.exists():
                     all_methods.extend(get_async_methods(filepath))
-            
+
             # Filter out internal methods
             hidden_methods = []
             internal_count = 0
@@ -447,15 +481,17 @@ class AuditOrchestrator:
                 # Check if exposed
                 if method.name in exposed_tools:
                     continue
-                
+
                 # Check if internal (in exclusion set)
-                is_internal = method.name in EXCLUDED_METHODS or method.name.startswith("_")
+                is_internal = method.name in EXCLUDED_METHODS or method.name.startswith(
+                    "_"
+                )
                 if is_internal:
                     internal_count += 1
                     continue
-                
+
                 hidden_methods.append(method)
-            
+
             # Assess capabilities
             high_value = 0
             medium_value = 0
@@ -468,7 +504,7 @@ class AuditOrchestrator:
                     medium_value += 1
                 else:
                     low_value += 1
-            
+
             return AuditResult(
                 audit_type=AuditType.CAPABILITY_INVENTORY,
                 status="success",
@@ -496,26 +532,34 @@ class AuditOrchestrator:
                 items_medium=0,
                 items_low=0,
                 errors=[str(e)],
-        )
+            )
 
     def _run_dead_code_audit(self) -> AuditResult:
-        """Run dead code detection pipeline (Phases 1-4)."""
+        """Run dead code detection pipeline (Phases 1-4).
+
+        Pipeline:
+          Phase 1: find_dead_code.run_dead_code_audit() - Baseline static analysis
+          Phase 2: resolve_dead_code_refs.resolve_dead_code_refs() - False positive filtering
+          Phase 3: categorize_dead_code.categorize_dead_code() - Risk categorization
+          Phase 4: generate_gmp_todos.auto_fix_dead_code() - Auto-fix + GMP report
+        """
         try:
-            from scripts.audit.find_dead_code import run_dead_code_audit
-            from scripts.audit.resolve_dead_code_refs import resolve_dead_code_refs
-            from scripts.audit.categorize_dead_code import categorize_dead_code
-            from scripts.audit.generate_gmp_todos import generate_gmp_todos
-            
+            from find_dead_code import run_dead_code_audit as find_dead_code_baseline
+            from resolve_dead_code_refs import resolve_dead_code_refs
+            from categorize_dead_code import categorize_dead_code
+            from generate_gmp_todos import auto_fix_dead_code
+            from datetime import datetime
+
             # Phase 1: Baseline static analysis
             logger.info("Dead Code Phase 1: Baseline analysis...")
             baseline_output = self.repo_root / "reports" / "dead_code_baseline.json"
-            baseline_result = run_dead_code_audit(
+            baseline_result = find_dead_code_baseline(
                 repo_root=self.repo_root,
                 min_vulture_confidence=80,
                 parallel_workers=self.parallel_jobs,
                 output_file=baseline_output,
             )
-            
+
             # Phase 2: Resolve false positives
             logger.info("Dead Code Phase 2: Resolving false positives...")
             resolved_output = self.repo_root / "reports" / "dead_code_resolved.json"
@@ -524,34 +568,42 @@ class AuditOrchestrator:
                 repo_root=self.repo_root,
                 output_file=resolved_output,
             )
-            
+
             # Phase 3: Categorize by risk
             logger.info("Dead Code Phase 3: Categorizing by risk...")
-            categorized_output = self.repo_root / "reports" / "dead_code_risk_matrix.json"
+            categorized_output = (
+                self.repo_root / "reports" / "dead_code_risk_matrix.json"
+            )
             categorized_result = categorize_dead_code(
                 resolved_file=resolved_output,
                 repo_root=self.repo_root,
                 output_file=categorized_output,
             )
-            
-            # Phase 4: Generate GMP TODOs
-            logger.info("Dead Code Phase 4: Generating GMP TODOs...")
-            yaml_output = self.repo_root / "reports" / "dead_code_gmp_todos.yaml"
-            markdown_output = self.repo_root / "reports" / "dead_code_gmp_plan.md"
-            gmp_plan = generate_gmp_todos(
+
+            # Phase 4: Auto-fix safe items + generate GMP report
+            logger.info("Dead Code Phase 4: Auto-fix + GMP report generation...")
+            gmp_id = f"DeadCode-{datetime.now().strftime('%Y%m%d')}"
+            gmp_report_output = self.repo_root / "reports" / f"GMP_Report_{gmp_id}.md"
+            gmp_report = auto_fix_dead_code(
                 categorized_file=categorized_output,
                 repo_root=self.repo_root,
-                output_yaml=yaml_output,
-                output_markdown=markdown_output,
+                gmp_id=gmp_id,
+                dry_run=True,  # Don't auto-fix in audit mode, just analyze
+                output_file=gmp_report_output,
             )
-            
+
             # Build result summary
             total_findings = len(baseline_result.findings)
             false_positives = resolved_result.false_positives_eliminated
             high_risk = len(categorized_result.high_risk)
             medium_risk = len(categorized_result.medium_risk)
             low_risk = len(categorized_result.low_risk)
-            
+
+            # Count items from GMP report
+            auto_fixable = len(gmp_report.fixes)
+            manual_review = len(gmp_report.manual_review)
+            skipped = len(gmp_report.skipped)
+
             return AuditResult(
                 audit_type=AuditType.DEAD_CODE,
                 status="success",
@@ -567,25 +619,186 @@ class AuditOrchestrator:
                     "high_risk": high_risk,
                     "medium_risk": medium_risk,
                     "low_risk": low_risk,
-                    "auto_fixable": categorized_result.auto_fixable_count,
-                    "manual_review": categorized_result.manual_review_count,
-                    "gmp_todos_generated": len(gmp_plan.todos),
+                    "auto_fixable": auto_fixable,
+                    "manual_review": manual_review,
+                    "skipped_false_positives": skipped,
                 },
                 file_outputs={
                     "baseline": baseline_output,
                     "resolved": resolved_output,
                     "categorized": categorized_output,
-                    "gmp_yaml": yaml_output,
-                    "gmp_markdown": markdown_output,
+                    "gmp_report": gmp_report_output,
                 },
             )
-            
+
         except Exception as e:
             logger.error(f"Dead code audit failed: {e}")
             import traceback
+
             traceback.print_exc()
             return AuditResult(
                 audit_type=AuditType.DEAD_CODE,
+                status="failure",
+                duration_ms=0,
+                items_found=0,
+                items_critical=0,
+                items_high=0,
+                items_medium=0,
+                items_low=0,
+                errors=[str(e)],
+            )
+
+    def _run_wiring_alignment_audit(self) -> AuditResult:
+        """Run wiring alignment verification (doc-code path alignment)."""
+        try:
+            from verify_wiring_alignment import scan_repository
+
+            result = scan_repository()
+
+            total_issues = len(result.broken_docs) + len(result.deprecated_refs)
+
+            return AuditResult(
+                audit_type=AuditType.WIRING_ALIGNMENT,
+                status="success" if result.is_green else "partial",
+                duration_ms=0,
+                items_found=len(result.verified_paths),
+                items_critical=len(result.missing_canonical),
+                items_high=len(result.broken_docs),
+                items_medium=len(result.deprecated_refs),
+                items_low=0,
+                data={
+                    "verified_paths": len(result.verified_paths),
+                    "broken_docs": len(result.broken_docs),
+                    "deprecated_refs": len(result.deprecated_refs),
+                    "missing_canonical": len(result.missing_canonical),
+                    "files_scanned": result.total_scanned,
+                    "is_green": result.is_green,
+                },
+            )
+        except Exception as e:
+            logger.error(f"Wiring alignment audit failed: {e}")
+            return AuditResult(
+                audit_type=AuditType.WIRING_ALIGNMENT,
+                status="failure",
+                duration_ms=0,
+                items_found=0,
+                items_critical=0,
+                items_high=0,
+                items_medium=0,
+                items_low=0,
+                errors=[str(e)],
+            )
+
+    def _run_memory_spec_audit(self) -> AuditResult:
+        """Run memory spec v3.0 verification."""
+        try:
+            import subprocess
+
+            # Run the verification script and capture output
+            proc = subprocess.run(
+                ["python3", "scripts/audit/verify_memory_spec_v3.py"],
+                cwd=self.repo_root,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+
+            # Parse output for pass/fail counts
+            output = proc.stdout + proc.stderr
+            passed = proc.returncode == 0
+
+            # Count checks from output (rough parsing)
+            check_passed = output.count("✅")
+            check_failed = output.count("❌")
+            check_warn = output.count("⚠")
+
+            return AuditResult(
+                audit_type=AuditType.MEMORY_SPEC,
+                status="success" if passed else "failure",
+                duration_ms=0,
+                items_found=check_passed + check_failed + check_warn,
+                items_critical=check_failed,
+                items_high=0,
+                items_medium=check_warn,
+                items_low=check_passed,
+                data={
+                    "exit_code": proc.returncode,
+                    "checks_passed": check_passed,
+                    "checks_failed": check_failed,
+                    "checks_warned": check_warn,
+                    "output": output[:2000] if len(output) > 2000 else output,
+                },
+            )
+        except subprocess.TimeoutExpired:
+            return AuditResult(
+                audit_type=AuditType.MEMORY_SPEC,
+                status="failure",
+                duration_ms=60000,
+                items_found=0,
+                items_critical=1,
+                items_high=0,
+                items_medium=0,
+                items_low=0,
+                errors=["Memory spec verification timed out (60s)"],
+            )
+        except Exception as e:
+            logger.error(f"Memory spec audit failed: {e}")
+            return AuditResult(
+                audit_type=AuditType.MEMORY_SPEC,
+                status="failure",
+                duration_ms=0,
+                items_found=0,
+                items_critical=0,
+                items_high=0,
+                items_medium=0,
+                items_low=0,
+                errors=[str(e)],
+            )
+
+    def _run_api_signatures_audit(self) -> AuditResult:
+        """Run API signature mismatch audit.
+
+        Detects:
+          - Missing required kwargs
+          - Deprecated parameter names
+          - .value access on string-returning functions
+          - httpx API version mismatches
+        """
+        try:
+            from audit_api_signatures import run_api_signature_audit
+
+            result = run_api_signature_audit(repo_root=self.repo_root)
+
+            return AuditResult(
+                audit_type=AuditType.API_SIGNATURES,
+                status="success" if result.critical_count == 0 else "failure",
+                duration_ms=0,
+                items_found=result.total_mismatches,
+                items_critical=result.critical_count,
+                items_high=result.high_count,
+                items_medium=result.medium_count,
+                items_low=result.low_count,
+                data={
+                    "files_scanned": result.total_files_scanned,
+                    "mismatches": [
+                        {
+                            "file": m.filepath,
+                            "line": m.line,
+                            "function": m.function_name,
+                            "issue": m.issue,
+                            "severity": m.severity.value,
+                        }
+                        for m in result.mismatches[:20]  # Limit to first 20
+                    ],
+                },
+            )
+        except Exception as e:
+            logger.error(f"API signatures audit failed: {e}")
+            import traceback
+
+            traceback.print_exc()
+            return AuditResult(
+                audit_type=AuditType.API_SIGNATURES,
                 status="failure",
                 duration_ms=0,
                 items_found=0,
@@ -634,12 +847,18 @@ class AuditOrchestrator:
         deprecated_violations = validate_no_deprecated_paths(CACHE_DIR)
         if deprecated_violations:
             logger.warning("=" * 70)
-            logger.warning("WIRING INVARIANT VIOLATION: Deprecated paths in audit cache")
+            logger.warning(
+                "WIRING INVARIANT VIOLATION: Deprecated paths in audit cache"
+            )
             logger.warning("=" * 70)
             for violation in deprecated_violations:
                 logger.warning(f"  {violation}")
-            logger.warning("These files were moved per architecture_decisions.md (2026-01-11)")
-            logger.warning("Run with --skip-cache to regenerate, or delete .audit_cache/")
+            logger.warning(
+                "These files were moved per architecture_decisions.md (2026-01-11)"
+            )
+            logger.warning(
+                "Run with --skip-cache to regenerate, or delete .audit_cache/"
+            )
             logger.warning("=" * 70)
             self.errors.extend(deprecated_violations)
 
@@ -667,6 +886,9 @@ class AuditOrchestrator:
                 AuditType.INFRASTRUCTURE_HEALTH,
                 AuditType.CAPABILITY_INVENTORY,
                 AuditType.DEAD_CODE,
+                AuditType.WIRING_ALIGNMENT,
+                AuditType.MEMORY_SPEC,
+                AuditType.API_SIGNATURES,
             ]
         elif tier == 2:
             return [
@@ -691,14 +913,13 @@ class AuditOrchestrator:
         """Generate JSON report."""
         report_data = {
             "run_id": self.run_id,
-            "results": {
-                k.value: asdict(v)
-                for k, v in self.audit_results.items()
-            },
+            "results": {k.value: asdict(v) for k, v in self.audit_results.items()},
             "summary": self._build_summary(),
         }
 
-        output_file = self.reporter.to_json(report_data, f"audit_run_{self.run_id}.json")
+        output_file = self.reporter.to_json(
+            report_data, f"audit_run_{self.run_id}.json"
+        )
         logger.info(f"✓ JSON report: {output_file}")
 
     def _generate_html_report(self):
@@ -762,7 +983,9 @@ class AuditOrchestrator:
             "total_items": total_items,
             "critical": total_critical,
             "high": total_high,
-            "succeeded": sum(1 for r in self.audit_results.values() if r.status == "success"),
+            "succeeded": sum(
+                1 for r in self.audit_results.values() if r.status == "success"
+            ),
             "failed": len(self.errors),
         }
 
@@ -786,9 +1009,11 @@ class AuditOrchestrator:
 
         logger.info("=" * 70)
 
+
 # =============================================================================
 # CLI INTERFACE
 # =============================================================================
+
 
 def main():
     """Command-line interface."""
@@ -864,6 +1089,7 @@ def main():
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

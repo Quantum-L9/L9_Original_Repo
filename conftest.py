@@ -32,3 +32,26 @@ try:
     import core.packet_envelope
 except ImportError:
     pass  # Will be reported as test failure
+
+# Pre-import memory.graph_client to ensure it's available for lazy imports
+# in core.agents.bootstrap phases (fixes pytest import resolution)
+try:
+    import memory.graph_client  # noqa: F401
+except ImportError:
+    pass  # Will be handled as test failure where needed
+
+# Pre-import runtime.kernel_state and runtime.execution_gate for pytest
+# (fixes ModuleNotFoundError in kernel runtime tests)
+try:
+    import runtime.kernel_state  # noqa: F401
+    import runtime.execution_gate  # noqa: F401
+except ImportError:
+    pass  # Will be handled as test failure where needed
+
+# Pre-import agents.l_cto for pytest
+# (fixes ModuleNotFoundError in L-CTO bootstrap tests)
+# NOTE: tests/core/agents/ renamed to tests/core/bootstrap/ to avoid namespace collision
+try:
+    import agents.l_cto  # noqa: F401
+except ImportError:
+    pass  # Will be handled as test failure where needed

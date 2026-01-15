@@ -197,7 +197,7 @@ CREATE TABLE packet_store (
 │             ▼                                                       │
 │  ┌──────────────────────┐                                          │
 │  │    SubstrateDAG      │ ◄── LangGraph DAG Pipeline               │
-│  │ (substrate_graph.py) │     (memory/substrate_graph.py:749)      │
+│  │ (substrate_graph.py) │     (memory/substrate_dag.py:749)      │
 │  └──────────┬───────────┘                                          │
 │             │                                                       │
 │             ▼                                                       │
@@ -225,7 +225,7 @@ CREATE TABLE packet_store (
 | API Endpoint | `api/memory/router.py:79` | ✅ | POST /packet |
 | Canonical Entry | `memory/ingestion.py:557` | ✅ | ingest_packet() |
 | Service Layer | `memory/substrate_service.py:158` | ✅ | write_packet() |
-| DAG Pipeline | `memory/substrate_graph.py:770` | ✅ | SubstrateDAG.run() |
+| DAG Pipeline | `memory/substrate_dag.py:770` | ✅ | SubstrateDAG.run() |
 | Repository | `memory/substrate_repository.py:121` | ✅ | insert_packet() |
 
 ### 3.3 Validation Gaps

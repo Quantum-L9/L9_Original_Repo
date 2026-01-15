@@ -51,6 +51,7 @@ except ImportError:
     def init_metrics():
         return False
 
+
 # Optional: World Model API (v1.1.0+)
 try:
     from api.world_model_api import router as world_model_router
@@ -200,9 +201,19 @@ except ImportError:
 # Optional: Cursor Executor (GMP-48)
 try:
     from api.routes.cursor import router as cursor_router
+    from agents.cursor.integrations.cursor_executor import CursorExecutor
+    from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
+    from agents.cursor.integrations.cursor_langgraph import build_cursor_langgraph
+    from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
+    from memory.checkpoint.postgres_saver import L9PostgresSaver
+    from memory.substrate_dag_wrapper import SubstrateDagOrchestrator
+    from memory.substrate_dag import SubstrateDAG
+    from core.governance.approval_manager import ApprovalManager
+    from config.cursor_langgraph_config import get_cursor_langgraph_config
 
     _has_cursor_executor = True
-except ImportError:
+except ImportError as e:
+    logger.debug(f"Cursor Executor not available: {e}")
     _has_cursor_executor = False
 
 # Optional: Governance Engine (v2.4+)
@@ -285,7 +296,10 @@ except ImportError:
 # Optional: Five-Tier Observability (v3.3+ GMP-OBS-DEPLOY)
 L9_OBSERVABILITY = os.getenv("L9_OBSERVABILITY", "true").lower() == "true"
 try:
-    from core.observability.service import initialize_observability, ObservabilityService
+    from core.observability.service import (
+        initialize_observability,
+        ObservabilityService,
+    )
     from core.observability.l9_integration import (
         instrument_agent_executor,
         instrument_tool_registry,
@@ -369,6 +383,7 @@ _has_email_agent = False
 if settings.email_agent_enabled:
     try:
         from email_agent.router import router as email_agent_router
+
         _has_email_agent = True
     except ImportError as e:
         logger.warning(f"Email Agent import failed: {e}")
@@ -536,7 +551,9 @@ async def lifespan(app: FastAPI):
                 # Restore agent checkpoints on startup (best-effort)
                 try:
                     default_agent_id = os.getenv("DEFAULT_AGENT_ID", "l9-standard-v1")
-                    restored_state = await agent_persistence.restore_checkpoint(default_agent_id)
+                    restored_state = await agent_persistence.restore_checkpoint(
+                        default_agent_id
+                    )
                     if restored_state:
                         logger.info(
                             "Agent checkpoint restored on startup",
@@ -545,14 +562,18 @@ async def lifespan(app: FastAPI):
                         )
                         app.state.restored_agent_state = restored_state
                     else:
-                        logger.debug("No checkpoint found for agent", agent_id=default_agent_id)
+                        logger.debug(
+                            "No checkpoint found for agent", agent_id=default_agent_id
+                        )
                         app.state.restored_agent_state = None
                 except Exception as restore_err:
                     logger.warning(f"Failed to restore agent checkpoint: {restore_err}")
                     app.state.restored_agent_state = None
 
             except Exception as persistence_err:
-                logger.warning(f"Failed to initialize agent persistence: {persistence_err}")
+                logger.warning(
+                    f"Failed to initialize agent persistence: {persistence_err}"
+                )
                 app.state.agent_persistence = None
                 app.state.restored_agent_state = None
 
@@ -578,16 +599,17 @@ async def lifespan(app: FastAPI):
         try:
             import sys
             from pathlib import Path
+
             mcp_path = Path(__file__).parent.parent / "mcp_memory"
             if str(mcp_path) not in sys.path:
                 sys.path.insert(0, str(mcp_path))
-            
+
             from src.db import init_db as mcp_init_db
             from src.config import settings as mcp_settings
-            
+
             # Set MCP config to use same database
             mcp_settings.MEMORY_DSN = database_url
-            
+
             await mcp_init_db()
             app.state.mcp_db_initialized = True
             logger.info("MCP Memory DB pool initialized (for /mcp/call routes)")
@@ -736,6 +758,20 @@ async def lifespan(app: FastAPI):
             )
 
             # ========================================================================
+            # GMP-78: Sync tool embeddings for semantic tool retrieval
+            # ========================================================================
+            try:
+                from core.tools.tool_embeddings import sync_all_tool_embeddings
+
+                tool_embedding_count = await sync_all_tool_embeddings()
+                logger.info(f"Tool embeddings synced: {tool_embedding_count} tools")
+            except ImportError:
+                logger.debug("Tool embeddings service not available (optional)")
+            except Exception as e:
+                # Non-fatal: semantic tool retrieval is an optimization
+                logger.warning(f"Tool embedding sync failed (non-fatal): {e}")
+
+            # ========================================================================
             # SESSION STARTUP: Preflight checks + kernel readiness gate (v3.4+)
             # ========================================================================
             app.state.session_startup_result = None
@@ -743,9 +779,13 @@ async def lifespan(app: FastAPI):
 
             # Skip startup checks in container environments (broken symlinks, missing governance files)
             # Detection: L9_SKIP_STARTUP_CHECKS=true OR running in Docker (/app as cwd)
-            skip_startup = os.getenv("L9_SKIP_STARTUP_CHECKS", "false").lower() in ("true", "1", "yes")
+            skip_startup = os.getenv("L9_SKIP_STARTUP_CHECKS", "false").lower() in (
+                "true",
+                "1",
+                "yes",
+            )
             in_container = str(Path.cwd()) == "/app" or os.path.exists("/.dockerenv")
-            
+
             if skip_startup or in_container:
                 logger.info("╔════════════════════════════════════════╗")
                 logger.info("║  Skipping Session Startup (container)  ║")
@@ -781,7 +821,9 @@ async def lifespan(app: FastAPI):
                         logger.critical(
                             "❌ Session Startup FAILED: status=%s, errors=%s",
                             startup_result.status,
-                            startup_result.errors[:3] if startup_result.errors else "none",
+                            startup_result.errors[:3]
+                            if startup_result.errors
+                            else "none",
                         )
                         # In production, this should be fatal
                         # For dev, we continue with degraded mode
@@ -790,11 +832,15 @@ async def lifespan(app: FastAPI):
                                 logger.warning("  Startup warning: %s", warning)
 
                 except Exception as e:
-                    logger.critical("Session Startup crashed: %s", str(e), exc_info=True)
+                    logger.critical(
+                        "Session Startup crashed: %s", str(e), exc_info=True
+                    )
                     app.state.startup_ready = False
                     # Non-fatal in dev mode
             else:
-                logger.warning("SessionStartup not available - skipping preflight checks")
+                logger.warning(
+                    "SessionStartup not available - skipping preflight checks"
+                )
                 app.state.startup_ready = True  # Assume ready if no checks available
 
             # Initialize agent registry with kernel loading - FAIL LOUDLY if unavailable
@@ -804,7 +850,7 @@ async def lifespan(app: FastAPI):
                     "Server cannot start without agent configuration capability. "
                     "Check core/agents/registry.py exists and imports cleanly."
                 )
-            
+
             logger.debug("Attempting to create kernel-aware agent registry...")
             logger.info("Initializing Kernel-Aware Agent Registry...")
             try:
@@ -816,20 +862,30 @@ async def lifespan(app: FastAPI):
                 )
             except RuntimeError as e:
                 # Kernel loading failed - this is critical
-                logger.critical("FATAL: Kernel loading failed: %s", str(e), exc_info=True)
+                logger.critical(
+                    "FATAL: Kernel loading failed: %s", str(e), exc_info=True
+                )
                 # In production, you might want to crash here
                 # For dev, fall back to stub
                 logger.warning("Falling back to stub agent registry")
                 agent_registry = None
             except Exception as e:
                 # Unexpected error during kernel registry creation
-                logger.critical("FATAL: Unexpected error creating kernel registry: %s", str(e), exc_info=True)
+                logger.critical(
+                    "FATAL: Unexpected error creating kernel registry: %s",
+                    str(e),
+                    exc_info=True,
+                )
                 logger.warning("Falling back to stub agent registry")
                 agent_registry = None
 
             # Create executor
-            logger.debug("Creating AgentExecutorService with aios_runtime=%s, tool_registry=%s, agent_registry=%s", 
-                        aios_runtime is not None, tool_registry is not None, type(agent_registry).__name__ if agent_registry else "None")
+            logger.debug(
+                "Creating AgentExecutorService with aios_runtime=%s, tool_registry=%s, agent_registry=%s",
+                aios_runtime is not None,
+                tool_registry is not None,
+                type(agent_registry).__name__ if agent_registry else "None",
+            )
             executor = AgentExecutorService(
                 aios_runtime=aios_runtime,
                 tool_registry=tool_registry,
@@ -845,7 +901,9 @@ async def lifespan(app: FastAPI):
 
             # Initialize ActionToolOrchestrator (for /tools/execute endpoint)
             try:
-                from orchestrators.action_tool.orchestrator import ActionToolOrchestrator
+                from orchestrators.action_tool.orchestrator import (
+                    ActionToolOrchestrator,
+                )
 
                 gov_engine = getattr(app.state, "governance_engine", None)
                 action_tool_orchestrator = ActionToolOrchestrator(
@@ -894,7 +952,9 @@ async def lifespan(app: FastAPI):
                     app.state.research_swarm_orchestrator = research_swarm_orchestrator
                     logger.info("ResearchSwarmOrchestrator initialized")
                 except Exception as swarm_err:
-                    logger.warning(f"ResearchSwarmOrchestrator init failed: {swarm_err}")
+                    logger.warning(
+                        f"ResearchSwarmOrchestrator init failed: {swarm_err}"
+                    )
                     app.state.research_swarm_orchestrator = None
             else:
                 app.state.research_swarm_orchestrator = None
@@ -913,6 +973,70 @@ async def lifespan(app: FastAPI):
                 logger.warning(f"WorldModelService init failed: {wm_err}")
                 app.state.world_model_service = None
 
+            # Initialize CursorExecutor (GMP-87: Wire to app.state for /cursor routes)
+            if _has_cursor_executor:
+                try:
+                    # Get repository from substrate_service
+                    repository = app.state.substrate_service._repository
+
+                    # Build dependency chain
+                    cursor_config = get_cursor_langgraph_config()
+
+                    # 1. SubstrateDAG + Orchestrator
+                    substrate_dag = SubstrateDAG(
+                        repository=repository,
+                        semantic_service=app.state.substrate_service._semantic_service,
+                    )
+                    dag_orchestrator = SubstrateDagOrchestrator(dag=substrate_dag)
+
+                    # 2. Memory Gateway
+                    memory_gateway = CursorMemoryGateway(
+                        dag_orchestrator=dag_orchestrator
+                    )
+
+                    # 3. PostgresSaver + Checkpoint Manager
+                    postgres_saver = L9PostgresSaver(repository=repository)
+                    checkpoint_manager = CursorCheckpointManager(
+                        postgres_saver=postgres_saver,
+                        memory_gateway=memory_gateway,
+                    )
+
+                    # 4. Approval Manager
+                    approval_manager = ApprovalManager(
+                        substrate_service=app.state.substrate_service
+                    )
+
+                    # 5. Build LangGraph app (using a deps object)
+                    class CursorGraphDeps:
+                        pass
+
+                    deps = CursorGraphDeps()
+                    deps.memory_gateway = memory_gateway
+                    deps.approval_gate = approval_manager
+                    deps.checkpoint_manager = checkpoint_manager
+
+                    langgraph_app = build_cursor_langgraph(
+                        config=cursor_config,
+                        deps=deps,
+                    )
+
+                    # 6. Create CursorExecutor
+                    cursor_executor = CursorExecutor(
+                        langgraph_app=langgraph_app,
+                        memory_gateway=memory_gateway,
+                        dag_orchestrator=dag_orchestrator,
+                        checkpoint_manager=checkpoint_manager,
+                        approval_manager=approval_manager,
+                    )
+
+                    app.state.cursor_executor = cursor_executor
+                    logger.info("CursorExecutor initialized (GMP-87)")
+                except Exception as cursor_err:
+                    logger.warning(f"CursorExecutor init failed: {cursor_err}")
+                    app.state.cursor_executor = None
+            else:
+                app.state.cursor_executor = None
+
         except Exception as e:
             logger.error(f"Failed to initialize Agent Executor: {e}", exc_info=True)
             app.state.agent_executor = None
@@ -921,13 +1045,16 @@ async def lifespan(app: FastAPI):
             app.state.agent_registry = None
     elif _has_agent_executor:
         # Log detailed reason WHY substrate_service is missing
-        substrate_error = getattr(app.state, "_substrate_init_error", "unknown - no error stored")
+        substrate_error = getattr(
+            app.state, "_substrate_init_error", "unknown - no error stored"
+        )
         logger.error(
             "agent_executor.SKIPPED",
             reason="substrate_service_not_available",
             substrate_init_error=substrate_error,
             substrate_service_exists=hasattr(app.state, "substrate_service"),
-            substrate_service_is_none=getattr(app.state, "substrate_service", None) is None,
+            substrate_service_is_none=getattr(app.state, "substrate_service", None)
+            is None,
         )
         app.state.agent_executor = None
         app.state.aios_runtime = None
@@ -938,15 +1065,16 @@ async def lifespan(app: FastAPI):
     # CRITICAL HEALTH CHECK: Verify agent_executor if new Slack routing enabled
     # =========================================================================
     from config.settings import get_integration_settings
+
     settings = get_integration_settings()
-    
+
     # Check if legacy Slack router is disabled (new routing enabled)
     legacy_slack_enabled = getattr(settings, "l9_enable_legacy_slack_router", False)
-    
+
     if not legacy_slack_enabled:
         # New Slack routing is enabled - agent_executor is REQUIRED
         agent_executor = getattr(app.state, "agent_executor", None)
-        
+
         if agent_executor is None:
             logger.critical(
                 "╔═══════════════════════════════════════════════════════════════╗\n"
@@ -966,7 +1094,9 @@ async def lifespan(app: FastAPI):
                 "Set L9_ENABLE_LEGACY_SLACK_ROUTER=true or fix initialization."
             )
         else:
-            logger.info("✓ Health Check PASSED: Agent Executor is available for Slack routing")
+            logger.info(
+                "✓ Health Check PASSED: Agent Executor is available for Slack routing"
+            )
 
     # Initialize Slack adapter (if enabled)
     if _has_slack:
@@ -1056,7 +1186,9 @@ async def lifespan(app: FastAPI):
                         sops=bootstrap_result.get("sops", 0),
                     )
                 else:
-                    logger.warning(f"Governance schema bootstrap failed: {bootstrap_result.get('error')}")
+                    logger.warning(
+                        f"Governance schema bootstrap failed: {bootstrap_result.get('error')}"
+                    )
             except Exception as e:
                 logger.warning(f"Failed to bootstrap governance schema: {e}")
 
@@ -1195,7 +1327,9 @@ async def lifespan(app: FastAPI):
                 logger.info(
                     "✓ L-CTO Agent Bootstrap complete",
                     instance_id=l_instance.instance_id[:12],
-                    signature=l_instance.initialization_signature[:16] if l_instance.initialization_signature else "none",
+                    signature=l_instance.initialization_signature[:16]
+                    if l_instance.initialization_signature
+                    else "none",
                 )
             else:
                 logger.warning("Bootstrap skipped: substrate_service not available")
@@ -1276,14 +1410,14 @@ async def lifespan(app: FastAPI):
             logger.warning(
                 "⚠️ Tool registration returned 0 tools. "
                 "System will operate in degraded mode.",
-                extra={"alert": "tool_graph_degraded"}
+                extra={"alert": "tool_graph_degraded"},
             )
             app.state.tool_graph_healthy = False
     except Exception as e:
         logger.error(
             f"❌ Tool registration failed: {e}. Tool graph unavailable.",
             exc_info=True,
-            extra={"alert": "tool_graph_failed"}
+            extra={"alert": "tool_graph_failed"},
         )
         app.state.tool_graph_healthy = False
         # Non-fatal: tools still work via direct executor dispatch
@@ -1322,7 +1456,9 @@ async def lifespan(app: FastAPI):
             logger.warning("⚠️ Prometheus metrics init returned False")
     else:
         app.state.prometheus_enabled = False
-        logger.info("Prometheus metrics not available (prometheus_client not installed)")
+        logger.info(
+            "Prometheus metrics not available (prometheus_client not installed)"
+        )
 
     # ========================================================================
     # STAGE 3 MODULES: Tool Audit, Event Queue, Virtual Context, Evaluator
@@ -1378,7 +1514,9 @@ async def lifespan(app: FastAPI):
                 app.state.virtual_context_manager = virtual_context
                 logger.info("✓ VirtualContextManager initialized (tiered memory)")
             except Exception as e:
-                logger.error(f"❌ VirtualContextManager init failed: {e}", exc_info=True)
+                logger.error(
+                    f"❌ VirtualContextManager init failed: {e}", exc_info=True
+                )
                 app.state.virtual_context_manager = None
         else:
             app.state.virtual_context_manager = None
@@ -1410,7 +1548,9 @@ async def lifespan(app: FastAPI):
     # ========================================================================
     import asyncio  # Ensure asyncio is available for this block
 
-    L9_STAGE4_CONSOLIDATION = os.getenv("L9_STAGE4_CONSOLIDATION", "true").lower() == "true"
+    L9_STAGE4_CONSOLIDATION = (
+        os.getenv("L9_STAGE4_CONSOLIDATION", "true").lower() == "true"
+    )
 
     if L9_STAGE4_CONSOLIDATION:
         logger.info("╔════════════════════════════════════════╗")
@@ -1420,7 +1560,9 @@ async def lifespan(app: FastAPI):
         try:
             from core.memory.virtual_context import MemoryConsolidationService
 
-            substrate = getattr(app.state, "substrate_service", None) or getattr(app.state, "memory_service", None)
+            substrate = getattr(app.state, "substrate_service", None) or getattr(
+                app.state, "memory_service", None
+            )
             llm_service = getattr(app.state, "llm_service", None)
 
             if substrate:
@@ -1436,36 +1578,60 @@ async def lifespan(app: FastAPI):
                 # schedule: weekly_saturday_2am_utc (see orchestrators/memory/housekeeping.py run_consolidation())
                 async def run_consolidation_loop():
                     """Background task for periodic memory consolidation"""
-                    consolidation_interval = int(os.getenv("L9_CONSOLIDATION_INTERVAL_HOURS", "4")) * 3600
-                    logger.info(f"Memory consolidation scheduled every {consolidation_interval // 3600} hours")
-                    
+                    consolidation_interval = (
+                        int(os.getenv("L9_CONSOLIDATION_INTERVAL_HOURS", "4")) * 3600
+                    )
+                    logger.info(
+                        f"Memory consolidation scheduled every {consolidation_interval // 3600} hours"
+                    )
+
                     while True:
                         try:
                             await asyncio.sleep(consolidation_interval)
                             logger.info("Running scheduled memory consolidation...")
                             # Consolidate for L (primary agent)
-                            if hasattr(consolidation_service, 'consolidate'):
-                                metrics = consolidation_service.get_metrics() if hasattr(consolidation_service, 'get_metrics') else {}
+                            if hasattr(consolidation_service, "consolidate"):
+                                metrics = (
+                                    consolidation_service.get_metrics()
+                                    if hasattr(consolidation_service, "get_metrics")
+                                    else {}
+                                )
                                 logger.info(f"Consolidation metrics: {metrics}")
-                            
+
                             # UKG Phase 5: Consolidate graph state (if method exists)
-                            if hasattr(consolidation_service, 'consolidate_graph_state'):
+                            if hasattr(
+                                consolidation_service, "consolidate_graph_state"
+                            ):
                                 try:
-                                    graph_result = await consolidation_service.consolidate_graph_state("L")
-                                    logger.info(f"Graph state consolidation: {graph_result.get('status', 'UNKNOWN')}")
+                                    graph_result = await consolidation_service.consolidate_graph_state(
+                                        "L"
+                                    )
+                                    logger.info(
+                                        f"Graph state consolidation: {graph_result.get('status', 'UNKNOWN')}"
+                                    )
                                 except Exception as e:
-                                    logger.warning(f"Graph state consolidation failed: {e}")
+                                    logger.warning(
+                                        f"Graph state consolidation failed: {e}"
+                                    )
                         except asyncio.CancelledError:
                             logger.info("Consolidation loop cancelled")
                             break
                         except Exception as e:
-                            logger.error(f"Consolidation loop error: {e}", exc_info=True)
+                            logger.error(
+                                f"Consolidation loop error: {e}", exc_info=True
+                            )
 
                 # Start background consolidation task
-                app.state.consolidation_task = asyncio.create_task(run_consolidation_loop())
-                logger.info("✓ MemoryConsolidationService initialized (24h cleanup cycle)")
+                app.state.consolidation_task = asyncio.create_task(
+                    run_consolidation_loop()
+                )
+                logger.info(
+                    "✓ MemoryConsolidationService initialized (24h cleanup cycle)"
+                )
             else:
-                logger.warning("⚠️ Consolidation not started: substrate_service not available")
+                logger.warning(
+                    "⚠️ Consolidation not started: substrate_service not available"
+                )
                 app.state.consolidation_service = None
 
         except ImportError as e:
@@ -1520,15 +1686,11 @@ async def lifespan(app: FastAPI):
                     logger.info("✓ L agent found in Neo4j graph")
                 else:
                     logger.warning("L agent not in graph - run migration script")
-                    logger.info(
-                        "  python scripts/migrate_kernels_to_graph.py"
-                    )
+                    logger.info("  python scripts/migrate_kernels_to_graph.py")
 
                 logger.info("Stage 5 (Graph-Backed Agent State) complete")
             else:
-                logger.warning(
-                    "⚠️ Stage 5 not started: neo4j_client not available"
-                )
+                logger.warning("⚠️ Stage 5 not started: neo4j_client not available")
                 app.state.agent_graph_loader = None
                 app.state.graph_hydrator = None
                 app.state.agent_self_modify_tool = None
@@ -1539,9 +1701,7 @@ async def lifespan(app: FastAPI):
             app.state.graph_hydrator = None
             app.state.agent_self_modify_tool = None
     elif L9_GRAPH_AGENT_STATE and not _has_graph_agent_state:
-        logger.warning(
-            "Stage 5 enabled but graph_state module not available"
-        )
+        logger.warning("Stage 5 enabled but graph_state module not available")
     else:
         logger.debug("Stage 5 (Graph-Backed Agent State) disabled")
 
@@ -1549,14 +1709,14 @@ async def lifespan(app: FastAPI):
     # STARTUP: UKG Phase 3 - Graph to World Model Sync (optional)
     # ========================================================================
     L9_GRAPH_WM_SYNC = os.getenv("L9_GRAPH_WM_SYNC", "true").lower() == "true"
-    
+
     if L9_GRAPH_WM_SYNC:
         try:
             from core.integration.graph_to_wm_sync import (
                 start_graph_wm_sync,
                 get_graph_wm_sync,
             )
-            
+
             # Pass neo4j_driver to sync service
             neo4j_for_sync = getattr(app.state, "neo4j_client", None)
             await start_graph_wm_sync(neo4j_driver=neo4j_for_sync)
@@ -1575,17 +1735,17 @@ async def lifespan(app: FastAPI):
     # ========================================================================
     # STARTUP: UKG Phase 4 - Tool Pattern Extraction (optional)
     # ========================================================================
-    L9_TOOL_PATTERN_EXTRACTION = os.getenv(
-        "L9_TOOL_PATTERN_EXTRACTION", "true"
-    ).lower() == "true"
-    
+    L9_TOOL_PATTERN_EXTRACTION = (
+        os.getenv("L9_TOOL_PATTERN_EXTRACTION", "true").lower() == "true"
+    )
+
     if L9_TOOL_PATTERN_EXTRACTION:
         try:
             from core.integration.tool_pattern_extractor import (
                 start_tool_pattern_extraction,
                 get_tool_pattern_extractor,
             )
-            
+
             await start_tool_pattern_extraction()
             app.state.tool_pattern_extractor = get_tool_pattern_extractor()
             logger.info("✅ UKG Phase 4: Tool Pattern Extraction started (6h interval)")
@@ -1596,7 +1756,9 @@ async def lifespan(app: FastAPI):
             logger.error(f"Tool Pattern Extraction init failed: {e}")
             app.state.tool_pattern_extractor = None
     else:
-        logger.debug("Tool Pattern Extraction disabled (L9_TOOL_PATTERN_EXTRACTION=false)")
+        logger.debug(
+            "Tool Pattern Extraction disabled (L9_TOOL_PATTERN_EXTRACTION=false)"
+        )
         app.state.tool_pattern_extractor = None
 
     # ========================================================================
@@ -1700,9 +1862,15 @@ async def lifespan(app: FastAPI):
             logger.warning(f"Error saving agent checkpoint on shutdown: {e}")
 
     # Stop UKG Phase 4: Tool Pattern Extraction
-    if hasattr(app.state, "tool_pattern_extractor") and app.state.tool_pattern_extractor:
+    if (
+        hasattr(app.state, "tool_pattern_extractor")
+        and app.state.tool_pattern_extractor
+    ):
         try:
-            from core.integration.tool_pattern_extractor import stop_tool_pattern_extraction
+            from core.integration.tool_pattern_extractor import (
+                stop_tool_pattern_extraction,
+            )
+
             await stop_tool_pattern_extraction()
             logger.info("Tool Pattern Extraction stopped")
         except Exception as e:
@@ -1712,6 +1880,7 @@ async def lifespan(app: FastAPI):
     if hasattr(app.state, "graph_wm_sync") and app.state.graph_wm_sync:
         try:
             from core.integration.graph_to_wm_sync import stop_graph_wm_sync
+
             await stop_graph_wm_sync()
             logger.info("Graph-WM Sync stopped")
         except Exception as e:
@@ -1774,6 +1943,7 @@ async def lifespan(app: FastAPI):
     # Cleanup World Model Service singleton
     try:
         from world_model.service import close_world_model_service
+
         await close_world_model_service()
         logger.info("World Model Service closed")
     except ImportError:
@@ -1828,6 +1998,7 @@ async def lifespan(app: FastAPI):
     if getattr(app.state, "mcp_db_initialized", False):
         try:
             from src.db import close_db as mcp_close_db
+
             await mcp_close_db()
             logger.info("MCP Memory DB pool closed")
         except Exception as e:
@@ -1977,11 +2148,13 @@ async def startup_health():
 # Kernel Reload Endpoint (v3.4+ / GMP-KERNEL-BOOT)
 class KernelReloadRequest(BaseModel):
     """Request body for kernel reload."""
+
     force: bool = False
 
 
 class KernelReloadResponse(BaseModel):
     """Response from kernel reload."""
+
     success: bool
     kernels_reloaded: int
     modified_kernels: list[str]
@@ -2390,6 +2563,7 @@ if _has_cursor_executor:
 # Compliance router (GMP-21)
 try:
     from api.routes.compliance import router as compliance_router
+
     app.include_router(compliance_router)
     logger.info("Compliance router registered at /compliance")
 except ImportError:
@@ -2398,6 +2572,7 @@ except ImportError:
 # Simulation router (GMP-24)
 try:
     from api.routes.simulation import router as simulation_router
+
     app.include_router(simulation_router)
     logger.info("Simulation router registered at /simulation")
 except ImportError:
@@ -2512,36 +2687,38 @@ from runtime.websocket_orchestrator import ws_orchestrator
 # =============================================================================
 
 
-async def verify_websocket_auth(websocket: WebSocket, token: Optional[str] = None) -> bool:
+async def verify_websocket_auth(
+    websocket: WebSocket, token: Optional[str] = None
+) -> bool:
     """
     Verify WebSocket authentication token.
-    
+
     Token can be provided via:
     1. Query parameter: ?token=...
     2. Function parameter (from handshake message)
-    
+
     Args:
         websocket: WebSocket connection
         token: Optional token from handshake message
-        
+
     Returns:
         True if token is valid, False otherwise
     """
     from api.auth import EXECUTOR_API_KEY
-    
+
     if not EXECUTOR_API_KEY:
         logger.warning("WebSocket auth: L9_EXECUTOR_API_KEY not configured")
         return False
-    
+
     # Token can come from query params or function parameter
     if not token:
         query_token = websocket.query_params.get("token")
         if query_token:
             token = query_token
-    
+
     if not token or token != EXECUTOR_API_KEY:
         return False
-    
+
     return True
 
 
@@ -2584,7 +2761,7 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
     if not await verify_websocket_auth(websocket, token):
         await websocket.close(code=1008, reason="Unauthorized")
         return
-    
+
     await websocket.accept()
     agent_id: str | None = None
 
@@ -2592,7 +2769,7 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
         # Step 1: Wait for handshake
         raw = await websocket.receive_json()
         handshake = AgentHandshake.model_validate(raw)
-        
+
         # Verify token in handshake message too (if provided)
         if handshake.auth_token:
             if not await verify_websocket_auth(websocket, handshake.auth_token):
@@ -2601,7 +2778,7 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
             # Use handshake token if query param wasn't provided
             if not token:
                 token = handshake.auth_token
-        
+
         agent_id = handshake.agent_id
 
         # Register with orchestrator (store handshake metadata)
@@ -2697,7 +2874,7 @@ async def l_ws(websocket: WebSocket) -> None:
     if not await verify_websocket_auth(websocket, token):
         await websocket.close(code=1008, reason="Unauthorized")
         return
-    
+
     await websocket.accept()
 
     # Check if agent executor is available

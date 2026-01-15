@@ -20,17 +20,12 @@ import asyncpg
 async def _init_json_codecs(conn: asyncpg.Connection) -> None:
     """Initialize connection with JSON codec for JSONB columns."""
     await conn.set_type_codec(
-        'jsonb',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
     await conn.set_type_codec(
-        'json',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
+
 
 # Context variable for RLS-scoped connection (used within transactions)
 _current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
@@ -38,12 +33,18 @@ _current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
 )
 
 from core.schemas import PacketEnvelope, SemanticHit
+from memory.governance_gate import (
+    build_scope_project_filter,
+    require_governance_context,
+)
 from memory.substrate_models import (
     AgentMemoryEventRow,
+    EpisodicEventRow,
     GraphCheckpointRow,
     KnowledgeFactRow,
     PacketStoreRow,
     ReasoningTraceRow,
+    SemanticFactRow,
     StructuredReasoningBlock,
 )
 
@@ -107,25 +108,25 @@ class SubstrateRepository:
     ) -> AsyncGenerator[asyncpg.Connection, None]:
         """
         Acquire a connection and start a transaction with RLS scope.
-        
+
         Sets RLS session variables using SET LOCAL within the transaction,
         so the scope persists for all operations in the transaction.
-        
+
         The connection is stored in a context variable so repository methods
         can use it instead of acquiring a new connection.
-        
+
         Args:
             tenant_id: Optional tenant UUID for RLS isolation
             org_id: Optional organization UUID for RLS isolation
             user_id: Optional user UUID for RLS isolation
             role: User role for RLS policy enforcement
-            
+
         Yields:
             Connection within a transaction with RLS scope set
         """
         if self._pool is None:
             raise RuntimeError("Repository not connected. Call connect() first.")
-        
+
         async with self._pool.acquire() as conn:
             async with conn.transaction():
                 # Set RLS scope within transaction (SET LOCAL makes it transaction-scoped)
@@ -137,7 +138,7 @@ class SubstrateRepository:
                         user_id,
                         role,
                     )
-                
+
                 # Store connection in context variable for repository methods to use
                 token = _current_rls_connection.set(conn)
                 try:
@@ -173,21 +174,47 @@ class SubstrateRepository:
         importance_score = metadata_dict.get("importance")
         if importance_score is None and envelope.confidence:
             importance_score = envelope.confidence.score
-        
+
         # Use RLS-scoped connection if available, otherwise acquire new one
         rls_conn = _current_rls_connection.get()
         if rls_conn:
             # Use existing RLS-scoped connection (within transaction)
             conn = rls_conn
             # Execute directly without context manager
-            await self._insert_packet_with_connection(conn, envelope, thread_id, tags, ttl, parent_ids, metadata_dict, content_hash, session_id, scope, trace_id, importance_score)
+            await self._insert_packet_with_connection(
+                conn,
+                envelope,
+                thread_id,
+                tags,
+                ttl,
+                parent_ids,
+                metadata_dict,
+                content_hash,
+                session_id,
+                scope,
+                trace_id,
+                importance_score,
+            )
             return envelope.packet_id
         else:
             # No RLS scope - use normal connection pool
             async with self.acquire() as conn:
-                await self._insert_packet_with_connection(conn, envelope, thread_id, tags, ttl, parent_ids, metadata_dict, content_hash, session_id, scope, trace_id, importance_score)
+                await self._insert_packet_with_connection(
+                    conn,
+                    envelope,
+                    thread_id,
+                    tags,
+                    ttl,
+                    parent_ids,
+                    metadata_dict,
+                    content_hash,
+                    session_id,
+                    scope,
+                    trace_id,
+                    importance_score,
+                )
                 return envelope.packet_id
-    
+
     async def _insert_packet_with_connection(
         self,
         conn: asyncpg.Connection,
@@ -247,13 +274,23 @@ class SubstrateRepository:
             trace_id,
             importance_score,
         )
-        logger.debug(f"Inserted packet {envelope.packet_id} with thread_id={thread_id}, parent_ids={parent_ids}, importance={importance_score}")
+        logger.debug(
+            f"Inserted packet {envelope.packet_id} with thread_id={thread_id}, parent_ids={parent_ids}, importance={importance_score}"
+        )
 
     async def get_packet(self, packet_id: UUID) -> Optional[PacketStoreRow]:
         """Retrieve a packet by ID."""
+        # GMP-70: Governance scope filtering
+        ctx = require_governance_context("repository.get_packet")
+        filter_clause, filter_params, _ = build_scope_project_filter(
+            ctx, param_idx=2, table_alias="packet_store"
+        )
+
         async with self.acquire() as conn:
             row = await conn.fetchrow(
-                "SELECT * FROM packet_store WHERE packet_id = $1", packet_id
+                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",
+                packet_id,
+                *filter_params,
             )
             if row:
                 return self._row_to_packet_store(row)
@@ -278,12 +315,19 @@ class SubstrateRepository:
         Returns:
             List of PacketStoreRow sorted by timestamp ascending
         """
+        # GMP-70: Governance scope filtering
+        ctx = require_governance_context("repository.search_packets_by_thread")
+
         async with self.acquire() as conn:
             if packet_type:
+                filter_clause, filter_params, _ = build_scope_project_filter(
+                    ctx, param_idx=5, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT * FROM packet_store 
                     WHERE thread_id = $1 AND packet_type = $2
+                    {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $3 OFFSET $4
                     """,
@@ -291,18 +335,24 @@ class SubstrateRepository:
                     packet_type,
                     limit,
                     offset,
+                    *filter_params,
                 )
             else:
+                filter_clause, filter_params, _ = build_scope_project_filter(
+                    ctx, param_idx=4, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT * FROM packet_store 
                     WHERE thread_id = $1
+                    {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $2 OFFSET $3
                     """,
                     thread_id,
                     limit,
                     offset,
+                    *filter_params,
                 )
             return [self._row_to_packet_store(r) for r in rows]
 
@@ -325,6 +375,9 @@ class SubstrateRepository:
         Returns:
             List of PacketStoreRow sorted by timestamp descending
         """
+        # GMP-70: Governance scope filtering
+        ctx = require_governance_context("repository.search_packets_by_type")
+
         async with self.acquire() as conn:
             conditions = ["packet_type = $1"]
             params: list[Any] = [packet_type]
@@ -339,6 +392,15 @@ class SubstrateRepository:
                 conditions.append(f"timestamp > ${param_idx}")
                 params.append(since)
                 param_idx += 1
+
+            # Add governance scope filter
+            filter_clause, filter_params, param_idx = build_scope_project_filter(
+                ctx, param_idx=param_idx, table_alias="packet_store"
+            )
+            # Strip leading "AND " from filter_clause since we're building conditions list
+            conditions.append(f"scope = ANY(${param_idx - 2})")
+            conditions.append(f"envelope->'metadata'->>'project_id' = ${param_idx - 1}")
+            params.extend(filter_params)
 
             params.append(limit)
 
@@ -408,7 +470,7 @@ class SubstrateRepository:
     ) -> UUID:
         """Insert a memory event."""
         event_id = uuid4()
-        
+
         # Use RLS-scoped connection if available, otherwise acquire new one
         rls_conn = _current_rls_connection.get()
         if rls_conn:
@@ -505,7 +567,7 @@ class SubstrateRepository:
             async with self.acquire() as conn:
                 await self._insert_reasoning_block_with_connection(conn, block)
                 return block.block_id
-    
+
     async def _insert_reasoning_block_with_connection(
         self, conn: asyncpg.Connection, block: StructuredReasoningBlock
     ) -> None:
@@ -607,12 +669,12 @@ class SubstrateRepository:
     ) -> KnowledgeFactRow:
         """
         Insert or update knowledge fact (idempotent via UPSERT).
-        
+
         Uses ON CONFLICT (source_packet, subject, predicate) DO UPDATE
         to prevent duplicate facts from same packet. This ensures:
         - Same packet enriched twice = no duplicates
         - Fact updates are atomic
-        
+
         Args:
             fact_id: UUID for the fact (used for insert)
             subject: Entity or concept being described
@@ -620,34 +682,46 @@ class SubstrateRepository:
             object_value: Value, entity, or structured data
             confidence: Extraction confidence (0.0-1.0)
             source_packet: Source packet ID (foreign key)
-            
+
         Returns:
             KnowledgeFactRow with assigned/existing fact_id
-            
+
         Raises:
             Exception: DB error (caller decides whether to propagate or log)
         """
         created_at = datetime.utcnow()
-        
+
         # Serialize object_value to JSON (always required for JSONB column)
         # Even strings must be JSON-encoded (wrapped in quotes) for PostgreSQL
         object_json = json.dumps(object_value)
-        
+
         # Use RLS-scoped connection if available, otherwise acquire new one
         rls_conn = _current_rls_connection.get()
-        
+
         if rls_conn:
             row = await self._insert_knowledge_fact_with_connection(
-                rls_conn, fact_id, subject, predicate, object_json,
-                confidence, source_packet, created_at
+                rls_conn,
+                fact_id,
+                subject,
+                predicate,
+                object_json,
+                confidence,
+                source_packet,
+                created_at,
             )
         else:
             async with self.acquire() as conn:
                 row = await self._insert_knowledge_fact_with_connection(
-                    conn, fact_id, subject, predicate, object_json,
-                    confidence, source_packet, created_at
+                    conn,
+                    fact_id,
+                    subject,
+                    predicate,
+                    object_json,
+                    confidence,
+                    source_packet,
+                    created_at,
                 )
-        
+
         return row
 
     async def _insert_knowledge_fact_with_connection(
@@ -684,17 +758,19 @@ class SubstrateRepository:
             source_packet,
             created_at,
         )
-        
+
         logger.debug(
             f"Upserted knowledge fact {row['fact_id']} "
             f"({subject} - {predicate}) for packet {source_packet}"
         )
-        
+
         return KnowledgeFactRow(
             fact_id=row["fact_id"],
             subject=row["subject"],
             predicate=row["predicate"],
-            object=json.loads(row["object"]) if isinstance(row["object"], str) else row["object"],
+            object=json.loads(row["object"])
+            if isinstance(row["object"], str)
+            else row["object"],
             confidence=row["confidence"],
             source_packet=row["source_packet"],
             created_at=row["created_at"],
@@ -708,12 +784,12 @@ class SubstrateRepository:
     ) -> list[KnowledgeFactRow]:
         """
         Retrieve knowledge facts with optional filters.
-        
+
         Args:
             source_packet: Filter by source packet ID
             subject: Filter by subject (exact match)
             limit: Maximum results to return
-            
+
         Returns:
             List of KnowledgeFactRow
         """
@@ -721,33 +797,35 @@ class SubstrateRepository:
             conditions = ["deprecated = FALSE OR deprecated IS NULL"]
             params: list[Any] = []
             param_idx = 1
-            
+
             if source_packet:
                 conditions.append(f"source_packet = ${param_idx}")
                 params.append(source_packet)
                 param_idx += 1
-            
+
             if subject:
                 conditions.append(f"subject = ${param_idx}")
                 params.append(subject)
                 param_idx += 1
-            
+
             params.append(limit)
-            
+
             query = f"""
                 SELECT * FROM knowledge_facts
                 WHERE {" AND ".join(conditions)}
                 ORDER BY created_at DESC
                 LIMIT ${param_idx}
             """
-            
+
             rows = await conn.fetch(query, *params)
             return [
                 KnowledgeFactRow(
                     fact_id=r["fact_id"],
                     subject=r["subject"],
                     predicate=r["predicate"],
-                    object=json.loads(r["object"]) if isinstance(r["object"], str) else r["object"],
+                    object=json.loads(r["object"])
+                    if isinstance(r["object"], str)
+                    else r["object"],
                     confidence=r["confidence"],
                     source_packet=r["source_packet"],
                     created_at=r["created_at"],
@@ -900,19 +978,23 @@ class SubstrateRepository:
             Checkpoint UUID
         """
         checkpoint_id = uuid4()
-        
+
         # Use RLS-scoped connection if available, otherwise acquire new one
         rls_conn = _current_rls_connection.get()
         if rls_conn:
             # Use existing RLS-scoped connection (within transaction)
-            await self._save_checkpoint_with_connection(rls_conn, checkpoint_id, agent_id, graph_state, reason)
+            await self._save_checkpoint_with_connection(
+                rls_conn, checkpoint_id, agent_id, graph_state, reason
+            )
             return checkpoint_id
         else:
             # No RLS scope - use normal connection pool
             async with self.acquire() as conn:
-                await self._save_checkpoint_with_connection(conn, checkpoint_id, agent_id, graph_state, reason)
+                await self._save_checkpoint_with_connection(
+                    conn, checkpoint_id, agent_id, graph_state, reason
+                )
                 return checkpoint_id
-    
+
     async def _save_checkpoint_with_connection(
         self,
         conn: asyncpg.Connection,
@@ -1013,7 +1095,11 @@ class SubstrateRepository:
 
                 # Handle optional fields (post-0014 schema)
                 reason = row.get("reason") if "reason" in row.keys() else None
-                checkpoint_number = row.get("checkpoint_number") if "checkpoint_number" in row.keys() else None
+                checkpoint_number = (
+                    row.get("checkpoint_number")
+                    if "checkpoint_number" in row.keys()
+                    else None
+                )
 
                 checkpoints.append(
                     GraphCheckpointRow(
@@ -1363,6 +1449,646 @@ class SubstrateRepository:
             return row["contradiction_count"] if row else 0
 
     # =========================================================================
+    # Semantic Facts Operations (Migration 0018 - Memory Spec v3.1)
+    # =========================================================================
+
+    async def insert_semantic_fact(
+        self,
+        fact_text: str,
+        triplet: Optional[dict[str, Any]] = None,
+        embedding: Optional[list[float]] = None,
+        importance: float = 0.5,
+        tags: Optional[list[str]] = None,
+        tier: str = "general",
+        source: Optional[str] = None,
+        source_packet_id: Optional[UUID] = None,
+        confidence: float = 0.8,
+        agent_id: Optional[str] = None,
+        tenant_id: Optional[UUID] = None,
+        org_id: Optional[UUID] = None,
+        user_id: Optional[UUID] = None,
+    ) -> UUID:
+        """
+        Insert a semantic fact into the semantic_facts table.
+
+        Part of frontier-grade dual semantic+episodic memory architecture.
+
+        Args:
+            fact_text: Human-readable fact statement
+            triplet: SPO triplet {"subject": "...", "predicate": "...", "object": "..."}
+            embedding: Vector embedding (3072 dimensions for text-embedding-3-large)
+            importance: Importance score 0.0-1.0
+            tags: Categorization tags
+            tier: Memory tier (identity, project, session, general)
+            source: Origin (user_stated, inferred, extracted)
+            source_packet_id: Originating packet UUID
+            confidence: Extraction/inference confidence
+            agent_id: Agent that created this fact
+            tenant_id, org_id, user_id: Multi-tenant ownership
+
+        Returns:
+            UUID of the inserted fact
+        """
+
+        fact_id = uuid4()
+
+        # Use defaults for multi-tenant IDs if not provided
+        _tenant_id = tenant_id or UUID("00000000-0000-0000-0000-000000000000")
+        _org_id = org_id or UUID("00000000-0000-0000-0000-000000000000")
+        _user_id = user_id or UUID("00000000-0000-0000-0000-000000000000")
+
+        async with self.acquire() as conn:
+            if embedding:
+                # With embedding
+                await conn.execute(
+                    """
+                    INSERT INTO semantic_facts (
+                        fact_id, tenant_id, org_id, user_id, agent_id,
+                        fact_text, triplet, embedding, importance, tags,
+                        tier, source, source_packet_id, confidence
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::vector, $9, $10, $11, $12, $13, $14)
+                    """,
+                    fact_id,
+                    _tenant_id,
+                    _org_id,
+                    _user_id,
+                    agent_id,
+                    fact_text,
+                    json.dumps(triplet or {}),
+                    f"[{','.join(str(x) for x in embedding)}]",
+                    importance,
+                    tags or [],
+                    tier,
+                    source,
+                    source_packet_id,
+                    confidence,
+                )
+            else:
+                # Without embedding
+                await conn.execute(
+                    """
+                    INSERT INTO semantic_facts (
+                        fact_id, tenant_id, org_id, user_id, agent_id,
+                        fact_text, triplet, importance, tags,
+                        tier, source, source_packet_id, confidence
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                    """,
+                    fact_id,
+                    _tenant_id,
+                    _org_id,
+                    _user_id,
+                    agent_id,
+                    fact_text,
+                    json.dumps(triplet or {}),
+                    importance,
+                    tags or [],
+                    tier,
+                    source,
+                    source_packet_id,
+                    confidence,
+                )
+
+        logger.debug(f"Inserted semantic fact {fact_id}: {fact_text[:50]}...")
+        return fact_id
+
+    async def get_semantic_facts_by_subject(
+        self,
+        subject: str,
+        tier: Optional[str] = None,
+        limit: int = 50,
+    ) -> list:
+        """
+        Retrieve semantic facts by subject from triplet.
+
+        Args:
+            subject: Subject to search for in triplet.subject
+            tier: Optional tier filter (identity, project, session, general)
+            limit: Maximum facts to return
+
+        Returns:
+            List of SemanticFactRow objects
+        """
+
+        async with self.acquire() as conn:
+            if tier:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM semantic_facts
+                    WHERE triplet->>'subject' = $1 AND tier = $2
+                    ORDER BY importance DESC, created_at DESC
+                    LIMIT $3
+                    """,
+                    subject,
+                    tier,
+                    limit,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM semantic_facts
+                    WHERE triplet->>'subject' = $1
+                    ORDER BY importance DESC, created_at DESC
+                    LIMIT $2
+                    """,
+                    subject,
+                    limit,
+                )
+
+        return [
+            SemanticFactRow(
+                fact_id=r["fact_id"],
+                tenant_id=r["tenant_id"],
+                org_id=r["org_id"],
+                user_id=r["user_id"],
+                agent_id=r.get("agent_id"),
+                fact_text=r["fact_text"],
+                triplet=r["triplet"]
+                if isinstance(r["triplet"], dict)
+                else json.loads(r["triplet"] or "{}"),
+                importance=r["importance"],
+                access_count=r["access_count"],
+                last_accessed=r.get("last_accessed"),
+                tags=r.get("tags") or [],
+                tier=r.get("tier", "general"),
+                source=r.get("source"),
+                source_packet_id=r.get("source_packet_id"),
+                confidence=r.get("confidence", 0.8),
+                validated_at=r.get("validated_at"),
+                validated_by=r.get("validated_by"),
+                created_at=r["created_at"],
+                updated_at=r["updated_at"],
+            )
+            for r in rows
+        ]
+
+    async def get_semantic_facts_by_tier(
+        self,
+        tier: str,
+        limit: int = 100,
+    ) -> list:
+        """
+        Retrieve semantic facts by memory tier.
+
+        Args:
+            tier: Memory tier (identity, project, session, general)
+            limit: Maximum facts to return
+
+        Returns:
+            List of SemanticFactRow objects
+        """
+
+        async with self.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT * FROM semantic_facts
+                WHERE tier = $1
+                ORDER BY importance DESC, created_at DESC
+                LIMIT $2
+                """,
+                tier,
+                limit,
+            )
+
+        return [
+            SemanticFactRow(
+                fact_id=r["fact_id"],
+                tenant_id=r["tenant_id"],
+                org_id=r["org_id"],
+                user_id=r["user_id"],
+                agent_id=r.get("agent_id"),
+                fact_text=r["fact_text"],
+                triplet=r["triplet"]
+                if isinstance(r["triplet"], dict)
+                else json.loads(r["triplet"] or "{}"),
+                importance=r["importance"],
+                access_count=r["access_count"],
+                last_accessed=r.get("last_accessed"),
+                tags=r.get("tags") or [],
+                tier=r.get("tier", "general"),
+                source=r.get("source"),
+                source_packet_id=r.get("source_packet_id"),
+                confidence=r.get("confidence", 0.8),
+                validated_at=r.get("validated_at"),
+                validated_by=r.get("validated_by"),
+                created_at=r["created_at"],
+                updated_at=r["updated_at"],
+            )
+            for r in rows
+        ]
+
+    async def update_fact_importance(
+        self,
+        fact_id: UUID,
+        new_importance: float,
+        touch_access: bool = True,
+    ) -> bool:
+        """
+        Update importance score for a semantic fact.
+
+        Used by active memory management to elevate frequently-used facts.
+
+        Args:
+            fact_id: UUID of fact to update
+            new_importance: New importance value (0.0-1.0)
+            touch_access: If True, also update last_accessed and access_count
+
+        Returns:
+            True if fact was found and updated
+        """
+        async with self.acquire() as conn:
+            if touch_access:
+                result = await conn.execute(
+                    """
+                    UPDATE semantic_facts
+                    SET importance = $2,
+                        access_count = access_count + 1,
+                        last_accessed = NOW()
+                    WHERE fact_id = $1
+                    """,
+                    fact_id,
+                    new_importance,
+                )
+            else:
+                result = await conn.execute(
+                    """
+                    UPDATE semantic_facts
+                    SET importance = $2
+                    WHERE fact_id = $1
+                    """,
+                    fact_id,
+                    new_importance,
+                )
+
+        updated = result.split()[-1] != "0"
+        if updated:
+            logger.debug(f"Updated fact {fact_id} importance to {new_importance}")
+        return updated
+
+    # =========================================================================
+    # Episodic Events Operations (Migration 0019 - Memory Spec v3.1)
+    # =========================================================================
+
+    async def insert_episodic_event(
+        self,
+        observation: str,
+        event_timestamp: datetime,
+        event_type: str = "general",
+        entities: Optional[list[str]] = None,
+        context: Optional[dict[str, Any]] = None,
+        outcome: Optional[str] = None,
+        severity: float = 0.5,
+        source_packet_id: Optional[UUID] = None,
+        parent_event_id: Optional[UUID] = None,
+        session_id: Optional[UUID] = None,
+        agent_id: Optional[str] = None,
+        tenant_id: Optional[UUID] = None,
+        org_id: Optional[UUID] = None,
+        user_id: Optional[UUID] = None,
+    ) -> UUID:
+        """
+        Insert an episodic event into the episodic_events table.
+
+        Part of frontier-grade dual semantic+episodic memory architecture.
+
+        Args:
+            observation: Human-readable description of what happened
+            event_timestamp: When the event occurred (CRITICAL for temporal queries)
+            event_type: Type categorization
+            entities: Entities involved in the event
+            context: Additional context as JSONB
+            outcome: What was the result
+            severity: Event importance 0.0-1.0
+            source_packet_id: Originating packet UUID
+            parent_event_id: Parent event for event chains
+            session_id: Session grouping
+            agent_id: Agent that observed this event
+            tenant_id, org_id, user_id: Multi-tenant ownership
+
+        Returns:
+            UUID of the inserted event
+        """
+
+        event_id = uuid4()
+
+        # Use defaults for multi-tenant IDs if not provided
+        _tenant_id = tenant_id or UUID("00000000-0000-0000-0000-000000000000")
+        _org_id = org_id or UUID("00000000-0000-0000-0000-000000000000")
+        _user_id = user_id or UUID("00000000-0000-0000-0000-000000000000")
+
+        async with self.acquire() as conn:
+            await conn.execute(
+                """
+                INSERT INTO episodic_events (
+                    event_id, tenant_id, org_id, user_id, agent_id,
+                    observation, event_type, event_timestamp,
+                    entities, context, outcome, severity,
+                    source_packet_id, parent_event_id, session_id
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                """,
+                event_id,
+                _tenant_id,
+                _org_id,
+                _user_id,
+                agent_id,
+                observation,
+                event_type,
+                event_timestamp,
+                entities or [],
+                json.dumps(context or {}),
+                outcome,
+                severity,
+                source_packet_id,
+                parent_event_id,
+                session_id,
+            )
+
+        logger.debug(f"Inserted episodic event {event_id}: {observation[:50]}...")
+        return event_id
+
+    async def get_events_by_time_range(
+        self,
+        start_time: datetime,
+        end_time: datetime,
+        entities: Optional[list[str]] = None,
+        event_type: Optional[str] = None,
+        limit: int = 100,
+    ) -> list:
+        """
+        Retrieve episodic events within a time range.
+
+        Primary query pattern for episodic memory - "What happened between X and Y?"
+
+        Args:
+            start_time: Start of time range
+            end_time: End of time range
+            entities: Optional filter by entities involved
+            event_type: Optional filter by event type
+            limit: Maximum events to return
+
+        Returns:
+            List of EpisodicEventRow objects ordered by timestamp DESC
+        """
+
+        async with self.acquire() as conn:
+            if entities and event_type:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM episodic_events
+                    WHERE event_timestamp BETWEEN $1 AND $2
+                    AND entities && $3
+                    AND event_type = $4
+                    ORDER BY event_timestamp DESC
+                    LIMIT $5
+                    """,
+                    start_time,
+                    end_time,
+                    entities,
+                    event_type,
+                    limit,
+                )
+            elif entities:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM episodic_events
+                    WHERE event_timestamp BETWEEN $1 AND $2
+                    AND entities && $3
+                    ORDER BY event_timestamp DESC
+                    LIMIT $4
+                    """,
+                    start_time,
+                    end_time,
+                    entities,
+                    limit,
+                )
+            elif event_type:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM episodic_events
+                    WHERE event_timestamp BETWEEN $1 AND $2
+                    AND event_type = $3
+                    ORDER BY event_timestamp DESC
+                    LIMIT $4
+                    """,
+                    start_time,
+                    end_time,
+                    event_type,
+                    limit,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM episodic_events
+                    WHERE event_timestamp BETWEEN $1 AND $2
+                    ORDER BY event_timestamp DESC
+                    LIMIT $3
+                    """,
+                    start_time,
+                    end_time,
+                    limit,
+                )
+
+        return [
+            EpisodicEventRow(
+                event_id=r["event_id"],
+                tenant_id=r["tenant_id"],
+                org_id=r["org_id"],
+                user_id=r["user_id"],
+                agent_id=r.get("agent_id"),
+                observation=r["observation"],
+                event_type=r.get("event_type", "general"),
+                event_timestamp=r["event_timestamp"],
+                duration_seconds=r.get("duration_seconds"),
+                entities=r.get("entities") or [],
+                context=r["context"]
+                if isinstance(r["context"], dict)
+                else json.loads(r["context"] or "{}"),
+                outcome=r.get("outcome"),
+                severity=r.get("severity", 0.5),
+                impact_score=r.get("impact_score", 0.5),
+                source_packet_id=r.get("source_packet_id"),
+                parent_event_id=r.get("parent_event_id"),
+                session_id=r.get("session_id"),
+                thread_id=r.get("thread_id"),
+                decay_factor=r.get("decay_factor", 1.0),
+                last_recalled=r.get("last_recalled"),
+                recall_count=r.get("recall_count", 0),
+                created_at=r["created_at"],
+                updated_at=r["updated_at"],
+            )
+            for r in rows
+        ]
+
+    async def link_event_to_facts(
+        self,
+        event_id: UUID,
+        fact_ids: list[UUID],
+        relationship_type: str = "involves",
+        strength: float = 1.0,
+    ) -> int:
+        """
+        Create links between an episodic event and semantic facts.
+
+        Part of frontier-grade fact-episode linking pattern.
+
+        Args:
+            event_id: UUID of the episodic event
+            fact_ids: List of semantic fact UUIDs to link
+            relationship_type: Type of relationship (involves, confirms, contradicts, updates)
+            strength: Link strength 0.0-1.0
+
+        Returns:
+            Number of links created
+        """
+        if not fact_ids:
+            return 0
+
+        links_created = 0
+
+        async with self.acquire() as conn:
+            for fact_id in fact_ids:
+                try:
+                    link_id = uuid4()
+                    await conn.execute(
+                        """
+                        INSERT INTO episodic_semantic_links (
+                            link_id, event_id, fact_id, relationship_type, strength
+                        ) VALUES ($1, $2, $3, $4, $5)
+                        ON CONFLICT (event_id, fact_id) DO UPDATE
+                        SET relationship_type = EXCLUDED.relationship_type,
+                            strength = EXCLUDED.strength
+                        """,
+                        link_id,
+                        event_id,
+                        fact_id,
+                        relationship_type,
+                        strength,
+                    )
+                    links_created += 1
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to link event {event_id} to fact {fact_id}: {e}"
+                    )
+
+        logger.debug(f"Linked event {event_id} to {links_created} facts")
+        return links_created
+
+    async def get_events_for_fact(
+        self,
+        fact_id: UUID,
+        limit: int = 50,
+    ) -> list:
+        """
+        Find all episodic events linked to a semantic fact.
+
+        Enables queries like "When was this fact observed/used?"
+
+        Args:
+            fact_id: UUID of the semantic fact
+            limit: Maximum events to return
+
+        Returns:
+            List of EpisodicEventRow objects ordered by timestamp DESC
+        """
+
+        async with self.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT e.* FROM episodic_events e
+                INNER JOIN episodic_semantic_links l ON l.event_id = e.event_id
+                WHERE l.fact_id = $1
+                ORDER BY e.event_timestamp DESC
+                LIMIT $2
+                """,
+                fact_id,
+                limit,
+            )
+
+        return [
+            EpisodicEventRow(
+                event_id=r["event_id"],
+                tenant_id=r["tenant_id"],
+                org_id=r["org_id"],
+                user_id=r["user_id"],
+                agent_id=r.get("agent_id"),
+                observation=r["observation"],
+                event_type=r.get("event_type", "general"),
+                event_timestamp=r["event_timestamp"],
+                duration_seconds=r.get("duration_seconds"),
+                entities=r.get("entities") or [],
+                context=r["context"]
+                if isinstance(r["context"], dict)
+                else json.loads(r["context"] or "{}"),
+                outcome=r.get("outcome"),
+                severity=r.get("severity", 0.5),
+                impact_score=r.get("impact_score", 0.5),
+                source_packet_id=r.get("source_packet_id"),
+                parent_event_id=r.get("parent_event_id"),
+                session_id=r.get("session_id"),
+                thread_id=r.get("thread_id"),
+                decay_factor=r.get("decay_factor", 1.0),
+                last_recalled=r.get("last_recalled"),
+                recall_count=r.get("recall_count", 0),
+                created_at=r["created_at"],
+                updated_at=r["updated_at"],
+            )
+            for r in rows
+        ]
+
+    async def get_facts_for_event(
+        self,
+        event_id: UUID,
+    ) -> list:
+        """
+        Find all semantic facts linked to an episodic event.
+
+        Enables queries like "What facts are relevant to this event?"
+
+        Args:
+            event_id: UUID of the episodic event
+
+        Returns:
+            List of SemanticFactRow objects
+        """
+
+        async with self.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT f.* FROM semantic_facts f
+                INNER JOIN episodic_semantic_links l ON l.fact_id = f.fact_id
+                WHERE l.event_id = $1
+                ORDER BY l.strength DESC, f.importance DESC
+                """,
+                event_id,
+            )
+
+        return [
+            SemanticFactRow(
+                fact_id=r["fact_id"],
+                tenant_id=r["tenant_id"],
+                org_id=r["org_id"],
+                user_id=r["user_id"],
+                agent_id=r.get("agent_id"),
+                fact_text=r["fact_text"],
+                triplet=r["triplet"]
+                if isinstance(r["triplet"], dict)
+                else json.loads(r["triplet"] or "{}"),
+                importance=r["importance"],
+                access_count=r["access_count"],
+                last_accessed=r.get("last_accessed"),
+                tags=r.get("tags") or [],
+                tier=r.get("tier", "general"),
+                source=r.get("source"),
+                source_packet_id=r.get("source_packet_id"),
+                confidence=r.get("confidence", 0.8),
+                validated_at=r.get("validated_at"),
+                validated_by=r.get("validated_by"),
+                created_at=r["created_at"],
+                updated_at=r["updated_at"],
+            )
+            for r in rows
+        ]
+
+    # =========================================================================
     # Health Check
     # =========================================================================
 
@@ -1399,10 +2125,10 @@ def get_repository() -> SubstrateRepository:
 def get_substrate_repository(database_url: Optional[str] = None) -> SubstrateRepository:
     """
     Get or create a SubstrateRepository instance.
-    
+
     If database_url is provided, creates a new repository instance.
     If no database_url, returns the singleton (must be initialized first).
-    
+
     This is an alias for world_model compatibility.
     """
     if database_url:

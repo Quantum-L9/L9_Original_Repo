@@ -4,6 +4,7 @@ Phase 4: Load Identity Persona
 Harvested from: L9-Agent-Bootstrap-Architecture.md
 Purpose: Parse identity.yaml, hydrate agent's self-awareness (designation, role, mission, constraints).
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -12,8 +13,6 @@ from datetime import datetime
 
 import yaml
 import structlog
-
-from memory.graph_client import get_neo4j_client
 
 if TYPE_CHECKING:
     from .phase_2_instantiate import BootstrapInstanceData
@@ -32,10 +31,12 @@ async def load_identity_persona(
     """
     # Default identity path based on agent_id
     if identity_yaml_path is None:
-        identity_yaml_path = f"private/agents/identity/{instance.agent_id}_identity.yaml"
-    
+        identity_yaml_path = (
+            f"private/agents/identity/{instance.agent_id}_identity.yaml"
+        )
+
     identity_path = Path(identity_yaml_path)
-    
+
     # Try fallback paths
     if not identity_path.exists():
         fallback_paths = [
@@ -47,7 +48,7 @@ async def load_identity_persona(
             if fallback.exists():
                 identity_path = fallback
                 break
-    
+
     if not identity_path.exists():
         logger.warning(
             "Identity YAML not found, using defaults",
@@ -59,11 +60,11 @@ async def load_identity_persona(
         instance.role = "Agent"
         instance.mission = "Execute tasks"
         return
-    
+
     try:
-        with open(identity_path, 'r') as f:
+        with open(identity_path, "r") as f:
             identity_data = yaml.safe_load(f)
-        
+
         # Create identity memory chunk
         identity_chunk = {
             "designation": identity_data.get("designation", instance.agent_id),
@@ -74,18 +75,18 @@ async def load_identity_persona(
             "authority_level": identity_data.get("authority", ""),
             "allegiance": identity_data.get("allegiance", ""),
         }
-        
+
         # Update instance with identity
         instance.designation = identity_chunk["designation"]
         instance.role = identity_chunk["role"]
         instance.mission = identity_chunk["mission"]
         instance.authority = identity_chunk["authority_level"]
-        
+
         # Write to memory substrate if available
-        if hasattr(substrate_service, 'write_packet'):
+        if hasattr(substrate_service, "write_packet"):
             try:
                 from core.schemas import PacketEnvelopeIn
-                
+
                 packet = PacketEnvelopeIn(
                     packet_type="memory_write",
                     payload={
@@ -105,40 +106,44 @@ async def load_identity_persona(
                 await substrate_service.write_packet(packet)
             except ImportError:
                 logger.debug("PacketEnvelopeIn not available, skipping memory write")
-        
+
         logger.info(
             "Loaded identity",
             agent_id=instance.agent_id,
             designation=identity_chunk["designation"],
             role=identity_chunk["role"],
         )
-        
-        # Update Neo4j if available
+
+        # Update Neo4j if available (lazy import to avoid test collection issues)
+        from memory.graph_client import get_neo4j_client
+
         neo4j_client = await get_neo4j_client()
         if neo4j_client:
             try:
                 async with neo4j_client.session() as session:
-                    await session.run("""
+                    await session.run(
+                        """
                         MATCH (a:Agent {instance_id: $instance_id})
                         SET a.designation = $designation,
                             a.role = $role,
                             a.mission = $mission,
                             a.authority = $authority,
                             a.identity_loaded_at = $loaded_at
-                    """, {
-                        "instance_id": instance.instance_id,
-                        "designation": identity_chunk["designation"],
-                        "role": identity_chunk["role"],
-                        "mission": identity_chunk["mission"],
-                        "authority": identity_chunk["authority_level"],
-                        "loaded_at": datetime.utcnow().isoformat(),
-                    })
+                    """,
+                        {
+                            "instance_id": instance.instance_id,
+                            "designation": identity_chunk["designation"],
+                            "role": identity_chunk["role"],
+                            "mission": identity_chunk["mission"],
+                            "authority": identity_chunk["authority_level"],
+                            "loaded_at": datetime.utcnow().isoformat(),
+                        },
+                    )
             except Exception as e:
                 logger.warning("Failed to update identity in Neo4j", error=str(e))
-    
+
     except Exception as e:
         logger.error("Failed to load identity", error=str(e))
         # Set minimal identity on failure
         instance.designation = instance.agent_id
         instance.role = "Agent"
-

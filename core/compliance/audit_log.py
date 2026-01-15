@@ -299,7 +299,8 @@ class AuditLogger:
         )
 
         if self._substrate is None:
-            return True
+            # GMP-68: Return False when substrate is None (audit was not logged)
+            return False
 
         try:
             from core.schemas import PacketEnvelopeIn
@@ -367,4 +368,3 @@ __all__ = [
     "AuditLogger",
     "log_command_to_audit",
 ]
-

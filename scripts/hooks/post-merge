@@ -87,7 +87,7 @@ if echo "$CHANGED_FILES" | grep -q "^migrations/.*\.sql$"; then
     # Check if migration runner exists
     if [ -f "memory/migration_runner.py" ]; then
         echo "   Auto-running migrations..."
-        python3 -c "from memory.migration_runner import MigrationRunner; import asyncio; asyncio.run(MigrationRunner().run_migrations())" 2>&1 | tail -5 || {
+        python3 -c "from memory.migration_runner import run_migrations; import asyncio; asyncio.run(run_migrations())" 2>&1 | tail -5 || {
             echo -e "${RED}❌ Migration failed! Check logs.${NC}"
         }
         echo -e "${GREEN}✓ Migrations applied${NC}"

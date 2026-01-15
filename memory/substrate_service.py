@@ -39,6 +39,7 @@ from memory.saga_patterns import (
     SagaPatterns,
 )
 from memory.audit_utils import prepare_packet_for_ingest
+from memory.governance_gate import enforce_packet_governance, require_governance_context
 from telemetry.memory_metrics import (
     record_memory_write,
     record_memory_search,
@@ -202,6 +203,18 @@ class MemorySubstrateService:
         Returns:
             PacketWriteResult with status and written tables
         """
+        # GMP-70: Governance enforcement (fail-closed)
+        ctx = require_governance_context("write_packet")
+        if tenant_id and tenant_id != ctx.tenant_id:
+            raise RuntimeError("tenant_id must be derived server-side")
+        if org_id and org_id != ctx.org_id:
+            raise RuntimeError("org_id must be derived server-side")
+        if user_id and user_id != ctx.user_id:
+            raise RuntimeError("user_id must be derived server-side")
+        if role != "end_user" and role != ctx.role:
+            raise RuntimeError("role must be derived server-side")
+        packet_in = enforce_packet_governance(packet_in, ctx)
+
         logger.info(f"Processing packet: type={packet_in.packet_type}")
 
         # Audit mode: normalize, redact PII, detect injection markers
@@ -252,43 +265,16 @@ class MemorySubstrateService:
                 error_message=f"Circuit breaker open: {cb_stats['failures_in_window']} failures in {cb_stats['window_seconds']}s",
             )
 
-        # Run through DAG with RLS scope if provided
-        # Use transaction with RLS scope to ensure all operations use same connection
+        # GMP-81: Always use RLS from governance context (no conditional branching)
+        # RLS UUIDs are populated from rls_config.py via governance_gate._fallback_context()
         result: PacketWriteResult
-        if tenant_id and org_id and user_id:
-            # Use transaction with RLS scope - all DAG operations will use same connection
-            async with self._repository.transaction(
-                tenant_id=tenant_id,
-                org_id=org_id,
-                user_id=user_id,
-                role=role,
-            ):
-                # Run DAG within transaction - repository methods will use RLS-scoped connection
-                try:
-                    result = await self._dag.run(envelope)
-                    # Record success for non-error results
-                    if result.status == "ok":
-                        self._circuit_breaker.record_success()
-                    else:
-                        # DAG returned error status
-                        self._circuit_breaker.record_failure(
-                            result.error_message or "DAG returned error status"
-                        )
-                except Exception as dag_error:
-                    # DAG threw exception - record failure and re-raise
-                    self._circuit_breaker.record_failure(str(dag_error))
-                    logger.error(
-                        "memory_substrate_dag_exception",
-                        packet_id=str(envelope.packet_id),
-                        error=str(dag_error),
-                        circuit_state=self._circuit_breaker.get_state(),
-                    )
-                    raise
-        else:
-            logger.warning(
-                "RLS scope not provided for write_packet - queries may be restricted"
-            )
-            # Run through DAG without RLS scope (normal flow)
+        async with self._repository.transaction(
+            tenant_id=ctx.tenant_id,
+            org_id=ctx.org_id,
+            user_id=ctx.user_id,
+            role=ctx.role,
+        ):
+            # Run DAG within transaction - repository methods will use RLS-scoped connection
             try:
                 result = await self._dag.run(envelope)
                 # Record success for non-error results

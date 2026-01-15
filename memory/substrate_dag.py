@@ -132,12 +132,12 @@ class SubstrateGraphState(TypedDict):
     envelope: dict[str, Any]  # PacketEnvelope as dict
 
     # Processing results
-    reasoning_block: dict[str, Any] | None  # StructuredReasoningBlock if generated
+    reasoning_block: Optional[dict[str, Any]]  # StructuredReasoningBlock if generated
     written_tables: list[str]
-    embedding_id: str | None
-    saved_checkpoint_id: (
-        str | None
-    )  # Renamed from checkpoint_id (reserved in LangGraph)
+    embedding_id: Optional[str]
+    saved_checkpoint_id: Optional[
+        str
+    ]  # Renamed from checkpoint_id (reserved in LangGraph)
 
     # Insight extraction results (v1.1.0+)
     insights: list[dict[str, Any]]  # ExtractedInsight objects as dicts
@@ -631,12 +631,12 @@ async def store_insights_node(
     Persists:
     - KnowledgeFacts to knowledge_facts table via UPSERT (idempotent)
     - Insights as specialized packets (future)
-    
+
     Uses repository.insert_knowledge_fact() which performs ON CONFLICT UPSERT,
     ensuring same packet enriched multiple times doesn't create duplicate facts.
     """
     from uuid import UUID
-    
+
     repository = _get_config_dependency(config, "repository")
     logger.debug("store_insights_node: Storing insights and facts")
 
@@ -644,7 +644,7 @@ async def store_insights_node(
     facts = state.get("facts", [])
     errors = list(state.get("errors", []))
     written_tables = list(state.get("written_tables", []))
-    
+
     # Get packet_id from envelope for linking facts to source packet
     envelope = state.get("envelope", {})
     packet_id_raw = envelope.get("packet_id")
@@ -685,23 +685,23 @@ async def store_insights_node(
                 object_value = fact.object
                 confidence = fact.confidence
                 source_packet = fact.source_packet or packet_id
-            
+
             # Ensure fact_id is UUID
             if fact_id and isinstance(fact_id, str):
                 fact_id = UUID(fact_id)
             elif not fact_id:
                 fact_id = uuid4()
-            
+
             # Ensure source_packet is UUID
             if source_packet and isinstance(source_packet, str):
                 source_packet = UUID(source_packet)
             elif isinstance(source_packet, UUID):
                 pass  # Already UUID, keep as is
-            
+
             # Ensure object_value is JSON-serializable (convert UUID to string)
             if isinstance(object_value, UUID):
                 object_value = str(object_value)
-            
+
             await repository.insert_knowledge_fact(
                 fact_id=fact_id,
                 subject=subject,
@@ -714,7 +714,9 @@ async def store_insights_node(
 
         if facts_inserted > 0:
             written_tables.append("knowledge_facts")
-            logger.debug(f"store_insights_node: Upserted {facts_inserted} facts for packet {packet_id}")
+            logger.debug(
+                f"store_insights_node: Upserted {facts_inserted} facts for packet {packet_id}"
+            )
 
     except Exception as e:
         logger.error(f"store_insights_node: Failed to store: {e}")
@@ -829,7 +831,9 @@ def route_after_memory_write(state: SubstrateGraphState) -> str:
 
         # Guard: empty or invalid envelope
         if not envelope:
-            logger.warning("route_after_memory_write: Empty envelope, defaulting to 'do_embed'")
+            logger.warning(
+                "route_after_memory_write: Empty envelope, defaulting to 'do_embed'"
+            )
             return "do_embed"
 
         payload = envelope.get("payload", {})
@@ -845,7 +849,9 @@ def route_after_memory_write(state: SubstrateGraphState) -> str:
         )
 
         if not should_embed:
-            logger.debug(f"route_after_memory_write: packet_type={packet_type} not embeddable, skip")
+            logger.debug(
+                f"route_after_memory_write: packet_type={packet_type} not embeddable, skip"
+            )
             return "skip_embed"
 
         # Check GMP-42 skip patterns
@@ -857,7 +863,9 @@ def route_after_memory_write(state: SubstrateGraphState) -> str:
         return "do_embed"
 
     except Exception as e:
-        logger.error(f"route_after_memory_write: Error in routing: {e}, defaulting to 'do_embed'")
+        logger.error(
+            f"route_after_memory_write: Error in routing: {e}, defaulting to 'do_embed'"
+        )
         return "do_embed"
 
 
@@ -906,7 +914,7 @@ def build_substrate_graph() -> StateGraph:
         {
             "do_embed": "semantic_embed_node",
             "skip_embed": "extract_insights_node",
-        }
+        },
     )
 
     # Continue from semantic_embed to insights
@@ -1025,7 +1033,7 @@ class SubstrateDAG:
         try:
             final_state = await asyncio.wait_for(
                 self._graph.ainvoke(initial_state, config=config),
-                timeout=60.0  # 60 second timeout for DAG execution
+                timeout=60.0,  # 60 second timeout for DAG execution
             )
         except asyncio.TimeoutError:
             logger.error(f"DAG execution timed out for packet {envelope.packet_id}")
@@ -1071,29 +1079,30 @@ class SubstrateDAG:
     ) -> EnrichmentResult:
         """
         Run ENRICHMENT ONLY pipeline using native LangGraph execution (v2.1.0 - GMP-67).
-        
+
         SKIPS: intake_node, memory_write_node, semantic_embed_node (already done by IngestionPipeline)
         RUNS: reasoning_node → extract_insights_node → store_insights_node → world_model_trigger_node
-        
+
         Pre-validation: Envelope must have packet_id, packet_type, payload populated.
         State is pre-hydrated from envelope (no DB reads required).
-        
+
         This method is designed to be called AFTER IngestionPipeline.ingest() has
         completed core writes (packet_store, embeddings, neo4j sync).
-        
+
         Args:
             envelope: Already-persisted PacketEnvelope
             preload_state: Optional pre-hydrated state (for testing or custom workflows)
-            
+
         Returns:
             EnrichmentResult with extracted facts, insights, and metrics
-            
+
         Raises:
             ValueError: If envelope is missing required fields
         """
         import time
+
         start_time = time.time()
-        
+
         # Pre-validation: envelope must be fully populated
         if not envelope.packet_id:
             raise ValueError("Envelope must have packet_id (already persisted)")
@@ -1101,7 +1110,7 @@ class SubstrateDAG:
             raise ValueError("Envelope must have packet_type")
         if not envelope.payload:
             raise ValueError("Envelope must have payload")
-        
+
         # Pre-hydrate state from envelope (skip intake_node's validation)
         # State matches SubstrateGraphState TypedDict structure
         initial_state: SubstrateGraphState = preload_state or {
@@ -1115,7 +1124,7 @@ class SubstrateDAG:
             "world_model_triggered": False,
             "errors": [],
         }
-        
+
         # Config with dependencies for all nodes (RunnableConfig pattern)
         config: RunnableConfig = {
             "configurable": {
@@ -1124,12 +1133,12 @@ class SubstrateDAG:
                 "world_model_service": self._world_model_service,
             }
         }
-        
+
         # Native LangGraph execution for enrichment
         try:
             final_state = await asyncio.wait_for(
                 self._enrichment_graph.ainvoke(initial_state, config=config),
-                timeout=30.0  # 30 second timeout for enrichment
+                timeout=30.0,  # 30 second timeout for enrichment
             )
         except asyncio.TimeoutError:
             logger.error(f"Enrichment timed out for packet {envelope.packet_id}")
@@ -1137,10 +1146,10 @@ class SubstrateDAG:
         except Exception as e:
             logger.error(f"Enrichment failed: {e}", exc_info=True)
             raise
-        
+
         # Build EnrichmentResult
         duration_ms = (time.time() - start_time) * 1000
-        
+
         # Convert dicts back to typed models
         facts = [
             KnowledgeFact(**f) if isinstance(f, dict) else f
@@ -1156,7 +1165,7 @@ class SubstrateDAG:
             if reasoning_block and isinstance(reasoning_block, dict)
             else reasoning_block
         )
-        
+
         logger.info(
             "DAG enrichment completed (native execution)",
             packet_id=str(envelope.packet_id),
@@ -1165,7 +1174,7 @@ class SubstrateDAG:
             world_model_triggered=final_state.get("world_model_triggered", False),
             duration_ms=duration_ms,
         )
-        
+
         return EnrichmentResult(
             packet_id=envelope.packet_id,
             facts=facts,

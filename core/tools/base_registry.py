@@ -730,3 +730,96 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
         logger.error(f"recall_task_history failed: {e}", exc_info=True)
         return []
 
+
+# =============================================================================
+# Tool Router Find (GMP-78: Semantic Tool Retrieval)
+# =============================================================================
+
+
+async def tool_router_find(
+    query: str,
+    top_k: int = 5,
+    exclude_categories: list[str] | None = None,
+) -> dict:
+    """
+    Find relevant tools for a task using semantic search.
+
+    GMP-78: Semantic Tool Retrieval executor function.
+
+    Uses pgvector embeddings to find the most relevant tools for a given query.
+    This allows agents to discover which tools are appropriate for their task
+    without having all 100+ tools in context.
+
+    Args:
+        query: Task description or user query
+        top_k: Maximum number of tools to return (default 5)
+        exclude_categories: Tool categories to exclude (e.g., ["governance"])
+
+    Returns:
+        Dict with:
+        - success: bool
+        - tools: List of tool info dicts (name, description, category, similarity)
+        - query: The original query
+        - count: Number of tools found
+    """
+    import structlog
+
+    logger = structlog.get_logger(__name__)
+
+    if not query or not query.strip():
+        return {
+            "success": False,
+            "error": "query is required",
+            "tools": [],
+            "count": 0,
+        }
+
+    try:
+        from core.tools.tool_embeddings import find_relevant_tools
+
+        results = await find_relevant_tools(
+            query=query,
+            top_k=top_k,
+            exclude_categories=exclude_categories,
+        )
+
+        tools = [
+            {
+                "name": r.tool_name,
+                "description": r.description,
+                "category": r.category,
+                "similarity": round(r.similarity, 3),
+                "negative_constraints": r.negative_constraints,
+            }
+            for r in results
+        ]
+
+        logger.info(
+            f"tool_router_find: found {len(tools)} tools for query",
+            query=query[:50],
+            top_k=top_k,
+        )
+
+        return {
+            "success": True,
+            "tools": tools,
+            "query": query,
+            "count": len(tools),
+        }
+
+    except ImportError as e:
+        logger.warning(f"tool_embeddings not available: {e}")
+        return {
+            "success": False,
+            "error": "Tool embeddings service not available",
+            "tools": [],
+            "count": 0,
+        }
+    except Exception as e:
+        logger.error(f"tool_router_find failed: {e}", exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+            "tools": [],
+            "count": 0,
+        }

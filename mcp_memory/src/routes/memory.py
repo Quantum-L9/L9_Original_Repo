@@ -1,11 +1,14 @@
-"""Memory CRUD, search, compounding, and decay routes."""
+"""Memory CRUD, search, compounding, and decay routes.
+
+NOTE: Legacy routes disabled (GMP-68). Use memory_unified.py instead.
+"""
 
 import structlog
 import time
 import json
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 import asyncio
 
 from src.db import fetch_all, fetch_one, execute
@@ -20,7 +23,16 @@ from src.models import (
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
-router = APIRouter()
+
+
+def _legacy_memory_disabled() -> None:
+    """Dependency that disables legacy memory routes."""
+    raise HTTPException(
+        status_code=410, detail="Legacy memory routes disabled. Use /unified/* routes."
+    )
+
+
+router = APIRouter(dependencies=[Depends(_legacy_memory_disabled)])
 
 
 @router.post("/save", response_model=MemoryResponse)

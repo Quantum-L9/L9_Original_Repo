@@ -1,6 +1,6 @@
 # TODO
 
-> **Last Updated:** 2026-01-14
+> **Last Updated:** 2026-01-14 (GMP-87: Scaffolding features added)
 
 ---
 
@@ -154,6 +154,35 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 
 ## 🟣 Deferred Work
 
+### Scaffolding / Future Features (from Dead Code Audit)
+
+**Status:** Scaffolding only — not dead code, just not yet exposed via API routes
+
+**Orchestrators (no API exposure yet):**
+| Feature | File Path | Purpose |
+|---------|-----------|---------|
+| MetaOrchestrator | `orchestrators/meta/orchestrator.py` | Blueprint evaluation (choosing between approaches) |
+| WorldModelOrchestrator | `orchestrators/world_model/orchestrator.py` | World model operations |
+| EvolutionOrchestrator | `orchestrators/evolution/orchestrator.py` | Evolutionary improvement cycles |
+
+**Adapter Services (WIP scaffolding):**
+| Feature | File Path | Purpose |
+|---------|-----------|---------|
+| Calendar Adapter | `api/adapters/calendar_adapter/` (4 files) | Calendar integration |
+| Email Adapter | `api/adapters/email_adapter/` (4 files) | Email integration |
+| Twilio Adapter | `api/adapters/twilio_adapter/` (4 files) | SMS/Voice integration |
+
+**TODO (when developing these):**
+- [ ] Create API routes for orchestrators (`api/routes/meta.py`, etc.)
+- [ ] Wire orchestrators in FastAPI lifespan (follow GMP-87 CursorExecutor pattern)
+- [ ] Complete adapter implementations (currently skeleton code)
+- [ ] Add adapter config to settings.py
+- [ ] Create adapter service tests
+
+**Reference:** GMP-87 dead code audit analysis
+
+---
+
 ### CI/CD Enhancements (GMP-78 Review)
 
 **Status**: Deferred — Nice-to-have, not urgent
@@ -270,24 +299,28 @@ jobs:
 
 ### Frontier Memory Retrieval Architecture
 
-**Status**: 🚫 BLOCKED — Waiting on MCP memory testing & confirmation
+**Status**: 🟡 IN PROGRESS — Phase 1 (Database Schema) complete
 
-**Blocker**: Do NOT start until MCP memory is tested and confirmed working in production.
+**Completed (2026-01-15):**
+- ✅ **GMP-80-A3:** `semantic_facts` table (migration 0018)
+- ✅ **GMP-80-A4:** `episodic_events` + `episodic_semantic_links` tables (migration 0019)
+- ✅ Pydantic DTOs: `SemanticFactRow`, `EpisodicEventRow`, `EpisodicSemanticLinkRow`
+- ✅ Repository CRUD methods for both semantic and episodic operations
 
-**Scope**: Implement frontier-grade memory retrieval system based on elite AI lab patterns (Anthropic, OpenAI, DeepMind).
+**Remaining GMPs:**
+| GMP ID | Task | Effort | Status |
+|--------|------|--------|--------|
+| GMP-80-A2 | Create Phase 0-6 Cursor prompts | 3-4 days | ✅ Complete |
+| GMP-80-A5 | Implement Identity Tier | 2-3 days | ✅ Complete |
+| GMP-80-A6 | Strategy-based retrieval | 3-5 days | ✅ Complete |
+| GMP-80-A7 | Active memory management | 5-7 days | ✅ Complete |
 
-**Key Components**:
-- 4-tier hierarchical memory (Identity → Project → Session → Working)
-- Dual semantic + episodic memory streams
-- Graph-based retrieval with multi-factor ranking
-- Active memory management (system decides what to encode)
-- SQL migrations: `semantic_facts`, `episodic_events`, `episodic_semantic_links`
-- Python services: `SemanticMemoryService`, `EpisodicMemoryService`
-- Context engineering: hierarchical injection per task
+**🎉 GMP-80 SERIES COMPLETE — Frontier Memory Retrieval Architecture fully implemented.**
+
+**Next Step:** Apply migrations to VPS, then start GMP-80-A5 (Identity Tier)
 
 **Reference**: `current_work/MEMORY RETRIEVAL ARCHITECTURE.md`
-
-**Estimated Effort**: 3 phases (Week 1-2: Fix immediate issues, Week 3-8: Architecture upgrade, Week 9-16: Context engineering)
+**Report**: `reports/GMP_Report_GMP-80-A3A4-Semantic-Episodic-Schema.md`
 
 ---
 
@@ -534,75 +567,6 @@ ingest_packet() → IngestionPipeline.ingest()
 
 - [x] GMP-48 — Agent Executor Deployment Automation (verification script, deployment script, CI integration)
 - [x] Unstub ResearchSwarmOrchestrator (GMP-47)
-
----
-
-## 🔮 Future GMPs — Memory Architecture
-
-> **Source:** `current_work/MEMORY-TIER-DESIGN.md` (GMP-68)
-> **Added:** 2026-01-14
-
-### GMP-69: Semantic + Episodic Memory Schema
-
-**Status:** Planned — Future enhancement
-
-**Scope:** Add `semantic_facts` and `episodic_events` tables with linking
-
-**Why:** Current `packet_store` doesn't distinguish facts (timeless) from events (temporal). Frontier labs (Anthropic, DeepMind) use dual memory streams.
-
-**Tables:**
-- `memory.semantic_facts` — Facts with importance, tags, triplets
-- `memory.episodic_events` — Events with timestamps, severity, entities
-- `memory.episodic_semantic_links` — Links events to facts they reference
-
----
-
-### GMP-70: Strategy-Based Retrieval Router
-
-**Status:** Planned — Future enhancement
-
-**Scope:** Add retrieval strategy router to `hybrid_search()`
-
-**Strategies:**
-- `core_identity` — Tier 1 facts (preferences, values)
-- `project_context` — Project-scoped facts
-- `temporal_recall` — Recent episodes
-- `association` — Facts + linked episodes
-- `uncertainty_fill` — High-confidence facts for uncertain agent
-
----
-
-### GMP-71: Tier-Based Context Injection
-
-**Status:** Planned — Future enhancement
-
-**Scope:** Add `TierManager` class with precedence-based context injection
-
-**Tiers:**
-1. Identity (highest precedence)
-2. Project
-3. Session/Temporal
-4. Working memory (lowest precedence)
-
----
-
-### GMP-72: Active Memory Management
-
-**Status:** Planned — Future enhancement (High complexity)
-
-**Scope:** System decides what to encode, not user-explicit
-
-**Features:**
-- Auto-extraction of learnings from task outcomes
-- Importance elevation on repeated retrieval
-- Auto-consolidation of old episodes
-- Deduplication with similarity threshold
-
-**Integration Points:**
-- `executor.py` — Task completion hook
-- `slack_ingest.py` — Conversation extraction
-- `/gmp` command — Pattern extraction
-- User feedback — Correction extraction
 
 ---
 

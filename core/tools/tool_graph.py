@@ -53,6 +53,8 @@ class ToolDefinition:
     scope: str = "internal"  # "internal" | "external" | "requires_igor_approval"
     risk_level: str = "low"  # "low" | "medium" | "high"
     requires_igor_approval: bool = False
+    # GMP-78: Negative constraints for tool selection guidance
+    negative_constraints: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         """Validate tool name matches OpenAI function calling pattern."""
@@ -72,11 +74,11 @@ class ToolGraph:
         (Tool)-[:USES]->(API)
         (Tool)-[:DEPENDS_ON]->(Tool)
         (Agent)-[:CAN_EXECUTE]->(Tool)
-    
+
     Note: CAN_EXECUTE is the unified relationship type (v1.1.0+).
     Legacy HAS_TOOL queries still work but are deprecated.
     """
-    
+
     # Unified relationship type (v1.1.0 - UKG Phase 1)
     AGENT_TOOL_REL = "CAN_EXECUTE"
     # Legacy alias (deprecated, will be removed in v2.0)
@@ -96,35 +98,32 @@ class ToolGraph:
     async def ensure_agent_exists(agent_id: str) -> bool:
         """
         Ensure agent node exists in Neo4j (UKG Phase 2).
-        
+
         Uses shared ENSURE_AGENT_QUERY from graph_state.schema.
         This prevents duplicate Agent nodes when Tool Graph and Graph State
         both reference the same agent.
-        
+
         Args:
             agent_id: Agent identifier (e.g., "L")
-            
+
         Returns:
             True if agent exists or was created
         """
         neo4j = await ToolGraph._get_neo4j()
         if not neo4j:
             return False
-            
+
         try:
             # Import the shared query from graph_state schema
             from core.agents.graph_state.schema import ENSURE_AGENT_QUERY
-            
-            result = await neo4j.run_query(
-                ENSURE_AGENT_QUERY,
-                {"agent_id": agent_id}
-            )
-            
+
+            result = await neo4j.run_query(ENSURE_AGENT_QUERY, {"agent_id": agent_id})
+
             if result:
                 logger.debug(f"Agent {agent_id} ensured in graph")
                 return True
             return False
-            
+
         except ImportError:
             # Fallback: create agent directly if graph_state not available
             await neo4j.create_entity(
@@ -164,7 +163,7 @@ class ToolGraph:
             logger.warning(
                 f"Neo4j unavailable - tool graph disabled for '{tool.name}'. "
                 "Governance queries (blast radius, dependencies) unavailable.",
-                extra={"alert": "neo4j_unavailable", "tool_name": tool.name}
+                extra={"alert": "neo4j_unavailable", "tool_name": tool.name},
             )
             return False
 
@@ -738,7 +737,7 @@ L_INTERNAL_TOOLS = [
     ),
     ToolDefinition(
         name="memory_search",
-        description="Search L9 memory with embeddings",
+        description="Search L9 memory with embeddings. Use for structured data retrieval, aggregations, keyword search, and text similarity. Best for: totals, averages, counts, tabular reports, finding specific facts.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -746,6 +745,11 @@ L_INTERNAL_TOOLS = [
         external_apis=["PostgreSQL", "OpenAI"],
         internal_dependencies=["memory_read"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for relationship traversal or path finding - use neo4j_query instead",
+            "Do not use for multi-hop queries like 'friends of friends' - use graph tools",
+            "Do not use for influence analysis or community detection - use Neo4j",
+        ],
     ),
     ToolDefinition(
         name="memory_write",
@@ -1131,7 +1135,7 @@ L_INTERNAL_TOOLS = [
     # Neo4j Graph Database Tools
     ToolDefinition(
         name="neo4j_query",
-        description="Run Cypher queries against Neo4j graph (tool deps, events, knowledge)",
+        description="Run Cypher queries against Neo4j graph for relationship traversal, path finding, and influence analysis. Use for: tool dependencies, event chains, knowledge connections, multi-hop queries, 'friends of friends', community detection.",
         category="knowledge",
         scope="internal",
         is_destructive=False,
@@ -1139,6 +1143,12 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         external_apis=["Neo4j"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for aggregations (SUM, AVG, COUNT) - use memory_search instead",
+            "Do not use for text similarity or semantic search - use memory_search with embeddings",
+            "Do not use for simple key-value lookups - use memory_get_packet",
+            "Do not use for tabular reports - use Postgres-backed tools",
+        ],
     ),
     # Redis Cache Tools
     ToolDefinition(
@@ -1409,7 +1419,7 @@ L_INTERNAL_TOOLS = [
     ),
     ToolDefinition(
         name="hybrid_rag_search",
-        description="Hybrid RAG search: vector similarity + graph enrichment",
+        description="Hybrid RAG search combining vector similarity (Postgres/pgvector) + graph enrichment (Neo4j). Use when you need BOTH semantic matching AND relationship context. Best for: questions spanning facts and connections, enriched search results with related entities.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -1417,6 +1427,11 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         external_apis=["PostgreSQL", "Neo4j", "OpenAI"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for simple text search - use memory_search (lighter weight)",
+            "Do not use for pure graph traversal - use neo4j_query (faster)",
+            "Only use when you explicitly need both paradigms combined",
+        ],
     ),
     # Cross-DB Saga Pattern (GMP-56)
     ToolDefinition(

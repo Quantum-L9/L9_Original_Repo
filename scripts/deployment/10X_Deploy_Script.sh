@@ -446,30 +446,51 @@ fi
 # =============================================================================
 log_header "PHASE 5: VPS Docker Rebuild"
 
-log_step "Stopping current l9-api container..."
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose stop l9-api" || true
+log_step "Stopping and removing current l9-api container..."
+# Use 'down' to fully remove the container (not just stop) to ensure fresh start
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose stop l9-api 2>/dev/null || true"
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose rm -f l9-api 2>/dev/null || true"
 wait_with_spinner 3 "Waiting for graceful shutdown..."
+
+# Get the current image ID before rebuild (for verification)
+OLD_IMAGE_ID=$(ssh "$VPS_HOST" "docker images -q l9-l9-api 2>/dev/null | head -1" || echo "none")
+log_step "Previous image ID: ${OLD_IMAGE_ID:-none}"
 
 BUILD_OPTS=""
 if [[ "$QUICK" == "false" ]]; then
     BUILD_OPTS="--no-cache"
     log_step "Building l9-api image (no cache - full rebuild)..."
+    # Also remove old image to force complete rebuild
+    log_step "Removing old l9-api image to force fresh build..."
+    ssh "$VPS_HOST" "docker rmi l9-l9-api 2>/dev/null || true"
 else
     log_step "Building l9-api image (with cache - quick mode)..."
 fi
 
-if ssh "$VPS_HOST" "cd $VPS_REPO && docker compose build $BUILD_OPTS l9-api"; then
+if ssh "$VPS_HOST" "cd $VPS_REPO && docker compose build $BUILD_OPTS l9-api 2>&1"; then
     log_ok "Build complete"
 else
     log_error "Docker build failed!"
     rollback
 fi
 
-log_step "Starting l9-api container..."
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d l9-api"
-log_ok "Container started"
+# Verify new image was created
+NEW_IMAGE_ID=$(ssh "$VPS_HOST" "docker images -q l9-l9-api 2>/dev/null | head -1" || echo "none")
+log_step "New image ID: ${NEW_IMAGE_ID:-none}"
 
-wait_with_spinner 5 "Waiting for initialization..."
+if [[ "$OLD_IMAGE_ID" == "$NEW_IMAGE_ID" ]] && [[ "$OLD_IMAGE_ID" != "none" ]] && [[ "$QUICK" == "false" ]]; then
+    log_warn "Image ID unchanged after --no-cache rebuild - may indicate build cache issue"
+fi
+
+log_step "Starting l9-api container (fresh instance)..."
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d --force-recreate l9-api"
+log_ok "Container started with fresh instance"
+
+# Verify container is running the new image
+CONTAINER_IMAGE=$(ssh "$VPS_HOST" "docker inspect l9-l9-api-1 --format='{{.Image}}' 2>/dev/null | cut -c8-19" || echo "unknown")
+log_step "Container running image: $CONTAINER_IMAGE"
+
+wait_with_spinner 8 "Waiting for initialization (extended for fresh container)..."
 
 # =============================================================================
 # PHASE 6: VPS HEALTH CHECKS
@@ -477,20 +498,47 @@ wait_with_spinner 5 "Waiting for initialization..."
 log_header "PHASE 6: VPS Health Checks"
 
 log_step "Checking container status..."
+CONTAINER_STATUS=$(ssh "$VPS_HOST" "cd $VPS_REPO && docker compose ps l9-api --format '{{.State}}'" 2>/dev/null || echo "unknown")
 ssh "$VPS_HOST" "cd $VPS_REPO && docker compose ps l9-api" | tee -a "$DEPLOY_LOG"
 
-log_step "Checking startup logs..."
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=20" | tee -a "$DEPLOY_LOG"
+# Early exit if container isn't running
+if [[ "$CONTAINER_STATUS" != "running" ]]; then
+    log_error "Container is not running! State: $CONTAINER_STATUS"
+    log_step "Fetching container logs for diagnosis..."
+    ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=50" | tee -a "$DEPLOY_LOG"
+    rollback
+fi
 
-wait_with_spinner 5 "Allowing API to fully initialize..."
+log_step "Checking startup logs (last 30 lines)..."
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=30 --no-log-prefix 2>&1" | tee -a "$DEPLOY_LOG"
+
+# Check for common startup errors in logs
+STARTUP_ERRORS=$(ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=50 2>&1 | grep -iE '(error|exception|failed|traceback|ModuleNotFoundError|ImportError)' | head -5" || echo "")
+if [[ -n "$STARTUP_ERRORS" ]]; then
+    log_warn "Potential startup errors detected in logs:"
+    echo "$STARTUP_ERRORS"
+    echo ""
+fi
+
+wait_with_spinner 8 "Allowing API to fully initialize..."
 
 log_step "Testing API health endpoint (with retries)..."
 RETRY_COUNT=0
 HEALTH_OK=false
+LAST_HTTP_CODE=""
 
 while [[ $RETRY_COUNT -lt $HEALTH_MAX_RETRIES ]]; do
-    HEALTH_RESPONSE=$(ssh "$VPS_HOST" "curl -s --max-time 10 http://127.0.0.1:8000/health 2>/dev/null || echo 'FAIL'")
+    # Get both HTTP code and response body
+    HEALTH_RESULT=$(ssh "$VPS_HOST" "curl -s -w '\n%{http_code}' --max-time 10 http://127.0.0.1:8000/health 2>/dev/null || echo -e 'FAIL\n000'")
+    HEALTH_RESPONSE=$(echo "$HEALTH_RESULT" | head -n -1)
+    LAST_HTTP_CODE=$(echo "$HEALTH_RESULT" | tail -1)
     
+    if [[ "$LAST_HTTP_CODE" == "200" ]]; then
+        HEALTH_OK=true
+        break
+    fi
+    
+    # Also accept these patterns even without 200 (some health endpoints return different codes)
     if [[ "$HEALTH_RESPONSE" == *"status"* ]] || [[ "$HEALTH_RESPONSE" == *"ok"* ]] || [[ "$HEALTH_RESPONSE" == *"healthy"* ]]; then
         HEALTH_OK=true
         break
@@ -498,21 +546,105 @@ while [[ $RETRY_COUNT -lt $HEALTH_MAX_RETRIES ]]; do
     
     ((RETRY_COUNT++))
     if [[ $RETRY_COUNT -lt $HEALTH_MAX_RETRIES ]]; then
-        echo -n "  Retry $RETRY_COUNT/$HEALTH_MAX_RETRIES..."
+        echo "  Retry $RETRY_COUNT/$HEALTH_MAX_RETRIES (HTTP $LAST_HTTP_CODE)..."
         sleep $HEALTH_RETRY_INTERVAL
     fi
 done
 
 if [[ "$HEALTH_OK" == "true" ]]; then
-    log_ok "API is healthy (after $RETRY_COUNT retries)"
+    log_ok "API is healthy (after $RETRY_COUNT retries, HTTP $LAST_HTTP_CODE)"
     echo "$HEALTH_RESPONSE" | jq . 2>/dev/null || echo "$HEALTH_RESPONSE"
 else
     log_error "API health check failed after $HEALTH_MAX_RETRIES attempts!"
+    log_error "Last HTTP code: $LAST_HTTP_CODE"
     log_error "Last response: $HEALTH_RESPONSE"
-    log_step "Fetching container logs for diagnosis..."
-    ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=100"
+    
+    # Enhanced diagnostics
+    log_step "Running enhanced diagnostics..."
+    
+    log_step "1. Container resource usage:"
+    ssh "$VPS_HOST" "docker stats l9-l9-api-1 --no-stream 2>/dev/null" || true
+    
+    log_step "2. Container network connectivity:"
+    ssh "$VPS_HOST" "docker exec l9-l9-api-1 curl -s http://127.0.0.1:8000/health 2>&1 || echo 'Internal curl failed'" || true
+    
+    log_step "3. Process list inside container:"
+    ssh "$VPS_HOST" "docker exec l9-l9-api-1 ps aux 2>/dev/null | head -10" || true
+    
+    log_step "4. Full container logs (last 100 lines):"
+    ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=100" | tee -a "$DEPLOY_LOG"
+    
+    log_step "5. Container inspect (exit code, state):"
+    ssh "$VPS_HOST" "docker inspect l9-l9-api-1 --format='State: {{.State.Status}}, ExitCode: {{.State.ExitCode}}, Error: {{.State.Error}}'" 2>/dev/null || true
+    
     rollback
 fi
+
+# Additional health verifications
+log_step "Verifying additional endpoints..."
+
+# Test /docs endpoint (OpenAPI)
+DOCS_CHECK=$(ssh "$VPS_HOST" "curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:8000/docs 2>/dev/null || echo '000'")
+if [[ "$DOCS_CHECK" == "200" ]]; then
+    log_ok "API docs endpoint OK (/docs)"
+else
+    log_warn "API docs endpoint returned HTTP $DOCS_CHECK (non-critical)"
+fi
+
+# Test a lightweight API endpoint if available
+READY_CHECK=$(ssh "$VPS_HOST" "curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:8000/ready 2>/dev/null || echo '000'")
+if [[ "$READY_CHECK" == "200" ]]; then
+    log_ok "API ready endpoint OK (/ready)"
+elif [[ "$READY_CHECK" != "000" ]] && [[ "$READY_CHECK" != "404" ]]; then
+    log_warn "API ready endpoint returned HTTP $READY_CHECK"
+fi
+
+# =============================================================================
+# PHASE 6.5: SERVICE VERIFICATION
+# =============================================================================
+log_header "PHASE 6.5: Service Verification"
+
+log_step "Verifying internal services are responding..."
+
+# Check that the git SHA in the container matches what we deployed
+log_step "Checking deployed code version..."
+CONTAINER_GIT_SHA=$(ssh "$VPS_HOST" "docker exec l9-l9-api-1 cat /app/.git-sha 2>/dev/null || docker exec l9-l9-api-1 git -C /app rev-parse HEAD 2>/dev/null || echo 'unknown'" | tr -d '[:space:]')
+if [[ "$CONTAINER_GIT_SHA" == "$VPS_SHA"* ]] || [[ "$VPS_SHA" == "$CONTAINER_GIT_SHA"* ]]; then
+    log_ok "Container running correct code version: ${CONTAINER_GIT_SHA:0:8}"
+elif [[ "$CONTAINER_GIT_SHA" == "unknown" ]]; then
+    log_warn "Could not verify container code version (git not in container)"
+else
+    log_warn "Container SHA ($CONTAINER_GIT_SHA) may differ from VPS SHA ($VPS_SHA)"
+fi
+
+# Verify Python can import key modules
+log_step "Verifying Python imports..."
+IMPORT_CHECK=$(ssh "$VPS_HOST" "docker exec l9-l9-api-1 python3 -c 'from api.server import app; print(\"OK\")' 2>&1" || echo "FAIL")
+if [[ "$IMPORT_CHECK" == *"OK"* ]]; then
+    log_ok "Core API module imports successfully"
+else
+    log_warn "Import check issue: $IMPORT_CHECK"
+fi
+
+# Check if uvicorn/gunicorn process is running
+log_step "Verifying API server process..."
+API_PROCESS=$(ssh "$VPS_HOST" "docker exec l9-l9-api-1 pgrep -f 'uvicorn|gunicorn' 2>/dev/null || echo 'none'")
+if [[ "$API_PROCESS" != "none" ]] && [[ -n "$API_PROCESS" ]]; then
+    log_ok "API server process running (PID: $(echo $API_PROCESS | head -1))"
+else
+    log_warn "Could not verify API server process"
+fi
+
+# Memory check - ensure container isn't OOM
+log_step "Checking container memory..."
+MEM_USAGE=$(ssh "$VPS_HOST" "docker stats l9-l9-api-1 --no-stream --format '{{.MemUsage}}' 2>/dev/null" || echo "unknown")
+if [[ "$MEM_USAGE" != "unknown" ]]; then
+    log_ok "Container memory usage: $MEM_USAGE"
+else
+    log_warn "Could not check container memory usage"
+fi
+
+log_ok "Service verification complete"
 
 # =============================================================================
 # PHASE 7: DATABASE CONNECTIVITY

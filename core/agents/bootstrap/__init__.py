@@ -9,6 +9,7 @@ This module implements frontier-lab grade agent initialization:
 - Kernels, identity, tools, governance wired at startup
 - Full audit trail with initialization signature
 """
+
 from __future__ import annotations
 
 from .phase_0_validate import validate_agent_blueprint
@@ -20,6 +21,11 @@ from .phase_5_bind_tools import bind_tools_and_capabilities
 from .phase_6_wire_governance import wire_governance_gates
 from .phase_7_verify_and_lock import verify_and_lock
 from .orchestrator import AgentBootstrapOrchestrator
+from .bootstrap_metrics import (
+    BootstrapMetrics,
+    get_bootstrap_metrics,
+    PROMETHEUS_AVAILABLE as BOOTSTRAP_PROMETHEUS_AVAILABLE,
+)
 
 __all__ = [
     "AgentBootstrapOrchestrator",
@@ -34,5 +40,8 @@ __all__ = [
     "bind_tools_and_capabilities",
     "wire_governance_gates",
     "verify_and_lock",
+    # Metrics
+    "BootstrapMetrics",
+    "get_bootstrap_metrics",
+    "BOOTSTRAP_PROMETHEUS_AVAILABLE",
 ]
-

@@ -11,6 +11,7 @@ Tests:
 
 Run: pytest tests/memory/test_substrate_dag_native.py -v
 """
+
 import pytest
 from typing import TypedDict
 from unittest.mock import MagicMock, AsyncMock
@@ -156,7 +157,10 @@ class TestSkipEmbedding:
 
     def test_dont_skip_valid_content(self):
         """Valid content should NOT be skipped."""
-        assert _should_skip_embedding("This is a valid piece of content worth embedding.") is False
+        assert (
+            _should_skip_embedding("This is a valid piece of content worth embedding.")
+            is False
+        )
         assert _should_skip_embedding("User asked about memory systems in L9.") is False
 
 
@@ -173,7 +177,7 @@ class TestRoutingFunction:
         state = {
             "envelope": {
                 "packet_type": "memory",
-                "payload": {"text": "Valid content for embedding purposes."}
+                "payload": {"text": "Valid content for embedding purposes."},
             }
         }
         assert route_after_memory_write(state) == "do_embed"
@@ -183,19 +187,14 @@ class TestRoutingFunction:
         state = {
             "envelope": {
                 "packet_type": "semantic_update",
-                "payload": {"content": "Some semantic content here."}
+                "payload": {"content": "Some semantic content here."},
             }
         }
         assert route_after_memory_write(state) == "do_embed"
 
     def test_route_skip_for_non_embeddable_type(self):
         """Non-embeddable packet type should skip."""
-        state = {
-            "envelope": {
-                "packet_type": "heartbeat",
-                "payload": {}
-            }
-        }
+        state = {"envelope": {"packet_type": "heartbeat", "payload": {}}}
         assert route_after_memory_write(state) == "skip_embed"
 
     def test_route_skip_for_error_content(self):
@@ -203,19 +202,16 @@ class TestRoutingFunction:
         state = {
             "envelope": {
                 "packet_type": "memory",
-                "payload": {"text": "Sorry, I encountered a temporary error. Please try again."}
+                "payload": {
+                    "text": "Sorry, I encountered a temporary error. Please try again."
+                },
             }
         }
         assert route_after_memory_write(state) == "skip_embed"
 
     def test_route_skip_for_short_content(self):
         """GMP-42: Short content should skip embedding."""
-        state = {
-            "envelope": {
-                "packet_type": "memory",
-                "payload": {"text": "Hi"}
-            }
-        }
+        state = {"envelope": {"packet_type": "memory", "payload": {"text": "Hi"}}}
         assert route_after_memory_write(state) == "skip_embed"
 
     def test_route_handles_empty_envelope(self):
@@ -247,11 +243,8 @@ class TestNodeConfigInjection:
     async def test_intake_node_receives_config(self):
         """intake_node extracts repository from config."""
         state = {
-            "envelope": {
-                "packet_type": "test",
-                "payload": {"key": "value"}
-            },
-            "errors": []
+            "envelope": {"packet_type": "test", "payload": {"key": "value"}},
+            "errors": [],
         }
         mock_repo = MagicMock()
         config = {"configurable": {"repository": mock_repo}}
@@ -269,9 +262,9 @@ class TestNodeConfigInjection:
             "envelope": {
                 "packet_id": str(uuid4()),
                 "packet_type": "test",
-                "payload": {"key": "value"}
+                "payload": {"key": "value"},
             },
-            "errors": []
+            "errors": [],
         }
         config = {"configurable": {"repository": MagicMock()}}
 
@@ -289,16 +282,16 @@ class TestNodeConfigInjection:
                 "packet_id": str(uuid4()),
                 "packet_type": "memory",
                 "payload": {"text": "Valid content to embed for testing."},
-                "metadata": {"agent": "test"}
+                "metadata": {"agent": "test"},
             },
             "errors": [],
-            "written_tables": []
+            "written_tables": [],
         }
         mock_semantic = make_mock_semantic_service()
         config = {
             "configurable": {
                 "repository": MagicMock(),
-                "semantic_service": mock_semantic
+                "semantic_service": mock_semantic,
             }
         }
 
@@ -349,7 +342,7 @@ class TestSubstrateDAGNativeExecution:
 
         envelope = make_test_envelope(
             "Sorry, I encountered a temporary error. Please try again.",
-            packet_type="memory"
+            packet_type="memory",
         )
         result = await dag.run(envelope)
 
@@ -393,17 +386,16 @@ class TestEnrichmentGraph:
 
     @pytest.mark.asyncio
     async def test_enrich_validates_packet_id(self):
-        """enrich() requires packet_id."""
-        dag = SubstrateDAG()
+        """enrich() requires packet_id - now validated by Pydantic schema."""
+        from pydantic import ValidationError
 
-        envelope = PacketEnvelope(
-            packet_id=None,  # Missing
-            packet_type="test",
-            payload={"key": "value"},
-        )
-
-        with pytest.raises(ValueError, match="packet_id"):
-            await dag.enrich(envelope)
+        # PacketEnvelope now requires packet_id at schema level (not None)
+        with pytest.raises(ValidationError, match="packet_id"):
+            PacketEnvelope(
+                packet_id=None,  # Missing - fails at schema validation
+                packet_type="test",
+                payload={"key": "value"},
+            )
 
 
 # =============================================================================
@@ -464,7 +456,7 @@ class TestLangGraphConfigPattern:
 
         result = await compiled.ainvoke(
             {"value": 1, "config_received": False, "config_value": ""},
-            config={"configurable": {"test_dep": "INJECTED"}}
+            config={"configurable": {"test_dep": "INJECTED"}},
         )
 
         assert result["config_received"] is True

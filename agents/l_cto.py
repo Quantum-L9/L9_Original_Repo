@@ -208,6 +208,11 @@ class LCTOAgent(BaseAgent):
         """Build system prompt from absorbed kernel data."""
         sections = []
 
+        # If research mode, prepend research prompt
+        if getattr(self, "_research_mode", False) and hasattr(self, "_research_prompt"):
+            sections.append(self._research_prompt.strip())
+            sections.append("")  # Separator
+
         # Start with activation context if set
         if self._system_context:
             sections.append(self._system_context.strip())
@@ -276,7 +281,7 @@ class LCTOAgent(BaseAgent):
             sections.append("\n".join(safety_lines))
 
         # Memory context (lessons, prior corrections) - bootstrapped at startup
-        if hasattr(self, '_memory_context') and self._memory_context:
+        if hasattr(self, "_memory_context") and self._memory_context:
             sections.append(self._memory_context)
 
         # Closing
@@ -301,17 +306,21 @@ class LCTOAgent(BaseAgent):
             state_info = ""
             if hasattr(self.kernel_state, "session_id"):
                 state_info = f", session: {self.kernel_state.session_id}"
+
+            # Include research mode if active
+            mode_info = ""
+            if getattr(self, "_research_mode", False):
+                mode_info = " [RESEARCH MODE]"
+
             return (
-                f"I am L, the CTO agent for Igor. "
+                f"I am L, the CTO agent for Igor{mode_info}. "
                 f"Kernels: {len(self.kernels)} loaded{state_info}. "
                 f"Role: {self._identity.get('primary_role', 'CTO')}. "
                 f"Allegiance: {self._identity.get('allegiance', 'Igor-only')}."
             )
         else:
             state_str = (
-                self.kernel_state
-                if isinstance(self.kernel_state, str)
-                else "INACTIVE"
+                self.kernel_state if isinstance(self.kernel_state, str) else "INACTIVE"
             )
             return f"L-CTO Agent (kernel_state: {state_str}, awaiting activation)"
 
@@ -583,12 +592,116 @@ def end_l_cto_session(agent: LCTOAgent) -> Dict[str, Any]:
 
 
 # =============================================================================
+# Research Mode Factory
+# =============================================================================
+
+# Path to research overlay config
+RESEARCH_OVERLAY_PATH = "config/agents/L-CTO-Research-Overlay.yaml"
+
+
+def create_l_cto_research_agent(
+    load_kernels_on_create: bool = True,
+) -> LCTOAgent:
+    """
+    Create L-CTO agent in RESEARCH MODE.
+
+    Research mode provides:
+    - Higher temperature (0.8) for creative synthesis
+    - Extended timeout (180s) for deep analysis
+    - Research methodology (PLAN → RESEARCH → CRITIQUE → SYNTHESIZE → CITE)
+    - Benchmarking frameworks (ISO 42001, NIST AI RMF, OpenAI Tiers)
+    - Gap analysis output format
+
+    The agent is initialized with:
+    - agent_id: "l-cto-research"
+    - Research-specific system prompt
+    - Extended tool set with MCP research tools
+
+    Args:
+        load_kernels_on_create: Whether to load kernels on creation
+
+    Returns:
+        LCTOAgent configured for research mode
+    """
+    import yaml
+    from pathlib import Path
+
+    # Load research overlay config
+    overlay_path = Path(RESEARCH_OVERLAY_PATH)
+    if not overlay_path.exists():
+        logger.warning(
+            "Research overlay not found, using default L-CTO",
+            path=RESEARCH_OVERLAY_PATH,
+        )
+        return create_l_cto_agent(load_kernels_on_create=load_kernels_on_create)
+
+    with open(overlay_path) as f:
+        research_config = yaml.safe_load(f)
+
+    # Create agent with research ID
+    agent = LCTOAgent(
+        agent_id=research_config.get("agent_id", "l-cto-research"),
+        manifest=RESEARCH_OVERLAY_PATH,
+    )
+
+    # Store research config for prompt building
+    agent._research_config = research_config
+    agent._research_mode = True
+
+    # Override model settings from research overlay
+    if "model" in research_config:
+        agent._model_config = research_config["model"]
+
+    if load_kernels_on_create:
+        from runtime.kernel_loader import load_kernels, require_kernel_activation
+
+        agent = load_kernels(agent)
+        require_kernel_activation(agent)
+
+        # Apply research-specific system prompt after kernels
+        if "system_prompt" in research_config:
+            agent._research_prompt = research_config["system_prompt"]
+
+        # Signal session start
+        try:
+            from runtime.introspection import on_session_start
+
+            on_session_start(agent)
+        except ImportError:
+            pass
+
+    logger.info(
+        "l_cto.research_mode: initialized",
+        agent_id=agent.agent_id,
+        methodology=research_config.get("metadata", {}).get("research_phases", []),
+    )
+
+    return agent
+
+
+def is_research_mode(agent: LCTOAgent) -> bool:
+    """
+    Check if agent is in research mode.
+
+    Args:
+        agent: The L-CTO agent
+
+    Returns:
+        True if research mode is active
+    """
+    return getattr(agent, "_research_mode", False)
+
+
+# =============================================================================
 # Public API
 # =============================================================================
 
 __all__ = [
     "LCTOAgent",
     "create_l_cto_agent",
+    "create_l_cto_research_agent",
     "end_l_cto_session",
     "execute_tool_guarded",
+    "is_research_mode",
+    "RESEARCH_OVERLAY_PATH",
 ]
