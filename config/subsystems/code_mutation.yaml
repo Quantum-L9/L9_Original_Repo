@@ -47,4 +47,3 @@ subsystem_config_v1:
     high_risk_triggers:
       - "Database schema change"
       - "Authentication/authorization boundary change"
-```

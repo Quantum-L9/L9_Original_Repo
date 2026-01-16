@@ -18,6 +18,7 @@
   .assembler
   .base_extractor
   .bootstrap_l_graph
+  .bootstrap_metrics
   .c_gmp_engine
   .circuit_breaker
   .classifier
@@ -28,6 +29,7 @@
   .conftest
   .context_strategies
   .convergence
+  .core
   .credentials_policy
   .decision_synthesizer
   .emitters
@@ -60,6 +62,7 @@
   .module_schema_extractor
   .orchestrator
   .packet_router
+  .path_safety
   .permission_graph
   .phase_0_validate
   .phase_1_load_kernels
@@ -88,6 +91,7 @@
   .validator
   .validator_bridge
   .websocket_client
+  .wm_to_graph_sync
   .world_model.orchestrator
   .ws_bridge
 # 2020
@@ -108,18 +112,18 @@
   adapters.email_adapter_adapter
   adapters.twilio_adapter_adapter
 # agents
-  agents.architect_agent_a
-  agents.architect_agent_b
+  agents.architect_agent.architect_agent_a
+  agents.architect_agent.architect_agent_b
   agents.base_agent
   agents.codegenagent.c_gmp_engine
+  agents.codegenagent.codegen_agent
   agents.codegenagent.file_emitter
   agents.codegenagent.meta_loader
   agents.codegenagent.readme_generator
-  agents.coder_agent_a
-  agents.coder_agent_b
+  agents.coder_agent.coder_agent_a
+  agents.coder_agent.coder_agent_b
   agents.cursor.cursor_client
   agents.cursor.cursor_memory_kernel
-  agents.cursor.integrations.cursor_executor
   agents.cursor.integrations.cursor_gateway
   agents.cursor.integrations.cursor_langgraph
   agents.l_cto
@@ -132,10 +136,11 @@
   api.adapters.calendar_adapter.routes.calendar_adapter
   api.adapters.email_adapter.adapters.email_adapter_adapter
   api.adapters.email_adapter.routes.email_adapter
-  api.adapters.slack_webhook_adapter
   api.adapters.twilio_adapter.adapters.twilio_adapter_adapter
   api.adapters.twilio_adapter.routes.twilio_adapter
   api.agent_routes
+  api.anomaly_classifier_adapter
+  api.anomaly_response_monitor_adapter
   api.auth
   api.circuit_breaker
   api.db
@@ -148,6 +153,7 @@
   api.slack_adapter
   api.slack_client
   api.tools.router
+  api.violation_tracker_service_adapter
 # apply_policy_rules
   apply_policy_rules
 # argparse
@@ -172,6 +178,12 @@
   chat
 # clients
   clients.memory_client
+# codegen
+  codegen.symbolic.analyzer
+  codegen.symbolic.candidates
+  codegen.symbolic.selector
+  codegen.symbolic.spec
+  codegen.symbolic.verifier
 # collaborative_cells
   collaborative_cells.architect_cell
   collaborative_cells.base_cell
@@ -187,6 +199,7 @@
 # config
   config.memory_substrate_settings
   config.research_settings
+  config.rls_config
   config.settings
 # contextlib
   contextlib
@@ -196,19 +209,23 @@
   copy
 # core
   core.agents.agent_instance
+  core.agents.bootstrap.phase1_loadkernels
   core.agents.executor
+  core.agents.graph_state.agent_graph_loader
   core.agents.graph_state.schema
   core.agents.kernelevolution
   core.agents.prompt_builder
   core.agents.prompt_defense
+  core.agents.protocols
   core.agents.schemas
   core.agents.selfreflection
   core.aios.runtime
   core.boundary.enforcer
-  core.commands.intent_extractor
   core.commands.schemas
   core.compliance.audit_log
   core.compliance.audit_reporter
+  core.gmp
+  core.gmp.meta_learning_engine
   core.governance.approval_gate
   core.governance.approval_manager
   core.governance.approvals
@@ -232,6 +249,7 @@
   core.packet_envelope.standardization
   core.resilience.retry
   core.retrievers.substrate_retriever
+  core.schemas
   core.schemas.capabilities
   core.schemas.event_stream
   core.schemas.packet_envelope
@@ -242,6 +260,7 @@
   core.schemas.schema_registry
   core.schemas.tasks
   core.schemas.ws_event_stream
+  core.security.path_safety
   core.testing.test_agent
   core.testing.test_executor
   core.testing.test_generator
@@ -258,6 +277,14 @@
   dataclasses
 # datetime
   datetime
+# dev_layer
+  dev_layer
+  dev_layer.am_engine
+  dev_layer.am_engine.compile
+  dev_layer.modules
+  dev_layer.modules.code_planning
+  dev_layer.runtime
+  dev_layer.runtime.enforcement
 # domain_tensor_bridge
   domain_tensor_bridge.agent_controller
   domain_tensor_bridge.context_enricher
@@ -312,6 +339,8 @@
   importlib.util
 # inspect
   inspect
+# integration
+  integration
 # ir_engine
   ir_engine.compile_meta_to_ir
   ir_engine.constraint_challenger
@@ -329,6 +358,8 @@
   jinja2
 # json
   json
+# jsonschema
+  jsonschema
 # l9
   l9.core.governance
   l9.core.memory
@@ -354,26 +385,36 @@
 # math
   math
 # memory
+  memory
+  memory.active_encoder
   memory.agent_persistence
   memory.audit_utils
   memory.checkpoint.cursor_checkpoint_manager
   memory.checkpoint.postgres_saver
+  memory.checkpoint_metrics
+  memory.checkpoint_validator
   memory.consolidation
+  memory.cross_encoder_reranker
   memory.cypher_templates
   memory.extractors.base_extractor
+  memory.governance_gate
   memory.governance_patterns
   memory.graph_client
   memory.graph_memory
   memory.graph_search_cache
+  memory.hierarchical_summarizer
   memory.housekeeping
   memory.hybrid_rag
+  memory.importance_manager
   memory.ingestion
   memory.insight_extraction
   memory.migration_runner
   memory.models
+  memory.neural_decay_scheduler
   memory.packet_serializer
   memory.query_classifier
   memory.reasoning_replay
+  memory.retention_engine
   memory.retrieval
   memory.saga
   memory.saga_patterns
@@ -389,8 +430,6 @@
   memory.substrate_repository
   memory.substrate_semantic
   memory.substrate_service
-  memory.substratemodels
-  memory.substrateservice
   memory.tool_router
   memory.validators.packet_validator
 # mocks
@@ -402,6 +441,17 @@
   neo4j
 # openai
   openai
+# opentelemetry
+  opentelemetry
+  opentelemetry.baggage.propagation
+  opentelemetry.exporter.jaeger.thrift
+  opentelemetry.exporter.prometheus
+  opentelemetry.propagators.composite
+  opentelemetry.sdk.metrics
+  opentelemetry.sdk.metrics.export
+  opentelemetry.sdk.trace
+  opentelemetry.sdk.trace.export
+  opentelemetry.trace.propagation.tracecontext
 # orchestration
   orchestration.cell_orchestrator
   orchestration.long_plan_graph
@@ -416,14 +466,28 @@
   orchestrators.agent_execution.task_queue
   orchestrators.memory.interface
   orchestrators.memory.orchestrator
+  orchestrators.pattern.cell_adapter
+  orchestrators.pattern.interface
+  orchestrators.pattern.metrics
+  orchestrators.pattern.orchestrator
   orchestrators.reasoning.interface
   orchestrators.reasoning.orchestrator
   orchestrators.research_swarm.interface
   orchestrators.research_swarm.orchestrator
 # os
   os
+# pandas
+  pandas
 # pathlib
   pathlib
+# phase_2_observability
+  phase_2_observability
+# phase_3_standardization
+  phase_3_standardization
+# phase_4_scalability
+  phase_4_scalability
+# phase_5_governance
+  phase_5_governance
 # pickle
   pickle
 # platform
@@ -436,6 +500,8 @@
   pydantic_settings
 # pytest
   pytest
+# pythonjsonlogger
+  pythonjsonlogger
 # random
   random
 # re
@@ -450,9 +516,12 @@
   routes.email_adapter
   routes.twilio_adapter
 # runtime
+  runtime
   runtime.dora
+  runtime.execution_gate
   runtime.gmp_worker
   runtime.kernel_loader
+  runtime.kernel_state
   runtime.long_plan_tool
   runtime.mcp_client
   runtime.rate_limiter
@@ -504,11 +573,15 @@
   simulation.outcome_evaluator
   simulation.scenario_loader
   simulation.simulation_engine
-# slack_webhook_adapter
-  slack_webhook_adapter
 # socket
   socket
+# sqlalchemy
+  sqlalchemy
+  sqlalchemy.dialects.postgresql
+  sqlalchemy.ext.asyncio
+  sqlalchemy.orm
 # src
+  src
   src.agent_integration
   src.architecture
   src.config
@@ -517,12 +590,17 @@
   src.main
   src.mcp_server
   src.models
+  src.rate_limiter
   src.routes
   src.routes.memory_unified
 # ssl
   ssl
+# stat
+  stat
 # statistics
   statistics
+# string
+  string
 # structlog
   structlog
 # subprocess
@@ -577,6 +655,7 @@
 # unicodedata
   unicodedata
 # unittest
+  unittest
   unittest.mock
 # urllib
   urllib.error
@@ -588,6 +667,12 @@
   uvicorn
 # warnings
   warnings
+# workers
+  workers.anomaly_classifier
+  workers.anomaly_response_monitor
+  workers.remediation_engine
+  workers.violation_patterns
+  workers.violation_tracker_service
 # world_model
   world_model.causal_graph
   world_model.causal_mapper
@@ -595,9 +680,14 @@
   world_model.interfaces
   world_model.knowledge_ingestor
   world_model.loader
+  world_model.neo4j_substrate
   world_model.nodes
   world_model.nodes.service_nodes
   world_model.nodes.update_world_model_node
+  world_model.orchestrator
+  world_model.postgres_substrate
+  world_model.query_engine
+  world_model.redis_substrate
   world_model.reflection_memory
   world_model.registry
   world_model.repository

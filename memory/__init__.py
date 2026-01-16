@@ -272,6 +272,29 @@ from memory.graph_memory import (
     query_history,
 )
 
+# Stage 5: Predictive Memory Warming (GMP-STAGE5)
+from memory.warming_models import (
+    GapSeverity,
+    KnowledgeGap,
+    AttentionConfig,
+    SubgraphEntry,
+    CacheMetrics,
+    ReasoningPhase,
+    ActionProposal,
+    ThinkingOutput,
+    MemoryContext,
+    PredictiveCacheConfig,
+)
+
+from memory.gap_detector import GapDetector
+
+from memory.predictive_cache import PredictiveCache
+
+from memory.warming_service import (
+    MemoryWarmingService,
+    create_warming_service,
+)
+
 __all__ = [
     # Models (always available)
     "PacketEnvelope",
@@ -415,6 +438,21 @@ __all__ = [
     "init_importance_manager",
     # Task Completion Hook (GMP-80-A7)
     "on_task_completion",
+    # Stage 5: Predictive Memory Warming (GMP-STAGE5)
+    "GapSeverity",
+    "KnowledgeGap",
+    "AttentionConfig",
+    "SubgraphEntry",
+    "CacheMetrics",
+    "ReasoningPhase",
+    "ActionProposal",
+    "ThinkingOutput",
+    "MemoryContext",
+    "PredictiveCacheConfig",
+    "GapDetector",
+    "PredictiveCache",
+    "MemoryWarmingService",
+    "create_warming_service",
     # NOTE: These are available via direct import to avoid circular deps:
     # from memory.substrate_repository import SubstrateRepository, ...
     # from memory.substrate_dag import SubstrateDAG, ...

@@ -28,10 +28,13 @@ def _get_symbolic_compute():
     if symbolic_compute is None:
         try:
             from core.tools.symbolic_tool import symbolic_compute as _sc
+
             symbolic_compute = _sc
         except ImportError:
+
             async def _missing(**kwargs):
                 return {"error": "sympy not installed", "status": "error"}
+
             symbolic_compute = _missing
     return symbolic_compute
 
@@ -42,10 +45,13 @@ def _get_symbolic_codegen():
     if symbolic_codegen is None:
         try:
             from core.tools.symbolic_tool import symbolic_codegen as _sc
+
             symbolic_codegen = _sc
         except ImportError:
+
             async def _missing(**kwargs):
                 return {"error": "sympy not installed", "status": "error"}
+
             symbolic_codegen = _missing
     return symbolic_codegen
 
@@ -56,12 +62,16 @@ def _get_symbolic_optimize():
     if symbolic_optimize is None:
         try:
             from core.tools.symbolic_tool import symbolic_optimize as _so
+
             symbolic_optimize = _so
         except ImportError:
+
             def _missing(**kwargs):
                 return {"error": "sympy not installed", "status": "error"}
+
             symbolic_optimize = _missing
     return symbolic_optimize
+
 
 logger = structlog.get_logger(__name__)
 
@@ -190,7 +200,12 @@ async def memory_get_packet(
 
         if packet:
             logger.info(f"Memory get_packet: id={packet_id} found=True")
-            return {"status": "success", "packet": packet.model_dump() if hasattr(packet, 'model_dump') else dict(packet)}
+            return {
+                "status": "success",
+                "packet": packet.model_dump()
+                if hasattr(packet, "model_dump")
+                else dict(packet),
+            }
         else:
             return {"status": "not_found", "packet_id": packet_id}
     except Exception as e:
@@ -223,7 +238,9 @@ async def memory_query_packets(
         return {
             "status": "success",
             "count": len(packets),
-            "packets": [p.model_dump() if hasattr(p, 'model_dump') else dict(p) for p in packets],
+            "packets": [
+                p.model_dump() if hasattr(p, "model_dump") else dict(p) for p in packets
+            ],
         }
     except Exception as e:
         logger.error(f"Memory query_packets failed: {e}")
@@ -249,14 +266,18 @@ async def memory_search_by_thread(
         from memory.substrate_service import get_substrate_service
 
         substrate = get_substrate_service()
-        packets = await substrate.search_packets_by_thread(thread_id=thread_id, limit=limit)
+        packets = await substrate.search_packets_by_thread(
+            thread_id=thread_id, limit=limit
+        )
 
         logger.info(f"Memory search_by_thread: thread={thread_id} count={len(packets)}")
         return {
             "status": "success",
             "thread_id": thread_id,
             "count": len(packets),
-            "packets": [p.model_dump() if hasattr(p, 'model_dump') else dict(p) for p in packets],
+            "packets": [
+                p.model_dump() if hasattr(p, "model_dump") else dict(p) for p in packets
+            ],
         }
     except Exception as e:
         logger.error(f"Memory search_by_thread failed: {e}")
@@ -282,14 +303,18 @@ async def memory_search_by_type(
         from memory.substrate_service import get_substrate_service
 
         substrate = get_substrate_service()
-        packets = await substrate.search_packets_by_type(packet_type=packet_type, limit=limit)
+        packets = await substrate.search_packets_by_type(
+            packet_type=packet_type, limit=limit
+        )
 
         logger.info(f"Memory search_by_type: type={packet_type} count={len(packets)}")
         return {
             "status": "success",
             "packet_type": packet_type,
             "count": len(packets),
-            "packets": [p.model_dump() if hasattr(p, 'model_dump') else dict(p) for p in packets],
+            "packets": [
+                p.model_dump() if hasattr(p, "model_dump") else dict(p) for p in packets
+            ],
         }
     except Exception as e:
         logger.error(f"Memory search_by_type failed: {e}")
@@ -451,12 +476,16 @@ async def memory_embed_text(
         substrate = get_substrate_service()
         embedding = await substrate.embed_text(text=text)
 
-        logger.info(f"Memory embed_text: len={len(text)} dims={len(embedding) if embedding else 0}")
+        logger.info(
+            f"Memory embed_text: len={len(text)} dims={len(embedding) if embedding else 0}"
+        )
         return {
             "status": "success",
             "text_length": len(text),
             "embedding_dims": len(embedding) if embedding else 0,
-            "embedding": embedding[:10] if embedding else None,  # Return first 10 dims as sample
+            "embedding": embedding[:10]
+            if embedding
+            else None,  # Return first 10 dims as sample
         }
     except Exception as e:
         logger.error(f"Memory embed_text failed: {e}")
@@ -495,12 +524,17 @@ async def memory_hybrid_search(
             filters=filters,
         )
 
-        logger.info(f"Memory hybrid_search: query='{query[:50]}...' hits={len(result.hits)}")
+        logger.info(
+            f"Memory hybrid_search: query='{query[:50]}...' hits={len(result.hits)}"
+        )
         return {
             "status": "success",
             "query": query,
             "count": len(result.hits),
-            "hits": [h.model_dump() if hasattr(h, 'model_dump') else dict(h) for h in result.hits],
+            "hits": [
+                h.model_dump() if hasattr(h, "model_dump") else dict(h)
+                for h in result.hits
+            ],
         }
     except Exception as e:
         logger.error(f"Memory hybrid_search failed: {e}")
@@ -534,7 +568,9 @@ async def memory_fetch_lineage(
             max_depth=max_depth,
         )
 
-        logger.info(f"Memory fetch_lineage: id={packet_id} dir={direction} count={len(result)}")
+        logger.info(
+            f"Memory fetch_lineage: id={packet_id} dir={direction} count={len(result)}"
+        )
         return {
             "status": "success",
             "packet_id": packet_id,
@@ -851,15 +887,17 @@ async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
         from runtime.mcp_client import get_mcp_client
 
         client = get_mcp_client()
-        
+
         servers = []
         for server_id, config in client._servers.items():
-            servers.append({
-                "server_id": server_id,
-                "enabled": config.get("enabled", False),
-                "type": config.get("type", "stdio"),
-                "allowed_tools": client.get_allowed_tools(server_id),
-            })
+            servers.append(
+                {
+                    "server_id": server_id,
+                    "enabled": config.get("enabled", False),
+                    "type": config.get("type", "stdio"),
+                    "allowed_tools": client.get_allowed_tools(server_id),
+                }
+            )
 
         logger.info(f"MCP list servers: {len(servers)} configured")
 
@@ -892,7 +930,7 @@ async def mcp_list_tools(
         from runtime.mcp_client import get_mcp_client
 
         client = get_mcp_client()
-        
+
         if not client.is_server_available(server_id):
             return {
                 "status": "error",
@@ -940,12 +978,12 @@ async def mcp_call_tool(
         mcp_call_tool(server_id="github", tool_name="create_issue", arguments={
             "owner": "org", "repo": "repo", "title": "Bug", "body": "Details..."
         })
-        
+
         # Search Notion
         mcp_call_tool(server_id="notion", tool_name="search", arguments={
             "query": "project notes"
         })
-        
+
         # Read local file
         mcp_call_tool(server_id="filesystem", tool_name="read_file", arguments={
             "path": "/Users/ib-mac/Projects/L9/README.md"
@@ -960,7 +998,9 @@ async def mcp_call_tool(
         client = get_mcp_client()
         result = await client.call_tool(server_id, tool_name, arguments)
 
-        logger.info(f"MCP call: server={server_id} tool={tool_name} success={result.get('success')}")
+        logger.info(
+            f"MCP call: server={server_id} tool={tool_name} success={result.get('success')}"
+        )
 
         if result.get("success"):
             return {
@@ -996,7 +1036,7 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
         from core.tools.tool_graph import ToolGraph, ToolDefinition
 
         client = get_mcp_client()
-        
+
         total_registered = 0
         results = {}
 
@@ -1011,25 +1051,32 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
                 for tool in tools:
                     # Build full tool name: server_tool (OpenAI-compatible, no dots)
                     full_name = f"{server_id}_{tool.name}"
-                    
+
                     # Determine risk level based on tool type
                     risk_level = "low"
                     requires_igor = False
                     is_destructive = False
-                    
+
                     # High-risk tools
-                    if any(x in tool.name.lower() for x in ["merge", "delete", "deploy", "update_dns"]):
+                    if any(
+                        x in tool.name.lower()
+                        for x in ["merge", "delete", "deploy", "update_dns"]
+                    ):
                         risk_level = "high"
                         requires_igor = True
                         is_destructive = True
                     # Medium-risk tools
-                    elif any(x in tool.name.lower() for x in ["create", "update", "write", "push"]):
+                    elif any(
+                        x in tool.name.lower()
+                        for x in ["create", "update", "write", "push"]
+                    ):
                         risk_level = "medium"
                         is_destructive = True
 
                     tool_def = ToolDefinition(
                         name=full_name,
-                        description=tool.description or f"{tool.name} via {server_id} MCP",
+                        description=tool.description
+                        or f"{tool.name} via {server_id} MCP",
                         category="mcp",
                         scope="external",
                         risk_level=risk_level,
@@ -1047,13 +1094,17 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
                     "discovered": len(tools),
                     "registered": server_registered,
                 }
-                logger.info(f"MCP discover: {server_id} -> {server_registered}/{len(tools)} tools registered")
+                logger.info(
+                    f"MCP discover: {server_id} -> {server_registered}/{len(tools)} tools registered"
+                )
 
             except Exception as e:
                 results[server_id] = {"error": str(e)}
                 logger.warning(f"MCP discover failed for {server_id}: {e}")
 
-        logger.info(f"MCP auto-discovery complete: {total_registered} tools registered across {len(results)} servers")
+        logger.info(
+            f"MCP auto-discovery complete: {total_registered} tools registered across {len(results)} servers"
+        )
 
         return {
             "status": "success",
@@ -1087,7 +1138,7 @@ async def mcp_start_server(
         from runtime.mcp_client import get_mcp_client
 
         client = get_mcp_client()
-        
+
         if server_id not in client._servers:
             return {"error": f"Unknown server: {server_id}", "status": "error"}
 
@@ -1122,7 +1173,7 @@ async def mcp_stop_server(
         from runtime.mcp_client import get_mcp_client
 
         client = get_mcp_client()
-        
+
         if server_id not in client._servers:
             return {"error": f"Unknown server: {server_id}", "status": "error"}
 
@@ -1632,9 +1683,7 @@ async def simulation_execute(
         # Run simulation
         run = await engine.simulate(graph_data, scenario=scenario_params)
 
-        logger.info(
-            f"Simulation complete: run_id={run.run_id} score={run.score:.2f}"
-        )
+        logger.info(f"Simulation complete: run_id={run.run_id} score={run.score:.2f}")
 
         return {
             "status": "success",
@@ -1732,14 +1781,14 @@ async def neo4j_query(
 
     Returns:
         Dict with query results or error
-    
+
     Examples:
         # Count all nodes
         neo4j_query(cypher="MATCH (n) RETURN count(n) as count")
-        
+
         # Find tool dependencies
         neo4j_query(cypher="MATCH (t:Tool)-[:USES]->(a:API) RETURN t.name, a.name")
-        
+
         # Find what breaks if OpenAI is down
         neo4j_query(cypher="MATCH (t:Tool)-[:USES]->(a:API {name: $api}) RETURN t.name", params={"api": "OpenAI"})
     """
@@ -2131,8 +2180,7 @@ async def tools_list_enabled(
             "status": "success",
             "count": len(tools),
             "tools": [
-                {"id": t.id, "name": t.name, "type": t.type.value}
-                for t in tools
+                {"id": t.id, "name": t.name, "type": t.type.value} for t in tools
             ],
         }
     except Exception as e:
@@ -2303,7 +2351,9 @@ async def world_model_get_entity(
             logger.info(f"World model get_entity: id={entity_id} found=True")
             return {
                 "status": "success",
-                "entity": entity.model_dump() if hasattr(entity, 'model_dump') else dict(entity),
+                "entity": entity.model_dump()
+                if hasattr(entity, "model_dump")
+                else dict(entity),
             }
         else:
             return {"status": "not_found", "entity_id": entity_id}
@@ -2339,11 +2389,16 @@ async def world_model_list_entities(
             limit=limit,
         )
 
-        logger.info(f"World model list_entities: type={entity_type} count={len(entities)}")
+        logger.info(
+            f"World model list_entities: type={entity_type} count={len(entities)}"
+        )
         return {
             "status": "success",
             "count": len(entities),
-            "entities": [e.model_dump() if hasattr(e, 'model_dump') else dict(e) for e in entities],
+            "entities": [
+                e.model_dump() if hasattr(e, "model_dump") else dict(e)
+                for e in entities
+            ],
         }
     except Exception as e:
         logger.error(f"World model list_entities failed: {e}")
@@ -2434,7 +2489,9 @@ async def world_model_send_insights(
         return {
             "status": "success",
             "insights_sent": len(insights),
-            "result": result.model_dump() if hasattr(result, 'model_dump') else dict(result),
+            "result": result.model_dump()
+            if hasattr(result, "model_dump")
+            else dict(result),
         }
     except Exception as e:
         logger.error(f"World model send_insights failed: {e}")
@@ -2459,7 +2516,9 @@ async def world_model_get_state_version(
         logger.info("World model get_state_version")
         return {
             "status": "success",
-            "version": version.model_dump() if hasattr(version, 'model_dump') else dict(version),
+            "version": version.model_dump()
+            if hasattr(version, "model_dump")
+            else dict(version),
         }
     except Exception as e:
         logger.error(f"World model get_state_version failed: {e}")
@@ -2604,7 +2663,89 @@ TOOL_EXECUTORS: dict[str, Any] = {
     # World Model Advanced (GMP-32 Batch 10)
     "world_model_restore": world_model_restore,
     "world_model_list_updates": world_model_list_updates,
+    # Research Agent Tools (GMP: wire_research_lcto_integration)
+    # Lazy-loaded to avoid circular imports
+    "research_agent_synthesize": lambda **kwargs: _get_research_tool(
+        "research_agent_synthesize"
+    )(**kwargs),
+    "research_agent_discover": lambda **kwargs: _get_research_tool(
+        "research_agent_discover"
+    )(**kwargs),
+    "research_agent_generate_spec": lambda **kwargs: _get_research_tool(
+        "research_agent_generate_spec"
+    )(**kwargs),
+    # Reflection Agent Tools (GMP: wire_reflection_agent_yaml)
+    # Lazy-loaded to avoid circular imports
+    "reflection_agent_reflect": lambda **kwargs: _get_reflection_tool(
+        "reflection_agent_reflect"
+    )(**kwargs),
+    "reflection_agent_analyze_failure": lambda **kwargs: _get_reflection_tool(
+        "reflection_agent_analyze_failure"
+    )(**kwargs),
+    "reflection_agent_compare_approaches": lambda **kwargs: _get_reflection_tool(
+        "reflection_agent_compare_approaches"
+    )(**kwargs),
+    "reflection_agent_extract_patterns": lambda **kwargs: _get_reflection_tool(
+        "reflection_agent_extract_patterns"
+    )(**kwargs),
+    "reflection_agent_generate_improvements": lambda **kwargs: _get_reflection_tool(
+        "reflection_agent_generate_improvements"
+    )(**kwargs),
 }
+
+
+# Lazy loader for research tools
+_research_tools = None
+
+
+def _get_research_tool(tool_name: str):
+    """Lazy import research tools to avoid circular dependency."""
+    global _research_tools
+    if _research_tools is None:
+        try:
+            from core.tools.research_tools import RESEARCH_TOOL_EXECUTORS
+
+            _research_tools = RESEARCH_TOOL_EXECUTORS
+        except ImportError as e:
+            logger.warning(f"Research tools not available: {e}")
+
+            async def _missing(**kwargs):
+                return {"error": "Research tools not available", "status": "error"}
+
+            _research_tools = {
+                "research_agent_synthesize": _missing,
+                "research_agent_discover": _missing,
+                "research_agent_generate_spec": _missing,
+            }
+    return _research_tools.get(tool_name)
+
+
+# Lazy loader for reflection tools
+_reflection_tools = None
+
+
+def _get_reflection_tool(tool_name: str):
+    """Lazy import reflection tools to avoid circular dependency."""
+    global _reflection_tools
+    if _reflection_tools is None:
+        try:
+            from core.tools.reflection_tools import REFLECTION_TOOL_EXECUTORS
+
+            _reflection_tools = REFLECTION_TOOL_EXECUTORS
+        except ImportError as e:
+            logger.warning(f"Reflection tools not available: {e}")
+
+            async def _missing(**kwargs):
+                return {"error": "Reflection tools not available", "status": "error"}
+
+            _reflection_tools = {
+                "reflection_agent_reflect": _missing,
+                "reflection_agent_analyze_failure": _missing,
+                "reflection_agent_compare_approaches": _missing,
+                "reflection_agent_extract_patterns": _missing,
+                "reflection_agent_generate_improvements": _missing,
+            }
+    return _reflection_tools.get(tool_name)
 
 
 def get_tool_executor(tool_name: str) -> Optional[Any]:

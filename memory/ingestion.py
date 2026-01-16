@@ -223,10 +223,17 @@ class IngestionPipeline:
 
                     if embedding_payload:
                         vector, payload, agent_id = embedding_payload
+                        # Extract scope from envelope metadata for RLS
+                        scope = (
+                            (envelope.metadata or {}).get("db_scope")
+                            or (envelope.metadata or {}).get("scope")
+                            or "shared"
+                        )
                         await self._repository.insert_semantic_embedding(
                             vector=vector,
                             payload=payload,
                             agent_id=agent_id,
+                            scope=scope,
                         )
                         written_tables.append("semantic_memory")
 

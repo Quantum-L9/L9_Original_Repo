@@ -158,6 +158,32 @@ tools:
     tier: "T1"
     approval_required: false
 
+  # ===== T1: REFLECTION & SELF-IMPROVEMENT (GMP: wire_reflection_agent_yaml) =====
+  - id: "reflection_agent_reflect"
+    description: "Reflect on execution history: analyze successes, failures, patterns → derive insights and lessons"
+    tier: "T1"
+    approval_required: false
+
+  - id: "reflection_agent_analyze_failure"
+    description: "Deep root cause analysis: immediate cause, root cause, chain of events, prevention strategies"
+    tier: "T1"
+    approval_required: false
+
+  - id: "reflection_agent_compare_approaches"
+    description: "Compare two approaches with scoring: per-criterion scores, overall recommendation (A/B/hybrid)"
+    tier: "T1"
+    approval_required: false
+
+  - id: "reflection_agent_extract_patterns"
+    description: "Extract patterns from examples: recurring patterns, anti-patterns, correlations, generalizations"
+    tier: "T1"
+    approval_required: false
+
+  - id: "reflection_agent_generate_improvements"
+    description: "Generate improvement plan: gap analysis, prioritized improvements, quick wins, strategic changes"
+    tier: "T1"
+    approval_required: false
+
   # ===== T2: REVERSIBLE CHANGES (HITL Approval Required) =====
   - id: "redis_set"
     description: "Set a value in Redis cache"

@@ -1,4 +1,5 @@
 .github/workflows/ci.yml
+.github/workflows/dev-layer-gmp.yml
 .github/workflows/terminology-guard.yml
 .mypy_cache/3.12/PIL/ExifTags.data.json
 .mypy_cache/3.12/PIL/ExifTags.meta.json
@@ -2350,10 +2351,8 @@
 .mypy_cache/3.12/zoneinfo/_tzpath.meta.json
 .mypy_cache/3.12/zstandard/__init__.data.json
 .mypy_cache/3.12/zstandard/__init__.meta.json
+.sec/semgrep.yaml
 .suite6-config.json
-VPS-Repo-Files/docker/docker-Dockerfile
-VPS-Repo-Files/runtime/*runtime-Dockerfile
-VPS-Repo-Files/runtime/runtime-docker-compose.yml
 agents/codegenagent/codegen+codegenAgent_specs/.github_workflows_l9_ci.yaml
 agents/codegenagent/codegen+codegenAgent_specs/agents_cli_cursor_cli_launcher.yaml
 agents/codegenagent/codegen+codegenAgent_specs/agents_codegen_agent.yaml
@@ -2436,6 +2435,7 @@ agents/codegenagent/codegen+codegenAgent_specs/tests_test_mainagent_packet_flow.
 agents/codegenagent/codegen+codegenAgent_specs/ui_patch_audit_viewer.yaml
 agents/codegenagent/codegen+codegenAgent_specs/worldmodel_tool_link_mapper.yaml
 agents/codegenagent/codegen+codegenAgent_specs/worldmodel_tool_metadata_reflector.yaml
+agents/codegenagent/meta.yaml
 agents/codegenagent/patches/patches-done/agents_codegen_agent_meta_kernel_hooks.yaml
 agents/codegenagent/patches/patches-done/agents_codegen_agent_rollback_hook.yaml
 agents/codegenagent/patches/patches-done/api_server_router_patch.yaml
@@ -2467,19 +2467,21 @@ codegen/C-GMP Suite/canonical/L9_GodMode_Prompt_v4.1.yaml
 codegen/C-GMP Suite/canonical/L9_Manifest_GodMode_v4.1.yaml
 codegen/C-GMP Suite/canonical/L9_v4.1_GodMode_Prompt.yaml
 codegen/C-GMP Suite/canonical/L9_v4.1_Manifest_GodMode.yaml
+codegen/Emma - Perplexity Super Prompt System/SPEC_graph_decay_confidence_provenance_v20251229_205131.yaml
+codegen/Emma - Perplexity Super Prompt System/SPEC_workflow_similarity_approval_inheritance_v20251229_205131.yaml
 codegen/MODULE_REGISTRY.yaml
+codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/Manus-System-Prompt-v1.0.yaml
+codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/Module-Spec-v2.0.yaml
+codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/Module-Spec-v2.1.yaml
+codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/Module-Spec-v2.2.yaml
+codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/Module-Spec-v2.3.yaml
+codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/TIER_2_MODULE_GUIDANCE.yaml
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/examples/module_blocks/calendar_adapter.yaml
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/examples/module_blocks/email_adapter.yaml
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/examples/module_blocks/twilio_adapter.yaml
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/Module-Spec-v2.6-calendar_adapter.yaml
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/Module-Spec-v2.6-email_adapter.yaml
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/Module-Spec-v2.6-twilio_adapter.yaml
-codegen/code-gen-files/Module Production/_Module Canonical Trio/Manus/Manus-System-Prompt-v1.0.yaml
-codegen/code-gen-files/Module Production/_Module Canonical Trio/Manus/Module-Spec-v2.0.yaml
-codegen/code-gen-files/Module Production/_Module Canonical Trio/Manus/Module-Spec-v2.1.yaml
-codegen/code-gen-files/Module Production/_Module Canonical Trio/Manus/Module-Spec-v2.2.yaml
-codegen/code-gen-files/Module Production/_Module Canonical Trio/Manus/Module-Spec-v2.3.yaml
-codegen/code-gen-files/Module Production/_Module Canonical Trio/Manus/TIER_2_MODULE_GUIDANCE.yaml
 codegen/codegenAgent Spec/Spec-codegen+codegenAgent/.github_workflows_l9_ci.yaml
 codegen/codegenAgent Spec/Spec-codegen+codegenAgent/agents_cli_cursor_cli_launcher.yaml
 codegen/codegenAgent Spec/Spec-codegen+codegenAgent/agents_codegen_agent.yaml
@@ -2562,14 +2564,17 @@ codegen/codegenAgent Spec/Spec-codegen+codegenAgent/tests_test_mainagent_packet_
 codegen/codegenAgent Spec/Spec-codegen+codegenAgent/ui_patch_audit_viewer.yaml
 codegen/codegenAgent Spec/Spec-codegen+codegenAgent/worldmodel_tool_link_mapper.yaml
 codegen/codegenAgent Spec/Spec-codegen+codegenAgent/worldmodel_tool_metadata_reflector.yaml
-codegen/codegenAgent Spec/spec.symbolic_computation_service_extraction.yaml
+codegen/dev_layer/governance/core.yaml
 codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge_extraction_glue.yaml
 codegen/extractions/domain_tensor_bridge_v6_20260102/manifests/domain_tensor_bridge_v6_manifest.json
-codegen/meta/readme-meta-yaml-spec.yaml
 codegen/process/meta.codegen.schema.yaml
 codegen/process/meta.dependency.integration.yaml
 codegen/process/meta.extraction.sequence.yaml
 codegen/process/meta.validation.checklist.yaml
+codegen/process/spec.symbolic_computation_service_extraction.yaml
+codegen/process/symbolic_codegen_kernel_v2.yaml
+codegen/process/sympy_extraction_glue.yaml
+codegen/readme_as_code/readme-meta-yaml-spec.yaml
 codegen/schemas/Module-Prompt-CURSOR-v2.0.yaml
 codegen/schemas/Module-Spec-v2.4.yaml
 codegen/schemas/config_loader_schema.yaml
@@ -2577,30 +2582,43 @@ codegen/schemas/domain_adapter.yaml
 codegen/schemas/dora-contract.yaml
 codegen/schemas/glue_layer.yaml
 codegen/schemas/orchestrator.yaml
+codegen/schemas/preference_extractor_schema.yaml
 codegen/schemas/samples/domain_adapter.yaml
 codegen/schemas/samples/glue_layer.yaml
 codegen/schemas/samples/orchestrator.yaml
 codegen/schemas/samples/simple_agent.yaml
 codegen/schemas/samples/sympy_schema_v6.yaml
 codegen/schemas/simple_agent.yaml
+codegen/schemas/specs/L9_Canonical_v4.1_Unified.yaml
+codegen/schemas/specs/config_loader.yaml
 codegen/schemas/sympy_schema_v6.yaml
-codegen/specs/L9_Canonical_v4.1_Unified.yaml
-codegen/specs/config_loader.yaml
-codegen/sympy_extraction_glue.yaml
-codegen/templates/_spec-files-to-build/spec-sympy-symbolic-computation.yaml
+codegen/specs/anomaly_response_monitor_20260116_001347.yaml
+codegen/specs/unknown_20260116_001402.yaml
+codegen/specs/violation_tracker_service_20260116_001412.yaml
+config/agents/L-CTO-Agent.yaml
+config/agents/L-CTO-Research-Overlay.yaml
 config/agents/l9-standard-v1.yaml
 config/agents/research-agent-v1.yaml
 config/boot_overlay.yaml
+config/patterns/pipeline_v1.yaml
 config/policies/defaults.yaml
 config/policies/tool_usage.yaml
 config/settings.yaml
+config/subsystems/code_mutation.yaml
+config/subsystems/master.yaml
+current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_gmp_spec.yaml
+current_work/Symbolic CodeGen/Supplemental Files/sympy_extraction_glue.yaml
+current_work/Symbolic CodeGen/Supplemental Files/sympy_schema_v6.yaml
+current_work/meta-yaml-2/meta.codegen.schema.yaml
+current_work/meta-yaml-2/meta.dependency.integration (1).yaml
+current_work/meta-yaml-2/meta.dependency.integration.yaml
+current_work/meta-yaml-2/meta.extraction.sequence.yaml
+current_work/meta-yaml-2/meta.validation.checklist.yaml
 docker-compose-README.md
 docker-compose.local.dev.yml
 docker-compose.override.yml.example
 docker-compose.yml
 docker/prometheus.yml
-docs/_archived/codegen_slack_adapter/module.slack_adapter/Module-Spec-v2.6.yaml
-docs/_archived/codegen_slack_adapter/slack_webhook_example.yaml
 email_agent/private_auth/google_oauth_L.json
 email_agent/private_auth/google_oauth_igor.json
 grafana/provisioning/dashboards/dashboards.yml
@@ -2609,6 +2627,9 @@ grafana/provisioning/dashboards/l9-tool-observability.json
 grafana/provisioning/datasources/prometheus.yml
 igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_governance_policy.yaml
 igor/01-09-2025/tokenizer/core/tokenizer/tokenizer_rules.json
+igor/VPS-Repo-Files/docker/docker-Dockerfile
+igor/VPS-Repo-Files/runtime/*runtime-Dockerfile
+igor/VPS-Repo-Files/runtime/runtime-docker-compose.yml
 igor/audit-tools/Current Config/07_execution_kernel.yaml
 igor/audit-tools/Current Config/10_packet_protocol_kernel.yaml
 igor/l-cto-Setup/l-cto-yaml-files/INITIALIZATION_KERNEL_UNIFIED.yaml
@@ -2646,6 +2667,7 @@ private/kernels/00_system/_archived/10_packet_protocol_enforcement_kernel.yaml
 private/kernels/00_system/_archived/11_identity_kernel.yaml
 private/kernels/bootstrap/kernel_manifest.yaml
 private/security/l9_security_kernel.yaml
+prompts/.stage-config/stage-2-consolidation.yaml
 pyproject.toml
 pytest.ini
 readme/L-CTO/L-YAML.yaml
@@ -2661,6 +2683,13 @@ reports/GMP Reports/audit_run_audit_run_20260106_200021_4401ad50.json
 reports/GMP Reports/audit_run_audit_run_20260106_203324_ce365722.json
 reports/GMP Reports/audit_run_audit_run_20260106_221652_9a004d6c.json
 reports/_archived/wiring_audit.json
+reports/audit_run_audit_run_20260115_122815_b2ed6e14.json
+reports/audit_run_audit_run_20260115_123146_56efcab5.json
+reports/audit_run_audit_run_20260115_123156_4cf4278c.json
+reports/audit_run_audit_run_20260115_123203_558af252.json
+reports/audit_run_audit_run_20260115_124406_386b5a08.json
+reports/audit_run_audit_run_20260115_124417_cd1ed116.json
+reports/audit_run_audit_run_20260115_125914_12db6630.json
 reports/dead_code_audit_20260113_200227.json
 reports/dead_code_gmp_todos.yaml
 reports/dead_code_resolved.json
@@ -2668,6 +2697,7 @@ reports/phase1_check.json
 reports/phase2_check_routers.json
 reports/phase2_final.json
 reports/post_cleanup_audit.json
+reports/test_dead_code.json
 runtime/Dockerfile
 scripts/audit/audit.yaml
 scripts/reports/audit_infrastructure_health.json

@@ -26,7 +26,38 @@
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
-**COMPLETED THIS SESSION**:
+**COMPLETED THIS SESSION (2026-01-15)**:
+- ✅ **World Model Pack Integration (GMP-89/90/91/92)** — Full Layer 1+2 integration:
+  - `world_model/state.py` — 12 stubs replaced, Entity/Relation CRUD, snapshot/restore
+  - `world_model/registry.py` — 14 stubs replaced, schema validation, type hierarchy
+  - `world_model/loader.py` — 10 stubs replaced, YAML parsing, domain blueprint loading
+  - `world_model/updater.py` — 12 stubs replaced, PacketEnvelope parsing, atomic batch updates
+  - `world_model/causal_graph.py` — 15 stubs replaced, BFS path queries, ancestors/descendants
+  - `world_model/query_engine.py` (NEW) — 20+ query methods (filter, path, aggregation, join, graph)
+  - **Total**: 63+ stubs → production logic, ~3,400 lines, 6 files, 25 tests pass
+  - Reports: `reports/GMP_Report_GMP-89-90-91-92-World-Model-Pack.md`
+
+**PREVIOUS SESSION (2026-01-16)**:
+- ✅ **GMP v2.0 Meta-Learning System** — Full implementation of Cursor-specific execution tracking:
+  - `agents/cursor/gmp_meta_learning.py` (850 LOC) — GMPMetaLearningEngine, AutonomyController
+  - `api/routes/gmp_learning.py` (240 LOC) — 7 API endpoints at `/api/gmp/*`
+  - `tests/cursor/test_gmp_meta_learning.py` (310 LOC) — 21 tests passing
+  - `migrations/0021_gmp_learning.sql` (152 LOC) — Database tables
+  - `config/settings.py` — Added `L9_GMP_LEARNING_ENABLED` feature flag
+- ✅ **Module Consolidation**: Moved from `core/gmp/` to `agents/cursor/` (Cursor-specific, not core L9)
+- ✅ **GMP Action Files**: Created `agents/cursor/gmp-v2-prompts/cursor-actions/` with 3 execution blueprints
+- ✅ Lesson #21 (No Overstepping): Added to repeated-mistakes.md
+- ✅ Learning System Verification: Confirmed 10 LaunchAgents running
+- ✅ VPS Bug Fix: Fixed UnboundLocalError in api/server.py:1077
+
+**PREVIOUS SESSION (2026-01-16 earlier)**:
+- ✅ GMP-68: MCP Memory Governance Context Fix
+- ✅ WMToGraphSync: Created bidirectional World Model ↔ Neo4j sync
+- ✅ Container Detection Fix: Added L9_CONTAINER_ENV=true to Dockerfile
+- ✅ MCP Memory Docs: Condensed QUICK_REFERENCE.md, README.md, created MEMORY_FORMAT.md
+- ✅ Recursive Integration Audit: Verified all World Model ↔ Neo4j ↔ Memory paths wired
+
+**PREVIOUS SESSION**:
 - ✅ GMP-87: Wire CursorExecutor to FastAPI lifespan (prevents 503 on /cursor routes)
 - ✅ GMP-78: Semantic Tool Retrieval + Tool Embeddings Sync
 - ✅ Dead Code Audit Analysis (21 findings → mostly false positives)
@@ -146,24 +177,22 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **RLS UUIDs** (deterministic, shared by L+C): tenant=`73350468-3158-5d0f-9b8c-9b193d96fc4b`, org=`14910cef-fea1-51d7-9a28-05579e6c0c18`, user=`2f00c090-3816-51a0-806c-34d32522a070`
 
 ---
-*Last updated: 2026-01-15 (Feature Flag Centralization: 10 flags moved to config/settings.py)*
+*Last updated: 2026-01-15 (World Model Pack Integration Complete: GMP-89/90/91/92, 63+ stubs → production)*
 
 ## Next Steps (Current Session)
-1. ~~**Fix MCP `/mcp/call` endpoint**~~ ✅ DONE — JSON codec fix applied to all asyncpg pools
-2. ~~**Agent Persistence Completion**~~ ✅ DONE — Stage 5 (checksums), Stage 6 (metrics), Stage 8 (docs)
-3. ~~**Memory Governance Hardening**~~ ✅ DONE — 7 invariants enforced, feature flag ready
-4. ~~**Kernel Runtime Enforcement Layer**~~ ✅ DONE — GODMODE Part 1-7, 6 new modules, 90% maturity
-5. ~~**GMP-68: Governance Gate Part A**~~ ✅ DONE — Created governance_gate.py, 4 tests pass, non-protected files wired
-6. ~~**GMP-70: Governance Gate Part B**~~ ✅ DONE — Wired to protected files (substrate_service, ingestion, retrieval, substrate_repository)
-7. ~~**GMP-80: RLS Full Instantiation**~~ ✅ DONE — Deterministic UUIDs, governance gate populated, ingestion wired
-8. ~~**GMP-81: substrate_service.py RLS wiring**~~ ✅ DONE — write_packet() now uses ctx.tenant_id/org_id/user_id
-9. ~~**VPS Deployment**~~ ✅ DONE — 106 files pushed, containers rebuilt, both healthy
-10. ~~**Enable Governance**~~ ✅ DONE — `GOVERNANCE_HARDENING_ENABLED=True` set in VPS `.env`
+1. **World Model Engine Integration** — Wire QueryEngine into WorldModelEngine for unified API
+2. **Add Unit Tests** — Create test_query_engine.py with comprehensive coverage
+3. **Deploy container detection fix** — Run `docker-compose build --no-cache l9-api && docker-compose up -d l9-api` on VPS
+4. **Add Persistence Substrates** — postgres_substrate.py, neo4j_substrate.py, redis_substrate.py
+5. **CodeGenAgent (CGA) System** — Resume CGA work now that governance is verified
 11. ~~**VPS Migrations**~~ ⏳ PENDING — Will run automatically at next Docker rebuild
 12. ~~**GMP-83: Bootstrap Pack Finalization**~~ ✅ DONE — Redis working memory, Prometheus metrics, test namespace fix
 13. ~~**GMP-84: L-CTO Research Overlay Wiring**~~ ✅ DONE — `create_l_cto_research_agent()` factory added
 
 **Recent Sessions (7-day window):**
+- ✅ 2026-01-15: **World Model Pack Integration Complete (GMP-89/90/91/92)** — Full Layer 1+2 integration: state.py (12 stubs → production CRUD), registry.py (14 stubs → schema validation), loader.py (10 stubs → YAML parsing), updater.py (12 stubs → atomic batch updates), causal_graph.py (15 stubs → BFS traversal), query_engine.py (new file, 20+ query methods). **63+ stubs replaced, ~3,400 lines, 6 files, 25 tests pass**. Reports: GMP-89/90/91/92.
+- ✅ 2026-01-16: **Slash Commands v2 + Memory Integration** — Updated `/end-session` (v2 with structured PICKUP| format), `/mem` (v2 with NOTE|/LESSON|/ERROR| formats), `/gmp` (v2 with GMP| completion format + memory integration). All commands now use pipe-delimited structured formats for searchability. Created `end-session-v2.yaml`. Reduced /gmp from 967→180 lines, /mem from 422→120 lines.
+- ✅ 2026-01-16: **GMP-68: MCP Memory Governance + WMToGraphSync** — Fixed "Governance context required" error (api/routes/mcp.py). Created WMToGraphSync for bidirectional World Model↔Neo4j sync. Fixed container detection with L9_CONTAINER_ENV. Updated mcp_memory docs.
 - ✅ 2026-01-15: **GMP-88: ReAct Loop + Saga Tools (COMPLETE)** — Added ReAct THOUGHT/OBSERVATION packet logging to executor. Implemented 4 saga tool executors: `saga_fetch_and_enrich` (vector→graph), `saga_enrich_entities` (IDs→relationships), `saga_timeline_correlation` (events→causality), `saga_execute_custom` (multi-step). Added 13 negative constraints across saga tools. ~340 lines across 3 files. **py_compile PASSED**. Report: `reports/GMP_Report_GMP-88-ReAct-Saga-Tools.md`
 - 2026-01-15: **Feature Flag Centralization** — Fixed all hardcoded feature flags. Added 10 flags to `config/settings.py`, updated `api/server.py` to use centralized Pydantic settings instead of `os.getenv()`. All flags now read from `.env` file.
 - ✅ 2026-01-15: **10X Deploy Script Enhancement** — Fixed Docker rebuild issue (Phase 5: stop→rm→build→force-recreate), improved health checks (Phase 6: early exit, startup error detection, HTTP code tracking, enhanced diagnostics), added Phase 6.5 service verification (git SHA, Python imports, uvicorn process, memory). Created `scripts/vps/` directory with 4 scripts.

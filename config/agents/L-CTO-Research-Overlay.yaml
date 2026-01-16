@@ -136,6 +136,25 @@ tools:
     tier: "T1"
     approval_required: false
 
+  # ===== RESEARCH AGENT TOOLS (GMP: wire_research_lcto_integration) =====
+  - id: "research_agent_synthesize"
+    description: "Fast multi-perspective synthesis via ResearchAgent (~10 min). Runs 5 parallel Perplexity queries with different perspectives (pragmatic, research, systems, agents, multimodal) and synthesizes consensus patterns."
+    tier: "T1"
+    approval_required: false
+    notes: "Use for quick external web research with multi-perspective synthesis"
+
+  - id: "research_agent_discover"
+    description: "Deep 5-stage academic research via ResearchAgent (15-25 hours). Stages: landscape mapping, vertical deep-dives, comparative analysis, gap identification, hypothesis generation."
+    tier: "T2"
+    approval_required: true
+    notes: "WARNING: Long-running operation. Use specific stages to limit scope."
+
+  - id: "research_agent_generate_spec"
+    description: "Generate Module-Spec-v2.4 YAML via ResearchAgent. Optionally runs synthesis first for research-informed spec generation."
+    tier: "T1"
+    approval_required: false
+    notes: "Creates specs in codegen/specs/ directory"
+
 # ============================================
 # RESEARCH MODE METADATA
 # ============================================

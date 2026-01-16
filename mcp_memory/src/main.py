@@ -110,10 +110,13 @@ async def lifespan(app: FastAPI):
                 "Set MEMORY_DSN to enable full DAG pipeline (graph sync, fact extraction, etc.)"
             )
         else:
+            # CRITICAL: Use SAME embedding model for write AND search
+            # Search uses settings.OPENAI_EMBED_MODEL (in embeddings.py)
+            # Write must use the same model for vector similarity to work
             substrate_service = await init_service(
                 database_url=database_url,
                 embedding_provider_type=os.getenv("EMBEDDING_PROVIDER", "openai"),
-                embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-large"),
+                embedding_model=settings.OPENAI_EMBED_MODEL,  # MUST match embeddings.py
                 openai_api_key=settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY"),
             )
             # Store in app state for route handlers

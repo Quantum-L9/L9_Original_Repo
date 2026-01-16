@@ -427,7 +427,11 @@ async def semantic_embed_node(
         return state
 
     try:
-        agent_id = envelope.get("metadata", {}).get("agent")
+        metadata = envelope.get("metadata", {})
+        agent_id = metadata.get("agent")
+        # Extract scope from metadata for RLS (default to 'shared' for backward compat)
+        scope = metadata.get("db_scope") or metadata.get("scope") or "shared"
+
         embedding_id = await semantic_service.embed_and_store(
             text=text_to_embed,
             payload={
@@ -436,9 +440,12 @@ async def semantic_embed_node(
                 "source_payload": payload,
             },
             agent_id=agent_id,
+            scope=scope,  # Pass scope for RLS
         )
         written_tables.append("semantic_memory")
-        logger.debug(f"semantic_embed_node: Created embedding {embedding_id}")
+        logger.debug(
+            f"semantic_embed_node: Created embedding {embedding_id} scope={scope}"
+        )
 
     except Exception as e:
         logger.error(f"semantic_embed_node: Embedding failed: {e}")

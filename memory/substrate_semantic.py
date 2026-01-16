@@ -90,14 +90,14 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
     async def _with_retries(self, coro_func, *, operation: str):
         """
         Execute async function with exponential backoff retry logic.
-        
+
         Args:
             coro_func: Async function to execute (called each attempt)
             operation: Name of operation for logging
-            
+
         Returns:
             Result from successful coro_func() call
-            
+
         Raises:
             RuntimeError: If all retries exhausted
         """
@@ -120,7 +120,9 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                     delay=round(delay + jitter, 3),
                 )
                 await asyncio.sleep(delay + jitter)
-        raise RuntimeError(f"Embedding request failed after {self._max_retries} retries: {last_error}") from last_error
+        raise RuntimeError(
+            f"Embedding request failed after {self._max_retries} retries: {last_error}"
+        ) from last_error
 
     async def embed_text(self, text: str) -> list[float]:
         """Generate embedding using OpenAI API with retry logic."""
@@ -221,6 +223,7 @@ class SemanticService:
         text: str,
         payload: dict[str, Any],
         agent_id: Optional[str] = None,
+        scope: str = "shared",  # RLS scope for row-level security
     ) -> str:
         """
         Generate embedding for text and store in semantic_memory.
@@ -229,6 +232,7 @@ class SemanticService:
             text: Text to embed
             payload: Metadata payload to store with embedding
             agent_id: Optional agent identifier
+            scope: RLS scope ('developer', 'global', 'shared', 'l-private')
 
         Returns:
             embedding_id as string
@@ -245,14 +249,15 @@ class SemanticService:
             "_model": getattr(self._provider, "_model", "unknown"),
         }
 
-        # Store in database
+        # Store in database with explicit scope for RLS
         embedding_id = await self._repository.insert_semantic_embedding(
             vector=vector,
             payload=enriched_payload,
             agent_id=agent_id,
+            scope=scope,
         )
 
-        logger.debug(f"Stored embedding {embedding_id}")
+        logger.debug(f"Stored embedding {embedding_id} with scope={scope}")
         return str(embedding_id)
 
     async def generate_embedding(

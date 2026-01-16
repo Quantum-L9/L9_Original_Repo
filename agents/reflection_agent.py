@@ -342,3 +342,131 @@ Provide:
     def clear_lessons(self) -> None:
         """Clear lessons learned."""
         self._lessons_learned.clear()
+
+    # =========================================================================
+    # Tool-callable methods (for L-CTO integration)
+    # =========================================================================
+
+    async def reflection_agent_reflect(
+        self,
+        history: list[dict[str, Any]],
+        focus: str = "general",
+        goals: Optional[list[str]] = None,
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for reflection task.
+
+        Args:
+            history: List of execution events to reflect on
+            focus: Focus area (general, failures, patterns)
+            goals: Optional goals to evaluate against
+
+        Returns:
+            Reflection results with insights and lessons
+        """
+        task = {
+            "history": history,
+            "focus": focus,
+            "goals": goals or [],
+        }
+        response = await self.run(task)
+        if response.success and response.structured_output:
+            return response.structured_output
+        return {"error": response.content or "Reflection failed"}
+
+    async def reflection_agent_analyze_failure(
+        self,
+        failure_context: dict[str, Any],
+        error: str,
+        stack_trace: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for failure analysis.
+
+        Args:
+            failure_context: Context of the failure
+            error: Error message
+            stack_trace: Optional stack trace
+
+        Returns:
+            Root cause analysis and recovery strategies
+        """
+        return await self.analyze_failure(failure_context, error, stack_trace)
+
+    async def reflection_agent_compare_approaches(
+        self,
+        approach_a: dict[str, Any],
+        approach_b: dict[str, Any],
+        criteria: list[str],
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for approach comparison.
+
+        Args:
+            approach_a: First approach to compare
+            approach_b: Second approach to compare
+            criteria: List of comparison criteria
+
+        Returns:
+            Comparison with scores and recommendation
+        """
+        return await self.compare_approaches(approach_a, approach_b, criteria)
+
+    async def reflection_agent_extract_patterns(
+        self,
+        examples: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for pattern extraction.
+
+        Args:
+            examples: List of examples to analyze
+
+        Returns:
+            Extracted patterns, anti-patterns, and generalizations
+        """
+        return await self.extract_patterns(examples)
+
+    async def reflection_agent_generate_improvements(
+        self,
+        current_performance: dict[str, Any],
+        goals: list[str],
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for improvement generation.
+
+        Args:
+            current_performance: Current performance metrics
+            goals: Improvement goals
+
+        Returns:
+            Gap analysis and improvement plan
+        """
+        return await self.generate_improvements(current_performance, goals)
+
+
+def create_reflection_agent(
+    agent_id: Optional[str] = None,
+    config: Optional[AgentConfig] = None,
+) -> ReflectionAgent:
+    """
+    Factory function to create a ReflectionAgent instance.
+
+    Args:
+        agent_id: Optional agent ID (defaults to reflection_agent)
+        config: Optional AgentConfig override
+
+    Returns:
+        Configured ReflectionAgent instance
+    """
+    return ReflectionAgent(
+        agent_id=agent_id or "reflection_agent",
+        config=config,
+    )
+
+
+__all__ = [
+    "ReflectionAgent",
+    "create_reflection_agent",
+    "SYSTEM_PROMPT",
+]

@@ -2568,6 +2568,142 @@ def _get_l_tool_schema_for_registry(tool_name: str):
             },
             required=[],
         ),
+        # Research Agent Tools (GMP: wire_research_lcto_integration)
+        "research_agent_synthesize": ToolSchema(
+            type="object",
+            properties={
+                "topic": {
+                    "type": "string",
+                    "description": "Research topic to synthesize (required)",
+                },
+                "context": {
+                    "type": "object",
+                    "description": "Optional additional context as key-value pairs",
+                },
+            },
+            required=["topic"],
+        ),
+        "research_agent_discover": ToolSchema(
+            type="object",
+            properties={
+                "topic": {
+                    "type": "string",
+                    "description": "Research topic (required)",
+                },
+                "domain": {
+                    "type": "string",
+                    "description": "Research domain (default: general)",
+                },
+                "stages": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Stages to run: landscape, deep_dive, comparative, gaps, hypotheses",
+                },
+            },
+            required=["topic"],
+        ),
+        "research_agent_generate_spec": ToolSchema(
+            type="object",
+            properties={
+                "topic": {
+                    "type": "string",
+                    "description": "Module topic (required)",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Module description",
+                },
+                "run_synthesis_first": {
+                    "type": "boolean",
+                    "description": "Run synthesis before spec generation (default: true)",
+                },
+            },
+            required=["topic"],
+        ),
+        # Reflection Agent Tools (GMP: wire_reflection_agent_yaml)
+        "reflection_agent_reflect": ToolSchema(
+            type="object",
+            properties={
+                "history": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "description": "Execution history to reflect on (required)",
+                },
+                "focus": {
+                    "type": "string",
+                    "description": "Focus area: general, failures, patterns (default: general)",
+                },
+                "goals": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Goals to evaluate against",
+                },
+            },
+            required=["history"],
+        ),
+        "reflection_agent_analyze_failure": ToolSchema(
+            type="object",
+            properties={
+                "failure_context": {
+                    "type": "object",
+                    "description": "Context of the failure (required)",
+                },
+                "error": {
+                    "type": "string",
+                    "description": "Error message (required)",
+                },
+                "stack_trace": {
+                    "type": "string",
+                    "description": "Optional stack trace",
+                },
+            },
+            required=["failure_context", "error"],
+        ),
+        "reflection_agent_compare_approaches": ToolSchema(
+            type="object",
+            properties={
+                "approach_a": {
+                    "type": "object",
+                    "description": "First approach to compare (required)",
+                },
+                "approach_b": {
+                    "type": "object",
+                    "description": "Second approach to compare (required)",
+                },
+                "criteria": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Comparison criteria (required)",
+                },
+            },
+            required=["approach_a", "approach_b", "criteria"],
+        ),
+        "reflection_agent_extract_patterns": ToolSchema(
+            type="object",
+            properties={
+                "examples": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "description": "Examples to analyze (required, min 2)",
+                },
+            },
+            required=["examples"],
+        ),
+        "reflection_agent_generate_improvements": ToolSchema(
+            type="object",
+            properties={
+                "current_performance": {
+                    "type": "object",
+                    "description": "Current performance metrics (required)",
+                },
+                "goals": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Improvement goals (required)",
+                },
+            },
+            required=["current_performance", "goals"],
+        ),
     }
 
     return schemas.get(tool_name)

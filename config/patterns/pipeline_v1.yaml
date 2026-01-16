@@ -1,6 +1,6 @@
 spec_kind: l9_architecture_pattern
 version: 1
-revision: 2026-01-16
+revision: "2026-01-16"
 
 name: Universal Architecture Pipeline
 description: >

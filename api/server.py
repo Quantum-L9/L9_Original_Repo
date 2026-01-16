@@ -207,6 +207,26 @@ try:
 except ImportError:
     _has_research_swarm = False
 
+# Optional: ResearchAgent (Perplexity-based unified research-to-code agent)
+try:
+    from api.routes.research_agent import router as research_agent_router
+    from agents.research_agent import ResearchAgent, create_research_agent
+
+    _has_research_agent = True
+except ImportError as e:
+    logger.debug(f"ResearchAgent not available: {e}")
+    _has_research_agent = False
+
+# Optional: ReflectionAgent (Meta-reasoning and self-improvement agent)
+try:
+    from api.routes.reflection_agent import router as reflection_agent_router
+    from agents.reflection_agent import ReflectionAgent, create_reflection_agent
+
+    _has_reflection_agent = True
+except ImportError as e:
+    logger.debug(f"ReflectionAgent not available: {e}")
+    _has_reflection_agent = False
+
 # Optional: Cursor Executor (GMP-48)
 try:
     from api.routes.cursor import router as cursor_router
@@ -967,6 +987,43 @@ async def lifespan(app: FastAPI):
             else:
                 app.state.research_swarm_orchestrator = None
 
+            # Initialize ResearchAgent (Perplexity-based research-to-code agent)
+            if _has_research_agent:
+                try:
+                    research_agent = create_research_agent()
+                    app.state.research_agent = research_agent
+                    logger.info(
+                        "ResearchAgent initialized (agent_id=%s, variations=%d)",
+                        research_agent.agent_id,
+                        len(research_agent.prompt_variations),
+                    )
+                except ValueError as api_err:
+                    # Missing PERPLEXITY_API_KEY - expected in some environments
+                    logger.warning(
+                        f"ResearchAgent init failed (missing API key): {api_err}"
+                    )
+                    app.state.research_agent = None
+                except Exception as agent_err:
+                    logger.warning(f"ResearchAgent init failed: {agent_err}")
+                    app.state.research_agent = None
+            else:
+                app.state.research_agent = None
+
+            # Initialize ReflectionAgent (Meta-reasoning and self-improvement)
+            if _has_reflection_agent:
+                try:
+                    reflection_agent = create_reflection_agent()
+                    app.state.reflection_agent = reflection_agent
+                    logger.info(
+                        "ReflectionAgent initialized (agent_id=%s)",
+                        reflection_agent.agent_id,
+                    )
+                except Exception as agent_err:
+                    logger.warning(f"ReflectionAgent init failed: {agent_err}")
+                    app.state.reflection_agent = None
+            else:
+                app.state.reflection_agent = None
+
             # Initialize WorldModelService (explicit, not lazy)
             try:
                 from world_model.service import get_world_model_service
@@ -1074,10 +1131,12 @@ async def lifespan(app: FastAPI):
     # =========================================================================
     from config.settings import get_integration_settings
 
-    settings = get_integration_settings()
+    integration_settings = get_integration_settings()
 
     # Check if legacy Slack router is disabled (new routing enabled)
-    legacy_slack_enabled = getattr(settings, "l9_enable_legacy_slack_router", False)
+    legacy_slack_enabled = getattr(
+        integration_settings, "l9_enable_legacy_slack_router", False
+    )
 
     if not legacy_slack_enabled:
         # New Slack routing is enabled - agent_executor is REQUIRED
@@ -1777,7 +1836,9 @@ async def lifespan(app: FastAPI):
 
             if causal_mapper is None:
                 causal_mapper = CausalMapper()
-                logger.debug("Created standalone CausalMapper (world_model_service not available)")
+                logger.debug(
+                    "Created standalone CausalMapper (world_model_service not available)"
+                )
 
             app.state.causal_mapper = causal_mapper
 
@@ -1897,7 +1958,7 @@ async def lifespan(app: FastAPI):
     # ------------------------------------------------------------------------
     if settings.l9_gmp_learning_enabled and database_url:
         try:
-            from core.gmp import GMPMetaLearningEngine
+            from agents.cursor import GMPMetaLearningEngine
 
             global gmp_learning_engine
             gmp_learning_engine = GMPMetaLearningEngine(database_url)
@@ -2661,6 +2722,16 @@ except ImportError as e:
 if _has_research_swarm:
     app.include_router(research_swarm_router, prefix="/research/swarm")
     logger.info("ResearchSwarm router registered at /research/swarm")
+
+# ResearchAgent router (Perplexity-based unified research-to-code)
+if _has_research_agent:
+    app.include_router(research_agent_router, prefix="/research/agent")
+    logger.info("ResearchAgent router registered at /research/agent")
+
+# ReflectionAgent router (Meta-reasoning and self-improvement)
+if _has_reflection_agent:
+    app.include_router(reflection_agent_router, prefix="/reflection/agent")
+    logger.info("ReflectionAgent router registered at /reflection/agent")
 
 # Cursor Executor router (GMP-48)
 if _has_cursor_executor:

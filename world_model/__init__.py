@@ -35,6 +35,7 @@ from world_model.causal_graph import CausalGraph
 from world_model.registry import WorldModelRegistry
 from world_model.loader import WorldModelLoader
 from world_model.updater import WorldModelUpdater
+from world_model.query_engine import QueryEngine, QueryContext
 from world_model.interfaces import (
     IWorldModelEngine,
     IWorldModelState,
@@ -142,6 +143,8 @@ __all__ = [
     "WorldModelRegistry",
     "WorldModelLoader",
     "WorldModelUpdater",
+    "QueryEngine",
+    "QueryContext",
     # Interfaces
     "IWorldModelEngine",
     "IWorldModelState",

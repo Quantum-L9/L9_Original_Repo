@@ -26,7 +26,10 @@ class Settings(BaseSettings):
 
     # OpenAI Configuration
     OPENAI_API_KEY: str
-    OPENAI_EMBED_MODEL: str = "text-embedding-3-small"
+    # CRITICAL: Write AND search MUST use the SAME embedding model
+    # text-embedding-3-large produces better semantic search results
+    # Both substrate_service (write) and embeddings.py (search) use this setting
+    OPENAI_EMBED_MODEL: str = "text-embedding-3-large"
     OPENAI_EMBED_DIM: int = 1536
 
     # Database Configuration

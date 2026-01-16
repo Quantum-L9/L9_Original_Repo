@@ -12,14 +12,14 @@
   api/routes/compliance.py::router
   api/routes/cursor.py::router
   api/routes/factory.py::router
+  api/routes/gmp_learning.py::router
   api/routes/mcp.py::router
   api/routes/modules.py::router
+  api/routes/pattern.py::router
   api/routes/reasoning.py::router
   api/routes/research.py::router
   api/routes/simulation.py::router
   api/routes/slack.py::router
-  api/routes/upgrades.py::router
-  api/routes/worldmodel.py::router
 
 # SERVICES Surface:
   services/research/research_api.py::router

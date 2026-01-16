@@ -2,96 +2,103 @@
 # ====================
 #
 # Specialized agent for deep research tasks.
-# Integrates with the Research Factory pipeline.
+# Python class: agents.research_agent.ResearchAgent
+# Factory: agents.research_agent.create_research_agent()
+# API Routes: /research/agent/* (synthesize, discover, generate-spec)
+#
+# This YAML config defines metadata and capabilities.
+# The actual implementation uses Perplexity API directly, not LLM tool calls.
 
 agent_id: research-agent-v1
 name: L9 Research Agent
 description: >
-  Specialized research agent that performs deep, multi-step research tasks.
-  Uses the Planner-Researcher-Critic architecture from the Research Factory.
+  Unified research-to-code agent combining:
+  - Deep Workflows (5-stage academic research pipeline)
+  - Super-Prompt Pack (fast multi-perspective synthesis)
+  - Spec Generator (Module-Spec-v2.4 YAML)
+  - CodeGen integration (planned)
 
-# LLM Configuration
-model: gpt-4o
-temperature: 0.2
+# Python class binding
+python_class: agents.research_agent.ResearchAgent
+factory_function: agents.research_agent.create_research_agent
+
+# LLM Configuration (used for spec generation prompts)
+model: sonar-reasoning
+provider: perplexity
+temperature: 0.7
 max_tokens: 8000
 
-# System Prompt
-system_prompt: |
-  You are L9 Research Agent, a specialized research assistant within the L9 AI Operating System.
+# Capabilities (Python class methods)
+capabilities:
+  synthesize:
+    description: Fast multi-perspective synthesis (~10 min)
+    method: synthesize(topic, context)
+    variations: 5  # pragmatic, research, systems, agents, multimodal
+    
+  discover:
+    description: Deep 5-stage academic research (15-25 hours)
+    method: discover(topic, domain, stages)
+    stages:
+      - landscape      # 3-5 hours - map research landscape
+      - deep_dive      # 4-6 hours - vertical deep-dives
+      - comparative    # 3-5 hours - compare approaches
+      - gaps           # 3-4 hours - identify gaps
+      - hypotheses     # 2-3 hours - generate hypotheses
+      
+  generate_spec:
+    description: Generate Module-Spec-v2.4 YAML (~1 min)
+    method: generate_spec(synthesis, topic, description)
+    output_dir: codegen/specs/
+    
+  research_to_code:
+    description: End-to-end pipeline
+    method: research_to_code(topic, mode, domain)
+    modes:
+      - fast  # synthesis only
+      - deep  # full discovery
+      - full  # both
 
-  IDENTITY
-  You are L9's research specialist. Role: Deep research and evidence-based analysis.
-  You excel at finding, synthesizing, and presenting information.
+# API Endpoints (when server is running)
+api_endpoints:
+  - GET /research/agent/status
+  - POST /research/agent/synthesize
+  - POST /research/agent/discover
+  - POST /research/agent/generate-spec
+  - POST /research/agent/research-to-code
 
-  CAPABILITIES
-  - Multi-step research: Break complex queries into research steps
-  - Evidence gathering: Use multiple sources to verify information
-  - Critical analysis: Evaluate source quality and synthesize findings
-  - Structured output: Present findings in clear, organized formats
+# Environment Requirements
+environment:
+  required:
+    - PERPLEXITY_API_KEY  # Required for all operations
+  optional:
+    - L9_EXECUTOR_API_KEY  # For authenticated API access
 
-  RESEARCH METHODOLOGY
-  1. PLAN: Decompose the query into researchable sub-questions
-  2. RESEARCH: Gather evidence for each sub-question
-  3. CRITIQUE: Evaluate evidence quality and identify gaps
-  4. SYNTHESIZE: Combine findings into coherent answer
-  5. CITE: Always attribute information to sources
-
-  BEHAVIOR
-  - Be thorough but efficient in research
-  - Prioritize primary sources over secondary
-  - Acknowledge uncertainty and limitations
-  - Present balanced views on controversial topics
-  - Always cite sources with URLs when available
-
-  OUTPUT FORMAT
-  For research tasks, structure your response as:
-  1. Executive Summary (1-2 sentences)
-  2. Key Findings (bullet points)
-  3. Detailed Analysis (with citations)
-  4. Confidence Assessment
-  5. Further Research Suggestions (if applicable)
-
-# Available Tools
-tools:
-  - name: perplexity_search
-    description: Deep web search using Perplexity AI
-    parameters:
-      query:
-        type: string
-        description: Research query
-        required: true
-      depth:
-        type: string
-        description: "Search depth: quick, standard, deep"
-        default: standard
-
-  - name: web_search
-    description: Search the web for information
-    parameters:
-      query:
-        type: string
-        description: Search query
-        required: true
-
-  - name: read_url
-    description: Read and extract content from a URL
-    parameters:
-      url:
-        type: string
-        description: URL to read
-        required: true
-
-  - name: memory_search
-    description: Search the L9 memory substrate
-    parameters:
-      query:
-        type: string
-        description: Search query
-        required: true
-      limit:
-        type: integer
-        description: Max results
-        default: 10
+# Prompt Variations (for multi-perspective synthesis)
+prompt_variations:
+  v1_pragmatic:
+    name: Implementation-First (Pragmatic)
+    focus: Working code first, theory second
+    audience: ML engineers building systems today
+    
+  v2_research:
+    name: Theory-First (Research)
+    focus: Mathematical foundations, properties, proofs
+    audience: Researchers and AI scientists
+    
+  v3_systems:
+    name: Systems Integration (DevOps)
+    focus: Deployment, monitoring, scaling, reliability
+    audience: Platform engineers, MLOps teams
+    
+  v4_agents:
+    name: Agent-Specific (Autonomous Systems)
+    focus: Integration with autonomous agents
+    audience: AI agent developers
+    
+  v5_multimodal:
+    name: Multi-Modal Specifics (Cross-Modality)
+    focus: Multi-modal fusion challenges
+    audience: Computer vision + NLP researchers
 
 # Metadata
 version: "1.0.0"
@@ -99,6 +106,9 @@ status: production
 owner: L9 System
 tags:
   - research
-  - deep-search
-  - analysis
+  - perplexity
+  - synthesis
+  - deep-research
+  - spec-generation
+  - code-generation
 

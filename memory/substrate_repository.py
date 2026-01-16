@@ -842,6 +842,7 @@ class SubstrateRepository:
         vector: list[float],
         payload: dict[str, Any],
         agent_id: Optional[str] = None,
+        scope: str = "shared",  # RLS scope: 'developer', 'global', 'shared', 'l-private'
     ) -> UUID:
         """
         Insert a semantic embedding into semantic_memory.
@@ -850,6 +851,7 @@ class SubstrateRepository:
             vector: Embedding vector (1536 dimensions for text-embedding-3-large)
             payload: JSON payload associated with this embedding
             agent_id: Optional agent identifier
+            scope: RLS scope for row-level security (default: 'shared')
 
         Returns:
             embedding_id of the inserted record
@@ -858,13 +860,13 @@ class SubstrateRepository:
         rls_conn = _current_rls_connection.get()
         if rls_conn:
             await self._insert_semantic_embedding_with_connection(
-                rls_conn, embedding_id, vector, payload, agent_id
+                rls_conn, embedding_id, vector, payload, agent_id, scope
             )
             return embedding_id
 
         async with self.acquire() as conn:
             await self._insert_semantic_embedding_with_connection(
-                conn, embedding_id, vector, payload, agent_id
+                conn, embedding_id, vector, payload, agent_id, scope
             )
             return embedding_id
 
@@ -875,21 +877,23 @@ class SubstrateRepository:
         vector: list[float],
         payload: dict[str, Any],
         agent_id: Optional[str],
+        scope: str = "shared",
     ) -> None:
         """Helper to insert semantic embedding using provided connection."""
         vector_str = f"[{','.join(str(v) for v in vector)}]"
         await conn.execute(
             """
-            INSERT INTO semantic_memory (embedding_id, agent_id, vector, payload, created_at)
-            VALUES ($1, $2, $3::vector, $4, $5)
+            INSERT INTO semantic_memory (embedding_id, agent_id, vector, payload, created_at, scope)
+            VALUES ($1, $2, $3::vector, $4, $5, $6)
             """,
             embedding_id,
             agent_id,
             vector_str,
             json.dumps(payload),
             datetime.utcnow(),
+            scope,
         )
-        logger.debug(f"Inserted semantic embedding {embedding_id}")
+        logger.debug(f"Inserted semantic embedding {embedding_id} with scope={scope}")
 
     async def search_semantic_memory(
         self,

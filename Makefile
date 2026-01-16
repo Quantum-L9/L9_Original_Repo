@@ -15,8 +15,8 @@
 
 # Configuration
 VPS_HOST := 157.180.73.53
-VPS_USER := root
-VPS_PATH := /root/L9
+VPS_USER := admin
+VPS_PATH := /opt/l9
 COMPOSE_PROJECT := l9
 
 # Colors
@@ -148,7 +148,7 @@ docker-clean:
 
 deploy: env-check ci-all-specs smoke
 	@echo "$(GREEN)Deploying to VPS...$(NC)"
-	@./scripts/deploy_to_vps.sh
+	@./scripts/10x_deploy.sh
 
 deploy-dry:
 	@echo "$(YELLOW)Dry run - showing what would be deployed...$(NC)"

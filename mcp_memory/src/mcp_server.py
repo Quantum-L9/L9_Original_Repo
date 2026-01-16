@@ -584,7 +584,10 @@ async def handle_tool_call(
                 scopes=requested_scopes,
                 kinds=validated_args.kinds,
                 top_k=validated_args.top_k or 5,
-                threshold=validated_args.threshold or 0.7,
+                # FIX: threshold=0.0 is valid (no filtering), don't treat as falsy
+                threshold=validated_args.threshold
+                if validated_args.threshold is not None
+                else 0.7,
                 duration=validated_args.duration or "all",
                 caller_id=caller_id,  # Perplexity: pass caller for audit logging
             )

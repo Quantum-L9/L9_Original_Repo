@@ -4,20 +4,8 @@
 
 ## Core Agents (agents/)
 
-- **ArchitectAgentA** (`architect_agent_a.py`)
-  - Primary architect agent for system design.
-
-- **ArchitectAgentB** (`architect_agent_b.py`)
-  - Challenger architect agent for design validation.
-
 - **for** (`base_agent.py`)
   - from __future__ import annotations
-
-- **CoderAgentA** (`coder_agent_a.py`)
-  - Primary coder agent for implementation.
-
-- **CoderAgentB** (`coder_agent_b.py`)
-  - Secondary coder agent for parallel work and review.
 
 - **LCTOAgent** (`l_cto.py`)
   - L - The CTO Agent for Igor.
@@ -33,6 +21,14 @@
 
 
 ## Configured Agents (config/agents/)
+
+- **L-CTO Agent** (id: `l-cto`)
+  - Model: {'provider': 'anthropic', 'name': 'claude-3-5-sonnet-20241022', 'temperature': 0.7, 'max_tokens': 16000, 'timeout_seconds': 120}
+  - Tools: 23
+
+- **L-CTO Research Agent** (id: `l-cto-research`)
+  - Model: {'provider': 'anthropic', 'name': 'claude-3-5-sonnet-20241022', 'temperature': 0.8, 'max_tokens': 16000, 'timeout_seconds': 180}
+  - Tools: 14
 
 - **L9 Standard Agent** (id: `l9-standard-v1`)
   - Model: gpt-4o

@@ -102,14 +102,45 @@ class CausalGraph:
     # Node Operations
     # =========================================================================
 
-    def add_node(self, node: CausalNode) -> None:
+    def add_node(
+        self,
+        node_or_id: CausalNode | str,
+        data: Optional[dict[str, Any]] = None,
+    ) -> None:
         """
         Add node to causal graph.
 
+        Supports two calling patterns:
+        - add_node(CausalNode) — pass a CausalNode directly
+        - add_node(node_id, data) — pass ID and optional attributes dict
+
         Args:
-            node: CausalNode to add
+            node_or_id: CausalNode or node_id string
+            data: Optional attributes dict when passing node_id
         """
-        pass
+        if isinstance(node_or_id, CausalNode):
+            node = node_or_id
+        else:
+            # Create CausalNode from node_id and data
+            node_id = node_or_id
+            attrs = data or {}
+            node = CausalNode(
+                node_id=node_id,
+                node_type=attrs.get("type", attrs.get("node_type", "default")),
+                label=attrs.get("label", attrs.get("name", node_id)),
+                attributes={
+                    k: v
+                    for k, v in attrs.items()
+                    if k not in {"type", "node_type", "label", "name", "id"}
+                },
+            )
+
+        self._nodes[node.node_id] = node
+        # Initialize cause/effect indices
+        if node.node_id not in self._causes:
+            self._causes[node.node_id] = []
+        if node.node_id not in self._effects:
+            self._effects[node.node_id] = []
 
     def get_node(self, node_id: str) -> Optional[CausalNode]:
         """
@@ -121,7 +152,7 @@ class CausalGraph:
         Returns:
             CausalNode if found
         """
-        pass
+        return self._nodes.get(node_id)
 
     def remove_node(self, node_id: str) -> bool:
         """
@@ -133,20 +164,97 @@ class CausalGraph:
         Returns:
             True if removed
         """
-        pass
+        if node_id not in self._nodes:
+            return False
+
+        # Find and remove all edges involving this node
+        edges_to_remove = [
+            edge_id
+            for edge_id, edge in self._edges.items()
+            if edge.source_id == node_id or edge.target_id == node_id
+        ]
+        for edge_id in edges_to_remove:
+            self.remove_edge(edge_id)
+
+        # Remove from cause/effect indices
+        if node_id in self._causes:
+            del self._causes[node_id]
+        if node_id in self._effects:
+            del self._effects[node_id]
+
+        # Remove node
+        del self._nodes[node_id]
+        return True
 
     # =========================================================================
     # Edge Operations
     # =========================================================================
 
-    def add_edge(self, edge: CausalEdge) -> None:
+    def add_edge(
+        self,
+        edge_or_source: CausalEdge | str,
+        target_id: Optional[str] = None,
+        data: Optional[dict[str, Any]] = None,
+    ) -> None:
         """
         Add causal edge (cause → effect).
 
+        Supports two calling patterns:
+        - add_edge(CausalEdge) — pass a CausalEdge directly
+        - add_edge(source_id, target_id, data) — pass source, target, and optional attributes
+
         Args:
-            edge: CausalEdge to add
+            edge_or_source: CausalEdge or source node ID
+            target_id: Target node ID when passing source_id
+            data: Optional attributes dict when passing source/target
         """
-        pass
+        if isinstance(edge_or_source, CausalEdge):
+            edge = edge_or_source
+        else:
+            # Create CausalEdge from source, target, data
+            source_id = edge_or_source
+            if target_id is None:
+                raise ValueError("target_id required when passing source_id")
+            attrs = data or {}
+            import uuid
+
+            edge = CausalEdge(
+                edge_id=attrs.get("edge_id", attrs.get("id", str(uuid.uuid4()))),
+                source_id=source_id,
+                target_id=target_id,
+                edge_type=attrs.get("edge_type", attrs.get("type", "causes")),
+                strength=attrs.get("strength"),
+                attributes={
+                    k: v
+                    for k, v in attrs.items()
+                    if k
+                    not in {
+                        "edge_id",
+                        "id",
+                        "source",
+                        "target",
+                        "edge_type",
+                        "type",
+                        "strength",
+                    }
+                },
+            )
+
+        # Store edge
+        self._edges[edge.edge_id] = edge
+
+        # Update cause/effect indices
+        # source causes target → target has source as cause
+        if edge.target_id not in self._causes:
+            self._causes[edge.target_id] = []
+        if edge.source_id not in self._causes[edge.target_id]:
+            self._causes[edge.target_id].append(edge.source_id)
+
+        # source causes target → source has target as effect
+        if edge.source_id not in self._effects:
+            self._effects[edge.source_id] = []
+        if edge.target_id not in self._effects[edge.source_id]:
+            self._effects[edge.source_id].append(edge.target_id)
 
     def get_edge(self, edge_id: str) -> Optional[CausalEdge]:
         """
@@ -158,7 +266,7 @@ class CausalGraph:
         Returns:
             CausalEdge if found
         """
-        pass
+        return self._edges.get(edge_id)
 
     def remove_edge(self, edge_id: str) -> bool:
         """
@@ -170,7 +278,23 @@ class CausalGraph:
         Returns:
             True if removed
         """
-        pass
+        if edge_id not in self._edges:
+            return False
+
+        edge = self._edges[edge_id]
+
+        # Update cause index: remove source from target's causes
+        if edge.target_id in self._causes:
+            if edge.source_id in self._causes[edge.target_id]:
+                self._causes[edge.target_id].remove(edge.source_id)
+
+        # Update effect index: remove target from source's effects
+        if edge.source_id in self._effects:
+            if edge.target_id in self._effects[edge.source_id]:
+                self._effects[edge.source_id].remove(edge.target_id)
+
+        del self._edges[edge_id]
+        return True
 
     # =========================================================================
     # Causal Queries
@@ -188,7 +312,7 @@ class CausalGraph:
         Returns:
             List of node IDs that directly cause this node
         """
-        pass
+        return self._causes.get(node_id, []).copy()
 
     def get_effects(self, node_id: str) -> list[str]:
         """
@@ -202,11 +326,11 @@ class CausalGraph:
         Returns:
             List of node IDs directly caused by this node
         """
-        pass
+        return self._effects.get(node_id, []).copy()
 
     def query_path(self, from_node: str, to_node: str) -> list[str]:
         """
-        Find causal path between nodes.
+        Find causal path between nodes using BFS.
 
         Specification: reasoning kernel 05 → path_query
 
@@ -217,7 +341,32 @@ class CausalGraph:
         Returns:
             List of node IDs in causal path, empty if no path
         """
-        pass
+        if from_node not in self._nodes or to_node not in self._nodes:
+            return []
+
+        if from_node == to_node:
+            return [from_node]
+
+        # BFS to find shortest causal path
+        from collections import deque
+
+        visited = {from_node}
+        queue: deque[list[str]] = deque([[from_node]])
+
+        while queue:
+            path = queue.popleft()
+            current = path[-1]
+
+            # Get effects (downstream causal nodes)
+            for effect_id in self._effects.get(current, []):
+                if effect_id == to_node:
+                    return path + [effect_id]
+
+                if effect_id not in visited:
+                    visited.add(effect_id)
+                    queue.append(path + [effect_id])
+
+        return []  # No path found
 
     def get_ancestors(self, node_id: str) -> set[str]:
         """
@@ -229,7 +378,23 @@ class CausalGraph:
         Returns:
             Set of all ancestor node IDs
         """
-        pass
+        ancestors: set[str] = set()
+
+        if node_id not in self._nodes:
+            return ancestors
+
+        # BFS traversing causes (upstream)
+        from collections import deque
+
+        queue: deque[str] = deque(self._causes.get(node_id, []))
+        while queue:
+            ancestor = queue.popleft()
+            if ancestor not in ancestors:
+                ancestors.add(ancestor)
+                # Add this ancestor's causes to queue
+                queue.extend(self._causes.get(ancestor, []))
+
+        return ancestors
 
     def get_descendants(self, node_id: str) -> set[str]:
         """
@@ -241,7 +406,23 @@ class CausalGraph:
         Returns:
             Set of all descendant node IDs
         """
-        pass
+        descendants: set[str] = set()
+
+        if node_id not in self._nodes:
+            return descendants
+
+        # BFS traversing effects (downstream)
+        from collections import deque
+
+        queue: deque[str] = deque(self._effects.get(node_id, []))
+        while queue:
+            descendant = queue.popleft()
+            if descendant not in descendants:
+                descendants.add(descendant)
+                # Add this descendant's effects to queue
+                queue.extend(self._effects.get(descendant, []))
+
+        return descendants
 
     # =========================================================================
     # Future: Inference Operations (NOT IMPLEMENTED)
@@ -253,7 +434,10 @@ class CausalGraph:
 
         Specification: bayesian_causal_graph_engine.yaml → inference
 
-        PLACEHOLDER - Not implemented in scaffold.
+        Note: This is a structural placeholder. Full Bayesian inference
+        requires probability tables which are not part of the current graph.
+
+        Current implementation returns graph-based causal information.
 
         Future: Bayesian network inference or RF approximation
 
@@ -262,9 +446,40 @@ class CausalGraph:
             query: Variable to infer
 
         Returns:
-            Inference result with probability distribution
+            Inference result with causal structure information
         """
-        pass
+        result: dict[str, Any] = {
+            "query": query,
+            "evidence": evidence,
+            "status": "partial",
+            "message": "Full probabilistic inference not implemented. Returning causal structure.",
+        }
+
+        if query not in self._nodes:
+            result["status"] = "error"
+            result["message"] = f"Query variable '{query}' not in causal graph"
+            return result
+
+        # Return causal structure information
+        result["causes"] = self.get_causes(query)
+        result["effects"] = self.get_effects(query)
+        result["ancestors"] = list(self.get_ancestors(query))
+        result["descendants"] = list(self.get_descendants(query))
+
+        # Check if evidence variables are in graph
+        evidence_in_graph = {k: k in self._nodes for k in evidence}
+        result["evidence_status"] = evidence_in_graph
+
+        # Check causal paths from evidence to query
+        causal_paths: dict[str, list[str]] = {}
+        for ev_var in evidence:
+            if ev_var in self._nodes:
+                path = self.query_path(ev_var, query)
+                if path:
+                    causal_paths[ev_var] = path
+        result["causal_paths_from_evidence"] = causal_paths
+
+        return result
 
     def counterfactual(
         self,
@@ -277,7 +492,10 @@ class CausalGraph:
 
         Specification: bayesian_causal_graph_engine.yaml → counterfactual
 
-        PLACEHOLDER - Not implemented in scaffold.
+        Note: This is a structural placeholder. Full counterfactual reasoning
+        requires probability tables and structural equations.
+
+        Current implementation returns causal analysis of intervention effects.
 
         Future: "What if X had been different?"
 
@@ -287,9 +505,51 @@ class CausalGraph:
             query: What we want to know
 
         Returns:
-            Counterfactual result
+            Counterfactual analysis result
         """
-        pass
+        result: dict[str, Any] = {
+            "query": query,
+            "observation": observation,
+            "intervention": intervention,
+            "status": "partial",
+            "message": "Full counterfactual inference not implemented. Returning causal analysis.",
+        }
+
+        if query not in self._nodes:
+            result["status"] = "error"
+            result["message"] = f"Query variable '{query}' not in causal graph"
+            return result
+
+        # Analyze intervention effects through causal structure
+        intervention_effects: dict[str, Any] = {}
+        for int_var in intervention:
+            if int_var in self._nodes:
+                # What would be affected by intervening on this variable?
+                effects = list(self.get_descendants(int_var))
+                intervention_effects[int_var] = {
+                    "direct_effects": self.get_effects(int_var),
+                    "all_downstream": effects,
+                    "affects_query": query in effects or int_var == query,
+                }
+
+        result["intervention_analysis"] = intervention_effects
+
+        # Check if any intervention affects the query
+        query_affected = any(
+            eff.get("affects_query", False) for eff in intervention_effects.values()
+        )
+        result["query_potentially_affected"] = query_affected
+
+        # Find causal paths from interventions to query
+        intervention_paths: dict[str, list[str]] = {}
+        for int_var in intervention:
+            if int_var in self._nodes:
+                path = self.query_path(int_var, query)
+                if path:
+                    intervention_paths[int_var] = path
+        result["intervention_to_query_paths"] = intervention_paths
+
+        return result
 
     # =========================================================================
     # Serialization
@@ -302,7 +562,29 @@ class CausalGraph:
         Returns:
             Dict representation for persistence
         """
-        pass
+        return {
+            "nodes": {
+                node_id: {
+                    "node_id": node.node_id,
+                    "node_type": node.node_type,
+                    "label": node.label,
+                    "attributes": node.attributes,
+                }
+                for node_id, node in self._nodes.items()
+            },
+            "edges": {
+                edge_id: {
+                    "edge_id": edge.edge_id,
+                    "source_id": edge.source_id,
+                    "target_id": edge.target_id,
+                    "edge_type": edge.edge_type,
+                    "strength": edge.strength,
+                    "attributes": edge.attributes,
+                }
+                for edge_id, edge in self._edges.items()
+            },
+            "created_at": self._created_at.isoformat(),
+        }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CausalGraph:
@@ -314,8 +596,42 @@ class CausalGraph:
 
         Returns:
             CausalGraph instance
+
+        Raises:
+            ValueError: If data structure invalid
         """
-        pass
+        if not isinstance(data, dict):
+            raise ValueError("Graph data must be a dict")
+
+        graph = cls()
+
+        # Restore created_at if present
+        if "created_at" in data:
+            graph._created_at = datetime.fromisoformat(data["created_at"])
+
+        # Restore nodes
+        for node_id, node_data in data.get("nodes", {}).items():
+            node = CausalNode(
+                node_id=node_data.get("node_id", node_id),
+                node_type=node_data.get("node_type", "default"),
+                label=node_data.get("label", node_id),
+                attributes=node_data.get("attributes", {}),
+            )
+            graph.add_node(node)
+
+        # Restore edges (this will rebuild cause/effect indices)
+        for edge_id, edge_data in data.get("edges", {}).items():
+            edge = CausalEdge(
+                edge_id=edge_data.get("edge_id", edge_id),
+                source_id=edge_data.get("source_id", ""),
+                target_id=edge_data.get("target_id", ""),
+                edge_type=edge_data.get("edge_type", "causes"),
+                strength=edge_data.get("strength"),
+                attributes=edge_data.get("attributes", {}),
+            )
+            graph.add_edge(edge)
+
+        return graph
 
     # =========================================================================
     # Properties
