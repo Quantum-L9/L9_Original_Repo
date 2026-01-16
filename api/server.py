@@ -189,6 +189,15 @@ try:
 except ImportError:
     _has_reasoning = False
 
+# Optional: Pattern Orchestrator (v4.0+ / Agent Pattern System)
+try:
+    from api.routes.pattern import router as pattern_router
+    from orchestrators.pattern import PatternOrchestrator, CellAgentAdapter
+
+    _has_pattern = True
+except ImportError:
+    _has_pattern = False
+
 # Optional: ResearchSwarm Orchestrator (v3.5+ / Stage 2.6 Phase 3)
 try:
     from api.routes.research import router as research_swarm_router
@@ -2629,6 +2638,11 @@ if _has_tools_router:
 if _has_reasoning:
     app.include_router(reasoning_router, prefix="/reasoning")
     logger.info("Reasoning router registered at /reasoning")
+
+# Pattern router (Agent Pattern System v4.0+)
+if _has_pattern:
+    app.include_router(pattern_router, prefix="/pattern")
+    logger.info("Pattern router registered at /pattern")
 
 # ResearchSwarm router (Stage 2.6 Phase 3)
 if _has_research_swarm:
