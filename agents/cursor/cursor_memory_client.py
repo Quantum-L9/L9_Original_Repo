@@ -27,27 +27,27 @@ Cursor Memory Client — Access L9 Memory Substrate via MCP Tools
 
     # Health (tests MCP endpoint PRIMARY + API FALLBACK)
     python cursor_memory_client.py health
-    
+
     # MCP Test (write + read round-trip via MCP tools)
     python cursor_memory_client.py mcp-test
-    
+
     # Search (via MCP search_memory tool)
     python cursor_memory_client.py search "error handling patterns"
-    
+
     # Write (via MCP save_memory tool)
     python cursor_memory_client.py write "Igor prefers surgical edits" --kind preference
-    
+
     # Stats (via MCP get_memory_stats tool)
     python cursor_memory_client.py stats
 
 ## CONFIGURATION
 
     Environment variables (set in .env or export):
-    
+
     MCP_API_KEY_C: API key for Cursor (PRIMARY)
         - This key identifies caller as "C" (Cursor IDE)
         - Required for all MCP operations
-    
+
     L9_API_URL: Server URL
         - VPS: https://l9.quantumaipartners.com (production)
         - Local: http://127.0.0.1:8000 (Docker)
@@ -88,7 +88,7 @@ def get_daily_session_id() -> str:
     """
     Generate deterministic session UUID based on current date.
     Same session ID for entire day, new one each day.
-    
+
     Uses UUID5 (SHA-1 based) with fixed namespace + date string.
     """
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -114,8 +114,8 @@ if env_path.exists():
             key, _, value = line.partition("=")
             os.environ.setdefault(key.strip(), value.strip())
 
-# TEST MODE: Local Docker. Production: https://157.180.73.53:9001
-L9_API_URL = os.getenv("L9_API_URL", "http://127.0.0.1:8000")
+# PRODUCTION: VPS (default). Set L9_API_URL=http://127.0.0.1:8000 for local Docker
+L9_API_URL = os.getenv("L9_API_URL", "https://l9.quantumaipartners.com")
 # MCP_API_KEY_C is the correct key for Cursor (not L9_EXECUTOR_API_KEY)
 # Fallback chain: MCP_API_KEY_C -> L9_EXECUTOR_API_KEY (legacy)
 L9_EXECUTOR_API_KEY = os.getenv("MCP_API_KEY_C") or os.getenv("L9_EXECUTOR_API_KEY", "")
@@ -134,26 +134,26 @@ ssl_context.verify_mode = ssl.CERT_NONE
 def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
     """
     Call MCP tool via /mcp/call endpoint.
-    
+
     This is the PRIMARY method - all memory operations go through MCP server.
     """
     if not L9_EXECUTOR_API_KEY:
         return {"error": "L9_EXECUTOR_API_KEY not set. Add to .env or environment."}
-    
+
     url = f"{L9_API_URL}/mcp/call"
     headers = {
         "Authorization": f"Bearer {L9_EXECUTOR_API_KEY}",
         "Content-Type": "application/json",
     }
-    
+
     payload = {
         "tool_name": tool_name,
         "arguments": arguments,
     }
-    
+
     body = json.dumps(payload).encode()
     req = urllib.request.Request(url, data=body, headers=headers, method="POST")
-    
+
     try:
         with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
             result = json.loads(response.read().decode())
@@ -177,11 +177,11 @@ def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
 def api_request(method: str, path: str, data: dict = None) -> dict:
     """
     Direct HTTP API request (FALLBACK ONLY).
-    
+
     ⚠️ USE ONLY FOR:
     - Graph operations (/api/v1/memory/graph/*) - No MCP tool available
     - Cache operations (/api/v1/memory/cache/*) - No MCP tool available
-    
+
     ❌ DO NOT USE FOR:
     - Memory write/read (use mcp_call_tool("save_memory", ...))
     - Search (use mcp_call_tool("search_memory", ...))
@@ -189,17 +189,17 @@ def api_request(method: str, path: str, data: dict = None) -> dict:
     """
     if not L9_EXECUTOR_API_KEY:
         return {"error": "L9_EXECUTOR_API_KEY not set. Add to .env or environment."}
-    
+
     url = f"{L9_API_URL}{path}"
     headers = {
         "Authorization": f"Bearer {L9_EXECUTOR_API_KEY}",
         "Content-Type": "application/json",
         "X-User-Id": "cursor",
     }
-    
+
     body = json.dumps(data).encode() if data else None
     req = urllib.request.Request(url, data=body, headers=headers, method=method)
-    
+
     try:
         with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
             return json.loads(response.read().decode())
@@ -216,22 +216,24 @@ def api_request(method: str, path: str, data: dict = None) -> dict:
 
 def cmd_stats():
     """Get memory stats via MCP."""
-    session_id = get_daily_session_id()
-    result = mcp_call_tool("get_memory_stats", {
-        "user_id": "l9-shared",  # Shared user_id for L + C
-        "duration": "all",
-    })
+    result = mcp_call_tool(
+        "get_memory_stats",
+        {
+            "user_id": "l9-shared",  # Shared user_id for L + C
+            "duration": "all",
+        },
+    )
     print(json.dumps(result, indent=2))
 
 
 def cmd_health():
     """
     Check MCP memory health (PRIMARY) and API health (FALLBACK).
-    
+
     Tests:
     1. MCP endpoint (/mcp/call) - PRIMARY method for memory operations
     2. Direct API (/health) - FALLBACK/infrastructure health
-    
+
     MCP is healthy ONLY if /mcp/call endpoint responds successfully.
     """
     results = {
@@ -239,13 +241,16 @@ def cmd_health():
         "api_health": {"status": "unknown", "method": "FALLBACK"},
         "overall": "unknown",
     }
-    
+
     # TEST 1: MCP Endpoint (PRIMARY) - test with get_memory_stats
-    mcp_result = mcp_call_tool("get_memory_stats", {
-        "user_id": "l9-shared",
-        "duration": "all",
-    })
-    
+    mcp_result = mcp_call_tool(
+        "get_memory_stats",
+        {
+            "user_id": "l9-shared",
+            "duration": "all",
+        },
+    )
+
     if "error" in mcp_result:
         results["mcp_endpoint"] = {
             "status": "unhealthy",
@@ -257,14 +262,16 @@ def cmd_health():
         results["mcp_endpoint"] = {
             "status": "healthy",
             "method": "PRIMARY",
-            "response_keys": list(mcp_result.keys()) if isinstance(mcp_result, dict) else "ok",
+            "response_keys": list(mcp_result.keys())
+            if isinstance(mcp_result, dict)
+            else "ok",
         }
-    
+
     # TEST 2: Direct API Health (FALLBACK)
     url = f"{L9_API_URL}/health"
     headers = {"Content-Type": "application/json"}
     req = urllib.request.Request(url, headers=headers, method="GET")
-    
+
     try:
         with urllib.request.urlopen(req, timeout=10, context=ssl_context) as response:
             api_result = json.loads(response.read().decode())
@@ -280,76 +287,92 @@ def cmd_health():
             "method": "FALLBACK",
             "error": str(e),
         }
-    
+
     # OVERALL: MCP must be healthy for memory operations
     if results["mcp_endpoint"]["status"] == "healthy":
         results["overall"] = "healthy"
         results["message"] = "✅ MCP endpoint healthy - memory operations available"
     elif results["api_health"]["status"] == "healthy":
         results["overall"] = "degraded"
-        results["message"] = "⚠️ MCP unhealthy, API healthy - memory operations UNAVAILABLE, use direct API workaround"
+        results["message"] = (
+            "⚠️ MCP unhealthy, API healthy - memory operations UNAVAILABLE, use direct API workaround"
+        )
     else:
         results["overall"] = "unhealthy"
-        results["message"] = "❌ Both MCP and API unhealthy - no memory operations available"
-    
+        results["message"] = (
+            "❌ Both MCP and API unhealthy - no memory operations available"
+        )
+
     print(json.dumps(results, indent=2))
 
 
-def cmd_search(query: str, limit: int = 10, min_confidence: float = 0.0, sort_by: str = "relevance"):
+def cmd_search(
+    query: str, limit: int = 10, min_confidence: float = 0.0, sort_by: str = "relevance"
+):
     """
     Semantic search via MCP with confidence filtering and sorting.
-    
+
     Args:
         query: Search query
         limit: Max results (default 10)
         min_confidence: Minimum confidence threshold 0.0-1.0 (default 0.0)
         sort_by: Sort order - relevance, importance, recency (default relevance)
     """
-    session_id = get_daily_session_id()
-    result = mcp_call_tool("search_memory", {
-        "query": query,
-        "user_id": "l9-shared",  # Shared user_id for L + C
-        "scopes": ["developer", "global"],  # Cursor can read developer + global (not l-private)
-        "top_k": limit * 2,  # Fetch extra for filtering
-        "threshold": min_confidence,
-        "duration": "all",
-    })
-    
+    result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": query,
+            "user_id": "l9-shared",  # Shared user_id for L + C
+            "scopes": [
+                "developer",
+                "global",
+            ],  # Cursor can read developer + global (not l-private)
+            "top_k": limit * 2,  # Fetch extra for filtering
+            "threshold": min_confidence,
+            "duration": "all",
+        },
+    )
+
     # Server returns "results" key, not "memories"
     hits = result.get("results", []) or result.get("memories", [])
-    
+
     # Filter by min_confidence (if not already filtered by threshold)
     if min_confidence > 0:
         hits = [h for h in hits if h.get("similarity", 0) >= min_confidence]
-    
+
     # Sort
     if sort_by == "importance":
         hits.sort(key=lambda x: x.get("importance_score", 0), reverse=True)
     elif sort_by == "recency":
         hits.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
     # else: keep relevance order (default from MCP)
-    
+
     # Limit final results
     hits = hits[:limit]
-    
-    print(json.dumps({
-        "query": query,
-        "hits": hits,
-        "count": len(hits),
-        "min_confidence": min_confidence,
-        "sort_by": sort_by,
-    }, indent=2))
+
+    print(
+        json.dumps(
+            {
+                "query": query,
+                "hits": hits,
+                "count": len(hits),
+                "min_confidence": min_confidence,
+                "sort_by": sort_by,
+            },
+            indent=2,
+        )
+    )
 
 
 def cmd_write(content: str, kind: str = "note", thread_id: str = None):
     """
     Write to memory via MCP using PacketEnvelope v2.0 schema.
-    
+
     Uses daily session UUID if no thread_id provided.
     """
     # Use daily session ID if not explicitly provided
     session_id = thread_id or get_daily_session_id()
-    
+
     # Map kind to MCP duration (default: long for durability)
     kind_to_duration = {
         "preference": "long",
@@ -360,25 +383,28 @@ def cmd_write(content: str, kind: str = "note", thread_id: str = None):
         "fact": "long",
     }
     duration = kind_to_duration.get(kind, "long")
-    
+
     # Map kind to MCP scope (Cursor writes to developer scope only)
     scope = "developer"  # Cursor cannot write to l-private
-    
+
     # Call MCP save_memory tool
-    result = mcp_call_tool("save_memory", {
-        "content": content,
-        "kind": kind,
-        "scope": scope,
-        "duration": duration,
-        "user_id": "l9-shared",  # Shared user_id for L + C
-        "tags": [],  # Optional tags
-        "importance": 1.0,  # Default importance
-    })
-    
+    result = mcp_call_tool(
+        "save_memory",
+        {
+            "content": content,
+            "kind": kind,
+            "scope": scope,
+            "duration": duration,
+            "user_id": "l9-shared",  # Shared user_id for L + C
+            "tags": [],  # Optional tags
+            "importance": 1.0,  # Default importance
+        },
+    )
+
     # Add session info to output
     result["_session_id"] = session_id
     result["_schema_version"] = SCHEMA_VERSION
-    
+
     print(json.dumps(result, indent=2))
 
 
@@ -386,45 +412,56 @@ def cmd_session():
     """Show current daily session ID."""
     session_id = get_daily_session_id()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    print(json.dumps({
-        "date": today,
-        "session_id": session_id,
-        "schema_version": SCHEMA_VERSION,
-    }, indent=2))
+    print(
+        json.dumps(
+            {
+                "date": today,
+                "session_id": session_id,
+                "schema_version": SCHEMA_VERSION,
+            },
+            indent=2,
+        )
+    )
 
 
 def cmd_mcp_test():
     """
     MCP Round-Trip Test — Write + Search via MCP tools only.
-    
+
     Tests the PRIMARY method (MCP tools) end-to-end:
     1. Write a test packet via save_memory tool
     2. Search for it via search_memory tool
     3. Report success/failure
-    
+
     This is the definitive test of MCP memory availability.
     """
     import time
+
     test_id = f"mcp-test-{int(time.time())}"
-    test_content = f"MCP_ROUNDTRIP_TEST: {test_id} - Cursor IDE verifying MCP tool pipeline"
-    
+    test_content = (
+        f"MCP_ROUNDTRIP_TEST: {test_id} - Cursor IDE verifying MCP tool pipeline"
+    )
+
     results = {
         "test_id": test_id,
         "steps": {},
         "overall": "unknown",
     }
-    
+
     # STEP 1: Write via MCP save_memory tool
-    write_result = mcp_call_tool("save_memory", {
-        "content": test_content,
-        "kind": "note",
-        "scope": "developer",
-        "duration": "short",  # Short-lived test packet
-        "user_id": "l9-shared",
-        "tags": ["mcp_test", test_id],
-        "importance": 0.1,  # Low importance test
-    })
-    
+    write_result = mcp_call_tool(
+        "save_memory",
+        {
+            "content": test_content,
+            "kind": "note",
+            "scope": "developer",
+            "duration": "short",  # Short-lived test packet
+            "user_id": "l9-shared",
+            "tags": ["mcp_test", test_id],
+            "importance": 0.1,  # Low importance test
+        },
+    )
+
     if "error" in write_result:
         results["steps"]["write"] = {
             "status": "failed",
@@ -440,19 +477,22 @@ def cmd_mcp_test():
             "status": "success",
             "memory_id": write_result.get("memory_id"),
         }
-    
+
     # STEP 2: Search via MCP search_memory tool
     time.sleep(1)  # Brief delay for indexing
-    
-    search_result = mcp_call_tool("search_memory", {
-        "query": test_id,  # Search by unique test ID
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 5,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+
+    search_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": test_id,  # Search by unique test ID
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 5,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     if "error" in search_result:
         results["steps"]["search"] = {
             "status": "failed",
@@ -460,32 +500,38 @@ def cmd_mcp_test():
             "detail": search_result.get("detail", ""),
         }
         results["overall"] = "partial"
-        results["message"] = f"⚠️ MCP WRITE OK but SEARCH FAILED: {search_result.get('error')}"
+        results["message"] = (
+            f"⚠️ MCP WRITE OK but SEARCH FAILED: {search_result.get('error')}"
+        )
     else:
         # Server returns "results" key, not "memories"
         memories = search_result.get("results", []) or search_result.get("memories", [])
         found = any(test_id in m.get("content", "") for m in memories)
-        
+
         results["steps"]["search"] = {
             "status": "success" if found else "not_found",
             "results_count": len(memories),
             "test_found": found,
         }
-        
+
         if found:
             results["overall"] = "success"
-            results["message"] = "✅ MCP ROUND-TRIP SUCCESS: Write + Search both working"
+            results["message"] = (
+                "✅ MCP ROUND-TRIP SUCCESS: Write + Search both working"
+            )
         else:
             results["overall"] = "partial"
-            results["message"] = "⚠️ MCP WRITE OK but test packet not found in search (may need indexing time)"
-    
+            results["message"] = (
+                "⚠️ MCP WRITE OK but test packet not found in search (may need indexing time)"
+            )
+
     print(json.dumps(results, indent=2))
 
 
 def cmd_session_close():
     """
     Close session and create embedding anchor for future retrieval.
-    
+
     1. Aggregates all packets from current session (via MCP search_memory)
     2. Generates session summary
     3. Creates embedding of summary (session anchor) via MCP save_memory
@@ -493,20 +539,23 @@ def cmd_session_close():
     """
     session_id = get_daily_session_id()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    
+
     # Step 1: Get all packets from this session via MCP
-    search_result = mcp_call_tool("search_memory", {
-        "query": f"session {today}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 50,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    search_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"session {today}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 50,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     memories = search_result.get("memories", [])
     packet_count = len(memories)
-    
+
     # Step 2: Generate session summary
     if memories:
         # Extract content from memories
@@ -515,22 +564,27 @@ def cmd_session_close():
             content = m.get("content", "")
             if content:
                 contents.append(content[:200])  # Truncate long content
-        
-        summary = f"SESSION {today}: {packet_count} packets. Key topics: " + "; ".join(contents[:5])
+
+        summary = f"SESSION {today}: {packet_count} packets. Key topics: " + "; ".join(
+            contents[:5]
+        )
     else:
         summary = f"SESSION {today}: No packets captured."
-    
+
     # Step 3: Write session anchor to memory via MCP save_memory
-    result = mcp_call_tool("save_memory", {
-        "content": summary,
-        "kind": "context",  # Session anchor is context
-        "scope": "developer",
-        "duration": "long",  # Session anchors persist
-        "user_id": "l9-shared",
-        "tags": ["session_anchor", f"session_{today}"],
-        "importance": 1.0,
-    })
-    
+    result = mcp_call_tool(
+        "save_memory",
+        {
+            "content": summary,
+            "kind": "context",  # Session anchor is context
+            "scope": "developer",
+            "duration": "long",  # Session anchors persist
+            "user_id": "l9-shared",
+            "tags": ["session_anchor", f"session_{today}"],
+            "importance": 1.0,
+        },
+    )
+
     # Output
     output = {
         "status": "session_closed",
@@ -541,83 +595,94 @@ def cmd_session_close():
         "embedding_created": "memory_id" in result,
         "memory_id": result.get("memory_id"),
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
 def cmd_session_resume(task_description: str = None):
     """
     Resume session by finding relevant previous session anchors.
-    
+
     If task_description provided, finds most similar past session.
     Otherwise, retrieves yesterday's/recent session context.
     All searches via MCP search_memory tool.
     """
     session_id = get_daily_session_id()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    
+
     # Search for session anchors via MCP
     query = task_description if task_description else "session_anchor recent work"
-    
-    search_result = mcp_call_tool("search_memory", {
-        "query": query,
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 5,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+
+    search_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": query,
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 5,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     memories = search_result.get("memories", [])
-    
+
     # Filter for session anchors or recent sessions
     session_context = []
     for m in memories:
         content = m.get("content", "")
         similarity = m.get("similarity", 0)
         kind = m.get("kind", "unknown")
-        
+
         if content:
-            session_context.append({
-                "content": content[:500],
-                "similarity": round(similarity * 100, 1),
-                "kind": kind,
-            })
-    
+            session_context.append(
+                {
+                    "content": content[:500],
+                    "similarity": round(similarity * 100, 1),
+                    "kind": kind,
+                }
+            )
+
     # Also search for recent lessons and preferences via MCP
-    prefs_result = mcp_call_tool("search_memory", {
-        "query": "Igor preferences patterns",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "kinds": ["preference"],
-        "top_k": 3,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    prefs_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": "Igor preferences patterns",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "kinds": ["preference"],
+            "top_k": 3,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     preferences = []
     for m in prefs_result.get("memories", []):
         content = m.get("content", "")
         if content:
             preferences.append(content[:200])
-    
+
     # Search for recent lessons via MCP
-    lessons_result = mcp_call_tool("search_memory", {
-        "query": "lessons errors cursor",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "kinds": ["lesson"],
-        "top_k": 3,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    lessons_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": "lessons errors cursor",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "kinds": ["lesson"],
+            "top_k": 3,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     lessons = []
     for m in lessons_result.get("memories", []):
         content = m.get("content", "")
         if content:
             lessons.append(content[:200])
-    
+
     output = {
         "status": "session_resumed",
         "session_id": session_id,
@@ -627,16 +692,16 @@ def cmd_session_resume(task_description: str = None):
         "session_context": session_context[:3],
         "preferences_loaded": len(preferences),
         "lessons_loaded": len(lessons),
-        "message": f"🔄 Session resumed. Loaded {len(session_context)} context items, {len(preferences)} preferences, {len(lessons)} lessons."
+        "message": f"🔄 Session resumed. Loaded {len(session_context)} context items, {len(preferences)} preferences, {len(lessons)} lessons.",
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
 def cmd_resume_for(task: str):
     """
     Resume for a specific task - finds most relevant past session by semantic similarity.
-    
+
     Usage: python cursor_memory_client.py resume-for "implement Redis session context"
     """
     cmd_session_resume(task)
@@ -645,114 +710,129 @@ def cmd_resume_for(task: str):
 def cmd_warn(task_description: str):
     """
     Proactive Anti-Pattern Warning - surfaces past mistakes relevant to the task.
-    
+
     Searches for errors, lessons, and warnings related to the task description.
     Shows what to AVOID based on past experience.
     All searches via MCP search_memory tool.
-    
+
     Usage: python cursor_memory_client.py warn "modifying docker-compose"
     """
     # Search for errors related to task via MCP
-    errors_result = mcp_call_tool("search_memory", {
-        "query": f"error mistake {task_description}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "kinds": ["error", "lesson"],
-        "top_k": 5,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    errors_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"error mistake {task_description}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "kinds": ["error", "lesson"],
+            "top_k": 5,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     # Search for lessons related to task via MCP
-    lessons_result = mcp_call_tool("search_memory", {
-        "query": f"lesson warning {task_description}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "kinds": ["lesson"],
-        "top_k": 5,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    lessons_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"lesson warning {task_description}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "kinds": ["lesson"],
+            "top_k": 5,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     # Search for violations via MCP
-    violations_result = mcp_call_tool("search_memory", {
-        "query": f"violation critical {task_description}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 3,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    violations_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"violation critical {task_description}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 3,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     warnings = []
-    
+
     # Process errors
     for m in errors_result.get("memories", []):
         content = m.get("content", "")
         similarity = m.get("similarity", 0)
         kind = m.get("kind", "")
-        
+
         if content and similarity > 0.02 and kind in ["error", "lesson", "insight"]:
-            warnings.append({
-                "type": "⚠️ WARNING",
-                "content": content[:300],
-                "relevance": round(similarity * 100, 1),
-                "source": kind,
-            })
-    
+            warnings.append(
+                {
+                    "type": "⚠️ WARNING",
+                    "content": content[:300],
+                    "relevance": round(similarity * 100, 1),
+                    "source": kind,
+                }
+            )
+
     # Process lessons
     for m in lessons_result.get("memories", []):
         content = m.get("content", "")
         similarity = m.get("similarity", 0)
         kind = m.get("kind", "")
-        
+
         if content and similarity > 0.02 and kind == "lesson":
             # Avoid duplicates
             if not any(w["content"][:100] == content[:100] for w in warnings):
-                warnings.append({
-                    "type": "📚 LESSON",
-                    "content": content[:300],
-                    "relevance": round(similarity * 100, 1),
-                    "source": kind,
-                })
-    
+                warnings.append(
+                    {
+                        "type": "📚 LESSON",
+                        "content": content[:300],
+                        "relevance": round(similarity * 100, 1),
+                        "source": kind,
+                    }
+                )
+
     # Process violations
     for m in violations_result.get("memories", []):
         content = m.get("content", "")
         similarity = m.get("similarity", 0)
-        
+
         if content and similarity > 0.02:
-            warnings.append({
-                "type": "🚨 CRITICAL",
-                "content": content[:300],
-                "relevance": round(similarity * 100, 1),
-                "source": "violation",
-            })
-    
+            warnings.append(
+                {
+                    "type": "🚨 CRITICAL",
+                    "content": content[:300],
+                    "relevance": round(similarity * 100, 1),
+                    "source": "violation",
+                }
+            )
+
     # Sort by relevance
     warnings.sort(key=lambda x: x["relevance"], reverse=True)
-    
+
     output = {
         "task": task_description,
         "warning_count": len(warnings),
         "warnings": warnings[:10],  # Top 10
-        "message": f"🛡️ Found {len(warnings)} relevant warnings/lessons for: {task_description}"
+        "message": f"🛡️ Found {len(warnings)} relevant warnings/lessons for: {task_description}",
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
 def cmd_inject(task_description: str = None, layers: str = "all"):
     """
     Layered Context Injection - injects context at 5 levels.
-    
+
     Layers:
     1. Preferences - Igor's coding style, patterns
     2. Command - patterns for current command type
     3. Domain - patterns for current domain (memory, agents, etc.)
     4. File - patterns for specific files being touched
     5. Temporal - recent session context
-    
+
     Usage: python cursor_memory_client.py inject "working on memory substrate"
            python cursor_memory_client.py inject --layers "preferences,lessons"
     """
@@ -763,85 +843,100 @@ def cmd_inject(task_description: str = None, layers: str = "all"):
         "temporal": [],
         "warnings": [],
     }
-    
+
     # Layer 1: Preferences via MCP
-    prefs_result = mcp_call_tool("search_memory", {
-        "query": "Igor preferences patterns coding style",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "kinds": ["preference"],
-        "top_k": 5,
-        "threshold": 0.0,
-        "duration": "all",
-    })
+    prefs_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": "Igor preferences patterns coding style",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "kinds": ["preference"],
+            "top_k": 5,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
     for m in prefs_result.get("memories", []):
         content = m.get("content", "")
         if content:
             context["preferences"].append(content[:200])
-    
+
     # Layer 2: Lessons via MCP
-    lessons_result = mcp_call_tool("search_memory", {
-        "query": f"lessons errors cursor {task_description or ''}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "kinds": ["lesson"],
-        "top_k": 5,
-        "threshold": 0.0,
-        "duration": "all",
-    })
+    lessons_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"lessons errors cursor {task_description or ''}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "kinds": ["lesson"],
+            "top_k": 5,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
     for m in lessons_result.get("memories", []):
         content = m.get("content", "")
         if content:
             context["lessons"].append(content[:200])
-    
+
     # Layer 3: Domain context (if task provided) via MCP
     if task_description:
-        domain_result = mcp_call_tool("search_memory", {
-            "query": task_description,
-            "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
-            "top_k": 5,
-            "threshold": 0.0,
-            "duration": "all",
-        })
+        domain_result = mcp_call_tool(
+            "search_memory",
+            {
+                "query": task_description,
+                "user_id": "l9-shared",
+                "scopes": ["developer", "global"],
+                "top_k": 5,
+                "threshold": 0.0,
+                "duration": "all",
+            },
+        )
         for m in domain_result.get("memories", []):
             content = m.get("content", "")
             if content:
                 context["domain"].append(content[:200])
-    
+
     # Layer 4: Temporal (recent) via MCP
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    temporal_result = mcp_call_tool("search_memory", {
-        "query": f"session {today} recent work",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 3,
-        "threshold": 0.0,
-        "duration": "all",
-    })
+    temporal_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"session {today} recent work",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 3,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
     for m in temporal_result.get("memories", []):
         content = m.get("content", "")
         if content:
             context["temporal"].append(content[:150])
-    
+
     # Layer 5: Warnings (anti-patterns) via MCP
     if task_description:
-        warn_result = mcp_call_tool("search_memory", {
-            "query": f"error mistake warning {task_description}",
-            "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
-            "kinds": ["error", "lesson"],
-            "top_k": 3,
-            "threshold": 0.0,
-            "duration": "all",
-        })
+        warn_result = mcp_call_tool(
+            "search_memory",
+            {
+                "query": f"error mistake warning {task_description}",
+                "user_id": "l9-shared",
+                "scopes": ["developer", "global"],
+                "kinds": ["error", "lesson"],
+                "top_k": 3,
+                "threshold": 0.0,
+                "duration": "all",
+            },
+        )
         for m in warn_result.get("memories", []):
             content = m.get("content", "")
             if content:
                 context["warnings"].append(content[:150])
-    
+
     total_items = sum(len(v) for v in context.values())
-    
+
     output = {
         "task": task_description,
         "layers_loaded": {
@@ -853,254 +948,288 @@ def cmd_inject(task_description: str = None, layers: str = "all"):
         },
         "total_items": total_items,
         "context": context,
-        "message": f"🧠 Injected {total_items} context items across 5 layers"
+        "message": f"🧠 Injected {total_items} context items across 5 layers",
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
 def cmd_temporal(query: str, since: str = "24h", until: str = None):
     """
     Temporal Context Windowing - time-scoped memory queries.
-    
+
     Args:
         query: Search query
         since: Time window start (24h, 7d, 30d, or ISO date)
         until: Time window end (optional, defaults to now)
-    
-    Usage: 
+
+    Usage:
         python cursor_memory_client.py temporal "docker" --since 24h
         python cursor_memory_client.py temporal "migration" --since 7d
     All searches via MCP search_memory tool.
     """
     # Parse since into approximate time description
     time_desc = f"recent {since}" if since in ["24h", "7d", "30d"] else f"since {since}"
-    
+
     # Search with temporal context in query via MCP
-    result = mcp_call_tool("search_memory", {
-        "query": f"{query} {time_desc}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 15,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"{query} {time_desc}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 15,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     memories = result.get("memories", [])
-    
+
     output = {
         "query": query,
         "time_window": {"since": since, "until": until or "now"},
         "result_count": len(memories),
         "hits": memories[:10],
-        "message": f"🕐 Found {len(memories)} results for '{query}' in {since} window"
+        "message": f"🕐 Found {len(memories)} results for '{query}' in {since} window",
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
 def cmd_fix_error(error_message: str):
     """
     Memory-Aware Error Recovery - search for past fixes when error occurs.
-    
+
     Searches memory for similar errors and their solutions.
     All searches via MCP search_memory tool.
-    
+
     Usage: python cursor_memory_client.py fix-error "connection refused port 5432"
     """
     # Search for similar errors via MCP
-    error_result = mcp_call_tool("search_memory", {
-        "query": f"error fix solution {error_message}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "kinds": ["error", "lesson"],
-        "top_k": 10,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    error_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"error fix solution {error_message}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "kinds": ["error", "lesson"],
+            "top_k": 10,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     # Search for lessons about this error type via MCP
-    lesson_result = mcp_call_tool("search_memory", {
-        "query": f"lesson {error_message}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "kinds": ["lesson"],
-        "top_k": 5,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    lesson_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"lesson {error_message}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "kinds": ["lesson"],
+            "top_k": 5,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     fixes = []
-    
+
     for m in error_result.get("memories", []):
         content = m.get("content", "")
         similarity = m.get("similarity", 0)
         kind = m.get("kind", "")
-        
+
         if content and similarity > 0.02:
-            fixes.append({
-                "type": "🔧 FIX" if kind in ["lesson", "insight"] else "📝 RELATED",
-                "content": content[:400],
-                "relevance": round(similarity * 100, 1),
-                "source": kind,
-            })
-    
+            fixes.append(
+                {
+                    "type": "🔧 FIX" if kind in ["lesson", "insight"] else "📝 RELATED",
+                    "content": content[:400],
+                    "relevance": round(similarity * 100, 1),
+                    "source": kind,
+                }
+            )
+
     for m in lesson_result.get("memories", []):
         content = m.get("content", "")
         similarity = m.get("similarity", 0)
-        
+
         if content and similarity > 0.02:
             if not any(f["content"][:100] == content[:100] for f in fixes):
-                fixes.append({
-                    "type": "📚 LESSON",
-                    "content": content[:400],
-                    "relevance": round(similarity * 100, 1),
-                    "source": "lesson",
-                })
-    
+                fixes.append(
+                    {
+                        "type": "📚 LESSON",
+                        "content": content[:400],
+                        "relevance": round(similarity * 100, 1),
+                        "source": "lesson",
+                    }
+                )
+
     fixes.sort(key=lambda x: x["relevance"], reverse=True)
-    
+
     output = {
         "error": error_message[:200],
         "fix_count": len(fixes),
         "fixes": fixes[:8],
-        "message": f"🔍 Found {len(fixes)} potential fixes for: {error_message[:50]}..."
+        "message": f"🔍 Found {len(fixes)} potential fixes for: {error_message[:50]}...",
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
 def cmd_suggest(context: str = None):
     """
     Proactive Suggestion Engine - pattern-based next-step suggestions.
-    
+
     Analyzes current context and suggests next actions based on patterns.
     All searches via MCP search_memory tool.
-    
+
     Usage: python cursor_memory_client.py suggest "working on memory client"
     """
     # Search for patterns related to context via MCP
     if context:
-        pattern_result = mcp_call_tool("search_memory", {
-            "query": f"pattern workflow next step {context}",
-            "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
-            "top_k": 10,
-            "threshold": 0.0,
-            "duration": "all",
-        })
+        pattern_result = mcp_call_tool(
+            "search_memory",
+            {
+                "query": f"pattern workflow next step {context}",
+                "user_id": "l9-shared",
+                "scopes": ["developer", "global"],
+                "top_k": 10,
+                "threshold": 0.0,
+                "duration": "all",
+            },
+        )
     else:
         # Get recent session context via MCP
-        pattern_result = mcp_call_tool("search_memory", {
-            "query": "recent session TODO next step workflow",
-            "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
-            "top_k": 10,
-            "threshold": 0.0,
-            "duration": "all",
-        })
-    
+        pattern_result = mcp_call_tool(
+            "search_memory",
+            {
+                "query": "recent session TODO next step workflow",
+                "user_id": "l9-shared",
+                "scopes": ["developer", "global"],
+                "top_k": 10,
+                "threshold": 0.0,
+                "duration": "all",
+            },
+        )
+
     suggestions = []
-    
+
     for m in pattern_result.get("memories", []):
         content = m.get("content", "")
         similarity = m.get("similarity", 0)
         kind = m.get("kind", "")
-        
+
         if content and similarity > 0.02:
-            suggestions.append({
-                "suggestion": content[:300],
-                "confidence": round(similarity * 100, 1),
-                "source": kind,
-            })
-    
+            suggestions.append(
+                {
+                    "suggestion": content[:300],
+                    "confidence": round(similarity * 100, 1),
+                    "source": kind,
+                }
+            )
+
     output = {
         "context": context,
         "suggestion_count": len(suggestions),
         "suggestions": suggestions[:5],
-        "message": f"💡 Generated {len(suggestions)} suggestions"
+        "message": f"💡 Generated {len(suggestions)} suggestions",
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
 def cmd_dedupe_check(content: str):
     """
     Semantic Deduplication - check if content already exists before writing.
-    
+
     Returns similar existing content to prevent duplicates.
     Search via MCP search_memory tool.
-    
+
     Usage: python cursor_memory_client.py dedupe-check "Igor prefers surgical edits"
     """
     # Search for semantically similar content via MCP
-    result = mcp_call_tool("search_memory", {
-        "query": content,
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 5,
-        "threshold": 0.5,  # High similarity threshold
-        "duration": "all",
-    })
-    
+    result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": content,
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 5,
+            "threshold": 0.5,  # High similarity threshold
+            "duration": "all",
+        },
+    )
+
     memories = result.get("memories", [])
-    
+
     # Check for high similarity matches
     duplicates = []
     for m in memories:
         similarity = m.get("similarity", 0)
         if similarity > 0.5:  # High similarity threshold
             existing_content = m.get("content", "")
-            duplicates.append({
-                "existing": existing_content[:200],
-                "similarity": round(similarity * 100, 1),
-                "memory_id": m.get("memory_id"),
-            })
-    
+            duplicates.append(
+                {
+                    "existing": existing_content[:200],
+                    "similarity": round(similarity * 100, 1),
+                    "memory_id": m.get("memory_id"),
+                }
+            )
+
     is_duplicate = len(duplicates) > 0
-    
+
     output = {
         "content": content[:100],
         "is_duplicate": is_duplicate,
         "similar_count": len(duplicates),
         "similar_items": duplicates,
-        "recommendation": "SKIP - similar content exists" if is_duplicate else "OK - content is unique",
-        "message": f"{'⚠️ Duplicate detected' if is_duplicate else '✅ Content is unique'}"
+        "recommendation": "SKIP - similar content exists"
+        if is_duplicate
+        else "OK - content is unique",
+        "message": f"{'⚠️ Duplicate detected' if is_duplicate else '✅ Content is unique'}",
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
 def cmd_session_diff():
     """
     Session Diff - compare current session to previous session.
-    
+
     Shows what changed between sessions for continuity.
     All searches via MCP search_memory tool.
     """
     session_id = get_daily_session_id()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    
+
     # Get current session content via MCP
-    current_result = mcp_call_tool("search_memory", {
-        "query": f"session {today}",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 20,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    current_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": f"session {today}",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 20,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     # Get previous session content (yesterday-ish) via MCP
-    previous_result = mcp_call_tool("search_memory", {
-        "query": "session_anchor previous session",
-        "user_id": "l9-shared",
-        "scopes": ["developer", "global"],
-        "top_k": 10,
-        "threshold": 0.0,
-        "duration": "all",
-    })
-    
+    previous_result = mcp_call_tool(
+        "search_memory",
+        {
+            "query": "session_anchor previous session",
+            "user_id": "l9-shared",
+            "scopes": ["developer", "global"],
+            "top_k": 10,
+            "threshold": 0.0,
+            "duration": "all",
+        },
+    )
+
     current_topics = set()
     for m in current_result.get("memories", []):
         content = m.get("content", "")
@@ -1108,17 +1237,17 @@ def cmd_session_diff():
             # Extract key words
             words = content.lower().split()[:5]
             current_topics.update(words)
-    
+
     previous_topics = set()
     for m in previous_result.get("memories", []):
         content = m.get("content", "")
         if content:
             words = content.lower().split()[:5]
             previous_topics.update(words)
-    
+
     new_topics = current_topics - previous_topics
     continued_topics = current_topics & previous_topics
-    
+
     output = {
         "session_id": session_id,
         "session_date": today,
@@ -1126,9 +1255,9 @@ def cmd_session_diff():
         "previous_items": len(previous_result.get("memories", [])),
         "new_topics": list(new_topics)[:10],
         "continued_topics": list(continued_topics)[:10],
-        "message": f"📊 Session diff: {len(new_topics)} new topics, {len(continued_topics)} continued"
+        "message": f"📊 Session diff: {len(new_topics)} new topics, {len(continued_topics)} continued",
     }
-    
+
     print(json.dumps(output, indent=2))
 
 
@@ -1147,7 +1276,7 @@ def cmd_graph_health():
 def cmd_graph_context(domain: str, limit: int = 10):
     """
     Get graph context for a domain.
-    
+
     Usage: python cursor_memory_client.py graph-context memory
            python cursor_memory_client.py graph-context agents --limit 20
     """
@@ -1158,7 +1287,7 @@ def cmd_graph_context(domain: str, limit: int = 10):
 def cmd_graph_query(query: str, params: str = None):
     """
     Run a Cypher query on Neo4j.
-    
+
     Usage: python cursor_memory_client.py graph-query "MATCH (n) RETURN n LIMIT 5"
            python cursor_memory_client.py graph-query "MATCH (n:Agent) RETURN n" --params '{"name": "L"}'
     """
@@ -1169,7 +1298,7 @@ def cmd_graph_query(query: str, params: str = None):
         except json.JSONDecodeError:
             print(json.dumps({"error": f"Invalid JSON params: {params}"}))
             return
-    
+
     result = api_request("POST", "/api/v1/memory/graph/query", data)
     print(json.dumps(result, indent=2))
 
@@ -1177,21 +1306,26 @@ def cmd_graph_query(query: str, params: str = None):
 def cmd_graph_entity(entity_type: str, entity_id: str):
     """
     Get an entity from the graph.
-    
+
     Usage: python cursor_memory_client.py graph-entity Agent L-CTO
     """
-    result = api_request("GET", f"/api/v1/memory/graph/entity/{entity_type}/{entity_id}")
+    result = api_request(
+        "GET", f"/api/v1/memory/graph/entity/{entity_type}/{entity_id}"
+    )
     print(json.dumps(result, indent=2))
 
 
 def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "both"):
     """
     Get relationships for an entity.
-    
+
     Usage: python cursor_memory_client.py graph-rels Agent L-CTO
            python cursor_memory_client.py graph-rels Session abc123 --direction outgoing
     """
-    result = api_request("GET", f"/api/v1/memory/graph/relationships/{entity_type}/{entity_id}?direction={direction}")
+    result = api_request(
+        "GET",
+        f"/api/v1/memory/graph/relationships/{entity_type}/{entity_id}?direction={direction}",
+    )
     print(json.dumps(result, indent=2))
 
 
@@ -1210,7 +1344,7 @@ def cmd_cache_health():
 def cmd_cache_get(key: str):
     """
     Get value from Redis cache.
-    
+
     Usage: python cursor_memory_client.py cache-get mykey
     """
     result = api_request("GET", f"/api/v1/memory/cache/get/{key}")
@@ -1220,14 +1354,14 @@ def cmd_cache_get(key: str):
 def cmd_cache_set(key: str, value: str, ttl: int = None):
     """
     Set value in Redis cache.
-    
+
     Usage: python cursor_memory_client.py cache-set mykey "myvalue"
            python cursor_memory_client.py cache-set mykey "myvalue" --ttl 3600
     """
     data = {"key": key, "value": value}
     if ttl:
         data["ttl"] = ttl
-    
+
     result = api_request("POST", "/api/v1/memory/cache/set", data)
     print(json.dumps(result, indent=2))
 
@@ -1235,41 +1369,37 @@ def cmd_cache_set(key: str, value: str, ttl: int = None):
 def cmd_cache_session_context(session_id: str = None):
     """
     Get session context from Redis.
-    
+
     Usage: python cursor_memory_client.py cache-session
            python cursor_memory_client.py cache-session abc123
     """
     sid = session_id or get_daily_session_id()
     result = api_request("GET", f"/api/v1/memory/cache/session/context/{sid}")
-    
-    output = {
-        "session_id": sid,
-        "from_cache": True,
-        **result
-    }
+
+    output = {"session_id": sid, "from_cache": True, **result}
     print(json.dumps(output, indent=2))
 
 
 def cmd_cache_set_session_context(context_json: str):
     """
     Set session context in Redis.
-    
+
     Usage: python cursor_memory_client.py cache-set-session '{"summary": "Working on memory", "files": ["client.py"]}'
     """
     session_id = get_daily_session_id()
-    
+
     try:
         context = json.loads(context_json)
     except json.JSONDecodeError:
         print(json.dumps({"error": f"Invalid JSON: {context_json}"}))
         return
-    
+
     data = {
         "session_id": session_id,
         "context": context,
         "ttl": 86400,  # 24 hours
     }
-    
+
     result = api_request("POST", "/api/v1/memory/cache/session/context", data)
     print(json.dumps(result, indent=2))
 
@@ -1277,7 +1407,7 @@ def cmd_cache_set_session_context(context_json: str):
 def cmd_cache_list_sessions():
     """
     List recent sessions from Redis.
-    
+
     Usage: python cursor_memory_client.py cache-sessions
     """
     result = api_request("GET", "/api/v1/memory/cache/session/list")
@@ -1294,119 +1424,184 @@ def main():
         description="Cursor Memory Client (PacketEnvelope v2.0)"
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
-    
+
     # stats
     subparsers.add_parser("stats", help="Get memory stats")
-    
+
     # health
     subparsers.add_parser("health", help="Check memory health")
-    
+
     # session
     subparsers.add_parser("session", help="Show current daily session ID")
-    
+
     # mcp-test (MCP round-trip test)
-    subparsers.add_parser("mcp-test", help="MCP round-trip test (write + search via MCP tools)")
-    
+    subparsers.add_parser(
+        "mcp-test", help="MCP round-trip test (write + search via MCP tools)"
+    )
+
     # search (with confidence filtering and sorting)
-    search_parser = subparsers.add_parser("search", help="Semantic search with filtering")
+    search_parser = subparsers.add_parser(
+        "search", help="Semantic search with filtering"
+    )
     search_parser.add_argument("query", help="Search query")
     search_parser.add_argument("--limit", type=int, default=10, help="Max results")
-    search_parser.add_argument("--min-confidence", type=float, default=0.0, help="Min confidence 0.0-1.0")
-    search_parser.add_argument("--sort", default="relevance", choices=["relevance", "importance", "recency"], help="Sort order")
-    
+    search_parser.add_argument(
+        "--min-confidence", type=float, default=0.0, help="Min confidence 0.0-1.0"
+    )
+    search_parser.add_argument(
+        "--sort",
+        default="relevance",
+        choices=["relevance", "importance", "recency"],
+        help="Sort order",
+    )
+
     # write
     write_parser = subparsers.add_parser("write", help="Write to memory")
     write_parser.add_argument("content", help="Content to write")
     write_parser.add_argument(
-        "--kind", default="note", 
-        help="Packet type (note, preference, lesson, insight, error)"
+        "--kind",
+        default="note",
+        help="Packet type (note, preference, lesson, insight, error)",
     )
     write_parser.add_argument(
-        "--thread", default=None, 
-        help="Override thread UUID (default: daily session ID)"
+        "--thread",
+        default=None,
+        help="Override thread UUID (default: daily session ID)",
     )
-    
+
     # session-close
-    subparsers.add_parser("session-close", help="Close session and create embedding anchor")
-    
+    subparsers.add_parser(
+        "session-close", help="Close session and create embedding anchor"
+    )
+
     # session-resume
-    resume_parser = subparsers.add_parser("session-resume", help="Resume session from previous context")
-    resume_parser.add_argument("--task", default=None, help="Task description for context retrieval")
-    
+    resume_parser = subparsers.add_parser(
+        "session-resume", help="Resume session from previous context"
+    )
+    resume_parser.add_argument(
+        "--task", default=None, help="Task description for context retrieval"
+    )
+
     # resume-for (alias for session-resume with task)
-    resume_for_parser = subparsers.add_parser("resume-for", help="Resume for specific task")
-    resume_for_parser.add_argument("task", help="Task description to find relevant session")
-    
+    resume_for_parser = subparsers.add_parser(
+        "resume-for", help="Resume for specific task"
+    )
+    resume_for_parser.add_argument(
+        "task", help="Task description to find relevant session"
+    )
+
     # warn (proactive anti-pattern warning)
-    warn_parser = subparsers.add_parser("warn", help="Surface past mistakes relevant to task")
+    warn_parser = subparsers.add_parser(
+        "warn", help="Surface past mistakes relevant to task"
+    )
     warn_parser.add_argument("task", help="Task description to find relevant warnings")
-    
+
     # inject (layered context injection)
-    inject_parser = subparsers.add_parser("inject", help="Inject context across 5 layers")
-    inject_parser.add_argument("task", nargs="?", default=None, help="Task description for context")
-    inject_parser.add_argument("--layers", default="all", help="Layers to include (all, preferences, lessons, domain, temporal, warnings)")
-    
+    inject_parser = subparsers.add_parser(
+        "inject", help="Inject context across 5 layers"
+    )
+    inject_parser.add_argument(
+        "task", nargs="?", default=None, help="Task description for context"
+    )
+    inject_parser.add_argument(
+        "--layers",
+        default="all",
+        help="Layers to include (all, preferences, lessons, domain, temporal, warnings)",
+    )
+
     # temporal (time-windowed queries)
-    temporal_parser = subparsers.add_parser("temporal", help="Time-scoped memory queries")
+    temporal_parser = subparsers.add_parser(
+        "temporal", help="Time-scoped memory queries"
+    )
     temporal_parser.add_argument("query", help="Search query")
-    temporal_parser.add_argument("--since", default="24h", help="Time window (24h, 7d, 30d, or ISO date)")
+    temporal_parser.add_argument(
+        "--since", default="24h", help="Time window (24h, 7d, 30d, or ISO date)"
+    )
     temporal_parser.add_argument("--until", default=None, help="End of time window")
-    
+
     # fix-error (memory-aware error recovery)
-    fix_error_parser = subparsers.add_parser("fix-error", help="Find past fixes for error")
+    fix_error_parser = subparsers.add_parser(
+        "fix-error", help="Find past fixes for error"
+    )
     fix_error_parser.add_argument("error", help="Error message to find fixes for")
-    
+
     # suggest (proactive suggestions)
-    suggest_parser = subparsers.add_parser("suggest", help="Get pattern-based suggestions")
-    suggest_parser.add_argument("context", nargs="?", default=None, help="Current context for suggestions")
-    
+    suggest_parser = subparsers.add_parser(
+        "suggest", help="Get pattern-based suggestions"
+    )
+    suggest_parser.add_argument(
+        "context", nargs="?", default=None, help="Current context for suggestions"
+    )
+
     # dedupe-check (semantic deduplication)
-    dedupe_parser = subparsers.add_parser("dedupe-check", help="Check if content already exists")
+    dedupe_parser = subparsers.add_parser(
+        "dedupe-check", help="Check if content already exists"
+    )
     dedupe_parser.add_argument("content", help="Content to check for duplicates")
-    
+
     # session-diff (compare sessions)
     subparsers.add_parser("session-diff", help="Compare current session to previous")
-    
+
     # --- Graph Operations (Neo4j) ---
     subparsers.add_parser("graph-health", help="Check Neo4j health")
-    
-    graph_context_parser = subparsers.add_parser("graph-context", help="Get graph context for domain")
-    graph_context_parser.add_argument("domain", help="Domain name (memory, agents, tools, etc.)")
-    graph_context_parser.add_argument("--limit", type=int, default=10, help="Max results")
-    
+
+    graph_context_parser = subparsers.add_parser(
+        "graph-context", help="Get graph context for domain"
+    )
+    graph_context_parser.add_argument(
+        "domain", help="Domain name (memory, agents, tools, etc.)"
+    )
+    graph_context_parser.add_argument(
+        "--limit", type=int, default=10, help="Max results"
+    )
+
     graph_query_parser = subparsers.add_parser("graph-query", help="Run Cypher query")
     graph_query_parser.add_argument("query", help="Cypher query string")
     graph_query_parser.add_argument("--params", default=None, help="JSON parameters")
-    
-    graph_entity_parser = subparsers.add_parser("graph-entity", help="Get entity from graph")
-    graph_entity_parser.add_argument("entity_type", help="Entity type (Agent, Session, etc.)")
+
+    graph_entity_parser = subparsers.add_parser(
+        "graph-entity", help="Get entity from graph"
+    )
+    graph_entity_parser.add_argument(
+        "entity_type", help="Entity type (Agent, Session, etc.)"
+    )
     graph_entity_parser.add_argument("entity_id", help="Entity ID")
-    
-    graph_rels_parser = subparsers.add_parser("graph-rels", help="Get entity relationships")
+
+    graph_rels_parser = subparsers.add_parser(
+        "graph-rels", help="Get entity relationships"
+    )
     graph_rels_parser.add_argument("entity_type", help="Entity type")
     graph_rels_parser.add_argument("entity_id", help="Entity ID")
-    graph_rels_parser.add_argument("--direction", default="both", choices=["outgoing", "incoming", "both"])
-    
+    graph_rels_parser.add_argument(
+        "--direction", default="both", choices=["outgoing", "incoming", "both"]
+    )
+
     # --- Cache Operations (Redis) ---
     subparsers.add_parser("cache-health", help="Check Redis health")
-    
+
     cache_get_parser = subparsers.add_parser("cache-get", help="Get value from cache")
     cache_get_parser.add_argument("key", help="Cache key")
-    
+
     cache_set_parser = subparsers.add_parser("cache-set", help="Set value in cache")
     cache_set_parser.add_argument("key", help="Cache key")
     cache_set_parser.add_argument("value", help="Value to set")
-    cache_set_parser.add_argument("--ttl", type=int, default=None, help="TTL in seconds")
-    
-    subparsers.add_parser("cache-session", help="Get current session context from cache")
-    
-    cache_set_session_parser = subparsers.add_parser("cache-set-session", help="Set session context in cache")
+    cache_set_parser.add_argument(
+        "--ttl", type=int, default=None, help="TTL in seconds"
+    )
+
+    subparsers.add_parser(
+        "cache-session", help="Get current session context from cache"
+    )
+
+    cache_set_session_parser = subparsers.add_parser(
+        "cache-set-session", help="Set session context in cache"
+    )
     cache_set_session_parser.add_argument("context", help="JSON context to store")
-    
+
     subparsers.add_parser("cache-sessions", help="List recent sessions from cache")
-    
+
     args = parser.parse_args()
-    
+
     if args.command == "stats":
         cmd_stats()
     elif args.command == "health":

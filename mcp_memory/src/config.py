@@ -99,8 +99,10 @@ class Settings(BaseSettings):
     # ==========================================================================
     # Master switch for governance hardening
     # - False: Legacy mode (unauthenticated REST routes allowed)
-    # - True: All routes require authentication
-    GOVERNANCE_HARDENING_ENABLED: bool = False
+    # - True: All routes require authentication (SECURE DEFAULT)
+    # NOTE: Defaults to True (fail-closed). Set GOVERNANCE_HARDENING_ENABLED=false
+    #       in .env to disable during development/testing.
+    GOVERNANCE_HARDENING_ENABLED: bool = True
 
     # Enforcement mode (only applies when GOVERNANCE_HARDENING_ENABLED=True)
     # - "log_only": Log violations but allow requests through (for monitoring)

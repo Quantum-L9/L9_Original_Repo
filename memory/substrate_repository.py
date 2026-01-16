@@ -2089,6 +2089,177 @@ class SubstrateRepository:
         ]
 
     # =========================================================================
+    # Time-Travel Queries (Migration 0022)
+    # =========================================================================
+
+    async def get_facts_as_of(
+        self,
+        point_in_time: datetime,
+        tier: Optional[str] = None,
+        limit: int = 100,
+    ) -> list:
+        """
+        Time-travel query: Get facts that were valid at a specific point in time.
+
+        This enables "what did we know at time T?" queries for debugging,
+        audit trails, and temporal reasoning.
+
+        Args:
+            point_in_time: The moment to query (e.g., datetime(2025, 6, 15))
+            tier: Optional filter by memory tier
+            limit: Maximum results
+
+        Returns:
+            List of SemanticFactRow objects that were valid at point_in_time
+        """
+        logger.debug(f"Time-travel query: facts as of {point_in_time}, tier={tier}")
+
+        async with self.acquire() as conn:
+            if tier:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM semantic_facts
+                    WHERE (valid_from IS NULL OR valid_from <= $1)
+                    AND (valid_to IS NULL OR valid_to > $1)
+                    AND tier = $2
+                    ORDER BY importance DESC, created_at DESC
+                    LIMIT $3
+                    """,
+                    point_in_time,
+                    tier,
+                    limit,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM semantic_facts
+                    WHERE (valid_from IS NULL OR valid_from <= $1)
+                    AND (valid_to IS NULL OR valid_to > $1)
+                    ORDER BY importance DESC, created_at DESC
+                    LIMIT $2
+                    """,
+                    point_in_time,
+                    limit,
+                )
+
+        return [self._row_to_semantic_fact(r) for r in rows]
+
+    async def get_fact_history(
+        self,
+        fact_text: str,
+        tenant_id: Optional[UUID] = None,
+    ) -> list:
+        """
+        Get the version history of a fact (all versions, including superseded).
+
+        Useful for debugging how knowledge evolved over time.
+
+        Args:
+            fact_text: The fact text to search for (fuzzy match)
+            tenant_id: Optional tenant filter
+
+        Returns:
+            List of SemanticFactRow versions ordered by valid_from DESC
+        """
+        logger.debug(f"Fact history query: {fact_text[:50]}...")
+
+        async with self.acquire() as conn:
+            if tenant_id:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM semantic_facts
+                    WHERE fact_text ILIKE $1
+                    AND tenant_id = $2
+                    ORDER BY COALESCE(valid_from, created_at) DESC
+                    """,
+                    f"%{fact_text}%",
+                    tenant_id,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT * FROM semantic_facts
+                    WHERE fact_text ILIKE $1
+                    ORDER BY COALESCE(valid_from, created_at) DESC
+                    """,
+                    f"%{fact_text}%",
+                )
+
+        return [self._row_to_semantic_fact(r) for r in rows]
+
+    async def supersede_fact(
+        self,
+        old_fact_id: UUID,
+        new_fact_text: str,
+        reason: Optional[str] = None,
+    ) -> UUID:
+        """
+        Mark a fact as superseded and create a new version.
+
+        This maintains the version chain for time-travel queries.
+
+        Args:
+            old_fact_id: The fact being superseded
+            new_fact_text: The replacement fact text
+            reason: Optional reason for supersession
+
+        Returns:
+            UUID of the new fact
+        """
+        now = datetime.utcnow()
+
+        async with self.acquire() as conn:
+            async with conn.transaction():
+                # Get the old fact
+                old_row = await conn.fetchrow(
+                    "SELECT * FROM semantic_facts WHERE fact_id = $1",
+                    old_fact_id,
+                )
+
+                if not old_row:
+                    raise ValueError(f"Fact {old_fact_id} not found")
+
+                # Create new fact (inheriting properties from old)
+                new_fact_id = uuid4()
+                await conn.execute(
+                    """
+                    INSERT INTO semantic_facts (
+                        fact_id, tenant_id, org_id, user_id, agent_id,
+                        fact_text, triplet, importance, tags, tier,
+                        source, confidence, valid_from, embedding
+                    )
+                    SELECT
+                        $1, tenant_id, org_id, user_id, agent_id,
+                        $2, triplet, importance, tags, tier,
+                        'supersession', confidence, $3, embedding
+                    FROM semantic_facts
+                    WHERE fact_id = $4
+                    """,
+                    new_fact_id,
+                    new_fact_text,
+                    now,
+                    old_fact_id,
+                )
+
+                # Mark old fact as superseded
+                await conn.execute(
+                    """
+                    UPDATE semantic_facts
+                    SET valid_to = $1, superseded_by = $2
+                    WHERE fact_id = $3
+                    """,
+                    now,
+                    new_fact_id,
+                    old_fact_id,
+                )
+
+                logger.info(
+                    f"Fact {old_fact_id} superseded by {new_fact_id}",
+                    reason=reason,
+                )
+                return new_fact_id
+
+    # =========================================================================
     # Health Check
     # =========================================================================
 

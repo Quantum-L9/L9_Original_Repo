@@ -9,8 +9,9 @@ Submodules:
 - retrievers: Memory substrate retrievers
 - kernels: Kernel integrity and loading
 - boundary: PRIVATE_BOUNDARY enforcement
+- gmp: GMP v2.0 meta-learning system (L2→L5 autonomy)
 
-Version: 2.1.0
+Version: 2.2.0
 """
 
 # Note: Submodules are imported on-demand to avoid circular imports
@@ -19,4 +20,7 @@ Version: 2.1.0
 #   from core.kernels import check_kernel_integrity
 #   from core.boundary import enforce_boundary
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
+
+# GMP v2.0 meta-learning system (lazy import to avoid circular deps)
+# Usage: from core.gmp import GMPMetaLearningEngine, AutonomyController

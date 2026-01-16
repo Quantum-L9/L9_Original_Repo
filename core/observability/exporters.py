@@ -8,8 +8,7 @@ import structlog
 from typing import List, Any
 from abc import ABC, abstractmethod
 
-logger = structlog.get_logger(__name__)
-
+from core.schemas import PacketEnvelopeIn
 from .models import Span
 
 logger = structlog.get_logger(__name__)
@@ -91,18 +90,23 @@ class SubstrateExporter(AsyncSpanExporter):
             return
 
         try:
-            # Store telemetry in substrate with appropriate key
+            # Store telemetry in substrate via write_packet (canonical API)
             for span in self._batch:
-                key = f"traces/{span.trace_id}/{span.span_id}"
-                await self.substrate.write(
-                    key=key,
-                    value=span.model_dump(),
+                packet_in = PacketEnvelopeIn(
+                    packet_type="telemetry_span",
+                    payload={
+                        "trace_id": span.trace_id,
+                        "span_id": span.span_id,
+                        "span_data": span.model_dump(),
+                    },
                     metadata={
                         "span_name": span.name,
                         "duration_ms": span.duration_ms,
                         "status": span.status.value,
                     },
+                    tags=["telemetry", "span", span.name],
                 )
+                await self.substrate.write_packet(packet_in)
             logger.debug(f"Flushed {len(self._batch)} spans to substrate")
             self._batch.clear()
         except Exception as exc:

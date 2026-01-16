@@ -1,11 +1,12 @@
 """
 L9 Memory Substrate - Retrieval Pipeline
-Version: 1.2.0
+Version: 1.3.0
 
 Hybrid and structured search features:
 - Semantic search (vector similarity)
 - Hybrid search (semantic + structured filters)
 - Reciprocal rank fusion (multi-source ranking)
+- Cross-encoder neural re-ranking (Stage 3 complete)
 - Temporal decay (recency weighting)
 - Thread reconstruction
 - Lineage traversal
@@ -15,6 +16,7 @@ Hybrid and structured search features:
 All operations are async-safe with proper logging.
 
 Changelog:
+- v1.3.0: Added cross-encoder re-ranking for improved retrieval quality
 - v1.2.0: Added reciprocal_rank_fusion, apply_temporal_decay
 - v1.1.0: Initial hybrid search
 """
@@ -33,6 +35,10 @@ from memory.substrate_models import KnowledgeFactRow, PacketStoreRow
 from memory.governance_gate import (
     build_scope_project_filter,
     require_governance_context,
+)
+from memory.cross_encoder_reranker import (
+    get_cross_encoder_reranker,
+    is_cross_encoder_available,
 )
 
 logger = structlog.get_logger(__name__)
@@ -320,6 +326,7 @@ class RetrievalPipeline:
         min_score: float = 0.5,
         rrf_k: int = 60,
         temporal_half_life_days: float = 30.0,
+        use_cross_encoder: bool = True,
     ) -> dict[str, Any]:
         """
         Perform hybrid search combining semantic and structured filters.
@@ -327,6 +334,9 @@ class RetrievalPipeline:
         Uses Reciprocal Rank Fusion (RRF) to combine rankings from semantic
         search and structured filtering, with optional temporal decay to
         prefer more recent results.
+
+        Stage 3 Complete: Now includes optional cross-encoder neural re-ranking
+        for improved retrieval quality.
 
         Args:
             query: Natural language search query
@@ -336,6 +346,7 @@ class RetrievalPipeline:
             min_score: Minimum similarity score threshold
             rrf_k: RRF constant (higher = less weight to top ranks, default 60)
             temporal_half_life_days: Days until score halves due to age (default 30)
+            use_cross_encoder: Whether to apply cross-encoder re-ranking (default True)
 
         Returns:
             Dict with semantic_hits, filtered_packets, and combined results
@@ -502,13 +513,47 @@ class RetrievalPipeline:
         combined.sort(key=lambda x: x["score"], reverse=True)
         combined = combined[:top_k]
 
+        # Step 5: Optional cross-encoder re-ranking (Stage 3 completion)
+        cross_encoder_used = False
+        cross_encoder_time_ms = 0.0
+
+        if use_cross_encoder and combined and is_cross_encoder_available():
+            try:
+                reranker = get_cross_encoder_reranker()
+                rerank_result = reranker.rerank(
+                    query=query,
+                    candidates=combined,
+                    top_k=top_k,
+                    text_key="payload",
+                    fallback_text_keys=["content", "fact_text", "observation"],
+                )
+
+                if rerank_result.reranker_used:
+                    combined = rerank_result.results
+                    cross_encoder_used = True
+                    cross_encoder_time_ms = rerank_result.reranking_time_ms
+                    logger.debug(
+                        "Cross-encoder re-ranking applied",
+                        candidates=rerank_result.candidates_reranked,
+                        time_ms=cross_encoder_time_ms,
+                    )
+
+            except Exception as e:
+                logger.warning(
+                    f"Cross-encoder re-ranking failed, using RRF results: {e}"
+                )
+
         return {
             "query": query,
             "filters": filters,
             "semantic_hits": len(semantic_hits),
             "keyword_hits": len(keyword_results),
             "filtered_count": len(filtered_packets),
-            "fusion_type": "3-way_rrf",
+            "fusion_type": "4-way_rrf_cross_encoder"
+            if cross_encoder_used
+            else "3-way_rrf",
+            "cross_encoder_used": cross_encoder_used,
+            "cross_encoder_time_ms": cross_encoder_time_ms,
             "results": combined,
         }
 

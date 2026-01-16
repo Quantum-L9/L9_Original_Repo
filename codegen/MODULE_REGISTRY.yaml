@@ -61,6 +61,15 @@ modules:
     scope: "Perplexity API client with best practices codified"
     status: complete
   
+  - module_id: symbolic_codegen
+    tier: 2
+    scope: "SymPy-based symbolic code synthesis and verification pipeline"
+    kernel: symbolic.codegen.kernel.v2
+    status: complete
+    paths:
+      - codegen/symbolic/
+      - core/symbolic_computation/
+  
   # ─────────────────────────────────────────────────────────────────────────
   # TIER 3: Routes (depends on Tier 0-2)
   # ─────────────────────────────────────────────────────────────────────────

@@ -38,32 +38,42 @@ L9_GRAPH_WM_SYNC = os.getenv("L9_GRAPH_WM_SYNC", "true").lower() == "true"
 class GraphToWorldModelSync:
     """
     Service to sync agent state from Neo4j to World Model.
-    
+
     Sync Strategy:
     1. Load agent state from Neo4j via AgentGraphLoader
     2. Transform to World Model entity format
     3. Upsert into World Model
-    
+
     The sync runs:
     - On startup (full sync)
     - Periodically (configurable interval, default 5 min)
     - On demand via sync_agent()
     """
-    
+
     def __init__(
         self,
-        neo4j_driver: Any = None,
+        neo4j_driver: Any,  # GMP-90: REQUIRED, not optional
         sync_interval_seconds: int = 300,  # 5 minutes
         enabled: bool | None = None,
     ):
         """
         Initialize the sync service.
-        
+
         Args:
-            neo4j_driver: Neo4j AsyncDriver instance for graph queries
+            neo4j_driver: Neo4j AsyncDriver instance for graph queries (REQUIRED)
             sync_interval_seconds: How often to run periodic sync
             enabled: Override for feature flag (None = use env var)
+
+        Raises:
+            ValueError: If neo4j_driver is None (GMP-90: fail-fast)
         """
+        # GMP-90: Neo4j is MANDATORY for graph features - fail loudly
+        if neo4j_driver is None:
+            raise ValueError(
+                "GraphToWorldModelSync requires neo4j_driver. "
+                "Neo4j is mandatory for graph features. Check NEO4J_URI configuration."
+            )
+
         self.neo4j_driver = neo4j_driver
         self.sync_interval_seconds = sync_interval_seconds
         self.enabled = enabled if enabled is not None else L9_GRAPH_WM_SYNC
@@ -71,23 +81,23 @@ class GraphToWorldModelSync:
         self._task: asyncio.Task | None = None
         self._last_sync: datetime | None = None
         self._sync_count = 0
-        
+
     async def start(self) -> None:
         """Start the periodic sync task."""
         if not self.enabled:
             logger.info("GraphToWorldModelSync disabled (L9_GRAPH_WM_SYNC=false)")
             return
-            
+
         if self._running:
             logger.warning("GraphToWorldModelSync already running")
             return
-            
+
         self._running = True
         self._task = asyncio.create_task(self._sync_loop())
         logger.info(
             f"GraphToWorldModelSync started (interval={self.sync_interval_seconds}s)"
         )
-        
+
     async def stop(self) -> None:
         """Stop the periodic sync task."""
         self._running = False
@@ -99,12 +109,12 @@ class GraphToWorldModelSync:
                 pass
             self._task = None
         logger.info("GraphToWorldModelSync stopped")
-        
+
     async def _sync_loop(self) -> None:
         """Internal sync loop."""
         # Initial sync on startup
         await self.sync_agent("L")
-        
+
         while self._running:
             try:
                 await asyncio.sleep(self.sync_interval_seconds)
@@ -114,69 +124,68 @@ class GraphToWorldModelSync:
             except Exception as e:
                 logger.error(f"Sync loop error: {e}", exc_info=True)
                 await asyncio.sleep(60)  # Back off on error
-                
+
     async def sync_agent(self, agent_id: str) -> dict[str, Any]:
         """
         Sync a single agent's state from Neo4j to World Model.
-        
+
         Args:
             agent_id: Agent to sync (e.g., "L")
-            
+
         Returns:
             dict with sync status and details
         """
         if not self.enabled:
             return {"status": "DISABLED", "agent_id": agent_id}
-            
+
         try:
             # 1. Load agent state from Neo4j
             graph_state = await self._load_from_graph(agent_id)
-            
+
             if not graph_state:
                 logger.warning(f"No graph state found for agent {agent_id}")
                 return {"status": "NOT_FOUND", "agent_id": agent_id}
-            
+
             # 2. Transform to World Model entity
             wm_entity = self._transform_to_wm_entity(agent_id, graph_state)
-            
+
             # 3. Upsert to World Model
             await self._upsert_to_world_model(wm_entity)
-            
+
             self._last_sync = datetime.utcnow()
             self._sync_count += 1
-            
+
             logger.info(
                 f"Synced agent {agent_id} to World Model",
                 extra={
                     "responsibilities": len(graph_state.get("responsibilities", [])),
                     "directives": len(graph_state.get("directives", [])),
                     "tools": len(graph_state.get("tools", [])),
-                }
+                },
             )
-            
+
             return {
                 "status": "SUCCESS",
                 "agent_id": agent_id,
                 "synced_at": self._last_sync.isoformat(),
                 "total_syncs": self._sync_count,
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to sync agent {agent_id}: {e}", exc_info=True)
             return {"status": "ERROR", "agent_id": agent_id, "error": str(e)}
-            
+
     async def _load_from_graph(self, agent_id: str) -> dict[str, Any] | None:
         """Load agent state from Neo4j."""
         try:
             from core.agents.graph_state import AgentGraphLoader
-            
-            if self.neo4j_driver is None:
-                logger.warning("Neo4j driver not configured for GraphToWorldModelSync")
-                return None
-            
+
+            # GMP-90: neo4j_driver is guaranteed non-None by __init__ validation
             loader = AgentGraphLoader(self.neo4j_driver)
-            state = await loader.load(agent_id)  # Correct method name is 'load', not 'load_agent_state'
-            
+            state = await loader.load(
+                agent_id
+            )  # Correct method name is 'load', not 'load_agent_state'
+
             # Convert AgentGraphState dataclass to dict for downstream processing
             return {
                 "agent_id": state.agent_id,
@@ -186,7 +195,11 @@ class GraphToWorldModelSync:
                 "authority_level": state.authority_level,
                 "status": state.status,
                 "responsibilities": [
-                    {"title": r.title, "description": r.description, "priority": r.priority}
+                    {
+                        "title": r.title,
+                        "description": r.description,
+                        "priority": r.priority,
+                    }
                     for r in state.responsibilities
                 ],
                 "directives": [
@@ -194,12 +207,16 @@ class GraphToWorldModelSync:
                     for d in state.directives
                 ],
                 "tools": [
-                    {"name": t.name, "risk_level": t.risk_level, "requires_approval": t.requires_approval}
+                    {
+                        "name": t.name,
+                        "risk_level": t.risk_level,
+                        "requires_approval": t.requires_approval,
+                    }
                     for t in state.tools
                 ],
                 "supervisor_id": state.supervisor_id,
             }
-            
+
         except ImportError:
             logger.warning("AgentGraphLoader not available")
             return None
@@ -210,7 +227,7 @@ class GraphToWorldModelSync:
         except Exception as e:
             logger.error(f"Failed to load from graph: {e}")
             return None
-            
+
     def _transform_to_wm_entity(
         self,
         agent_id: str,
@@ -218,7 +235,7 @@ class GraphToWorldModelSync:
     ) -> dict[str, Any]:
         """
         Transform Neo4j graph state to World Model entity format.
-        
+
         World Model entity structure:
         {
             "entity_type": "agent",
@@ -240,7 +257,7 @@ class GraphToWorldModelSync:
         responsibilities = graph_state.get("responsibilities", [])
         directives = graph_state.get("directives", [])
         tools = graph_state.get("tools", [])
-        
+
         return {
             "entity_type": "agent",
             "entity_id": f"agent:{agent_id}",
@@ -256,18 +273,19 @@ class GraphToWorldModelSync:
                 "tool_count": len(tools),
                 "responsibilities": [r.get("title", "") for r in responsibilities],
                 "high_risk_tools": [
-                    t.get("name", "") for t in tools
+                    t.get("name", "")
+                    for t in tools
                     if t.get("risk_level") == "high" or t.get("requires_approval")
                 ],
                 "last_graph_sync": datetime.utcnow().isoformat(),
             },
         }
-        
+
     async def _upsert_to_world_model(self, entity: dict[str, Any]) -> None:
         """Upsert entity to World Model."""
         try:
             from world_model.service import WorldModelService
-            
+
             service = WorldModelService()
             # Include name in attributes since WorldModelService doesn't have a name param
             attributes = entity.get("attributes", {})
@@ -277,12 +295,12 @@ class GraphToWorldModelSync:
                 entity_id=entity["entity_id"],
                 attributes=attributes,
             )
-            
+
         except ImportError:
             logger.warning("WorldModelService not available - skipping WM upsert")
         except Exception as e:
             logger.error(f"Failed to upsert to World Model: {e}")
-            
+
     def get_status(self) -> dict[str, Any]:
         """Get current sync service status."""
         return {
@@ -298,16 +316,30 @@ class GraphToWorldModelSync:
 _sync_service: GraphToWorldModelSync | None = None
 
 
-def get_graph_wm_sync(neo4j_driver: Any = None) -> GraphToWorldModelSync:
-    """Get the global GraphToWorldModelSync instance."""
+def get_graph_wm_sync(neo4j_driver: Any) -> GraphToWorldModelSync:
+    """Get the global GraphToWorldModelSync instance.
+
+    Args:
+        neo4j_driver: Neo4j AsyncDriver instance (REQUIRED - GMP-90)
+
+    Raises:
+        ValueError: If neo4j_driver is None
+    """
     global _sync_service
     if _sync_service is None:
         _sync_service = GraphToWorldModelSync(neo4j_driver=neo4j_driver)
     return _sync_service
 
 
-async def start_graph_wm_sync(neo4j_driver: Any = None) -> None:
-    """Start the global sync service."""
+async def start_graph_wm_sync(neo4j_driver: Any) -> None:
+    """Start the global sync service.
+
+    Args:
+        neo4j_driver: Neo4j AsyncDriver instance (REQUIRED - GMP-90)
+
+    Raises:
+        ValueError: If neo4j_driver is None
+    """
     service = get_graph_wm_sync(neo4j_driver=neo4j_driver)
     await service.start()
 
@@ -317,4 +349,3 @@ async def stop_graph_wm_sync() -> None:
     global _sync_service
     if _sync_service:
         await _sync_service.stop()
-

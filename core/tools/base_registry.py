@@ -739,7 +739,7 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
 async def tool_router_find(
     query: str,
     top_k: int = 5,
-    exclude_categories: list[str] | None = None,
+    exclude_categories: Optional[List[str]] = None,
 ) -> dict:
     """
     Find relevant tools for a task using semantic search.
@@ -822,4 +822,508 @@ async def tool_router_find(
             "error": str(e),
             "tools": [],
             "count": 0,
+        }
+
+
+# =============================================================================
+# Saga Tools (GMP-88: Cross-DB Chain Operations)
+# =============================================================================
+
+
+async def saga_fetch_and_enrich(
+    query: str,
+    entity_types: Optional[List[str]] = None,
+    limit: int = 10,
+) -> dict:
+    """
+    Cross-DB saga: vector search → entity extraction → graph enrichment.
+
+    GMP-88: Saga Tool Implementation
+
+    Steps:
+    1. Postgres: Vector similarity search on query (memory_search)
+    2. Extract: Identify entity IDs from results
+    3. Neo4j: Enrich entities with graph relationships
+    4. Combine: Merge structured data + graph context
+
+    Args:
+        query: Search query for vector similarity
+        entity_types: Optional filter for entity types to extract
+        limit: Maximum entities to process
+
+    Returns:
+        Dict with combined results from both databases
+    """
+    import structlog
+
+    logger = structlog.get_logger(__name__)
+
+    if not query or not query.strip():
+        return {
+            "success": False,
+            "error": "query is required",
+            "results": [],
+        }
+
+    results = {
+        "success": True,
+        "query": query,
+        "postgres_results": [],
+        "neo4j_enrichment": [],
+        "combined": [],
+    }
+
+    try:
+        # Step 1: Vector search in Postgres
+        try:
+            from memory.substrate_service import get_service
+
+            substrate = await get_service()
+            if substrate:
+                search_results = await substrate.search_semantic(
+                    query=query,
+                    limit=limit,
+                    entity_types=entity_types,
+                )
+                results["postgres_results"] = search_results or []
+                logger.info(
+                    f"saga_fetch_and_enrich: Postgres found {len(results['postgres_results'])} results"
+                )
+        except Exception as e:
+            logger.warning(f"Postgres search failed in saga: {e}")
+            results["postgres_results"] = []
+
+        # Step 2: Extract entity IDs
+        entity_ids = []
+        for item in results["postgres_results"]:
+            if isinstance(item, dict):
+                eid = item.get("entity_id") or item.get("id") or item.get("source_id")
+                if eid:
+                    entity_ids.append(str(eid))
+
+        entity_ids = list(set(entity_ids))[:limit]  # Dedupe and limit
+
+        # Step 3: Neo4j enrichment
+        if entity_ids:
+            try:
+                from memory.substrate_dag import SubstrateDAG
+
+                dag = SubstrateDAG()
+                enrichment = []
+                for eid in entity_ids[:5]:  # Limit graph queries
+                    try:
+                        related = await dag.get_related_entities(
+                            entity_id=eid,
+                            relationship_types=None,
+                            depth=1,
+                        )
+                        if related:
+                            enrichment.append(
+                                {
+                                    "entity_id": eid,
+                                    "relationships": related,
+                                }
+                            )
+                    except Exception as inner_e:
+                        logger.debug(f"Could not enrich entity {eid}: {inner_e}")
+
+                results["neo4j_enrichment"] = enrichment
+                logger.info(
+                    f"saga_fetch_and_enrich: Neo4j enriched {len(enrichment)} entities"
+                )
+            except Exception as e:
+                logger.warning(f"Neo4j enrichment failed in saga: {e}")
+                results["neo4j_enrichment"] = []
+
+        # Step 4: Combine results
+        enrichment_map = {
+            e["entity_id"]: e["relationships"] for e in results["neo4j_enrichment"]
+        }
+        combined = []
+        for item in results["postgres_results"]:
+            eid = item.get("entity_id") or item.get("id") or item.get("source_id")
+            combined_item = {
+                "data": item,
+                "relationships": enrichment_map.get(str(eid), []) if eid else [],
+            }
+            combined.append(combined_item)
+
+        results["combined"] = combined
+        results["entity_count"] = len(entity_ids)
+
+        return results
+
+    except Exception as e:
+        logger.error(f"saga_fetch_and_enrich failed: {e}", exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+            "results": [],
+        }
+
+
+async def saga_enrich_entities(
+    entity_ids: List[str],
+    relationship_types: Optional[List[str]] = None,
+    depth: int = 1,
+) -> dict:
+    """
+    Cross-DB saga: lookup entities → enrich with graph relationships.
+
+    GMP-88: Saga Tool Implementation
+
+    Steps:
+    1. Take entity IDs (from previous step or user input)
+    2. Neo4j: Query relationships up to specified depth
+    3. Return enriched entity graph
+
+    Args:
+        entity_ids: List of entity IDs to enrich
+        relationship_types: Optional filter for relationship types
+        depth: Traversal depth (default 1, max 3)
+
+    Returns:
+        Dict with enriched entity data including relationships
+    """
+    import structlog
+
+    logger = structlog.get_logger(__name__)
+
+    if not entity_ids:
+        return {
+            "success": False,
+            "error": "entity_ids is required",
+            "entities": [],
+        }
+
+    # Cap depth at 3 to prevent expensive queries
+    depth = min(max(1, depth), 3)
+
+    results = {
+        "success": True,
+        "entity_ids": entity_ids,
+        "depth": depth,
+        "entities": [],
+    }
+
+    try:
+        from memory.substrate_dag import SubstrateDAG
+
+        dag = SubstrateDAG()
+        entities = []
+
+        for eid in entity_ids[:20]:  # Limit to 20 entities
+            try:
+                # Get entity relationships
+                related = await dag.get_related_entities(
+                    entity_id=str(eid),
+                    relationship_types=relationship_types,
+                    depth=depth,
+                )
+
+                entities.append(
+                    {
+                        "entity_id": str(eid),
+                        "relationships": related or [],
+                        "relationship_count": len(related) if related else 0,
+                    }
+                )
+            except Exception as e:
+                logger.debug(f"Could not enrich entity {eid}: {e}")
+                entities.append(
+                    {
+                        "entity_id": str(eid),
+                        "relationships": [],
+                        "error": str(e),
+                    }
+                )
+
+        results["entities"] = entities
+        results["enriched_count"] = sum(1 for e in entities if e.get("relationships"))
+
+        logger.info(
+            f"saga_enrich_entities: enriched {results['enriched_count']}/{len(entity_ids)} entities"
+        )
+
+        return results
+
+    except ImportError as e:
+        logger.warning(f"SubstrateDAG not available: {e}")
+        return {
+            "success": False,
+            "error": "Graph database service not available",
+            "entities": [],
+        }
+    except Exception as e:
+        logger.error(f"saga_enrich_entities failed: {e}", exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+            "entities": [],
+        }
+
+
+async def saga_timeline_correlation(
+    start_entity_id: str,
+    time_range_hours: int = 24,
+    event_types: Optional[List[str]] = None,
+) -> dict:
+    """
+    Cross-DB saga: fetch events → trace causal chains → correlate timeline.
+
+    GMP-88: Saga Tool Implementation
+
+    Steps:
+    1. Postgres: Fetch events for entity in time range
+    2. Neo4j: Trace causal chains between events
+    3. Return correlated timeline with causality links
+
+    Args:
+        start_entity_id: Entity to trace timeline for
+        time_range_hours: Hours to look back (default 24)
+        event_types: Optional filter for event types
+
+    Returns:
+        Dict with timeline events and causal relationships
+    """
+    import structlog
+    from datetime import datetime, timedelta
+
+    logger = structlog.get_logger(__name__)
+
+    if not start_entity_id:
+        return {
+            "success": False,
+            "error": "start_entity_id is required",
+            "timeline": [],
+        }
+
+    # Cap time range at 168 hours (1 week)
+    time_range_hours = min(max(1, time_range_hours), 168)
+
+    results = {
+        "success": True,
+        "entity_id": start_entity_id,
+        "time_range_hours": time_range_hours,
+        "timeline": [],
+        "causal_chains": [],
+    }
+
+    try:
+        # Step 1: Fetch events from Postgres
+        events = []
+        try:
+            from memory.substrate_service import get_service
+
+            substrate = await get_service()
+            if substrate:
+                cutoff = datetime.utcnow() - timedelta(hours=time_range_hours)
+
+                # Search for events related to entity
+                search_results = await substrate.search_packets_by_type(
+                    packet_type=event_types[0] if event_types else "event",
+                    agent_id=None,  # All agents
+                    limit=50,
+                )
+
+                # Filter by entity and time
+                for packet in search_results or []:
+                    payload = packet.get("payload", {})
+                    if payload.get("entity_id") == start_entity_id:
+                        events.append(
+                            {
+                                "event_id": packet.get("id"),
+                                "type": packet.get("kind"),
+                                "timestamp": packet.get("created_at"),
+                                "payload": payload,
+                            }
+                        )
+
+                events.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+                events = events[:30]  # Limit to 30 events
+
+        except Exception as e:
+            logger.warning(f"Event fetch failed in saga: {e}")
+
+        results["timeline"] = events
+
+        # Step 2: Trace causal chains in Neo4j
+        if events:
+            try:
+                from memory.substrate_dag import SubstrateDAG
+
+                dag = SubstrateDAG()
+                causal_chains = []
+
+                event_ids = [e.get("event_id") for e in events if e.get("event_id")]
+
+                # Find causal relationships between events
+                for event_id in event_ids[:10]:  # Limit graph queries
+                    try:
+                        related = await dag.get_related_entities(
+                            entity_id=str(event_id),
+                            relationship_types=["CAUSED_BY", "TRIGGERED", "FOLLOWS"],
+                            depth=2,
+                        )
+                        if related:
+                            causal_chains.append(
+                                {
+                                    "event_id": event_id,
+                                    "causal_links": related,
+                                }
+                            )
+                    except Exception:
+                        pass
+
+                results["causal_chains"] = causal_chains
+
+            except Exception as e:
+                logger.warning(f"Causal chain trace failed: {e}")
+
+        results["event_count"] = len(events)
+        results["causal_chain_count"] = len(results["causal_chains"])
+
+        logger.info(
+            f"saga_timeline_correlation: found {results['event_count']} events, "
+            f"{results['causal_chain_count']} causal chains"
+        )
+
+        return results
+
+    except Exception as e:
+        logger.error(f"saga_timeline_correlation failed: {e}", exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+            "timeline": [],
+        }
+
+
+async def saga_execute_custom(
+    steps: List[dict],
+) -> dict:
+    """
+    Execute a custom saga with user-defined steps.
+
+    GMP-88: Saga Tool Implementation
+
+    Each step must have:
+    - tool: str (tool name to call)
+    - args: dict (arguments for tool)
+    - output_key: str (key to store result)
+
+    Results are passed forward: step N can reference step N-1's output
+    using {{prev.key}} syntax in args.
+
+    Args:
+        steps: List of step definitions
+
+    Returns:
+        Dict with results from each step
+    """
+    import structlog
+    import re
+
+    logger = structlog.get_logger(__name__)
+
+    if not steps:
+        return {
+            "success": False,
+            "error": "steps is required",
+            "results": {},
+        }
+
+    # Validate step structure
+    for i, step in enumerate(steps):
+        if not isinstance(step, dict):
+            return {
+                "success": False,
+                "error": f"Step {i} must be a dict",
+                "results": {},
+            }
+        if "tool" not in step:
+            return {
+                "success": False,
+                "error": f"Step {i} missing 'tool' field",
+                "results": {},
+            }
+
+    # Limit to 5 steps for safety
+    if len(steps) > 5:
+        return {
+            "success": False,
+            "error": "Maximum 5 steps allowed in custom saga",
+            "results": {},
+        }
+
+    # Available saga tools (safe list)
+    ALLOWED_TOOLS = {
+        "saga_fetch_and_enrich": saga_fetch_and_enrich,
+        "saga_enrich_entities": saga_enrich_entities,
+        "saga_timeline_correlation": saga_timeline_correlation,
+        "tool_router_find": tool_router_find,
+    }
+
+    results = {
+        "success": True,
+        "steps_executed": 0,
+        "results": {},
+    }
+
+    prev_result = {}
+
+    try:
+        for i, step in enumerate(steps):
+            tool_name = step.get("tool")
+            args = step.get("args", {})
+            output_key = step.get("output_key", f"step_{i}")
+
+            # Check tool is allowed
+            if tool_name not in ALLOWED_TOOLS:
+                results["results"][output_key] = {
+                    "success": False,
+                    "error": f"Tool '{tool_name}' not allowed in custom saga",
+                }
+                continue
+
+            # Substitute {{prev.X}} references
+            for arg_key, arg_val in args.items():
+                if isinstance(arg_val, str) and "{{prev." in arg_val:
+                    # Extract key from {{prev.key}}
+                    match = re.search(r"\{\{prev\.(\w+)\}\}", arg_val)
+                    if match:
+                        ref_key = match.group(1)
+                        if ref_key in prev_result:
+                            args[arg_key] = prev_result[ref_key]
+
+            # Execute tool
+            tool_func = ALLOWED_TOOLS[tool_name]
+            try:
+                step_result = await tool_func(**args)
+                results["results"][output_key] = step_result
+                results["steps_executed"] += 1
+
+                # Store for next step reference
+                if isinstance(step_result, dict):
+                    prev_result = step_result
+
+            except Exception as e:
+                logger.warning(f"Custom saga step {i} failed: {e}")
+                results["results"][output_key] = {
+                    "success": False,
+                    "error": str(e),
+                }
+
+        logger.info(
+            f"saga_execute_custom: executed {results['steps_executed']}/{len(steps)} steps"
+        )
+
+        return results
+
+    except Exception as e:
+        logger.error(f"saga_execute_custom failed: {e}", exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+            "results": {},
         }

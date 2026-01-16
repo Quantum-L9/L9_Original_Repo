@@ -1433,10 +1433,10 @@ L_INTERNAL_TOOLS = [
             "Only use when you explicitly need both paradigms combined",
         ],
     ),
-    # Cross-DB Saga Pattern (GMP-56)
+    # Cross-DB Saga Pattern (GMP-56 + GMP-88)
     ToolDefinition(
         name="saga_fetch_and_enrich",
-        description="Cross-DB saga: vector search → entity extraction → graph enrichment → combined result",
+        description="Cross-DB saga: vector search (Postgres) → entity extraction → graph enrichment (Neo4j) → combined result. Use when you need BOTH semantic search results AND their relationship context. Best for: 'find similar items and show how they connect'.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -1444,10 +1444,15 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         external_apis=["PostgreSQL", "Neo4j", "OpenAI"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for simple text search - use memory_search instead (faster)",
+            "Do not use for pure graph traversal - use saga_enrich_entities (no vector step)",
+            "Do not use if you only need counts or aggregations",
+        ],
     ),
     ToolDefinition(
         name="saga_enrich_entities",
-        description="Cross-DB saga: lookup entities → enrich with graph relationships",
+        description="Cross-DB saga: lookup entities by ID → enrich with graph relationships up to depth 3. Use when you ALREADY HAVE entity IDs and need their relationship context from Neo4j. Best for: 'show me how these entities connect'.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -1455,21 +1460,31 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         external_apis=["Neo4j"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use if you need to FIND entities first - use saga_fetch_and_enrich",
+            "Do not use for simple single-entity lookup - use neo4j_query directly",
+            "Do not use if depth > 3 - will be capped for performance",
+        ],
     ),
     ToolDefinition(
         name="saga_timeline_correlation",
-        description="Cross-DB saga: fetch events → trace causal chains → correlate timeline",
+        description="Cross-DB saga: fetch events for entity (Postgres) → trace causal chains (Neo4j) → correlate timeline. Use for temporal analysis: 'what happened to X over the last 24h and what caused it'.",
         category="memory",
         scope="internal",
         is_destructive=False,
         requires_confirmation=False,
         risk_level="low",
-        external_apis=["Neo4j"],
+        external_apis=["PostgreSQL", "Neo4j"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for non-temporal queries - use saga_fetch_and_enrich",
+            "Do not use for future predictions - this traces past causality only",
+            "Time range capped at 168 hours (1 week) for performance",
+        ],
     ),
     ToolDefinition(
         name="saga_execute_custom",
-        description="Execute a custom saga with user-defined steps",
+        description="Execute a custom saga with user-defined steps. Each step calls a saga tool and passes results forward. Use for complex multi-step workflows not covered by specific saga tools. Maximum 5 steps.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -1477,6 +1492,12 @@ L_INTERNAL_TOOLS = [
         risk_level="medium",
         external_apis=["PostgreSQL", "Neo4j"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use if a specific saga tool exists - prefer saga_fetch_and_enrich, saga_enrich_entities, or saga_timeline_correlation",
+            "Only saga_* and tool_router_find tools allowed in steps",
+            "Maximum 5 steps per custom saga",
+            "Do not use for simple single-tool calls",
+        ],
     ),
     # Semantic Tool Router (GMP-57)
     ToolDefinition(

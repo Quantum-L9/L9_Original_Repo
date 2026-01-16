@@ -3,17 +3,16 @@
 This replaces the deprecated memory.* tables with the unified L9 memory substrate.
 Uses packet_store for event log and memory_embeddings for vector storage.
 
-NOW USES MAIN L9 INGESTION PIPELINE:
+MANDATORY: ALL WRITES ROUTE THROUGH MAIN L9 INGESTION PIPELINE.
 - Routes through MemorySubstrateService.write_packet() for full DAG pipeline
 - Gets graph sync (Neo4j), fact extraction, reasoning traces automatically
 - Uses same OpenAI embeddings and processing as L agent
-- Falls back to direct DB access if service not initialized
+- NO FALLBACK: If main pipeline unavailable, returns 503 (fail-closed)
 """
 
 import structlog
 import time
 import json
-import uuid
 import asyncpg
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
@@ -86,28 +85,33 @@ async def save_memory_handler(
     caller_id: str = "unknown",
     creator: str = "unknown",
     source: str = "unknown",
-    # Optional: substrate service from app state (for main ingestion pipeline)
+    # REQUIRED: substrate service from app state (main ingestion pipeline)
     substrate_service: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
-    Save memory with tiered fallback (v2.1.0 - GMP-67 corrected).
+    Save memory via main L9 ingestion pipeline (GMP-89: NO FALLBACK).
 
-    Tier 1: Try full pipeline (core + enrichment if enabled)
-            - Enrichment failure = 200 with enrichment_status="failed" (NO RETRY)
-            - Core failure = fall to Tier 2
-    Tier 2: Try direct DB (emergency fallback)
-            - Success = 200 with tier_used="direct_db"
-            - Failure = fall to Tier 3
-    Tier 3: Return 503 Service Unavailable
+    All writes MUST go through MemorySubstrateService.write_packet() which runs
+    the full DAG pipeline (validation, embedding, graph sync, fact extraction).
 
-    KEY INVARIANT: Enrichment is NEVER retried. If it fails, core write already persisted.
+    If substrate_service is unavailable, returns 503 Service Unavailable.
+    There is NO direct DB fallback - this ensures all memory writes flow through
+    the canonical pipeline with full governance, audit, and enrichment.
 
     Args:
         scope: MCP scope ('developer', 'l-private', 'global')
         caller_id: "L" or "C" (from API key)
         creator: "L-CTO" or "Cursor-IDE" (server-enforced)
         source: "l9-kernel" or "cursor-ide" (server-enforced)
-        substrate_service: Optional MemorySubstrateService instance
+        substrate_service: REQUIRED MemorySubstrateService instance
+
+    Returns:
+        Dict with packet_id, written_tables, enrichment_status, etc.
+
+    Raises:
+        HTTPException 503: If substrate_service unavailable (fail-closed)
+        HTTPException 403: If scope not authorized
+        HTTPException 500: If ingestion fails
     """
     # GMP-68: Governance enforcement
     ctx = require_governance_context("mcp_memory.save_memory")
@@ -116,42 +120,21 @@ async def save_memory_handler(
             status_code=403, detail=f"Scope '{scope}' not authorized for this context"
         )
 
-    pipeline_error = None
+    # GMP-89: FAIL-FAST - Main pipeline is REQUIRED, no fallback
+    if not substrate_service:
+        logger.error(
+            "save_memory_handler: substrate_service not available (fail-closed)",
+            caller_id=caller_id,
+            scope=scope,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Memory substrate service unavailable. MCP memory requires main pipeline.",
+        )
 
-    # Tier 1: Full pipeline (preferred path)
-    if substrate_service:
-        try:
-            result = await _save_via_main_pipeline(
-                user_id=user_id,
-                content=content,
-                kind=kind,
-                scope=scope,
-                duration=duration,
-                tags=tags,
-                importance=importance,
-                metadata=metadata,
-                caller_id=caller_id,
-                creator=creator,
-                source=source,
-                substrate_service=substrate_service,
-            )
-
-            # Enrichment failure is NOT a tier failure - core write succeeded
-            # Just return 200 with enrichment_status="failed" (already set in result)
-            return result
-
-        except Exception as e:
-            pipeline_error = str(e)
-            logger.warning(
-                "Full pipeline failed, falling back to direct DB",
-                error=pipeline_error,
-            )
-            # Fall through to Tier 2
-
-    # Tier 2: Direct DB (emergency fallback)
+    # Main pipeline (ONLY path - no fallback)
     try:
-        logger.debug("Using direct DB access (substrate service unavailable or failed)")
-        result = await _save_via_direct_db(
+        result = await _save_via_main_pipeline(
             user_id=user_id,
             content=content,
             kind=kind,
@@ -163,28 +146,27 @@ async def save_memory_handler(
             caller_id=caller_id,
             creator=creator,
             source=source,
+            substrate_service=substrate_service,
         )
-        # Mark as fallback tier
-        result["tier_used"] = "direct_db"
-        result["warnings"] = [
-            "pipeline_unavailable",
-            "enrichment_skipped",
-            "neo4j_skipped",
-        ]
-        result["enrichment_status"] = "not_attempted"
-        logger.info("Saved via direct DB fallback", packet_id=result.get("packet_id"))
+
+        # Enrichment failure is NOT a pipeline failure - core write succeeded
+        # Just return 200 with enrichment_status="failed" (already set in result)
         return result
 
-    except Exception as direct_db_error:
-        # Tier 3: 503
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is (e.g., 500 from _save_via_main_pipeline)
+        raise
+    except Exception as e:
+        # Unexpected error - log and return 500
         logger.error(
-            "All fallbacks exhausted",
-            pipeline_error=pipeline_error,
-            direct_db_error=str(direct_db_error),
+            "Main pipeline failed unexpectedly",
+            error=str(e),
+            caller_id=caller_id,
+            exc_info=True,
         )
         raise HTTPException(
-            status_code=503,
-            detail="Memory substrate unavailable. All fallbacks exhausted.",
+            status_code=500,
+            detail=f"Memory ingestion failed: {str(e)}",
         )
 
 
@@ -310,158 +292,9 @@ async def _save_via_main_pipeline(
     }
 
 
-async def _save_via_direct_db(
-    user_id: str,
-    content: str,
-    kind: str,
-    scope: str,
-    duration: str,
-    tags: Optional[List[str]],
-    importance: float,
-    metadata: Optional[Dict[str, Any]],
-    caller_id: str,
-    creator: str,
-    source: str,
-) -> Dict[str, Any]:
-    """Fallback: Save memory via direct DB access (legacy path)."""
-    # Generate packet ID
-    packet_id = uuid.uuid4()
-    thread_id = uuid.uuid4()  # Daily session thread (could be passed in)
-    timestamp = datetime.utcnow()
-
-    # Map MCP scope to DB scope
-    db_scope = map_mcp_scope_to_db_scope(scope)
-
-    # Generate embedding
-    embed_start = time.time()
-    embedding_vector = await embed_text(content)
-    embed_time_ms = (time.time() - embed_start) * 1000
-
-    # Build PacketEnvelope structure
-    project_id = None
-    if metadata:
-        project_id = metadata.get("project_id")
-    if project_id is None:
-        project_id = "l9" if scope != "global" else None
-
-    envelope = {
-        "packet_id": str(packet_id),
-        "packet_type": f"memory_write_{kind}",
-        "timestamp": timestamp.isoformat(),
-        "payload": {
-            "content": content,
-            "kind": kind,
-            "scope": scope,
-            "project_id": project_id,
-        },
-        "metadata": {
-            "creator": creator,
-            "source": source,
-            "caller": caller_id,
-            "agent": "l-cto" if caller_id == "L" else "cursor-ide",
-            "user_id": user_id,
-            "project_id": project_id,
-            "importance": importance,
-            "duration": duration,
-            **(
-                {}
-                if metadata is None
-                else {k: v for k, v in metadata.items() if k != "project_id"}
-            ),
-        },
-        "thread_id": str(thread_id),
-        "tags": tags or [],
-    }
-
-    # Calculate TTL based on duration
-    ttl = None
-    if duration == "short":
-        ttl = timestamp + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
-    elif duration == "medium":
-        ttl = timestamp + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
-
-    # Insert into packet_store
-    insert_packet_query = """
-    INSERT INTO packet_store (
-        packet_id, packet_type, envelope, timestamp,
-        thread_id, tags, ttl, scope, importance_score,
-        session_id, content_hash
-    )
-    VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7, $8, $9, $10, $11)
-    RETURNING packet_id, timestamp;
-    """
-
-    # Compute content hash for deduplication
-    import hashlib
-
-    content_hash = hashlib.sha256(content.encode()).hexdigest()
-
-    packet_result = await fetch_one(
-        insert_packet_query,
-        packet_id,
-        envelope["packet_type"],
-        json.dumps(envelope),
-        timestamp,
-        thread_id,
-        tags or [],
-        ttl,
-        db_scope,
-        importance,
-        metadata.get("session_id") if metadata else None,
-        content_hash,
-    )
-
-    # Insert embedding into memory_embeddings
-    insert_embedding_query = """
-    INSERT INTO memory_embeddings (
-        packet_id, embedding_type, vector, chunk_text, metadata
-    )
-    VALUES ($1, $2, $3::vector, $4, $5::jsonb)
-    RETURNING embedding_id;
-    """
-
-    embedding_metadata = {
-        "kind": kind,
-        "scope": scope,
-        "duration": duration,
-        "importance": importance,
-        "embed_time_ms": embed_time_ms,
-    }
-
-    # Convert embedding vector to string format for pgvector
-    vector_str = f"[{','.join(str(v) for v in embedding_vector)}]"
-
-    embedding_result = await fetch_one(
-        insert_embedding_query,
-        packet_id,
-        "content",
-        vector_str,
-        content[:500],
-        json.dumps(embedding_metadata),
-    )
-
-    logger.info(
-        "Memory saved via direct DB (fallback)",
-        packet_id=str(packet_id),
-        scope=scope,
-        db_scope=db_scope,
-        kind=kind,
-        caller=caller_id,
-        project_id=project_id,
-    )
-
-    return {
-        "packet_id": str(packet_id),
-        "embedding_id": str(embedding_result["embedding_id"]),
-        "user_id": user_id,
-        "kind": kind,
-        "scope": scope,
-        "content": content[:100] + "..." if len(content) > 100 else content,
-        "importance": importance,
-        "created_at": timestamp.isoformat(),
-        "embed_time_ms": embed_time_ms,
-        "pipeline": "direct_db",  # Indicates fallback path was used
-    }
+# GMP-89: _save_via_direct_db REMOVED
+# All writes MUST go through _save_via_main_pipeline (substrate_service.write_packet)
+# No direct DB fallback - ensures all memory flows through canonical pipeline
 
 
 async def search_memory_handler(
@@ -1520,11 +1353,14 @@ async def save_memory_with_confidence(
     importance: float = 1.0,
     caller_id: str = "unknown",
     creator: str = "unknown",
+    # GMP-89: REQUIRED substrate_service for main pipeline
+    substrate_service: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
     Save memory with explicit confidence scoring and relationship linking.
 
     Uses unified save_memory_handler with confidence metadata.
+    REQUIRES substrate_service for main pipeline (GMP-89: no fallback).
     """
     try:
         # Add confidence to metadata
@@ -1545,7 +1381,7 @@ async def save_memory_with_confidence(
         else:
             all_tags.append("confidence:low")
 
-        # Save using unified handler
+        # Save using unified handler (GMP-89: pass substrate_service)
         result = await save_memory_handler(
             user_id=user_id,
             content=content,
@@ -1558,6 +1394,7 @@ async def save_memory_with_confidence(
             caller_id=caller_id,
             creator=creator,
             source=source,
+            substrate_service=substrate_service,
         )
 
         # Log relationships if provided

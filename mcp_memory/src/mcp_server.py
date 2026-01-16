@@ -713,6 +713,7 @@ async def handle_tool_call(
                 importance=validated_args.importance or 1.0,
                 caller_id=caller_id,
                 creator=creator,
+                substrate_service=substrate_service,  # GMP-89: Pass for main pipeline
             )
         # =============================================================================
         # Graph (Neo4j) Tool Handlers

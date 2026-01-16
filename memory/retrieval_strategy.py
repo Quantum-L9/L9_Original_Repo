@@ -610,45 +610,189 @@ class StrategyBasedRetriever:
         max_results: int,
     ) -> list[dict[str, Any]]:
         """
-        Execute UNCERTAINTY_FILL strategy.
+        Execute UNCERTAINTY_FILL strategy (Enhanced v3.2).
 
-        Retrieves highest-confidence facts to reduce agent uncertainty.
+        Smart retrieval based on what the agent is *actually* uncertain about.
+        Uses topic-specific retrieval and dynamic importance thresholds.
+
+        Features:
+        - Topic-aware: Uses query entities to find relevant facts
+        - Dynamic thresholds: Adjusts importance filter based on uncertainty level
+        - Contradiction detection: Flags conflicting facts
+        - Tier priority: Identity > Project > Session > General
         """
         logger.debug(
-            f"Executing UNCERTAINTY_FILL strategy: uncertainty={context.agent_uncertainty}"
+            f"Executing UNCERTAINTY_FILL strategy: "
+            f"uncertainty={context.agent_uncertainty}, "
+            f"entities={context.entities}, "
+            f"query='{context.query[:50]}...'"
         )
 
         if not self._repository:
             return []
 
-        # Get high-importance facts from all tiers
-        results = []
+        # Dynamic importance threshold based on uncertainty level
+        # High uncertainty (0.9) → accept lower confidence facts (0.5)
+        # Low uncertainty (0.3) → require high confidence facts (0.8)
+        importance_threshold = max(0.5, 0.9 - (context.agent_uncertainty * 0.4))
+        logger.debug(f"Dynamic importance threshold: {importance_threshold:.2f}")
 
-        for tier in ["identity", "project", "session", "general"]:
+        results = []
+        seen_fact_texts = set()  # For contradiction detection
+
+        # Phase 1: Topic-specific retrieval (if entities available)
+        if context.entities and self._repository:
+            for entity in context.entities[:5]:  # Limit to 5 entities
+                # Search by subject in triplets
+                facts = await self._repository.get_semantic_facts_by_subject(
+                    subject=entity,
+                    limit=max_results,
+                )
+
+                for f in facts:
+                    if f.importance >= importance_threshold:
+                        # Check for potential contradictions
+                        fact_key = f.fact_text.lower().strip()
+                        is_potential_contradiction = any(
+                            self._facts_may_contradict(fact_key, seen)
+                            for seen in seen_fact_texts
+                        )
+                        seen_fact_texts.add(fact_key)
+
+                        results.append(
+                            {
+                                "fact_id": str(f.fact_id),
+                                "fact_text": f.fact_text,
+                                "tier": f.tier,
+                                "importance": f.importance,
+                                "confidence": f.confidence,
+                                "matched_entity": entity,
+                                "potential_contradiction": is_potential_contradiction,
+                                "strategy": RetrievalStrategy.UNCERTAINTY_FILL.value,
+                                "retrieval_reason": "topic_match",
+                            }
+                        )
+
+        # Phase 2: Tier-based retrieval (prioritized by tier importance)
+        tier_priority = ["identity", "project", "session", "general"]
+        tier_weights = {"identity": 1.0, "project": 0.9, "session": 0.8, "general": 0.7}
+
+        for tier in tier_priority:
+            if len(results) >= max_results * 2:
+                break  # Have enough candidates
+
             facts = await self._repository.get_semantic_facts_by_tier(
                 tier=tier,
                 limit=max_results,
             )
 
-            # Filter by high importance (> 0.7)
-            high_importance_facts = [f for f in facts if f.importance >= 0.7]
+            # Apply dynamic threshold
+            high_importance_facts = [
+                f for f in facts if f.importance >= importance_threshold
+            ]
 
             for f in high_importance_facts:
+                # Skip if already added via topic search
+                if any(r["fact_id"] == str(f.fact_id) for r in results):
+                    continue
+
+                # Check for potential contradictions
+                fact_key = f.fact_text.lower().strip()
+                is_potential_contradiction = any(
+                    self._facts_may_contradict(fact_key, seen)
+                    for seen in seen_fact_texts
+                )
+                seen_fact_texts.add(fact_key)
+
+                # Apply tier weight to importance for ranking
+                weighted_importance = f.importance * tier_weights.get(tier, 0.7)
+
                 results.append(
                     {
                         "fact_id": str(f.fact_id),
                         "fact_text": f.fact_text,
                         "tier": f.tier,
                         "importance": f.importance,
+                        "weighted_importance": weighted_importance,
                         "confidence": f.confidence,
+                        "potential_contradiction": is_potential_contradiction,
                         "strategy": RetrievalStrategy.UNCERTAINTY_FILL.value,
+                        "retrieval_reason": "tier_search",
                     }
                 )
 
-        # Sort by importance descending
-        results.sort(key=lambda x: x["importance"], reverse=True)
+        # Sort by: topic matches first, then weighted importance
+        results.sort(
+            key=lambda x: (
+                x.get("retrieval_reason") == "topic_match",  # Topic matches first
+                x.get("weighted_importance", x["importance"]),  # Then by importance
+            ),
+            reverse=True,
+        )
+
+        # Flag any contradictions found
+        contradictions = [r for r in results if r.get("potential_contradiction")]
+        if contradictions:
+            logger.warning(
+                f"UNCERTAINTY_FILL found {len(contradictions)} potential contradictions",
+                contradictions=[c["fact_text"][:50] for c in contradictions[:3]],
+            )
 
         return results[:max_results]
+
+    def _facts_may_contradict(self, fact1: str, fact2: str) -> bool:
+        """
+        Simple heuristic to detect potential contradictions.
+
+        Checks for negation patterns or conflicting assertions about same subject.
+        """
+        # Negation patterns
+        negation_words = {
+            "not",
+            "never",
+            "no",
+            "isn't",
+            "aren't",
+            "doesn't",
+            "don't",
+            "won't",
+            "can't",
+        }
+
+        words1 = set(fact1.split())
+        words2 = set(fact2.split())
+
+        # Check if one has negation the other doesn't
+        has_negation1 = bool(words1 & negation_words)
+        has_negation2 = bool(words2 & negation_words)
+
+        if has_negation1 != has_negation2:
+            # Check if they share significant words (potential contradiction)
+            # Remove common stop words
+            stop_words = {
+                "is",
+                "are",
+                "the",
+                "a",
+                "an",
+                "to",
+                "of",
+                "in",
+                "for",
+                "on",
+                "with",
+            }
+            significant1 = words1 - stop_words - negation_words
+            significant2 = words2 - stop_words - negation_words
+
+            # If they share >50% significant words, might be contradiction
+            if significant1 and significant2:
+                overlap = len(significant1 & significant2)
+                min_len = min(len(significant1), len(significant2))
+                if min_len > 0 and overlap / min_len > 0.5:
+                    return True
+
+        return False
 
     async def _execute_semantic_search(
         self,

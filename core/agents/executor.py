@@ -1303,6 +1303,28 @@ class AgentExecutorService:
 
             instance.add_tokens(aios_result.tokens_used)
 
+            # GMP-88: ReAct THOUGHT logging
+            # Emit structured packet for reasoning transparency
+            if (
+                aios_result.content
+                or aios_result.result_type == AIOSResultType.TOOL_CALL
+            ):
+                thought_content = (
+                    aios_result.content
+                    or f"Calling tool: {aios_result.tool_call.tool_id if aios_result.tool_call else 'unknown'}"
+                )
+                await self._emit_packet(
+                    packet_type="agent.executor.thought",
+                    payload={
+                        "task_id": str(instance.task.id),
+                        "iteration": iteration,
+                        "thought": thought_content[:500],  # Truncate for storage
+                        "action_type": aios_result.result_type.value,
+                    },
+                    agent_id=instance.task.agent_id,
+                    thread_id=instance.thread_id,
+                )
+
             # Handle result based on type
             if aios_result.result_type == AIOSResultType.RESPONSE:
                 # Final answer - done!
@@ -1358,6 +1380,27 @@ class AgentExecutorService:
                     if tool_result.success
                     else tool_result.error,
                     success=tool_result.success,
+                )
+
+                # GMP-88: ReAct OBSERVATION logging
+                # Emit structured packet for tool result transparency
+                observation_content = (
+                    str(tool_result.result)[:500]
+                    if tool_result.success
+                    else f"Error: {tool_result.error}"
+                )
+                await self._emit_packet(
+                    packet_type="agent.executor.observation",
+                    payload={
+                        "task_id": str(instance.task.id),
+                        "iteration": iteration,
+                        "tool_id": tool_call.tool_id,
+                        "observation": observation_content,
+                        "success": tool_result.success,
+                        "duration_ms": getattr(tool_result, "duration_ms", 0),
+                    },
+                    agent_id=instance.task.agent_id,
+                    thread_id=instance.thread_id,
                 )
 
                 # Continue reasoning

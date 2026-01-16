@@ -83,6 +83,74 @@ class IntegrationSettings(BaseSettings):
         description="Enable legacy Slack routing. Set False to use AgentTask routing.",
     )
 
+    # Feature flags for L9 runtime modules
+    l9_new_agent_init: bool = Field(
+        default=True,
+        alias="L9_NEW_AGENT_INIT",
+        description="Enable new agent initialization (v3.0+ paradigm shift).",
+    )
+
+    l9_stage3_modules: bool = Field(
+        default=True,
+        alias="L9_STAGE3_MODULES",
+        description="Enable Stage 3 modules: Tool Audit, Event Queue, Virtual Context, Evaluator.",
+    )
+
+    l9_graph_agent_state: bool = Field(
+        default=True,
+        alias="L9_GRAPH_AGENT_STATE",
+        description="Enable Stage 5: Graph-Backed Agent State (Neo4j for mutable agent state).",
+    )
+
+    l9_observability: bool = Field(
+        default=True,
+        alias="L9_OBSERVABILITY",
+        description="Enable Five-Tier Observability (v3.3+ GMP-OBS-DEPLOY).",
+    )
+
+    l9_skip_startup_checks: bool = Field(
+        default=False,
+        alias="L9_SKIP_STARTUP_CHECKS",
+        description="Skip startup checks (for container environments with broken symlinks).",
+    )
+
+    l9_stage4_consolidation: bool = Field(
+        default=True,
+        alias="L9_STAGE4_CONSOLIDATION",
+        description="Enable Stage 4: Memory Consolidation (background cleanup).",
+    )
+
+    l9_consolidation_interval_hours: int = Field(
+        default=4,
+        alias="L9_CONSOLIDATION_INTERVAL_HOURS",
+        description="Memory consolidation interval in hours.",
+    )
+
+    l9_graph_wm_sync: bool = Field(
+        default=True,
+        alias="L9_GRAPH_WM_SYNC",
+        description="Enable UKG Phase 3: Graph to World Model Sync.",
+    )
+
+    l9_tool_pattern_extraction: bool = Field(
+        default=True,
+        alias="L9_TOOL_PATTERN_EXTRACTION",
+        description="Enable UKG Phase 4: Tool Pattern Extraction (6h interval).",
+    )
+
+    l9_gmp_learning_enabled: bool = Field(
+        default=False,
+        alias="L9_GMP_LEARNING_ENABLED",
+        description="Enable GMP v2.0 Meta-Learning Engine (requires migration 0021).",
+    )
+
+    # Development mode
+    local_dev: bool = Field(
+        default=False,
+        alias="LOCAL_DEV",
+        description="Enable local development mode (relaxed validation).",
+    )
+
     # Storage configuration
     l9_data_root: str = Field(
         default=os.path.expanduser("~/.l9"),

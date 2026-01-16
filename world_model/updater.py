@@ -124,7 +124,40 @@ class WorldModelUpdater:
         Returns:
             True if valid
         """
-        pass
+        if not isinstance(update, dict):
+            return False
+
+        # Required fields for any update
+        if "operation" not in update:
+            return False
+
+        operation = update["operation"]
+        if operation not in {"create", "update", "delete"}:
+            return False
+
+        # Target type validation
+        if "target_type" not in update:
+            return False
+
+        target_type = update["target_type"]
+        if target_type not in {"entity", "relation"}:
+            return False
+
+        # Target ID required
+        if "target_id" not in update:
+            return False
+
+        # For create operations, validate data against registry if available
+        if operation == "create" and self._registry:
+            data = update.get("data", {})
+            if target_type == "entity":
+                entity_type = data.get("entity_type", "")
+                if entity_type and not self._registry.validate_entity(
+                    entity_type, data.get("attributes", {})
+                ):
+                    return False
+
+        return True
 
     def validate_operation(self, operation: UpdateOperation) -> list[str]:
         """
@@ -136,7 +169,34 @@ class WorldModelUpdater:
         Returns:
             List of validation errors (empty if valid)
         """
-        pass
+        errors: list[str] = []
+
+        # Validate operation type
+        if operation.operation not in {"create", "update", "delete"}:
+            errors.append(f"Invalid operation: {operation.operation}")
+
+        # Validate target type
+        if operation.target_type not in {"entity", "relation"}:
+            errors.append(f"Invalid target_type: {operation.target_type}")
+
+        # Validate target_id
+        if not operation.target_id:
+            errors.append("target_id is required")
+
+        # For create operations, validate required data
+        if operation.operation == "create":
+            if operation.target_type == "entity":
+                if "entity_type" not in operation.data:
+                    errors.append("entity_type required for entity create")
+            elif operation.target_type == "relation":
+                if "relation_type" not in operation.data:
+                    errors.append("relation_type required for relation create")
+                if "source_id" not in operation.data:
+                    errors.append("source_id required for relation create")
+                if "target_id" not in operation.data:
+                    errors.append("target_id required for relation create")
+
+        return errors
 
     # =========================================================================
     # Parsing
@@ -154,7 +214,52 @@ class WorldModelUpdater:
         Returns:
             List of UpdateOperations to apply
         """
-        pass
+        operations: list[UpdateOperation] = []
+
+        # Handle single operation format
+        if "operation" in packet:
+            op = UpdateOperation(
+                operation=packet.get("operation", "update"),
+                target_type=packet.get("target_type", "entity"),
+                target_id=packet.get("target_id", ""),
+                data=packet.get("data", {}),
+            )
+            operations.append(op)
+
+        # Handle batch operations format
+        if "operations" in packet:
+            for op_data in packet["operations"]:
+                op = UpdateOperation(
+                    operation=op_data.get("operation", "update"),
+                    target_type=op_data.get("target_type", "entity"),
+                    target_id=op_data.get("target_id", ""),
+                    data=op_data.get("data", {}),
+                )
+                operations.append(op)
+
+        # Handle entity-specific format
+        if "entity" in packet:
+            entity_data = packet["entity"]
+            op = UpdateOperation(
+                operation=packet.get("operation", "create"),
+                target_type="entity",
+                target_id=entity_data.get("entity_id", entity_data.get("id", "")),
+                data=entity_data,
+            )
+            operations.append(op)
+
+        # Handle relation-specific format
+        if "relation" in packet:
+            relation_data = packet["relation"]
+            op = UpdateOperation(
+                operation=packet.get("operation", "create"),
+                target_type="relation",
+                target_id=relation_data.get("relation_id", relation_data.get("id", "")),
+                data=relation_data,
+            )
+            operations.append(op)
+
+        return operations
 
     # =========================================================================
     # Apply Updates
@@ -182,7 +287,42 @@ class WorldModelUpdater:
             - affected_relations: list[str]
             - errors: list[str]
         """
-        pass
+        result: dict[str, Any] = {
+            "success": False,
+            "affected_entities": [],
+            "affected_relations": [],
+            "errors": [],
+        }
+
+        # Validate update first
+        if not self.validate_update(update):
+            result["errors"].append("Update validation failed")
+            return result
+
+        # Parse into operations
+        operations = self.parse_packet(update)
+        if not operations:
+            result["errors"].append("No operations parsed from update")
+            return result
+
+        # Apply operations
+        results = self.apply_batch(state, operations)
+
+        # Aggregate results
+        all_success = True
+        for op_result in results:
+            if not op_result.success:
+                all_success = False
+                result["errors"].extend(op_result.errors)
+            else:
+                for affected_id in op_result.affected_ids:
+                    if op_result.operation.target_type == "entity":
+                        result["affected_entities"].append(affected_id)
+                    else:
+                        result["affected_relations"].append(affected_id)
+
+        result["success"] = all_success
+        return result
 
     def apply_operation(
         self,
@@ -199,7 +339,60 @@ class WorldModelUpdater:
         Returns:
             UpdateResult
         """
-        pass
+        # Validate operation
+        errors = self.validate_operation(operation)
+        if errors:
+            return UpdateResult(
+                success=False,
+                operation=operation,
+                errors=errors,
+            )
+
+        # Dispatch to appropriate handler
+        try:
+            if operation.target_type == "entity":
+                if operation.operation == "create":
+                    return self.create_entity(
+                        state,
+                        operation.data.get("entity_type", ""),
+                        operation.target_id,
+                        operation.data.get("attributes", {}),
+                    )
+                elif operation.operation == "update":
+                    return self.update_entity(
+                        state,
+                        operation.target_id,
+                        operation.data,
+                    )
+                elif operation.operation == "delete":
+                    return self.delete_entity(state, operation.target_id)
+
+            elif operation.target_type == "relation":
+                if operation.operation == "create":
+                    return self.create_relation(
+                        state,
+                        operation.data.get("relation_type", ""),
+                        operation.data.get("source_id", ""),
+                        operation.data.get("target_id", ""),
+                        operation.data.get("attributes", {}),
+                    )
+                elif operation.operation == "delete":
+                    return self.delete_relation(state, operation.target_id)
+
+            return UpdateResult(
+                success=False,
+                operation=operation,
+                errors=[
+                    f"Unhandled operation: {operation.operation} on {operation.target_type}"
+                ],
+            )
+
+        except Exception as e:
+            return UpdateResult(
+                success=False,
+                operation=operation,
+                errors=[str(e)],
+            )
 
     def apply_batch(
         self,
@@ -216,7 +409,46 @@ class WorldModelUpdater:
         Returns:
             List of UpdateResults
         """
-        pass
+        results: list[UpdateResult] = []
+
+        # Take snapshot for rollback
+        snapshot = state.snapshot()
+
+        try:
+            for operation in operations:
+                result = self.apply_operation(state, operation)
+                results.append(result)
+                self._update_log.append(result)
+
+                # On failure, rollback and stop
+                if not result.success:
+                    state.restore(snapshot)
+                    # Mark remaining operations as not attempted
+                    remaining_idx = operations.index(operation) + 1
+                    for remaining_op in operations[remaining_idx:]:
+                        results.append(
+                            UpdateResult(
+                                success=False,
+                                operation=remaining_op,
+                                errors=["Batch aborted due to previous failure"],
+                            )
+                        )
+                    break
+
+        except Exception as e:
+            # Rollback on any exception
+            state.restore(snapshot)
+            # Mark all remaining as failed
+            for op in operations[len(results) :]:
+                results.append(
+                    UpdateResult(
+                        success=False,
+                        operation=op,
+                        errors=[f"Batch exception: {str(e)}"],
+                    )
+                )
+
+        return results
 
     # =========================================================================
     # Entity Operations
@@ -241,7 +473,50 @@ class WorldModelUpdater:
         Returns:
             UpdateResult
         """
-        pass
+        from world_model.state import Entity
+
+        operation = UpdateOperation(
+            operation="create",
+            target_type="entity",
+            target_id=entity_id,
+            data={"entity_type": entity_type, "attributes": attributes},
+        )
+
+        # Validate against registry if available
+        if self._registry:
+            try:
+                if not self._registry.validate_entity(entity_type, attributes):
+                    return UpdateResult(
+                        success=False,
+                        operation=operation,
+                        errors=[f"Entity validation failed for type: {entity_type}"],
+                    )
+            except ValueError as e:
+                return UpdateResult(
+                    success=False,
+                    operation=operation,
+                    errors=[str(e)],
+                )
+
+        try:
+            entity = Entity(
+                entity_id=entity_id,
+                entity_type=entity_type,
+                attributes=attributes,
+            )
+            state.add_entity(entity)
+
+            return UpdateResult(
+                success=True,
+                operation=operation,
+                affected_ids=[entity_id],
+            )
+        except ValueError as e:
+            return UpdateResult(
+                success=False,
+                operation=operation,
+                errors=[str(e)],
+            )
 
     def update_entity(
         self,
@@ -260,7 +535,27 @@ class WorldModelUpdater:
         Returns:
             UpdateResult
         """
-        pass
+        operation = UpdateOperation(
+            operation="update",
+            target_type="entity",
+            target_id=entity_id,
+            data=updates,
+        )
+
+        try:
+            state.update_entity(entity_id, updates)
+
+            return UpdateResult(
+                success=True,
+                operation=operation,
+                affected_ids=[entity_id],
+            )
+        except KeyError as e:
+            return UpdateResult(
+                success=False,
+                operation=operation,
+                errors=[str(e)],
+            )
 
     def delete_entity(
         self,
@@ -277,7 +572,26 @@ class WorldModelUpdater:
         Returns:
             UpdateResult
         """
-        pass
+        operation = UpdateOperation(
+            operation="delete",
+            target_type="entity",
+            target_id=entity_id,
+        )
+
+        try:
+            state.remove_entity(entity_id)
+
+            return UpdateResult(
+                success=True,
+                operation=operation,
+                affected_ids=[entity_id],
+            )
+        except KeyError as e:
+            return UpdateResult(
+                success=False,
+                operation=operation,
+                errors=[str(e)],
+            )
 
     # =========================================================================
     # Relation Operations
@@ -304,7 +618,71 @@ class WorldModelUpdater:
         Returns:
             UpdateResult
         """
-        pass
+        from world_model.state import Relation
+        import uuid
+
+        # Generate relation_id if not in attributes
+        relation_id = attributes.pop("relation_id", None) or str(uuid.uuid4())
+
+        operation = UpdateOperation(
+            operation="create",
+            target_type="relation",
+            target_id=relation_id,
+            data={
+                "relation_type": relation_type,
+                "source_id": source_id,
+                "target_id": target_id,
+                "attributes": attributes,
+            },
+        )
+
+        # Validate against registry if available
+        if self._registry:
+            source_entity = state.get_entity(source_id)
+            target_entity = state.get_entity(target_id)
+            if source_entity and target_entity:
+                try:
+                    if not self._registry.validate_relation(
+                        relation_type,
+                        source_entity.entity_type,
+                        target_entity.entity_type,
+                        attributes,
+                    ):
+                        return UpdateResult(
+                            success=False,
+                            operation=operation,
+                            errors=[
+                                f"Relation validation failed for type: {relation_type}"
+                            ],
+                        )
+                except ValueError as e:
+                    return UpdateResult(
+                        success=False,
+                        operation=operation,
+                        errors=[str(e)],
+                    )
+
+        try:
+            relation = Relation(
+                relation_id=relation_id,
+                relation_type=relation_type,
+                source_id=source_id,
+                target_id=target_id,
+                attributes=attributes,
+            )
+            state.add_relation(relation)
+
+            return UpdateResult(
+                success=True,
+                operation=operation,
+                affected_ids=[relation_id],
+            )
+        except ValueError as e:
+            return UpdateResult(
+                success=False,
+                operation=operation,
+                errors=[str(e)],
+            )
 
     def delete_relation(
         self,
@@ -321,7 +699,26 @@ class WorldModelUpdater:
         Returns:
             UpdateResult
         """
-        pass
+        operation = UpdateOperation(
+            operation="delete",
+            target_type="relation",
+            target_id=relation_id,
+        )
+
+        try:
+            state.remove_relation(relation_id)
+
+            return UpdateResult(
+                success=True,
+                operation=operation,
+                affected_ids=[relation_id],
+            )
+        except KeyError as e:
+            return UpdateResult(
+                success=False,
+                operation=operation,
+                errors=[str(e)],
+            )
 
     # =========================================================================
     # Registry
@@ -334,7 +731,7 @@ class WorldModelUpdater:
         Args:
             registry: WorldModelRegistry instance
         """
-        pass
+        self._registry = registry
 
     # =========================================================================
     # Logging

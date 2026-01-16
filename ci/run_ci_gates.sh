@@ -443,6 +443,42 @@ gate_12_wiring_alignment() {
 }
 
 # =============================================================================
+# GATE 13: SUBSTRATE API CHECK
+# =============================================================================
+
+gate_13_substrate_api() {
+    local files=("$@")
+    
+    log_header "GATE 13: SUBSTRATE API CHECK"
+    
+    if [ ! -f "$SCRIPT_DIR/check_substrate_api.py" ]; then
+        log_warn "Substrate API checker not found, skipping"
+        return 0
+    fi
+    
+    log_info "Checking for incorrect substrate API usage (.write vs .write_packet)..."
+    
+    # If specific files provided, check only those
+    if [ ${#files[@]} -gt 0 ]; then
+        if ! python3 "$SCRIPT_DIR/check_substrate_api.py" "${files[@]}"; then
+            log_error "SUBSTRATE API CHECK FAILED"
+            log_error "Use .write_packet(PacketEnvelopeIn(...)) instead of .write()"
+            return 1
+        fi
+    else
+        # Check all Python files in the repo
+        if ! python3 "$SCRIPT_DIR/check_substrate_api.py"; then
+            log_error "SUBSTRATE API CHECK FAILED"
+            log_error "Use .write_packet(PacketEnvelopeIn(...)) instead of .write()"
+            return 1
+        fi
+    fi
+    
+    log_info "✅ Substrate API check passed"
+    return 0
+}
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
@@ -495,6 +531,7 @@ main() {
     gate_10_tool_naming || exit 1
     gate_11_agent_executor || exit 1
     gate_12_wiring_alignment || exit 1
+    gate_13_substrate_api "${files[@]}" || exit 1
     run_test_presence_check "$spec_file" "${files[@]}" || exit 1
     
     log_header "🎉 ALL CI GATES PASSED"

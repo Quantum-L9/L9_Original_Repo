@@ -21,7 +21,7 @@ from contextlib import asynccontextmanager
 
 # Initialize logger early for import error handling
 logger = structlog.get_logger(__name__)
-from fastapi import (
+from fastapi import (  # noqa: E402
     FastAPI,
     WebSocket,
     WebSocketDisconnect,
@@ -268,14 +268,10 @@ try:
 except ImportError:
     _has_bootstrap = False
 
-# Feature flag for new agent initialization
-L9_NEW_AGENT_INIT = os.getenv("L9_NEW_AGENT_INIT", "true").lower() == "true"
-
-# Stage 3 Modules: Tool Audit, Event Queue, Virtual Context, Evaluator
-L9_STAGE3_MODULES = os.getenv("L9_STAGE3_MODULES", "true").lower() == "true"
-
-# Stage 5: Graph-Backed Agent State (Neo4j for mutable agent state)
-L9_GRAPH_AGENT_STATE = os.getenv("L9_GRAPH_AGENT_STATE", "true").lower() == "true"
+# Feature flags from centralized settings (config/settings.py)
+L9_NEW_AGENT_INIT = settings.l9_new_agent_init
+L9_STAGE3_MODULES = settings.l9_stage3_modules
+L9_GRAPH_AGENT_STATE = settings.l9_graph_agent_state
 
 # Optional: Graph-Backed Agent State (v3.2+ Stage 5)
 try:
@@ -294,7 +290,7 @@ except ImportError:
     _has_graph_agent_state = False
 
 # Optional: Five-Tier Observability (v3.3+ GMP-OBS-DEPLOY)
-L9_OBSERVABILITY = os.getenv("L9_OBSERVABILITY", "true").lower() == "true"
+L9_OBSERVABILITY = settings.l9_observability
 try:
     from core.observability.service import (
         initialize_observability,
@@ -401,11 +397,11 @@ try:
 except ImportError:
     _has_housekeeping = False
 
-# Optional: Mac Agent API (env-driven)
-_has_mac_agent = os.getenv("MAC_AGENT_ENABLED", "true").lower() == "true"
+# Optional: Mac Agent API (from centralized settings)
+_has_mac_agent = settings.mac_agent_enabled
 
-# Optional: WABA/WhatsApp (env-driven)
-_has_waba = os.getenv("WABA_ENABLED", "false").lower() == "true"
+# Optional: WABA/WhatsApp (from centralized settings)
+_has_waba = settings.waba_enabled
 
 # Memory system imports
 from memory.migration_runner import run_migrations
@@ -415,8 +411,11 @@ from memory.agent_persistence import AgentPersistenceService
 # Integration settings
 logger = structlog.get_logger(__name__)
 
-# Development mode flag
-LOCAL_DEV = os.getenv("LOCAL_DEV", "false").lower() == "true"
+# Development mode flag (from centralized settings)
+LOCAL_DEV = settings.local_dev
+
+# GMP v2.0 Learning Engine (global, initialized in lifespan if enabled)
+gmp_learning_engine = None  # Type: Optional[GMPMetaLearningEngine]
 
 
 @asynccontextmanager
@@ -779,11 +778,7 @@ async def lifespan(app: FastAPI):
 
             # Skip startup checks in container environments (broken symlinks, missing governance files)
             # Detection: L9_SKIP_STARTUP_CHECKS=true OR running in Docker (/app as cwd)
-            skip_startup = os.getenv("L9_SKIP_STARTUP_CHECKS", "false").lower() in (
-                "true",
-                "1",
-                "yes",
-            )
+            skip_startup = settings.l9_skip_startup_checks
             in_container = str(Path.cwd()) == "/app" or os.path.exists("/.dockerenv")
 
             if skip_startup or in_container:
@@ -1548,9 +1543,7 @@ async def lifespan(app: FastAPI):
     # ========================================================================
     import asyncio  # Ensure asyncio is available for this block
 
-    L9_STAGE4_CONSOLIDATION = (
-        os.getenv("L9_STAGE4_CONSOLIDATION", "true").lower() == "true"
-    )
+    L9_STAGE4_CONSOLIDATION = settings.l9_stage4_consolidation
 
     if L9_STAGE4_CONSOLIDATION:
         logger.info("╔════════════════════════════════════════╗")
@@ -1579,7 +1572,7 @@ async def lifespan(app: FastAPI):
                 async def run_consolidation_loop():
                     """Background task for periodic memory consolidation"""
                     consolidation_interval = (
-                        int(os.getenv("L9_CONSOLIDATION_INTERVAL_HOURS", "4")) * 3600
+                        settings.l9_consolidation_interval_hours * 3600
                     )
                     logger.info(
                         f"Memory consolidation scheduled every {consolidation_interval // 3600} hours"
@@ -1644,61 +1637,65 @@ async def lifespan(app: FastAPI):
         logger.info("Stage 4 (consolidation) disabled (L9_STAGE4_CONSOLIDATION=false)")
 
     # ========================================================================
-    # STAGE 5: Graph-Backed Agent State (Neo4j for mutable agent state)
+    # STAGE 5: Graph-Backed Agent State (Neo4j REQUIRED)
     # ========================================================================
     if L9_GRAPH_AGENT_STATE and _has_graph_agent_state:
         logger.info("╔════════════════════════════════════════╗")
         logger.info("║  Stage 5: Graph-Backed Agent State     ║")
         logger.info("╚════════════════════════════════════════╝")
 
+        # GMP-90: Neo4j is MANDATORY for graph agent state - fail loudly if unavailable
+        neo4j_client = getattr(app.state, "neo4j_client", None)
+
+        if neo4j_client is None:
+            error_msg = (
+                "L9_GRAPH_AGENT_STATE=true but Neo4j is unavailable. "
+                "Neo4j is MANDATORY for graph-backed agent state. "
+                "Either fix Neo4j connection or set L9_GRAPH_AGENT_STATE=false."
+            )
+            logger.critical(error_msg)
+            raise RuntimeError(error_msg)
+
         try:
-            # Get Neo4j client from app state (stored as neo4j_client, not neo4j_driver)
-            neo4j_client = getattr(app.state, "neo4j_client", None)
             substrate = getattr(app.state, "substrate_service", None) or getattr(
                 app.state, "memory_service", None
             )
 
-            if neo4j_client:
-                # Initialize AgentGraphLoader (uses neo4j_client)
-                agent_graph_loader = AgentGraphLoader(neo4j_client)
-                app.state.agent_graph_loader = agent_graph_loader
-                logger.info("✓ AgentGraphLoader initialized")
+            # Initialize AgentGraphLoader (uses neo4j_client)
+            agent_graph_loader = AgentGraphLoader(neo4j_client)
+            app.state.agent_graph_loader = agent_graph_loader
+            logger.info("✓ AgentGraphLoader initialized")
 
-                # Initialize GraphHydrator (with optional kernel stack)
-                kernel_stack = getattr(app.state, "kernel_stack", None)
-                graph_hydrator = GraphHydrator(
-                    neo4j_driver=neo4j_client,
-                    kernel_stack=kernel_stack,
-                )
-                app.state.graph_hydrator = graph_hydrator
-                logger.info("✓ GraphHydrator initialized")
+            # Initialize GraphHydrator (with optional kernel stack)
+            kernel_stack = getattr(app.state, "kernel_stack", None)
+            graph_hydrator = GraphHydrator(
+                neo4j_driver=neo4j_client,
+                kernel_stack=kernel_stack,
+            )
+            app.state.graph_hydrator = graph_hydrator
+            logger.info("✓ GraphHydrator initialized")
 
-                # Initialize AgentSelfModifyTool
-                self_modify_tool = create_self_modify_tool(
-                    neo4j_driver=neo4j_client,
-                    substrate_service=substrate,
-                )
-                app.state.agent_self_modify_tool = self_modify_tool
-                logger.info("✓ AgentSelfModifyTool initialized")
+            # Initialize AgentSelfModifyTool
+            self_modify_tool = create_self_modify_tool(
+                neo4j_driver=neo4j_client,
+                substrate_service=substrate,
+            )
+            app.state.agent_self_modify_tool = self_modify_tool
+            logger.info("✓ AgentSelfModifyTool initialized")
 
-                # Check if L exists in graph, bootstrap if not
-                if await agent_graph_loader.exists("L"):
-                    logger.info("✓ L agent found in Neo4j graph")
-                else:
-                    logger.warning("L agent not in graph - run migration script")
-                    logger.info("  python scripts/migrate_kernels_to_graph.py")
-
-                logger.info("Stage 5 (Graph-Backed Agent State) complete")
+            # Check if L exists in graph, bootstrap if not
+            if await agent_graph_loader.exists("L"):
+                logger.info("✓ L agent found in Neo4j graph")
             else:
-                logger.warning("⚠️ Stage 5 not started: neo4j_client not available")
-                app.state.agent_graph_loader = None
-                app.state.graph_hydrator = None
-                app.state.agent_self_modify_tool = None
+                logger.warning("L agent not in graph - run migration script")
+                logger.info("  python scripts/migrate_kernels_to_graph.py")
+
+            logger.info("Stage 5 (Graph-Backed Agent State) complete")
 
         except Exception as e:
-            logger.error(f"❌ Stage 5 init failed: {e}", exc_info=True)
-            app.state.agent_graph_loader = None
-            app.state.graph_hydrator = None
+            error_msg = f"Stage 5 init failed: {e}"
+            logger.critical(error_msg, exc_info=True)
+            raise RuntimeError(error_msg)
             app.state.agent_self_modify_tool = None
     elif L9_GRAPH_AGENT_STATE and not _has_graph_agent_state:
         logger.warning("Stage 5 enabled but graph_state module not available")
@@ -1706,28 +1703,40 @@ async def lifespan(app: FastAPI):
         logger.debug("Stage 5 (Graph-Backed Agent State) disabled")
 
     # ========================================================================
-    # STARTUP: UKG Phase 3 - Graph to World Model Sync (optional)
+    # STARTUP: UKG Phase 3 - Graph to World Model Sync (REQUIRES Neo4j)
     # ========================================================================
-    L9_GRAPH_WM_SYNC = os.getenv("L9_GRAPH_WM_SYNC", "true").lower() == "true"
+    L9_GRAPH_WM_SYNC = settings.l9_graph_wm_sync
 
     if L9_GRAPH_WM_SYNC:
+        # GMP-90: Neo4j is MANDATORY for Graph-WM Sync - fail loudly if unavailable
+        neo4j_for_sync = getattr(app.state, "neo4j_client", None)
+
+        if neo4j_for_sync is None:
+            error_msg = (
+                "L9_GRAPH_WM_SYNC=true but Neo4j is unavailable. "
+                "Neo4j is MANDATORY for graph features. "
+                "Either fix Neo4j connection or set L9_GRAPH_WM_SYNC=false."
+            )
+            logger.critical(error_msg)
+            raise RuntimeError(error_msg)
+
         try:
             from core.integration.graph_to_wm_sync import (
                 start_graph_wm_sync,
                 get_graph_wm_sync,
             )
 
-            # Pass neo4j_driver to sync service
-            neo4j_for_sync = getattr(app.state, "neo4j_client", None)
             await start_graph_wm_sync(neo4j_driver=neo4j_for_sync)
             app.state.graph_wm_sync = get_graph_wm_sync(neo4j_driver=neo4j_for_sync)
             logger.info("✅ UKG Phase 3: Graph-WM Sync started")
-        except ImportError:
-            logger.warning("Graph-WM Sync module not available")
-            app.state.graph_wm_sync = None
+        except ImportError as e:
+            error_msg = f"Graph-WM Sync module import failed: {e}"
+            logger.critical(error_msg)
+            raise RuntimeError(error_msg)
         except Exception as e:
-            logger.error(f"Graph-WM Sync init failed: {e}")
-            app.state.graph_wm_sync = None
+            error_msg = f"Graph-WM Sync init failed: {e}"
+            logger.critical(error_msg)
+            raise RuntimeError(error_msg)
     else:
         logger.debug("Graph-WM Sync disabled (L9_GRAPH_WM_SYNC=false)")
         app.state.graph_wm_sync = None
@@ -1735,9 +1744,7 @@ async def lifespan(app: FastAPI):
     # ========================================================================
     # STARTUP: UKG Phase 4 - Tool Pattern Extraction (optional)
     # ========================================================================
-    L9_TOOL_PATTERN_EXTRACTION = (
-        os.getenv("L9_TOOL_PATTERN_EXTRACTION", "true").lower() == "true"
-    )
+    L9_TOOL_PATTERN_EXTRACTION = settings.l9_tool_pattern_extraction
 
     if L9_TOOL_PATTERN_EXTRACTION:
         try:
@@ -1823,6 +1830,31 @@ async def lifespan(app: FastAPI):
         else:
             logger.debug("Observability disabled (L9_OBSERVABILITY=false)")
         app.state.observability_service = None
+
+    # ------------------------------------------------------------------------
+    # GMP v2.0 Learning Engine (GMP-92)
+    # ------------------------------------------------------------------------
+    if settings.l9_gmp_learning_enabled and database_url:
+        try:
+            from core.gmp import GMPMetaLearningEngine
+
+            global gmp_learning_engine
+            gmp_learning_engine = GMPMetaLearningEngine(database_url)
+            await gmp_learning_engine.create_tables()
+            app.state.gmp_learning_engine = gmp_learning_engine
+            logger.info("GMP Learning Engine initialized (v2.0)")
+        except ImportError as e:
+            logger.debug(f"GMP Learning Engine not available: {e}")
+            app.state.gmp_learning_engine = None
+        except Exception as e:
+            logger.error(f"GMP Learning Engine init failed: {e}", exc_info=True)
+            app.state.gmp_learning_engine = None
+    else:
+        if not settings.l9_gmp_learning_enabled:
+            logger.debug("GMP Learning disabled (L9_GMP_LEARNING_ENABLED=false)")
+        elif not database_url:
+            logger.debug("GMP Learning skipped (no database_url)")
+        app.state.gmp_learning_engine = None
 
     yield
 
