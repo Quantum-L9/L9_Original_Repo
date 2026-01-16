@@ -1745,8 +1745,9 @@ async def lifespan(app: FastAPI):
     # STARTUP: UKG Phase 3.5 - World Model to Graph Sync (causal data)
     # ========================================================================
     L9_WM_GRAPH_SYNC = os.getenv("L9_WM_GRAPH_SYNC", "true").lower() == "true"
+    neo4j_for_wm_sync = getattr(app.state, "neo4j_client", None)
 
-    if L9_WM_GRAPH_SYNC and neo4j_available:
+    if L9_WM_GRAPH_SYNC and neo4j_for_wm_sync is not None:
         try:
             from core.integration.wm_to_graph_sync import (
                 start_wm_graph_sync,
@@ -1762,11 +1763,11 @@ async def lifespan(app: FastAPI):
                 app.state.causal_mapper = CausalMapper()
 
             await start_wm_graph_sync(
-                neo4j_driver=neo4j_for_sync,
+                neo4j_driver=neo4j_for_wm_sync,
                 causal_mapper=app.state.causal_mapper,
             )
             app.state.wm_graph_sync = get_wm_graph_sync(
-                neo4j_driver=neo4j_for_sync,
+                neo4j_driver=neo4j_for_wm_sync,
                 causal_mapper=app.state.causal_mapper,
             )
             logger.info("✅ UKG Phase 3.5: WM-Graph Sync started (causal data → Neo4j)")
