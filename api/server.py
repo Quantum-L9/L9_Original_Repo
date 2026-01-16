@@ -786,9 +786,13 @@ async def lifespan(app: FastAPI):
             app.state.startup_ready = False
 
             # Skip startup checks in container environments (broken symlinks, missing governance files)
-            # Detection: L9_SKIP_STARTUP_CHECKS=true OR running in Docker (/app as cwd)
+            # Detection: L9_SKIP_STARTUP_CHECKS=true OR L9_CONTAINER_ENV=true OR /.dockerenv exists
             skip_startup = settings.l9_skip_startup_checks
-            in_container = str(Path.cwd()) == "/app" or os.path.exists("/.dockerenv")
+            in_container = (
+                os.getenv("L9_CONTAINER_ENV", "").lower() == "true"
+                or os.path.exists("/.dockerenv")
+                or str(Path.cwd()) == "/app"
+            )
 
             if skip_startup or in_container:
                 logger.info("╔════════════════════════════════════════╗")
@@ -2643,6 +2647,15 @@ if _has_reasoning:
 if _has_pattern:
     app.include_router(pattern_router, prefix="/pattern")
     logger.info("Pattern router registered at /pattern")
+
+# GMP Learning router (GMP v2.0 Meta-Learning)
+try:
+    from api.routes.gmp_learning import router as gmp_learning_router
+
+    app.include_router(gmp_learning_router, prefix="/api/gmp", tags=["gmp-learning"])
+    logger.info("GMP Learning router registered at /api/gmp")
+except ImportError as e:
+    logger.debug(f"GMP Learning router not available: {e}")
 
 # ResearchSwarm router (Stage 2.6 Phase 3)
 if _has_research_swarm:
