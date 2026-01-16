@@ -31,6 +31,12 @@ from orchestrators.pattern.interface import (
     PipelineResult,
     NodeResult,
 )
+from orchestrators.pattern.cell_adapter import (
+    CellAgentAdapter,
+    DirectLLMAgent,
+    create_cell_adapter,
+    create_direct_agent,
+)
 
 __all__ = [
     "PatternOrchestrator",
@@ -39,6 +45,10 @@ __all__ = [
     "NodeDefinition",
     "PipelineResult",
     "NodeResult",
+    "CellAgentAdapter",
+    "DirectLLMAgent",
+    "create_cell_adapter",
+    "create_direct_agent",
 ]
 
 __version__ = "1.0.0"
