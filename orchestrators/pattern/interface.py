@@ -1,0 +1,272 @@
+"""
+L9 Pattern Orchestrator - Interface Definitions
+================================================
+
+Pydantic models and type definitions for the pattern orchestrator.
+
+Version: 1.0.0
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from enum import Enum
+from typing import Any, Optional
+from uuid import UUID
+
+from pydantic import BaseModel, Field
+
+
+class NodeKind(str, Enum):
+    """Types of pipeline nodes."""
+
+    REASONING = "reasoning"
+    EXECUTION = "execution"
+    VALIDATION = "validation"
+    APPROVAL = "approval"
+
+
+class NodeStatus(str, Enum):
+    """Execution status of a node."""
+
+    PENDING = "pending"
+    RUNNING = "running"
+    SUCCESS = "success"
+    FAILURE = "failure"
+    SKIPPED = "skipped"
+
+
+class PipelineStatus(str, Enum):
+    """Overall pipeline execution status."""
+
+    PENDING = "pending"
+    RUNNING = "running"
+    SUCCESS = "success"
+    FAILURE = "failure"
+    CANCELLED = "cancelled"
+
+
+# =============================================================================
+# Input/Output Contracts
+# =============================================================================
+
+
+class InputField(BaseModel):
+    """Definition of a node input field."""
+
+    name: str
+    type: str = "object"
+    required: bool = False
+    description: str = ""
+
+
+class OutputContract(BaseModel):
+    """Definition of a node's output contract."""
+
+    packet_type: str
+    schema: dict[str, Any] = Field(default_factory=dict)
+
+
+# =============================================================================
+# Node Definitions
+# =============================================================================
+
+
+class NodeDefinition(BaseModel):
+    """Definition of a pipeline node from pattern YAML."""
+
+    id: str
+    uid: str = ""
+    name: str
+    kind: NodeKind = NodeKind.REASONING
+    role: str = "ArchitectAgent"
+    description: str = ""
+    input_contract: list[InputField] = Field(default_factory=list)
+    output_contract: Optional[OutputContract] = None
+    memory_segment: str = "segment.default"
+    next: list[str] = Field(default_factory=list)
+
+
+class NodeResult(BaseModel):
+    """Result of executing a single node."""
+
+    node_id: str
+    status: NodeStatus
+    output: dict[str, Any] = Field(default_factory=dict)
+    error: Optional[str] = None
+    duration_ms: float = 0.0
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+
+# =============================================================================
+# Pattern Configuration
+# =============================================================================
+
+
+class ObservabilityConfig(BaseModel):
+    """Observability configuration from pattern YAML."""
+
+    emit_metrics: list[str] = Field(default_factory=list)
+    tracing: dict[str, Any] = Field(default_factory=dict)
+
+
+class LImprovementLoopConfig(BaseModel):
+    """L improvement loop configuration."""
+
+    yield_threshold_pct: float = 10.0
+    max_iterations: int = 5
+    improvement_dimensions: int = 10
+
+
+class PatternConfig(BaseModel):
+    """Pattern configuration loaded from YAML."""
+
+    spec_kind: str = "l9_architecture_pattern"
+    version: int = 1
+    revision: str = ""
+    name: str = ""
+    description: str = ""
+    nodes: list[NodeDefinition] = Field(default_factory=list)
+    phase_0_mandatory: dict[str, Any] = Field(default_factory=dict)
+    l_improvement_loop_config: LImprovementLoopConfig = Field(
+        default_factory=LImprovementLoopConfig
+    )
+    observability: ObservabilityConfig = Field(default_factory=ObservabilityConfig)
+
+
+# =============================================================================
+# Subsystem Configuration
+# =============================================================================
+
+
+class SubsystemMetadata(BaseModel):
+    """Metadata for a subsystem."""
+
+    name: str
+    domain: str = ""
+    criticality: str = "medium"
+    agents_involved: list[str] = Field(default_factory=list)
+
+
+class ApprovalLevel(BaseModel):
+    """Definition of an approval level."""
+
+    name: str
+    criteria: list[str] = Field(default_factory=list)
+    approver: str = ""
+    sla_minutes: int = 0
+
+
+class ApprovalModel(BaseModel):
+    """Approval model configuration."""
+
+    levels: list[ApprovalLevel] = Field(default_factory=list)
+
+
+class MemorySegment(BaseModel):
+    """Memory segment configuration."""
+
+    name: str
+    writes: list[str] = Field(default_factory=list)
+
+
+class MemoryModel(BaseModel):
+    """Memory model configuration."""
+
+    segments: list[MemorySegment] = Field(default_factory=list)
+
+
+class RiskModel(BaseModel):
+    """Risk assessment model."""
+
+    assessment_dimensions: list[str] = Field(default_factory=list)
+    high_risk_triggers: list[str] = Field(default_factory=list)
+
+
+class PipelineStage(BaseModel):
+    """Pipeline stage definition."""
+
+    name: str
+    description: str = ""
+
+
+class PipelineConfig(BaseModel):
+    """Pipeline configuration."""
+
+    stages: list[PipelineStage] = Field(default_factory=list)
+
+
+class SubsystemConfig(BaseModel):
+    """Full subsystem configuration loaded from YAML."""
+
+    subsystem_config_v1: Optional[dict[str, Any]] = None
+
+    # Flattened fields for direct access
+    metadata: SubsystemMetadata = Field(
+        default_factory=lambda: SubsystemMetadata(name="unknown")
+    )
+    goals: list[str] = Field(default_factory=list)
+    constraints: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    pipeline: PipelineConfig = Field(default_factory=PipelineConfig)
+    approval_model: ApprovalModel = Field(default_factory=ApprovalModel)
+    memory_model: MemoryModel = Field(default_factory=MemoryModel)
+    risk_model: RiskModel = Field(default_factory=RiskModel)
+
+    def model_post_init(self, __context: Any) -> None:
+        """Flatten nested config structure."""
+        if self.subsystem_config_v1:
+            cfg = self.subsystem_config_v1
+            if "metadata" in cfg:
+                self.metadata = SubsystemMetadata(**cfg["metadata"])
+            if "goals" in cfg:
+                self.goals = cfg["goals"]
+            if "constraints" in cfg:
+                self.constraints = cfg["constraints"]
+            if "risks" in cfg:
+                self.risks = cfg["risks"]
+
+
+# =============================================================================
+# Pipeline Results
+# =============================================================================
+
+
+class PipelineResult(BaseModel):
+    """Result of a complete pipeline execution."""
+
+    trace_id: UUID
+    subsystem: str
+    status: PipelineStatus
+    node_results: list[NodeResult] = Field(default_factory=list)
+    artifacts: dict[str, Any] = Field(default_factory=dict)
+    failed_node: Optional[str] = None
+    error: Optional[str] = None
+    total_duration_ms: float = 0.0
+    started_at: datetime
+    completed_at: Optional[datetime] = None
+
+    @property
+    def nodes_completed(self) -> int:
+        """Count of successfully completed nodes."""
+        return sum(1 for r in self.node_results if r.status == NodeStatus.SUCCESS)
+
+    @property
+    def is_success(self) -> bool:
+        """Whether pipeline completed successfully."""
+        return self.status == PipelineStatus.SUCCESS
+
+
+# =============================================================================
+# Request Models
+# =============================================================================
+
+
+class PipelineRequest(BaseModel):
+    """Request to execute a pipeline."""
+
+    user_prompts: list[str] = Field(default_factory=list)
+    context: dict[str, Any] = Field(default_factory=dict)
+    dry_run: bool = False
+    max_iterations: Optional[int] = None
