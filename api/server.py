@@ -1755,12 +1755,18 @@ async def lifespan(app: FastAPI):
             )
             from world_model.causal_mapper import CausalMapper
 
-            # Create shared CausalMapper instance
-            if (
-                not hasattr(app.state, "causal_mapper")
-                or app.state.causal_mapper is None
-            ):
-                app.state.causal_mapper = CausalMapper()
+            # Get CausalMapper from world_model_service if available (ensures we sync actual data)
+            # Otherwise create shared instance
+            causal_mapper = None
+            wm_service = getattr(app.state, "world_model_service", None)
+            if wm_service:
+                causal_mapper = getattr(wm_service, "_causal_mapper", None)
+
+            if causal_mapper is None:
+                causal_mapper = CausalMapper()
+                logger.debug("Created standalone CausalMapper (world_model_service not available)")
+
+            app.state.causal_mapper = causal_mapper
 
             await start_wm_graph_sync(
                 neo4j_driver=neo4j_for_wm_sync,
