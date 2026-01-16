@@ -1742,6 +1742,47 @@ async def lifespan(app: FastAPI):
         app.state.graph_wm_sync = None
 
     # ========================================================================
+    # STARTUP: UKG Phase 3.5 - World Model to Graph Sync (causal data)
+    # ========================================================================
+    L9_WM_GRAPH_SYNC = os.getenv("L9_WM_GRAPH_SYNC", "true").lower() == "true"
+
+    if L9_WM_GRAPH_SYNC and neo4j_available:
+        try:
+            from core.integration.wm_to_graph_sync import (
+                start_wm_graph_sync,
+                get_wm_graph_sync,
+            )
+            from world_model.causal_mapper import CausalMapper
+
+            # Create shared CausalMapper instance
+            if (
+                not hasattr(app.state, "causal_mapper")
+                or app.state.causal_mapper is None
+            ):
+                app.state.causal_mapper = CausalMapper()
+
+            await start_wm_graph_sync(
+                neo4j_driver=neo4j_for_sync,
+                causal_mapper=app.state.causal_mapper,
+            )
+            app.state.wm_graph_sync = get_wm_graph_sync(
+                neo4j_driver=neo4j_for_sync,
+                causal_mapper=app.state.causal_mapper,
+            )
+            logger.info("✅ UKG Phase 3.5: WM-Graph Sync started (causal data → Neo4j)")
+        except ImportError as e:
+            logger.warning(f"WM-Graph Sync module not available: {e}")
+            app.state.wm_graph_sync = None
+        except Exception as e:
+            logger.error(f"WM-Graph Sync init failed: {e}")
+            app.state.wm_graph_sync = None
+    else:
+        logger.debug(
+            "WM-Graph Sync disabled (L9_WM_GRAPH_SYNC=false or Neo4j unavailable)"
+        )
+        app.state.wm_graph_sync = None
+
+    # ========================================================================
     # STARTUP: UKG Phase 4 - Tool Pattern Extraction (optional)
     # ========================================================================
     L9_TOOL_PATTERN_EXTRACTION = settings.l9_tool_pattern_extraction
