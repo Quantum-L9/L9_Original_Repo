@@ -88,12 +88,18 @@ async def validate_agent_blueprint(
     except Exception as e:
         return False, f"Neo4j offline: {e}"
 
-    # Check 4: Tool registry available
-    tool_registry = getattr(substrate_service, "tool_registry", None)
-    if tool_registry is None:
-        # Allow missing tool registry for now (will be created later)
-        logger.warning("Tool registry not initialized, will create during bootstrap")
-    checks.append(("tool_registry_available", True))
+    # Check 4: Tool registry available (via singleton, not substrate attribute)
+    # Tool registry is managed separately via get_tool_registry() singleton pattern
+    # in core/tools/base_registry.py - not a substrate service dependency
+    try:
+        from core.tools.base_registry import get_tool_registry
+
+        tool_registry = get_tool_registry()
+        checks.append(("tool_registry_available", True))
+        logger.debug("Blueprint check passed", check="tool_registry_available")
+    except ImportError:
+        logger.warning("Tool registry module not available")
+        checks.append(("tool_registry_available", False))
 
     logger.info(
         "Blueprint validation complete",
