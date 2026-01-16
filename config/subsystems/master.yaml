@@ -1,0 +1,11 @@
+subsystems:
+  code_mutation:
+    config_path: l9/subsystems/code_mutation/config.yaml
+    enabled: true
+    priority: high
+    max_parallel: 1
+
+orchestration:
+  execution_model: sequential
+  default_pattern: l9/patterns/architecture_pipeline_pattern_v1.yaml
+```
