@@ -30,6 +30,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends, Header
 from typing import Optional
 
 from ..schemas import CalendarAdapterRequest, CalendarAdapterResponse
+from core.decorators import must_stay_async
 from ..adapters.calendar_adapter_adapter import (
     CalendarAdapterAdapter,
     CalendarAdapterRequest as AdapterRequest,
@@ -45,6 +46,7 @@ router = APIRouter(prefix="/calendar", tags=["Calendar Adapter"])
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+@must_stay_async("callers use await")
 async def get_adapter(request: Request) -> CalendarAdapterAdapter:
     """Get adapter instance from app state."""
     substrate_service = getattr(request.app.state, "substrate_service", None)
@@ -100,6 +102,7 @@ async def handle_calendar_adapter(
 
 
 @router.get("/health")
+@must_stay_async("FastAPI/ASGI route handler")
 async def health_check() -> dict:
     """Health check endpoint."""
     return {"status": "healthy", "module": "calendar.adapter"}

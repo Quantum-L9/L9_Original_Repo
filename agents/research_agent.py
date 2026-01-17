@@ -28,6 +28,7 @@ from uuid import uuid4
 import httpx
 import structlog
 from tenacity import retry, stop_after_attempt, wait_exponential
+from core.decorators import must_stay_async
 
 # ============================================================================
 # Configuration
@@ -914,6 +915,7 @@ Output ONLY valid YAML, no explanations."""
     # Layer 4: Code Generation
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def generate_code(
         self,
         spec_path: Path | str,

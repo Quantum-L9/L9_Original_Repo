@@ -18,6 +18,7 @@ from .interface import (
     EvaluationCriteria,
 )
 from .adapter import BlueprintAdapter
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -152,6 +153,7 @@ class MetaOrchestrator(IMetaOrchestrator):
         suggestions = await self._adapter.generate_improvements(blueprint, evaluation)
         return suggestions
 
+    @must_stay_async("callers use await")
     async def _evaluate_blueprint(
         self,
         blueprint: Blueprint,

@@ -222,13 +222,13 @@ class ConsolidationPipeline:
                             e2.embedding_id as id2,
                             e1.payload->>'packet_id' as packet_id_1,
                             e2.payload->>'packet_id' as packet_id_2,
-                            1 - (e1.embedding <=> e2.embedding) as similarity,
+                            1 - (e1.vector <=> e2.vector) as similarity,
                             e1.created_at as created_1,
                             e2.created_at as created_2
                         FROM semantic_memory e1
                         INNER JOIN semantic_memory e2 
                             ON e1.embedding_id < e2.embedding_id
-                        WHERE 1 - (e1.embedding <=> e2.embedding) >= $1
+                        WHERE 1 - (e1.vector <=> e2.vector) >= $1
                         LIMIT $2
                     )
                     SELECT * FROM embedding_pairs
@@ -319,7 +319,7 @@ class ConsolidationPipeline:
                 rows = await conn.fetch(
                     """
                     SELECT packet_id, created_at
-                    FROM packetstore
+                    FROM packet_store
                     WHERE created_at < $1
                     LIMIT $2
                     """,
@@ -550,7 +550,7 @@ class ConsolidationPipeline:
                 rows = await conn.fetch(
                     """
                     SELECT packet_id, ttl, created_at
-                    FROM packetstore
+                    FROM packet_store
                     WHERE ttl IS NOT NULL
                       AND (created_at + INTERVAL '1 second' * ttl) < $1
                     LIMIT $2
@@ -567,7 +567,7 @@ class ConsolidationPipeline:
                         # Delete embeddings first
                         await conn.execute(
                             """
-                            DELETE FROM memoryembeddings
+                            DELETE FROM memory_embeddings
                             WHERE packet_id = $1
                             """,
                             packet_id,
@@ -576,7 +576,7 @@ class ConsolidationPipeline:
                     # Delete packet
                     await conn.execute(
                         """
-                        DELETE FROM packetstore
+                        DELETE FROM packet_store
                         WHERE packet_id = $1
                         """,
                         packet_id,

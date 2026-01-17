@@ -16,6 +16,7 @@ from .interface import (
     ToolSafetyLevel,
 )
 from .validator import Validator
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -53,6 +54,7 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
         self._validator = Validator(tool_registry)
         logger.info("ActionToolOrchestrator initialized")
 
+    @must_stay_async("callers use await")
     async def _get_registry(self) -> Optional[Any]:
         """Get or lazily load the tool registry."""
         if self._registry is None:

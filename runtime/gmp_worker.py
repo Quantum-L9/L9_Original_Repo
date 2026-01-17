@@ -23,6 +23,7 @@ from typing import Any, Dict, Optional
 from datetime import datetime
 
 from runtime.task_queue import TaskQueue, QueuedTask
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -58,6 +59,7 @@ class GMPWorker:
         self._running = False
         self._task: Optional[asyncio.Task] = None
 
+    @must_stay_async("callers use await")
     async def start(self) -> None:
         """Start the worker loop."""
         if self._running:

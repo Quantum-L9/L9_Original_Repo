@@ -23,6 +23,7 @@ from typing import Any, Optional
 import httpx
 
 from core.resilience.retry import async_retry, AsyncRetryConfig
+from core.decorators import must_stay_async
 
 log = structlog.get_logger(__name__)
 
@@ -155,6 +156,7 @@ class PerplexityClient:
         self.api_key = api_key
         self._client: Optional[httpx.AsyncClient] = None
 
+    @must_stay_async("async context manager protocol")
     async def __aenter__(self):
         """Async context manager entry."""
         self._client = httpx.AsyncClient(
@@ -221,7 +223,9 @@ class PerplexityClient:
                 if response.status_code >= 400:
                     error_text = response.text[:500]
                     log.error(
-                        "perplexity_error", status=response.status_code, error=error_text
+                        "perplexity_error",
+                        status=response.status_code,
+                        error=error_text,
                     )
                     return PerplexityResponse(
                         success=False,
@@ -241,7 +245,11 @@ class PerplexityClient:
                 _make_request,
                 config=PERPLEXITY_RETRY_CONFIG,
                 operation=f"perplexity_search_{request.model.value}",
-                retry_on=(httpx.TimeoutException, httpx.ConnectError, httpx.HTTPStatusError),
+                retry_on=(
+                    httpx.TimeoutException,
+                    httpx.ConnectError,
+                    httpx.HTTPStatusError,
+                ),
             )
 
         except httpx.TimeoutException:

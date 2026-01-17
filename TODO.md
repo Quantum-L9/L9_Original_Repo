@@ -1,10 +1,37 @@
 # TODO
 
-> **Last Updated:** 2026-01-14 (GMP-87: Scaffolding features added)
+> **Last Updated:** 2026-01-17 (Agent ID naming review added)
 
 ---
 
 ## 🔴 High Priority
+
+### Agent/Tenant ID Naming Review
+
+**Status:** Review needed
+
+**Issue:** L9 has multiple identifiers for the same entities, causing confusion:
+
+| Identifier | What It Is | Canonical? |
+|------------|------------|------------|
+| `l-cto` | L's agent_id | ✅ PRIMARY |
+| `l9-standard-v1` | Alias for l-cto (config name) | Keep as alias |
+| `l9-kernel` | MCP memory source field | Different concept (source, not agent) |
+| `cursor-ide` | Cursor's agent_id | ✅ PRIMARY |
+| `cursor-agent` | Folder name for Cursor files | Should rename to `cursor-ide`? |
+
+**Questions to resolve:**
+1. Should `agents/cursor/` folder be renamed to `agents/cursor-ide/`? (consistency)
+2. Should `l9-kernel` MCP source be changed to `l-cto`? (reduce confusion)
+3. Should we deprecate `l9-standard-v1` eventually or keep as permanent alias?
+
+**Files using these identifiers:**
+- `core/agents/kernel_registry.py` — Aliases l-cto ↔ l9-standard-v1
+- `mcp_memory/src/main.py` — Uses `l9-kernel` as source
+- `agents/cursor/cursor_memory_kernel.py` — Uses `cursor-ide`
+- `runtime/kernel_loader.py` — Checks for multiple L aliases
+
+---
 
 ### UUID Standardization Refactor
 
@@ -173,6 +200,9 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 | Twilio Adapter | `api/adapters/twilio_adapter/` (4 files) | SMS/Voice integration |
 
 **TODO (when developing these):**
+- [ ] Create `/orchestrators/evolution` router for kernel evolution management (GMP-91 follow-up)
+  - Endpoints: `GET /evolution/status`, `POST /evolution/trigger`, `GET /evolution/history`
+  - Wire EvolutionOrchestrator in FastAPI lifespan
 - [ ] Create API routes for orchestrators (`api/routes/meta.py`, etc.)
 - [ ] Wire orchestrators in FastAPI lifespan (follow GMP-87 CursorExecutor pattern)
 - [ ] Complete adapter implementations (currently skeleton code)

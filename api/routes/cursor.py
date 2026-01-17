@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -81,6 +82,7 @@ class CursorResumeRequest(BaseModel):
 
 
 @router.get("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def cursor_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -98,16 +100,18 @@ async def cursor_task(
 ):
     """
     Execute a Cursor task via LangGraph executor.
-    
+
     Creates a new task or continues an existing thread.
     """
-    logger.info("Cursor task request", task=request.task[:50], project_id=request.project_id)
-    
+    logger.info(
+        "Cursor task request", task=request.task[:50], project_id=request.project_id
+    )
+
     executor = get_cursor_executor(http_request)
-    
+
     try:
         from agents.cursor.integrations.cursor_executor import CursorTaskSpec
-        
+
         # Build task spec
         task_spec = CursorTaskSpec(
             task=request.task,
@@ -116,16 +120,16 @@ async def cursor_task(
             selection=request.selection,
             initial_state=None,  # Will be created by executor
         )
-        
+
         # Execute task
         result = await executor.run_task(task_spec)
-        
+
         logger.info(
             "Cursor task completed",
             thread_id=result.thread_id,
             status=result.final_state.task_status,
         )
-        
+
         return CursorTaskResponse(
             success=result.final_state.task_status == "completed",
             thread_id=result.thread_id,
@@ -133,7 +137,9 @@ async def cursor_task(
             decisions=result.decisions,
             errors=result.errors,
             reasoning_trace=result.reasoning_trace,
-            message="Task executed successfully" if result.final_state.task_status == "completed" else "Task failed",
+            message="Task executed successfully"
+            if result.final_state.task_status == "completed"
+            else "Task failed",
         )
     except Exception as e:
         logger.exception("Cursor task execution failed", error=str(e))
@@ -149,24 +155,23 @@ async def cursor_resume(
 ):
     """
     Resume a Cursor thread from last checkpoint.
-    
+
     Restores state from checkpoint and continues execution.
     """
     logger.info("Cursor resume request", thread_id=request.thread_id)
-    
+
     executor = get_cursor_executor(http_request)
-    
+
     try:
-        
         # Resume thread
         result = await executor.resume_thread(request.thread_id)
-        
+
         logger.info(
             "Cursor thread resumed",
             thread_id=result.thread_id,
             status=result.final_state.task_status,
         )
-        
+
         return CursorTaskResponse(
             success=result.final_state.task_status == "completed",
             thread_id=result.thread_id,
@@ -174,12 +179,17 @@ async def cursor_resume(
             decisions=result.decisions,
             errors=result.errors,
             reasoning_trace=result.reasoning_trace,
-            message="Thread resumed successfully" if result.final_state.task_status == "completed" else "Thread resume failed",
+            message="Thread resumed successfully"
+            if result.final_state.task_status == "completed"
+            else "Thread resume failed",
         )
     except ValueError as e:
-        logger.warning("Cursor resume failed: thread not found", thread_id=request.thread_id, error=str(e))
+        logger.warning(
+            "Cursor resume failed: thread not found",
+            thread_id=request.thread_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail=f"Thread not found: {e}")
     except Exception as e:
         logger.exception("Cursor resume execution failed", error=str(e))
         raise HTTPException(status_code=500, detail=f"Resume execution error: {e}")
-

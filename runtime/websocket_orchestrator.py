@@ -22,6 +22,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi import WebSocket
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -43,6 +44,7 @@ class WebSocketOrchestrator:
     # Connection Management
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def register(
         self,
         agent_id: str,
@@ -66,6 +68,7 @@ class WebSocketOrchestrator:
             list((metadata or {}).keys()),
         )
 
+    @must_stay_async("callers use await")
     async def unregister(self, agent_id: str) -> None:
         """
         Unregister an agent and clean up resources.
@@ -94,6 +97,7 @@ class WebSocketOrchestrator:
     # Message Handling
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def handle_incoming(self, agent_id: str, data: Dict[str, Any]) -> None:
         """
         Handle an incoming message from an agent.

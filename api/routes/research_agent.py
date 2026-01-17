@@ -21,6 +21,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -166,6 +167,7 @@ class ResearchToCodeResponse(BaseModel):
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def research_agent_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),

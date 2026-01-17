@@ -24,6 +24,7 @@ from uuid import UUID, uuid4
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -247,8 +248,12 @@ class SimulationEngine:
                         "bottlenecks": run.metrics.bottlenecks,
                     },
                     "failure_modes": run.failure_modes,
-                    "started_at": run.started_at.isoformat() if run.started_at else None,
-                    "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+                    "started_at": run.started_at.isoformat()
+                    if run.started_at
+                    else None,
+                    "completed_at": run.completed_at.isoformat()
+                    if run.completed_at
+                    else None,
                 },
                 provenance=PacketProvenance(
                     source="simulation_engine",
@@ -264,7 +269,9 @@ class SimulationEngine:
             logger.debug(f"Simulation packet emitted: run_id={run.run_id}")
 
         except ImportError:
-            logger.debug("Memory substrate models not available, skipping packet emission")
+            logger.debug(
+                "Memory substrate models not available, skipping packet emission"
+            )
         except Exception as e:
             # Non-fatal: log and continue
             logger.warning(f"Failed to emit simulation packet: {e}")
@@ -283,6 +290,7 @@ class SimulationEngine:
 
         return dep_graph
 
+    @must_stay_async("callers use await")
     async def _simulate_fast(
         self,
         run: SimulationRun,

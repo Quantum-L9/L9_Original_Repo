@@ -23,6 +23,7 @@ from orchestrators.memory.interface import MemoryRequest, MemoryOperation
 from orchestrators.memory.orchestrator import MemoryOrchestrator
 from memory.saga import SagaResult
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+from core.decorators import must_stay_async
 from memory.governance_gate import (
     build_governance_context,
     governance_context,
@@ -100,6 +101,7 @@ class PacketResponse(BaseModel):
 
 
 @router.post("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def memory_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -977,6 +979,7 @@ async def warm_memory_for_query(
 
 
 @router.get("/warm/metrics")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_warming_metrics(
     req: Request,
     authorization: str = Header(None),
@@ -1004,6 +1007,4 @@ async def get_warming_metrics(
         return metrics
     except Exception as e:
         logger.error(f"Failed to get warming metrics: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get metrics: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {str(e)}")

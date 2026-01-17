@@ -21,6 +21,7 @@ from uuid import uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -135,12 +136,14 @@ class RemediationEngine:
     # Lifecycle
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def startup(self) -> None:
         """Initialize resources on startup."""
         logger.info("remediation_engine_starting")
         self._initialized = True
         logger.info("remediation_engine_started")
 
+    @must_stay_async("health endpoint")
     async def shutdown(self) -> None:
         """Clean up resources on shutdown."""
         logger.info("remediation_engine_shutting_down")
@@ -241,6 +244,7 @@ class RemediationEngine:
         else:
             return await self._handle_investigate(request)
 
+    @must_stay_async("callers use await")
     async def _handle_log_and_monitor(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -263,6 +267,7 @@ class RemediationEngine:
             next_steps=["Continue monitoring", "Review in daily audit"],
         )
 
+    @must_stay_async("callers use await")
     async def _handle_remediate(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -314,6 +319,7 @@ class RemediationEngine:
             next_steps=["Verify remediation effectiveness", "Monitor for recurrence"],
         )
 
+    @must_stay_async("callers use await")
     async def _handle_rollback(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -375,6 +381,7 @@ class RemediationEngine:
                 next_steps=["Manual intervention required", "Escalate to Igor"],
             )
 
+    @must_stay_async("callers use await")
     async def _handle_escalate(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -400,6 +407,7 @@ class RemediationEngine:
             next_steps=["Await human response", "Monitor anomaly progression"],
         )
 
+    @must_stay_async("callers use await")
     async def _handle_investigate(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -432,6 +440,7 @@ class RemediationEngine:
     # Health Check
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def health_check(self) -> Dict[str, Any]:
         """Check service health."""
         return {

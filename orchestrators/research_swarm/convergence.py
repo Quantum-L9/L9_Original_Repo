@@ -7,6 +7,7 @@ Handles consensus building and result aggregation.
 """
 
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -22,6 +23,7 @@ class Convergence:
         """Initialize convergence."""
         logger.info("Convergence initialized")
 
+    @must_stay_async("future await planned")
     async def process(self, data: dict) -> dict:
         """Process data through convergence."""
         logger.info("Processing through convergence")

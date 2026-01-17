@@ -9,6 +9,7 @@ Implements chain-of-thought, tree-of-thought, and forest reasoning patterns.
 from __future__ import annotations
 
 import structlog
+from core.decorators import must_stay_async
 
 from .interface import (
     IReasoningOrchestrator,
@@ -69,6 +70,7 @@ class ReasoningOrchestrator(IReasoningOrchestrator):
                 message=f"Reasoning failed: {str(e)}",
             )
 
+    @must_stay_async("callers use await")
     async def _chain_of_thought(self, request: ReasoningRequest) -> ReasoningResponse:
         """
         Execute chain-of-thought reasoning.
@@ -94,6 +96,7 @@ class ReasoningOrchestrator(IReasoningOrchestrator):
             conclusion=conclusion,
         )
 
+    @must_stay_async("callers use await")
     async def _tree_of_thought(self, request: ReasoningRequest) -> ReasoningResponse:
         """
         Execute tree-of-thought reasoning.
@@ -126,6 +129,7 @@ class ReasoningOrchestrator(IReasoningOrchestrator):
             conclusion=conclusion,
         )
 
+    @must_stay_async("callers use await")
     async def _forest_of_thought(self, request: ReasoningRequest) -> ReasoningResponse:
         """
         Execute forest-of-thought reasoning.
@@ -152,6 +156,7 @@ class ReasoningOrchestrator(IReasoningOrchestrator):
             conclusion=conclusion,
         )
 
+    @must_stay_async("callers use await")
     async def _beam_search(self, request: ReasoningRequest) -> ReasoningResponse:
         """
         Execute beam search reasoning.

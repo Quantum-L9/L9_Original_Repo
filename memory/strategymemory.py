@@ -31,6 +31,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -44,7 +45,9 @@ class StrategyCandidate(BaseModel):
     """A strategy candidate returned from retrieval."""
 
     strategy_id: str = Field(..., description="Unique identifier for this strategy")
-    description: str = Field(..., description="Human-readable description of the strategy")
+    description: str = Field(
+        ..., description="Human-readable description of the strategy"
+    )
     confidence: float = Field(
         ..., ge=0.0, le=1.0, description="Confidence score (0.0-1.0)"
     )
@@ -72,14 +75,14 @@ class StrategyRetrievalRequest(BaseModel):
     context_embedding: List[float] = Field(
         default_factory=list, description="384-dim embedding vector"
     )
-    tags: List[str] = Field(
-        default_factory=list, description="Preferred strategy tags"
-    )
+    tags: List[str] = Field(default_factory=list, description="Preferred strategy tags")
     # Retrieval parameters
     min_confidence: float = Field(
         default=0.6, ge=0.0, le=1.0, description="Minimum confidence threshold"
     )
-    max_results: int = Field(default=5, ge=1, le=20, description="Maximum results to return")
+    max_results: int = Field(
+        default=5, ge=1, le=20, description="Maximum results to return"
+    )
 
 
 class StrategyFeedback(BaseModel):
@@ -92,7 +95,9 @@ class StrategyFeedback(BaseModel):
         ..., ge=0.0, le=1.0, description="Quality score of the outcome"
     )
     execution_time_ms: int = Field(..., ge=0, description="Execution duration in ms")
-    resource_cost: float = Field(default=0.0, ge=0.0, description="Resource cost estimate")
+    resource_cost: float = Field(
+        default=0.0, ge=0.0, description="Resource cost estimate"
+    )
     metadata: Dict[str, Any] = Field(
         default_factory=dict, description="Additional feedback metadata"
     )
@@ -121,6 +126,7 @@ class IStrategyMemoryService(ABC):
     """
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def retrieve_strategies(
         self,
         request: StrategyRetrievalRequest,
@@ -139,6 +145,7 @@ class IStrategyMemoryService(ABC):
         ...
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def record_new_strategy(
         self,
         task_id: str,
@@ -163,6 +170,7 @@ class IStrategyMemoryService(ABC):
         ...
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def update_strategy_outcome(
         self,
         feedback: StrategyFeedback,
@@ -199,6 +207,7 @@ class StrategyMemoryService(IStrategyMemoryService):
         self._strategies: Dict[str, StrategyCandidate] = {}
         logger.info("StrategyMemoryService initialized (stub mode)")
 
+    @must_stay_async("callers use await")
     async def retrieve_strategies(
         self,
         request: StrategyRetrievalRequest,
@@ -225,9 +234,8 @@ class StrategyMemoryService(IStrategyMemoryService):
         candidates = []
         for strategy in self._strategies.values():
             # Simple tag matching for Phase 0
-            tag_match = (
-                not request.tags
-                or any(t in strategy.tags for t in request.tags)
+            tag_match = not request.tags or any(
+                t in strategy.tags for t in request.tags
             )
             if tag_match and strategy.confidence >= request.min_confidence:
                 candidates.append(strategy)
@@ -244,6 +252,7 @@ class StrategyMemoryService(IStrategyMemoryService):
 
         return candidates[:limit]
 
+    @must_stay_async("callers use await")
     async def record_new_strategy(
         self,
         task_id: str,
@@ -288,6 +297,7 @@ class StrategyMemoryService(IStrategyMemoryService):
 
         return strategy_id
 
+    @must_stay_async("callers use await")
     async def update_strategy_outcome(
         self,
         feedback: StrategyFeedback,
@@ -315,7 +325,10 @@ class StrategyMemoryService(IStrategyMemoryService):
             strategy = self._strategies[feedback.strategy_id]
             # Simple exponential smoothing (alpha=0.3)
             alpha = 0.3
-            new_perf = alpha * feedback.outcome_score + (1 - alpha) * strategy.performance_score
+            new_perf = (
+                alpha * feedback.outcome_score
+                + (1 - alpha) * strategy.performance_score
+            )
             # Update via new instance (Pydantic immutability)
             self._strategies[feedback.strategy_id] = StrategyCandidate(
                 strategy_id=strategy.strategy_id,
@@ -327,4 +340,3 @@ class StrategyMemoryService(IStrategyMemoryService):
                 usage_count=strategy.usage_count + 1,
                 tags=strategy.tags,
             )
-

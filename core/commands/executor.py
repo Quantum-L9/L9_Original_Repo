@@ -16,6 +16,7 @@ from __future__ import annotations
 import structlog
 from datetime import datetime
 from typing import Any, Optional
+from core.decorators import must_stay_async
 
 from core.commands.schemas import (
     Command,
@@ -221,7 +222,10 @@ class CommandExecutor:
                     data={
                         "entity": entity,
                         "results_count": len(results) if results else 0,
-                        "results": [r.dict() if hasattr(r, 'dict') else str(r) for r in (results or [])],
+                        "results": [
+                            r.dict() if hasattr(r, "dict") else str(r)
+                            for r in (results or [])
+                        ],
                     },
                 )
 
@@ -402,6 +406,7 @@ class CommandExecutor:
             message="Agent executor not available for rollback",
         )
 
+    @must_stay_async("health endpoint")
     async def _handle_status(
         self,
         command: Command,
@@ -432,6 +437,7 @@ class CommandExecutor:
                 },
             )
 
+    @must_stay_async("callers use await")
     async def _handle_help(
         self,
         command: Command,
@@ -570,4 +576,3 @@ __all__ = [
     "execute_command",
     "CommandResult",
 ]
-

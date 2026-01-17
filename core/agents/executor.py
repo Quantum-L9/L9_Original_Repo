@@ -91,6 +91,8 @@ except ImportError:
     _has_prompt_builder = False
     logger.warning("prompt_builder not available - kernel prompts disabled")
 
+from core.decorators import must_stay_async
+
 # Stage 5: Predictive Memory Warming (optional - graceful degradation)
 try:
     from memory.warming_service import MemoryWarmingService
@@ -106,6 +108,7 @@ except ImportError:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def _generate_tasks_from_query(query: str) -> List[Dict[str, Any]]:
     """
     Parse user requests into task specifications.
@@ -194,6 +197,7 @@ async def _generate_tasks_from_query(query: str) -> List[Dict[str, Any]]:
 class AIOSRuntime(Protocol):
     """Protocol for AIOS runtime interface."""
 
+    @must_stay_async("callers use await")
     async def execute_reasoning(
         self,
         context: dict[str, Any],
@@ -213,6 +217,7 @@ class AIOSRuntime(Protocol):
 class ToolRegistryProtocol(Protocol):
     """Protocol for tool registry interface."""
 
+    @must_stay_async("callers use await")
     async def dispatch_tool_call(
         self,
         tool_id: str,
@@ -253,6 +258,7 @@ class ToolRegistryProtocol(Protocol):
 class SubstrateServiceProtocol(Protocol):
     """Protocol for memory substrate service interface."""
 
+    @must_stay_async("callers use await")
     async def write_packet(
         self,
         packet_in: PacketEnvelopeIn,
@@ -268,6 +274,7 @@ class SubstrateServiceProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def search_packets(
         self,
         thread_id: UUID,
@@ -285,6 +292,7 @@ class SubstrateServiceProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def search_packets_by_thread(
         self,
         thread_id: str,
@@ -391,6 +399,9 @@ class AgentExecutorService:
         # Stage 5: Predictive Memory Warming service (optional)
         self._memory_warming_service: Optional[Any] = None
 
+        # Stage 5: Graph Hydrator for loading agent context from Neo4j (optional)
+        self._graph_hydrator: Optional[Any] = None
+
         logger.info(
             "agent.executor.init: default_agent_id=%s, max_iterations=%d, persistence=%s",
             self._default_agent_id,
@@ -432,6 +443,23 @@ class AgentExecutorService:
         logger.info(
             "agent.executor.memory_warming_set: enabled=%s",
             service is not None,
+        )
+
+    def set_graph_hydrator(self, hydrator: Any) -> None:
+        """
+        Set the graph hydrator for loading agent context from Neo4j.
+
+        Stage 5: Graph-Backed Agent State (GMP-76).
+        Hydrates agent context (responsibilities, directives, tools) from
+        Neo4j graph before task execution.
+
+        Args:
+            hydrator: GraphHydrator instance
+        """
+        self._graph_hydrator = hydrator
+        logger.info(
+            "agent.executor.graph_hydrator_set: enabled=%s",
+            hydrator is not None,
         )
 
     async def shutdown(self) -> None:
@@ -628,7 +656,9 @@ class AgentExecutorService:
                                 "agent.executor.memory_warming",
                                 task_id=task_id_str,
                                 gaps_detected=warming_result.get("gaps_detected", 0),
-                                entities_warmed=warming_result.get("entities_warmed", 0),
+                                entities_warmed=warming_result.get(
+                                    "entities_warmed", 0
+                                ),
                                 latency_ms=warming_result.get("warming_latency_ms", 0),
                             )
                 except Exception as warming_error:
@@ -637,6 +667,35 @@ class AgentExecutorService:
                         "agent.executor.memory_warming_failed",
                         task_id=task_id_str,
                         error=str(warming_error),
+                    )
+
+            # Stage 5: Graph Hydration (GMP-76)
+            # Load agent context from Neo4j graph before execution
+            hydrated_context = None
+            if self._graph_hydrator is not None:
+                try:
+                    hydrated_context = await self._graph_hydrator.hydrate(
+                        agent_id=task.agent_id,
+                        include_kernels=True,
+                    )
+                    logger.debug(
+                        "agent.executor.graph_hydration",
+                        task_id=task_id_str,
+                        agent_id=task.agent_id,
+                        responsibilities=len(hydrated_context.responsibilities)
+                        if hydrated_context
+                        else 0,
+                        tools=len(hydrated_context.available_tools)
+                        if hydrated_context
+                        else 0,
+                    )
+                except Exception as hydration_error:
+                    # Non-fatal - log and continue without hydrated context
+                    logger.warning(
+                        "agent.executor.graph_hydration_failed",
+                        task_id=task_id_str,
+                        agent_id=task.agent_id,
+                        error=str(hydration_error),
                     )
 
             # Instantiate agent

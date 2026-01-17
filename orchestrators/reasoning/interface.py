@@ -8,6 +8,7 @@ Controls reasoning engine modes, depth, tree/forest strategy.
 from typing import Protocol, List, Optional
 from pydantic import BaseModel, Field
 from enum import Enum
+from core.decorators import must_stay_async
 
 
 class ReasoningMode(str, Enum):
@@ -44,6 +45,7 @@ class ReasoningResponse(BaseModel):
 class IReasoningOrchestrator(Protocol):
     """Interface for Reasoning Orchestrator."""
 
+    @must_stay_async("callers use await")
     async def execute(self, request: ReasoningRequest) -> ReasoningResponse:
         """Execute reasoning orchestration."""
         ...

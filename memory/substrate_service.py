@@ -39,7 +39,12 @@ from memory.saga_patterns import (
     SagaPatterns,
 )
 from memory.audit_utils import prepare_packet_for_ingest
-from memory.governance_gate import enforce_packet_governance, require_governance_context
+from memory.governance_gate import (
+    build_governance_context,
+    enforce_packet_governance,
+    governance_context,
+    require_governance_context,
+)
 from telemetry.memory_metrics import (
     record_memory_write,
     record_memory_search,
@@ -48,6 +53,7 @@ from telemetry.memory_metrics import (
     record_memory_ingest,
 )
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -388,11 +394,22 @@ class MemorySubstrateService:
             List of packet envelopes as dicts
         """
         try:
-            rows = await self._repository.search_packets_by_type(
-                packet_type=packet_type,
-                agent_id=agent_id,
-                limit=limit,
+            # GMP-75: Establish governance context for service-level searches
+            # Multiple callers (l_tools, base_registry, kernel_loader) rely on this
+            system_ctx = build_governance_context(
+                caller_id="substrate_service",
+                role="system",
+                tenant_id="system",
+                org_id="l9",
+                project_ids=["*"],  # System-level access for internal operations
             )
+
+            async with governance_context(system_ctx):
+                rows = await self._repository.search_packets_by_type(
+                    packet_type=packet_type,
+                    agent_id=agent_id,
+                    limit=limit,
+                )
             results = [row.envelope for row in rows]
 
             # Record Prometheus metrics for search
@@ -443,29 +460,45 @@ class MemorySubstrateService:
             if tenant_id and org_id and user_id:
                 await self.set_session_scope(tenant_id, org_id, user_id, role)
 
+            # GMP-74: Establish governance context for internal polling operations
+            # World Model Runtime calls this every 60s without external context
+            system_ctx = build_governance_context(
+                caller_id="world_model_runtime",
+                role=role or "system",
+                tenant_id=tenant_id or "system",
+                org_id=org_id or "l9",
+                project_ids=["*"],  # System-level access for internal polling
+            )
+
             all_packets = []
 
-            if packet_types:
-                # Fetch each type and combine
-                for ptype in packet_types:
-                    rows = await self._repository.search_packets_by_type(
-                        packet_type=ptype,
-                        agent_id=agent_id,
-                        limit=limit,
-                        since=since,
-                    )
-                    all_packets.extend([row.envelope for row in rows])
-            else:
-                # No type filter - get recent packets
-                # Use a common packet type as fallback
-                for ptype in ["insight", "reflection", "ir_graph", "execution_plan"]:
-                    rows = await self._repository.search_packets_by_type(
-                        packet_type=ptype,
-                        agent_id=agent_id,
-                        limit=limit // 4,  # Split limit across types
-                        since=since,
-                    )
-                    all_packets.extend([row.envelope for row in rows])
+            async with governance_context(system_ctx):
+                if packet_types:
+                    # Fetch each type and combine
+                    for ptype in packet_types:
+                        rows = await self._repository.search_packets_by_type(
+                            packet_type=ptype,
+                            agent_id=agent_id,
+                            limit=limit,
+                            since=since,
+                        )
+                        all_packets.extend([row.envelope for row in rows])
+                else:
+                    # No type filter - get recent packets
+                    # Use a common packet type as fallback
+                    for ptype in [
+                        "insight",
+                        "reflection",
+                        "ir_graph",
+                        "execution_plan",
+                    ]:
+                        rows = await self._repository.search_packets_by_type(
+                            packet_type=ptype,
+                            agent_id=agent_id,
+                            limit=limit // 4,  # Split limit across types
+                            since=since,
+                        )
+                        all_packets.extend([row.envelope for row in rows])
 
             # Sort by timestamp descending and limit
             all_packets.sort(
@@ -939,6 +972,7 @@ class MemorySubstrateService:
     # Saga Pattern (GMP-56/57: Cross-DB Multi-Step Operations)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_saga_executor(self) -> SagaExecutor:
         """
         Get saga executor instance (lazy initialization).
@@ -1206,6 +1240,7 @@ async def create_substrate_service(
 _service: Optional[MemorySubstrateService] = None
 
 
+@must_stay_async("callers use await")
 async def get_service() -> MemorySubstrateService:
     """Get service singleton (must be initialized first)."""
     if _service is None:

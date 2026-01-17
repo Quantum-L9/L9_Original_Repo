@@ -138,8 +138,11 @@ async def poll_and_execute():
     if parent_dir not in sys.path:
         sys.path.insert(0, parent_dir)
 
-    from orchestrators.agent_execution.task_queue import get_next_task, mark_task_completed
-    from services.slack_client import post_result
+    from orchestrators.agent_execution.task_queue import (
+        get_next_task,
+        mark_task_completed,
+    )
+    from api.slack_client import post_result_async
     from mac_agent.executor import AutomationExecutor
 
     # Import pyautogui for desktop screenshots on failure
@@ -235,7 +238,7 @@ async def poll_and_execute():
                     except Exception as e:
                         logger.error(f"Failed to capture desktop screenshot: {e}")
 
-            # Post result back to Slack
+            # Post result back to Slack (async)
             try:
                 metadata = task.get("metadata", {})
                 user = metadata.get("user")
@@ -244,7 +247,7 @@ async def poll_and_execute():
                 )  # Fallback to user if no channel
 
                 if user or channel:
-                    post_result(channel or user, task, result)
+                    await post_result_async(channel or user, task, result)
                     logger.info(f"Posted result for task {task_id} to Slack")
                 else:
                     logger.warning(

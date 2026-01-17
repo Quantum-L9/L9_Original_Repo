@@ -30,6 +30,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends, Header
 from typing import Optional
 
 from ..schemas import EmailAdapterRequest, EmailAdapterResponse
+from core.decorators import must_stay_async
 from ..adapters.email_adapter_adapter import (
     EmailAdapterAdapter,
     EmailAdapterRequest as AdapterRequest,
@@ -45,6 +46,7 @@ router = APIRouter(prefix="/email", tags=["Email Adapter"])
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+@must_stay_async("callers use await")
 async def get_adapter(request: Request) -> EmailAdapterAdapter:
     """Get adapter instance from app state."""
     substrate_service = getattr(request.app.state, "substrate_service", None)
@@ -100,6 +102,7 @@ async def handle_email_adapter(
 
 
 @router.get("/health")
+@must_stay_async("FastAPI/ASGI route handler")
 async def health_check() -> dict:
     """Health check endpoint."""
     return {"status": "healthy", "module": "email.adapter"}

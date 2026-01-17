@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 
 from core.schemas import PacketEnvelopeIn
 from .models import Span
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -27,10 +28,12 @@ class AsyncSpanExporter(ABC):
     """Base class for async span exporters."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def export_async(self, spans: List[Span]) -> None:
         """Asynchronously export spans."""
         pass
 
+    @must_stay_async("callers use await")
     async def flush(self) -> None:
         """Flush any pending spans."""
         pass

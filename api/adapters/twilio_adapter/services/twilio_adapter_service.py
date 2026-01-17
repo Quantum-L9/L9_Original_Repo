@@ -30,6 +30,7 @@ from typing import Optional
 
 from ..adapters.twilio_adapter_adapter import TwilioAdapterAdapter, TwilioAdapterRequest
 from ..config import get_config
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -78,6 +79,7 @@ class TwilioAdapterService:
             "data": response.data,
         }
 
+    @must_stay_async("health endpoint")
     async def health_check(self) -> dict:
         """Check service health."""
         errors = self.config.validate()

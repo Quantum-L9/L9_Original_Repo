@@ -19,6 +19,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, Optional, TypeVar
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -143,6 +144,7 @@ class BaseCell(ABC):
     # ==========================================================================
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def _run_producer(
         self,
         task: dict[str, Any],
@@ -163,6 +165,7 @@ class BaseCell(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def _run_critic(
         self,
         output: dict[str, Any],
@@ -201,6 +204,7 @@ class BaseCell(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def _validate_output(
         self,
         output: dict[str, Any],

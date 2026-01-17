@@ -20,6 +20,7 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -131,6 +132,7 @@ class PathSafetyConfig(BaseModel):
 
 
 @router.get("/health", response_model=HealthResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def factory_health() -> HealthResponse:
     """
     Health check for the Research Factory.
@@ -159,7 +161,11 @@ async def factory_health() -> HealthResponse:
 
 
 def _safe_output_dir(output_dir: str) -> str:
-    from core.security.path_safety import PathSafetyError, resolve_base_dir, safe_resolve_path
+    from core.security.path_safety import (
+        PathSafetyError,
+        resolve_base_dir,
+        safe_resolve_path,
+    )
 
     base_root = resolve_base_dir()
     try:
@@ -170,6 +176,7 @@ def _safe_output_dir(output_dir: str) -> str:
 
 
 @router.post("/validate", response_model=ValidateResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def validate_schema(body: ValidateRequest) -> ValidateResponse:
     """
     Validate a schema without extracting.
@@ -350,6 +357,7 @@ async def extract_agent_file(
 
 
 @router.get("/templates", response_model=TemplatesResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def list_templates() -> TemplatesResponse:
     """
     List available extraction templates.
@@ -390,6 +398,7 @@ async def list_templates() -> TemplatesResponse:
 
 
 @router.get("/templates/{template_name}")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_template(template_name: str) -> dict[str, Any]:
     """
     Get content of a specific template.
@@ -429,11 +438,13 @@ async def get_template(template_name: str) -> dict[str, Any]:
 # =============================================================================
 
 
+@must_stay_async("health endpoint")
 async def startup():
     """Called on app startup."""
     logger.info("Research Factory routes initialized")
 
 
+@must_stay_async("health endpoint")
 async def shutdown():
     """Called on app shutdown."""
     logger.info("Research Factory routes shutting down")

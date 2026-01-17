@@ -27,6 +27,7 @@ from datetime import datetime
 import httpx
 import structlog
 from dotenv import load_dotenv
+from core.decorators import must_stay_async
 
 # Load environment first
 load_dotenv()
@@ -70,16 +71,16 @@ class VPSRepoGraphLoader:
         if not API_KEY:
             return {
                 "error": "L9_EXECUTOR_API_KEY not set. Use --local for local Docker or set API key.",
-                "success": False
+                "success": False,
             }
-        
+
         headers = {
             "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json",
         }
-        
+
         url = f"{VPS_URL}{endpoint}"
-        
+
         async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
             try:
                 if method.upper() == "GET":
@@ -88,51 +89,52 @@ class VPSRepoGraphLoader:
                     response = await client.post(url, headers=headers, **kwargs)
                 else:
                     raise ValueError(f"Unsupported method: {method}")
-                
+
                 response.raise_for_status()
                 return response.json()
             except httpx.HTTPError as e:
                 logger.error(f"API request failed: {e}")
                 return {"error": str(e), "success": False}
 
-    async def execute_cypher(self, query: str, parameters: Optional[Dict] = None) -> Dict[str, Any]:
+    async def execute_cypher(
+        self, query: str, parameters: Optional[Dict] = None
+    ) -> Dict[str, Any]:
         """Execute Cypher query via VPS API."""
         if self.dry_run:
             if self.verbose:
                 logger.debug("DRY RUN query", query=query[:100])
             return {"success": True, "data": []}
-        
+
         result = await self.api_request(
             "POST",
             "/api/v1/memory/graph/query",
-            json={
-                "query": query,
-                "parameters": parameters or {}
-            }
+            json={"query": query, "parameters": parameters or {}},
         )
-        
+
         if result.get("success"):
             self.stats["queries_executed"] += 1
-        
+
         return result
 
     async def clear_repo_graph(self):
         """Clear existing repository graph nodes (incremental: only if needed)."""
         logger.info("Checking existing repo graph...")
-        
+
         # Check if repo graph exists
         check_query = """
         MATCH (n)
         WHERE n:File OR n:Class OR n:Function OR n:Method OR n:Route OR n:PydanticModel
         RETURN count(n) as count
         """
-        
+
         result = await self.execute_cypher(check_query)
         if result.get("success") and result.get("data"):
             count = result["data"][0].get("count", 0)
             if count > 0:
-                logger.info(f"Found {count} existing repo nodes. Clearing for fresh load...")
-                
+                logger.info(
+                    f"Found {count} existing repo nodes. Clearing for fresh load..."
+                )
+
                 queries = [
                     "MATCH (n:File) DETACH DELETE n",
                     "MATCH (n:Class) DETACH DELETE n",
@@ -141,10 +143,10 @@ class VPSRepoGraphLoader:
                     "MATCH (n:Route) DETACH DELETE n",
                     "MATCH (n:PydanticModel) DETACH DELETE n",
                 ]
-                
+
                 for query in queries:
                     await self.execute_cypher(query)
-                
+
                 logger.info("Repo graph cleared")
             else:
                 logger.info("No existing repo graph found. Starting fresh.")
@@ -152,7 +154,7 @@ class VPSRepoGraphLoader:
     async def create_indexes(self):
         """Create Neo4j indexes for faster queries."""
         logger.info("Creating indexes...")
-        
+
         indexes = [
             "CREATE INDEX repo_file_path IF NOT EXISTS FOR (f:File) ON (f.path)",
             "CREATE INDEX repo_class_name IF NOT EXISTS FOR (c:Class) ON (c.name)",
@@ -160,28 +162,28 @@ class VPSRepoGraphLoader:
             "CREATE INDEX repo_method_name IF NOT EXISTS FOR (m:Method) ON (m.name)",
             "CREATE INDEX repo_route_path IF NOT EXISTS FOR (r:Route) ON (r.path)",
         ]
-        
+
         for index_query in indexes:
             await self.execute_cypher(index_query)
-        
+
         logger.info("Indexes created/verified")
 
     async def load_file_metrics(self):
         """Load file metrics as File nodes."""
         logger.info("Loading file metrics...")
-        
+
         file_path = INDEX_DIR / "file_metrics.txt"
         if not file_path.exists():
             logger.warning(f"File not found: {file_path}")
             return
-        
+
         files = []
         with open(file_path, "r") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                
+
                 # Format: path|lines|complexity|type
                 parts = line.split("|")
                 if len(parts) >= 2:
@@ -189,20 +191,22 @@ class VPSRepoGraphLoader:
                     lines = int(parts[1].strip()) if parts[1].strip().isdigit() else 0
                     complexity = parts[2].strip() if len(parts) > 2 else "unknown"
                     file_type = parts[3].strip() if len(parts) > 3 else "unknown"
-                    
-                    files.append({
-                        "path": path,
-                        "name": Path(path).name,
-                        "lines": lines,
-                        "complexity": complexity,
-                        "type": file_type,
-                    })
-        
+
+                    files.append(
+                        {
+                            "path": path,
+                            "name": Path(path).name,
+                            "lines": lines,
+                            "complexity": complexity,
+                            "type": file_type,
+                        }
+                    )
+
         # Batch insert (100 at a time)
         batch_size = 100
         for i in range(0, len(files), batch_size):
-            batch = files[i:i + batch_size]
-            
+            batch = files[i : i + batch_size]
+
             query = """
             UNWIND $files AS file
             MERGE (f:File {path: file.path})
@@ -213,29 +217,29 @@ class VPSRepoGraphLoader:
                 f.updated_at = datetime()
             RETURN count(f) as count
             """
-            
+
             result = await self.execute_cypher(query, {"files": batch})
             if result.get("success"):
                 self.stats["files"] += len(batch)
-        
+
         logger.info(f"Files loaded: {self.stats['files']:,}")
 
     async def load_class_definitions(self):
         """Load class definitions."""
         logger.info("Loading class definitions...")
-        
+
         file_path = INDEX_DIR / "class_definitions.txt"
         if not file_path.exists():
             logger.warning(f"File not found: {file_path}")
             return
-        
+
         classes = []
         with open(file_path, "r") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                
+
                 # Format: file_path::class_name - description
                 # OR: class_name @ file_path::line_start-line_end
                 if "::" in line:
@@ -246,11 +250,13 @@ class VPSRepoGraphLoader:
                         if "::" in location:
                             file_path, lines = location.split("::", 1)
                             file_path = file_path.strip()
-                            classes.append({
-                                "name": class_name,
-                                "file": file_path,
-                                "location": lines,
-                            })
+                            classes.append(
+                                {
+                                    "name": class_name,
+                                    "file": file_path,
+                                    "location": lines,
+                                }
+                            )
                     else:
                         # Format: file_path::class_name - description
                         parts = line.split("::", 1)
@@ -262,19 +268,21 @@ class VPSRepoGraphLoader:
                                 class_name = rest.split(" - ", 1)[0].strip()
                             else:
                                 class_name = rest.strip()
-                            
+
                             if class_name and file_path:
-                                classes.append({
-                                    "name": class_name,
-                                    "file": file_path,
-                                    "location": "",
-                                })
-        
+                                classes.append(
+                                    {
+                                        "name": class_name,
+                                        "file": file_path,
+                                        "location": "",
+                                    }
+                                )
+
         # Batch insert
         batch_size = 100
         for i in range(0, len(classes), batch_size):
-            batch = classes[i:i + batch_size]
-            
+            batch = classes[i : i + batch_size]
+
             query = """
             UNWIND $classes AS cls
             MERGE (c:Class {name: cls.name, file: cls.file})
@@ -285,42 +293,44 @@ class VPSRepoGraphLoader:
             MERGE (f)-[:CONTAINS]->(c)
             RETURN count(c) as count
             """
-            
+
             result = await self.execute_cypher(query, {"classes": batch})
             if result.get("success"):
                 self.stats["classes"] += len(batch)
-        
+
         logger.info(f"Classes loaded: {self.stats['classes']:,}")
 
     async def load_inheritance_graph(self):
         """Load inheritance relationships."""
         logger.info("Loading inheritance graph...")
-        
+
         file_path = INDEX_DIR / "inheritance_graph.txt"
         if not file_path.exists():
             logger.warning(f"File not found: {file_path}")
             return
-        
+
         relationships = []
         with open(file_path, "r") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                
+
                 # Format: child -> parent
                 if " -> " in line:
                     child, parent = line.split(" -> ", 1)
-                    relationships.append({
-                        "child": child.strip(),
-                        "parent": parent.strip(),
-                    })
-        
+                    relationships.append(
+                        {
+                            "child": child.strip(),
+                            "parent": parent.strip(),
+                        }
+                    )
+
         # Batch insert
         batch_size = 100
         for i in range(0, len(relationships), batch_size):
-            batch = relationships[i:i + batch_size]
-            
+            batch = relationships[i : i + batch_size]
+
             query = """
             UNWIND $rels AS rel
             MATCH (child:Class {name: rel.child})
@@ -328,48 +338,50 @@ class VPSRepoGraphLoader:
             MERGE (child)-[:EXTENDS]->(parent)
             RETURN count(*) as count
             """
-            
+
             result = await self.execute_cypher(query, {"rels": batch})
             if result.get("success") and result.get("data"):
                 self.stats["extends"] += result["data"][0].get("count", 0)
-        
+
         logger.info(f"EXTENDS relationships: {self.stats['extends']:,}")
 
     async def load_route_handlers(self):
         """Load route handlers."""
         logger.info("Loading route handlers...")
-        
+
         file_path = INDEX_DIR / "route_handlers.txt"
         if not file_path.exists():
             logger.warning(f"File not found: {file_path}")
             return
-        
+
         routes = []
         with open(file_path, "r") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                
+
                 # Format: METHOD /path → handler_function @ file.py
                 if " → " in line and " @ " in line:
                     route_part, handler_part = line.split(" → ", 1)
                     handler, file_part = handler_part.split(" @ ", 1)
-                    
+
                     if " " in route_part:
                         method, path = route_part.split(" ", 1)
-                        routes.append({
-                            "method": method.strip(),
-                            "path": path.strip(),
-                            "handler": handler.strip(),
-                            "file": file_part.strip(),
-                        })
-        
+                        routes.append(
+                            {
+                                "method": method.strip(),
+                                "path": path.strip(),
+                                "handler": handler.strip(),
+                                "file": file_part.strip(),
+                            }
+                        )
+
         # Batch insert
         batch_size = 50
         for i in range(0, len(routes), batch_size):
-            batch = routes[i:i + batch_size]
-            
+            batch = routes[i : i + batch_size]
+
             query = """
             UNWIND $routes AS route
             MERGE (r:Route {method: route.method, path: route.path})
@@ -378,35 +390,36 @@ class VPSRepoGraphLoader:
                 r.updated_at = datetime()
             RETURN count(r) as count
             """
-            
+
             result = await self.execute_cypher(query, {"routes": batch})
             if result.get("success"):
                 self.stats["routes"] += len(batch)
-        
+
         logger.info(f"Routes loaded: {self.stats['routes']:,}")
 
+    @must_stay_async("callers use await")
     async def write_memory_summary(self):
         """Write repo structure summary to VPS memory for instant agent context."""
         if self.dry_run:
             logger.info("DRY RUN - skipping memory write")
             return
-        
+
         logger.info("Writing repo structure summary to VPS memory...")
-        
+
         summary = f"""L9 REPOSITORY STRUCTURE SUMMARY (Updated: {datetime.now().isoformat()})
 
 STATISTICS:
-- Files: {self.stats['files']:,}
-- Classes: {self.stats['classes']:,}
-- Functions: {self.stats['functions']:,}
-- Methods: {self.stats['methods']:,}
-- Routes: {self.stats['routes']:,}
-- Pydantic Models: {self.stats['pydantic_models']:,}
+- Files: {self.stats["files"]:,}
+- Classes: {self.stats["classes"]:,}
+- Functions: {self.stats["functions"]:,}
+- Methods: {self.stats["methods"]:,}
+- Routes: {self.stats["routes"]:,}
+- Pydantic Models: {self.stats["pydantic_models"]:,}
 
 RELATIONSHIPS:
-- EXTENDS: {self.stats['extends']:,}
-- HAS_METHOD: {self.stats['has_method']:,}
-- HANDLED_BY: {self.stats['handled_by']:,}
+- EXTENDS: {self.stats["extends"]:,}
+- HAS_METHOD: {self.stats["has_method"]:,}
+- HANDLED_BY: {self.stats["handled_by"]:,}
 
 INDEX FILES: 33 files in readme/repo-index/
 - Core: class_definitions.txt, function_signatures.txt
@@ -421,11 +434,14 @@ NEO4J GRAPH: Loaded to VPS Neo4j
 
 USAGE: At session start, this summary provides instant repo context.
 """
-        
+
         # Write to VPS memory via API
-        memory_client_path = REPO_DIR / ".cursor-commands" / "cursor-memory" / "cursor_memory_client.py"
+        memory_client_path = (
+            REPO_DIR / ".cursor-commands" / "cursor-memory" / "cursor_memory_client.py"
+        )
         if memory_client_path.exists() and API_KEY:
             import subprocess
+
             try:
                 result = subprocess.run(
                     [
@@ -452,25 +468,27 @@ USAGE: At session start, this summary provides instant repo context.
             else:
                 logger.warning("Memory client not found, skipping memory write")
 
+    @must_stay_async("callers use await")
     async def run_memory_audit(self):
         """Run VPS memory audit after index loading."""
         if self.dry_run:
             logger.info("DRY RUN - skipping memory audit")
             return
-        
+
         logger.info("=" * 60)
         logger.info("🔍 Running VPS Memory Audit...")
         logger.info("=" * 60)
-        
+
         # Import audit functions
         try:
             audit_script_path = REPO_DIR / "scripts" / "audit_graphs_vps.py"
             if not audit_script_path.exists():
                 logger.warning(f"Audit script not found: {audit_script_path}")
                 return
-            
+
             # Run audit script as subprocess
             import subprocess
+
             result = subprocess.run(
                 [
                     "python3",
@@ -481,7 +499,7 @@ USAGE: At session start, this summary provides instant repo context.
                 timeout=120,
                 cwd=str(REPO_DIR),
             )
-            
+
             if result.returncode == 0:
                 logger.info("✅ VPS Memory Audit Complete")
                 # Show summary (last 30 lines)
@@ -491,9 +509,11 @@ USAGE: At session start, this summary provides instant repo context.
                     if "AUDIT REPORT" in line or "SUMMARY" in line:
                         summary_start = i
                         break
-                
+
                 if summary_start:
-                    summary = "\n".join(output_lines[summary_start:summary_start + 30])
+                    summary = "\n".join(
+                        output_lines[summary_start : summary_start + 30]
+                    )
                     logger.info(f"\n{summary}")
                 else:
                     # Show last 20 lines
@@ -512,33 +532,33 @@ USAGE: At session start, this summary provides instant repo context.
         logger.info("=" * 60)
         logger.info("L9 REPO GRAPH - VPS NEO4J LOAD")
         logger.info("=" * 60)
-        
+
         if not INDEX_DIR.exists():
             logger.error(f"Index directory not found: {INDEX_DIR}")
             logger.info("Run 'python3 tools/export_repo_indexes.py' first")
             return False
-        
+
         try:
             await self.clear_repo_graph()
             await self.create_indexes()
-            
+
             # Load in order
             await self.load_file_metrics()
             await self.load_class_definitions()
             await self.load_inheritance_graph()
             await self.load_route_handlers()
-            
+
             # Write summary to memory
             await self.write_memory_summary()
-            
+
             # Run VPS memory audit
             await self.run_memory_audit()
-            
+
             logger.info("=" * 60)
             logger.info("✅ VPS Neo4j Load Complete")
             logger.info("=" * 60)
             self.print_summary()
-            
+
             return True
         except Exception as e:
             logger.error(f"Load failed: {e}", exc_info=True)
@@ -565,7 +585,7 @@ USAGE: At session start, this summary provides instant repo context.
 
 async def main():
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="Load L9 repository indexes into VPS Neo4j via HTTP API"
     )
@@ -585,33 +605,35 @@ async def main():
         action="store_true",
         help="Fallback to local Docker Neo4j if VPS API unavailable",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Check if we can use VPS API
     if not API_KEY and not args.fallback_local:
         logger.error("L9_EXECUTOR_API_KEY not set and --fallback-local not specified")
         logger.info("Options:")
         logger.info("  1. Set L9_EXECUTOR_API_KEY in .env for VPS API")
         logger.info("  2. Use --fallback-local for local Docker")
-        logger.info("  3. Use scripts/load_indexes_to_neo4j.py --local for direct local access")
+        logger.info(
+            "  3. Use scripts/load_indexes_to_neo4j.py --local for direct local access"
+        )
         sys.exit(1)
-    
+
     if not API_KEY and args.fallback_local:
         logger.info("API key not set, falling back to local Docker...")
         logger.info("Run: python3 scripts/load_indexes_to_neo4j.py --local")
         sys.exit(0)
-    
+
     loader = VPSRepoGraphLoader(
         dry_run=args.dry_run,
         verbose=args.verbose,
     )
-    
+
     success = await loader.load_all()
     sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())
 
+    asyncio.run(main())

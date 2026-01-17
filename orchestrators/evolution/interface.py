@@ -10,6 +10,7 @@ from typing import Protocol, List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from enum import Enum
 from datetime import datetime
+from core.decorators import must_stay_async
 
 
 class UpgradeType(str, Enum):
@@ -107,20 +108,24 @@ class EvolutionOrchestratorResponse(BaseModel):
 class IEvolutionOrchestrator(Protocol):
     """Interface for Evolution Orchestrator."""
 
+    @must_stay_async("callers use await")
     async def apply_upgrades(
         self, request: EvolutionOrchestratorRequest
     ) -> EvolutionOrchestratorResponse:
         """Apply architectural upgrades to the system."""
         ...
 
+    @must_stay_async("callers use await")
     async def validate_upgrade(self, upgrade: Upgrade) -> UpgradeValidation:
         """Validate an upgrade before applying."""
         ...
 
+    @must_stay_async("callers use await")
     async def rollback_upgrade(self, upgrade_id: str) -> Dict[str, Any]:
         """Rollback a previously applied upgrade."""
         ...
 
+    @must_stay_async("callers use await")
     async def get_upgrade_history(self, limit: int = 10) -> List[UpgradeExecution]:
         """Get history of applied upgrades."""
         ...

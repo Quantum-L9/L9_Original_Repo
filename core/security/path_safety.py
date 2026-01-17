@@ -16,6 +16,7 @@ from pathlib import Path
 import stat
 from typing import Iterable, Iterator
 from urllib.parse import unquote
+from core.decorators import must_stay_async
 
 _ABSOLUTE_DRIVE_RE = re.compile(r"^[a-zA-Z]:[\\/]")
 _UNC_PREFIXES = ("\\\\", "//")
@@ -95,6 +96,7 @@ def safe_resolve_path(
     return resolved
 
 
+@must_stay_async("callers use await")
 async def safe_resolve_path_async(
     root: Path,
     user_path: str,
@@ -182,6 +184,7 @@ def _has_traversal(parts: Iterable[str]) -> bool:
 
 def _contains_tilde(parts: Iterable[str]) -> bool:
     return any(part.startswith("~") for part in parts)
+
 
 def _join_candidate(
     root: Path, normalized: str, parts: list[str], *, allow_abs: bool

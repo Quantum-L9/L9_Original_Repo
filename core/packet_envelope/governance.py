@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
+from core.decorators import must_stay_async
 
 logger = logging.getLogger(__name__)
 
@@ -112,6 +113,7 @@ class RetentionManager:
 
         return created_at + timedelta(days=ttl_days)
 
+    @must_stay_async("callers use await")
     async def enforce_ttl(self) -> Dict[str, Any]:
         """
         Enforce TTL on all expired aggregates
@@ -183,6 +185,7 @@ class ErasureEngine:
         self.deletion_requests: Dict[str, DeletionRequest] = {}
         self.deletion_proofs: Dict[str, DeletionProof] = {}
 
+    @must_stay_async("callers use await")
     async def request_erasure(
         self, aggregate_id: str, reason: str, requested_by: str
     ) -> DeletionRequest:
@@ -205,6 +208,7 @@ class ErasureEngine:
 
         return deletion_req
 
+    @must_stay_async("callers use await")
     async def approve_erasure(
         self, request_id: str, approved_by: str
     ) -> DeletionRequest:
@@ -269,9 +273,7 @@ class ErasureEngine:
             deletion_timestamp=deletion_req.executed_at,
             data_hash=data_hash,
             proof_signature=self._sign_proof(data_hash),
-            cascading_proofs=[
-                f"proof-{cid}" for cid in deletion_req.cascading_deletes
-            ],
+            cascading_proofs=[f"proof-{cid}" for cid in deletion_req.cascading_deletes],
         )
 
         self.deletion_proofs[request_id] = proof
@@ -284,11 +286,13 @@ class ErasureEngine:
 
         return proof
 
+    @must_stay_async("callers use await")
     async def _fetch_aggregate(self, aggregate_id: str) -> Dict:
         """Fetch aggregate data"""
         # TODO: Query data store
         return {"id": aggregate_id, "created_at": datetime.utcnow().isoformat()}
 
+    @must_stay_async("callers use await")
     async def _find_cascading_deletes(self, aggregate_id: str) -> List[str]:
         """Find aggregates dependent on this one (lineage, relationships)"""
         # TODO: Query relationships, lineage
@@ -299,6 +303,7 @@ class ErasureEngine:
         # TODO: Use configured signing key
         return hashlib.sha256(data_hash.encode()).hexdigest()
 
+    @must_stay_async("callers use await")
     async def verify_deletion(self, request_id: str) -> bool:
         """Verify deletion was executed"""
         if request_id not in self.deletion_requests:
@@ -345,6 +350,7 @@ class AnonymizationEngine:
         """Register anonymization rule"""
         self.rules[rule.field_name] = rule
 
+    @must_stay_async("callers use await")
     async def anonymize_aggregate(self, aggregate_data: Dict) -> Dict:
         """Anonymize PII in aggregate"""
         anonymized = aggregate_data.copy()
@@ -403,6 +409,7 @@ class ComplianceAuditLog:
         self.logger = logger
         self.events: List[ComplianceEvent] = []
 
+    @must_stay_async("callers use await")
     async def log_event(
         self,
         event_type: str,
@@ -430,6 +437,7 @@ class ComplianceAuditLog:
 
         return event
 
+    @must_stay_async("callers use await")
     async def export_audit_trail(
         self,
         aggregate_id: str,
@@ -536,4 +544,3 @@ class ComplianceExporter:
         )
 
         return report
-

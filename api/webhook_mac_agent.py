@@ -70,13 +70,13 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
     Submit the result of a Mac task execution (file-based system).
     If source is "slack" and channel is set, posts result back to Slack.
     Ingests result to memory for audit trail.
-    
+
     Note: task_id is now a UUID string (file-based system), not an integer.
     """
-    
+
     # Mark task as completed (file-based system)
     mark_task_completed(task_id)
-    
+
     # For backward compatibility, try to get task from legacy in-memory system
     # This is for legacy API compatibility only
     task = None
@@ -125,36 +125,47 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
     channel = task.channel if task else None
     if channel:
         try:
-            from services.slack_client import slack_post
+            import httpx
+            import os
+            from api.slack_client import SlackAPIClient
 
-            status_emoji = "✅" if payload.status == "done" else "❌"
-
-            # Build message with enhanced V2 info
-            message_parts = [
-                f"{status_emoji} Mac task {task_id} finished with status `{payload.status}`"
-            ]
-
-            if payload.logs:
-                # Include last few logs
-                recent_logs = (
-                    payload.logs[-5:] if len(payload.logs) > 5 else payload.logs
+            # Create async client for this call
+            slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
+            if slack_bot_token:
+                http_client = httpx.AsyncClient()
+                slack_client = SlackAPIClient(
+                    bot_token=slack_bot_token, http_client=http_client
                 )
-                message_parts.append("\nRecent logs:")
-                for log in recent_logs:
-                    message_parts.append(f"  • {log}")
 
-            message_parts.append(
-                f"\n```\n{payload.result[:500]}{'...' if len(payload.result) > 500 else ''}\n```"
-            )
+                status_emoji = "✅" if payload.status == "done" else "❌"
 
-            if payload.screenshot_path:
-                message_parts.append(f"\n📸 Screenshot: {payload.screenshot_path}")
+                # Build message with enhanced V2 info
+                message_parts = [
+                    f"{status_emoji} Mac task {task_id} finished with status `{payload.status}`"
+                ]
 
-            message = "\n".join(message_parts)
-            slack_post(task.channel, message)
-            logger.info(
-                f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
-            )
+                if payload.logs:
+                    # Include last few logs
+                    recent_logs = (
+                        payload.logs[-5:] if len(payload.logs) > 5 else payload.logs
+                    )
+                    message_parts.append("\nRecent logs:")
+                    for log in recent_logs:
+                        message_parts.append(f"  • {log}")
+
+                message_parts.append(
+                    f"\n```\n{payload.result[:500]}{'...' if len(payload.result) > 500 else ''}\n```"
+                )
+
+                if payload.screenshot_path:
+                    message_parts.append(f"\n📸 Screenshot: {payload.screenshot_path}")
+
+                message = "\n".join(message_parts)
+                await slack_client.post_message(channel=task.channel, text=message)
+                await http_client.aclose()
+                logger.info(
+                    f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
+                )
         except Exception as e:
             logger.error(f"[MAC-AGENT] Failed to post result to Slack: {e}")
             # Don't fail the request if Slack posting fails

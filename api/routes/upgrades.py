@@ -14,6 +14,7 @@ from functools import lru_cache
 from typing import Any, Dict
 
 from fastapi import APIRouter, HTTPException
+from core.decorators import must_stay_async
 
 from core.packet_envelope import (
     PacketEnvelopeUpgradeEngine,
@@ -23,6 +24,7 @@ from core.packet_envelope import (
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/upgrades", tags=["upgrades"])
+
 
 @lru_cache(maxsize=1)
 def get_upgrade_engine() -> PacketEnvelopeUpgradeEngine:
@@ -36,6 +38,7 @@ def get_upgrade_engine() -> PacketEnvelopeUpgradeEngine:
 
 
 @router.get("/packet-envelope/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_upgrade_status() -> Dict[str, Any]:
     """
     Get current PacketEnvelope upgrade status
@@ -48,6 +51,7 @@ async def get_upgrade_status() -> Dict[str, Any]:
 
 
 @router.get("/packet-envelope/features")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_enabled_features() -> Dict[str, bool]:
     """
     Get list of enabled features
@@ -176,6 +180,7 @@ async def activate_all_phases() -> Dict[str, Any]:
 
 
 @router.get("/health")
+@must_stay_async("FastAPI/ASGI route handler")
 async def upgrade_health() -> Dict[str, Any]:
     """
     Health check for upgrade system
@@ -192,4 +197,3 @@ async def upgrade_health() -> Dict[str, Any]:
         "current_phase": status["current_phase"],
         "features_enabled": len(status["enabled_features"]),
     }
-

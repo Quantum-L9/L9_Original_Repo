@@ -23,6 +23,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -233,6 +234,7 @@ class LessonsLearnedResponse(BaseModel):
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def reflection_agent_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -490,6 +492,7 @@ async def generate_improvements(
 
 
 @router.get("/lessons-learned", response_model=LessonsLearnedResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_lessons_learned(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -511,6 +514,7 @@ async def get_lessons_learned(
 
 
 @router.delete("/lessons-learned")
+@must_stay_async("FastAPI/ASGI route handler")
 async def clear_lessons_learned(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),

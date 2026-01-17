@@ -19,6 +19,7 @@ from uuid import UUID
 
 import httpx
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -29,7 +30,7 @@ logger = structlog.get_logger(__name__)
 # PRIMARY: VPS Memory API (production)
 # FALLBACK: Local Docker l9-api container (for testing when VPS unavailable)
 VPS_MEMORY_URL = "http://l9-memory-api:8080"  # VPS production
-DOCKER_FALLBACK_URL = "http://l9-api:8000"    # Local Docker fallback
+DOCKER_FALLBACK_URL = "http://l9-api:8000"  # Local Docker fallback
 
 DEFAULT_BASE_URL = VPS_MEMORY_URL
 DEFAULT_TIMEOUT = 30.0
@@ -148,6 +149,7 @@ class MemoryClient:
         self._client: Optional[httpx.AsyncClient] = None
         self._using_fallback = False
 
+    @must_stay_async("callers use await")
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create the HTTP client."""
         if self._client is None or self._client.is_closed:
@@ -161,25 +163,25 @@ class MemoryClient:
     async def _try_fallback(self) -> bool:
         """
         Switch to fallback URL (Docker) if not already using it.
-        
+
         Returns:
             True if switched to fallback, False if already on fallback
         """
         if self._using_fallback or not self.enable_fallback:
             return False
-        
+
         logger.warning(
             f"VPS Memory API unavailable at {self.primary_url}, "
             f"switching to Docker fallback at {self.fallback_url}"
         )
         self.base_url = self.fallback_url
         self._using_fallback = True
-        
+
         # Close existing client so new one uses fallback URL
         if self._client is not None and not self._client.is_closed:
             await self._client.aclose()
             self._client = None
-        
+
         return True
 
     @property
@@ -193,6 +195,7 @@ class MemoryClient:
             await self._client.aclose()
             self._client = None
 
+    @must_stay_async("async context manager protocol")
     async def __aenter__(self) -> "MemoryClient":
         """Async context manager entry."""
         return self
@@ -356,7 +359,9 @@ class MemoryClient:
                     response = await client.get("/health")
                     return response.status_code == 200
                 except Exception as e:
-                    logger.warning(f"Memory API health check failed (Docker fallback): {e}")
+                    logger.warning(
+                        f"Memory API health check failed (Docker fallback): {e}"
+                    )
                     return False
             return False
         except Exception as e:

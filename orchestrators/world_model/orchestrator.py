@@ -18,6 +18,7 @@ from .interface import (
     WorldModelResponse,
 )
 from .scheduler import WorldModelScheduler
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -72,6 +73,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
                 message=f"Operation failed: {str(e)}",
             )
 
+    @must_stay_async("callers use await")
     async def update_from_insights(
         self,
         insights: list[dict[str, Any]],
@@ -144,6 +146,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
             "state_version": self._state_version,
         }
 
+    @must_stay_async("callers use await")
     async def _ingest(self, updates: list[dict[str, Any]]) -> WorldModelResponse:
         """Ingest updates into world model."""
         affected = []
@@ -166,6 +169,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
             state_version=self._state_version,
         )
 
+    @must_stay_async("callers use await")
     async def _propagate(self) -> WorldModelResponse:
         """Propagate pending updates through world model."""
         if not self._pending_updates:
@@ -192,6 +196,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
             state_version=self._state_version,
         )
 
+    @must_stay_async("callers use await")
     async def _snapshot(self) -> WorldModelResponse:
         """Create snapshot of current world model state."""
         snapshot_id = f"snapshot_{self._state_version}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
@@ -206,6 +211,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
             state_version=self._state_version,
         )
 
+    @must_stay_async("callers use await")
     async def _restore(self, snapshot_id: Optional[str]) -> WorldModelResponse:
         """Restore world model from snapshot."""
         if not snapshot_id:

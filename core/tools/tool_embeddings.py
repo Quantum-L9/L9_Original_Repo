@@ -30,6 +30,7 @@ import os
 import structlog
 from dataclasses import dataclass
 from typing import Any
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -50,6 +51,7 @@ class ToolEmbeddingResult:
     metadata: dict[str, Any]
 
 
+@must_stay_async("callers use await")
 async def _get_openai_client():
     """Get OpenAI client for embeddings."""
     try:

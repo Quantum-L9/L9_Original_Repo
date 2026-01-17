@@ -8,6 +8,7 @@ Orchestrates Mac Agent task execution from file-based queue.
 from typing import Protocol, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from enum import Enum
+from core.decorators import must_stay_async
 
 
 class TaskExecutionStatus(str, Enum):
@@ -27,9 +28,7 @@ class AgentExecutionRequest(BaseModel):
     steps: list[Dict[str, Any]] = Field(
         default_factory=list, description="Automation steps"
     )
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Task metadata"
-    )
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Task metadata")
     artifacts: Optional[list[Dict[str, Any]]] = Field(
         default=None, description="File artifacts"
     )
@@ -50,12 +49,12 @@ class AgentExecutionResponse(BaseModel):
 class IAgentExecutionOrchestrator(Protocol):
     """Interface for Agent Execution Orchestrator."""
 
+    @must_stay_async("callers use await")
     async def execute(self, request: AgentExecutionRequest) -> AgentExecutionResponse:
         """Execute Mac Agent task orchestration."""
         ...
 
+    @must_stay_async("callers use await")
     async def poll_and_execute(self) -> None:
         """Poll queue and execute tasks (main loop)."""
         ...
-
-

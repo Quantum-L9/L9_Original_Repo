@@ -10,6 +10,7 @@ from typing import Dict, Any
 import asyncio
 
 from .interface import Upgrade
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -204,6 +205,7 @@ class ApplyEngine:
             return False
 
     # Stubs for actual implementations
+    @must_stay_async("callers use await")
     async def _read_file(self, path: str) -> str:
         logger.debug(f"Reading file: {path}")
         return ""
@@ -212,6 +214,7 @@ class ApplyEngine:
         logger.debug(f"Writing file: {path}")
         await asyncio.sleep(0.1)
 
+    @must_stay_async("callers use await")
     async def _read_config(self, key: str) -> Any:
         logger.debug(f"Reading config: {key}")
         return None

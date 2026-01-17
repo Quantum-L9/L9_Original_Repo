@@ -8,6 +8,7 @@ Drives world-model lifecycle, ingest updates, schedule propagation.
 from typing import Protocol, List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from enum import Enum
+from core.decorators import must_stay_async
 
 
 class WorldModelOperation(str, Enum):
@@ -47,10 +48,12 @@ class WorldModelResponse(BaseModel):
 class IWorldModelOrchestrator(Protocol):
     """Interface for WorldModel Orchestrator."""
 
+    @must_stay_async("callers use await")
     async def execute(self, request: WorldModelRequest) -> WorldModelResponse:
         """Execute world_model orchestration."""
         ...
 
+    @must_stay_async("callers use await")
     async def update_from_insights(
         self,
         insights: List[Dict[str, Any]],

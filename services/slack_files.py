@@ -345,9 +345,9 @@ def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any
     return artifact
 
 
-def get_file_info(file_id: str) -> Dict[str, Any]:
+async def get_file_info(file_id: str) -> Dict[str, Any]:
     """
-    Retrieve file metadata from Slack API using files.info.
+    Retrieve file metadata from Slack API using files.info (async).
 
     Args:
         file_id: Slack file ID
@@ -362,35 +362,32 @@ def get_file_info(file_id: str) -> Dict[str, Any]:
     if not SLACK_BOT_TOKEN:
         raise ValueError("SLACK_BOT_TOKEN not configured")
 
-    from slack_sdk import WebClient
-    from slack_sdk.errors import SlackApiError
+    import httpx
+    from api.slack_client import SlackAPIClient
 
-    client = WebClient(token=SLACK_BOT_TOKEN)
+    # Create async client for this call
+    http_client = httpx.AsyncClient()
+    slack_client = SlackAPIClient(bot_token=SLACK_BOT_TOKEN, http_client=http_client)
 
     try:
-        response = client.files_info(file=file_id)
-
-        if not response.get("ok"):
-            error = response.get("error", "unknown")
-            raise ValueError(f"Slack API error: {error}")
-
+        response = await slack_client.get_file_info(file_id)
         file_info = response.get("file", {})
         logger.info(
             "[SlackFiles] Retrieved file info: id=%s, name=%s",
             file_id,
             file_info.get("name"),
         )
-
         return file_info
-
-    except SlackApiError as e:
+    except Exception as e:
         logger.error("[SlackFiles] Slack API error for file %s: %s", file_id, e)
         raise
+    finally:
+        await http_client.aclose()
 
 
-def process_file_attachments(files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+async def process_file_attachments(files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Process multiple file attachments from a Slack message.
+    Process multiple file attachments from a Slack message (async).
 
     Args:
         files: List of file dictionaries from Slack event (event["files"])
@@ -411,8 +408,8 @@ def process_file_attachments(files: List[Dict[str, Any]]) -> List[Dict[str, Any]
             continue
 
         try:
-            # Get full file info from Slack API
-            file_info = get_file_info(file_id)
+            # Get full file info from Slack API (async)
+            file_info = await get_file_info(file_id)
 
             # Process file: download, save, create artifact
             artifact = process_slack_file(file_id, file_info)

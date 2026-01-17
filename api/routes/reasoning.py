@@ -16,6 +16,7 @@ from orchestrators.reasoning.interface import (
     ReasoningMode,
 )
 from orchestrators.reasoning.orchestrator import ReasoningOrchestrator
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -74,6 +75,7 @@ class ReasoningExecuteResponse(BaseModel):
 
 
 @router.get("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def reasoning_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -83,6 +85,7 @@ async def reasoning_test(
 
 
 @router.get("/modes")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_reasoning_modes(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -180,9 +183,3 @@ async def execute_reasoning(
         raise HTTPException(
             status_code=500, detail=f"Reasoning execution failed: {str(e)}"
         )
-
-
-
-
-
-

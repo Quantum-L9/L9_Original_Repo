@@ -29,6 +29,8 @@ from memory.warming_models import (
 
 logger = structlog.get_logger(__name__)
 
+from core.decorators import must_stay_async
+
 # Prometheus metrics (optional - graceful fallback)
 try:
     from prometheus_client import Counter, Histogram
@@ -85,6 +87,7 @@ class GapDetector:
         self.entity_importance_scores: dict[str, float] = {}
         self.critical_path_entities: set[str] = set()
 
+    @must_stay_async("callers use await")
     async def detect_entity_gaps(
         self,
         mentioned_entities: list[str],
@@ -174,6 +177,7 @@ class GapDetector:
             )
             raise
 
+    @must_stay_async("callers use await")
     async def detect_relationship_gaps(
         self,
         mentioned_entities: list[str],

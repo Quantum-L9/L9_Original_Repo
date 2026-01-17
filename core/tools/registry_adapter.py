@@ -102,6 +102,7 @@ from core.tools.sanitizer import ToolInputSanitizer, ToolInputSanitizationError
 
 if TYPE_CHECKING:
     from core.governance.engine import GovernanceEngineService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -152,6 +153,7 @@ def _tool_belongs_to_agent(tool_name: str, agent_id: str) -> bool:
 class ToolExecutor(Protocol):
     """Protocol for tool executors."""
 
+    @must_stay_async("callers use await")
     async def execute(self, **kwargs) -> Any:
         """Execute the tool with arguments."""
         ...
@@ -495,6 +497,7 @@ class ExecutorToolRegistry:
             log_tool_invocation = tool_audit_module.log_tool_invocation
         except Exception:
 
+            @must_stay_async("callers use await")
             async def log_tool_invocation(**kwargs):  # type: ignore[no-redef]
                 return None
 

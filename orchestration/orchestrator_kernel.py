@@ -31,6 +31,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Optional
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -513,6 +514,7 @@ class OrchestratorKernel:
     # Phase Implementations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _phase_ingest(
         self,
         task: str,
@@ -571,6 +573,7 @@ class OrchestratorKernel:
 
         return graph
 
+    @must_stay_async("callers use await")
     async def _phase_validate(self, graph: Any) -> None:
         """
         Phase 3: VALIDATE - Validate IR structure and completeness.
@@ -656,6 +659,7 @@ class OrchestratorKernel:
             "failure_modes": sim_result.failure_modes,
         }
 
+    @must_stay_async("callers use await")
     async def _phase_plan(self, graph: Any) -> Any:
         """
         Phase 6: PLAN - Convert IR to execution plan.
@@ -674,6 +678,7 @@ class OrchestratorKernel:
 
         return plan
 
+    @must_stay_async("callers use await")
     async def _phase_execute(
         self,
         plan: Any,

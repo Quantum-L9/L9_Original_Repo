@@ -38,6 +38,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Optional
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 # Strategy Memory (optional - Phase 0)
 from memory.strategymemory import (
@@ -648,6 +649,7 @@ class PlanExecutor:
             result = await result
         return result
 
+    @must_stay_async("callers use await")
     async def _dry_run(
         self,
         plan: Any,
@@ -680,6 +682,7 @@ class PlanExecutor:
     # Default Handlers
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _handle_code_write(
         self,
         step: Any,
@@ -765,6 +768,7 @@ class PlanExecutor:
                 "error": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def _handle_code_read(
         self,
         step: Any,
@@ -779,6 +783,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_code_modify(
         self,
         step: Any,
@@ -794,6 +799,7 @@ class PlanExecutor:
             "parameters": step.parameters,
         }
 
+    @must_stay_async("callers use await")
     async def _handle_file_create(
         self,
         step: Any,
@@ -808,6 +814,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_file_delete(
         self,
         step: Any,
@@ -822,6 +829,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_api_call(
         self,
         step: Any,
@@ -836,6 +844,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_reasoning(
         self,
         step: Any,
@@ -850,6 +859,7 @@ class PlanExecutor:
             "status": "simulated",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_validation(
         self,
         step: Any,
@@ -864,6 +874,7 @@ class PlanExecutor:
             "status": "simulated",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_simulation(
         self,
         step: Any,

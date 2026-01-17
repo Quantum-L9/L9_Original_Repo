@@ -15,6 +15,7 @@ from typing import Any, Optional
 from datetime import datetime
 
 from runtime.long_plan_tool import long_plan_execute_tool, long_plan_simulate_tool
+from core.decorators import must_stay_async
 
 # Lazy import for symbolic tools (requires sympy)
 symbolic_compute = None
@@ -32,6 +33,7 @@ def _get_symbolic_compute():
             symbolic_compute = _sc
         except ImportError:
 
+            @must_stay_async("callers use await")
             async def _missing(**kwargs):
                 return {"error": "sympy not installed", "status": "error"}
 
@@ -49,6 +51,7 @@ def _get_symbolic_codegen():
             symbolic_codegen = _sc
         except ImportError:
 
+            @must_stay_async("callers use await")
             async def _missing(**kwargs):
                 return {"error": "sympy not installed", "status": "error"}
 
@@ -876,6 +879,7 @@ async def mac_agent_exec_task(
 # ============================================================================
 
 
+@must_stay_async("callers use await")
 async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
     """
     List all configured MCP servers.
@@ -2131,6 +2135,7 @@ async def redis_set_task_context(
 # ============================================================================
 
 
+@must_stay_async("callers use await")
 async def tools_list_all(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2160,6 +2165,7 @@ async def tools_list_all(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_list_enabled(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2188,6 +2194,7 @@ async def tools_list_enabled(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_get_metadata(
     tool_id: str,
     **kwargs: Any,
@@ -2228,6 +2235,7 @@ async def tools_get_metadata(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_get_schema(
     tool_id: str,
     **kwargs: Any,
@@ -2257,6 +2265,7 @@ async def tools_get_schema(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_get_by_type(
     tool_type: str,
     **kwargs: Any,
@@ -2292,6 +2301,7 @@ async def tools_get_by_type(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_get_for_role(
     role: str,
     **kwargs: Any,
@@ -2530,6 +2540,7 @@ async def world_model_get_state_version(
 # ============================================================================
 
 
+@must_stay_async("callers use await")
 async def kernel_read(
     kernel_name: str,
     property: str,
@@ -2709,6 +2720,7 @@ def _get_research_tool(tool_name: str):
         except ImportError as e:
             logger.warning(f"Research tools not available: {e}")
 
+            @must_stay_async("callers use await")
             async def _missing(**kwargs):
                 return {"error": "Research tools not available", "status": "error"}
 
@@ -2735,6 +2747,7 @@ def _get_reflection_tool(tool_name: str):
         except ImportError as e:
             logger.warning(f"Reflection tools not available: {e}")
 
+            @must_stay_async("callers use await")
             async def _missing(**kwargs):
                 return {"error": "Reflection tools not available", "status": "error"}
 

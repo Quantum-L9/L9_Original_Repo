@@ -22,6 +22,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -36,7 +37,9 @@ router = APIRouter(prefix="/simulation", tags=["simulation"])
 class SimulationRequest(BaseModel):
     """Request to run a simulation."""
 
-    graph_data: Dict[str, Any] = Field(..., description="IR graph data from IRGenerator")
+    graph_data: Dict[str, Any] = Field(
+        ..., description="IR graph data from IRGenerator"
+    )
     scenario_params: Optional[Dict[str, Any]] = Field(
         None, description="Optional scenario configuration"
     )
@@ -160,6 +163,7 @@ async def run_simulation(
 
 
 @router.get("/{run_id}")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_simulation_run(
     run_id: str,
     _: bool = Depends(verify_api_key),
@@ -186,6 +190,7 @@ async def get_simulation_run(
 
 
 @router.get("/graph/{graph_id}")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_runs_for_graph(
     graph_id: str,
     _: bool = Depends(verify_api_key),
@@ -207,6 +212,7 @@ async def get_runs_for_graph(
 
 
 @router.get("/health")
+@must_stay_async("FastAPI/ASGI route handler")
 async def simulation_health() -> Dict[str, Any]:
     """
     Health check for simulation engine.
@@ -230,4 +236,3 @@ async def simulation_health() -> Dict[str, Any]:
             "status": "unhealthy",
             "error": str(e),
         }
-

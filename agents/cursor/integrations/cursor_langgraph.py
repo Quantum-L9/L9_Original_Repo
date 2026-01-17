@@ -18,6 +18,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 from langgraph.graph import StateGraph, START, END
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -30,7 +31,7 @@ logger = structlog.get_logger(__name__)
 class CursorAgentState(BaseModel):
     """
     LangGraph state model for Cursor agent execution.
-    
+
     Follows ResearchState pattern: Pydantic BaseModel for validation and serialization.
     State flows through nodes and accumulates results.
     """
@@ -98,26 +99,27 @@ class CursorAgentState(BaseModel):
 class CursorPlanningNode:
     """
     Planning node: refines task and enriches state with structured reasoning.
-    
+
     Does NOT write to memory; only plans and enriches state.
     """
 
     def __init__(self, llm_provider: Optional[Any] = None):
         """
         Initialize planning node.
-        
+
         Args:
             llm_provider: Optional LLM provider for task refinement
         """
         self._llm_provider = llm_provider
 
+    @must_stay_async("LangGraph node protocol")
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute planning node.
-        
+
         Args:
             state: Current agent state
-            
+
         Returns:
             Updated state with refined task and reasoning trace
         """
@@ -151,7 +153,7 @@ class CursorPlanningNode:
 class CursorMemoryWriteNode:
     """
     Memory write node: writes decisions and errors to memory substrate.
-    
+
     Calls CursorMemoryGateway.write_decision() and/or .write_error().
     Updates state with written packet IDs.
     """
@@ -159,7 +161,7 @@ class CursorMemoryWriteNode:
     def __init__(self, memory_gateway: Any):
         """
         Initialize memory write node.
-        
+
         Args:
             memory_gateway: CursorMemoryGateway instance
         """
@@ -168,10 +170,10 @@ class CursorMemoryWriteNode:
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute memory write node.
-        
+
         Args:
             state: Current agent state
-            
+
         Returns:
             Updated state with written packet IDs
         """
@@ -219,14 +221,14 @@ class CursorMemoryWriteNode:
 class CursorMemorySearchNode:
     """
     Memory search node: searches memory substrate and writes hits into state.
-    
+
     Calls CursorMemoryGateway.search_memory().
     """
 
     def __init__(self, memory_gateway: Any):
         """
         Initialize memory search node.
-        
+
         Args:
             memory_gateway: CursorMemoryGateway instance
         """
@@ -235,10 +237,10 @@ class CursorMemorySearchNode:
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute memory search node.
-        
+
         Args:
             state: Current agent state
-            
+
         Returns:
             Updated state with search hits
         """
@@ -264,14 +266,16 @@ class CursorMemorySearchNode:
             return state.model_copy(
                 update={
                     "search_hits": hits,
-                    "tool_results": state.tool_results + [{"type": "memory_search", "hits": hits}],
+                    "tool_results": state.tool_results
+                    + [{"type": "memory_search", "hits": hits}],
                 }
             )
         except Exception as e:
             logger.error("Memory search failed", error=str(e))
             return state.model_copy(
                 update={
-                    "errors": state.errors + [{"type": "memory_search_error", "error": str(e)}],
+                    "errors": state.errors
+                    + [{"type": "memory_search_error", "error": str(e)}],
                 }
             )
 
@@ -284,7 +288,7 @@ class CursorErrorRecoveryNode:
     def __init__(self, memory_gateway: Any):
         """
         Initialize error recovery node.
-        
+
         Args:
             memory_gateway: CursorMemoryGateway instance for searching past fixes
         """
@@ -293,17 +297,19 @@ class CursorErrorRecoveryNode:
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute error recovery node.
-        
+
         Args:
             state: Current agent state
-            
+
         Returns:
             Updated state with recovery suggestions
         """
         if not state.errors:
             return state
 
-        logger.info("CursorErrorRecoveryNode: Processing errors", error_count=len(state.errors))
+        logger.info(
+            "CursorErrorRecoveryNode: Processing errors", error_count=len(state.errors)
+        )
 
         recovery_suggestions = []
 
@@ -351,14 +357,14 @@ class CursorErrorRecoveryNode:
 class CursorDecisionGateNode:
     """
     Decision gate node: invokes governance approval gate for high-impact decisions.
-    
+
     Pauses/resumes graph execution depending on Igor's decision.
     """
 
     def __init__(self, approval_gate: Any):
         """
         Initialize decision gate node.
-        
+
         Args:
             approval_gate: Approval gate functions (is_high_impact_decision, escalate_to_igor, etc.)
         """
@@ -367,10 +373,10 @@ class CursorDecisionGateNode:
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute decision gate node.
-        
+
         Args:
             state: Current agent state
-            
+
         Returns:
             Updated state with approval status
         """
@@ -407,7 +413,8 @@ class CursorDecisionGateNode:
             return state.model_copy(
                 update={
                     "approval_status": "error",
-                    "errors": state.errors + [{"type": "approval_error", "error": str(e)}],
+                    "errors": state.errors
+                    + [{"type": "approval_error", "error": str(e)}],
                 }
             )
 
@@ -423,11 +430,11 @@ def build_cursor_langgraph(
 ) -> Any:
     """
     Build Cursor LangGraph application.
-    
+
     Args:
         config: CursorLangGraphConfig instance
         deps: Dependencies (memory_gateway, approval_gate, etc.)
-        
+
     Returns:
         Compiled LangGraph application
     """
@@ -464,4 +471,3 @@ def build_cursor_langgraph(
         pass
 
     return graph.compile()
-

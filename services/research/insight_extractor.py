@@ -8,6 +8,7 @@ Used by store_insights node to convert research output into Memory Substrate pac
 
 import structlog
 from typing import Any
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -35,6 +36,7 @@ class InsightExtractorAgent:
         """
         self.model = model
 
+    @must_stay_async("callers use await")
     async def extract_insights(
         self,
         query: str,

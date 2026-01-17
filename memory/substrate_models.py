@@ -242,15 +242,44 @@ class KnowledgeFact(BaseModel):
 
 
 class KnowledgeFactRow(BaseModel):
-    """DTO for knowledge_facts table."""
+    """DTO for knowledge_facts table (v2.0 - all columns from migrations 0005, 0008, 0010)."""
 
+    # Core fields (migration 0005)
     fact_id: UUID
     subject: str
     predicate: str
     object: Any
-    confidence: Optional[float]
-    source_packet: Optional[UUID]
+    confidence: Optional[float] = 0.8
+    source_packet: Optional[UUID] = None
     created_at: datetime
+
+    # Entity normalization (migration 0008)
+    subject_normalized: Optional[str] = None
+    object_normalized: Optional[str] = None
+    object_type: Optional[str] = "value"
+
+    # Confidence decay tracking (migration 0008)
+    confidence_updated_at: Optional[datetime] = None
+    contradiction_count: Optional[int] = 0
+    supporting_packet_count: Optional[int] = 1
+
+    # Access tracking (migration 0008)
+    access_count: Optional[int] = 0
+    last_accessed: Optional[datetime] = None
+
+    # Scope (migration 0008)
+    scope: Optional[str] = "shared"
+
+    # Multi-tenant identity (migration 0008)
+    tenant_id: Optional[UUID] = None
+    org_id: Optional[UUID] = None
+    user_id: Optional[UUID] = None
+    correlation_id: Optional[UUID] = None
+
+    # Deprecation (migration 0010)
+    deprecated: Optional[bool] = False
+    deprecated_at: Optional[datetime] = None
+    deprecated_reason: Optional[str] = None
 
 
 class ExtractedInsight(BaseModel):

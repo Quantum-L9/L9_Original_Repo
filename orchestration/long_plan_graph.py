@@ -18,6 +18,7 @@ from __future__ import annotations
 import os
 import structlog
 from typing import Any, Dict, List, Literal, Optional, TypedDict
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -566,6 +567,7 @@ async def prepare_changes_node(state: LongPlanState) -> LongPlanState:
         }
 
 
+@must_stay_async("callers use await")
 async def final_review_node(state: LongPlanState) -> LongPlanState:
     """
     Final review where L reviews diffs/results.

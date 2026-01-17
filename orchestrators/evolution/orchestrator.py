@@ -19,6 +19,7 @@ from .interface import (
     UpgradeStatus,
 )
 from .apply_engine import ApplyEngine
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -106,6 +107,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
             message=f"Successfully upgraded to {current_version}",
         )
 
+    @must_stay_async("callers use await")
     async def validate_upgrade(self, upgrade: Upgrade) -> UpgradeValidation:
         """Validate an upgrade before applying."""
         logger.info(f"Validating upgrade: {upgrade.id}")
@@ -171,6 +173,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
 
         return rollback_result
 
+    @must_stay_async("callers use await")
     async def get_upgrade_history(self, limit: int = 10) -> List[UpgradeExecution]:
         """Get history of applied upgrades."""
         return self._history[-limit:]

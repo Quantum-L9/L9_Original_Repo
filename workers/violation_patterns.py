@@ -20,6 +20,7 @@ from uuid import uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -198,6 +199,7 @@ class ViolationPatterns:
     # Lifecycle
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def startup(self) -> None:
         """Initialize resources on startup."""
         logger.info("violation_patterns_starting")
@@ -223,6 +225,7 @@ class ViolationPatterns:
             compiled_regex_count=len(self._compiled_patterns),
         )
 
+    @must_stay_async("health endpoint")
     async def shutdown(self) -> None:
         """Clean up resources on shutdown."""
         logger.info("violation_patterns_shutting_down")
@@ -307,6 +310,7 @@ class ViolationPatterns:
     # Internal Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _execute(self, request: ViolationPatternsRequest) -> List[ViolationMatch]:
         """
         Execute pattern matching.
@@ -399,6 +403,7 @@ class ViolationPatterns:
     # Health Check
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def health_check(self) -> Dict[str, Any]:
         """Check service health."""
         return {

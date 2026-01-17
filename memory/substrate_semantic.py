@@ -11,6 +11,7 @@ import random
 import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -19,6 +20,7 @@ class EmbeddingProvider(ABC):
     """Abstract base class for embedding providers."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         """
         Generate embedding for text.
@@ -32,6 +34,7 @@ class EmbeddingProvider(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """
         Generate embeddings for multiple texts.
@@ -169,6 +172,7 @@ class StubEmbeddingProvider(EmbeddingProvider):
     def __init__(self, dimensions: int = 1536):
         self._dimensions = dimensions
 
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         """Generate stub embedding from text hash."""
         import hashlib
@@ -508,6 +512,7 @@ class SemanticService:
         logger.debug(f"Hybrid search found {len(results)} results for: {query[:50]}...")
         return results
 
+    @must_stay_async("callers use await")
     async def rerank_by_relevance(
         self,
         hits: list[dict[str, Any]],

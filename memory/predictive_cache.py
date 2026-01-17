@@ -32,6 +32,8 @@ from memory.warming_models import (
 
 logger = structlog.get_logger(__name__)
 
+from core.decorators import must_stay_async
+
 # Prometheus metrics (optional - graceful fallback)
 try:
     from prometheus_client import Counter, Gauge, Histogram
@@ -515,6 +517,7 @@ class PredictiveCache:
             )
             return None
 
+    @must_stay_async("callers use await")
     async def clear_expired(self) -> None:
         """
         Clear expired entries from L1 cache.

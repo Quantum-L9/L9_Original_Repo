@@ -28,6 +28,7 @@ from datetime import datetime
 from typing import Any
 
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -82,6 +83,7 @@ class GraphToWorldModelSync:
         self._last_sync: datetime | None = None
         self._sync_count = 0
 
+    @must_stay_async("callers use await")
     async def start(self) -> None:
         """Start the periodic sync task."""
         if not self.enabled:

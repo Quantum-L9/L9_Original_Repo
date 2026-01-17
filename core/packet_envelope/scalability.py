@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, List, Optional
+from core.decorators import must_stay_async
 
 logger = logging.getLogger(__name__)
 
@@ -197,11 +198,13 @@ class BatchIngestionEngine:
                 raise ValueError(f"Missing required field: {field_name}")
         return packet
 
+    @must_stay_async("callers use await")
     async def _check_idempotency(self, key: str) -> Optional[BatchIngestResult]:
         """Check if batch already processed"""
         # TODO: Check cache
         return None
 
+    @must_stay_async("callers use await")
     async def _cache_result(self, key: str, result: BatchIngestResult):
         """Cache result for idempotency"""
         # TODO: Store in cache (Redis/Memcached)
@@ -264,6 +267,7 @@ class CommandHandler:
         else:
             raise ValueError(f"Unknown command type: {command.command_type}")
 
+    @must_stay_async("callers use await")
     async def _handle_ingest_packet(self, command: Command) -> List[Event]:
         """Handle packet ingestion command"""
         events = []
@@ -285,6 +289,7 @@ class CommandHandler:
 
         return events
 
+    @must_stay_async("callers use await")
     async def _handle_update_lineage(self, command: Command) -> List[Event]:
         """Handle lineage update command"""
         events = []
@@ -313,6 +318,7 @@ class ReadModel:
         self.lineage_graph: Dict[str, List[str]] = {}
         self.logger = logger
 
+    @must_stay_async("callers use await")
     async def handle_event(self, event: Event):
         """
         Update read model based on event
@@ -333,10 +339,12 @@ class ReadModel:
                     self.lineage_graph[parent_id] = []
                 self.lineage_graph[parent_id].append(event.aggregate_id)
 
+    @must_stay_async("callers use await")
     async def query_packet(self, packet_id: str) -> Optional[Dict]:
         """Query packet from read model"""
         return self.packets.get(packet_id)
 
+    @must_stay_async("callers use await")
     async def query_lineage(self, packet_id: str) -> List[str]:
         """Query lineage from read model"""
         return self.lineage_graph.get(packet_id, [])
@@ -395,16 +403,19 @@ class StreamConsumer:
                     # Dead-letter queue
                     await self._send_to_dlq(event)
 
+    @must_stay_async("callers use await")
     async def stop(self):
         """Stop consuming"""
         self.is_running = False
         self.logger.info(f"Consumer {self.consumer_group} stopped")
 
+    @must_stay_async("future await planned")
     async def _fetch_events(self, from_offset: int, batch_size: int) -> List[Event]:
         """Fetch events from event store"""
         # TODO: Implement event store query
         return []
 
+    @must_stay_async("callers use await")
     async def _send_to_dlq(self, event: Event):
         """Send failed event to dead-letter queue"""
         self.logger.error(f"DLQ: {event.event_id}")
@@ -447,9 +458,8 @@ class EventStore:
 
         return len(self.events) - 1
 
-    async def get_events(
-        self, aggregate_id: str, from_version: int = 0
-    ) -> List[Event]:
+    @must_stay_async("callers use await")
+    async def get_events(self, aggregate_id: str, from_version: int = 0) -> List[Event]:
         """Get events for aggregate"""
         return [
             e
@@ -457,10 +467,12 @@ class EventStore:
             if e.aggregate_id == aggregate_id and len(self.events) >= from_version
         ]
 
+    @must_stay_async("callers use await")
     async def get_snapshot(self, aggregate_id: str) -> Optional[Snapshot]:
         """Get latest snapshot"""
         return self.snapshots.get(aggregate_id)
 
+    @must_stay_async("callers use await")
     async def _create_snapshot(self):
         """Create snapshot from events"""
         # Group events by aggregate
@@ -478,4 +490,3 @@ class EventStore:
                 state={"event_count": len(events)},
             )
             self.snapshots[agg_id] = snapshot
-

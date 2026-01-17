@@ -29,6 +29,7 @@ import structlog
 import httpx
 from typing import Optional
 from dataclasses import dataclass
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -54,6 +55,7 @@ class EmailAdapterClient:
         self.logger = structlog.get_logger(__name__)
         self._client: Optional[httpx.AsyncClient] = None
 
+    @must_stay_async("async context manager protocol")
     async def __aenter__(self) -> "EmailAdapterClient":
         self._client = httpx.AsyncClient(
             base_url=self.config.base_url,

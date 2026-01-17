@@ -24,6 +24,7 @@ from typing import Callable, Dict, Optional
 
 from core.schemas.ws_event_stream import EventMessage, EventType
 from core.schemas.tasks import AgentTask, TaskEnvelope, TaskKind
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -435,6 +436,7 @@ class LangGraphRouter:
             "world_model_context": world_context,
         }
 
+    @must_stay_async("callers use await")
     async def _classify_node(self, state: RouterState) -> RouterState:
         """Classify the event for routing."""
         event_type = state.get("event_type", "")
@@ -464,6 +466,7 @@ class LangGraphRouter:
             "classification": classification,
         }
 
+    @must_stay_async("callers use await")
     async def _create_task_node(self, state: RouterState) -> RouterState:
         """Create task envelope from classified event."""
         event = state.get("event", {})

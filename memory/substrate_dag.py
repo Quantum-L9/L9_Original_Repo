@@ -25,6 +25,7 @@ from langgraph.graph import StateGraph, END
 from langchain_core.runnables import RunnableConfig
 
 from core.schemas import PacketEnvelope, PacketWriteResult
+from core.decorators import must_stay_async
 from memory.substrate_models import (
     EnrichmentResult,
     ExtractedInsight,
@@ -168,6 +169,7 @@ def _default_state() -> SubstrateGraphState:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def intake_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -216,6 +218,7 @@ async def intake_node(
     }
 
 
+@must_stay_async("callers use await")
 async def reasoning_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -516,6 +519,7 @@ async def checkpoint_node(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def extract_insights_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:

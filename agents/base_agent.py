@@ -28,6 +28,7 @@ from uuid import UUID, uuid4
 from openai import AsyncOpenAI
 
 from core.resilience.retry import async_retry, AsyncRetryConfig
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -161,6 +162,7 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def run(
         self, task: dict[str, Any], context: Optional[dict[str, Any]] = None
     ) -> AgentResponse:

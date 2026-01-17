@@ -27,6 +27,7 @@ from uuid import UUID, uuid4
 from core.schemas import PacketEnvelopeIn
 from memory.substrate_models import MemorySegment
 from telemetry.memory_metrics import record_tool_invocation
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -34,6 +35,7 @@ logger = structlog.get_logger(__name__)
 TOOL_AUDIT_TTL_HOURS = 24
 
 
+@must_stay_async("callers use await")
 async def log_tool_invocation(
     call_id: UUID,
     tool_id: str,

@@ -33,6 +33,7 @@ from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 from dataclasses import dataclass, field, asdict
 
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -45,6 +46,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class DoraMetrics:
     """Metrics captured during execution."""
+
     confidence: str = ""
     errors_detected: List[str] = field(default_factory=list)
     stability_score: str = ""
@@ -54,6 +56,7 @@ class DoraMetrics:
 @dataclass
 class DoraGraph:
     """Execution graph (nodes/edges for call flow visualization)."""
+
     nodes: List[Dict[str, Any]] = field(default_factory=list)
     edges: List[Dict[str, Any]] = field(default_factory=list)
 
@@ -62,10 +65,11 @@ class DoraGraph:
 class DoraTraceBlock:
     """
     The DORA Block schema (L9_TRACE_TEMPLATE).
-    
+
     This is the runtime trace block that auto-updates on every execution.
     Located at VERY END of file, after Footer Meta.
     """
+
     trace_id: str = ""
     task: str = ""
     timestamp: str = ""
@@ -74,7 +78,7 @@ class DoraTraceBlock:
     inputs: Dict[str, Any] = field(default_factory=dict)
     outputs: Dict[str, Any] = field(default_factory=dict)
     metrics: DoraMetrics = field(default_factory=DoraMetrics)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dict for serialization."""
         return {
@@ -87,7 +91,7 @@ class DoraTraceBlock:
             "outputs": self.outputs,
             "metrics": asdict(self.metrics),
         }
-    
+
     @classmethod
     def create(
         cls,
@@ -114,7 +118,7 @@ class DoraTraceBlock:
                 confidence="0.95" if not errors else "0.7",
             ),
         )
-    
+
     @staticmethod
     def _sanitize_for_json(data: Any) -> Any:
         """Recursively sanitize data for JSON serialization."""
@@ -123,10 +127,12 @@ class DoraTraceBlock:
         if isinstance(data, (str, int, float, bool)):
             return data
         if isinstance(data, (list, tuple)):
-            return [DoraTraceBlock._sanitize_for_json(item) for item in data[:10]]  # Limit list size
+            return [
+                DoraTraceBlock._sanitize_for_json(item) for item in data[:10]
+            ]  # Limit list size
         if isinstance(data, dict):
             return {
-                str(k): DoraTraceBlock._sanitize_for_json(v) 
+                str(k): DoraTraceBlock._sanitize_for_json(v)
                 for k, v in list(data.items())[:20]  # Limit dict size
             }
         # For complex objects, return string representation
@@ -143,19 +149,17 @@ class DoraTraceBlock:
 
 # Regex patterns to find existing DORA blocks
 DORA_BLOCK_START_PY = re.compile(
-    r'^# ={10,}\n# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT\n# ={10,}\n',
-    re.MULTILINE
+    r"^# ={10,}\n# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT\n# ={10,}\n", re.MULTILINE
 )
 DORA_BLOCK_END_PY = re.compile(
-    r'^# ={10,}\n# END L9 DORA BLOCK\n# ={10,}\s*$',
-    re.MULTILINE
+    r"^# ={10,}\n# END L9 DORA BLOCK\n# ={10,}\s*$", re.MULTILINE
 )
 
 DORA_BLOCK_PATTERN_PY = re.compile(
-    r'(# ={10,}\n# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT\n# ={10,}\n)'
-    r'(__l9_trace__\s*=\s*\{.*?\})\n'
-    r'(# ={10,}\n# END L9 DORA BLOCK\n# ={10,})',
-    re.DOTALL
+    r"(# ={10,}\n# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT\n# ={10,}\n)"
+    r"(__l9_trace__\s*=\s*\{.*?\})\n"
+    r"(# ={10,}\n# END L9 DORA BLOCK\n# ={10,})",
+    re.DOTALL,
 )
 
 
@@ -167,7 +171,7 @@ def format_dora_block_python(trace: DoraTraceBlock) -> str:
     lines.append("# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT")
     lines.append("# " + "=" * 76)
     lines.append("__l9_trace__ = {")
-    
+
     for key, value in trace_dict.items():
         if isinstance(value, dict):
             lines.append(f'    "{key}": {json.dumps(value, default=str)},')
@@ -177,12 +181,12 @@ def format_dora_block_python(trace: DoraTraceBlock) -> str:
             lines.append(f'    "{key}": {json.dumps(value)},')
         else:
             lines.append(f'    "{key}": {json.dumps(value, default=str)},')
-    
+
     lines.append("}")
     lines.append("# " + "=" * 76)
     lines.append("# END L9 DORA BLOCK")
     lines.append("# " + "=" * 76)
-    
+
     return "\n".join(lines)
 
 
@@ -192,35 +196,35 @@ def update_dora_block_in_file(
 ) -> bool:
     """
     Update the DORA block at the end of a file.
-    
+
     If no DORA block exists, appends one at the very end.
     If one exists, replaces it with the new trace.
-    
+
     Args:
         file_path: Path to the file to update
         trace: The DoraTraceBlock to write
-        
+
     Returns:
         True if update succeeded, False otherwise
     """
     file_path = Path(file_path)
-    
+
     if not file_path.exists():
         logger.warning(f"dora.update_block: file not found: {file_path}")
         return False
-    
+
     # Determine file type and format
     suffix = file_path.suffix.lower()
-    if suffix not in ('.py', '.yaml', '.yml', '.json'):
+    if suffix not in (".py", ".yaml", ".yml", ".json"):
         logger.debug(f"dora.update_block: unsupported file type: {suffix}")
         return False
-    
+
     try:
-        content = file_path.read_text(encoding='utf-8')
-        
-        if suffix == '.py':
+        content = file_path.read_text(encoding="utf-8")
+
+        if suffix == ".py":
             new_block = format_dora_block_python(trace)
-            
+
             # Check if DORA block already exists
             if DORA_BLOCK_PATTERN_PY.search(content):
                 # Replace existing block
@@ -228,20 +232,20 @@ def update_dora_block_in_file(
             else:
                 # Append new block at very end
                 # Ensure proper spacing
-                if not content.endswith('\n'):
-                    content += '\n'
-                if not content.endswith('\n\n'):
-                    content += '\n'
-                new_content = content + new_block + '\n'
-            
-            file_path.write_text(new_content, encoding='utf-8')
+                if not content.endswith("\n"):
+                    content += "\n"
+                if not content.endswith("\n\n"):
+                    content += "\n"
+                new_content = content + new_block + "\n"
+
+            file_path.write_text(new_content, encoding="utf-8")
             logger.info(f"dora.update_block: updated {file_path}")
             return True
-        
+
         # TODO: Add YAML and JSON support
         logger.debug(f"dora.update_block: {suffix} support not yet implemented")
         return False
-        
+
     except Exception as e:
         logger.exception(f"dora.update_block: error updating {file_path}: {e}")
         return False
@@ -253,7 +257,7 @@ def update_dora_block_in_file(
 
 
 # Type variable for preserving function signature
-F = TypeVar('F', bound=Callable[..., Any])
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 def l9_traced(
@@ -266,35 +270,36 @@ def l9_traced(
 ) -> Union[F, Callable[[F], F]]:
     """
     Decorator to trace function execution for DORA Block.
-    
+
     Captures:
     - Function inputs (args/kwargs)
     - Function outputs (return value)
     - Execution time
     - Errors (if any)
     - Patterns used (optional)
-    
+
     Optionally updates the DORA block at the end of the source file.
-    
+
     Args:
         func: The function to decorate (if used without parentheses)
         task_name: Override the task name (defaults to function name)
         patterns: List of pattern names used by this function
         update_source: If True, update the DORA block in the source file
         source_file: Override the source file path (auto-detected if None)
-    
+
     Returns:
         Decorated function that logs execution traces
-        
+
     Example:
         @l9_traced
         def my_function(x: int) -> int:
             return x * 2
-            
+
         @l9_traced(patterns=["safety_check", "symbolic_eval"], update_source=True)
         def process_expression(expr: str) -> dict:
             ...
     """
+
     def decorator(fn: F) -> F:
         # Determine source file for DORA block updates
         _source_file = source_file
@@ -303,7 +308,7 @@ def l9_traced(
                 _source_file = Path(inspect.getfile(fn))
             except (TypeError, OSError):
                 _source_file = None
-        
+
         @functools.wraps(fn)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
             # Capture inputs
@@ -311,12 +316,12 @@ def l9_traced(
             bound = sig.bind_partial(*args, **kwargs)
             bound.apply_defaults()
             inputs = dict(bound.arguments)
-            
+
             # Track execution
             start_time = datetime.now(timezone.utc)
             errors: List[str] = []
             output: Any = None
-            
+
             try:
                 output = fn(*args, **kwargs)
                 return output
@@ -327,7 +332,7 @@ def l9_traced(
                 # Calculate duration
                 end_time = datetime.now(timezone.utc)
                 duration_ms = int((end_time - start_time).total_seconds() * 1000)
-                
+
                 # Create trace block
                 trace = DoraTraceBlock.create(
                     task=task_name or fn.__name__,
@@ -337,7 +342,7 @@ def l9_traced(
                     duration_ms=duration_ms,
                     errors=errors if errors else None,
                 )
-                
+
                 # Log trace
                 logger.info(
                     "dora.trace",
@@ -346,11 +351,11 @@ def l9_traced(
                     duration_ms=duration_ms,
                     has_errors=bool(errors),
                 )
-                
+
                 # Optionally update source file
                 if update_source and _source_file:
                     update_dora_block_in_file(_source_file, trace)
-        
+
         @functools.wraps(fn)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             # Capture inputs
@@ -358,12 +363,12 @@ def l9_traced(
             bound = sig.bind_partial(*args, **kwargs)
             bound.apply_defaults()
             inputs = dict(bound.arguments)
-            
+
             # Track execution
             start_time = datetime.now(timezone.utc)
             errors: List[str] = []
             output: Any = None
-            
+
             try:
                 output = await fn(*args, **kwargs)
                 return output
@@ -374,7 +379,7 @@ def l9_traced(
                 # Calculate duration
                 end_time = datetime.now(timezone.utc)
                 duration_ms = int((end_time - start_time).total_seconds() * 1000)
-                
+
                 # Create trace block
                 trace = DoraTraceBlock.create(
                     task=task_name or fn.__name__,
@@ -384,7 +389,7 @@ def l9_traced(
                     duration_ms=duration_ms,
                     errors=errors if errors else None,
                 )
-                
+
                 # Log trace
                 logger.info(
                     "dora.trace",
@@ -393,16 +398,16 @@ def l9_traced(
                     duration_ms=duration_ms,
                     has_errors=bool(errors),
                 )
-                
+
                 # Optionally update source file
                 if update_source and _source_file:
                     update_dora_block_in_file(_source_file, trace)
-        
+
         # Return appropriate wrapper
         if inspect.iscoroutinefunction(fn):
             return async_wrapper  # type: ignore
         return sync_wrapper  # type: ignore
-    
+
     # Handle both @l9_traced and @l9_traced() syntax
     if func is not None:
         return decorator(func)
@@ -414,6 +419,7 @@ def l9_traced(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def emit_executor_trace(
     task_id: str,
     task_name: str,
@@ -426,11 +432,11 @@ async def emit_executor_trace(
 ) -> DoraTraceBlock:
     """
     Create and emit a DORA trace from the executor.
-    
+
     Called by AgentExecutorService after task completion to record
     the execution trace. This is the primary integration point for
     the DORA Block system with the executor loop.
-    
+
     Args:
         task_id: Unique task identifier
         task_name: Human-readable task name
@@ -440,7 +446,7 @@ async def emit_executor_trace(
         duration_ms: Execution duration in milliseconds
         errors: List of error messages (if any)
         patterns: Patterns/strategies used during execution
-        
+
     Returns:
         The created DoraTraceBlock
     """
@@ -456,7 +462,7 @@ async def emit_executor_trace(
         duration_ms=duration_ms,
         errors=errors,
     )
-    
+
     logger.info(
         "dora.executor_trace",
         trace_id=trace.trace_id,
@@ -464,7 +470,7 @@ async def emit_executor_trace(
         duration_ms=duration_ms,
         status="error" if errors else "success",
     )
-    
+
     return trace
 
 
@@ -476,7 +482,7 @@ async def emit_executor_trace(
 def get_empty_dora_block_python() -> str:
     """
     Get an empty DORA block template for Python files.
-    
+
     Used by codegen to inject the initial DORA block at generation time.
     The block will be auto-updated on first execution.
     """
@@ -491,4 +497,3 @@ def get_empty_dora_block_python() -> str:
 # =============================================================================
 # END MODULE
 # =============================================================================
-

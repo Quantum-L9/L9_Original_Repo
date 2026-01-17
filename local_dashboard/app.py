@@ -28,6 +28,7 @@ import httpx
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse
 import uvicorn
+from core.decorators import must_stay_async
 
 # =============================================================================
 # Configuration
@@ -511,6 +512,7 @@ HTML_TEMPLATE = """
 
 
 @app.get("/", response_class=HTMLResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def index():
     """Serve the dashboard."""
     return HTML_TEMPLATE
@@ -584,6 +586,7 @@ async def chat(request: Request):
 
 
 @app.get("/api/health")
+@must_stay_async("FastAPI/ASGI route handler")
 async def health():
     """Local health check."""
     return {

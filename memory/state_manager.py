@@ -19,6 +19,7 @@ from datetime import datetime
 
 from core.schemas import PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_service import MemorySubstrateService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -83,6 +84,7 @@ class MemoryStateManager:
         """
         return await self._service.get_checkpoint(agent_id=self._agent_id)
 
+    @must_stay_async("callers use await")
     async def start_new_thread(self) -> UUID:
         """
         Generate a new thread_id for multi-turn conversations / graphs.

@@ -29,6 +29,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -578,6 +579,7 @@ class ToolRouter:
 _router: Optional[ToolRouter] = None
 
 
+@must_stay_async("callers use await")
 async def get_tool_router(
     embedding_provider: Optional[Any] = None,
     repository: Optional[Any] = None,

@@ -14,6 +14,7 @@ from typing import Set, List
 from uuid import UUID
 
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -68,6 +69,7 @@ class SubstrateAlignmentChecker:
             )
         return {row["packet_id"] for row in rows}
 
+    @must_stay_async("callers use await")
     async def _neo4j_available(self) -> bool:
         if not self._graph_client:
             return False

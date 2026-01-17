@@ -22,6 +22,7 @@ from uuid import uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -207,12 +208,14 @@ class AnomalyClassifier:
     # Lifecycle
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def startup(self) -> None:
         """Initialize resources on startup."""
         logger.info("anomaly_classifier_starting")
         self._initialized = True
         logger.info("anomaly_classifier_started", rule_count=len(self._rules))
 
+    @must_stay_async("health endpoint")
     async def shutdown(self) -> None:
         """Clean up resources on shutdown."""
         logger.info("anomaly_classifier_shutting_down")
@@ -284,6 +287,7 @@ class AnomalyClassifier:
     # Internal Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _execute(self, request: AnomalyClassifierRequest) -> ClassificationResult:
         """
         Execute anomaly classification logic.
@@ -376,6 +380,7 @@ class AnomalyClassifier:
     # Health Check
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def health_check(self) -> Dict[str, Any]:
         """Check service health."""
         return {

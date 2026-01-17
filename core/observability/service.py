@@ -12,6 +12,7 @@ from collections import defaultdict
 
 from .config import ObservabilitySettings, load_config
 from .models import Span, TraceContext, FailureSignal, FailureClass
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -37,10 +38,13 @@ class ObservabilityService:
         self._prometheus_exporter: Optional[Any] = None
         self._jaeger_exporter: Optional[Any] = None
         self._setup_logging()
-        logger.info("ObservabilityService initialized", extra={
-            "sampling_rate": self.config.sampling_rate,
-            "exporters": self.config.exporters,
-        })
+        logger.info(
+            "ObservabilityService initialized",
+            extra={
+                "sampling_rate": self.config.sampling_rate,
+                "exporters": self.config.exporters,
+            },
+        )
 
     def _setup_logging(self) -> None:
         """Configure logging (structlog is pre-configured at module level)."""
@@ -59,10 +63,13 @@ class ObservabilityService:
         """Set global instance."""
         cls._instance = service
 
+    @must_stay_async("callers use await")
     async def initialize_exporters(self) -> None:
         """Initialize configured exporters."""
         from .exporters import (
-            ConsoleExporter, JSONFileExporter, SubstrateExporter,
+            ConsoleExporter,
+            JSONFileExporter,
+            SubstrateExporter,
         )
         from .prometheus_exporter import initialize_exporter
         from .jaeger_exporter import initialize_jaeger_exporter
@@ -84,7 +91,9 @@ class ObservabilityService:
                 if exporter_name == "console":
                     self.exporters.append(ConsoleExporter())
                 elif exporter_name == "file":
-                    self.exporters.append(JSONFileExporter(self.config.file_export_path))
+                    self.exporters.append(
+                        JSONFileExporter(self.config.file_export_path)
+                    )
                 elif exporter_name == "substrate":
                     if self.substrate_service and self.config.substrate_enabled:
                         self.exporters.append(SubstrateExporter(self.substrate_service))
@@ -138,12 +147,15 @@ class ObservabilityService:
                 self._prometheus_exporter.record_span(
                     span_name=span.name,
                     status=span.status.value,
-                    kind=span.kind.value if hasattr(span.kind, "value") else str(span.kind),
+                    kind=span.kind.value
+                    if hasattr(span.kind, "value")
+                    else str(span.kind),
                     duration_ms=span.duration_ms,
                 )
 
                 # Record specialized span types
                 from .models import LLMGenerationSpan, ToolCallSpan, ContextAssemblySpan
+
                 if isinstance(span, LLMGenerationSpan):
                     self._prometheus_exporter.record_llm_call(
                         model=span.model,
@@ -175,6 +187,7 @@ class ObservabilityService:
             except Exception as exc:
                 logger.error(f"Export failed: {exc}")
 
+    @must_stay_async("callers use await")
     async def compute_metrics(self) -> Dict[str, Any]:
         """Compute SRE metrics from recent spans."""
         if not self.spans:
@@ -213,6 +226,7 @@ class ObservabilityService:
 
         return metrics
 
+    @must_stay_async("callers use await")
     async def update_agent_kpis(self) -> None:
         """Update agent KPI metrics in Prometheus."""
         if not self._prometheus_exporter:
@@ -241,6 +255,7 @@ class ObservabilityService:
             except Exception as exc:
                 logger.debug(f"Failed to update agent KPI for {agent_name}: {exc}")
 
+    @must_stay_async("callers use await")
     async def detect_failures(self) -> List[FailureSignal]:
         """Detect failures from recent spans."""
         signals = []
@@ -252,21 +267,25 @@ class ObservabilityService:
                 and span.duration_ms
                 and span.duration_ms > 30000
             ):
-                signals.append(FailureSignal(
-                    failure_class=FailureClass.TOOL_TIMEOUT,
-                    span_id=span.span_id,
-                    trace_id=span.trace_id,
-                    context={"tool": span.name, "duration_ms": span.duration_ms},
-                ))
+                signals.append(
+                    FailureSignal(
+                        failure_class=FailureClass.TOOL_TIMEOUT,
+                        span_id=span.span_id,
+                        trace_id=span.trace_id,
+                        context={"tool": span.name, "duration_ms": span.duration_ms},
+                    )
+                )
 
             # Tool error
             if span.name.startswith("tool.") and span.status.value == "ERROR":
-                signals.append(FailureSignal(
-                    failure_class=FailureClass.TOOL_ERROR,
-                    span_id=span.span_id,
-                    trace_id=span.trace_id,
-                    context={"tool": span.name, "error": span.error},
-                ))
+                signals.append(
+                    FailureSignal(
+                        failure_class=FailureClass.TOOL_ERROR,
+                        span_id=span.span_id,
+                        trace_id=span.trace_id,
+                        context={"tool": span.name, "error": span.error},
+                    )
+                )
 
             # Governance denial
             if (
@@ -274,24 +293,25 @@ class ObservabilityService:
                 and hasattr(span, "policy_result")
                 and span.policy_result == "deny"
             ):
-                signals.append(FailureSignal(
-                    failure_class=FailureClass.GOVERNANCE_DENIED,
-                    span_id=span.span_id,
-                    trace_id=span.trace_id,
-                    context={"policy": span.name},
-                ))
+                signals.append(
+                    FailureSignal(
+                        failure_class=FailureClass.GOVERNANCE_DENIED,
+                        span_id=span.span_id,
+                        trace_id=span.trace_id,
+                        context={"policy": span.name},
+                    )
+                )
 
             # Context overflow
-            if (
-                hasattr(span, "overflow_event")
-                and span.overflow_event
-            ):
-                signals.append(FailureSignal(
-                    failure_class=FailureClass.CONTEXT_WINDOW_EXCEEDED,
-                    span_id=span.span_id,
-                    trace_id=span.trace_id,
-                    context={"tokens_used": span.attributes.get("tokens_used")},
-                ))
+            if hasattr(span, "overflow_event") and span.overflow_event:
+                signals.append(
+                    FailureSignal(
+                        failure_class=FailureClass.CONTEXT_WINDOW_EXCEEDED,
+                        span_id=span.span_id,
+                        trace_id=span.trace_id,
+                        context={"tokens_used": span.attributes.get("tokens_used")},
+                    )
+                )
 
         self.failures.extend(signals)
 
@@ -300,10 +320,14 @@ class ObservabilityService:
             for signal in signals:
                 try:
                     self._prometheus_exporter.record_failure_signal(
-                        failure_class=signal.failure_class.value if hasattr(signal.failure_class, "value") else str(signal.failure_class)
+                        failure_class=signal.failure_class.value
+                        if hasattr(signal.failure_class, "value")
+                        else str(signal.failure_class)
                     )
                 except Exception as exc:
-                    logger.debug(f"Failed to record failure signal to Prometheus: {exc}")
+                    logger.debug(
+                        f"Failed to record failure signal to Prometheus: {exc}"
+                    )
 
         return signals
 
@@ -326,7 +350,7 @@ async def initialize_observability(
 ) -> ObservabilityService:
     """
     Initialize and return global observability service.
-    
+
     Call this once at application startup.
     """
     if ObservabilityService.get() is not None:

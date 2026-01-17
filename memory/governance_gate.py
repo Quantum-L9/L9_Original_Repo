@@ -22,6 +22,7 @@ from typing import Any, AsyncGenerator, Optional, Sequence
 import os
 
 from config.rls_config import get_rls_config
+from core.decorators import must_stay_async
 
 
 @dataclass(frozen=True)
@@ -148,6 +149,7 @@ async def ensure_governance_context(
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def governance_context(
     ctx: MemoryGovernanceContext,
 ) -> AsyncGenerator[MemoryGovernanceContext, None]:

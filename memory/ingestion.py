@@ -30,6 +30,7 @@ from memory.substrate_service import MemorySubstrateService
 from memory.graph_client import get_neo4j_client
 from memory.validators.packet_validator import PacketValidator, PacketValidationError
 from memory.audit_utils import prepare_packet_for_ingest
+from core.decorators import must_stay_async
 from memory.governance_gate import (
     enforce_packet_governance,
     require_governance_context,
@@ -568,6 +569,7 @@ class IngestionPipeline:
             agent_id=agent_id,
         )
 
+    @must_stay_async("callers use await")
     async def _store_artifacts(self, envelope: PacketEnvelope) -> int:
         """
         Store any artifacts associated with the packet.

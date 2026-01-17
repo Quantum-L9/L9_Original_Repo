@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from api.auth import verify_api_key
 from typing import Any, Dict, List, Optional
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -109,6 +110,7 @@ def get_pattern_orchestrator(request: Request):
 
 
 @router.get("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def pattern_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -118,6 +120,7 @@ async def pattern_test(
 
 
 @router.get("/config")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_pattern_config(
     request: Request,
     authorization: str = Header(None),
@@ -249,6 +252,7 @@ async def execute_pattern(
 
 
 @router.post("/validate")
+@must_stay_async("FastAPI/ASGI route handler")
 async def validate_pattern_config(
     pattern_path: str = "config/patterns/pipeline_v1.yaml",
     subsystem_path: str = "config/subsystems/code_mutation.yaml",

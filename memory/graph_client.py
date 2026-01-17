@@ -21,6 +21,8 @@ from typing import Any, Optional
 
 logger = structlog.get_logger(__name__)
 
+from core.decorators import must_stay_async
+
 # Try to import Neo4j driver
 try:
     from neo4j import AsyncGraphDatabase, AsyncDriver, AsyncSession, basic_auth
@@ -65,7 +67,11 @@ class Neo4jClient:
             )
             return
 
-        self._uri = uri or os.getenv("NEO4J_URL") or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        self._uri = (
+            uri
+            or os.getenv("NEO4J_URL")
+            or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        )
         self._user = user or os.getenv("NEO4J_USER", "neo4j")
         self._password = password or os.getenv("NEO4J_PASSWORD")
         self._database = database
@@ -136,7 +142,7 @@ class Neo4jClient:
 
     def session(self, database: Optional[str] = None) -> AsyncSession:
         """Create a session (AsyncDriver-compatible interface).
-        
+
         This allows Neo4jClient to be used where an AsyncDriver is expected.
         """
         if not self._driver:
@@ -144,6 +150,7 @@ class Neo4jClient:
         db = database or self._database
         return self._driver.session(database=db)
 
+    @must_stay_async("callers use await")
     async def _get_session(self) -> Optional[AsyncSession]:
         """Get a session for database operations."""
         if not self.is_available():
@@ -555,7 +562,9 @@ class Neo4jClient:
                 """
                 result = await session.run(query, source=source, target=target)
                 records = await result.data()
-                logger.debug(f"Found path with {len(records)} segments from {source} to {target}")
+                logger.debug(
+                    f"Found path with {len(records)} segments from {source} to {target}"
+                )
                 return records
         except Exception as e:
             logger.error(f"Neo4j find_path failed: {e}")

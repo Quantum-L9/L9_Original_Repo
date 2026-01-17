@@ -10,6 +10,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 router = APIRouter(prefix="/modules", tags=["modules"])
 
@@ -25,6 +26,7 @@ def _get_module_registry(request: Request):
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_modules_status(
     request: Request,
     _: bool = Depends(verify_api_key),
@@ -64,7 +66,9 @@ async def get_modules_status(
                 enabled=slack_validator is not None,
                 available=slack_validator is not None,
                 initialized=slack_validator is not None,
-                notes=None if slack_validator is not None else "Slack adapter not initialized",
+                notes=None
+                if slack_validator is not None
+                else "Slack adapter not initialized",
             )
         )
 
@@ -90,11 +94,11 @@ async def get_modules_status(
                 enabled=world_model_runtime is not None,
                 available=world_model_runtime is not None,
                 initialized=world_model_runtime is not None,
-                notes=None if world_model_runtime is not None else "World model runtime not initialized",
+                notes=None
+                if world_model_runtime is not None
+                else "World model runtime not initialized",
             )
         )
     except Exception:
         pass
     return registry.snapshot()
-
-

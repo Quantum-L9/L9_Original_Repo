@@ -51,6 +51,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -495,6 +496,7 @@ class UnifiedController:
     # Pipeline Phases
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _phase_routing(
         self,
         text: str,
@@ -656,6 +658,7 @@ class UnifiedController:
 
         self._record_phase_time("simulate", phase_start)
 
+    @must_stay_async("callers use await")
     async def _phase_plan(
         self,
         result: ControllerResult,

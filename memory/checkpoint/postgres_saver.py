@@ -13,7 +13,12 @@ from typing import Any, Optional, Dict
 
 # LangGraph checkpoint interface (if available)
 try:
-    from langgraph.checkpoint.base import BaseCheckpointSaver, Checkpoint, CheckpointMetadata
+    from langgraph.checkpoint.base import (
+        BaseCheckpointSaver,
+        Checkpoint,
+        CheckpointMetadata,
+    )
+
     LANGGRAPH_AVAILABLE = True
 except ImportError:
     # Fallback: define minimal interface
@@ -23,6 +28,7 @@ except ImportError:
     CheckpointMetadata = Dict[str, Any]
 
 from memory.substrate_repository import SubstrateRepository, get_repository
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -30,7 +36,7 @@ logger = structlog.get_logger(__name__)
 class L9PostgresSaver(BaseCheckpointSaver):
     """
     LangGraph-compatible checkpoint saver using L9's graph_checkpoints table.
-    
+
     Implements BaseCheckpointSaver interface for LangGraph integration.
     Uses existing SubstrateRepository.save_checkpoint() / get_checkpoint().
     """
@@ -38,7 +44,7 @@ class L9PostgresSaver(BaseCheckpointSaver):
     def __init__(self, repository: Optional[SubstrateRepository] = None):
         """
         Initialize L9 PostgresSaver.
-        
+
         Args:
             repository: SubstrateRepository instance (uses singleton if None)
         """
@@ -59,15 +65,15 @@ class L9PostgresSaver(BaseCheckpointSaver):
     ) -> Dict[str, Any]:
         """
         Save checkpoint (LangGraph interface).
-        
+
         Maps LangGraph thread_id to L9 agent_id format: "cursor:{thread_id}"
-        
+
         Args:
             config: LangGraph config dict with configurable.thread_id
             checkpoint: LangGraph Checkpoint object
             metadata: Checkpoint metadata
             new_versions: New version information
-            
+
         Returns:
             Dict with checkpoint_id
         """
@@ -80,8 +86,16 @@ class L9PostgresSaver(BaseCheckpointSaver):
 
         # Convert checkpoint to graph_state dict
         graph_state = {
-            "checkpoint": checkpoint if isinstance(checkpoint, dict) else checkpoint.model_dump() if hasattr(checkpoint, "model_dump") else str(checkpoint),
-            "metadata": metadata if isinstance(metadata, dict) else metadata.model_dump() if hasattr(metadata, "model_dump") else str(metadata),
+            "checkpoint": checkpoint
+            if isinstance(checkpoint, dict)
+            else checkpoint.model_dump()
+            if hasattr(checkpoint, "model_dump")
+            else str(checkpoint),
+            "metadata": metadata
+            if isinstance(metadata, dict)
+            else metadata.model_dump()
+            if hasattr(metadata, "model_dump")
+            else str(metadata),
             "new_versions": new_versions,
         }
 
@@ -91,7 +105,11 @@ class L9PostgresSaver(BaseCheckpointSaver):
             graph_state=graph_state,
         )
 
-        logger.debug("Saved LangGraph checkpoint", checkpoint_id=checkpoint_id, thread_id=thread_id)
+        logger.debug(
+            "Saved LangGraph checkpoint",
+            checkpoint_id=checkpoint_id,
+            thread_id=thread_id,
+        )
 
         return {"checkpoint_id": str(checkpoint_id)}
 
@@ -101,12 +119,12 @@ class L9PostgresSaver(BaseCheckpointSaver):
     ) -> Optional[Checkpoint]:
         """
         Load checkpoint (LangGraph interface).
-        
+
         Returns Checkpoint if found, None otherwise.
-        
+
         Args:
             config: LangGraph config dict with configurable.thread_id
-            
+
         Returns:
             Checkpoint object or None
         """
@@ -126,10 +144,15 @@ class L9PostgresSaver(BaseCheckpointSaver):
         graph_state = checkpoint_row.graph_state
         checkpoint = graph_state.get("checkpoint")
 
-        logger.debug("Loaded LangGraph checkpoint", thread_id=thread_id, found=checkpoint is not None)
+        logger.debug(
+            "Loaded LangGraph checkpoint",
+            thread_id=thread_id,
+            found=checkpoint is not None,
+        )
 
         return checkpoint
 
+    @must_stay_async("callers use await")
     async def list(
         self,
         config: Dict[str, Any],
@@ -137,13 +160,13 @@ class L9PostgresSaver(BaseCheckpointSaver):
     ) -> list[Dict[str, Any]]:
         """
         List checkpoints (LangGraph interface).
-        
+
         Returns list of checkpoint metadata dicts.
-        
+
         Args:
             config: LangGraph config dict
             filter: Optional filter criteria
-            
+
         Returns:
             List of checkpoint metadata dicts
         """
@@ -152,4 +175,3 @@ class L9PostgresSaver(BaseCheckpointSaver):
         # Would need additional query to list all cursor:* checkpoints
         logger.debug("List checkpoints called (not yet implemented)")
         return []
-

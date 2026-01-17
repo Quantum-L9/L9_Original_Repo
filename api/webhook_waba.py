@@ -5,6 +5,7 @@ import httpx
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -85,6 +86,7 @@ async def send_waba_message(to_number: str, message_type: str, content: dict):
 
 
 @router.get("/waba/webhook", response_class=JSONResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def verify_waba_webhook(request: Request):
     """
     Meta webhook verification challenge.

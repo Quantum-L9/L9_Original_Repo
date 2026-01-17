@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 import httpx
+from core.decorators import must_stay_async
 
 from services.research.tools.perplexity_client import (
     PerplexityClient,
@@ -24,6 +25,7 @@ class BaseTool(ABC):
     """Base class for all tools."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def execute(self, args: dict[str, Any]) -> Any:
         """
         Execute the tool.
@@ -195,6 +197,7 @@ class MockSearchTool(BaseTool):
     Returns deterministic mock results without API calls.
     """
 
+    @must_stay_async("callers use await")
     async def execute(self, args: dict[str, Any]) -> dict[str, Any]:
         """
         Execute mock search.

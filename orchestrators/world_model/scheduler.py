@@ -9,6 +9,7 @@ Handles scheduling of propagation and update cycles.
 import structlog
 from datetime import datetime, timedelta
 from typing import Any, Optional
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -96,6 +97,7 @@ class WorldModelScheduler:
         logger.debug(f"Scheduler: queuing update (pending={self._pending_count})")
         return False
 
+    @must_stay_async("callers use await")
     async def process(self, data: dict) -> dict:
         """
         Process scheduling request.

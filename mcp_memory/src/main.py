@@ -15,6 +15,7 @@ from src.db import init_db, close_db
 from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
 from src.routes import memory_unified as memory, health
 from src.rate_limiter import RateLimiter
+from core.decorators import must_stay_async
 
 # Configure structlog
 # Use structlog log levels (no need for logging module)
@@ -275,6 +276,7 @@ async def verify_api_key(
 
 
 @app.get("/")
+@must_stay_async("FastAPI/ASGI route handler")
 async def root():
     return {
         "status": "L9 MCP Memory Server",
@@ -289,6 +291,7 @@ async def health_check():
 
 
 @app.get("/mcp/tools")
+@must_stay_async("FastAPI/ASGI route handler")
 async def list_tools(
     request: Request, caller: CallerIdentity = Depends(verify_api_key)
 ):
@@ -366,12 +369,14 @@ else:
 
 
 @app.exception_handler(HTTPException)
+@must_stay_async("FastAPI/ASGI route handler")
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions with proper status codes."""
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
 @app.exception_handler(ValidationError)
+@must_stay_async("FastAPI/ASGI route handler")
 async def validation_exception_handler(request: Request, exc: ValidationError):
     """Handle Pydantic validation errors."""
     logger.warning("Validation error", errors=exc.errors())
@@ -381,6 +386,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 
 @app.exception_handler(asyncpg.PostgresError)
+@must_stay_async("FastAPI/ASGI route handler")
 async def postgres_exception_handler(request: Request, exc: asyncpg.PostgresError):
     """Handle PostgreSQL database errors."""
     logger.error(
@@ -393,6 +399,7 @@ async def postgres_exception_handler(request: Request, exc: asyncpg.PostgresErro
 
 
 @app.exception_handler(Exception)
+@must_stay_async("FastAPI/ASGI route handler")
 async def general_exception_handler(request: Request, exc: Exception):
     """Catch-all for unexpected exceptions."""
     logger.exception("Unhandled exception", exc_info=exc)

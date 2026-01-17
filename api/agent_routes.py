@@ -17,6 +17,7 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -71,12 +72,14 @@ class ExecuteTaskResponse(BaseModel):
 
 
 @router.get("/health")
+@must_stay_async("FastAPI/ASGI route handler")
 async def agent_health():
     """Health check for agent layer."""
     return {"status": "ok", "service": "agent"}
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def agent_status():
     """Agent system status."""
     return {
@@ -236,11 +239,13 @@ async def execute_task(
         )
 
 
+@must_stay_async("health endpoint")
 async def startup():
     """Called on app startup if exists."""
     logger.info("Agent routes initialized")
 
 
+@must_stay_async("health endpoint")
 async def shutdown():
     """Called on app shutdown if exists."""
     logger.info("Agent routes shutting down")

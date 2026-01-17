@@ -8,6 +8,7 @@ Manages memory substrate usage: batching, replay, garbage collection.
 from typing import Protocol, List, Dict, Any
 from pydantic import BaseModel, Field
 from enum import Enum
+from core.decorators import must_stay_async
 
 
 class MemoryOperation(str, Enum):
@@ -54,6 +55,7 @@ class MemoryResponse(BaseModel):
 class IMemoryOrchestrator(Protocol):
     """Interface for Memory Orchestrator."""
 
+    @must_stay_async("callers use await")
     async def execute(self, request: MemoryRequest) -> MemoryResponse:
         """Execute memory orchestration."""
         ...

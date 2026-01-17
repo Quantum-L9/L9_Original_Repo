@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+"""
+Migrate from '# NOTE: Must stay async' comments to @must_stay_async decorator.
+
+This script:
+1. Finds all files with the old comment pattern
+2. Removes the comment
+3. Adds the import for must_stay_async
+4. Adds the @must_stay_async(reason) decorator
+
+Usage:
+    python scripts/fix_async_decorators.py --dry-run  # Preview changes
+    python scripts/fix_async_decorators.py            # Apply changes
+"""
+
+import os
+import re
+import sys
+from pathlib import Path
+
+# Directories to skip
+SKIP_DIRS = {
+    "tests",
+    "current_work",
+    "codegen",
+    "igor",
+    "__pycache__",
+    "venv",
+    ".git",
+    ".cursor",
+    "_archived",
+}
+
+# Map comment patterns to decorator reasons
+REASON_MAP = {
+    "FastAPI/ASGI route handler requires async def": "FastAPI/ASGI route handler",
+    "FastAPI/ASGI route handler": "FastAPI/ASGI route handler",
+    "async context manager protocol (__aenter__/__aexit__)": "async context manager protocol",
+    "async context manager protocol": "async context manager protocol",
+    "interface contract, callers use `await`": "interface contract",
+    "callers use `await`, changing would break API": "callers use await",
+    "callers use `await`": "callers use await",
+    "LangGraph node protocol requires async callable": "LangGraph node protocol",
+    "LangGraph node protocol": "LangGraph node protocol",
+    "FastAPI health endpoint convention": "health endpoint",
+    "health endpoint convention": "health endpoint",
+    "placeholder for future await implementation": "future await planned",
+    "future await implementation": "future await planned",
+}
+
+# Comment pattern to match
+COMMENT_PATTERN = re.compile(r"^(\s*)# NOTE: Must stay async - (.+)\.\s*$")
+
+# Import line to add
+IMPORT_LINE = "from core.decorators import must_stay_async"
+
+
+def extract_reason(comment_text: str) -> str:
+    """Extract and normalize the reason from a comment."""
+    # Try exact match first
+    if comment_text in REASON_MAP:
+        return REASON_MAP[comment_text]
+
+    # Try partial matches
+    for pattern, reason in REASON_MAP.items():
+        if pattern in comment_text or comment_text in pattern:
+            return reason
+
+    # Fallback: use the comment text itself (cleaned up)
+    return comment_text.rstrip(".")
+
+
+def has_import(lines: list[str], import_line: str) -> bool:
+    """Check if the import already exists."""
+    for line in lines:
+        if import_line in line:
+            return True
+    return False
+
+
+def find_import_insert_position(lines: list[str]) -> int:
+    """Find the best position to insert the import."""
+    last_import_idx = 0
+    in_docstring = False
+    docstring_char = None
+
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+
+        # Track docstrings
+        if not in_docstring:
+            if stripped.startswith('"""') or stripped.startswith("'''"):
+                docstring_char = stripped[:3]
+                if stripped.count(docstring_char) >= 2:
+                    # Single-line docstring
+                    continue
+                in_docstring = True
+                continue
+        else:
+            if docstring_char and docstring_char in stripped:
+                in_docstring = False
+                continue
+            continue
+
+        # Track imports
+        if stripped.startswith("import ") or stripped.startswith("from "):
+            last_import_idx = i + 1
+
+        # Stop at first class or function definition
+        if (
+            stripped.startswith("class ")
+            or stripped.startswith("def ")
+            or stripped.startswith("async def")
+        ):
+            break
+
+    return last_import_idx
+
+
+def process_file(filepath: str, dry_run: bool = True) -> dict:
+    """Process a single file, removing comments and adding decorators."""
+    result = {
+        "filepath": filepath,
+        "comments_removed": 0,
+        "decorators_added": 0,
+        "import_added": False,
+        "changes": [],
+    }
+
+    try:
+        with open(filepath, "r") as f:
+            lines = f.readlines()
+    except Exception as e:
+        result["error"] = str(e)
+        return result
+
+    new_lines = []
+    i = 0
+    needs_import = False
+
+    while i < len(lines):
+        line = lines[i]
+        match = COMMENT_PATTERN.match(line)
+
+        if match:
+            indent = match.group(1)
+            comment_text = match.group(2)
+            reason = extract_reason(comment_text)
+
+            # Check if next line is async def
+            if i + 1 < len(lines) and "async def" in lines[i + 1]:
+                # Remove the comment (don't add it)
+                result["comments_removed"] += 1
+
+                # Add decorator instead
+                decorator_line = f'{indent}@must_stay_async("{reason}")\n'
+                new_lines.append(decorator_line)
+                result["decorators_added"] += 1
+                result["changes"].append(
+                    f'Line {i + 1}: comment → @must_stay_async("{reason}")'
+                )
+                needs_import = True
+
+                i += 1
+                continue
+
+        new_lines.append(line)
+        i += 1
+
+    # Add import if needed
+    if needs_import and not has_import(new_lines, "must_stay_async"):
+        insert_pos = find_import_insert_position(new_lines)
+        new_lines.insert(insert_pos, IMPORT_LINE + "\n")
+        result["import_added"] = True
+        result["changes"].insert(0, f"Line {insert_pos + 1}: Added import")
+
+    # Write changes
+    if not dry_run and result["comments_removed"] > 0:
+        try:
+            with open(filepath, "w") as f:
+                f.writelines(new_lines)
+        except Exception as e:
+            result["error"] = str(e)
+
+    return result
+
+
+def main():
+    dry_run = "--dry-run" in sys.argv
+
+    if dry_run:
+        print("=== DRY RUN MODE - No files will be modified ===\n")
+
+    # Find all Python files with the comment pattern
+    root = Path(".")
+    files_with_comments = []
+
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [
+            d for d in dirnames if d not in SKIP_DIRS and not d.startswith(".")
+        ]
+
+        for filename in filenames:
+            if filename.endswith(".py"):
+                filepath = os.path.join(dirpath, filename)
+                try:
+                    with open(filepath, "r") as f:
+                        content = f.read()
+                    if "# NOTE: Must stay async" in content:
+                        files_with_comments.append(filepath)
+                except Exception:
+                    pass
+
+    print(f"Found {len(files_with_comments)} files with async comments\n")
+
+    # Process each file
+    total_comments = 0
+    total_decorators = 0
+    total_imports = 0
+
+    for filepath in sorted(files_with_comments):
+        result = process_file(filepath, dry_run)
+
+        if result.get("error"):
+            print(f"  ✗ {filepath}: {result['error']}")
+            continue
+
+        if result["comments_removed"] > 0:
+            total_comments += result["comments_removed"]
+            total_decorators += result["decorators_added"]
+            if result["import_added"]:
+                total_imports += 1
+
+            print(f"  ✓ {filepath}")
+            for change in result["changes"][:3]:
+                print(f"      {change}")
+            if len(result["changes"]) > 3:
+                print(f"      ... and {len(result['changes']) - 3} more")
+
+    print("\n=== Summary ===")
+    print(f"Comments removed: {total_comments}")
+    print(f"Decorators added: {total_decorators}")
+    print(f"Imports added: {total_imports}")
+
+    if dry_run:
+        print("\n=== DRY RUN - Run without --dry-run to apply changes ===")
+
+
+if __name__ == "__main__":
+    main()

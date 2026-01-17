@@ -41,6 +41,7 @@ except ImportError:
     logger.warning("pyautogui/Pillow not installed. GUI fallback disabled.")
 
 from mac_agent.config import get_config
+from core.decorators import must_stay_async
 
 
 class AutomationExecutor:
@@ -54,6 +55,7 @@ class AutomationExecutor:
         self.logs: List[str] = []
         self._browser_installed = False
 
+    @must_stay_async("callers use await")
     async def _ensure_browsers_installed(self):
         """Install Playwright browsers if not already installed."""
         if self._browser_installed:

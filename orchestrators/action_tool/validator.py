@@ -8,6 +8,7 @@ Handles tool validation and safety checks.
 
 import structlog
 from typing import Any, Dict, List, Optional, Set
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -91,6 +92,7 @@ class Validator:
         self._registry = tool_registry
         logger.info("Validator initialized")
 
+    @must_stay_async("callers use await")
     async def _get_registry(self) -> Optional[Any]:
         """Get or lazily load the tool registry."""
         if self._registry is None:

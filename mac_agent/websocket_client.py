@@ -37,6 +37,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
 from uuid import uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -303,6 +304,7 @@ class TaskExecutor:
             }
 
     # Task type executors
+    @must_stay_async("callers use await")
     async def _execute_shell(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute shell command with security validation.
@@ -447,6 +449,7 @@ class TaskExecutor:
             logger.error(f"Browser execution error: {e}")
             return {"status": "error", "error": str(e), "logs": [], "screenshots": []}
 
+    @must_stay_async("callers use await")
     async def _execute_python(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute Python code in a sandboxed environment.
@@ -921,6 +924,7 @@ class MacAgentClient:
         else:
             logger.warning("[MacAgent] Unknown control action: %s", action)
 
+    @must_stay_async("callers use await")
     async def _handle_error(self, data: Dict[str, Any]) -> None:
         """Handle ERROR event from server."""
         payload = data.get("payload", {})

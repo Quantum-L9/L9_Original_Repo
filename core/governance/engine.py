@@ -30,6 +30,7 @@ from core.governance.schemas import (
     EvaluationResult,
 )
 from core.governance.loader import PolicyLoader, PolicyLoadError, InvalidPolicyError
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -42,6 +43,7 @@ logger = structlog.get_logger(__name__)
 class SubstrateProtocol(Protocol):
     """Protocol for memory substrate (optional dependency)."""
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet_in: Any) -> Any:
         """Write a packet to substrate."""
         ...

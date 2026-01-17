@@ -27,6 +27,7 @@ import structlog
 from typing import Any, Optional, TypedDict
 
 from world_model.engine import get_world_model_engine
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -67,6 +68,7 @@ class WorldModelNodeState(TypedDict, total=False):
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def update_world_model_node(
     state: WorldModelNodeState,
 ) -> WorldModelNodeState:

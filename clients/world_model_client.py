@@ -38,6 +38,7 @@ from typing import Any, Optional
 
 import httpx
 from pydantic import BaseModel
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -140,6 +141,7 @@ class WorldModelClient:
         self._client: Optional[httpx.AsyncClient] = None
         logger.info(f"WorldModelClient initialized: {self.base_url}")
 
+    @must_stay_async("callers use await")
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client."""
         if self._client is None or self._client.is_closed:
@@ -157,6 +159,7 @@ class WorldModelClient:
             self._client = None
             logger.debug("WorldModelClient closed")
 
+    @must_stay_async("async context manager protocol")
     async def __aenter__(self) -> "WorldModelClient":
         return self
 

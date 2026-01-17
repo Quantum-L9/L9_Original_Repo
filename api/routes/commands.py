@@ -19,6 +19,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -34,8 +35,12 @@ class CommandExecuteRequest(BaseModel):
     """Request to execute an Igor command."""
 
     command_text: str = Field(..., description="Command text (structured or NLP)")
-    user_id: str = Field(default="Igor", description="User ID (must be Igor for approvals)")
-    context: dict[str, Any] = Field(default_factory=dict, description="Optional execution context")
+    user_id: str = Field(
+        default="Igor", description="User ID (must be Igor for approvals)"
+    )
+    context: dict[str, Any] = Field(
+        default_factory=dict, description="Optional execution context"
+    )
 
 
 class CommandExecuteResponse(BaseModel):
@@ -56,8 +61,12 @@ class IntentExtractResponse(BaseModel):
 
     intent_type: str = Field(..., description="Extracted intent type")
     confidence: float = Field(..., description="Confidence score")
-    entities: dict[str, Any] = Field(default_factory=dict, description="Extracted entities")
-    ambiguities: list[str] = Field(default_factory=list, description="Ambiguous elements")
+    entities: dict[str, Any] = Field(
+        default_factory=dict, description="Extracted entities"
+    )
+    ambiguities: list[str] = Field(
+        default_factory=list, description="Ambiguous elements"
+    )
     is_ambiguous: bool = Field(..., description="Whether intent is ambiguous")
     suggested_command: Optional[dict[str, Any]] = Field(
         None, description="Suggested structured command"
@@ -103,6 +112,7 @@ async def execute_command(
     if substrate_service is not None:
         try:
             from core.governance.approvals import ApprovalManager
+
             approval_manager = ApprovalManager(substrate_service)
         except ImportError:
             logger.warning("ApprovalManager not available")
@@ -272,6 +282,7 @@ async def execute_command(
 
 
 @router.post("/parse")
+@must_stay_async("FastAPI/ASGI route handler")
 async def parse_command_endpoint(
     request: CommandExecuteRequest,
     _: bool = Depends(verify_api_key),
@@ -322,7 +333,7 @@ async def extract_intent_endpoint(
             entities={},
             ambiguities=[],
             is_ambiguous=False,
-            suggested_command=parsed.dict() if hasattr(parsed, 'dict') else None,
+            suggested_command=parsed.dict() if hasattr(parsed, "dict") else None,
         )
 
     intent = await extract_intent(parsed)
@@ -333,11 +344,14 @@ async def extract_intent_endpoint(
         entities=intent.entities,
         ambiguities=intent.ambiguities,
         is_ambiguous=intent.is_ambiguous,
-        suggested_command=intent.suggested_command.dict() if intent.suggested_command else None,
+        suggested_command=intent.suggested_command.dict()
+        if intent.suggested_command
+        else None,
     )
 
 
 @router.get("/help")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_help():
     """
     Get available commands and usage.
@@ -370,14 +384,18 @@ class ApprovalFeedbackRequest(BaseModel):
     approver: str = Field(default="Igor", description="Who made the decision")
     tool_name: Optional[str] = Field(None, description="Tool involved")
     task_type: Optional[str] = Field(None, description="Type of task")
-    context: dict[str, Any] = Field(default_factory=dict, description="Additional context")
+    context: dict[str, Any] = Field(
+        default_factory=dict, description="Additional context"
+    )
 
 
 class ApprovalFeedbackResponse(BaseModel):
     """Response from approval feedback."""
 
     success: bool = Field(..., description="Whether feedback was recorded")
-    pattern_created: bool = Field(..., description="Whether a governance pattern was created")
+    pattern_created: bool = Field(
+        ..., description="Whether a governance pattern was created"
+    )
     message: str = Field(..., description="Result message")
 
 
@@ -455,4 +473,3 @@ async def record_approval_feedback(
 
 
 __all__ = ["router"]
-

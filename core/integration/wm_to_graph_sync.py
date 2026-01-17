@@ -31,6 +31,7 @@ import structlog
 
 if TYPE_CHECKING:
     from world_model.causal_mapper import CausalMapper
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -65,6 +66,7 @@ class WMToGraphSync:
         self._running = False
         self._task: asyncio.Task | None = None
 
+    @must_stay_async("callers use await")
     async def start(self) -> None:
         """Start periodic sync."""
         if not self.enabled:

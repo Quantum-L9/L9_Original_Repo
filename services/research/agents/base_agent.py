@@ -13,6 +13,7 @@ from typing import Any, Optional
 from openai import AsyncOpenAI
 
 from config.research_settings import get_research_settings
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -155,6 +156,7 @@ class BaseAgent(ABC):
         return {}
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def run(self, *args, **kwargs) -> Any:
         """
         Execute the agent's primary function.

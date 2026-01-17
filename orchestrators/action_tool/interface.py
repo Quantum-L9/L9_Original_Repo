@@ -8,6 +8,7 @@ Validates and executes tools, retries, safety, logs tool packets.
 from typing import Protocol, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from enum import Enum
+from core.decorators import must_stay_async
 
 
 class ToolSafetyLevel(str, Enum):
@@ -46,6 +47,7 @@ class ActionToolResponse(BaseModel):
 class IActionToolOrchestrator(Protocol):
     """Interface for ActionTool Orchestrator."""
 
+    @must_stay_async("callers use await")
     async def execute(self, request: ActionToolRequest) -> ActionToolResponse:
         """Execute action_tool orchestration."""
         ...

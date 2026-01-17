@@ -27,6 +27,7 @@ from core.schemas.research_factory_models import (
     ValidationStatus,
 )
 from core.schemas.research_factory_state import ResearchState
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -44,6 +45,7 @@ ExtractionBackend = Callable[[dict[str, Any]], tuple[dict[str, Any], float]]
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_1_plan_queries(state: ResearchState) -> ResearchState:
     """
     Pass 1 — Derive research plan from job specification.
@@ -122,6 +124,7 @@ async def pass_1_plan_queries(state: ResearchState) -> ResearchState:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_2_build_superprompts(state: ResearchState) -> ResearchState:
     """
     Pass 2 — Construct optimized prompts from query plan.
@@ -190,6 +193,7 @@ Format: JSON with keys [results, metadata, sources]
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_3_execute_retrieval(
     state: ResearchState, retrieval_backend: Optional[RetrievalBackend] = None
 ) -> ResearchState:
@@ -257,6 +261,7 @@ async def pass_3_execute_retrieval(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_4_extract_results(
     state: ResearchState, extraction_backend: Optional[ExtractionBackend] = None
 ) -> ResearchState:
@@ -334,6 +339,7 @@ async def pass_4_extract_results(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_5_integrate_results(state: ResearchState) -> ResearchState:
     """
     Pass 5 — Persist output to hypergraph and world model.

@@ -15,6 +15,7 @@ from orchestrators.research_swarm.interface import (
     ResearchSwarmRequest,
 )
 from orchestrators.research_swarm.orchestrator import ResearchSwarmOrchestrator
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -76,6 +77,7 @@ class ResearchExecuteResponse(BaseModel):
 
 
 @router.get("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def research_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -85,6 +87,7 @@ async def research_test(
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def research_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -150,9 +153,3 @@ async def execute_research(
         raise HTTPException(
             status_code=500, detail=f"Research execution failed: {str(e)}"
         )
-
-
-
-
-
-

@@ -26,6 +26,7 @@ from uuid import uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 from workers.violation_patterns import (
     ViolationPatterns,
@@ -342,6 +343,7 @@ class ViolationTrackerService:
 
         return violation
 
+    @must_stay_async("callers use await")
     async def _log_to_audit(
         self,
         violation: ViolationRecord,
@@ -366,6 +368,7 @@ class ViolationTrackerService:
         except Exception as e:
             logger.error("audit_log_write_failed", error=str(e))
 
+    @must_stay_async("callers use await")
     async def _log_to_violations(self, violation: ViolationRecord) -> None:
         """Write violation to violations log."""
         entry = {
@@ -386,6 +389,7 @@ class ViolationTrackerService:
         except Exception as e:
             logger.error("violations_log_write_failed", error=str(e))
 
+    @must_stay_async("callers use await")
     async def _emit_to_mcp_memory(self, violation: ViolationRecord) -> None:
         """Emit violation to MCP Memory for cross-session persistence."""
         # In production, this would call the MCP Memory API
@@ -412,6 +416,7 @@ class ViolationTrackerService:
         #         }
         #     )
 
+    @must_stay_async("callers use await")
     async def _trigger_escalation(self, lesson_id: str) -> None:
         """Trigger escalation for repeated violations."""
         count = self._violation_counts.get(lesson_id, 0)
@@ -441,6 +446,7 @@ class ViolationTrackerService:
         except Exception as e:
             logger.error("escalation_log_failed", error=str(e))
 
+    @must_stay_async("callers use await")
     async def _load_violation_counts(self) -> None:
         """Load existing violation counts from log."""
         if not self._violations_log_path.exists():

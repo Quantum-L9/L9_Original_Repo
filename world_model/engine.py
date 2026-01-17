@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from world_model.knowledge_ingestor import KnowledgeIngestor
     from world_model.causal_mapper import CausalMapper
     from world_model.reflection_memory import ReflectionMemory
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -380,6 +381,7 @@ class WorldModelEngine:
 
         return {"entities": entities, "relations": relations, "errors": []}
 
+    @must_stay_async("callers use await")
     async def query(self, query: dict[str, Any]) -> dict[str, Any]:
         """
         Query the world model.
@@ -498,6 +500,7 @@ class WorldModelEngine:
 
         return stats
 
+    @must_stay_async("callers use await")
     async def simulate(self, change_request: dict[str, Any]) -> dict[str, Any]:
         """
         Run a simulation scenario (what-if analysis).

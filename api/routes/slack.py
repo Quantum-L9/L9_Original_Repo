@@ -28,6 +28,7 @@ from time import time as current_time
 
 from api.slack_adapter import SlackRequestValidator
 from memory.slack_ingest import handle_slack_events, handle_slack_commands
+from core.decorators import must_stay_async
 
 # Optional telemetry - gracefully degrade if module not available
 try:
@@ -58,6 +59,7 @@ router = APIRouter(prefix="/slack", tags=["slack"])
 
 
 # Dependency injection for validator (injected at app startup)
+@must_stay_async("callers use await")
 async def get_slack_validator(request: Request) -> SlackRequestValidator:
     """Retrieve validator from app state."""
     validator = request.app.state.slack_validator
@@ -193,18 +195,6 @@ async def slack_events(
         except Exception as e:
             # Log but don't block - permission check is advisory in dev mode
             logger.debug("slack_permission_check_failed", error=str(e))
-
-    # =========================================================================
-    # CRITICAL: Ignore bot messages early to prevent infinite response loops
-    # =========================================================================
-    event = payload.get("event", {})
-    if event.get("subtype") == "bot_message" or event.get("bot_id"):
-        logger.debug(
-            "slack_ignoring_bot_message",
-            event_id=payload.get("event_id"),
-            bot_id=event.get("bot_id"),
-        )
-        return {"ok": True, "ignored": "bot_message"}
 
     # Log event to Neo4j (non-blocking)
     neo4j_client = getattr(request.app.state, "neo4j_client", None)

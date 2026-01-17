@@ -7,6 +7,7 @@ Runs concurrent research agents, analyst pass, dreamers, convergence.
 
 from typing import Protocol, List, Dict, Any, Optional
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 
 class ResearchSwarmRequest(BaseModel):
@@ -31,6 +32,7 @@ class ResearchSwarmResponse(BaseModel):
 class IResearchSwarmOrchestrator(Protocol):
     """Interface for ResearchSwarm Orchestrator."""
 
+    @must_stay_async("callers use await")
     async def execute(self, request: ResearchSwarmRequest) -> ResearchSwarmResponse:
         """Execute research_swarm orchestration."""
         ...

@@ -10,6 +10,7 @@ from typing import Protocol, List, Dict, Any, Optional
 import structlog
 from pydantic import BaseModel, Field
 from enum import Enum
+from core.decorators import must_stay_async
 
 
 logger = structlog.get_logger(__name__)
@@ -93,12 +94,14 @@ class MetaOrchestratorResponse(BaseModel):
 class IMetaOrchestrator(Protocol):
     """Interface for Meta Orchestrator."""
 
+    @must_stay_async("callers use await")
     async def evaluate_blueprints(
         self, request: MetaOrchestratorRequest
     ) -> MetaOrchestratorResponse:
         """Evaluate multiple blueprints and select the best one."""
         ...
 
+    @must_stay_async("callers use await")
     async def compare_blueprints(
         self,
         blueprint_a: Blueprint,
@@ -108,6 +111,7 @@ class IMetaOrchestrator(Protocol):
         """Compare two blueprints head-to-head."""
         ...
 
+    @must_stay_async("callers use await")
     async def suggest_improvements(
         self, blueprint: Blueprint, evaluation: BlueprintEvaluation
     ) -> List[str]:

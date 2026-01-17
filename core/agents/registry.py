@@ -23,6 +23,7 @@ from typing import Any, Optional
 import yaml
 
 from core.agents.schemas import AgentConfig, ToolBinding
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -206,6 +207,7 @@ class AgentRegistry:
             logger.error("Failed to parse agent config from %s: %s", source, e)
             return None
 
+    @must_stay_async("callers use await")
     async def load_from_directory(self, config_dir: str | Path) -> int:
         """
         Load agent configurations from a directory.
@@ -328,9 +330,9 @@ class AgentRegistry:
     def ensure_test_agent(self) -> AgentConfig:
         """
         Ensure a test agent exists for recursive self-testing.
-        
+
         The test agent generates and runs tests for high-risk proposals.
-        
+
         Returns:
             Test AgentConfig
         """
@@ -338,7 +340,7 @@ class AgentRegistry:
         config = self.get_agent_config(test_agent_id)
         if config:
             return config
-        
+
         # Create test agent
         test_config = AgentConfig(
             agent_id=test_agent_id,
@@ -376,7 +378,7 @@ Always return test results in this structure:
             tools=[],  # Test agent has limited tools
             metadata={"display_name": "L9 Test Agent", "role": "testing"},
         )
-        
+
         self.register_agent(test_config)
         logger.info("Registered test agent: %s", test_agent_id)
         return test_config

@@ -10,12 +10,14 @@ from typing import List, Dict, Optional
 from enum import Enum
 
 from .models import FailureSignal, RemediationAction, FailureClass, Span
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
 
 class RecoveryAction(str, Enum):
     """Available recovery actions."""
+
     RETRY = "retry"
     FALLBACK = "fallback"
     SUMMARIZE = "summarize"
@@ -53,10 +55,7 @@ class FailureDetector:
             )
 
         # Context overflow
-        if (
-            hasattr(span, "overflow_event")
-            and span.overflow_event
-        ):
+        if hasattr(span, "overflow_event") and span.overflow_event:
             return FailureSignal(
                 failure_class=FailureClass.CONTEXT_WINDOW_EXCEEDED,
                 span_id=span.span_id,
@@ -99,7 +98,7 @@ class RecoveryExecutor:
         recovery_actions: List[RemediationAction],
     ) -> bool:
         """Execute recovery actions for a failure.
-        
+
         Returns True if recovery was successful.
         """
         for action in recovery_actions:
@@ -125,7 +124,9 @@ class RecoveryExecutor:
                     return False  # Escalation stops recovery
 
                 elif action.action_type == RecoveryAction.FAIL_FAST.value:
-                    logger.warning(f"Fast failure for {failure.failure_class}: {failure.context}")
+                    logger.warning(
+                        f"Fast failure for {failure.failure_class}: {failure.context}"
+                    )
                     return False
 
             except Exception as exc:
@@ -150,6 +151,7 @@ class RecoveryExecutor:
         logger.debug(f"Retry succeeded after {self.max_retries} attempts")
         return True
 
+    @must_stay_async("callers use await")
     async def _execute_fallback(
         self,
         failure: FailureSignal,
@@ -161,6 +163,7 @@ class RecoveryExecutor:
         # In real implementation, call fallback tool
         return True
 
+    @must_stay_async("callers use await")
     async def _execute_summarize(
         self,
         failure: FailureSignal,
@@ -174,6 +177,7 @@ class RecoveryExecutor:
         # In real implementation, call summarization
         return True
 
+    @must_stay_async("callers use await")
     async def _execute_degrade(
         self,
         failure: FailureSignal,
@@ -185,6 +189,7 @@ class RecoveryExecutor:
         # In real implementation, re-execute with cheaper model
         return True
 
+    @must_stay_async("callers use await")
     async def _execute_escalate(
         self,
         failure: FailureSignal,
@@ -215,14 +220,12 @@ FAILURE_RECOVERY_MAP: Dict[FailureClass, List[RemediationAction]] = {
             parameters={"channel": "ops"},
         ),
     ],
-
     FailureClass.CONTEXT_WINDOW_EXCEEDED: [
         RemediationAction(
             action_type=RecoveryAction.SUMMARIZE.value,
             parameters={"compression_ratio": 0.25},
         ),
     ],
-
     FailureClass.GOVERNANCE_DENIED: [
         RemediationAction(
             action_type=RecoveryAction.FAIL_FAST.value,
@@ -233,14 +236,12 @@ FAILURE_RECOVERY_MAP: Dict[FailureClass, List[RemediationAction]] = {
             parameters={"channel": "admin_review"},
         ),
     ],
-
     FailureClass.COST_CONSTRAINT_BREACH: [
         RemediationAction(
             action_type=RecoveryAction.DEGRADE.value,
             parameters={"degraded_model": "gpt-3.5-turbo"},
         ),
     ],
-
     FailureClass.EXTERNAL_API_TIMEOUT: [
         RemediationAction(
             action_type=RecoveryAction.RETRY.value,
@@ -251,14 +252,12 @@ FAILURE_RECOVERY_MAP: Dict[FailureClass, List[RemediationAction]] = {
             parameters={"fallback_source": "cache"},
         ),
     ],
-
     FailureClass.PLANNING_FAILURE: [
         RemediationAction(
             action_type=RecoveryAction.DEGRADE.value,
             parameters={"degraded_strategy": "decompose_task"},
         ),
     ],
-
     FailureClass.LLM_HALLUCINATION: [
         RemediationAction(
             action_type=RecoveryAction.RETRY.value,
@@ -270,9 +269,12 @@ FAILURE_RECOVERY_MAP: Dict[FailureClass, List[RemediationAction]] = {
 
 def get_recovery_actions(failure_class: FailureClass) -> List[RemediationAction]:
     """Get recommended recovery actions for a failure class."""
-    return FAILURE_RECOVERY_MAP.get(failure_class, [
-        RemediationAction(
-            action_type=RecoveryAction.ESCALATE.value,
-            parameters={"channel": "ops"},
-        ),
-    ])
+    return FAILURE_RECOVERY_MAP.get(
+        failure_class,
+        [
+            RemediationAction(
+                action_type=RecoveryAction.ESCALATE.value,
+                parameters={"channel": "ops"},
+            ),
+        ],
+    )

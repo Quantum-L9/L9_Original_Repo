@@ -28,6 +28,8 @@ logger = structlog.get_logger(__name__)
 # This prevents session state cross-contamination when Igor talks to both simultaneously
 DEFAULT_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
 
+from core.decorators import must_stay_async
+
 # Try to import Redis
 try:
     import redis.asyncio as aioredis
@@ -132,11 +134,11 @@ class RedisClient:
     def _prefixed_key(self, key: str, tenant_id: Optional[str] = None) -> str:
         """
         Create a tenant-prefixed key for multi-tenant isolation.
-        
+
         Args:
             key: Original key (e.g., "tasks", "session:123")
             tenant_id: Tenant ID (default: DEFAULT_TENANT_ID)
-            
+
         Returns:
             Prefixed key (e.g., "l9-shared:tasks", "l9-shared:session:123")
         """
@@ -390,7 +392,7 @@ class RedisClient:
     async def get(self, key: str, raw: bool = False) -> Optional[str]:
         """
         Get value by key.
-        
+
         Args:
             key: Key to get
             raw: If True, use key as-is (no tenant prefix)
@@ -410,7 +412,7 @@ class RedisClient:
     ) -> bool:
         """
         Set key-value with optional TTL.
-        
+
         Args:
             key: Key to set
             value: Value to set
@@ -434,7 +436,7 @@ class RedisClient:
     async def delete(self, key: str, raw: bool = False) -> bool:
         """
         Delete key.
-        
+
         Args:
             key: Key to delete
             raw: If True, use key as-is (no tenant prefix)
@@ -450,10 +452,11 @@ class RedisClient:
             logger.error(f"Redis delete failed: {e}")
             return False
 
+    @must_stay_async("callers use await")
     async def keys(self, pattern: str, raw: bool = False) -> list[str]:
         """
         Get keys matching pattern.
-        
+
         Args:
             pattern: Pattern to match
             raw: If True, use pattern as-is (no tenant prefix)

@@ -30,6 +30,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends, Header
 from typing import Optional
 
 from ..schemas import TwilioAdapterRequest, TwilioAdapterResponse
+from core.decorators import must_stay_async
 from ..adapters.twilio_adapter_adapter import (
     TwilioAdapterAdapter,
     TwilioAdapterRequest as AdapterRequest,
@@ -45,6 +46,7 @@ router = APIRouter(prefix="/twilio", tags=["Twilio Adapter"])
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+@must_stay_async("callers use await")
 async def get_adapter(request: Request) -> TwilioAdapterAdapter:
     """Get adapter instance from app state."""
     substrate_service = getattr(request.app.state, "substrate_service", None)
@@ -100,6 +102,7 @@ async def handle_twilio_adapter(
 
 
 @router.get("/health")
+@must_stay_async("FastAPI/ASGI route handler")
 async def health_check() -> dict:
     """Health check endpoint."""
     return {"status": "healthy", "module": "twilio.adapter"}

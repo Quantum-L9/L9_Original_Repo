@@ -24,6 +24,7 @@ from uuid import uuid4, uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 from workers.anomaly_classifier import (
     AnomalyClassifier,
@@ -227,10 +228,12 @@ class AnomalyResponseMonitor:
 
         logger.info("continuous_monitoring_stopped")
 
+    @must_stay_async("callers use await")
     async def stop_continuous_monitoring(self) -> None:
         """Stop the continuous monitoring loop."""
         self._running = False
 
+    @must_stay_async("callers use await")
     async def _collect_telemetry(self) -> List[TelemetryEvent]:
         """
         Collect telemetry from configured sources.

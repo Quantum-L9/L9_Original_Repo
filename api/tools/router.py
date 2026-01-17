@@ -17,6 +17,7 @@ from datetime import datetime
 import structlog
 
 from core.tools.registry_adapter import ExecutorToolRegistry
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -59,7 +60,7 @@ class ToolExecuteResponse(BaseModel):
 def get_tool_registry(request: Request) -> ExecutorToolRegistry:
     """
     Get ExecutorToolRegistry from app.state.
-    
+
     DEPRECATED: ActionToolOrchestrator (v1.x) removed in v2.0.
     Using ExecutorToolRegistry for governance-aware dispatch.
     """
@@ -78,6 +79,7 @@ def get_tool_registry(request: Request) -> ExecutorToolRegistry:
 
 
 @router.post("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def tools_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -147,10 +149,11 @@ async def execute_tool(
 
 
 @router.get("/health")
+@must_stay_async("FastAPI/ASGI route handler")
 async def tool_graph_health(request: Request) -> dict:
     """
     Check tool graph health status.
-    
+
     Returns:
         {
             "status": "healthy" | "degraded",
@@ -166,5 +169,5 @@ async def tool_graph_health(request: Request) -> dict:
         "neo4j_available": is_healthy,
         "impact": None if is_healthy else "No blast radius/dependency queries",
         "tools_executable": True,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }

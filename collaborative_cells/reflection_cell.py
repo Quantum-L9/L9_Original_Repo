@@ -18,6 +18,7 @@ from typing import Any, Optional
 from openai import AsyncOpenAI
 
 from collaborative_cells.base_cell import BaseCell, CellConfig
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -240,6 +241,7 @@ class ReflectionCell(BaseCell):
 
         return output, revisions
 
+    @must_stay_async("callers use await")
     async def _validate_output(
         self,
         output: dict[str, Any],

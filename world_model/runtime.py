@@ -51,6 +51,7 @@ if TYPE_CHECKING:
     from world_model.seed_loader import SeedLoader
     from simulation.simulation_engine import SimulationEngine
     from memory.substrate_service import MemorySubstrateService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -136,6 +137,7 @@ class PacketSource:
     source_id: str = "memory_substrate"
     source_type: str = "stub"  # stub, memory_substrate, file, queue
 
+    @must_stay_async("callers use await")
     async def fetch_packets(
         self,
         packet_types: Optional[frozenset[str]] = None,
@@ -505,6 +507,7 @@ class WorldModelRuntime:
             "errors": errors,
         }
 
+    @must_stay_async("callers use await")
     async def _index_patterns_and_heuristics(self) -> None:
         """Build indices for patterns and heuristics."""
         self._pattern_index.clear()
@@ -541,6 +544,7 @@ class WorldModelRuntime:
                 self._heuristic_index[category] = []
             self._heuristic_index[category].append(entity_id)
 
+    @must_stay_async("callers use await")
     async def _load_reflection_seeds(self, seed_dir: Optional[str]) -> int:
         """Load reflection memory seeds if available."""
         if not seed_dir:
@@ -857,6 +861,7 @@ class WorldModelRuntime:
     # Pattern-Based Queries
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def query(
         self,
         pattern: QueryPattern | dict[str, Any],
@@ -1220,6 +1225,7 @@ class WorldModelRuntime:
     # Reflection Consolidation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def consolidate_reflections(
         self,
         min_reflections: Optional[int] = None,
@@ -1917,7 +1923,9 @@ async def create_runtime_with_substrate(
         substrate_service=substrate_service,
     )
 
-    logger.info("Created WorldModelRuntime with MemorySubstratePacketSource and substrate_service")
+    logger.info(
+        "Created WorldModelRuntime with MemorySubstratePacketSource and substrate_service"
+    )
     return runtime
 
 

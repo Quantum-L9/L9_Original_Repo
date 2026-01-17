@@ -129,6 +129,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Decision Log (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-17] **Memory Pipeline Architecture**: Use `MemorySubstrateService` directly (not `SubstrateDagOrchestrator`) for Cursor integration and testing. Rationale: simpler path until memory pipeline fully validated. `SubstrateDagOrchestrator` now has enterprise resilience (retry/CB/DLQ) ready for future wiring when needed. Pre-existing blocker: `graph_client.py:28` syntax error (unindented import in try block) needs separate fix.
 - [2026-01-15] **RLS Architecture**: L and C share the SAME tenant_id/org_id/user_id (deterministic UUIDs via uuid5). Isolation is scope-based (`developer`, `l-private`, `global`) + creator-based (`metadata.creator`), NOT tenant-based. This preserves L/C collaboration while blocking C from `l-private`. See `readme/RLS TENANT ID.md`.
 - [2026-01-15] Kernel Runtime Layer: KernelState is a dataclass (not a string) providing full audit trail. guarded_execute is THE enforcement choke point — all tool calls should go through it. Response renderer provides template but is not yet mandated (opt-in). Safety scan is in-code (08_safety_kernel.yaml not modified).
 - [2026-01-14] Memory Governance uses feature flags (`GOVERNANCE_HARDENING_ENABLED`, `GOVERNANCE_ENFORCEMENT_MODE`) for safe rollout: deploy code first (flag off), run migrations, enable log_only mode to monitor, then enable enforce mode. Instant rollback by setting flag to False.
@@ -177,7 +178,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **RLS UUIDs** (deterministic, shared by L+C): tenant=`73350468-3158-5d0f-9b8c-9b193d96fc4b`, org=`14910cef-fea1-51d7-9a28-05579e6c0c18`, user=`2f00c090-3816-51a0-806c-34d32522a070`
 
 ---
-*Last updated: 2026-01-15 (World Model Pack Integration Complete: GMP-89/90/91/92, 63+ stubs → production)*
+*Last updated: 2026-01-17 (GMP-FIX-01 Syntax errors fixed; pytest unblocked; 27 GMP-88 tests pass)*
 
 ## Next Steps (Current Session)
 1. **World Model Engine Integration** — Wire QueryEngine into WorldModelEngine for unified API
@@ -190,6 +191,8 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 13. ~~**GMP-84: L-CTO Research Overlay Wiring**~~ ✅ DONE — `create_l_cto_research_agent()` factory added
 
 **Recent Sessions (7-day window):**
+- ✅ 2026-01-17: **GMP-FIX-01: Syntax Error Fix** — Fixed `from core.decorators import must_stay_async` syntax errors in 4 files (import was unindented inside try blocks). Files fixed: `memory/graph_client.py`, `memory/gap_detector.py`, `runtime/redis_client.py`, `agents/codegenagent/codegen_agent.py`. **Root cause:** Script added imports without checking indentation context. **Result:** pytest now runs, 27 GMP-88 resilience tests pass. Report: `reports/GMP_Report_GMP-FIX-01-Syntax-Errors.md`
+- ✅ 2026-01-17: **GMP-88: SubstrateDagOrchestrator Resilience** — Added enterprise-grade resilience to DAG orchestrator: RetryPolicy (exponential backoff, jitter), CircuitBreaker integration, DeadLetterQueue (Redis Streams). Created `memory/dead_letter.py` (165 LOC), updated `memory/substrate_dag_wrapper.py` v1.0→v2.0 (219 LOC), created `tests/memory/test_dag_orchestrator_resilience.py` (27 tests). **Architecture Decision:** Using `MemorySubstrateService` directly for Cursor/testing until memory pipeline fully validated. Report: `reports/GMP_Report_GMP-88-SubstrateDagOrchestrator-Resilience.md`
 - ✅ 2026-01-15: **World Model Pack Integration Complete (GMP-89/90/91/92)** — Full Layer 1+2 integration: state.py (12 stubs → production CRUD), registry.py (14 stubs → schema validation), loader.py (10 stubs → YAML parsing), updater.py (12 stubs → atomic batch updates), causal_graph.py (15 stubs → BFS traversal), query_engine.py (new file, 20+ query methods). **63+ stubs replaced, ~3,400 lines, 6 files, 25 tests pass**. Reports: GMP-89/90/91/92.
 - ✅ 2026-01-16: **Slash Commands v2 + Memory Integration** — Updated `/end-session` (v2 with structured PICKUP| format), `/mem` (v2 with NOTE|/LESSON|/ERROR| formats), `/gmp` (v2 with GMP| completion format + memory integration). All commands now use pipe-delimited structured formats for searchability. Created `end-session-v2.yaml`. Reduced /gmp from 967→180 lines, /mem from 422→120 lines.
 - ✅ 2026-01-16: **GMP-68: MCP Memory Governance + WMToGraphSync** — Fixed "Governance context required" error (api/routes/mcp.py). Created WMToGraphSync for bidirectional World Model↔Neo4j sync. Fixed container detection with L9_CONTAINER_ENV. Updated mcp_memory docs.

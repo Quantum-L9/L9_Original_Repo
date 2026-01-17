@@ -19,6 +19,7 @@ from typing import Dict, Any, Optional, Callable, Awaitable
 
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 from src.config import settings
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -180,6 +181,7 @@ class AuditLogger:
                 f"Fallback error: {fallback_error}"
             )
 
+    @must_stay_async("callers use await")
     async def _alert_audit_fallback(self, event: Dict[str, Any]) -> None:
         """
         Alert that audit is using fallback storage.

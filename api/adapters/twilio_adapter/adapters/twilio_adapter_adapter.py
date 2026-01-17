@@ -41,6 +41,7 @@ from uuid import UUID, uuid5
 from dataclasses import dataclass
 
 from core.schemas import PacketEnvelopeIn, PacketEnvelope
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -314,6 +315,7 @@ class TwilioAdapterAdapter:
     # ATTACHMENT HANDLING
     # ──────────────────────────────────────────────────────────────────────────
 
+    @must_stay_async("callers use await")
     async def _process_attachments(
         self, attachments: list, context: TwilioAdapterContext
     ) -> dict:

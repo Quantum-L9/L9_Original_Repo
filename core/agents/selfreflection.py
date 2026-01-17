@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -33,7 +34,9 @@ ITERATION_THRESHOLD = int(os.environ.get("L9_REFLECTION_ITERATION_THRESHOLD", "8
 TOKEN_THRESHOLD = int(os.environ.get("L9_REFLECTION_TOKEN_THRESHOLD", "50000"))
 
 # Tool failure threshold: repeated failures at or above this count are flagged
-TOOL_FAILURE_THRESHOLD = int(os.environ.get("L9_REFLECTION_TOOL_FAILURE_THRESHOLD", "3"))
+TOOL_FAILURE_THRESHOLD = int(
+    os.environ.get("L9_REFLECTION_TOOL_FAILURE_THRESHOLD", "3")
+)
 
 logger.debug(
     "selfreflection.thresholds_loaded",
@@ -250,7 +253,9 @@ class ExcessiveIterationPattern(GapDetectionPattern):
                 gap_id=str(uuid4()),
                 gap_type="PERFORMANCE",
                 description=f"Task required {context.iterations} iterations (threshold: {ITERATION_THRESHOLD})",
-                severity="MEDIUM" if context.iterations < ITERATION_THRESHOLD * 1.5 else "HIGH",
+                severity="MEDIUM"
+                if context.iterations < ITERATION_THRESHOLD * 1.5
+                else "HIGH",
                 kernel_id=self.target_kernel,
                 evidence=[
                     f"Iterations: {context.iterations}",
@@ -281,7 +286,9 @@ class TokenOverusePattern(GapDetectionPattern):
                 gap_id=str(uuid4()),
                 gap_type="PERFORMANCE",
                 description=f"Task used {context.tokens_used} tokens (threshold: {TOKEN_THRESHOLD})",
-                severity="MEDIUM" if context.tokens_used < TOKEN_THRESHOLD * 2 else "HIGH",
+                severity="MEDIUM"
+                if context.tokens_used < TOKEN_THRESHOLD * 2
+                else "HIGH",
                 kernel_id=self.target_kernel,
                 evidence=[
                     f"Tokens used: {context.tokens_used}",
@@ -350,6 +357,7 @@ def detect_behavior_gaps(
     return gaps
 
 
+@must_stay_async("callers use await")
 async def analyze_task_execution(
     context: TaskExecutionContext,
     patterns: Optional[List[GapDetectionPattern]] = None,
@@ -444,4 +452,3 @@ __all__ = [
     "detect_behavior_gaps",
     "analyze_task_execution",
 ]
-

@@ -49,6 +49,7 @@ from orchestrators.pattern.metrics import PatternMetrics
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -61,6 +62,7 @@ logger = structlog.get_logger(__name__)
 class AgentProtocol(Protocol):
     """Protocol for agent invocation."""
 
+    @must_stay_async("callers use await")
     async def invoke(
         self,
         role: str,
@@ -79,6 +81,7 @@ class StubAgent:
     Returns placeholder responses matching expected output schemas.
     """
 
+    @must_stay_async("callers use await")
     async def invoke(
         self,
         role: str,
