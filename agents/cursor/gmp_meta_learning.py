@@ -153,13 +153,13 @@ class GMPExecutionHistoryDB(Base):
     todo_count = Column(Integer, nullable=False)
     execution_minutes = Column(Float, nullable=False)
     error_count = Column(Integer, nullable=False, default=0)
-    error_types = Column(ARRAY(String), nullable=False, default=[])
-    files_modified = Column(ARRAY(String), nullable=False, default=[])
+    error_types = Column(ARRAY(String), nullable=False, default=list)
+    files_modified = Column(ARRAY(String), nullable=False, default=list)
     lines_changed = Column(Integer, nullable=False, default=0)
     final_confidence = Column(Float, nullable=False)
     audit_result = Column(String(20), nullable=False)
-    l9_kernel_versions = Column(JSONB, nullable=False, default={})
-    feature_flags_enabled = Column(ARRAY(String), nullable=False, default=[])
+    l9_kernel_versions = Column(JSONB, nullable=False, default=dict)
+    feature_flags_enabled = Column(ARRAY(String), nullable=False, default=list)
     created_at = Column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow, index=True
     )
@@ -181,7 +181,7 @@ class LearnedHeuristicDB(Base):
     condition = Column(String, nullable=False)
     recommendation = Column(String, nullable=False)
     confidence = Column(Float, nullable=False, index=True)
-    supporting_gmp_ids = Column(ARRAY(String), nullable=False, default=[])
+    supporting_gmp_ids = Column(ARRAY(String), nullable=False, default=list)
     impact_estimate = Column(String(50), nullable=False)
     generated_date = Column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow, index=True
