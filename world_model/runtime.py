@@ -109,6 +109,12 @@ class RuntimeConfig:
     seed_directory: Optional[str] = None  # Custom seed directory
     auto_load_seeds: bool = True  # Load seeds on startup
 
+    # RLS / tenant scoping
+    tenant_id: Optional[str] = None
+    org_id: Optional[str] = None
+    user_id: Optional[str] = None
+    role: str = "end_user"
+
     # Simulation settings
     simulation_timeout_ms: int = 60000  # Simulation timeout
     simulation_parallel: bool = True  # Enable parallel simulation
@@ -163,6 +169,22 @@ class MemorySubstratePacketSource(PacketSource):
     source_id: str = "memory_substrate"
     source_type: str = "memory_substrate"
     substrate_service: Optional["MemorySubstrateService"] = None
+    tenant_id: Optional[str] = None
+    org_id: Optional[str] = None
+    user_id: Optional[str] = None
+    role: str = "end_user"
+
+    @staticmethod
+    def _ensure_scope(
+        tenant_id: Optional[str],
+        org_id: Optional[str],
+        user_id: Optional[str],
+    ) -> None:
+        if not tenant_id or not org_id or not user_id:
+            raise RuntimeError(
+                "RLS scope required for MemorySubstratePacketSource "
+                "(tenant_id, org_id, user_id)."
+            )
 
     async def fetch_packets(
         self,
@@ -175,6 +197,8 @@ class MemorySubstratePacketSource(PacketSource):
             return []
 
         try:
+            self._ensure_scope(self.tenant_id, self.org_id, self.user_id)
+
             # Query packets from substrate
             # Filter by packet types if specified
             type_filter = list(packet_types) if packet_types else None
@@ -183,6 +207,10 @@ class MemorySubstratePacketSource(PacketSource):
                 packet_types=type_filter,
                 limit=limit,
                 since=since,
+                tenant_id=self.tenant_id,
+                org_id=self.org_id,
+                user_id=self.user_id,
+                role=self.role,
             )
 
             # Convert to dicts
@@ -346,6 +374,12 @@ class WorldModelRuntime:
 
         # Substrate service (passed in to avoid creating duplicate with stub embeddings)
         self._substrate_service: Optional["MemorySubstrateService"] = substrate_service
+
+        if isinstance(self._packet_source, MemorySubstratePacketSource):
+            self._packet_source.tenant_id = self._config.tenant_id
+            self._packet_source.org_id = self._config.org_id
+            self._packet_source.user_id = self._config.user_id
+            self._packet_source.role = self._config.role
 
         logger.info("WorldModelRuntime initialized (v2.0.0)")
 

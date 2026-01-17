@@ -243,11 +243,47 @@ class WorldModelRepository:
         """Initialize repository."""
         logger.info("WorldModelRepository initialized")
 
+    @staticmethod
+    def _ensure_scope(
+        tenant_id: Optional[str],
+        org_id: Optional[str],
+        user_id: Optional[str],
+    ) -> None:
+        if not tenant_id or not org_id or not user_id:
+            raise RuntimeError(
+                "RLS scope required for WorldModelRepository "
+                "(tenant_id, org_id, user_id)."
+            )
+
+    async def set_session_scope(
+        self,
+        conn: asyncpg.Connection,
+        tenant_id: str,
+        org_id: str,
+        user_id: str,
+        role: str = "end_user",
+    ) -> None:
+        """Set PostgreSQL session variables for RLS (Row-Level Security)."""
+        await conn.execute(
+            """SELECT l9_set_scope($1::uuid, $2::uuid, $3::uuid, $4::text)""",
+            tenant_id,
+            org_id,
+            user_id,
+            role,
+        )
+
     # =========================================================================
     # Entity Operations
     # =========================================================================
 
-    async def get_entity(self, entity_id: str) -> Optional[WorldModelEntityRow]:
+    async def get_entity(
+        self,
+        entity_id: str,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> Optional[WorldModelEntityRow]:
         """
         Retrieve entity by ID.
 
@@ -257,8 +293,10 @@ class WorldModelRepository:
         Returns:
             WorldModelEntityRow if found, None otherwise
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             row = await conn.fetchrow(
                 """
                 SELECT entity_id, entity_type, attributes, confidence,
@@ -278,6 +316,10 @@ class WorldModelRepository:
         min_confidence: Optional[float] = None,
         limit: int = 100,
         offset: int = 0,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> list[WorldModelEntityRow]:
         """
         List entities with optional filtering.
@@ -291,8 +333,10 @@ class WorldModelRepository:
         Returns:
             List of matching entities
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             conditions = []
             params = []
             param_idx = 1
@@ -331,6 +375,10 @@ class WorldModelRepository:
         attributes: dict[str, Any],
         entity_type: str = "unknown",
         confidence: float = 1.0,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> WorldModelEntityRow:
         """
         Insert or update entity.
@@ -346,8 +394,10 @@ class WorldModelRepository:
         Returns:
             Updated/inserted entity
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             row = await conn.fetchrow(
                 """
                 INSERT INTO world_model_entities 
@@ -369,7 +419,14 @@ class WorldModelRepository:
             logger.debug(f"Upserted entity: {entity_id}")
             return WorldModelEntityRow.from_row(row)
 
-    async def delete_entity(self, entity_id: str) -> bool:
+    async def delete_entity(
+        self,
+        entity_id: str,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> bool:
         """
         Delete entity by ID.
 
@@ -379,8 +436,10 @@ class WorldModelRepository:
         Returns:
             True if deleted, False if not found
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             result = await conn.execute(
                 "DELETE FROM world_model_entities WHERE entity_id = $1", entity_id
             )
@@ -389,10 +448,18 @@ class WorldModelRepository:
                 logger.debug(f"Deleted entity: {entity_id}")
             return deleted
 
-    async def get_entity_count(self) -> int:
+    async def get_entity_count(
+        self,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> int:
         """Get total entity count."""
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             row = await conn.fetchrow(
                 "SELECT COUNT(*) as count FROM world_model_entities"
             )
@@ -412,6 +479,10 @@ class WorldModelRepository:
         source_packet: Optional[UUID] = None,
         state_version_before: Optional[int] = None,
         state_version_after: Optional[int] = None,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> WorldModelUpdateRow:
         """
         Record an update to the world model audit log.
@@ -429,9 +500,11 @@ class WorldModelRepository:
         Returns:
             Created update record
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         update_id = uuid4()
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             await conn.execute(
                 """
                 INSERT INTO world_model_updates
@@ -471,6 +544,10 @@ class WorldModelRepository:
         min_confidence: Optional[float] = None,
         since: Optional[datetime] = None,
         limit: int = 100,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> list[WorldModelUpdateRow]:
         """
         List update records with filtering.
@@ -484,8 +561,10 @@ class WorldModelRepository:
         Returns:
             List of update records
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             conditions = []
             params = []
             param_idx = 1
@@ -558,6 +637,10 @@ class WorldModelRepository:
         relation_count: int = 0,
         description: Optional[str] = None,
         created_by: str = "system",
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> WorldModelSnapshotRow:
         """
         Save a world model snapshot.
@@ -573,9 +656,11 @@ class WorldModelRepository:
         Returns:
             Created snapshot record
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         snapshot_id = uuid4()
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             await conn.execute(
                 """
                 INSERT INTO world_model_snapshots
@@ -604,7 +689,14 @@ class WorldModelRepository:
                 created_by=created_by,
             )
 
-    async def load_snapshot(self, snapshot_id: UUID) -> Optional[WorldModelSnapshotRow]:
+    async def load_snapshot(
+        self,
+        snapshot_id: UUID,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> Optional[WorldModelSnapshotRow]:
         """
         Load a snapshot by ID.
 
@@ -614,8 +706,10 @@ class WorldModelRepository:
         Returns:
             Snapshot if found, None otherwise
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             row = await conn.fetchrow(
                 """
                 SELECT snapshot_id, snapshot, state_version, entity_count,
@@ -641,15 +735,23 @@ class WorldModelRepository:
                 )
             return None
 
-    async def get_latest_snapshot(self) -> Optional[WorldModelSnapshotRow]:
+    async def get_latest_snapshot(
+        self,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> Optional[WorldModelSnapshotRow]:
         """
         Get the most recent snapshot.
 
         Returns:
             Latest snapshot if any exist
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             row = await conn.fetchrow(
                 """
                 SELECT snapshot_id, snapshot, state_version, entity_count,
@@ -678,6 +780,10 @@ class WorldModelRepository:
     async def list_snapshots(
         self,
         limit: int = 20,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> list[WorldModelSnapshotRow]:
         """
         List recent snapshots.
@@ -688,8 +794,10 @@ class WorldModelRepository:
         Returns:
             List of snapshots (newest first)
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             rows = await conn.fetch(
                 """
                 SELECT snapshot_id, snapshot, state_version, entity_count,
@@ -723,15 +831,23 @@ class WorldModelRepository:
     # State Version Management
     # =========================================================================
 
-    async def get_state_version(self) -> int:
+    async def get_state_version(
+        self,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> int:
         """
         Get current state version (highest version from any entity).
 
         Returns:
             Current state version
         """
+        self._ensure_scope(tenant_id, org_id, user_id)
         pool = await get_pool()
         async with pool.acquire() as conn:
+            await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             row = await conn.fetchrow(
                 """
                 SELECT COALESCE(MAX(version), 0) as max_version
