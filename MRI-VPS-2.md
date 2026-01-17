@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
-# L9 VPS CONSOLIDATED MRI v2 (2026-01-14)
-# Focused on Agent Executor diagnostics + core L9 stack
+# L9 VPS CONSOLIDATED MRI v3 (2026-01-17)
+# Focused on Agent Executor diagnostics + core L9 stack + Fresh Slate checks
+#
+# Usage: Run on VPS via SSH or copy-paste
+#   bash scripts/deployment/vps-mri.sh
+#   OR source this file directly
 
 set -euo pipefail
 
-echo "===== L9 VPS MRI v2 – AGENT EXECUTOR FOCUSED ====="
+# Load .env for credentials (don't hardcode!)
+cd /opt/l9 2>/dev/null || cd ~/Projects/L9 2>/dev/null || true
+if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+fi
+
+echo "===== L9 VPS MRI v3 – FRESH SLATE DIAGNOSTICS ====="
 date
 echo
 
@@ -16,13 +28,13 @@ echo "A1) SYSTEM IDENTITY"
 echo "-------------------"
 hostname
 whoami
-ip addr show | grep 'inet ' | grep -v '127.0.0.1'
-uname -a
+ip addr show | grep 'inet ' | grep -v '127.0.0.1' | head -3
+uname -r  # Just kernel version, not full uname
 
 echo
 echo "A2) CRITICAL PORTS"
 echo "------------------"
-sudo ss -tlnp 2>/dev/null | grep -E '(:8000|:9001|:5432|:7474|:7687|:6379)' || echo "No critical ports listening"
+sudo ss -tlnp 2>/dev/null | grep -E '(:8000|:8080|:9001|:5432|:7474|:7687|:6379)' || echo "No critical ports listening"
 
 echo
 echo "A3) DISK SPACE"
@@ -45,23 +57,29 @@ git diff --stat | head -10 || true
 ###############################################################################
 
 echo
-echo "C1) DOCKER COMPOSE PS"
-echo "---------------------"
-docker compose ps
+echo "C1) DOCKER COMPOSE PS (ALL CONTAINERS)"
+echo "---------------------------------------"
+docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || docker compose ps
 
 echo
 echo "C2) L9-API LOGS (AGENT EXECUTOR FOCUS)"
 echo "--------------------------------------"
-echo "=== Last 30 lines ==="
-docker compose logs l9-api --tail=30
+echo "=== Last 20 lines ==="
+docker compose logs l9-api --tail=20 --no-log-prefix 2>&1 | tail -20
 
 echo
-echo "=== Agent Executor errors only ==="
-docker compose logs l9-api 2>&1 | grep -i "agent.*executor\|RuntimeError" | tail -20 || echo "No Agent Executor errors in logs"
+echo "=== Errors/Exceptions ==="
+docker compose logs l9-api 2>&1 | grep -iE "error|exception|failed|traceback" | tail -10 || echo "No errors in logs"
 
 echo
 echo "=== Lifespan startup sequence ==="
-docker compose logs l9-api 2>&1 | grep -E "lifespan|initialized|startup|Agent Executor" | tail -30 || echo "No lifespan logs"
+docker compose logs l9-api 2>&1 | grep -E "lifespan|initialized|startup|Migration" | tail -15 || echo "No lifespan logs"
+
+echo
+echo "C3) L9-MCP-MEMORY STATUS"
+echo "------------------------"
+docker compose ps l9-mcp-memory --format "{{.Status}}" 2>/dev/null || echo "l9-mcp-memory not found"
+docker compose logs l9-mcp-memory --tail=10 --no-log-prefix 2>&1 | tail -5 || true
 
 ###############################################################################
 # PART D: ENV VARS (AGENT EXECUTOR REQUIREMENTS)
@@ -104,19 +122,53 @@ grep -E '^DATABASE_URL=' .env | sed 's/postgresql:\/\/.*@/postgresql:\/\/USER:PA
 echo
 echo "E1) L9 API HEALTH"
 echo "-----------------"
-curl -sS http://127.0.0.1:8000/health 2>&1 || echo "❌ API not responding on 8000"
+API_HEALTH=$(curl -sS --max-time 5 http://127.0.0.1:8000/health 2>&1)
+if echo "$API_HEALTH" | grep -q "healthy"; then
+    echo "✅ API healthy: $API_HEALTH"
+else
+    echo "❌ API not responding: $API_HEALTH"
+fi
 
 echo
 echo "E2) BACKEND SERVICES"
 echo "--------------------"
 echo "Postgres (5432):"
-sudo ss -tlnp 2>/dev/null | grep 5432 | head -1 || echo "  ❌ Not listening"
+if docker compose exec -T l9-postgres pg_isready -U "$POSTGRES_USER" 2>/dev/null; then
+    echo "  ✅ Ready"
+else
+    echo "  ❌ Not ready"
+fi
 
 echo "Redis (6379):"
-docker compose exec -T redis redis-cli ping 2>/dev/null || echo "  ❌ Not responding"
+REDIS_PING=$(docker compose exec -T redis redis-cli ping 2>/dev/null || echo "FAIL")
+if [ "$REDIS_PING" = "PONG" ]; then
+    echo "  ✅ PONG"
+else
+    echo "  ❌ Not responding"
+fi
 
 echo "Neo4j (7687):"
-docker compose exec -T neo4j cypher-shell -u neo4j -p "$NEO4J_PASSWORD" "RETURN 1" 2>/dev/null | grep -q "1" && echo "  ✅ Connected" || echo "  ❌ Not connected"
+# Use env var from .env (loaded at top), NEVER hardcode password!
+if [ -n "${NEO4J_PASSWORD:-}" ]; then
+    NEO4J_CHECK=$(docker compose exec -T neo4j cypher-shell -u neo4j -p "$NEO4J_PASSWORD" "RETURN 1 AS ok" 2>/dev/null || echo "FAIL")
+    if echo "$NEO4J_CHECK" | grep -q "ok"; then
+        echo "  ✅ Connected"
+    else
+        echo "  ❌ Not connected (check NEO4J_PASSWORD)"
+    fi
+else
+    echo "  ⚠️  NEO4J_PASSWORD not set in .env"
+fi
+
+echo
+echo "E3) MCP MEMORY API (8080)"
+echo "-------------------------"
+MCP_HEALTH=$(curl -sS --max-time 5 http://127.0.0.1:8080/health 2>&1 || echo "FAIL")
+if echo "$MCP_HEALTH" | grep -qiE "healthy|ok"; then
+    echo "✅ MCP Memory healthy"
+else
+    echo "❌ MCP Memory not responding: $MCP_HEALTH"
+fi
 
 ###############################################################################
 # PART F: CADDY PROXY
@@ -169,18 +221,44 @@ echo "Step 4: Recent container restarts"
 docker compose ps l9-api --format "table {{.Name}}\t{{.Status}}" | grep Restarting && echo "  ⚠️  Check PART C2 logs above for error details" || echo "  ✅ No restart loop"
 
 ###############################################################################
+# PART H: DATABASE MIGRATIONS
+###############################################################################
+
+echo
+echo "H1) MIGRATION STATUS"
+echo "--------------------"
+# Check schema_migrations table (Python runner tracks here)
+MIGRATION_COUNT=$(docker compose exec -T l9-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -t -c "SELECT COUNT(*) FROM schema_migrations" 2>/dev/null | tr -d ' ' || echo "0")
+echo "Applied migrations (schema_migrations table): $MIGRATION_COUNT"
+
+# Check migration files
+SQL_FILES=$(ls -1 migrations/*.sql 2>/dev/null | wc -l || echo "0")
+echo "Migration files in migrations/: $SQL_FILES"
+
+# Show recent migrations
+echo "Recent migrations:"
+docker compose exec -T l9-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT migration_name, applied_at FROM schema_migrations ORDER BY applied_at DESC LIMIT 5" 2>/dev/null || echo "  (cannot query schema_migrations)"
+
+###############################################################################
 # SUMMARY
 ###############################################################################
 
 echo
 echo "===== DIAGNOSTIC SUMMARY ====="
-echo "✅ Git clean, no divergence from origin/main"
-echo "✅ Postgres/Redis/Neo4j: $(docker compose ps l9-postgres l9-redis l9-neo4j | grep -c healthy || echo 0)/3 healthy"
-echo "❓ l9-api status: $(docker compose ps l9-api --format '{{.Status}}')"
+
+# Count healthy containers
+HEALTHY_COUNT=$(docker compose ps --format json 2>/dev/null | grep -c '"healthy"' || echo "0")
+TOTAL_CONTAINERS=$(docker compose ps --format json 2>/dev/null | grep -c '"Name"' || echo "0")
+
+echo "📦 Containers: $HEALTHY_COUNT/$TOTAL_CONTAINERS healthy"
+echo "🔌 l9-api: $(docker compose ps l9-api --format '{{.Status}}' 2>/dev/null || echo 'unknown')"
+echo "🔌 l9-mcp-memory: $(docker compose ps l9-mcp-memory --format '{{.Status}}' 2>/dev/null || echo 'unknown')"
+echo "📊 Migrations: $MIGRATION_COUNT applied"
 echo
-echo "🔍 AGENT EXECUTOR TROUBLESHOOTING:"
-echo "   1. Check PART D1 for missing env vars (L9_EXECUTOR_API_KEY, OPENAI_API_KEY)"
-echo "   2. Check PART C2 for Python traceback (lifespan init errors)"
+echo "🔍 TROUBLESHOOTING:"
+echo "   1. Check PART D1 for missing env vars"
+echo "   2. Check PART C2/C3 for container errors"
 echo "   3. Check PART G1 Step 3 for port conflicts"
+echo "   4. Check PART H1 for migration status"
 echo
-echo "===== END OF MRI v2 ====="
+echo "===== END OF MRI v3 ====="

@@ -144,6 +144,12 @@ class IntegrationSettings(BaseSettings):
         description="Enable GMP v2.0 Meta-Learning Engine (requires migration 0021).",
     )
 
+    l9_memory_warming_enabled: bool = Field(
+        default=True,
+        alias="L9_MEMORY_WARMING_ENABLED",
+        description="Enable Stage 5: Predictive Memory Warming (gap detection + cache warming).",
+    )
+
     # Development mode
     local_dev: bool = Field(
         default=False,

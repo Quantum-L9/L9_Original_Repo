@@ -64,10 +64,10 @@ fi
 echo ""
 
 # Step 5: Rebuild and restart Docker containers
-echo "[5/7] Rebuilding Docker containers..."
-docker compose build --no-cache l9-api l9-mcp-memory
-docker compose up -d --force-recreate l9-api l9-mcp-memory
-echo "  ✅ Containers rebuilt and restarted"
+echo "[5/7] Rebuilding ALL Docker containers..."
+docker compose build --no-cache
+docker compose up -d --force-recreate
+echo "  ✅ All containers rebuilt and restarted"
 echo ""
 
 # Step 6: Prune unused Docker resources (keeps disk lean)

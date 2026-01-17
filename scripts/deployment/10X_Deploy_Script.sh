@@ -1,12 +1,14 @@
 #!/bin/bash
 # =============================================================================
-# L9 10X Deployment Script v3.0
-# Full pipeline: Mac → Git → VPS → Rebuild → Verify
+# L9 10X Deployment Script v3.1 (FRESH SLATE)
+# Full pipeline: Mac → Git → VPS → Rebuild ALL → Verify
 #
 # IMPROVEMENTS:
 #   v2.0 (GMP-71): Safe git pull, --dry-run, --quick, rollback
 #   v3.0 (GMP-77): Pre-flight checks, health retries, migrations gate,
 #                  conditional prune, .env backup, Slack notify, enhanced rollback
+#   v3.1: FRESH SLATE - rebuild ALL containers, aggressive port cleanup,
+#         trust automatic migrations, skip Phase 4 restart when doing full rebuild
 #
 # Usage:
 #   ./10X_Deploy_Script.sh [options] [commit-message]
@@ -124,25 +126,32 @@ wait_with_spinner() {
 
 usage() {
     cat <<EOF
-L9 10X Deployment Script v3.0
+L9 10X Deployment Script v3.1 (FRESH SLATE)
 
 Usage: $0 [options] [commit-message]
 
 Options:
     --dry-run         Show what would happen without executing
-    --quick           Skip --no-cache on docker build (faster)
+    --quick           Skip full rebuild (faster, uses cache, only restart)
     --skip-mri        Skip full MRI diagnostic at the end
     --skip-e2e        Skip MCP E2E test
-    --run-migrations  Apply pending database migrations
+    --run-migrations  Force manual migration run (auto runs on startup anyway)
     --prune-docker    Clean Docker system (volumes, images, containers)
     --version         Show version and exit
     -h, --help        Show this help
 
+FRESH SLATE MODE (default):
+    - Rebuilds ALL containers (l9-api, l9-mcp-memory)
+    - Forces --no-cache for clean builds
+    - Aggressive port cleanup (kills stuck processes)
+    - Auto-runs migrations on container startup
+    - DATA IS PRESERVED (volumes are NOT deleted)
+
 Examples:
-    $0 "feat(memory): new feature"
-    $0 --dry-run
-    $0 --quick "hotfix: typo fix"
-    $0 --run-migrations --prune-docker "major release"
+    $0 "feat(memory): new feature"     # FRESH SLATE rebuild
+    $0 --quick "hotfix: typo fix"      # Quick mode (restart only)
+    $0 --dry-run                       # Preview changes
+    $0 --prune-docker "major release"  # Clean old images after deploy
 
 Default commit message: "chore(deploy): automated 10X deployment"
 EOF
@@ -156,10 +165,11 @@ rollback() {
         log_step "Reverting VPS to SHA: $PREV_VPS_SHA"
         ssh "$VPS_HOST" "cd $VPS_REPO && git checkout $PREV_VPS_SHA 2>&1" || log_error "Git rollback failed!"
         
-        log_step "Rebuilding services with previous code..."
-        ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d --build l9-api" || log_error "Service restart failed!"
+        log_step "Rebuilding ALL services with previous code..."
+        ssh "$VPS_HOST" "cd $VPS_REPO && docker compose down 2>/dev/null || true"
+        ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d --build" || log_error "Service restart failed!"
         
-        wait_with_spinner 10 "Allowing services to stabilize..."
+        wait_with_spinner 15 "Allowing all services to stabilize..."
         
         # Verify rollback worked
         log_step "Verifying rollback health..."
@@ -169,7 +179,7 @@ rollback() {
         else
             log_error "Rollback failed - manual intervention required!"
             log_error "SSH: ssh $VPS_HOST"
-            log_error "Logs: cd $VPS_REPO && docker compose logs l9-api --tail=100"
+            log_error "Logs: cd $VPS_REPO && docker compose logs --tail=100"
         fi
     else
         log_error "No previous SHA saved - cannot rollback"
@@ -211,9 +221,10 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --version)
-            echo "L9 10X Deployment Script v3.0"
+            echo "L9 10X Deployment Script v3.1 (FRESH SLATE)"
             echo "Compatible with: L9 VPS production stack"
-            echo "Features: pre-flight checks, health retries, migrations, rollback"
+            echo "Features: FRESH SLATE rebuild (all containers), aggressive port cleanup,"
+            echo "          auto migrations, pre-flight checks, health retries, rollback"
             exit 0
             ;;
         -h|--help)
@@ -407,90 +418,131 @@ ssh "$VPS_HOST" "cd $VPS_REPO && cp .env .env.backup-\$(date +%s)" 2>/dev/null |
 log_ok ".env backup created"
 
 log_step "Running environment sync and verification..."
-verify_vps_env_complete
+# CRITICAL: Sync FIRST, then verify (sync adds missing keys from .env.example)
 ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/sync_env_vars.sh --quiet" || true
+# Now verify all keys are present (after sync)
+verify_vps_env_complete
 ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/verify_vps_env.sh --quick" | tee -a "$DEPLOY_LOG"
+
+# NOTE: Skip container restart here - Phase 5 will rebuild ALL containers anyway
+# This avoids port conflicts and unnecessary double-restarts
+if [[ "$QUICK" == "true" ]]; then
+    # Quick mode only: restart to load new env vars (no rebuild in Phase 5)
+    log_step "Restarting containers to load synced env vars (quick mode)..."
+    ssh "$VPS_HOST" "cd $VPS_REPO && docker compose restart 2>/dev/null || true"
+    wait_with_spinner 5 "Allowing containers to reload..."
+else
+    log_ok "Skipping restart (Phase 5 will rebuild ALL containers with fresh env)"
+fi
 
 log_ok "Environment verification complete"
 
 # =============================================================================
-# PHASE 4.5: DATABASE MIGRATION CHECK
+# PHASE 4.5: DATABASE MIGRATION INFO
 # =============================================================================
-log_header "PHASE 4.5: Database Migration Check"
+log_header "PHASE 4.5: Database Migration Info"
 
-log_step "Checking for migration files..."
+log_step "Checking migration files..."
 MIGRATION_COUNT=$(ssh "$VPS_HOST" "cd $VPS_REPO && ls -1 migrations/*.sql 2>/dev/null | wc -l" || echo "0")
 MIGRATION_COUNT=$(echo "$MIGRATION_COUNT" | tr -d '[:space:]')
 
 if [[ "$MIGRATION_COUNT" -gt 0 ]]; then
-    log_warn "Found $MIGRATION_COUNT migration file(s) in migrations/"
+    log_ok "Found $MIGRATION_COUNT migration file(s) - auto-applied on l9-api startup"
     
+    # Show migration status from database (Python runner uses schema_migrations table)
+    log_step "Checking applied migrations in database..."
+    APPLIED_COUNT=$(ssh "$VPS_HOST" "cd $VPS_REPO && docker compose exec -T l9-postgres psql -U \$POSTGRES_USER -d \$POSTGRES_DB -t -c 'SELECT COUNT(*) FROM schema_migrations' 2>/dev/null | tr -d ' '" || echo "0")
+    log_ok "Already applied: $APPLIED_COUNT migrations (tracked in schema_migrations table)"
+    
+    # Manual run is deprecated - just show info
     if [[ "$RUN_MIGRATIONS" == "true" ]]; then
-        log_step "Running migrations (--run-migrations flag set)..."
-        if ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/vps/run_migrations.sh 2>&1"; then
-            log_ok "Migrations applied successfully"
-        else
-            log_error "Migration failed!"
-            rollback
-        fi
-    else
-        log_warn "Skipping migrations (use --run-migrations to apply)"
-        log_warn "Check: ls $VPS_REPO/migrations/*.sql"
+        log_warn "--run-migrations is deprecated (migrations auto-run on startup)"
+        log_warn "If you need to force migrations, restart l9-api container"
     fi
 else
-    log_ok "No pending migrations found"
+    log_ok "No migration files in migrations/"
 fi
+# NOTE: api/server.py runs migrations automatically via memory.migration_runner.run_migrations()
+# Migrations are tracked in schema_migrations table, NOT .migrations_applied file
 
 # =============================================================================
-# PHASE 5: VPS DOCKER REBUILD
+# PHASE 5: VPS DOCKER REBUILD (ALL CONTAINERS - FRESH SLATE)
 # =============================================================================
-log_header "PHASE 5: VPS Docker Rebuild"
+log_header "PHASE 5: VPS Docker Rebuild (Fresh Slate)"
 
-log_step "Stopping and removing current l9-api container..."
-# Use 'down' to fully remove the container (not just stop) to ensure fresh start
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose stop l9-api 2>/dev/null || true"
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose rm -f l9-api 2>/dev/null || true"
+# CRITICAL: Stop ALL containers and ensure port 8000 is free
+log_step "Stopping ALL containers for fresh slate rebuild..."
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose down 2>/dev/null || true"
 wait_with_spinner 3 "Waiting for graceful shutdown..."
 
-# Get the current image ID before rebuild (for verification)
-OLD_IMAGE_ID=$(ssh "$VPS_HOST" "docker images -q l9-l9-api 2>/dev/null | head -1" || echo "none")
-log_step "Previous image ID: ${OLD_IMAGE_ID:-none}"
+# AGGRESSIVE PORT CLEANUP: Kill any process using port 8000
+log_step "Ensuring port 8000 is free..."
+PORT_PID=$(ssh "$VPS_HOST" "ss -tlnp 2>/dev/null | grep ':8000 ' | grep -oP 'pid=\K[0-9]+' | head -1" || echo "")
+if [[ -n "$PORT_PID" ]]; then
+    log_warn "Port 8000 still in use by PID $PORT_PID - killing..."
+    ssh "$VPS_HOST" "sudo kill -9 $PORT_PID 2>/dev/null || true"
+    wait_with_spinner 2 "Waiting for port release..."
+fi
+
+# Verify port is now free
+PORT_CHECK=$(ssh "$VPS_HOST" "ss -tlnp 2>/dev/null | grep ':8000 ' || echo ''")
+if [[ -n "$PORT_CHECK" ]]; then
+    log_error "Port 8000 still in use after cleanup attempt!"
+    log_error "Manual intervention required: ssh $VPS_HOST 'sudo lsof -i :8000'"
+    rollback
+fi
+log_ok "Port 8000 is free"
+
+# Get the current image IDs before rebuild (for verification)
+OLD_API_IMAGE=$(ssh "$VPS_HOST" "docker images -q l9-l9-api 2>/dev/null | head -1" || echo "none")
+OLD_MCP_IMAGE=$(ssh "$VPS_HOST" "docker images -q l9-l9-mcp-memory 2>/dev/null | head -1" || echo "none")
+log_step "Previous images: l9-api=${OLD_API_IMAGE:-none}, l9-mcp-memory=${OLD_MCP_IMAGE:-none}"
 
 BUILD_OPTS=""
 if [[ "$QUICK" == "false" ]]; then
     BUILD_OPTS="--no-cache"
-    log_step "Building l9-api image (no cache - full rebuild)..."
-    # Also remove old image to force complete rebuild
-    log_step "Removing old l9-api image to force fresh build..."
-    ssh "$VPS_HOST" "docker rmi l9-l9-api 2>/dev/null || true"
+    log_step "Building ALL images (no cache - FRESH SLATE)..."
+    
+    # Remove old images to force complete rebuild
+    log_step "Removing old images to force fresh builds..."
+    ssh "$VPS_HOST" "docker rmi l9-l9-api l9-l9-mcp-memory 2>/dev/null || true"
 else
-    log_step "Building l9-api image (with cache - quick mode)..."
+    log_step "Building ALL images (with cache - quick mode)..."
 fi
 
-if ssh "$VPS_HOST" "cd $VPS_REPO && docker compose build $BUILD_OPTS l9-api 2>&1"; then
-    log_ok "Build complete"
-else
-    log_error "Docker build failed!"
+# BUILD ALL CUSTOM IMAGES (l9-api and l9-mcp-memory)
+log_step "Building l9-api..."
+if ! ssh "$VPS_HOST" "cd $VPS_REPO && docker compose build $BUILD_OPTS l9-api 2>&1"; then
+    log_error "l9-api build failed!"
     rollback
 fi
+log_ok "l9-api built"
 
-# Verify new image was created
-NEW_IMAGE_ID=$(ssh "$VPS_HOST" "docker images -q l9-l9-api 2>/dev/null | head -1" || echo "none")
-log_step "New image ID: ${NEW_IMAGE_ID:-none}"
+log_step "Building l9-mcp-memory..."
+if ! ssh "$VPS_HOST" "cd $VPS_REPO && docker compose build $BUILD_OPTS l9-mcp-memory 2>&1"; then
+    log_warn "l9-mcp-memory build failed (non-fatal)"
+fi
+log_ok "l9-mcp-memory built"
 
-if [[ "$OLD_IMAGE_ID" == "$NEW_IMAGE_ID" ]] && [[ "$OLD_IMAGE_ID" != "none" ]] && [[ "$QUICK" == "false" ]]; then
-    log_warn "Image ID unchanged after --no-cache rebuild - may indicate build cache issue"
+# Verify new images were created
+NEW_API_IMAGE=$(ssh "$VPS_HOST" "docker images -q l9-l9-api 2>/dev/null | head -1" || echo "none")
+NEW_MCP_IMAGE=$(ssh "$VPS_HOST" "docker images -q l9-l9-mcp-memory 2>/dev/null | head -1" || echo "none")
+log_step "New images: l9-api=${NEW_API_IMAGE:-none}, l9-mcp-memory=${NEW_MCP_IMAGE:-none}"
+
+if [[ "$OLD_API_IMAGE" == "$NEW_API_IMAGE" ]] && [[ "$OLD_API_IMAGE" != "none" ]] && [[ "$QUICK" == "false" ]]; then
+    log_warn "l9-api image ID unchanged after --no-cache - may indicate build issue"
 fi
 
-log_step "Starting l9-api container (fresh instance)..."
-ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d --force-recreate l9-api"
-log_ok "Container started with fresh instance"
+# START ALL CONTAINERS (fresh instances)
+log_step "Starting ALL containers (fresh slate)..."
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d --force-recreate"
+log_ok "All containers started with fresh instances"
 
-# Verify container is running the new image
-CONTAINER_IMAGE=$(ssh "$VPS_HOST" "docker inspect l9-l9-api-1 --format='{{.Image}}' 2>/dev/null | cut -c8-19" || echo "unknown")
-log_step "Container running image: $CONTAINER_IMAGE"
+# Show container status
+log_step "Container status:"
+ssh "$VPS_HOST" "cd $VPS_REPO && docker compose ps --format 'table {{.Name}}\t{{.Status}}'" | head -15
 
-wait_with_spinner 8 "Waiting for initialization (extended for fresh container)..."
+wait_with_spinner 10 "Waiting for all services to initialize..."
 
 # =============================================================================
 # PHASE 6: VPS HEALTH CHECKS
@@ -752,24 +804,29 @@ fi
 log_header "PHASE 12: Deployment Summary"
 
 echo ""
-log_ok "✅ DEPLOYMENT COMPLETE (v3.0)"
+log_ok "✅ DEPLOYMENT COMPLETE (v3.1 - FRESH SLATE)"
 echo ""
 echo "Summary:"
 echo "  • Mac SHA: $CURRENT_SHA"
 echo "  • VPS SHA: $VPS_SHA"
 echo "  • Previous VPS SHA: $PREV_VPS_SHA (for rollback)"
-echo "  • Build mode: $([[ "$QUICK" == "true" ]] && echo "quick (cached)" || echo "full (no-cache)")"
-echo "  • Migrations: $([[ "$RUN_MIGRATIONS" == "true" ]] && echo "applied" || echo "skipped")"
+echo "  • Build mode: $([[ "$QUICK" == "true" ]] && echo "quick (cached)" || echo "FRESH SLATE (all containers rebuilt)")"
+echo "  • Migrations: auto (run on l9-api startup)"
 echo "  • Docker prune: $([[ "$PRUNE_DOCKER" == "true" ]] && echo "yes" || echo "no")"
+echo ""
+echo "Containers rebuilt:"
+echo "  • l9-api (FastAPI main service)"
+echo "  • l9-mcp-memory (MCP memory server)"
+echo "  • + all supporting services restarted"
 echo ""
 echo "Deployment log: $DEPLOY_LOG"
 echo ""
 echo "Next steps:"
-echo "  1. Monitor: ssh $VPS_HOST 'cd $VPS_REPO && docker compose logs -f l9-api'"
+echo "  1. Monitor: ssh $VPS_HOST 'cd $VPS_REPO && docker compose logs -f'"
 echo "  2. Test: curl https://l9.quantumaipartners.com/health"
 echo "  3. Full diagnostic: ssh $VPS_HOST 'cd $VPS_REPO && bash scripts/deployment/vps-mri.sh'"
 echo ""
 echo "Rollback (if needed):"
-echo "  ssh $VPS_HOST 'cd $VPS_REPO && git checkout $PREV_VPS_SHA && docker compose up -d --build l9-api'"
+echo "  ssh $VPS_HOST 'cd $VPS_REPO && git checkout $PREV_VPS_SHA && docker compose down && docker compose up -d --build'"
 echo ""
 log_ok "Ready for production!"

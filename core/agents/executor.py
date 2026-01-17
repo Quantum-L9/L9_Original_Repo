@@ -91,6 +91,15 @@ except ImportError:
     _has_prompt_builder = False
     logger.warning("prompt_builder not available - kernel prompts disabled")
 
+# Stage 5: Predictive Memory Warming (optional - graceful degradation)
+try:
+    from memory.warming_service import MemoryWarmingService
+
+    _has_memory_warming = True
+except ImportError:
+    _has_memory_warming = False
+    logger.debug("memory_warming not available - warming disabled")
+
 
 # =============================================================================
 # Reactive Task Generation
@@ -379,6 +388,9 @@ class AgentExecutorService:
         # Kernel-aware agent reference (for guarded execution)
         self._kernel_aware_agent: Optional[Any] = None
 
+        # Stage 5: Predictive Memory Warming service (optional)
+        self._memory_warming_service: Optional[Any] = None
+
         logger.info(
             "agent.executor.init: default_agent_id=%s, max_iterations=%d, persistence=%s",
             self._default_agent_id,
@@ -404,6 +416,22 @@ class AgentExecutorService:
             "agent.executor.kernel_agent_set: state=%s, kernels=%d",
             kernel_state,
             kernel_count,
+        )
+
+    def set_memory_warming_service(self, service: Any) -> None:
+        """
+        Set the memory warming service for predictive cache warming.
+
+        Stage 5: Predictive Memory Warming (GMP-STAGE5).
+        Warms relevant entities before agent reasoning to reduce latency.
+
+        Args:
+            service: MemoryWarmingService instance
+        """
+        self._memory_warming_service = service
+        logger.info(
+            "agent.executor.memory_warming_set: enabled=%s",
+            service is not None,
         )
 
     async def shutdown(self) -> None:
@@ -569,6 +597,46 @@ class AgentExecutorService:
                             (datetime.utcnow() - start_time).total_seconds() * 1000
                         ),
                         error="Prompt injection detected",
+                    )
+
+            # Stage 5: Predictive Memory Warming (GMP-STAGE5)
+            # Warm relevant entities before agent reasoning
+            if _has_memory_warming and self._memory_warming_service is not None:
+                try:
+                    user_message = (
+                        task.payload.get("message", "") if task.payload else ""
+                    )
+                    if user_message:
+                        # Extract simple entity mentions (words that might be entities)
+                        # In production, use NER or semantic extraction
+                        words = user_message.split()
+                        mentioned_entities = [
+                            w.strip(".,!?;:()[]{}\"'")
+                            for w in words
+                            if len(w) > 3 and w[0].isupper()
+                        ]
+
+                        if mentioned_entities:
+                            warming_result = (
+                                await self._memory_warming_service.warm_for_query(
+                                    query=user_message,
+                                    mentioned_entities=mentioned_entities[:20],
+                                    max_gaps_to_warm=10,
+                                )
+                            )
+                            logger.debug(
+                                "agent.executor.memory_warming",
+                                task_id=task_id_str,
+                                gaps_detected=warming_result.get("gaps_detected", 0),
+                                entities_warmed=warming_result.get("entities_warmed", 0),
+                                latency_ms=warming_result.get("warming_latency_ms", 0),
+                            )
+                except Exception as warming_error:
+                    # Non-fatal - log and continue
+                    logger.warning(
+                        "agent.executor.memory_warming_failed",
+                        task_id=task_id_str,
+                        error=str(warming_error),
                     )
 
             # Instantiate agent

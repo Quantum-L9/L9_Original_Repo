@@ -11,7 +11,18 @@ Verifies:
 import pytest
 from pathlib import Path
 
-from core.governance.session_startup import SessionStartup, StartupResult
+# Try new location first, fallback to old location
+try:
+    import sys
+    from pathlib import Path
+    startup_path = Path(__file__).parent.parent.parent / ".cursor-commands" / "startup"
+    if startup_path.exists():
+        sys.path.insert(0, str(startup_path.parent))
+        from startup.session_startup import SessionStartup, StartupResult
+    else:
+        from core.governance.session_startup import SessionStartup, StartupResult
+except ImportError:
+    from core.governance.session_startup import SessionStartup, StartupResult
 
 
 # Default workspace root for tests

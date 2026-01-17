@@ -895,3 +895,115 @@ async def saga_correlate_timeline(
     except Exception as e:
         logger.error(f"Timeline correlation saga failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Saga failed: {str(e)}")
+
+
+# =============================================================================
+# Stage 5: Predictive Memory Warming (GMP-STAGE5)
+# =============================================================================
+
+
+class WarmRequest(BaseModel):
+    """Request for memory warming."""
+
+    query: str
+    mentioned_entities: List[str] = []
+    max_gaps_to_warm: int = 10
+
+
+class WarmResponse(BaseModel):
+    """Response from memory warming."""
+
+    gaps_detected: int
+    gaps_addressed: int
+    entities_warmed: int
+    warming_latency_ms: float
+    cache_metrics: dict
+    error: Optional[str] = None
+
+
+@router.post("/warm", response_model=WarmResponse)
+async def warm_memory_for_query(
+    request: WarmRequest,
+    req: Request,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Predictive Memory Warming endpoint (Stage 5: GMP-STAGE5).
+
+    Proactively warms the memory cache for an upcoming query by:
+    1. Detecting knowledge gaps in mentioned entities
+    2. Fetching 1-degree neighbors from Neo4j graph
+    3. Caching warmed subgraphs in Redis/L1 cache
+
+    Use this endpoint before complex agent queries to reduce
+    latency by having relevant context pre-loaded.
+
+    Args:
+        query: The upcoming query text
+        mentioned_entities: List of entity IDs referenced in query
+        max_gaps_to_warm: Maximum number of gaps to address (default: 10)
+
+    Returns:
+        WarmResponse with gap detection stats and cache metrics
+    """
+    warming_service = getattr(req.app.state, "memory_warming_service", None)
+
+    if warming_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Memory Warming Service not available. Check L9_MEMORY_WARMING_ENABLED.",
+        )
+
+    try:
+        result = await warming_service.warm_for_query(
+            query=request.query,
+            mentioned_entities=request.mentioned_entities,
+            max_gaps_to_warm=request.max_gaps_to_warm,
+        )
+
+        return WarmResponse(
+            gaps_detected=result.get("gaps_detected", 0),
+            gaps_addressed=result.get("gaps_addressed", 0),
+            entities_warmed=result.get("entities_warmed", 0),
+            warming_latency_ms=result.get("warming_latency_ms", 0.0),
+            cache_metrics=result.get("cache_metrics", {}),
+            error=result.get("error"),
+        )
+
+    except Exception as e:
+        logger.error(f"Memory warming failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Memory warming failed: {str(e)}")
+
+
+@router.get("/warm/metrics")
+async def get_warming_metrics(
+    req: Request,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Get Memory Warming Service metrics.
+
+    Returns comprehensive metrics including:
+    - Cache hit/miss statistics
+    - Warming history size
+    - Entity graph size
+    - L1 cache size
+    """
+    warming_service = getattr(req.app.state, "memory_warming_service", None)
+
+    if warming_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Memory Warming Service not available. Check L9_MEMORY_WARMING_ENABLED.",
+        )
+
+    try:
+        metrics = warming_service.get_service_metrics()
+        return metrics
+    except Exception as e:
+        logger.error(f"Failed to get warming metrics: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get metrics: {str(e)}"
+        )

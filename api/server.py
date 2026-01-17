@@ -279,7 +279,18 @@ except Exception as e:
 
 # Optional: Session Startup (v3.4+ / GMP-KERNEL-BOOT)
 try:
-    from core.governance.session_startup import SessionStartup, StartupResult
+    # Try new location first, fallback to old location
+    try:
+        import sys
+        from pathlib import Path
+        startup_path = Path(__file__).parent.parent / ".cursor-commands" / "startup"
+        if startup_path.exists():
+            sys.path.insert(0, str(startup_path.parent))
+            from startup.session_startup import SessionStartup, StartupResult
+        else:
+            from core.governance.session_startup import SessionStartup, StartupResult
+    except ImportError:
+        from core.governance.session_startup import SessionStartup, StartupResult
 
     _has_session_startup = True
 except ImportError as e:
@@ -445,6 +456,9 @@ LOCAL_DEV = settings.local_dev
 
 # GMP v2.0 Learning Engine (global, initialized in lifespan if enabled)
 gmp_learning_engine = None  # Type: Optional[GMPMetaLearningEngine]
+
+# Stage 5: Predictive Memory Warming (global, initialized in lifespan if enabled)
+memory_warming_service = None  # Type: Optional[MemoryWarmingService]
 
 
 @asynccontextmanager
@@ -1231,14 +1245,66 @@ async def lifespan(app: FastAPI):
             )
             raise ValueError(f"Invalid NEO4J_URI format: {neo4j_uri}")
 
-    # Initialize Neo4j client (optional, graceful if unavailable)
+    # Initialize Neo4j client (SINGLE SOURCE OF TRUTH)
+    # Retry with exponential backoff to wait for Neo4j container to be ready
+    # Neo4j is OPTIONAL - app continues in degraded mode if unavailable
+    import asyncio
+    
+    neo4j_max_retries = 5  # 10 retries = ~30 seconds total
+    neo4j_retry_delay = 3  # Start with 3 seconds
+    
     try:
         from memory.graph_client import get_neo4j_client, close_neo4j_client
 
-        neo4j = await get_neo4j_client()
+        neo4j = None
+        for attempt in range(neo4j_max_retries):
+            try:
+                # Reset singleton on retry to force fresh connection attempt
+                if attempt > 0:
+                    try:
+                        await close_neo4j_client()
+                    except Exception:
+                        pass  # Ignore errors closing non-existent client
+                
+                neo4j = await get_neo4j_client()
+                if neo4j and neo4j.is_available():
+                    app.state.neo4j_client = neo4j
+                    logger.info(f"Neo4j graph client initialized (attempt {attempt + 1})")
+                    break
+                else:
+                    if attempt < neo4j_max_retries - 1:
+                        logger.warning(
+                            f"Neo4j not available (attempt {attempt + 1}/{neo4j_max_retries}) - retrying in {neo4j_retry_delay:.1f}s..."
+                        )
+                        await asyncio.sleep(neo4j_retry_delay)
+                        neo4j_retry_delay = min(neo4j_retry_delay * 1.5, 10)  # Exponential backoff, max 10s
+                    else:
+                        # Final attempt failed - continue without Neo4j
+                        app.state.neo4j_client = None
+                        logger.warning(
+                            "Neo4j failed to connect after retries - graph features will be disabled",
+                            neo4j_uri=os.getenv("NEO4J_URI") or os.getenv("NEO4J_URL", "not set"),
+                            neo4j_user=os.getenv("NEO4J_USER", "not set"),
+                            has_password=bool(os.getenv("NEO4J_PASSWORD")),
+                        )
+                        break
+            except Exception as e:
+                if attempt < neo4j_max_retries - 1:
+                    logger.warning(
+                        f"Neo4j connection error (attempt {attempt + 1}/{neo4j_max_retries}): {e} - retrying in {neo4j_retry_delay:.1f}s..."
+                    )
+                    await asyncio.sleep(neo4j_retry_delay)
+                    neo4j_retry_delay = min(neo4j_retry_delay * 1.5, 10)
+                else:
+                    logger.warning(
+                        f"Neo4j connection failed after retries (non-critical): {e}",
+                        neo4j_uri=os.getenv("NEO4J_URI") or os.getenv("NEO4J_URL", "not set"),
+                    )
+                    app.state.neo4j_client = None
+                    break
+        
+        # Only proceed with Neo4j initialization if we have a client
         if neo4j and neo4j.is_available():
-            app.state.neo4j_client = neo4j
-            logger.info("Neo4j graph client initialized")
 
             # Bootstrap governance schema (creates Responsibility, Directive, SOP labels)
             try:
@@ -1570,11 +1636,11 @@ async def lifespan(app: FastAPI):
         # 3. Virtual Context Manager (MemGPT-style tiered memory)
         if _has_virtual_context and substrate:
             try:
-                # Pass neo4j_driver for graph state consolidation
+                # Pass neo4j_driver for graph state consolidation (from single source of truth)
                 neo4j_for_vcm = getattr(app.state, "neo4j_client", None)
                 virtual_context = VirtualContextManager(
                     substrate_service=substrate,
-                    neo4j_driver=neo4j_for_vcm,
+                    neo4j_driver=neo4j_for_vcm.driver if (neo4j_for_vcm and neo4j_for_vcm.is_available()) else None,
                     main_context_size=4096,
                     working_memory_size=8192,
                 )
@@ -1709,66 +1775,81 @@ async def lifespan(app: FastAPI):
         logger.info("Stage 4 (consolidation) disabled (L9_STAGE4_CONSOLIDATION=false)")
 
     # ========================================================================
-    # STAGE 5: Graph-Backed Agent State (Neo4j REQUIRED)
+    # STAGE 5: Graph-Backed Agent State (Neo4j OPTIONAL - graceful degradation)
     # ========================================================================
+    # Set runtime flag for graph state availability
+    app.state.graph_state_enabled = False
+    
     if L9_GRAPH_AGENT_STATE and _has_graph_agent_state:
         logger.info("╔════════════════════════════════════════╗")
         logger.info("║  Stage 5: Graph-Backed Agent State     ║")
         logger.info("╚════════════════════════════════════════╝")
 
-        # GMP-90: Neo4j is MANDATORY for graph agent state - fail loudly if unavailable
+        # Get Neo4j client from single source of truth (app.state.neo4j_client)
         neo4j_client = getattr(app.state, "neo4j_client", None)
 
-        if neo4j_client is None:
-            error_msg = (
-                "L9_GRAPH_AGENT_STATE=true but Neo4j is unavailable. "
-                "Neo4j is MANDATORY for graph-backed agent state. "
-                "Either fix Neo4j connection or set L9_GRAPH_AGENT_STATE=false."
+        if neo4j_client is None or not neo4j_client.is_available():
+            logger.warning(
+                "Graph agent state requested but Neo4j is unavailable; "
+                "disabling graph-backed agent state for this run.",
+                neo4j_uri=os.getenv("NEO4J_URI") or os.getenv("NEO4J_URL", "not set"),
+                l9_graph_agent_state=L9_GRAPH_AGENT_STATE,
             )
-            logger.critical(error_msg)
-            raise RuntimeError(error_msg)
-
-        try:
-            substrate = getattr(app.state, "substrate_service", None) or getattr(
-                app.state, "memory_service", None
-            )
-
-            # Initialize AgentGraphLoader (uses neo4j_client)
-            agent_graph_loader = AgentGraphLoader(neo4j_client)
-            app.state.agent_graph_loader = agent_graph_loader
-            logger.info("✓ AgentGraphLoader initialized")
-
-            # Initialize GraphHydrator (with optional kernel stack)
-            kernel_stack = getattr(app.state, "kernel_stack", None)
-            graph_hydrator = GraphHydrator(
-                neo4j_driver=neo4j_client,
-                kernel_stack=kernel_stack,
-            )
-            app.state.graph_hydrator = graph_hydrator
-            logger.info("✓ GraphHydrator initialized")
-
-            # Initialize AgentSelfModifyTool
-            self_modify_tool = create_self_modify_tool(
-                neo4j_driver=neo4j_client,
-                substrate_service=substrate,
-            )
-            app.state.agent_self_modify_tool = self_modify_tool
-            logger.info("✓ AgentSelfModifyTool initialized")
-
-            # Check if L exists in graph, bootstrap if not
-            if await agent_graph_loader.exists("L"):
-                logger.info("✓ L agent found in Neo4j graph")
-            else:
-                logger.warning("L agent not in graph - run migration script")
-                logger.info("  python scripts/migrate_kernels_to_graph.py")
-
-            logger.info("Stage 5 (Graph-Backed Agent State) complete")
-
-        except Exception as e:
-            error_msg = f"Stage 5 init failed: {e}"
-            logger.critical(error_msg, exc_info=True)
-            raise RuntimeError(error_msg)
+            # Disable graph state at runtime (keep config unchanged for diagnostics)
+            app.state.graph_state_enabled = False
+            app.state.agent_graph_loader = None
+            app.state.graph_hydrator = None
             app.state.agent_self_modify_tool = None
+            logger.info("Stage 5 skipped - Neo4j unavailable (app continuing in degraded mode)")
+        else:
+            # Neo4j is available - proceed with initialization
+            app.state.graph_state_enabled = True
+
+            try:
+                substrate = getattr(app.state, "substrate_service", None) or getattr(
+                    app.state, "memory_service", None
+                )
+
+                # Initialize AgentGraphLoader (uses neo4j_client from app.state)
+                agent_graph_loader = AgentGraphLoader(neo4j_client)
+                app.state.agent_graph_loader = agent_graph_loader
+                logger.info("✓ AgentGraphLoader initialized")
+
+                # Initialize GraphHydrator (with optional kernel stack)
+                kernel_stack = getattr(app.state, "kernel_stack", None)
+                graph_hydrator = GraphHydrator(
+                    neo4j_driver=neo4j_client.driver,  # Use driver property from Neo4jClient
+                    kernel_stack=kernel_stack,
+                )
+                app.state.graph_hydrator = graph_hydrator
+                logger.info("✓ GraphHydrator initialized")
+
+                # Initialize AgentSelfModifyTool
+                self_modify_tool = create_self_modify_tool(
+                    neo4j_driver=neo4j_client.driver,  # Use driver property from Neo4jClient
+                    substrate_service=substrate,
+                )
+                app.state.agent_self_modify_tool = self_modify_tool
+                logger.info("✓ AgentSelfModifyTool initialized")
+
+                # Check if L exists in graph, bootstrap if not
+                if await agent_graph_loader.exists("L"):
+                    logger.info("✓ L agent found in Neo4j graph")
+                else:
+                    logger.warning("L agent not in graph - run migration script")
+                    logger.info("  python scripts/migrate_kernels_to_graph.py")
+
+                logger.info("Stage 5 (Graph-Backed Agent State) complete")
+
+            except Exception as e:
+                error_msg = f"Stage 5 init failed: {e}"
+                logger.error(error_msg, exc_info=True)
+                # Don't raise - disable graph state and continue
+                app.state.graph_state_enabled = False
+                app.state.agent_graph_loader = None
+                app.state.graph_hydrator = None
+                app.state.agent_self_modify_tool = None
+                logger.warning("Stage 5 disabled due to initialization error - app continuing")
     elif L9_GRAPH_AGENT_STATE and not _has_graph_agent_state:
         logger.warning("Stage 5 enabled but graph_state module not available")
     else:
@@ -1780,35 +1861,37 @@ async def lifespan(app: FastAPI):
     L9_GRAPH_WM_SYNC = settings.l9_graph_wm_sync
 
     if L9_GRAPH_WM_SYNC:
-        # GMP-90: Neo4j is MANDATORY for Graph-WM Sync - fail loudly if unavailable
+        # Get Neo4j client from single source of truth (app.state.neo4j_client)
         neo4j_for_sync = getattr(app.state, "neo4j_client", None)
 
-        if neo4j_for_sync is None:
-            error_msg = (
-                "L9_GRAPH_WM_SYNC=true but Neo4j is unavailable. "
-                "Neo4j is MANDATORY for graph features. "
-                "Either fix Neo4j connection or set L9_GRAPH_WM_SYNC=false."
+        if neo4j_for_sync is None or not neo4j_for_sync.is_available():
+            logger.warning(
+                "Graph-WM Sync requested but Neo4j is unavailable; "
+                "disabling Graph-WM Sync for this run.",
+                neo4j_uri=os.getenv("NEO4J_URI") or os.getenv("NEO4J_URL", "not set"),
+                l9_graph_wm_sync=L9_GRAPH_WM_SYNC,
             )
-            logger.critical(error_msg)
-            raise RuntimeError(error_msg)
+            app.state.graph_wm_sync = None
+            logger.info("Graph-WM Sync skipped - Neo4j unavailable (app continuing)")
+        else:
+            try:
+                from core.integration.graph_to_wm_sync import (
+                    start_graph_wm_sync,
+                    get_graph_wm_sync,
+                )
 
-        try:
-            from core.integration.graph_to_wm_sync import (
-                start_graph_wm_sync,
-                get_graph_wm_sync,
-            )
-
-            await start_graph_wm_sync(neo4j_driver=neo4j_for_sync)
-            app.state.graph_wm_sync = get_graph_wm_sync(neo4j_driver=neo4j_for_sync)
-            logger.info("✅ UKG Phase 3: Graph-WM Sync started")
-        except ImportError as e:
-            error_msg = f"Graph-WM Sync module import failed: {e}"
-            logger.critical(error_msg)
-            raise RuntimeError(error_msg)
-        except Exception as e:
-            error_msg = f"Graph-WM Sync init failed: {e}"
-            logger.critical(error_msg)
-            raise RuntimeError(error_msg)
+                # Use driver property from Neo4jClient (single source of truth)
+                await start_graph_wm_sync(neo4j_driver=neo4j_for_sync.driver)
+                app.state.graph_wm_sync = get_graph_wm_sync(neo4j_driver=neo4j_for_sync.driver)
+                logger.info("✅ UKG Phase 3: Graph-WM Sync started")
+            except ImportError as e:
+                logger.error(f"Graph-WM Sync module import failed: {e}", exc_info=True)
+                app.state.graph_wm_sync = None
+                logger.warning("Graph-WM Sync disabled due to import error - app continuing")
+            except Exception as e:
+                logger.error(f"Graph-WM Sync init failed: {e}", exc_info=True)
+                app.state.graph_wm_sync = None
+                logger.warning("Graph-WM Sync disabled due to initialization error - app continuing")
     else:
         logger.debug("Graph-WM Sync disabled (L9_GRAPH_WM_SYNC=false)")
         app.state.graph_wm_sync = None
@@ -1817,9 +1900,10 @@ async def lifespan(app: FastAPI):
     # STARTUP: UKG Phase 3.5 - World Model to Graph Sync (causal data)
     # ========================================================================
     L9_WM_GRAPH_SYNC = os.getenv("L9_WM_GRAPH_SYNC", "true").lower() == "true"
+    # Get Neo4j client from single source of truth (app.state.neo4j_client)
     neo4j_for_wm_sync = getattr(app.state, "neo4j_client", None)
 
-    if L9_WM_GRAPH_SYNC and neo4j_for_wm_sync is not None:
+    if L9_WM_GRAPH_SYNC and neo4j_for_wm_sync is not None and neo4j_for_wm_sync.is_available():
         try:
             from core.integration.wm_to_graph_sync import (
                 start_wm_graph_sync,
@@ -1843,11 +1927,11 @@ async def lifespan(app: FastAPI):
             app.state.causal_mapper = causal_mapper
 
             await start_wm_graph_sync(
-                neo4j_driver=neo4j_for_wm_sync,
+                neo4j_driver=neo4j_for_wm_sync.driver,  # Use driver property from Neo4jClient
                 causal_mapper=app.state.causal_mapper,
             )
             app.state.wm_graph_sync = get_wm_graph_sync(
-                neo4j_driver=neo4j_for_wm_sync,
+                neo4j_driver=neo4j_for_wm_sync.driver,  # Use driver property from Neo4jClient
                 causal_mapper=app.state.causal_mapper,
             )
             logger.info("✅ UKG Phase 3.5: WM-Graph Sync started (causal data → Neo4j)")
@@ -1978,6 +2062,44 @@ async def lifespan(app: FastAPI):
             logger.debug("GMP Learning skipped (no database_url)")
         app.state.gmp_learning_engine = None
 
+    # ------------------------------------------------------------------------
+    # Stage 5: Predictive Memory Warming (GMP-STAGE5)
+    # ------------------------------------------------------------------------
+    if settings.l9_memory_warming_enabled:
+        try:
+            from memory.warming_service import create_warming_service
+
+            global memory_warming_service
+
+            # Get Neo4j graph client if available (for real subgraph traversal)
+            # Use single source of truth: app.state.neo4j_client
+            neo4j_for_warming = getattr(app.state, "neo4j_client", None)
+            neo4j_available = neo4j_for_warming is not None and neo4j_for_warming.is_available()
+
+            memory_warming_service = await create_warming_service(
+                graph_client=neo4j_for_warming if neo4j_available else None
+            )
+            app.state.memory_warming_service = memory_warming_service
+            logger.info(
+                "Memory Warming Service initialized (Stage 5)",
+                graph_client_available=neo4j_available,
+            )
+
+            # Wire warming service to agent executor
+            agent_executor = getattr(app.state, "agent_executor", None)
+            if agent_executor is not None:
+                agent_executor.set_memory_warming_service(memory_warming_service)
+                logger.info("Memory Warming Service wired to Agent Executor")
+        except ImportError as e:
+            logger.debug(f"Memory Warming Service not available: {e}")
+            app.state.memory_warming_service = None
+        except Exception as e:
+            logger.error(f"Memory Warming Service init failed: {e}", exc_info=True)
+            app.state.memory_warming_service = None
+    else:
+        logger.debug("Memory Warming disabled (L9_MEMORY_WARMING_ENABLED=false)")
+        app.state.memory_warming_service = None
+
     yield
 
     # ========================================================================
@@ -1992,6 +2114,14 @@ async def lifespan(app: FastAPI):
             logger.info("Observability service shutdown complete")
         except Exception as e:
             logger.warning(f"Error shutting down observability: {e}")
+
+    # Shutdown Memory Warming Service (Stage 5)
+    if hasattr(app.state, "memory_warming_service") and app.state.memory_warming_service:
+        try:
+            await app.state.memory_warming_service.shutdown()
+            logger.info("Memory Warming Service shutdown complete")
+        except Exception as e:
+            logger.warning(f"Error shutting down Memory Warming Service: {e}")
 
     # Save agent checkpoints before shutdown
     if hasattr(app.state, "agent_persistence") and app.state.agent_persistence:

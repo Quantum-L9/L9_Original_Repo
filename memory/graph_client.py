@@ -862,7 +862,7 @@ async def get_neo4j_client() -> Optional[Neo4jClient]:
 
 
 async def close_neo4j_client() -> None:
-    """Close singleton Neo4j client."""
+    """Close singleton Neo4j client and reset singleton."""
     global _neo4j_client
     if _neo4j_client:
         await _neo4j_client.disconnect()

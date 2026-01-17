@@ -15,6 +15,7 @@ pgvector>=0.2.5
 # Embeddings & LLM
 openai>=1.0.0
 tenacity>=8.2.0
+langgraph>=0.0.40
 
 # Logging
 structlog>=24.1.0
