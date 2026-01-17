@@ -1,0 +1,24 @@
+# DORA Project State
+# Auto-updated by do-* commands - DO NOT EDIT MANUALLY
+# Created by /do-init
+
+project:
+  name: ""  # Set during init
+  created: ""  # ISO timestamp
+  description: ""
+
+phase:
+  current: 1  # 1-10 per DORA Checklist
+  name: "Foundation and Planning"
+
+progress:
+  completed_items: []
+  current_task: null
+  blockers: []
+  skipped_items: []
+
+session:
+  last_active: null
+  total_sessions: 0
+  avg_session_minutes: null
+

@@ -1,0 +1,40 @@
+# DORA Metrics Tracker
+# Auto-updated by do-* commands - DO NOT EDIT MANUALLY
+# Created by /do-init
+
+deployments:
+  total: 0
+  successful: 0
+  failed: 0
+  rollbacks: 0
+  timestamps: []
+  # Each entry:
+  # - datetime: ISO timestamp
+  #   status: success|failed|rollback
+  #   commit: git SHA
+  #   duration_minutes: X
+
+lead_time:
+  # Time from commit to deploy (minutes)
+  samples: []
+  average: null
+  min: null
+  max: null
+
+change_failure_rate:
+  # Calculated: failed / total
+  calculated: null
+  trend: []  # Last 5 calculations
+
+mttr:
+  # Mean Time to Recovery (minutes)
+  incidents: []
+  # Each entry:
+  # - started: ISO timestamp
+  #   resolved: ISO timestamp
+  #   duration_minutes: X
+  #   description: string
+  average: null
+
+last_updated: null
+

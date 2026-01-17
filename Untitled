@@ -1,0 +1,40 @@
+In api/server.py inside lifespan, find the block that raises:
+
+python
+RuntimeError: L9_GRAPH_AGENT_STATE=true but Neo4j is unavailable. Neo4j is MANDATORY for graph-backed agent state.
+and replace the raise with a warning + flag flip, for example:
+
+python
+# after you create and connect the Neo4jClient:
+neo4j_client = Neo4jClient()
+connected = await neo4j_client.connect()
+app.state.neo4j_client = neo4j_client
+
+if settings.l9_graph_agent_state and not neo4j_client.is_available():
+    logger.warning(
+        "Graph agent state requested but Neo4j is unavailable; "
+        "disabling graph-backed agent state for this run.",
+        neo4j_uri=os.getenv("NEO4J_URI") or os.getenv("NEO4J_URL"),
+    )
+    settings.l9_graph_agent_state = False
+    app.state.graph_state_enabled = False
+else:
+    app.state.graph_state_enabled = settings.l9_graph_agent_state
+Key detail: do not raise RuntimeError here anymore; let the app start even if Neo4j is down, and treat graph state as optional.
+​
+
+2. Ensure Neo4jClient is the single check
+Still in server.py, ensure you are:
+
+Importing and using Neo4jClient from memory.graph_client once:
+
+python
+from memory.graph_client import Neo4jClient
+Not doing any extra ad-hoc checks like:
+
+python
+if not os.getenv("NEO4J_PASSWORD"): raise RuntimeError(...)
+# or direct AsyncGraphDatabase.driver(...) without going through Neo4jClient
+Everything that cares about Neo4j should use app.state.neo4j_client.is_available() and handle False gracefully.
+​
+
