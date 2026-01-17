@@ -33,6 +33,9 @@ COPY memory/ /app/memory/
 # Copy config (needed for settings)
 COPY config/ /app/config/
 
+# Copy telemetry (needed for memory metrics)
+COPY telemetry/ /app/telemetry/
+
 # Set Python path (include /app/mcp_memory for 'from src.xxx' imports)
 ENV PYTHONPATH=/app:/app/mcp_memory
 
