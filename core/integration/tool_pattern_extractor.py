@@ -306,6 +306,10 @@ class ToolPatternExtractor:
         """Store patterns in World Model."""
         try:
             from world_model.service import WorldModelService
+            from config.rls_config import get_rls_config
+
+            # GMP-94: World Model operations require RLS scope
+            rls_config = get_rls_config()
 
             service = WorldModelService()
 
@@ -328,6 +332,10 @@ class ToolPatternExtractor:
                     ),
                     "extracted_at": patterns["extracted_at"],
                 },
+                tenant_id=rls_config.tenant_uuid,
+                org_id=rls_config.org_uuid,
+                user_id=rls_config.user_uuid,
+                role="system",
             )
 
             logger.debug("Stored tool patterns in World Model")

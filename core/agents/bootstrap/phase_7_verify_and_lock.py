@@ -124,6 +124,26 @@ async def verify_and_lock(
     if hasattr(substrate_service, "write_packet"):
         try:
             from core.schemas import PacketEnvelopeIn
+            from config.rls_config import get_rls_config
+            from memory.governance_gate import (
+                build_governance_context,
+                governance_context,
+            )
+
+            # GMP-94: Bootstrap requires governance context for write_packet
+            rls_config = get_rls_config()
+            ctx = build_governance_context(
+                caller_id="L",
+                role="system",
+                scope="developer",
+                project_id="l9-bootstrap",
+                allowed_scopes=["developer", "global"],
+                tenant_id=rls_config.tenant_uuid,
+                org_id=rls_config.org_uuid,
+                user_id=rls_config.user_uuid,
+                creator="bootstrap",
+                source="phase_7_verify_and_lock",
+            )
 
             packet = PacketEnvelopeIn(
                 packet_type="memory_write",
@@ -137,7 +157,8 @@ async def verify_and_lock(
                 },
                 metadata={"agent": instance.agent_id, "schema_version": "1.0.0"},
             )
-            await substrate_service.write_packet(packet)
+            async with governance_context(ctx):
+                await substrate_service.write_packet(packet)
             logger.info("✓ Audit trail written")
         except ImportError:
             logger.debug("PacketEnvelopeIn not available, audit logged only")

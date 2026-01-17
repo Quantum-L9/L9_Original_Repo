@@ -287,6 +287,10 @@ class GraphToWorldModelSync:
         """Upsert entity to World Model."""
         try:
             from world_model.service import WorldModelService
+            from config.rls_config import get_rls_config
+
+            # GMP-94: World Model operations require RLS scope
+            rls_config = get_rls_config()
 
             service = WorldModelService()
             # Include name in attributes since WorldModelService doesn't have a name param
@@ -296,6 +300,10 @@ class GraphToWorldModelSync:
                 entity_type=entity["entity_type"],
                 entity_id=entity["entity_id"],
                 attributes=attributes,
+                tenant_id=rls_config.tenant_uuid,
+                org_id=rls_config.org_uuid,
+                user_id=rls_config.user_uuid,
+                role="system",
             )
 
         except ImportError:

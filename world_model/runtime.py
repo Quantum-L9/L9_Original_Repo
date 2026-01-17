@@ -1900,11 +1900,20 @@ async def create_runtime_with_substrate(
         await runtime.load_seed_library()
         await runtime.run_forever()  # Polls substrate continuously
     """
-    # Create packet source wired to substrate
+    # GMP-94: World Model runtime requires RLS scope for packet fetching
+    from config.rls_config import get_rls_config
+
+    rls_config = get_rls_config()
+
+    # Create packet source wired to substrate with RLS scope
     packet_source = MemorySubstratePacketSource(
         source_id="memory_substrate",
         source_type="memory_substrate",
         substrate_service=substrate_service,
+        tenant_id=rls_config.tenant_uuid,
+        org_id=rls_config.org_uuid,
+        user_id=rls_config.user_uuid,
+        role="system",
     )
 
     # Create engine if not provided
