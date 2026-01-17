@@ -17,7 +17,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 import structlog
 
-from agents.cursor import (
+from agents.cursor.gmp_meta_learning import (
     GMPMetaLearningEngine,
     AutonomyController,
     GMPExecutionResult,

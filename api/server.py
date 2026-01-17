@@ -1958,7 +1958,7 @@ async def lifespan(app: FastAPI):
     # ------------------------------------------------------------------------
     if settings.l9_gmp_learning_enabled and database_url:
         try:
-            from agents.cursor import GMPMetaLearningEngine
+            from agents.cursor.gmp_meta_learning import GMPMetaLearningEngine
 
             global gmp_learning_engine
             gmp_learning_engine = GMPMetaLearningEngine(database_url)
