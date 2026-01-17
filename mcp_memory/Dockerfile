@@ -24,8 +24,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy MCP memory server code
 COPY mcp_memory/ /app/mcp_memory/
 
-# Copy core schemas (needed for PacketEnvelope)
-COPY core/schemas/ /app/core/schemas/
+# Copy entire core/ (many memory imports depend on core modules)
+COPY core/ /app/core/
 
 # Copy memory module (needed for substrate)
 COPY memory/ /app/memory/
