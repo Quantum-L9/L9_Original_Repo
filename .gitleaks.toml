@@ -1,0 +1,30 @@
+# Gitleaks configuration for L9
+# This file tells gitleaks which paths to ignore (false positives)
+
+title = "L9 Gitleaks Config"
+
+[allowlist]
+description = "Paths and patterns to ignore"
+
+# Ignore entire directories that contain false positives
+paths = [
+    '''.cursor/''',
+    '''readme/''',
+    '''reports/''',
+    '''mcp_memory/docs/''',
+    '''agents/cursor/gmp-v2-prompts/''',
+    '''research_results_cursor/''',
+    '''.audit_cache/''',
+    '''tests/''',
+    '''config/agents/''',
+    '''prompts/''',
+]
+
+# Ignore specific file patterns
+regexTarget = "match"
+regexes = [
+    '''\.example$''',
+    '''\.md$''',
+    '''\.yaml$''',
+    '''\.txt$''',
+]

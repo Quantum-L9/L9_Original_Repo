@@ -35,8 +35,7 @@ neo4j/data/
 
 # --- Editor / Agent tooling (Mac-local only, symlinks to Dropbox) ---
 .cursor-commands/
-.cursor/commands
-.cursor/rules
+.cursor/
 .dora/
 
 # --- Igor's working files (local only) ---

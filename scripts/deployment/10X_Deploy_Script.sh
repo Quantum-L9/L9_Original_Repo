@@ -98,18 +98,27 @@ log_error() {
 }
 
 verify_vps_env_complete() {
-    log_step "Ensuring VPS .env defines all keys from .env.example..."
-    if ssh "$VPS_HOST" "cd $VPS_REPO && bash -lc 'set -euo pipefail; \
-        if [[ ! -f .env ]]; then echo \"Missing .env\"; exit 1; fi; \
-        if [[ ! -f .env.example ]]; then echo \"Missing .env.example\"; exit 1; fi; \
-        required_keys=\$(grep -E \"^[A-Z0-9_]+=\" .env.example | cut -d= -f1 | sort -u); \
-        present_keys=\$(grep -E \"^[A-Z0-9_]+=\" .env | cut -d= -f1 | sort -u); \
-        missing=\$(comm -23 <(echo \"\$required_keys\") <(echo \"\$present_keys\")); \
-        if [[ -n \"\$missing\" ]]; then echo \"Missing keys in .env:\"; echo \"\$missing\"; exit 1; fi'"; then
+    log_step "Ensuring VPS .env defines all keys from .env.example (no value changes)..."
+    if ssh "$VPS_HOST" "cd $VPS_REPO && bash -lc '
+        set -euo pipefail
+        if [[ ! -f .env ]]; then echo \"Missing .env\"; exit 1; fi
+        if [[ ! -f .env.example ]]; then echo \"Missing .env.example\"; exit 1; fi
+
+        required_keys=\$(grep -E \"^[A-Z0-9_]+=\" .env.example | cut -d= -f1 | sort -u)
+        present_keys=\$(grep -E \"^[A-Z0-9_]+=\" .env | cut -d= -f1 | sort -u)
+        missing=\$(comm -23 <(echo \"\$required_keys\") <(echo \"\$present_keys\"))
+
+        if [[ -n \"\$missing\" ]]; then
+            echo \"Missing keys in .env:\"
+            echo \"\$missing\"
+            exit 1
+        fi
+    '"; then
         log_ok "VPS .env includes all .env.example keys"
     else
-        log_error "VPS .env missing required keys"
-        rollback
+        log_error "VPS .env missing required keys. Fix .env on VPS and re-run deploy."
+        log_error "SSH: ssh $VPS_HOST && cd $VPS_REPO && vim .env   # or your editor"
+        exit 1
     fi
 }
 
