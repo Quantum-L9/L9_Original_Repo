@@ -893,10 +893,7 @@ async def lifespan(app: FastAPI):
                 logger.critical(
                     "FATAL: Kernel loading failed: %s", str(e), exc_info=True
                 )
-                # In production, you might want to crash here
-                # For dev, fall back to stub
-                logger.warning("Falling back to stub agent registry")
-                agent_registry = None
+                raise
             except Exception as e:
                 # Unexpected error during kernel registry creation
                 logger.critical(
@@ -904,8 +901,7 @@ async def lifespan(app: FastAPI):
                     str(e),
                     exc_info=True,
                 )
-                logger.warning("Falling back to stub agent registry")
-                agent_registry = None
+                raise
 
             # Create executor
             logger.debug(
@@ -920,6 +916,20 @@ async def lifespan(app: FastAPI):
                 substrate_service=app.state.substrate_service,
                 agent_registry=agent_registry,
             )
+            if agent_registry is None or not hasattr(agent_registry, "get_l_cto_agent"):
+                raise RuntimeError(
+                    "FATAL: Kernel-aware agent registry required for executor startup"
+                )
+            l_cto_agent = agent_registry.get_l_cto_agent()
+            if l_cto_agent is None:
+                raise RuntimeError(
+                    "FATAL: Kernel-aware agent not available for executor startup"
+                )
+            executor.set_kernel_aware_agent(l_cto_agent)
+            if executor._get_kernel_aware_agent() is None:
+                raise RuntimeError(
+                    "FATAL: Kernel-aware agent not active; refusing to start executor"
+                )
 
             app.state.agent_executor = executor
             app.state.aios_runtime = aios_runtime

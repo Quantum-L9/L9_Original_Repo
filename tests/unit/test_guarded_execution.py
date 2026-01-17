@@ -18,7 +18,13 @@ from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
-from core.agents.schemas import ToolCallResult
+from core.agents.schemas import (
+    AgentConfig,
+    AgentTask,
+    ToolBinding,
+    ToolCallRequest,
+    ToolCallResult,
+)
 
 
 # =============================================================================
@@ -771,3 +777,52 @@ class TestSafetyConstraints:
 
         assert result.success is True
 
+
+# =============================================================================
+# AgentExecutorService Kernel Enforcement Tests
+# =============================================================================
+
+
+class TestExecutorKernelEnforcement:
+    """Tests for executor fail-closed kernel enforcement."""
+
+    @pytest.mark.asyncio
+    async def test_executor_blocks_when_kernel_agent_missing(self) -> None:
+        """Executor should fail closed when guarded execution lacks kernel agent."""
+        from core.agents.agent_instance import AgentInstance
+        from core.agents.executor import AgentExecutorService
+
+        tool_registry = MagicMock()
+        tool_registry.guarded_execute = AsyncMock()
+        tool_registry.dispatch_tool_call = AsyncMock()
+
+        executor = AgentExecutorService(
+            aios_runtime=MagicMock(),
+            tool_registry=tool_registry,
+            substrate_service=MagicMock(),
+            agent_registry=MagicMock(),
+        )
+
+        executor._bind_memory_context = AsyncMock(return_value={})
+        executor._emit_packet = AsyncMock()
+
+        task = AgentTask(agent_id="test-agent")
+        config = AgentConfig(
+            agent_id="test-agent",
+            tools=[ToolBinding(tool_id="test_tool")],
+        )
+        instance = AgentInstance(config=config, task=task)
+
+        tool_call = ToolCallRequest(
+            tool_id="test_tool",
+            arguments={},
+            task_id=task.id,
+            iteration=0,
+        )
+
+        result = await executor._dispatch_tool_call(instance, tool_call)
+
+        assert result.success is False
+        assert result.error == "KERNEL_ENFORCEMENT_REQUIRED"
+        tool_registry.dispatch_tool_call.assert_not_called()
+        tool_registry.guarded_execute.assert_not_called()

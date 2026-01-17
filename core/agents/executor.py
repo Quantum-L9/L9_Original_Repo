@@ -468,7 +468,13 @@ class AgentExecutorService:
             return None
 
         kernel_state = getattr(self._kernel_aware_agent, "kernel_state", None)
-        if kernel_state != "ACTIVE":
+        if isinstance(kernel_state, str):
+            if kernel_state != "ACTIVE":
+                return None
+        elif hasattr(kernel_state, "initialized"):
+            if not kernel_state.initialized:
+                return None
+        else:
             return None
 
         return self._kernel_aware_agent
@@ -1639,8 +1645,24 @@ class AgentExecutorService:
             }
 
             # Check if registry supports guarded execution and agent has kernels
-            agent = self._get_kernel_aware_agent()
-            if agent and hasattr(self._tool_registry, "guarded_execute"):
+            if hasattr(self._tool_registry, "guarded_execute"):
+                agent = self._get_kernel_aware_agent()
+                if not agent:
+                    logger.error(
+                        "agent.executor.kernel_enforcement_required",
+                        task_id=str(instance.task.id),
+                        tool_id=tool_call.tool_id,
+                    )
+                    return ToolCallResult(
+                        call_id=tool_call.call_id,
+                        tool_id=tool_call.tool_id,
+                        success=False,
+                        error="KERNEL_ENFORCEMENT_REQUIRED",
+                        result={
+                            "status": "blocked",
+                            "message": "Kernel-aware agent required for tool execution",
+                        },
+                    )
                 # Use guarded execution (kernel-aware)
                 result = await self._tool_registry.guarded_execute(
                     agent=agent,
@@ -1649,7 +1671,6 @@ class AgentExecutorService:
                     context=context,
                 )
             else:
-                # Fallback to standard dispatch
                 result = await self._tool_registry.dispatch_tool_call(
                     tool_id=tool_call.tool_id,
                     arguments=tool_call.arguments,
