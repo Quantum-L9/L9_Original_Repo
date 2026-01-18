@@ -33,30 +33,32 @@ __dora_meta__ = {
 
 import sys
 import subprocess
-from pathlib import Path
 from typing import Set
 
 PROTECTED_BY_LCTO = {
-    "l9/websocket_orchestrator.py",
-    "l9/kernel_loader.py",
+    "runtime/websocket_orchestrator.py",
+    "runtime/kernel_loader.py",
     "docker-compose.yml",
-    "l9/redisclient.py",
-    "l9/executor.py",
+    "runtime/redis_client.py",
+    "core/agents/executor.py",
 }
 
 # Subsystem-specific protected files
 SUBSYSTEM_PROTECTED = {
     "agents": {
-        "l9/core/agents/kernel.py",
-        "l9/core/agents/__init__.py",
+        "core/agents/executor.py",
+        "core/agents/registry.py",
+        "core/agents/__init__.py",
     },
     "memory": {
-        "l9/core/memory/memory.py",
-        "l9/core/memory/redisclient.py",
+        "memory/substrate_service.py",
+        "memory/substrate_dag.py",
+        "memory/__init__.py",
     },
     "tools": {
-        "l9/core/tools/registry.py",
-        "l9/core/tools/sandbox.py",
+        "core/tools/registry_adapter.py",
+        "core/tools/tool_graph.py",
+        "core/tools/__init__.py",
     },
 }
 

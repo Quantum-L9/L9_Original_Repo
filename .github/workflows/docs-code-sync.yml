@@ -19,10 +19,14 @@ description: "Automated consistency checks between CODE-MAP.yaml, README.meta.ya
 on:
   pull_request:
     paths:
-      - 'l9/**/*.py'
+      - 'core/**/*.py'
+      - 'memory/**/*.py'
+      - 'api/**/*.py'
+      - 'runtime/**/*.py'
       - 'docs/CODE-MAP.yaml'
-      - 'l9/core/**/README.meta.yaml'
-      - 'l9/core/**/README.md'
+      - 'core/**/README.meta.yaml'
+      - 'memory/README.meta.yaml'
+      - 'api/README.meta.yaml'
       - '.github/workflows/docs-code-sync.yml'
 
 jobs:
@@ -59,9 +63,10 @@ jobs:
 
       - name: "Validate README.meta.yaml files exist"
         run: |
-          for subsystem in agents memory tools api; do
-            if [ ! -f "l9/core/$subsystem/README.meta.yaml" ]; then
-              echo "❌ Missing: l9/core/$subsystem/README.meta.yaml"
+          # Check subsystem-specific paths
+          for path in core/agents memory core/tools api; do
+            if [ ! -f "$path/README.meta.yaml" ]; then
+              echo "❌ Missing: $path/README.meta.yaml"
               exit 1
             fi
           done

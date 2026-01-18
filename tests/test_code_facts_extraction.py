@@ -34,8 +34,6 @@ import pytest
 import yaml
 from pathlib import Path
 from typing import Dict, Any
-import tempfile
-import shutil
 
 
 @pytest.fixture
@@ -51,12 +49,20 @@ def code_map() -> Dict[str, Any]:
         return yaml.safe_load(f)
 
 
+SUBSYSTEM_PATHS = {
+    "agents": "core/agents",
+    "memory": "memory",
+    "tools": "core/tools",
+    "api": "api",
+}
+
+
 @pytest.fixture
 def meta_files() -> Dict[str, Dict[str, Any]]:
     """Load all README.meta.yaml files."""
     meta_files = {}
-    for subsystem in ["agents", "memory", "tools", "api"]:
-        meta_path = Path(f"l9/core/{subsystem}/README.meta.yaml")
+    for subsystem, path in SUBSYSTEM_PATHS.items():
+        meta_path = Path(f"{path}/README.meta.yaml")
         if meta_path.exists():
             with open(meta_path) as f:
                 meta_files[subsystem] = yaml.safe_load(f)

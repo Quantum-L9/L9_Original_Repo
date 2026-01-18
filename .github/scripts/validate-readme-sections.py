@@ -32,13 +32,19 @@ from pathlib import Path
 import yaml
 import re
 
-SUBSYSTEMS = ["agents", "memory", "tools", "api"]
+SUBSYSTEM_PATHS = {
+    "agents": "core/agents",
+    "memory": "memory",
+    "tools": "core/tools",
+    "api": "api",
+}
 
 
 def validate_readme_sections(subsystem: str) -> bool:
     """Validate README.md has all required sections from meta."""
-    meta_file = Path(f"l9/core/{subsystem}/README.meta.yaml")
-    readme_file = Path(f"l9/core/{subsystem}/README.md")
+    subsystem_path = SUBSYSTEM_PATHS[subsystem]
+    meta_file = Path(f"{subsystem_path}/README.meta.yaml")
+    readme_file = Path(f"{subsystem_path}/README.md")
 
     if not meta_file.exists():
         print(f"⚠️  {subsystem}: No README.meta.yaml found")
@@ -72,7 +78,7 @@ def validate_readme_sections(subsystem: str) -> bool:
 
 
 def main():
-    results = [validate_readme_sections(s) for s in SUBSYSTEMS]
+    results = [validate_readme_sections(s) for s in SUBSYSTEM_PATHS.keys()]
     if not all(results):
         sys.exit(1)
     print("\n✨ All README.md files match metadata!")

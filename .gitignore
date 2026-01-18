@@ -44,6 +44,9 @@ neo4j/data/
 # --- Development agents (not ready for production) ---
 agents/codegenagent/
 
+# --- Perplexity Research Results (ephemeral, reviewed weekly) ---
+agents/cursor/perplexity_research_results/
+
 # --- Documentation (local only) ---
 /docs/
 

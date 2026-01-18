@@ -1,0 +1,51 @@
+location: api/README.md
+type: subsystemreadme
+metadata:
+  subsystem: api
+  modulepath: api
+  owner: Igor
+  lastupdated: '2026-01-18T07:43:23.883236Z'
+  purpose: Documents the api subsystem, contracts, and AI collaboration rules.
+sections:
+  overview:
+    required: true
+  responsibilities:
+    required: true
+  components:
+    required: true
+  datamodels:
+    required: true
+  lifecycle:
+    required: true
+  configuration:
+    required: false
+  apisurface:
+    required: true
+  observability:
+    required: false
+  testing:
+    required: false
+  airules:
+    required: true
+invariants:
+- Request/response schemas validated via Pydantic
+- All logging is structured JSON with context (agent_id, task_id)
+- WebSocket routes use websocket_orchestrator for lifecycle
+- Rate limiting enforced via RateLimiter with Redis backend
+aicollaboration:
+  allowedscopes:
+  - api/routes/**
+  - api/agent_routes.py
+  - api/os_routes.py
+  - api/memory/**
+  - tests/**
+  - docs/**
+  restrictedscopes: &id001
+  - api/server.py
+  - api/auth.py
+  - api/__init__.py
+  forbiddenscopes: *id001
+  requiredprereading:
+  - README-L9_ARCHITECTURE.md
+  - docs/CURSOR-RUNBOOK.md
+  - api/README.md

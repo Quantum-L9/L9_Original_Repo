@@ -26,7 +26,17 @@
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
-**COMPLETED THIS SESSION (2026-01-17)**:
+**COMPLETED THIS SESSION (2026-01-18)**:
+- ✅ **DORA Block Mass Injection** — Injected DORA blocks into ALL Python and YAML files:
+  - **1,158 files** now have complete DORA blocks (`__dora_meta__`, `__dora_footer__`, `__l9_trace__`)
+  - Updated `dora-contract.yaml` to v2.1.0: removed declared/aspirational fields, keep only OBSERVABLE facts
+  - Created `ci/dora_compliance_check.py` for CI enforcement (--check and --fix modes)
+  - Updated `.github/workflows/ci.yml` with `dora-check` job
+  - Fixed malformed `business_value` strings (nested quotes) in 9 files
+  - **Footer fields now only contain measurable data**: tags, keywords, dependencies, timestamps from git
+  - **Contract principle**: "If it's not measured and auto-updated, it doesn't belong"
+
+**COMPLETED PREVIOUS SESSION (2026-01-17)**:
 - ✅ **GMP-94: Embedding Dimension Mismatch Fix** — Fixed critical bug causing semantic search failures:
   - **Root cause:** `mcp_memory/src/embeddings.py` was missing `dimensions` parameter when calling OpenAI API
   - Writes (via `substrate_semantic.py`) correctly truncated to 1536-dim, but search queries returned 3072-dim
@@ -198,7 +208,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Embedding Dimensions**: ALL systems aligned at **1536** (text-embedding-3-large truncated, text-embedding-3-small native)
 
 ---
-*Last updated: 2026-01-17 (GMP-94 embedding dimension fix; Cursor MCP cleanup; cursor_memory_client.py canonical)*
+*Last updated: 2026-01-18 (DORA block mass injection into 1,158 files; contract v2.1.0; CI compliance script)*
 
 ## Next Steps (Current Session)
 1. **🚨 DEPLOY GMP-94 FIX** — Embedding dimension fix MUST be deployed for semantic search to work:
@@ -215,6 +225,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ~~13. **GMP-84: L-CTO Research Overlay Wiring**~~ ✅ DONE — `create_l_cto_research_agent()` factory added
 
 **Recent Sessions (7-day window):**
+- ✅ 2026-01-18: **DORA Block Mass Injection** — Injected DORA blocks into 1,158 files. Updated contract v2.1.0 (observable facts only). Created CI compliance script. Fixed 9 files with malformed business_value strings. Commits: b85233c6, d9fbfb26, 2a2489fe.
 - ✅ 2026-01-17: **GMP-94: Embedding Dimension Mismatch Fix** — Fixed critical semantic search failure. `mcp_memory/src/embeddings.py` was missing `dimensions=settings.OPENAI_EMBED_DIM` causing 3072-dim queries against 1536-dim vectors. Fixed `embed_text()` and `embed_texts()`. Cleaned up Cursor MCP config (removed broken `l9-memory` and `postgres` MCPs). Fixed 4 misleading 3072→1536 comments. **Canonical method:** `cursor_memory_client.py` only. **DEPLOYMENT REQUIRED.**
 - ✅ 2026-01-17: **GMP-FIX-01: Syntax Error Fix** — Fixed `from core.decorators import must_stay_async` syntax errors in 4 files (import was unindented inside try blocks). Files fixed: `memory/graph_client.py`, `memory/gap_detector.py`, `runtime/redis_client.py`, `agents/codegenagent/codegen_agent.py`. **Root cause:** Script added imports without checking indentation context. **Result:** pytest now runs, 27 GMP-88 resilience tests pass. Report: `reports/GMP_Report_GMP-FIX-01-Syntax-Errors.md`
 - ✅ 2026-01-16: **GMP-93: Remove slack_sdk Dependency** — Removed `slack_sdk` dependency entirely. Extended `api/slack_client.py` with `upload_file()` and `get_file_info()` async methods. Migrated 5 callers to async client. Deleted `services/slack_client.py` (312 lines). Removed dependency from `requirements.txt`. **Result:** 100% async httpx-based client, no blocking I/O. Report: `reports/GMP_Report_GMP-93.md`
