@@ -295,7 +295,7 @@ class PlanExecutor:
             task_id: Current task ID
             task_kind: Type of task (e.g., "research", "deploy", "code_review")
             goal_description: Natural language description of the goal
-            context_embedding: Optional pre-computed embedding (384-dim)
+            context_embedding: Optional pre-computed embedding (1536-dim)
             tags: Preferred strategy tags
             min_confidence: Minimum confidence threshold for match
 

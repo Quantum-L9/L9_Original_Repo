@@ -73,7 +73,8 @@ class StrategyRetrievalRequest(BaseModel):
     task_kind: str = Field(..., description="Type/kind of task")
     goal_description: str = Field(..., description="Natural language goal description")
     context_embedding: List[float] = Field(
-        default_factory=list, description="384-dim embedding vector"
+        default_factory=list,
+        description="1536-dim embedding vector (text-embedding-3-large)",
     )
     tags: List[str] = Field(default_factory=list, description="Preferred strategy tags")
     # Retrieval parameters

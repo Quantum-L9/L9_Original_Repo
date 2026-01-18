@@ -114,7 +114,7 @@ if env_path.exists():
             key, _, value = line.partition("=")
             os.environ.setdefault(key.strip(), value.strip())
 
-# PRODUCTION: VPS (default). Set L9_API_URL=http://127.0.0.1:8000 for local Docker
+# PRODUCTION: VPS (always). Local Docker testing requires explicit override.
 L9_API_URL = os.getenv("L9_API_URL", "https://l9.quantumaipartners.com")
 # MCP_API_KEY_C is the correct key for Cursor (not L9_EXECUTOR_API_KEY)
 # Fallback chain: MCP_API_KEY_C -> L9_EXECUTOR_API_KEY (legacy)

@@ -376,7 +376,9 @@ class SemanticFactRow(BaseModel):
     )  # {subject, predicate, object}
 
     # Embedding (optional - not always loaded)
-    embedding: Optional[list[float]] = None  # 3072 dimensions
+    embedding: Optional[list[float]] = (
+        None  # 1536 dimensions (truncated from text-embedding-3-large)
+    )
 
     # Importance and ranking
     importance: float = 0.5

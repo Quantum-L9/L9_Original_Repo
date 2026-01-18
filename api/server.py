@@ -389,39 +389,6 @@ try:
 except ImportError:
     _has_evaluator = False
 
-# Optional: Calendar Adapter (v2.6+)
-try:
-    from api.adapters.calendar_adapter.routes.calendar_adapter import (
-        router as calendar_adapter_router,
-    )
-    from api.adapters.calendar_adapter.config import get_config as get_calendar_config
-
-    _has_calendar_adapter = True
-except ImportError:
-    _has_calendar_adapter = False
-
-# Optional: Email Adapter (v2.6+)
-try:
-    from api.adapters.email_adapter.routes.email_adapter import (
-        router as email_adapter_router,
-    )
-    from api.adapters.email_adapter.config import get_config as get_email_config
-
-    _has_email_adapter = True
-except ImportError:
-    _has_email_adapter = False
-
-# Optional: Twilio Adapter (v2.6+)
-try:
-    from api.adapters.twilio_adapter.routes.twilio_adapter import (
-        router as twilio_adapter_router,
-    )
-    from api.adapters.twilio_adapter.config import get_config as get_twilio_config
-
-    _has_twilio_adapter = True
-except ImportError:
-    _has_twilio_adapter = False
-
 # Optional: Email Agent (Gmail multi-account)
 # Toggleable via EMAIL_AGENT_ENABLED=false in .env
 _has_email_agent = False
@@ -456,6 +423,8 @@ _has_waba = settings.waba_enabled
 from memory.migration_runner import run_migrations
 from memory.substrate_service import init_service, close_service
 from memory.agent_persistence import AgentPersistenceService
+from memory.timeline_service import TimelineService
+from memory.state_manager import MemoryStateManager
 
 # Integration settings
 logger = structlog.get_logger(__name__)
@@ -628,6 +597,29 @@ async def lifespan(app: FastAPI):
                 app.state.agent_persistence = None
                 app.state.restored_agent_state = None
 
+            # Initialize TimelineService for memory timeline reconstruction
+            try:
+                timeline_service = TimelineService(
+                    repository=substrate_service._repository
+                )
+                app.state.timeline_service = timeline_service
+                logger.info("TimelineService initialized")
+            except Exception as timeline_err:
+                logger.warning(f"Failed to initialize TimelineService: {timeline_err}")
+                app.state.timeline_service = None
+
+            # Initialize MemoryStateManager for L-CTO agent state management
+            try:
+                memory_state_manager = MemoryStateManager(
+                    service=substrate_service,
+                    agent_id="L",  # L-CTO agent
+                )
+                app.state.memory_state_manager = memory_state_manager
+                logger.info("MemoryStateManager initialized for agent 'L'")
+            except Exception as state_err:
+                logger.warning(f"Failed to initialize MemoryStateManager: {state_err}")
+                app.state.memory_state_manager = None
+
         except Exception as e:
             logger.error(
                 "memory_system.init_FAILED",
@@ -643,6 +635,8 @@ async def lifespan(app: FastAPI):
             app.state.substrate_service = None
             app.state.agent_persistence = None
             app.state.restored_agent_state = None
+            app.state.timeline_service = None
+            app.state.memory_state_manager = None
 
     # Initialize MCP Memory DB pool (for /mcp/call routes)
     # This is REQUIRED for MCP tools to work when routed through l9-api
@@ -2386,10 +2380,7 @@ def root():
             "aios_runtime": _has_aios_runtime,
             "tool_registry": _has_tool_registry,
             "research_factory": _has_factory,
-            "calendar_adapter": _has_calendar_adapter,
-            "email_adapter": _has_email_adapter,
             "email_agent": _has_email_agent,
-            "twilio_adapter": _has_twilio_adapter,
             "commands_interface": _has_commands,
             "tools_router": _has_tools_router,
             "symbolic_computation": _has_symbolic,
@@ -2933,18 +2924,6 @@ if _has_observability_router:
     app.include_router(observability_router, prefix="/observability")
     logger.info("Observability router registered at /observability")
 
-# Calendar Adapter router (v2.6+)
-if _has_calendar_adapter:
-    app.include_router(calendar_adapter_router)
-
-# Email Adapter router (v2.6+)
-if _has_email_adapter:
-    app.include_router(email_adapter_router)
-
-# Twilio Adapter router (v2.6+)
-if _has_twilio_adapter:
-    app.include_router(twilio_adapter_router)
-
 # Slack Webhook Adapter (v2.6+) - NOT USED (using slack_router v2.0+ instead)
 # Legacy webhook router - NOT USED (using slack_router v2.0+ instead)
 
@@ -2956,15 +2935,6 @@ if _has_mac_agent:
         app.include_router(mac_agent_router)
     except Exception as e:
         logger.warning(f"Failed to load Mac Agent router: {e}")
-
-# Twilio webhook router (legacy)
-if _has_twilio_adapter:
-    try:
-        from api.webhook_twilio import router as twilio_webhook_router
-
-        app.include_router(twilio_webhook_router)
-    except Exception as e:
-        logger.warning(f"Failed to load legacy Twilio webhook router: {e}")
 
 # WABA (WhatsApp Business Account - native Meta) (legacy)
 if _has_waba:

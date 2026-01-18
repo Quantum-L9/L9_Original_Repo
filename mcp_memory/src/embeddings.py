@@ -63,7 +63,9 @@ async def _with_retries(coro_func, *, operation: str):
         attempts=MAX_RETRIES,
         error=str(last_error),
     )
-    raise RuntimeError(f"Embedding request failed after {MAX_RETRIES} retries: {last_error}") from last_error
+    raise RuntimeError(
+        f"Embedding request failed after {MAX_RETRIES} retries: {last_error}"
+    ) from last_error
 
 
 async def embed_text(text: str) -> List[float]:
@@ -73,6 +75,7 @@ async def embed_text(text: str) -> List[float]:
         response = await client.embeddings.create(
             model=settings.OPENAI_EMBED_MODEL,
             input=text,
+            dimensions=settings.OPENAI_EMBED_DIM,  # CRITICAL: Must match DB schema (1536)
         )
         return response.data[0].embedding
 
@@ -86,6 +89,7 @@ async def embed_texts(texts: List[str]) -> List[List[float]]:
         response = await client.embeddings.create(
             model=settings.OPENAI_EMBED_MODEL,
             input=texts,
+            dimensions=settings.OPENAI_EMBED_DIM,  # CRITICAL: Must match DB schema (1536)
         )
         sorted_data = sorted(response.data, key=lambda x: x.index)
         return [item.embedding for item in sorted_data]

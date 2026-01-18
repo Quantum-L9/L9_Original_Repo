@@ -26,7 +26,25 @@
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
-**COMPLETED THIS SESSION (2026-01-15)**:
+**COMPLETED THIS SESSION (2026-01-17)**:
+- ✅ **GMP-94: Embedding Dimension Mismatch Fix** — Fixed critical bug causing semantic search failures:
+  - **Root cause:** `mcp_memory/src/embeddings.py` was missing `dimensions` parameter when calling OpenAI API
+  - Writes (via `substrate_semantic.py`) correctly truncated to 1536-dim, but search queries returned 3072-dim
+  - pgvector error: `"different vector dimensions 1536 and 3072"`
+  - **Fix:** Added `dimensions=settings.OPENAI_EMBED_DIM` to `embed_text()` and `embed_texts()` in `embeddings.py`
+  - Fixed 4 misleading comments (3072→1536) in: `substrate_models.py`, `substrate_repository.py`, `strategymemory.py`, `plan_executor.py`
+- ✅ **Cursor MCP Configuration Cleanup** — Removed broken/redundant MCP servers:
+  - Deleted `l9-memory` MCP from `~/.cursor/mcp.json` (used incompatible `server-http` wrapper)
+  - Deleted `postgres` MCP from `~/.cursor/mcp.json` (bypassed governance via direct localhost SQL)
+  - **Canonical method:** `cursor_memory_client.py` is the ONLY method for Cursor ↔ L9 memory
+- ✅ **Memory Client Comment Fix** — Updated `cursor_memory_client.py` comment: "PRODUCTION: VPS (always)"
+- ✅ **Embedding Alignment Audit** — Verified ALL embedding dimensions aligned at 1536:
+  - Memory Substrate: `text-embedding-3-large` truncated to 1536 ✅
+  - MCP Memory Server: `text-embedding-3-large` truncated to 1536 ✅ (FIXED)
+  - Tool Embeddings: `text-embedding-3-small` native 1536 ✅
+  - Strategy Memory: placeholder, comments fixed to 1536 ✅
+
+**PREVIOUS SESSION (2026-01-15)**:
 - ✅ **World Model Pack Integration (GMP-89/90/91/92)** — Full Layer 1+2 integration:
   - `world_model/state.py` — 12 stubs replaced, Entity/Relation CRUD, snapshot/restore
   - `world_model/registry.py` — 14 stubs replaced, schema validation, type hierarchy
@@ -94,6 +112,7 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-16] **GMP-93: Remove slack_sdk Dependency Entirely** — Removed `slack_sdk` dependency from L9 codebase. Extended `api/slack_client.py` with async `upload_file()` and `get_file_info()` methods. Migrated all callers to async: `orchestrators/agent_execution/orchestrator.py`, `mac_agent/runner.py`, `api/webhook_mac_agent.py`, `services/slack_files.py`, `memory/slack_ingest.py`. Deleted `services/slack_client.py` (312 lines). Removed `slack-sdk>=3.26.0` from `requirements.txt`. **Result:** 100% async httpx-based Slack client, no blocking I/O, no slack_sdk dependency. Report: `reports/GMP_Report_GMP-93.md`
 - [2026-01-15] **Feature Flag Centralization** — Fixed hardcoded feature flags in `api/server.py`. Added 10 new flags to `config/settings.py` (L9_NEW_AGENT_INIT, L9_STAGE3_MODULES, L9_GRAPH_AGENT_STATE, L9_OBSERVABILITY, L9_SKIP_STARTUP_CHECKS, L9_STAGE4_CONSOLIDATION, L9_CONSOLIDATION_INTERVAL_HOURS, L9_GRAPH_WM_SYNC, L9_TOOL_PATTERN_EXTRACTION, LOCAL_DEV). Updated `api/server.py` to use `settings.xyz` instead of `os.getenv()`. Also fixed `_has_mac_agent` and `_has_waba` to use existing settings. All feature flags now read from `.env` via centralized Pydantic settings.
 - [2026-01-15] **10X Deploy Script Enhancement** — Fixed Docker rebuild issue (container running old code) + improved health checks. Changes: (1) Created `scripts/vps/` directory with `sync_env_vars.sh`, `verify_vps_env.sh`, `run_migrations.sh` (wrappers → canonical `scripts/deployment/` versions). (2) Phase 5 now stops, removes container, optionally removes image, uses `--force-recreate`, verifies image ID changed. (3) Phase 6 enhanced with early container status check, startup error detection, HTTP code tracking, comprehensive failure diagnostics (resource usage, internal curl, process list, container inspect). (4) Added Phase 6.5 service verification: git SHA match, Python import test, uvicorn process check, memory usage.
 - [2026-01-14] **GMP-87: Wire CursorExecutor to FastAPI Lifespan** — Fixed 503 error when calling `/cursor/*` routes. Added full dependency chain initialization in lifespan: SubstrateDAG → SubstrateDagOrchestrator → CursorMemoryGateway → L9PostgresSaver → CursorCheckpointManager → ApprovalManager → LangGraph app → CursorExecutor. Also expanded Cursor imports (9 new imports). Dead code audit revealed most findings were false positives (Protocol classes, glob-loaded configs, already-wired orchestrators). Report: `reports/GMP_Report_GMP-87-Wire-CursorExecutor.md`
@@ -167,7 +186,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - Test on both macOS local and Linux VPS
 - **Domain**: `l9.quantumaipartners.com` (Cloudflare proxied)
 - **Ports**: 8000=l9-api (unified - handles all traffic including MCP)
-- **Memory Client**: `agents/cursor/cursor_memory_client.py` (moved from `.cursor-commands/cursor-memory/`)
+- **Memory Client**: `agents/cursor/cursor_memory_client.py` — **THE ONLY METHOD** for Cursor ↔ L9 memory (no MCP servers in ~/.cursor/mcp.json)
 - **Memory API Keys**: `MCP_API_KEY_C` for Cursor, `MCP_API_KEY_L` for L-CTO (NOT `L9_EXECUTOR_API_KEY`)
 - **Memory scopes**: `developer` (L+C collab), `global` (cross-project), `l-private` (L only, C blocked)
 - **Direct API**: `/api/v1/memory/packet` WORKS ✅ | MCP `/mcp/call` WORKS ✅ (JSON codec fix applied)
@@ -176,22 +195,29 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Missing for Slack DMs**: Set `L9_ENABLE_LEGACY_SLACK_ROUTER=false`, add `message.im` subscription in Slack App
 - **Cloudflare**: All DNS for quantumaipartners.com proxied via Cloudflare (HTTPS, DDoS protection)
 - **RLS UUIDs** (deterministic, shared by L+C): tenant=`73350468-3158-5d0f-9b8c-9b193d96fc4b`, org=`14910cef-fea1-51d7-9a28-05579e6c0c18`, user=`2f00c090-3816-51a0-806c-34d32522a070`
+- **Embedding Dimensions**: ALL systems aligned at **1536** (text-embedding-3-large truncated, text-embedding-3-small native)
 
 ---
-*Last updated: 2026-01-17 (GMP-FIX-01 Syntax errors fixed; pytest unblocked; 27 GMP-88 tests pass)*
+*Last updated: 2026-01-17 (GMP-94 embedding dimension fix; Cursor MCP cleanup; cursor_memory_client.py canonical)*
 
 ## Next Steps (Current Session)
-1. **World Model Engine Integration** — Wire QueryEngine into WorldModelEngine for unified API
-2. **Add Unit Tests** — Create test_query_engine.py with comprehensive coverage
-3. **Deploy container detection fix** — Run `docker-compose build --no-cache l9-api && docker-compose up -d l9-api` on VPS
-4. **Add Persistence Substrates** — postgres_substrate.py, neo4j_substrate.py, redis_substrate.py
-5. **CodeGenAgent (CGA) System** — Resume CGA work now that governance is verified
-11. ~~**VPS Migrations**~~ ⏳ PENDING — Will run automatically at next Docker rebuild
-12. ~~**GMP-83: Bootstrap Pack Finalization**~~ ✅ DONE — Redis working memory, Prometheus metrics, test namespace fix
-13. ~~**GMP-84: L-CTO Research Overlay Wiring**~~ ✅ DONE — `create_l_cto_research_agent()` factory added
+1. **🚨 DEPLOY GMP-94 FIX** — Embedding dimension fix MUST be deployed for semantic search to work:
+   ```bash
+   ssh vps "cd /home/igor/l9 && git pull && docker compose build l9-api && docker compose up -d l9-api"
+   ```
+2. **Verify Memory Search** — After deploy, run: `python3 agents/cursor/cursor_memory_client.py mcp-test`
+3. **World Model Engine Integration** — Wire QueryEngine into WorldModelEngine for unified API
+4. **Add Unit Tests** — Create test_query_engine.py with comprehensive coverage
+5. **Add Persistence Substrates** — postgres_substrate.py, neo4j_substrate.py, redis_substrate.py
+6. **CodeGenAgent (CGA) System** — Resume CGA work now that governance is verified
+~~11. **VPS Migrations**~~ ⏳ PENDING — Will run automatically at next Docker rebuild
+~~12. **GMP-83: Bootstrap Pack Finalization**~~ ✅ DONE — Redis working memory, Prometheus metrics, test namespace fix
+~~13. **GMP-84: L-CTO Research Overlay Wiring**~~ ✅ DONE — `create_l_cto_research_agent()` factory added
 
 **Recent Sessions (7-day window):**
+- ✅ 2026-01-17: **GMP-94: Embedding Dimension Mismatch Fix** — Fixed critical semantic search failure. `mcp_memory/src/embeddings.py` was missing `dimensions=settings.OPENAI_EMBED_DIM` causing 3072-dim queries against 1536-dim vectors. Fixed `embed_text()` and `embed_texts()`. Cleaned up Cursor MCP config (removed broken `l9-memory` and `postgres` MCPs). Fixed 4 misleading 3072→1536 comments. **Canonical method:** `cursor_memory_client.py` only. **DEPLOYMENT REQUIRED.**
 - ✅ 2026-01-17: **GMP-FIX-01: Syntax Error Fix** — Fixed `from core.decorators import must_stay_async` syntax errors in 4 files (import was unindented inside try blocks). Files fixed: `memory/graph_client.py`, `memory/gap_detector.py`, `runtime/redis_client.py`, `agents/codegenagent/codegen_agent.py`. **Root cause:** Script added imports without checking indentation context. **Result:** pytest now runs, 27 GMP-88 resilience tests pass. Report: `reports/GMP_Report_GMP-FIX-01-Syntax-Errors.md`
+- ✅ 2026-01-16: **GMP-93: Remove slack_sdk Dependency** — Removed `slack_sdk` dependency entirely. Extended `api/slack_client.py` with `upload_file()` and `get_file_info()` async methods. Migrated 5 callers to async client. Deleted `services/slack_client.py` (312 lines). Removed dependency from `requirements.txt`. **Result:** 100% async httpx-based client, no blocking I/O. Report: `reports/GMP_Report_GMP-93.md`
 - ✅ 2026-01-17: **GMP-88: SubstrateDagOrchestrator Resilience** — Added enterprise-grade resilience to DAG orchestrator: RetryPolicy (exponential backoff, jitter), CircuitBreaker integration, DeadLetterQueue (Redis Streams). Created `memory/dead_letter.py` (165 LOC), updated `memory/substrate_dag_wrapper.py` v1.0→v2.0 (219 LOC), created `tests/memory/test_dag_orchestrator_resilience.py` (27 tests). **Architecture Decision:** Using `MemorySubstrateService` directly for Cursor/testing until memory pipeline fully validated. Report: `reports/GMP_Report_GMP-88-SubstrateDagOrchestrator-Resilience.md`
 - ✅ 2026-01-15: **World Model Pack Integration Complete (GMP-89/90/91/92)** — Full Layer 1+2 integration: state.py (12 stubs → production CRUD), registry.py (14 stubs → schema validation), loader.py (10 stubs → YAML parsing), updater.py (12 stubs → atomic batch updates), causal_graph.py (15 stubs → BFS traversal), query_engine.py (new file, 20+ query methods). **63+ stubs replaced, ~3,400 lines, 6 files, 25 tests pass**. Reports: GMP-89/90/91/92.
 - ✅ 2026-01-16: **Slash Commands v2 + Memory Integration** — Updated `/end-session` (v2 with structured PICKUP| format), `/mem` (v2 with NOTE|/LESSON|/ERROR| formats), `/gmp` (v2 with GMP| completion format + memory integration). All commands now use pipe-delimited structured formats for searchability. Created `end-session-v2.yaml`. Reduced /gmp from 967→180 lines, /mem from 422→120 lines.

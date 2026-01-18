@@ -1480,7 +1480,7 @@ class SubstrateRepository:
         Args:
             fact_text: Human-readable fact statement
             triplet: SPO triplet {"subject": "...", "predicate": "...", "object": "..."}
-            embedding: Vector embedding (3072 dimensions for text-embedding-3-large)
+            embedding: Vector embedding (1536 dimensions, truncated from text-embedding-3-large)
             importance: Importance score 0.0-1.0
             tags: Categorization tags
             tier: Memory tier (identity, project, session, general)
