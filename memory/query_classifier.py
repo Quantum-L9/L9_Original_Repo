@@ -323,7 +323,7 @@ __dora_footer__ = {
     "dependencies": [],
     "tags": ["caching", "debugging", "event-driven", "learning", "logging", "memory-substrate", "testing", "tracing", "utility"],
     "keywords": ["agent", "classifier", "classify", "determine", "memory", "overrides", "pattern", "patterns"],
-    "business_value": "Implements memory_spec_v3.0.yaml retrieval.query_classifier contract. entity_lookup: "Who is X?", "What is Y?" reasoning_trace: "Why did agent decide X?", "Show reasoning for packet Y" temporal: "What",
+    "business_value": "Implements memory_spec_v3.0.yaml retrieval.query_classifier contract for entity_lookup, reasoning_trace, and temporal queries",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",
