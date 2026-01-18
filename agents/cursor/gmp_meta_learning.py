@@ -480,7 +480,7 @@ class GMPMetaLearningEngine:
             async with self.async_session() as session:
                 stmt = (
                     select(LearnedHeuristicDB)
-                    .where(LearnedHeuristicDB.active == True)
+                    .where(LearnedHeuristicDB.active.is_(True))
                     .order_by(LearnedHeuristicDB.confidence.desc())
                 )
                 result = await session.execute(stmt)

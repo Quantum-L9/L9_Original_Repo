@@ -229,7 +229,8 @@ def html_to_text(html: str) -> str:
             import html as html_module
 
             text = html_module.unescape(text)
-        except:
+        except Exception as e:
+            # Silently ignore HTML unescape errors
             pass
 
         # Clean up whitespace
