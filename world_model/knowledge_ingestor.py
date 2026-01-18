@@ -1180,7 +1180,8 @@ class KnowledgeIngestor:
     def _compute_hash(self, data: dict[str, Any]) -> str:
         """Compute hash for deduplication."""
         json_str = json.dumps(data, sort_keys=True, default=str)
-        return hashlib.md5(json_str.encode()).hexdigest()
+        # Use SHA256 instead of MD5 for better security
+        return hashlib.sha256(json_str.encode()).hexdigest()
 
     # ==========================================================================
     # Batch Operations
