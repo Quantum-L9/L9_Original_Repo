@@ -306,10 +306,11 @@ class ConversationGraphMemory:
         message.topics = self._extractor.extract_topics(content)
         message.entities = self._extractor.extract_entities(content)
 
-        if self._is_available():
-            await self._store_message_neo4j(message, previous_message_id)
-        else:
-            self._store_message_fallback(message)
+        if not self._is_available():
+            logger.error("Neo4j not available for graph memory write")
+            raise RuntimeError("Neo4j not available for graph memory write")
+
+        await self._store_message_neo4j(message, previous_message_id)
 
         logger.debug(
             "Stored message",
@@ -501,14 +502,13 @@ class ConversationGraphMemory:
             query=topic,
         )
 
-        if self._is_available():
-            context = await self._query_history_neo4j(
-                user_id, topic, time_range_days, limit
-            )
-        else:
-            context = self._query_history_fallback(
-                user_id, topic, time_range_days, limit
-            )
+        if not self._is_available():
+            logger.error("Neo4j not available for graph memory query")
+            raise RuntimeError("Neo4j not available for graph memory query")
+
+        context = await self._query_history_neo4j(
+            user_id, topic, time_range_days, limit
+        )
 
         return context
 
@@ -643,51 +643,44 @@ class ConversationGraphMemory:
         """
         context = ConversationContext()
 
-        if self._is_available():
-            query = """
-            MATCH (s:Session {id: $session_id})-[:CONTAINS]->(m:Message)
-            OPTIONAL MATCH (m)-[:MENTIONS]->(t:Topic)
-            RETURN m.id as id, m.content as content, m.role as role,
-                   m.timestamp as timestamp, collect(DISTINCT t.name) as topics
-            ORDER BY m.timestamp ASC
-            LIMIT $limit
-            """
+        if not self._is_available():
+            logger.error("Neo4j not available for graph memory context")
+            raise RuntimeError("Neo4j not available for graph memory context")
 
-            try:
-                results = await self._neo4j.run_query(
-                    query,
-                    {
-                        "session_id": str(session_id),
-                        "limit": limit,
-                    },
+        query = """
+        MATCH (s:Session {id: $session_id})-[:CONTAINS]->(m:Message)
+        OPTIONAL MATCH (m)-[:MENTIONS]->(t:Topic)
+        RETURN m.id as id, m.content as content, m.role as role,
+               m.timestamp as timestamp, collect(DISTINCT t.name) as topics
+        ORDER BY m.timestamp ASC
+        LIMIT $limit
+        """
+
+        try:
+            results = await self._neo4j.run_query(
+                query,
+                {
+                    "session_id": str(session_id),
+                    "limit": limit,
+                },
+            )
+
+            all_topics = set()
+            for r in results:
+                msg = GraphMessage(
+                    message_id=UUID(r["id"]) if r.get("id") else uuid4(),
+                    content=r.get("content", ""),
+                    role=MessageRole(r.get("role", "user")),
+                    session_id=session_id,
+                    topics=r.get("topics", []),
                 )
+                context.messages.append(msg)
+                all_topics.update(msg.topics)
 
-                all_topics = set()
-                for r in results:
-                    msg = GraphMessage(
-                        message_id=UUID(r["id"]) if r.get("id") else uuid4(),
-                        content=r.get("content", ""),
-                        role=MessageRole(r.get("role", "user")),
-                        session_id=session_id,
-                        topics=r.get("topics", []),
-                    )
-                    context.messages.append(msg)
-                    all_topics.update(msg.topics)
+            context.topics = list(all_topics)
 
-                context.topics = list(all_topics)
-
-            except Exception as e:
-                logger.error(f"Neo4j context query failed: {e}")
-        else:
-            # Fallback
-            session_key = str(session_id)
-            if session_key in self._memory_fallback:
-                context.messages = self._memory_fallback[session_key][:limit]
-
-                topics = set()
-                for m in context.messages:
-                    topics.update(m.topics)
-                context.topics = list(topics)
+        except Exception as e:
+            logger.error(f"Neo4j context query failed: {e}")
 
         return context
 
@@ -709,7 +702,8 @@ class ConversationGraphMemory:
             List of related topic names
         """
         if not self._is_available():
-            return []
+            logger.error("Neo4j not available for related topics query")
+            raise RuntimeError("Neo4j not available for related topics query")
 
         query = """
         MATCH (t1:Topic {name: $topic})<-[:MENTIONS]-(m:Message)-[:MENTIONS]->(t2:Topic)
@@ -752,7 +746,8 @@ class ConversationGraphMemory:
             True if relationship created
         """
         if not self._is_available():
-            return False
+            logger.error("Neo4j not available for session linking")
+            raise RuntimeError("Neo4j not available for session linking")
 
         try:
             await self._neo4j.run_query(

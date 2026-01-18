@@ -856,17 +856,37 @@ class SubstrateRepository:
         Returns:
             embedding_id of the inserted record
         """
+        ctx = require_governance_context("repository.insert_semantic_embedding")
+        if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+            raise RuntimeError("RLS scope required for semantic embeddings")
+
         embedding_id = uuid4()
         rls_conn = _current_rls_connection.get()
         if rls_conn:
             await self._insert_semantic_embedding_with_connection(
-                rls_conn, embedding_id, vector, payload, agent_id, scope
+                rls_conn,
+                embedding_id,
+                vector,
+                payload,
+                agent_id,
+                scope,
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
             )
             return embedding_id
 
         async with self.acquire() as conn:
             await self._insert_semantic_embedding_with_connection(
-                conn, embedding_id, vector, payload, agent_id, scope
+                conn,
+                embedding_id,
+                vector,
+                payload,
+                agent_id,
+                scope,
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
             )
             return embedding_id
 
@@ -878,13 +898,28 @@ class SubstrateRepository:
         payload: dict[str, Any],
         agent_id: Optional[str],
         scope: str = "shared",
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> None:
         """Helper to insert semantic embedding using provided connection."""
+        if not tenant_id or not org_id or not user_id:
+            raise RuntimeError("RLS scope required for semantic embedding insert")
         vector_str = f"[{','.join(str(v) for v in vector)}]"
         await conn.execute(
             """
-            INSERT INTO semantic_memory (embedding_id, agent_id, vector, payload, created_at, scope)
-            VALUES ($1, $2, $3::vector, $4, $5, $6)
+            INSERT INTO semantic_memory (
+                embedding_id,
+                agent_id,
+                vector,
+                payload,
+                created_at,
+                scope,
+                tenant_id,
+                org_id,
+                user_id
+            )
+            VALUES ($1, $2, $3::vector, $4, $5, $6, $7, $8, $9)
             """,
             embedding_id,
             agent_id,
@@ -892,6 +927,9 @@ class SubstrateRepository:
             json.dumps(payload),
             datetime.utcnow(),
             scope,
+            tenant_id,
+            org_id,
+            user_id,
         )
         logger.debug(f"Inserted semantic embedding {embedding_id} with scope={scope}")
 
@@ -912,6 +950,10 @@ class SubstrateRepository:
         Returns:
             List of SemanticHit with embedding_id, score, payload
         """
+        ctx = require_governance_context("repository.search_semantic_memory")
+        if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+            raise RuntimeError("RLS scope required for semantic search")
+
         async with self.acquire() as conn:
             vector_str = f"[{','.join(str(v) for v in query_embedding)}]"
 
@@ -924,11 +966,19 @@ class SubstrateRepository:
                         1 - (vector <=> $1::vector) as score
                     FROM semantic_memory
                     WHERE agent_id = $2
+                      AND scope = ANY($3)
+                      AND tenant_id = $4
+                      AND org_id = $5
+                      AND user_id = $6
                     ORDER BY vector <=> $1::vector
-                    LIMIT $3
+                    LIMIT $7
                     """,
                     vector_str,
                     agent_id,
+                    list(ctx.allowed_scopes),
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
                     top_k,
                 )
             else:
@@ -939,10 +989,18 @@ class SubstrateRepository:
                         payload,
                         1 - (vector <=> $1::vector) as score
                     FROM semantic_memory
+                    WHERE scope = ANY($2)
+                      AND tenant_id = $3
+                      AND org_id = $4
+                      AND user_id = $5
                     ORDER BY vector <=> $1::vector
-                    LIMIT $2
+                    LIMIT $6
                     """,
                     vector_str,
+                    list(ctx.allowed_scopes),
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
                     top_k,
                 )
 
@@ -1494,12 +1552,22 @@ class SubstrateRepository:
             UUID of the inserted fact
         """
 
+        ctx = require_governance_context("repository.insert_semantic_fact")
+        if tenant_id and str(tenant_id) != str(ctx.tenant_id):
+            raise RuntimeError("tenant_id must be derived from governance context")
+        if org_id and str(org_id) != str(ctx.org_id):
+            raise RuntimeError("org_id must be derived from governance context")
+        if user_id and str(user_id) != str(ctx.user_id):
+            raise RuntimeError("user_id must be derived from governance context")
+        if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+            raise RuntimeError("RLS scope required for semantic facts")
+
         fact_id = uuid4()
 
         # Use defaults for multi-tenant IDs if not provided
-        _tenant_id = tenant_id or UUID("00000000-0000-0000-0000-000000000000")
-        _org_id = org_id or UUID("00000000-0000-0000-0000-000000000000")
-        _user_id = user_id or UUID("00000000-0000-0000-0000-000000000000")
+        _tenant_id = tenant_id or UUID(str(ctx.tenant_id))
+        _org_id = org_id or UUID(str(ctx.org_id))
+        _user_id = user_id or UUID(str(ctx.user_id))
 
         async with self.acquire() as conn:
             if embedding:
@@ -1772,12 +1840,22 @@ class SubstrateRepository:
             UUID of the inserted event
         """
 
+        ctx = require_governance_context("repository.insert_episodic_event")
+        if tenant_id and str(tenant_id) != str(ctx.tenant_id):
+            raise RuntimeError("tenant_id must be derived from governance context")
+        if org_id and str(org_id) != str(ctx.org_id):
+            raise RuntimeError("org_id must be derived from governance context")
+        if user_id and str(user_id) != str(ctx.user_id):
+            raise RuntimeError("user_id must be derived from governance context")
+        if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+            raise RuntimeError("RLS scope required for episodic events")
+
         event_id = uuid4()
 
         # Use defaults for multi-tenant IDs if not provided
-        _tenant_id = tenant_id or UUID("00000000-0000-0000-0000-000000000000")
-        _org_id = org_id or UUID("00000000-0000-0000-0000-000000000000")
-        _user_id = user_id or UUID("00000000-0000-0000-0000-000000000000")
+        _tenant_id = tenant_id or UUID(str(ctx.tenant_id))
+        _org_id = org_id or UUID(str(ctx.org_id))
+        _user_id = user_id or UUID(str(ctx.user_id))
 
         async with self.acquire() as conn:
             await conn.execute(
