@@ -40,7 +40,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j"],
         "memory_layers": [],
-        "imported_by": ["core.tools.agent_self_modify", "core.tools.tool_graph", "tests.core.bootstrap.test_graph_state", "tests.integration.test_unified_graph"],
+        "imported_by": [
+            "core.tools.agent_self_modify",
+            "core.tools.tool_graph",
+            "tests.core.bootstrap.test_graph_state",
+            "tests.integration.test_unified_graph",
+        ],
     },
 }
 # ============================================================================
@@ -287,7 +292,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["agent-execution", "auth", "foundation", "migration", "schema"],
-    "keywords": ["agent", "directive", "graph", "kernel", "responsibility", "schema", "state", "tool"],
+    "keywords": [
+        "agent",
+        "directive",
+        "graph",
+        "kernel",
+        "responsibility",
+        "schema",
+        "state",
+        "tool",
+    ],
     "business_value": "This replaces static YAML kernel loading with a living Neo4j graph. Agent: The agent instance (L, CA, etc.) Responsibility: Agent responsibilities with priority Directive: Behavioral directives with s",
     "last_modified": "2026-01-14T12:12:38Z",
     "modified_by": "L9_Codegen_Engine",

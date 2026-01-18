@@ -31,7 +31,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Anthropic API", "OpenAI API"],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["memory.__init__", "tests.memory.test_hierarchical_consolidation"],
+        "imported_by": [
+            "memory.__init__",
+            "tests.memory.test_hierarchical_consolidation",
+        ],
     },
 }
 # ============================================================================
@@ -519,6 +522,7 @@ class HierarchicalSummarizer:
         except Exception as e:
             logger.error(f"Failed to store summary: {e}", exc_info=True)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -528,8 +532,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "data-models", "dataclass", "debugging", "learning", "logging", "messaging", "metrics"],
-    "keywords": ["cascade", "daily", "hierarchical", "into", "memory", "summaries", "summarizer", "summary"],
+    "tags": [
+        "async",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "learning",
+        "logging",
+        "messaging",
+        "metrics",
+    ],
+    "keywords": [
+        "cascade",
+        "daily",
+        "hierarchical",
+        "into",
+        "memory",
+        "summaries",
+        "summarizer",
+        "summary",
+    ],
     "business_value": "Implements tiered memory summarization with 20min → daily → weekly cascade. Part of Stage 2: Hierarchical Memory Consolidation Engine (SUPER-PROMPT). 20-minute summaries: Capture session highlights Da",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

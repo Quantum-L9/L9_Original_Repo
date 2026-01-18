@@ -23,7 +23,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["api.webhook_mac_agent", "mac_agent.runner", "memory.slack_ingest"],
+        "imported_by": [
+            "api.webhook_mac_agent",
+            "mac_agent.runner",
+            "memory.slack_ingest",
+        ],
     },
 }
 # ============================================================================
@@ -148,7 +152,7 @@ def enqueue_mac_task(
 def enqueue_mac_task_dict(task_dict: Dict[str, Any]) -> str:
     """
     Enqueue a Mac task from task router (file-based storage).
-    
+
     This function ONLY accepts mac_task type. Email tasks must use separate routing.
 
     Args:
@@ -254,7 +258,9 @@ def get_next_task() -> Optional[Dict[str, Any]]:
         in_progress_file = IN_PROGRESS_DIR / task_file.name
         shutil.move(str(task_file), str(in_progress_file))
 
-        logger.info(f"Retrieved mac_task {task_dict.get('task_id')} from {task_file.name}")
+        logger.info(
+            f"Retrieved mac_task {task_dict.get('task_id')} from {task_file.name}"
+        )
         return task_dict
 
     except Exception as e:
@@ -346,11 +352,12 @@ def list_tasks() -> List[Dict]:
 def enqueue_task(task_dict: Dict[str, Any]) -> str:
     """
     DEPRECATED: Use enqueue_mac_task_dict() instead.
-    
+
     This function exists for backward compatibility but only accepts mac_task.
     Email tasks must use separate routing.
     """
     return enqueue_mac_task_dict(task_dict)
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -361,8 +368,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.ingestion"],
-    "tags": ["api", "dataclass", "event-driven", "filesystem", "intelligence", "logging", "orchestration", "queue", "serialization"],
-    "keywords": ["agent", "complete", "completed", "enqueue", "execution", "mac", "mark", "module"],
+    "tags": [
+        "api",
+        "dataclass",
+        "event-driven",
+        "filesystem",
+        "intelligence",
+        "logging",
+        "orchestration",
+        "queue",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "complete",
+        "completed",
+        "enqueue",
+        "execution",
+        "mac",
+        "mark",
+        "module",
+    ],
     "business_value": "This module handles ONLY mac_task types. Email tasks are handled separately.",
     "last_modified": "2026-01-14T13:21:36Z",
     "modified_by": "L9_Codegen_Engine",

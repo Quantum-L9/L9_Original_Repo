@@ -64,62 +64,76 @@ except ImportError:
 
 SUBSYSTEMS = {
     "agents": {
-        "path": "l9/core/agents",
-        "entrypoint_class": "Kernel",
-        "entrypoint_method": "execute",
+        "path": "core/agents",
+        "entrypoint_class": "AgentExecutorService",
+        "entrypoint_method": "execute_task",
         "protected_files": [
-            "l9/core/agents/kernel.py",
-            "l9/core/agents/__init__.py",
+            "core/agents/executor.py",
+            "core/agents/registry.py",
+            "core/agents/__init__.py",
         ],
         "ai_allowed_patterns": [
-            "l9/core/agents/executor.py",
-            "l9/core/agents/builtin/**",
+            "core/agents/adaptive_prompting.py",
+            "core/agents/agent_instance.py",
+            "core/agents/prompt_builder.py",
+            "core/agents/selfreflection.py",
+            "core/agents/bootstrap/**",
+            "core/agents/graph_state/**",
             "tests/**",
             "docs/**",
         ],
     },
     "memory": {
-        "path": "l9/core/memory",
-        "entrypoint_class": "MemorySubstrate",
-        "entrypoint_method": "search",
+        "path": "memory",
+        "entrypoint_class": "MemorySubstrateService",
+        "entrypoint_method": "ingest_packet",
         "protected_files": [
-            "l9/core/memory/memory.py",
-            "l9/core/memory/redisclient.py",
+            "memory/substrate_service.py",
+            "memory/substrate_dag.py",
+            "memory/__init__.py",
         ],
         "ai_allowed_patterns": [
-            "l9/core/memory/retrieval.py",
-            "l9/core/memory/semantic.py",
+            "memory/retrieval.py",
+            "memory/semantic_search.py",
+            "memory/context_builder.py",
+            "memory/insight_extraction.py",
+            "memory/graph_memory.py",
             "tests/**",
             "docs/**",
         ],
     },
     "tools": {
-        "path": "l9/core/tools",
-        "entrypoint_class": "ToolRegistry",
-        "entrypoint_method": "invoke",
+        "path": "core/tools",
+        "entrypoint_class": "RegistryAdapter",
+        "entrypoint_method": "invoke_tool",
         "protected_files": [
-            "l9/core/tools/registry.py",
-            "l9/core/tools/sandbox.py",
+            "core/tools/registry_adapter.py",
+            "core/tools/tool_graph.py",
+            "core/tools/__init__.py",
         ],
         "ai_allowed_patterns": [
-            "l9/core/tools/validators.py",
-            "l9/core/tools/wrappers/**",
+            "core/tools/sanitizer.py",
+            "core/tools/memory_tools.py",
+            "core/tools/research_tools.py",
+            "core/tools/reflection_tools.py",
             "tests/**",
             "docs/**",
         ],
     },
     "api": {
-        "path": "l9/api",
+        "path": "api",
         "entrypoint_class": "FastAPI",
-        "entrypoint_method": "POST /agents/{agent_id}/execute",
+        "entrypoint_method": "POST /agent/task",
         "protected_files": [
-            "l9/server.py",
-            "l9/websocket_orchestrator.py",
-            "l9/auth.py",
+            "api/server.py",
+            "api/auth.py",
+            "api/__init__.py",
         ],
         "ai_allowed_patterns": [
-            "l9/api/routes/**",
-            "l9/api/models.py",
+            "api/routes/**",
+            "api/agent_routes.py",
+            "api/os_routes.py",
+            "api/memory/**",
             "tests/**",
             "docs/**",
         ],
@@ -127,37 +141,41 @@ SUBSYSTEMS = {
 }
 
 GLOBAL_PROTECTED_FILES = [
-    "l9/kernel_loader.py",
-    "l9/websocket_orchestrator.py",
-    "l9/redisclient.py",
-    "l9/executor.py",
+    "runtime/kernel_loader.py",
+    "runtime/websocket_orchestrator.py",
+    "runtime/redis_client.py",
+    "core/agents/executor.py",
     "docker-compose.yml",
     ".env",
-    "config.yaml",
+    "config/settings.yaml",
 ]
 
 INVARIANTS = {
     "agents": [
         "Agent IDs are UUIDv4",
-        "Agent execution uses kernel entry point",
-        "All agent state is stored in memory substrate",
-        "Tool access is mediated by tool registry",
+        "All agent tasks emit PacketEnvelope to memory substrate",
+        "Kernel stack loaded via KernelLoader before execution",
+        "Tool access mediated by RegistryAdapter with capability checks",
+        "High-risk tools require Igor approval before dispatch",
     ],
     "memory": [
-        "All IDs are UUIDv4",
+        "All packet IDs are UUIDv4",
         "All timestamps are UTC ISO-8601",
-        "TTL in seconds (positive integers)",
-        "Embeddings are list[float]",
+        "PacketEnvelope is the canonical data structure for all memory writes",
+        "Embeddings are list[float] with dimension 1536 or 3072",
+        "Deduplication via dedup_key prevents duplicate ingestion",
     ],
     "tools": [
-        "Tool names must exist in registry",
-        "Resource limits enforced (CPU, memory, disk, timeout)",
-        "All tool executions sandboxed and logged",
+        "Tool names must exist in L_TOOLS_DEFINITIONS registry",
+        "Destructive tools require explicit approval gates",
+        "All tool executions logged to PacketEnvelope audit trail",
+        "Tool dispatch respects AgentCapabilities enum",
     ],
     "api": [
-        "All APIs require JWT authentication",
         "Request/response schemas validated via Pydantic",
-        "All logging is structured JSON",
+        "All logging is structured JSON with context (agent_id, task_id)",
+        "WebSocket routes use websocket_orchestrator for lifecycle",
+        "Rate limiting enforced via RateLimiter with Redis backend",
     ],
 }
 
@@ -165,6 +183,7 @@ INVARIANTS = {
 # ============================================================================
 # AST Extraction: Parse Python code for facts
 # ============================================================================
+
 
 class CodeFactExtractor:
     """Extract code facts using Python AST."""
@@ -200,11 +219,13 @@ class CodeFactExtractor:
                     methods = []
                     for item in node.body:
                         if isinstance(item, ast.FunctionDef):
-                            methods.append({
-                                "name": item.name,
-                                "is_async": isinstance(item, ast.AsyncFunctionDef),
-                                "line": item.lineno,
-                            })
+                            methods.append(
+                                {
+                                    "name": item.name,
+                                    "is_async": isinstance(item, ast.AsyncFunctionDef),
+                                    "line": item.lineno,
+                                }
+                            )
 
                     return {
                         "name": class_name,
@@ -240,19 +261,29 @@ class CodeFactExtractor:
                             for dec in node.decorator_list
                         )
 
-                        if is_dataclass or node.name.endswith("Result") or node.name.endswith("Entry"):
+                        if (
+                            is_dataclass
+                            or node.name.endswith("Result")
+                            or node.name.endswith("Entry")
+                        ):
                             fields = []
                             for item in node.body:
-                                if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                                if isinstance(item, ast.AnnAssign) and isinstance(
+                                    item.target, ast.Name
+                                ):
                                     fields.append(item.target.id)
 
                             if fields:
-                                models.append({
-                                    "name": node.name,
-                                    "file": str(py_file.relative_to(self.repo_root)),
-                                    "fields": fields,
-                                    "docstring": ast.get_docstring(node) or "",
-                                })
+                                models.append(
+                                    {
+                                        "name": node.name,
+                                        "file": str(
+                                            py_file.relative_to(self.repo_root)
+                                        ),
+                                        "fields": fields,
+                                        "docstring": ast.get_docstring(node) or "",
+                                    }
+                                )
             except Exception as e:
                 print(f"WARNING: Could not parse {py_file}: {e}")
 
@@ -262,6 +293,7 @@ class CodeFactExtractor:
 # ============================================================================
 # CODE-MAP.yaml Generation
 # ============================================================================
+
 
 def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str, Any]:
     """Generate CODE-MAP.yaml structure."""
@@ -280,7 +312,9 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str
 
         # Try to find entrypoint class
         for py_file in subsystem_path.rglob("*.py"):
-            class_info = extractor.extract_class_info(py_file, config["entrypoint_class"])
+            class_info = extractor.extract_class_info(
+                py_file, config["entrypoint_class"]
+            )
             if class_info:
                 entrypoint_file = py_file
                 entrypoint_info = class_info
@@ -314,16 +348,18 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str
 # README.meta.yaml Generation
 # ============================================================================
 
+
 def generate_meta_yaml(subsystem_name: str) -> Dict[str, Any]:
     """Generate README.meta.yaml for a subsystem."""
     config = SUBSYSTEMS[subsystem_name]
+    subsystem_path = config["path"]
 
     return {
-        "location": f"l9/core/{subsystem_name}/README.md",
+        "location": f"{subsystem_path}/README.md",
         "type": "subsystemreadme",
         "metadata": {
             "subsystem": subsystem_name,
-            "modulepath": config["path"],
+            "modulepath": subsystem_path,
             "owner": "Igor",
             "lastupdated": datetime.utcnow().isoformat() + "Z",
             "purpose": f"Documents the {subsystem_name} subsystem, contracts, and AI collaboration rules.",
@@ -346,9 +382,9 @@ def generate_meta_yaml(subsystem_name: str) -> Dict[str, Any]:
             "restrictedscopes": config["protected_files"],
             "forbiddenscopes": config["protected_files"],
             "requiredprereading": [
-                "docs/architecture.md",
-                "docs/ai-collaboration.md",
-                f"l9/core/{subsystem_name}/README.md",
+                "README-L9_ARCHITECTURE.md",
+                "docs/CURSOR-RUNBOOK.md",
+                f"{subsystem_path}/README.md",
             ],
         },
     }
@@ -357,6 +393,7 @@ def generate_meta_yaml(subsystem_name: str) -> Dict[str, Any]:
 # ============================================================================
 # Main: Write files
 # ============================================================================
+
 
 def main():
     """Main entry point."""
@@ -408,8 +445,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": [".dora", "api", "ast", "auth", "cli", "config", "filesystem", "operations", "realtime", "rest-api"],
-    "keywords": ["extract", "extractor", "fact", "facts", "find", "function", "generate", "map"],
+    "tags": [
+        ".dora",
+        "api",
+        "ast",
+        "auth",
+        "cli",
+        "config",
+        "filesystem",
+        "operations",
+        "realtime",
+        "rest-api",
+    ],
+    "keywords": [
+        "extract",
+        "extractor",
+        "fact",
+        "facts",
+        "find",
+        "function",
+        "generate",
+        "map",
+    ],
     "business_value": "This script is the SOURCE OF TRUTH for AI-facing contracts. python scripts/extract_code_facts.py docs/CODE-MAP.yaml (subsystems, entrypoints, classes, schemas, invariants) l9/core/agents/README.meta.y",
     "last_modified": "2026-01-18T02:07:37Z",
     "modified_by": "L9_Codegen_Engine",

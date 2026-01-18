@@ -73,73 +73,75 @@ EXCLUDE_FILES = {
     "api/dependencies.py",  # Scaffolding definitions live here
 }
 
+
 def check_file(filepath: Path) -> list[tuple[int, str, str]]:
     """Check a single file for pattern violations.
-    
+
     Returns list of (line_number, line_content, violation_message)
     """
     violations = []
-    
+
     try:
         content = filepath.read_text()
         lines = content.split("\n")
-        
+
         for i, line in enumerate(lines, 1):
             for pattern, message in FORBIDDEN_PATTERNS:
                 if re.search(pattern, line):
                     violations.append((i, line.strip(), message))
     except Exception as e:
         print(f"Warning: Could not read {filepath}: {e}", file=sys.stderr)
-    
+
     return violations
+
 
 def main() -> int:
     """Run the dependency pattern check.
-    
+
     Returns:
         0 if no violations, 1 if violations found
     """
     repo_root = Path(__file__).parent.parent
-    
+
     all_violations: dict[str, list[tuple[int, str, str]]] = {}
     files_checked = 0
-    
+
     for scan_dir in SCAN_DIRS:
         dir_path = repo_root / scan_dir
         if not dir_path.exists():
             continue
-            
+
         for filepath in dir_path.glob("*.py"):
             rel_path = str(filepath.relative_to(repo_root))
-            
+
             # Skip excluded files
             if rel_path in EXCLUDE_FILES:
                 continue
-            
+
             files_checked += 1
             violations = check_file(filepath)
-            
+
             if violations:
                 all_violations[rel_path] = violations
-    
+
     # Report results
     print(f"Checked {files_checked} files for dependency pattern violations")
     print()
-    
+
     if not all_violations:
         print("✅ No dependency pattern violations found")
         return 0
-    
+
     print(f"❌ Found violations in {len(all_violations)} files:")
     print()
-    
+
     for filepath, violations in sorted(all_violations.items()):
         print(f"  {filepath}:")
         for line_num, line_content, message in violations:
             print(f"    Line {line_num}: {message}")
             print(f"      > {line_content[:80]}...")
         print()
-    
+
     print("=" * 60)
     print("DEPENDENCY PATTERN ENFORCEMENT")
     print("=" * 60)
@@ -162,8 +164,9 @@ def main() -> int:
     print()
     print("See: .cursor/rules/89-dependency-patterns.mdc")
     print()
-    
+
     return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -177,7 +180,16 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "api-gateway", "async", "endpoint", "filesystem", "messaging", "operations", "router"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "endpoint",
+        "filesystem",
+        "messaging",
+        "operations",
+        "router",
+    ],
     "keywords": ["check", "dependency", "patterns", "redis", "route"],
     "business_value": "Utility module for check dependency patterns",
     "last_modified": "2026-01-14T13:06:25Z",

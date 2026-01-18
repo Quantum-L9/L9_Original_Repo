@@ -69,32 +69,32 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class EnhancementResult:
     """Result of a construct enhancement operation."""
-    
+
     success: bool
     module_id: str
-    
+
     # Input state
     original_gaps: int
-    
+
     # Output state
     remaining_gaps: int
     patches_applied: int
-    
+
     # Enhanced contract (if successful)
     enhanced_contract: Optional[MetaContract] = None
     enhanced_spec: Optional[Dict[str, Any]] = None
-    
+
     # Validation
     validation_result: Optional[MetaContractValidationResult] = None
-    
+
     # Errors
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
-    
+
     @property
     def gaps_filled(self) -> int:
         return self.original_gaps - self.remaining_gaps
-    
+
     @property
     def fill_rate(self) -> float:
         if self.original_gaps == 0:
@@ -110,7 +110,7 @@ class EnhancementResult:
 class ConstructEnhancer:
     """
     Enhances incomplete specifications using LLM (Perplexity).
-    
+
     Pipeline:
     1. Detect gaps in spec
     2. Generate SuperPrompt
@@ -120,7 +120,7 @@ class ConstructEnhancer:
     6. Validate enhanced spec
     7. Return MetaContract
     """
-    
+
     def __init__(
         self,
         perplexity_api_key: Optional[str] = None,
@@ -128,7 +128,7 @@ class ConstructEnhancer:
     ):
         """
         Initialize the enhancer.
-        
+
         Args:
             perplexity_api_key: API key for Perplexity (or use env var)
             strict_validation: Treat validation warnings as errors
@@ -138,12 +138,12 @@ class ConstructEnhancer:
         self._enricher = PerplexityEnricher(api_key=perplexity_api_key)
         self._patcher = SpecPatcher()
         self._validator = SchemaValidator(strict=strict_validation)
-        
+
         logger.info(
             "construct_enhancer_initialized",
             strict_validation=strict_validation,
         )
-    
+
     async def enhance_spec(
         self,
         spec: Dict[str, Any],
@@ -151,16 +151,16 @@ class ConstructEnhancer:
     ) -> EnhancementResult:
         """
         Enhance a specification via Perplexity.
-        
+
         Args:
             spec: Parsed YAML specification
             max_iterations: Maximum enhancement rounds
-            
+
         Returns:
             EnhancementResult with enhanced contract
         """
         module_id = spec.get("metadata", {}).get("module_id", "unknown")
-        
+
         result = EnhancementResult(
             success=False,
             module_id=module_id,
@@ -168,12 +168,12 @@ class ConstructEnhancer:
             remaining_gaps=0,
             patches_applied=0,
         )
-        
+
         try:
             # Initial gap analysis
             gap_analysis = self._gap_detector.analyze(spec)
             result.original_gaps = gap_analysis.total_gaps
-            
+
             if gap_analysis.total_gaps == 0:
                 # No gaps, try direct conversion
                 result.enhanced_spec = spec
@@ -181,11 +181,11 @@ class ConstructEnhancer:
                 result.success = True
                 logger.info("no_gaps_detected", module_id=module_id)
                 return result
-            
+
             # Enhancement loop
             current_spec = spec
             total_patches = 0
-            
+
             for iteration in range(max_iterations):
                 logger.info(
                     "enhancement_iteration",
@@ -193,16 +193,16 @@ class ConstructEnhancer:
                     iteration=iteration + 1,
                     gaps=gap_analysis.total_gaps,
                 )
-                
+
                 # Generate and send prompt
                 superprompt = self._prompt_emitter.emit_from_spec(
                     current_spec,
                     gap_analysis,
                 )
-                
+
                 enrichment = await self._enricher.enrich(superprompt)
                 patches = enrichment.get("patches", [])
-                
+
                 if not patches:
                     logger.warning(
                         "no_patches_received",
@@ -210,35 +210,35 @@ class ConstructEnhancer:
                         iteration=iteration + 1,
                     )
                     break
-                
+
                 # Apply patches
                 current_spec = self._patcher.apply_patches(current_spec, patches)
                 total_patches += len(patches)
-                
+
                 # Re-analyze
                 gap_analysis = self._gap_detector.analyze(current_spec)
-                
+
                 if gap_analysis.total_gaps == 0:
                     break
-            
+
             result.patches_applied = total_patches
             result.remaining_gaps = gap_analysis.total_gaps
             result.enhanced_spec = current_spec
-            
+
             # Validate and convert to MetaContract
             validation = self._validator.validate_dict(current_spec)
             result.validation_result = validation
-            
+
             if validation.valid:
                 result.enhanced_contract = MetaContract(**current_spec)
                 result.success = True
             else:
                 for error in validation.errors:
                     result.errors.append(f"{error.field}: {error.message}")
-            
+
             for warning in validation.warnings:
                 result.warnings.append(f"{warning.field}: {warning.message}")
-            
+
             logger.info(
                 "enhancement_complete",
                 module_id=module_id,
@@ -246,7 +246,7 @@ class ConstructEnhancer:
                 gaps_filled=result.gaps_filled,
                 fill_rate=f"{result.fill_rate:.0%}",
             )
-            
+
         except Exception as e:
             result.errors.append(str(e))
             logger.error(
@@ -254,52 +254,52 @@ class ConstructEnhancer:
                 module_id=module_id,
                 error=str(e),
             )
-        
+
         return result
-    
+
     async def enhance_yaml(self, yaml_path: str) -> EnhancementResult:
         """
         Enhance a YAML specification file.
-        
+
         Args:
             yaml_path: Path to YAML file
-            
+
         Returns:
             EnhancementResult
         """
-        with open(yaml_path, 'r', encoding='utf-8') as f:
+        with open(yaml_path, "r", encoding="utf-8") as f:
             spec = yaml.safe_load(f)
-        
+
         return await self.enhance_spec(spec)
-    
+
     def analyze_gaps(self, spec: Dict[str, Any]) -> GapAnalysis:
         """
         Analyze gaps without enhancement.
-        
+
         Args:
             spec: Parsed specification
-            
+
         Returns:
             GapAnalysis
         """
         return self._gap_detector.analyze(spec)
-    
+
     def preview_enhancement(
         self,
         spec: Dict[str, Any],
     ) -> Dict[str, Any]:
         """
         Preview what would be enhanced without making API calls.
-        
+
         Args:
             spec: Parsed specification
-            
+
         Returns:
             Preview information
         """
         gap_analysis = self._gap_detector.analyze(spec)
         superprompt = self._prompt_emitter.emit_from_spec(spec, gap_analysis)
-        
+
         return {
             "module_id": gap_analysis.module_id,
             "total_gaps": gap_analysis.total_gaps,
@@ -327,14 +327,14 @@ class ConstructEnhancer:
 @dataclass
 class BatchEnhancementResult:
     """Result of batch enhancement operation."""
-    
+
     total_specs: int
     successful: int
     failed: int
     skipped: int
-    
+
     results: List[EnhancementResult] = field(default_factory=list)
-    
+
     @property
     def success_rate(self) -> float:
         if self.total_specs == 0:
@@ -346,7 +346,7 @@ class BatchEnhancer:
     """
     Enhances multiple specifications in batch.
     """
-    
+
     def __init__(
         self,
         perplexity_api_key: Optional[str] = None,
@@ -354,19 +354,19 @@ class BatchEnhancer:
     ):
         """
         Initialize batch enhancer.
-        
+
         Args:
             perplexity_api_key: API key for Perplexity
             rate_limit_delay: Seconds between API calls
         """
         self._enhancer = ConstructEnhancer(perplexity_api_key=perplexity_api_key)
         self._rate_limit_delay = rate_limit_delay
-        
+
         logger.info(
             "batch_enhancer_initialized",
             rate_limit_delay=rate_limit_delay,
         )
-    
+
     async def enhance_directory(
         self,
         directory: str,
@@ -375,39 +375,39 @@ class BatchEnhancer:
     ) -> BatchEnhancementResult:
         """
         Enhance all specs in a directory.
-        
+
         Args:
             directory: Directory containing YAML specs
             pattern: Glob pattern for files
             skip_valid: Skip specs that are already valid
-            
+
         Returns:
             BatchEnhancementResult
         """
         import asyncio
         from pathlib import Path
-        
+
         dir_path = Path(directory)
         yaml_files = list(dir_path.glob(pattern))
-        
+
         batch_result = BatchEnhancementResult(
             total_specs=len(yaml_files),
             successful=0,
             failed=0,
             skipped=0,
         )
-        
+
         logger.info(
             "batch_enhancement_starting",
             directory=str(directory),
             file_count=len(yaml_files),
         )
-        
+
         for yaml_file in yaml_files:
             try:
-                with open(yaml_file, 'r') as f:
+                with open(yaml_file, "r") as f:
                     spec = yaml.safe_load(f)
-                
+
                 # Check if already valid
                 if skip_valid:
                     gap_analysis = self._enhancer.analyze_gaps(spec)
@@ -415,19 +415,19 @@ class BatchEnhancer:
                         batch_result.skipped += 1
                         logger.debug("spec_skipped_valid", path=str(yaml_file))
                         continue
-                
+
                 # Enhance
                 result = await self._enhancer.enhance_spec(spec)
                 batch_result.results.append(result)
-                
+
                 if result.success:
                     batch_result.successful += 1
                 else:
                     batch_result.failed += 1
-                
+
                 # Rate limiting
                 await asyncio.sleep(self._rate_limit_delay)
-                
+
             except Exception as e:
                 batch_result.failed += 1
                 logger.error(
@@ -435,7 +435,7 @@ class BatchEnhancer:
                     path=str(yaml_file),
                     error=str(e),
                 )
-        
+
         logger.info(
             "batch_enhancement_complete",
             total=batch_result.total_specs,
@@ -443,7 +443,7 @@ class BatchEnhancer:
             failed=batch_result.failed,
             skipped=batch_result.skipped,
         )
-        
+
         return batch_result
 
 
@@ -455,10 +455,10 @@ class BatchEnhancer:
 async def enhance_spec(spec: Dict[str, Any]) -> EnhancementResult:
     """
     Enhance a specification via Perplexity.
-    
+
     Args:
         spec: Parsed specification
-        
+
     Returns:
         EnhancementResult
     """
@@ -469,10 +469,10 @@ async def enhance_spec(spec: Dict[str, Any]) -> EnhancementResult:
 async def enhance_yaml(yaml_path: str) -> EnhancementResult:
     """
     Enhance a YAML file via Perplexity.
-    
+
     Args:
         yaml_path: Path to YAML file
-        
+
     Returns:
         EnhancementResult
     """
@@ -483,15 +483,16 @@ async def enhance_yaml(yaml_path: str) -> EnhancementResult:
 def preview_enhancement(spec: Dict[str, Any]) -> Dict[str, Any]:
     """
     Preview what would be enhanced.
-    
+
     Args:
         spec: Parsed specification
-        
+
     Returns:
         Preview information
     """
     enhancer = ConstructEnhancer()
     return enhancer.preview_enhancement(spec)
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -502,8 +503,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["runtime.superprompt_emitter"],
-    "tags": ["api", "async", "batch-processing", "config", "dataclass", "debugging", "filesystem", "logging", "messaging", "operations"],
-    "keywords": ["analyze", "applies", "batch", "codegenagent", "construct", "directory", "enhance", "enhancement"],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "config",
+        "dataclass",
+        "debugging",
+        "filesystem",
+        "logging",
+        "messaging",
+        "operations",
+    ],
+    "keywords": [
+        "analyze",
+        "applies",
+        "batch",
+        "codegenagent",
+        "construct",
+        "directory",
+        "enhance",
+        "enhancement",
+    ],
     "business_value": "This module bridges the SuperPrompt Emitter output with the CodeGenAgent pipeline, allowing gaps in specs to be automatically filled via Perplexity and then used for code generation. Parses Perplexity",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

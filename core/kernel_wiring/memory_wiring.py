@@ -27,6 +27,7 @@ __dora_meta__ = {
 
 _KERNELS = None
 
+
 def _get_kernels():
     """Lazy load kernel stack."""
     global _KERNELS
@@ -36,14 +37,17 @@ def _get_kernels():
         _KERNELS = load_kernel_stack()
     return _KERNELS
 
+
 def get_memory_layers_config() -> dict:
     return _get_kernels().get_rule("memory", "layers", default={}) or {}
+
 
 def should_checkpoint_now(event_type: str) -> bool:
     rules = (
         _get_kernels().get_rule("memory", "checkpointing.triggers", default=[]) or []
     )
     return event_type in rules
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -55,7 +59,15 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["runtime.kernel_loader"],
     "tags": ["adapter", "core", "event-driven", "foundation"],
-    "keywords": ["checkpoint", "layers", "memory", "now", "should", "substrate", "wiring"],
+    "keywords": [
+        "checkpoint",
+        "layers",
+        "memory",
+        "now",
+        "should",
+        "substrate",
+        "wiring",
+    ],
     "business_value": "Utility module for memory wiring",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

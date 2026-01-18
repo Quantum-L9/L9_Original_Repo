@@ -27,7 +27,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["collaborative_cells.__init__", "orchestration.cell_orchestrator"],
+        "imported_by": [
+            "collaborative_cells.__init__",
+            "orchestration.cell_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -394,6 +397,7 @@ class CoderCell(BaseCell):
         result = await self.execute(task, context)
         return result.output or {}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -403,8 +407,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "collaborative-reasoning", "intelligence", "llm", "logging", "messaging", "serialization", "service", "testing"],
-    "keywords": ["bug", "cell", "coder", "collaborative", "fix", "implement", "refactor"],
+    "tags": [
+        "api",
+        "async",
+        "collaborative-reasoning",
+        "intelligence",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "bug",
+        "cell",
+        "coder",
+        "collaborative",
+        "fix",
+        "implement",
+        "refactor",
+    ],
     "business_value": "Implements CoderCell for coder cell functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

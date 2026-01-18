@@ -31,7 +31,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Anthropic API", "OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["memory.retrieval", "tests.memory.test_frontier_memory_pipeline"],
+        "imported_by": [
+            "memory.retrieval",
+            "tests.memory.test_frontier_memory_pipeline",
+        ],
     },
 }
 # ============================================================================
@@ -475,6 +478,7 @@ def create_ranker_with_preset(preset_name: str) -> MultiFactorRanker:
     weights = WEIGHT_PRESETS.get(preset_name, WEIGHT_PRESETS["balanced"])
     return MultiFactorRanker(weights=weights)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -484,8 +488,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["dataclass", "debugging", "event-driven", "learning", "logging", "memory-substrate"],
-    "keywords": ["agent", "create", "dicts", "explain", "factor", "frontier", "importance", "memory"],
+    "tags": [
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+    ],
+    "keywords": [
+        "agent",
+        "create",
+        "dicts",
+        "explain",
+        "factor",
+        "frontier",
+        "importance",
+        "memory",
+    ],
     "business_value": "Implements frontier-grade multi-factor ranking for memory retrieval. similarity: Semantic closeness to query recency: How recent the item is importance: User-curated importance score frequency: How of",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

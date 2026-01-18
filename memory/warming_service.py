@@ -32,7 +32,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "Redis"],
         "memory_layers": [],
-        "imported_by": ["api.server", "core.agents.executor", "memory.__init__", "tests.memory.test_predictive_warming"],
+        "imported_by": [
+            "api.server",
+            "core.agents.executor",
+            "memory.__init__",
+            "tests.memory.test_predictive_warming",
+        ],
     },
 }
 # ============================================================================
@@ -453,6 +458,7 @@ async def create_warming_service(
     await service.initialize()
     return service
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -461,9 +467,22 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["memory.gap_detector", "memory.predictive_cache", "memory.warming_models"],
+    "dependencies": [
+        "memory.gap_detector",
+        "memory.predictive_cache",
+        "memory.warming_models",
+    ],
     "tags": ["async", "learning", "logging", "memory-substrate", "metrics", "service"],
-    "keywords": ["agent", "cache", "create", "cycle", "detection", "entity", "graph", "initialize"],
+    "keywords": [
+        "agent",
+        "cache",
+        "create",
+        "cycle",
+        "detection",
+        "entity",
+        "graph",
+        "initialize",
+    ],
     "business_value": "Orchestrates gap detection and predictive caching for AI agent memory.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

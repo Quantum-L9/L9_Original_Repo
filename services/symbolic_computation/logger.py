@@ -28,6 +28,7 @@ from typing import Any, Dict
 
 try:
     from pythonjsonlogger import jsonlogger
+
     JSON_LOGGING_AVAILABLE = True
 except ImportError:
     jsonlogger = None
@@ -47,23 +48,17 @@ class StructuredLogger(logging.Logger):
         handler = logging.StreamHandler()
         if JSON_LOGGING_AVAILABLE and jsonlogger:
             formatter = jsonlogger.JsonFormatter(
-                '%(asctime)s %(name)s %(levelname)s %(message)s',
-                timestamp=True
+                "%(asctime)s %(name)s %(levelname)s %(message)s", timestamp=True
             )
         else:
             formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )
         handler.setFormatter(formatter)
         self.addHandler(handler)
         self.setLevel(logging.INFO)
 
-    def log_structured(
-        self,
-        level: int,
-        message: str,
-        extra: Dict[str, Any] = None
-    ):
+    def log_structured(self, level: int, message: str, extra: Dict[str, Any] = None):
         """
         Log structured message.
 
@@ -90,13 +85,14 @@ def get_logger(name: str) -> logging.Logger:
     if not logger.handlers:
         handler = logging.StreamHandler()
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
 
     return logger
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -107,7 +103,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["messaging", "operations", "serialization", "streaming", "symbolic-computation", "utility"],
+    "tags": [
+        "messaging",
+        "operations",
+        "serialization",
+        "streaming",
+        "symbolic-computation",
+        "utility",
+    ],
     "keywords": ["log", "logger", "module", "structured"],
     "business_value": "Implements StructuredLogger for logger functionality",
     "last_modified": "2026-01-14T15:03:00Z",

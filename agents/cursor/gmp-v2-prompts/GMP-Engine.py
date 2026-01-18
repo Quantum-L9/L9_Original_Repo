@@ -491,22 +491,20 @@ class CGMPEngine:
 
         return readme
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_footer__ = {
     # === IDENTITY ===
     "component_id": "AGE-INTE-001",
-    
     # === GOVERNANCE ===
     "governance_level": "high",
     "compliance_required": True,
     "audit_trail": True,
     "security_classification": "internal",
-    
     # === DEPENDENCIES ===
     "dependencies": [],
-    
     # === OPERATIONAL ===
     "execution_mode": "on-demand",
     "timeout_seconds": 30,
@@ -514,7 +512,6 @@ __dora_footer__ = {
     "retry_policy": "exponential",
     "circuit_breaker_enabled": True,
     "circuit_breaker_threshold": 5,
-    
     # === OBSERVABILITY ===
     "monitoring_required": True,
     "logging_level": "info",
@@ -524,12 +521,10 @@ __dora_footer__ = {
         "availability_percent": 99.9,
         "error_rate_percent": 0.1,
     },
-    
     # === DISCOVERY ===
     "tags": ["async", "error-handling", "exception", "intelligence", "logging"],
     "keywords": ["batch", "blocks", "clear", "code", "engine", "error"],
     "business_value": "Handles mathematical code generation and template expansion. Part of the Quantum AI Factory architecture. Version: 1.0.0",
-    
     # === CHANGE TRACKING ===
     "last_modified": "2026-01-18T02:12:34Z",
     "modified_by": "L9_Codegen_Engine",

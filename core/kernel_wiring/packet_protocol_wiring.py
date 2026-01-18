@@ -27,6 +27,7 @@ __dora_meta__ = {
 
 _KERNELS = None
 
+
 def _get_kernels():
     """Lazy load kernel stack."""
     global _KERNELS
@@ -36,8 +37,10 @@ def _get_kernels():
         _KERNELS = load_kernel_stack()
     return _KERNELS
 
+
 def get_packet_protocol() -> dict:
     return _get_kernels().get_kernel("packet_protocol") or {}
+
 
 def get_allowed_event_types() -> list:
     return (
@@ -45,10 +48,12 @@ def get_allowed_event_types() -> list:
         or []
     )
 
+
 def get_default_channel() -> str:
     return _get_kernels().get_rule(
         "packet_protocol", "routing.default_channel", default="agent"
     )
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -60,7 +65,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["runtime.kernel_loader"],
     "tags": ["core", "event-driven", "foundation", "realtime", "streaming", "utility"],
-    "keywords": ["allowed", "channel", "default", "event", "eventstream", "packet", "protocol", "router"],
+    "keywords": [
+        "allowed",
+        "channel",
+        "default",
+        "event",
+        "eventstream",
+        "packet",
+        "protocol",
+        "router",
+    ],
     "business_value": "Utility module for packet protocol wiring",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

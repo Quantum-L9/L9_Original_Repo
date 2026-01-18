@@ -24,7 +24,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "Redis"],
         "memory_layers": [],
-        "imported_by": ["config.cursor_langgraph_config", "tests.integration.test_cursor_langgraph_integration"],
+        "imported_by": [
+            "config.cursor_langgraph_config",
+            "tests.integration.test_cursor_langgraph_integration",
+        ],
     },
 }
 # ============================================================================
@@ -50,7 +53,7 @@ logger = structlog.get_logger(__name__)
 
 class GraphSearchContext(BaseModel):
     """Context for graph search operations."""
-    
+
     agent_id: Optional[str] = Field(None, description="Agent identifier")
     project_id: str = Field(..., description="Project identifier")
     freshness_level: Literal["strict", "normal", "relaxed"] = Field(
@@ -60,9 +63,11 @@ class GraphSearchContext(BaseModel):
 
 class GraphSearchResult(BaseModel):
     """Graph search result with caching metadata."""
-    
+
     results: List[Dict[str, Any]] = Field(..., description="Search results")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Result creation time")
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Result creation time"
+    )
     schema_version: str = Field(..., description="Schema version hash")
     ttl: int = Field(..., description="Time-to-live in seconds")
 
@@ -75,7 +80,7 @@ class GraphSearchResult(BaseModel):
 def compute_graph_schema_version() -> str:
     """
     Compute GRAPH_CACHE_SCHEMA_VERSION from query builder + world model schema.
-    
+
     Per Decision 8: hash of graph_search_query_builder.py + core.worldmodel.l9schema
     """
     try:
@@ -83,6 +88,7 @@ def compute_graph_schema_version() -> str:
         from core.graph.query.graph_search_query_builder import (
             GRAPH_CACHE_SCHEMA_VERSION as query_builder_version,
         )
+
         query_hash = query_builder_version
     except ImportError:
         # Fallback: hash DSL structure
@@ -90,20 +96,25 @@ def compute_graph_schema_version() -> str:
             "sessions_for_agent": "MATCH (s:Session)-[:PARTICIPATED_IN]->(a:Agent {id: $agent_id}) RETURN s",
             "entities_by_type": "MATCH (e:Entity {type: $entity_type}) RETURN e",
         }
-        query_hash = hashlib.sha256(json.dumps(dsl_structure, sort_keys=True).encode()).hexdigest()[:16]
-    
+        query_hash = hashlib.sha256(
+            json.dumps(dsl_structure, sort_keys=True).encode()
+        ).hexdigest()[:16]
+
     try:
         # Try to import world model schema version
-        from core.worldmodel.l9schema import WORLD_MODEL_SCHEMA_VERSION as world_model_version
+        from core.worldmodel.l9schema import (
+            WORLD_MODEL_SCHEMA_VERSION as world_model_version,
+        )
+
         world_model_hash = world_model_version
     except (ImportError, AttributeError):
         # Fallback: use default
         world_model_hash = "1.0"
-    
+
     # Combine hashes
     combined = f"{query_hash}:{world_model_hash}"
     schema_version = hashlib.sha256(combined.encode()).hexdigest()[:32]
-    
+
     return schema_version
 
 
@@ -124,11 +135,11 @@ def _compute_query_hash(query: str, params: Dict[str, Any]) -> str:
 def _compute_ttl(ctx: GraphSearchContext, is_governance: bool = False) -> int:
     """
     Compute TTL with jitter.
-    
+
     Args:
         ctx: Graph search context
         is_governance: Whether this is a governance query
-        
+
     Returns:
         TTL in seconds with ±10% jitter
     """
@@ -136,11 +147,11 @@ def _compute_ttl(ctx: GraphSearchContext, is_governance: bool = False) -> int:
         base_ttl = random.randint(60, 120)
     else:
         base_ttl = random.randint(300, 600)
-    
+
     # Add ±10% jitter
     jitter = int(base_ttl * 0.1)
     ttl = base_ttl + random.randint(-jitter, jitter)
-    
+
     return max(ttl, 10)  # Minimum 10 seconds
 
 
@@ -153,30 +164,32 @@ async def cached_graph_search(
 ) -> GraphSearchResult:
     """
     Execute graph search with Redis caching and schema version invalidation.
-    
+
     Args:
         query: Cypher query string
         params: Query parameters
         ctx: Graph search context
         redis_client: Redis client (creates if None)
         neo4j_client: Neo4j client (uses get_neo4j_client if None)
-        
+
     Returns:
         GraphSearchResult with results and metadata
     """
     logger.info("Graph search", query=query[:50], project_id=ctx.project_id)
-    
+
     # Compute cache key
     query_hash = _compute_query_hash(query, params)
-    cache_key = f"graph_search:{ctx.project_id}:{ctx.agent_id or 'default'}:{query_hash}"
-    
+    cache_key = (
+        f"graph_search:{ctx.project_id}:{ctx.agent_id or 'default'}:{query_hash}"
+    )
+
     # Check cache
     if redis_client:
         try:
             cached = await redis_client.get(cache_key)
             if cached:
                 cached_data = json.loads(cached)
-                
+
                 # Check schema version
                 cached_version = cached_data.get("schema_version")
                 if cached_version == GRAPH_CACHE_SCHEMA_VERSION:
@@ -195,12 +208,13 @@ async def cached_graph_search(
                     )
         except Exception as e:
             logger.warning("Cache read failed", error=str(e))
-    
+
     # Cache miss: execute Neo4j query
     if neo4j_client is None:
         from memory.graph_client import get_neo4j_client
+
         neo4j_client = await get_neo4j_client()
-    
+
     if not neo4j_client or not neo4j_client.is_available():
         logger.error("Neo4j not available")
         return GraphSearchResult(
@@ -208,7 +222,7 @@ async def cached_graph_search(
             schema_version=GRAPH_CACHE_SCHEMA_VERSION,
             ttl=0,
         )
-    
+
     try:
         # Execute query
         results = []
@@ -219,23 +233,23 @@ async def cached_graph_search(
                 results.append(dict(record))
         finally:
             await session.close()
-        
+
         logger.info("Graph query executed", results_count=len(results))
     except Exception as e:
         logger.error("Graph query failed", error=str(e))
         results = []
-    
+
     # Determine TTL
     is_governance = "governance" in query.lower() or "approval" in query.lower()
     ttl = _compute_ttl(ctx, is_governance=is_governance)
-    
+
     # Create result
     search_result = GraphSearchResult(
         results=results,
         schema_version=GRAPH_CACHE_SCHEMA_VERSION,
         ttl=ttl,
     )
-    
+
     # Cache result
     if redis_client:
         try:
@@ -249,8 +263,9 @@ async def cached_graph_search(
             logger.info("Result cached", cache_key=cache_key, ttl=ttl)
         except Exception as e:
             logger.warning("Cache write failed", error=str(e))
-    
+
     return search_result
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -260,8 +275,24 @@ __dora_footer__ = {
     "governance_level": "high",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.graph.query.graph_search_query_builder", "core.worldmodel.l9schema", "memory.graph_client", "runtime.redis_client"],
-    "tags": ["async", "cache", "data-models", "graph-db", "learning", "logging", "pydantic", "schema", "security", "serialization"],
+    "dependencies": [
+        "core.graph.query.graph_search_query_builder",
+        "core.worldmodel.l9schema",
+        "memory.graph_client",
+        "runtime.redis_client",
+    ],
+    "tags": [
+        "async",
+        "cache",
+        "data-models",
+        "graph-db",
+        "learning",
+        "logging",
+        "pydantic",
+        "schema",
+        "security",
+        "serialization",
+    ],
     "keywords": ["cache", "cached", "compute", "graph", "schema", "search", "version"],
     "business_value": "Implements Decision 8 from design clarifications.",
     "last_modified": "2026-01-14T15:03:00Z",

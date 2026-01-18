@@ -44,7 +44,16 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.memory.router", "api.routes.observability", "core.agents.executor", "core.observability.circuit_breaker", "mcp_memory.src.audit", "memory.substrate_dag_wrapper", "memory.substrate_service", "tests.memory.test_substrate_alignment"],
+        "imported_by": [
+            "api.memory.router",
+            "api.routes.observability",
+            "core.agents.executor",
+            "core.observability.circuit_breaker",
+            "mcp_memory.src.audit",
+            "memory.substrate_dag_wrapper",
+            "memory.substrate_service",
+            "tests.memory.test_substrate_alignment",
+        ],
     },
 }
 # ============================================================================
@@ -294,6 +303,7 @@ class CircuitBreaker:
             f"failures={len(self._failures)}/{self.config.failure_threshold})"
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -303,8 +313,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["data-models", "dataclass", "event-driven", "foundation", "logging", "messaging", "testing"],
-    "keywords": ["breaker", "circuit", "circuitbreaker", "circuitbreakerconfig", "core", "fail", "failure", "fast"],
+    "tags": [
+        "data-models",
+        "dataclass",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "testing",
+    ],
+    "keywords": [
+        "breaker",
+        "circuit",
+        "circuitbreaker",
+        "circuitbreakerconfig",
+        "core",
+        "fail",
+        "failure",
+        "fast",
+    ],
     "business_value": "Implements the fail-fast pattern with three-state machine (CLOSED → OPEN → HALF_OPEN). from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig # Create with custom config c",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

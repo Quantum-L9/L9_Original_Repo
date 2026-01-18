@@ -25,7 +25,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.commands.__init__", "core.commands.executor", "core.commands.intent_extractor", "core.commands.parser", "memory.slack_ingest", "tests.integration.test_igor_commands"],
+        "imported_by": [
+            "core.commands.__init__",
+            "core.commands.executor",
+            "core.commands.intent_extractor",
+            "core.commands.parser",
+            "memory.slack_ingest",
+            "tests.integration.test_igor_commands",
+        ],
     },
 }
 # ============================================================================
@@ -79,9 +86,15 @@ class Command(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique command ID")
     type: CommandType = Field(..., description="Command type")
     raw_text: str = Field(..., description="Original input text")
-    target: Optional[str] = Field(None, description="Target entity (e.g., task_id, entity_id)")
-    description: Optional[str] = Field(None, description="Description for propose commands")
-    parameters: dict[str, Any] = Field(default_factory=dict, description="Additional parameters")
+    target: Optional[str] = Field(
+        None, description="Target entity (e.g., task_id, entity_id)"
+    )
+    description: Optional[str] = Field(
+        None, description="Description for propose commands"
+    )
+    parameters: dict[str, Any] = Field(
+        default_factory=dict, description="Additional parameters"
+    )
     risk_level: RiskLevel = Field(default=RiskLevel.LOW, description="Risk level")
 
     @property
@@ -104,10 +117,16 @@ class IntentModel(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique intent ID")
     intent_type: IntentType = Field(..., description="Classified intent type")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score")
-    entities: dict[str, Any] = Field(default_factory=dict, description="Extracted entities")
-    ambiguities: list[str] = Field(default_factory=list, description="Ambiguous elements")
+    entities: dict[str, Any] = Field(
+        default_factory=dict, description="Extracted entities"
+    )
+    ambiguities: list[str] = Field(
+        default_factory=list, description="Ambiguous elements"
+    )
     original_text: str = Field(..., description="Original NLP text")
-    suggested_command: Optional[Command] = Field(None, description="Suggested structured command")
+    suggested_command: Optional[Command] = Field(
+        None, description="Suggested structured command"
+    )
 
     @property
     def is_ambiguous(self) -> bool:
@@ -172,8 +191,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["data-models", "enum", "foundation", "messaging", "pydantic", "validation"],
-    "keywords": ["ambiguous", "command", "confirmation", "igor", "intent", "model", "prompt", "requires"],
+    "tags": [
+        "data-models",
+        "enum",
+        "foundation",
+        "messaging",
+        "pydantic",
+        "validation",
+    ],
+    "keywords": [
+        "ambiguous",
+        "command",
+        "confirmation",
+        "igor",
+        "intent",
+        "model",
+        "prompt",
+        "requires",
+    ],
     "business_value": "Provides schemas components including CommandType, IntentType, RiskLevel",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

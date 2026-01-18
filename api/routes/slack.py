@@ -73,9 +73,11 @@ except ImportError:
     def record_rate_limit_hit(*args, **kwargs):
         pass
 
+
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/slack", tags=["slack"])
+
 
 # Dependency injection for validator (injected at app startup)
 @must_stay_async("callers use await")
@@ -85,6 +87,7 @@ async def get_slack_validator(request: Request) -> SlackRequestValidator:
     if not validator:
         raise HTTPException(status_code=500, detail="Slack validator not initialized")
     return validator
+
 
 @router.post("/events")
 async def slack_events(
@@ -284,6 +287,7 @@ async def slack_events(
         # Return 200 to prevent Slack redelivery, but log error for investigation
         return {"ok": True, "error_logged": True}
 
+
 @router.post("/commands")
 async def slack_commands(
     request: Request,
@@ -425,6 +429,7 @@ async def slack_commands(
         "text": "Processing your command...",
     }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -434,8 +439,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.slack_adapter", "core.decorators", "memory.slack_ingest"],
-    "tags": ["api", "api-gateway", "async", "auth", "authorization", "debugging", "endpoint", "event-driven", "logging", "messaging"],
-    "keywords": ["async", "command", "commands", "endpoints", "events", "form", "handler", "hit"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "authorization",
+        "debugging",
+        "endpoint",
+        "event-driven",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "async",
+        "command",
+        "commands",
+        "endpoints",
+        "events",
+        "form",
+        "handler",
+        "hit",
+    ],
     "business_value": "Utility module for slack",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

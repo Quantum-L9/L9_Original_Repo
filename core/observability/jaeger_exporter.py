@@ -262,6 +262,7 @@ def initialize_jaeger_exporter(
         logger.debug("Jaeger exporter not available (opentelemetry not installed)")
     return _exporter
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -271,8 +272,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "batch-processing", "core", "debugging", "exporter", "foundation", "logging", "service", "static-analysis", "tracing"],
-    "keywords": ["async", "export", "exporter", "flush", "initialize", "jaeger", "span", "spans"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "core",
+        "debugging",
+        "exporter",
+        "foundation",
+        "logging",
+        "service",
+        "static-analysis",
+        "tracing",
+    ],
+    "keywords": [
+        "async",
+        "export",
+        "exporter",
+        "flush",
+        "initialize",
+        "jaeger",
+        "span",
+        "spans",
+    ],
     "business_value": "Implements JaegerExporter for jaeger exporter functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

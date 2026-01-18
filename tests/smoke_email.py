@@ -50,6 +50,7 @@ from unittest.mock import MagicMock, patch
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+
 class MockGmailClient:
     """Mock Gmail client for testing."""
 
@@ -93,6 +94,7 @@ class MockGmailClient:
         """Mock forward_email - returns fake result."""
         return {"message_id": "forward_123", "thread_id": "thread_123"}
 
+
 class IngestTracker:
     """Tracks calls to ingest_packet for verification."""
 
@@ -125,6 +127,7 @@ class IngestTracker:
     def clear(self):
         """Clear recorded calls."""
         self.calls = []
+
 
 async def test_email_query_ingestion():
     """Test that /email/query ingests pre and post events."""
@@ -168,6 +171,7 @@ async def test_email_query_ingestion():
             return True, "skipped (DB drivers not installed)"
         raise
 
+
 async def test_email_get_ingestion():
     """Test that /email/get ingests pre and post events."""
     try:
@@ -202,6 +206,7 @@ async def test_email_get_ingestion():
         if "asyncpg" in str(e) or "psycopg" in str(e):
             return True, "skipped (DB drivers not installed)"
         raise
+
 
 async def test_email_draft_ingestion():
     """Test that /email/draft ingests pre and post events."""
@@ -245,6 +250,7 @@ async def test_email_draft_ingestion():
             return True, "skipped (DB drivers not installed)"
         raise
 
+
 async def test_email_send_ingestion():
     """Test that /email/send ingests pre and post events."""
     try:
@@ -281,6 +287,7 @@ async def test_email_send_ingestion():
             return True, "skipped (DB drivers not installed)"
         raise
 
+
 async def test_email_reply_ingestion():
     """Test that /email/reply ingests pre and post events."""
     try:
@@ -311,6 +318,7 @@ async def test_email_reply_ingestion():
         if "asyncpg" in str(e) or "psycopg" in str(e):
             return True, "skipped (DB drivers not installed)"
         raise
+
 
 async def test_email_forward_ingestion():
     """Test that /email/forward ingests pre and post events."""
@@ -347,6 +355,7 @@ async def test_email_forward_ingestion():
             return True, "skipped (DB drivers not installed)"
         raise
 
+
 async def test_ingestion_fail_loud():
     """Test that ingestion failure causes HTTP 500."""
     try:
@@ -376,6 +385,7 @@ async def test_ingestion_fail_loud():
         if "asyncpg" in str(e) or "psycopg" in str(e):
             return True, "skipped (DB drivers not installed)"
         raise
+
 
 async def run_all_tests():
     """Run all email smoke tests."""
@@ -429,8 +439,10 @@ async def run_all_tests():
         logger.info("=" * 60)
         return 1
 
+
 def main():
     return asyncio.run(run_all_tests())
+
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -444,8 +456,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "client", "event-driven", "filesystem", "logging", "messaging", "mocking", "operations", "test"],
-    "keywords": ["action", "all", "clear", "client", "draft", "email", "fail", "failing"],
+    "tags": [
+        "api",
+        "async",
+        "client",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "messaging",
+        "mocking",
+        "operations",
+        "test",
+    ],
+    "keywords": [
+        "action",
+        "all",
+        "clear",
+        "client",
+        "draft",
+        "email",
+        "fail",
+        "failing",
+    ],
     "business_value": "1. Mocks the GmailClient to avoid real API calls 2. Calls email endpoints 3. Verifies memory ingestion was called with correct trace_id python tests/smoke_email.py Memory system must be importable (no",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

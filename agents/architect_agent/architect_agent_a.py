@@ -304,6 +304,7 @@ Propose 2-3 alternative approaches:
         result = await self.call_llm_json(prompt)
         return result.get("alternatives", [])
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -313,8 +314,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["agents.base_agent"],
-    "tags": ["agent", "agent-execution", "async", "caching", "event-driven", "intelligence", "logging", "messaging", "queue", "serialization"],
-    "keywords": ["agent", "alternatives", "architect", "component", "design", "prompt", "propose", "review"],
+    "tags": [
+        "agent",
+        "agent-execution",
+        "async",
+        "caching",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+        "queue",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "alternatives",
+        "architect",
+        "component",
+        "design",
+        "prompt",
+        "propose",
+        "review",
+    ],
     "business_value": "Implements ArchitectAgentA for architect agent a functionality",
     "last_modified": "2026-01-14T12:10:12Z",
     "modified_by": "L9_Codegen_Engine",

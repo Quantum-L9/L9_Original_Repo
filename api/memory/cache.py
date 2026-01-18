@@ -19,7 +19,18 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /health", "GET /get/{key}", "POST /set", "DELETE /delete/{key}", "GET /keys/{pattern}", "POST /session/context", "GET /session/context/{session_id}", "GET /session/list", "GET /rate-limit/{key}", "POST /rate-limit/{key}/increment"],
+        "api_endpoints": [
+            "GET /health",
+            "GET /get/{key}",
+            "POST /set",
+            "DELETE /delete/{key}",
+            "GET /keys/{pattern}",
+            "POST /session/context",
+            "GET /session/context/{session_id}",
+            "GET /session/list",
+            "GET /rate-limit/{key}",
+            "POST /rate-limit/{key}/increment",
+        ],
         "datasources": ["Redis"],
         "memory_layers": ["working_memory"],
         "imported_by": ["api.server", "mcp_memory.src.mcp_server"],
@@ -48,6 +59,7 @@ async def get_redis():
     if _redis_client is None:
         try:
             from runtime.redis_client import get_redis_client
+
             _redis_client = await get_redis_client()
         except ImportError:
             logger.warning("Redis client not available")
@@ -62,6 +74,7 @@ async def get_redis():
 
 class CacheSetRequest(BaseModel):
     """Request model for cache set operations."""
+
     key: str
     value: Any
     ttl: Optional[int] = None  # seconds
@@ -69,6 +82,7 @@ class CacheSetRequest(BaseModel):
 
 class CacheResponse(BaseModel):
     """Standard cache response."""
+
     success: bool
     data: Any = None
     error: Optional[str] = None
@@ -76,6 +90,7 @@ class CacheResponse(BaseModel):
 
 class SessionContextRequest(BaseModel):
     """Request model for session context."""
+
     session_id: str
     context: dict
     ttl: int = 86400  # 24 hours default
@@ -121,12 +136,12 @@ async def cache_get(
     client = await get_redis()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Redis not available")
-    
+
     try:
         value = await client.get(key)
         if value is None:
             return CacheResponse(success=False, error="Key not found")
-        
+
         # Try to parse as JSON
         try:
             parsed = json.loads(value)
@@ -148,14 +163,14 @@ async def cache_set(
     client = await get_redis()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Redis not available")
-    
+
     try:
         # Serialize value to JSON if not string
         if isinstance(request.value, str):
             value = request.value
         else:
             value = json.dumps(request.value)
-        
+
         result = await client.set(request.key, value, ttl=request.ttl)
         return CacheResponse(success=result)
     except Exception as e:
@@ -173,7 +188,7 @@ async def cache_delete(
     client = await get_redis()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Redis not available")
-    
+
     try:
         result = await client.delete(key)
         return CacheResponse(success=result)
@@ -192,7 +207,7 @@ async def cache_keys(
     client = await get_redis()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Redis not available")
-    
+
     try:
         keys = await client.keys(pattern)
         return CacheResponse(success=True, data=keys)
@@ -214,13 +229,13 @@ async def set_session_context(
 ):
     """
     Store session context for Cursor.
-    
+
     Used by cursor_memory_client.py for fast session state retrieval.
     """
     client = await get_redis()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Redis not available")
-    
+
     try:
         key = f"cursor:session:{request.session_id}:context"
         value = json.dumps(request.context)
@@ -239,7 +254,7 @@ async def get_session_context(
 ):
     """
     Get session context for Cursor.
-    
+
     Returns fast-access session state from Redis.
     """
     client = await get_redis()
@@ -249,14 +264,14 @@ async def get_session_context(
             error="Redis not available",
             data={"fallback": True},
         )
-    
+
     try:
         key = f"cursor:session:{session_id}:context"
         value = await client.get(key)
-        
+
         if value is None:
             return CacheResponse(success=False, error="Session context not found")
-        
+
         context = json.loads(value)
         return CacheResponse(success=True, data=context)
     except Exception as e:
@@ -272,24 +287,26 @@ async def list_sessions(
 ):
     """
     List recent Cursor sessions.
-    
+
     Returns session IDs with context stored in Redis.
     """
     client = await get_redis()
     if client is None or not client.is_available():
         return CacheResponse(success=False, error="Redis not available")
-    
+
     try:
         keys = await client.keys("cursor:session:*:context")
-        
+
         # Extract session IDs from keys
         sessions = []
         for key in keys[:limit]:
             parts = key.split(":")
             if len(parts) >= 3:
                 sessions.append(parts[2])
-        
-        return CacheResponse(success=True, data={"sessions": sessions, "count": len(sessions)})
+
+        return CacheResponse(
+            success=True, data={"sessions": sessions, "count": len(sessions)}
+        )
     except Exception as e:
         logger.error(f"List sessions failed: {e}", exc_info=True)
         return CacheResponse(success=False, error=str(e))
@@ -310,7 +327,7 @@ async def get_rate_limit(
     client = await get_redis()
     if client is None or not client.is_available():
         return {"key": key, "count": 0, "available": False}
-    
+
     try:
         count = await client.get_rate_limit(key)
         return {"key": key, "count": count, "available": True}
@@ -330,7 +347,7 @@ async def increment_rate_limit(
     client = await get_redis()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Redis not available")
-    
+
     try:
         count = await client.increment_rate_limit(key, ttl=ttl)
         return {"key": key, "count": count, "ttl": ttl}
@@ -356,7 +373,7 @@ async def set_task_context(
     client = await get_redis()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Redis not available")
-    
+
     try:
         result = await client.set_task_context(task_id, context, ttl=ttl)
         return CacheResponse(success=result)
@@ -375,7 +392,7 @@ async def get_task_context(
     client = await get_redis()
     if client is None or not client.is_available():
         return CacheResponse(success=False, error="Redis not available")
-    
+
     try:
         context = await client.get_task_context(task_id)
         if not context:
@@ -384,6 +401,7 @@ async def get_task_context(
     except Exception as e:
         logger.error(f"Get task context failed: {e}", exc_info=True)
         return CacheResponse(success=False, error=str(e))
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -394,8 +412,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.auth", "runtime.redis_client"],
-    "tags": ["api", "api-gateway", "async", "auth", "cache", "caching", "endpoint", "logging", "messaging", "operations"],
-    "keywords": ["(redis)", "cache", "delete", "health", "increment", "limit", "memory", "rate"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "cache",
+        "caching",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+    ],
+    "keywords": [
+        "(redis)",
+        "cache",
+        "delete",
+        "health",
+        "increment",
+        "limit",
+        "memory",
+        "rate",
+    ],
     "business_value": "Provides cache components including CacheSetRequest, CacheResponse, SessionContextRequest",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

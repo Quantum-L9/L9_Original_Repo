@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger(__name__)
 
+
 async def wire_governance_gates(
     instance: "BootstrapInstanceData",
     substrate_service: "MemorySubstrateService",
@@ -128,6 +129,7 @@ async def wire_governance_gates(
         # Non-fatal - governance can still work without Neo4j relationships
         logger.warning("Continuing without full governance wiring")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -137,8 +139,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.graph_client", "memory.substrate_service"],
-    "tags": ["agent-execution", "api", "async", "debugging", "foundation", "logging", "service", "testing"],
-    "keywords": ["agent", "execution", "gates", "governance", "kernel", "phase", "wire"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "debugging",
+        "foundation",
+        "logging",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "agent",
+        "execution",
+        "gates",
+        "governance",
+        "kernel",
+        "phase",
+        "wire",
+    ],
     "business_value": "Utility module for phase 6 wire governance",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

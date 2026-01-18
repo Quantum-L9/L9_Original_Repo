@@ -35,7 +35,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j"],
         "memory_layers": ["working_memory"],
-        "imported_by": ["scripts.agents.run_bootstrap_l_graph", "scripts.memory.migrate_kernels_to_graph", "tests.core.bootstrap.test_graph_state", "tests.integration.test_graph_state_integration"],
+        "imported_by": [
+            "scripts.agents.run_bootstrap_l_graph",
+            "scripts.memory.migrate_kernels_to_graph",
+            "tests.core.bootstrap.test_graph_state",
+            "tests.integration.test_graph_state_integration",
+        ],
     },
 }
 # ============================================================================
@@ -211,13 +216,14 @@ L_TOOLS = [
     },
 ]
 
+
 async def bootstrap_l_graph(
     neo4j_driver: "AsyncDriver",
     force_refresh: bool = False,
 ) -> dict:
     """
     Bootstrap L's agent state graph in Neo4j.
-    
+
     This function:
     1. Creates/updates the L Agent node
     2. Creates/updates all responsibilities
@@ -225,16 +231,16 @@ async def bootstrap_l_graph(
     4. Creates/updates all SOPs
     5. Creates/updates all tools
     6. Creates REPORTS_TO relationship to Igor
-    
+
     Args:
         neo4j_driver: Async Neo4j driver instance
         force_refresh: If True, recreate directives (normally skipped if exist)
-    
+
     Returns:
         dict with counts of created/updated entities
     """
     logger.info("Starting L graph bootstrap", force_refresh=force_refresh)
-    
+
     stats = {
         "agent": 0,
         "responsibilities": 0,
@@ -243,7 +249,7 @@ async def bootstrap_l_graph(
         "tools": 0,
         "relationships": 0,
     }
-    
+
     async with neo4j_driver.session() as session:
         # 1. Create/update L Agent node
         result = await session.run(
@@ -257,7 +263,7 @@ async def bootstrap_l_graph(
         await result.consume()
         stats["agent"] = 1
         logger.info("Created/updated L agent node")
-        
+
         # 2. Create responsibilities
         for resp in L_RESPONSIBILITIES:
             result = await session.run(
@@ -273,7 +279,7 @@ async def bootstrap_l_graph(
             "Created responsibilities",
             count=stats["responsibilities"],
         )
-        
+
         # 3. Create directives
         for directive in L_DIRECTIVES:
             result = await session.run(
@@ -289,7 +295,7 @@ async def bootstrap_l_graph(
             "Created directives",
             count=stats["directives"],
         )
-        
+
         # 4. Create SOPs
         for sop in L_SOPS:
             result = await session.run(
@@ -304,7 +310,7 @@ async def bootstrap_l_graph(
             "Created SOPs",
             count=stats["sops"],
         )
-        
+
         # 5. Create tools
         for tool in L_TOOLS:
             result = await session.run(
@@ -321,7 +327,7 @@ async def bootstrap_l_graph(
             "Created tools",
             count=stats["tools"],
         )
-        
+
         # 6. Create Igor agent (supervisor) and REPORTS_TO relationship
         await session.run(
             CREATE_AGENT_QUERY,
@@ -331,7 +337,7 @@ async def bootstrap_l_graph(
             mission="Guide L9 strategic direction",
             authority_level="OWNER",
         )
-        
+
         result = await session.run(
             CREATE_REPORTS_TO_QUERY,
             agent_id="L",
@@ -340,43 +346,44 @@ async def bootstrap_l_graph(
         await result.consume()
         stats["relationships"] = 1
         logger.info("Created L REPORTS_TO igor relationship")
-    
+
     logger.info(
         "L graph bootstrap complete",
         **stats,
     )
-    
+
     return stats
+
 
 async def verify_l_graph(neo4j_driver: "AsyncDriver") -> dict:
     """
     Verify L's graph state is complete and valid.
-    
+
     Returns:
         dict with verification results
     """
     from .schema import LOAD_AGENT_STATE_QUERY
-    
+
     async with neo4j_driver.session() as session:
         result = await session.run(
             LOAD_AGENT_STATE_QUERY,
             agent_id="L",
         )
         record = await result.single()
-        
+
         if not record:
             return {
                 "valid": False,
                 "error": "L agent node not found",
             }
-        
+
         agent = record["a"]
         responsibilities = record["responsibilities"]
         directives = record["directives"]
         sops = record["sops"]
         tools = record["tools"]
         supervisor = record["supervisor"]
-        
+
         verification = {
             "valid": True,
             "agent_id": agent["agent_id"],
@@ -388,7 +395,7 @@ async def verify_l_graph(neo4j_driver: "AsyncDriver") -> dict:
             "has_supervisor": supervisor is not None,
             "supervisor_id": supervisor["agent_id"] if supervisor else None,
         }
-        
+
         # Validate minimum requirements
         if verification["responsibility_count"] < 3:
             verification["valid"] = False
@@ -399,8 +406,9 @@ async def verify_l_graph(neo4j_driver: "AsyncDriver") -> dict:
         elif not verification["has_supervisor"]:
             verification["valid"] = False
             verification["error"] = "Missing REPORTS_TO relationship"
-        
+
         return verification
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -411,7 +419,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["agent-execution", "async", "auth", "code-quality", "config", "foundation", "graph-db", "logging", "service", "testing"],
+    "tags": [
+        "agent-execution",
+        "async",
+        "auth",
+        "code-quality",
+        "config",
+        "foundation",
+        "graph-db",
+        "logging",
+        "service",
+        "testing",
+    ],
     "keywords": ["agent", "bootstrap", "graph", "kernel", "state", "verify", "yaml"],
     "business_value": "This is idempotent - can be run multiple times safely (uses MERGE). Version: 1.0.0 Created: 2026-01-05",
     "last_modified": "2026-01-14T15:03:00Z",

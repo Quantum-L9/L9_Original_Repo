@@ -141,6 +141,7 @@ SOURCE_SCHEMAS = [
     "research_factory_schema.yaml (research_factory.v1.0.0)",
 ]
 
+
 def get_schema_info() -> dict:
     """Return schema version information."""
     return {
@@ -151,6 +152,7 @@ def get_schema_info() -> dict:
         "total_models": len(__all__),
     }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -159,7 +161,12 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.schemas", "core.schemas.research_factory_models", "core.schemas.research_factory_nodes", "core.schemas.research_factory_state"],
+    "dependencies": [
+        "core.schemas",
+        "core.schemas.research_factory_models",
+        "core.schemas.research_factory_nodes",
+        "core.schemas.research_factory_state",
+    ],
     "tags": ["api", "batch-processing", "core", "foundation", "metrics", "schema"],
     "keywords": ["core", "memory", "module", "schema", "schemas", "universal"],
     "business_value": "This module re-exports all L9 core schemas for convenient access. Import from here for the complete schema set. from core.schemas.universal_schema import ( PacketEnvelope, ResearchJobSpec, ResearchSta",

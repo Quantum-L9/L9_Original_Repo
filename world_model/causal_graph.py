@@ -42,7 +42,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["world_model.__init__", "world_model._pack_staging.loader", "world_model.engine", "world_model.loader", "world_model.runtime", "world_model.state"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model._pack_staging.loader",
+            "world_model.engine",
+            "world_model.loader",
+            "world_model.runtime",
+            "world_model.state",
+        ],
     },
 }
 # ============================================================================
@@ -668,6 +675,7 @@ class CausalGraph:
         """Number of edges in graph."""
         return len(self._edges)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -677,8 +685,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["config", "dataclass", "learning", "messaging", "queue", "rest-api", "streaming", "testing", "world-model"],
-    "keywords": ["ancestors", "causal", "causes", "count", "counterfactual", "descendants", "edge", "effects"],
+    "tags": [
+        "config",
+        "dataclass",
+        "learning",
+        "messaging",
+        "queue",
+        "rest-api",
+        "streaming",
+        "testing",
+        "world-model",
+    ],
+    "keywords": [
+        "ancestors",
+        "causal",
+        "causes",
+        "count",
+        "counterfactual",
+        "descendants",
+        "edge",
+        "effects",
+    ],
     "business_value": "This module provides the causal graph structure that underlies",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

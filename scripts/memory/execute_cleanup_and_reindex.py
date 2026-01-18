@@ -44,6 +44,7 @@ logger = structlog.get_logger(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 
+
 async def delete_trash_embeddings_from_sql():
     """Delete trash embeddings using the generated SQL."""
     if not DATABASE_URL:
@@ -108,6 +109,7 @@ async def delete_trash_embeddings_from_sql():
         logger.error(f"Failed to delete embeddings: {e}", exc_info=True)
         return False
 
+
 @must_stay_async("callers use await")
 async def reindex_content():
     """Run all re-indexing scripts."""
@@ -145,6 +147,7 @@ async def reindex_content():
             results[name] = "failed"
 
     return results
+
 
 async def main():
     """Main execution."""
@@ -197,6 +200,7 @@ async def main():
         print(f"    {icon} {name}: {status}")
     print("=" * 60 + "\n")
 
+
 if __name__ == "__main__":
     asyncio.run(main())
 
@@ -209,8 +213,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "batch-processing", "filesystem", "logging", "memory-substrate", "operations", "postgres", "service", "subprocess", "testing"],
-    "keywords": ["cleanup", "delete", "embeddings", "execute", "index", "reindex", "sql", "trash"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "filesystem",
+        "logging",
+        "memory-substrate",
+        "operations",
+        "postgres",
+        "service",
+        "subprocess",
+        "testing",
+    ],
+    "keywords": [
+        "cleanup",
+        "delete",
+        "embeddings",
+        "execute",
+        "index",
+        "reindex",
+        "sql",
+        "trash",
+    ],
     "business_value": "Utility module for execute cleanup and reindex",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

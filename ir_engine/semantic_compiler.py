@@ -29,7 +29,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["ir_engine.__init__", "ir_engine.deliberation_cell", "orchestration.orchestrator_kernel", "orchestration.unified_controller", "tests.ir_engine.test_ir_semantic_incremental", "tests.ir_engine.test_ir_semantic_to_plan_integration"],
+        "imported_by": [
+            "ir_engine.__init__",
+            "ir_engine.deliberation_cell",
+            "orchestration.orchestrator_kernel",
+            "orchestration.unified_controller",
+            "tests.ir_engine.test_ir_semantic_incremental",
+            "tests.ir_engine.test_ir_semantic_to_plan_integration",
+        ],
     },
 }
 # ============================================================================
@@ -430,6 +437,7 @@ class SemanticCompiler:
 
         return graph
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -439,7 +447,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "engine", "intelligence", "ir-compilation", "llm", "logging", "messaging", "serialization"],
+    "tags": [
+        "api",
+        "async",
+        "engine",
+        "intelligence",
+        "ir-compilation",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+    ],
     "keywords": ["compile", "compiler", "incremental", "semantic"],
     "business_value": "Implements SemanticCompiler for semantic compiler functionality",
     "last_modified": "2026-01-07T13:35:57Z",

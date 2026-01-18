@@ -53,30 +53,37 @@ import httpx
 # Configuration
 # =============================================================================
 
+
 class Config:
     """Configuration from environment."""
-    
+
     # MCP Server URL
     MCP_URL = os.getenv("L9_API_URL", "http://127.0.0.1:8000")
-    
+
     # API Key (use MCP_API_KEY_C for Cursor)
-    API_KEY = os.getenv("MCP_API_KEY_C") or os.getenv("L9_EXECUTOR_API_KEY") or os.getenv("MCP_API_KEY")
-    
+    API_KEY = (
+        os.getenv("MCP_API_KEY_C")
+        or os.getenv("L9_EXECUTOR_API_KEY")
+        or os.getenv("MCP_API_KEY")
+    )
+
     # Database connection (for tracing)
     MEMORY_DSN = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
-    
+
     # Test content
     TEST_CONTENT = f"E2E Test Memory - Main Pipeline Verification - {datetime.utcnow().isoformat()}"
     TEST_KIND = "preference"
     TEST_SCOPE = "developer"
 
+
 # =============================================================================
 # MCP Client
 # =============================================================================
 
+
 class MCPClient:
     """Client for MCP Memory Server."""
-    
+
     def __init__(self, base_url: str, api_key: str):
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
@@ -84,7 +91,7 @@ class MCPClient:
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
-    
+
     async def save_memory(
         self,
         content: str,
@@ -112,7 +119,7 @@ class MCPClient:
             response.raise_for_status()
             result = response.json()
             return result.get("result", {})
-    
+
     async def search_memory(
         self,
         query: str,
@@ -137,35 +144,37 @@ class MCPClient:
             result = response.json()
             return result.get("result", {})
 
+
 # =============================================================================
 # Database Tracer
 # =============================================================================
 
+
 class PipelineTracer:
     """Trace memory through the DAG pipeline."""
-    
+
     def __init__(self, dsn: str):
         self.dsn = dsn
         self.conn: Optional[asyncpg.Connection] = None
-    
+
     async def connect(self):
         """Connect to database."""
         self.conn = await asyncpg.connect(self.dsn)
-    
+
     async def close(self):
         """Close database connection."""
         if self.conn:
             await self.conn.close()
-    
+
     async def trace_packet(self, packet_id: str) -> Dict[str, Any]:
         """Trace packet through all pipeline stages."""
         packet_uuid = UUID(packet_id)
-        
+
         trace = {
             "packet_id": packet_id,
             "stages": {},
         }
-        
+
         # Stage 1: packet_store (event log)
         packet_row = await self.conn.fetchrow(
             """
@@ -183,17 +192,19 @@ class PipelineTracer:
             """,
             packet_uuid,
         )
-        
+
         if packet_row:
             trace["stages"]["packet_store"] = {
                 "found": True,
                 "packet_type": packet_row["packet_type"],
                 "timestamp": str(packet_row["timestamp"]),
                 "scope": packet_row["scope"],
-                "importance": float(packet_row["importance_score"]) if packet_row["importance_score"] else None,
+                "importance": float(packet_row["importance_score"])
+                if packet_row["importance_score"]
+                else None,
                 "tags": packet_row["tags"] or [],
             }
-            
+
             # Extract envelope content
             envelope = packet_row["envelope"]
             trace["stages"]["packet_store"]["envelope"] = {
@@ -202,7 +213,7 @@ class PipelineTracer:
             }
         else:
             trace["stages"]["packet_store"] = {"found": False}
-        
+
         # Stage 2: memory_embeddings (vector store)
         embedding_row = await self.conn.fetchrow(
             """
@@ -217,18 +228,20 @@ class PipelineTracer:
             """,
             packet_uuid,
         )
-        
+
         if embedding_row:
             trace["stages"]["memory_embeddings"] = {
                 "found": True,
                 "embedding_id": str(embedding_row["embedding_id"]),
                 "embedding_type": embedding_row["embedding_type"],
-                "chunk_text": embedding_row["chunk_text"][:100] if embedding_row["chunk_text"] else None,
+                "chunk_text": embedding_row["chunk_text"][:100]
+                if embedding_row["chunk_text"]
+                else None,
                 "created_at": str(embedding_row["created_at"]),
             }
         else:
             trace["stages"]["memory_embeddings"] = {"found": False}
-        
+
         # Stage 3: knowledge_facts (fact extraction)
         facts = await self.conn.fetch(
             """
@@ -246,7 +259,7 @@ class PipelineTracer:
             """,
             packet_uuid,
         )
-        
+
         if facts:
             trace["stages"]["knowledge_facts"] = {
                 "found": True,
@@ -257,14 +270,16 @@ class PipelineTracer:
                         "subject": f["subject"],
                         "predicate": f["predicate"],
                         "object": str(f["object"])[:100],
-                        "confidence": float(f["confidence"]) if f["confidence"] else None,
+                        "confidence": float(f["confidence"])
+                        if f["confidence"]
+                        else None,
                     }
                     for f in facts
                 ],
             }
         else:
             trace["stages"]["knowledge_facts"] = {"found": False, "count": 0}
-        
+
         # Stage 4: reasoning_traces (reasoning traces)
         trace_row = await self.conn.fetchrow(
             """
@@ -282,7 +297,7 @@ class PipelineTracer:
             """,
             packet_uuid,
         )
-        
+
         if trace_row:
             trace["stages"]["reasoning_traces"] = {
                 "found": True,
@@ -295,45 +310,51 @@ class PipelineTracer:
             }
         else:
             trace["stages"]["reasoning_traces"] = {"found": False}
-        
+
         return trace
+
 
 # =============================================================================
 # Main Verification
 # =============================================================================
 
+
 async def verify_main_pipeline():
     """Run E2E verification of main pipeline integration."""
-    
+
     logger.info("=" * 80)
     logger.info("MCP Memory Main Pipeline E2E Verification")
     logger.info("=" * 80)
     logger.info()
-    
+
     # Check configuration
     if not Config.API_KEY:
-        logger.error("❌ ERROR: API key not found. Set MCP_API_KEY_C or L9_EXECUTOR_API_KEY")
+        logger.error(
+            "❌ ERROR: API key not found. Set MCP_API_KEY_C or L9_EXECUTOR_API_KEY"
+        )
         sys.exit(1)
-    
+
     if not Config.MEMORY_DSN:
         logger.warning("⚠️  WARNING: MEMORY_DSN not set. Cannot trace through database.")
         logger.info("   Set MEMORY_DSN to enable full pipeline tracing.")
         trace_db = False
     else:
         trace_db = True
-    
+
     logger.info(f"📡 MCP Server URL: {Config.MCP_URL}")
-    logger.info(f"🔑 API Key: {'*' * 20}...{Config.API_KEY[-4:] if len(Config.API_KEY) > 4 else '***'}")
+    logger.info(
+        f"🔑 API Key: {'*' * 20}...{Config.API_KEY[-4:] if len(Config.API_KEY) > 4 else '***'}"
+    )
     logger.info(f"💾 Database Tracing: {'✅ Enabled' if trace_db else '❌ Disabled'}")
     logger.info()
-    
+
     # Initialize clients
     mcp_client = MCPClient(Config.MCP_URL, Config.API_KEY)
     tracer = None
     if trace_db:
         tracer = PipelineTracer(Config.MEMORY_DSN)
         await tracer.connect()
-    
+
     try:
         # Step 1: Save memory
         logger.info("Step 1: Saving test memory via MCP...")
@@ -341,7 +362,7 @@ async def verify_main_pipeline():
         logger.info(f"   Kind: {Config.TEST_KIND}")
         logger.info(f"   Scope: {Config.TEST_SCOPE}")
         logger.info()
-        
+
         save_result = await mcp_client.save_memory(
             content=Config.TEST_CONTENT,
             kind=Config.TEST_KIND,
@@ -349,47 +370,51 @@ async def verify_main_pipeline():
             duration="long",
             tags=["e2e-test", "main-pipeline"],
         )
-        
+
         packet_id = save_result.get("packet_id")
         if not packet_id:
             logger.error("❌ ERROR: No packet_id in save result")
             logger.info(f"   Result: {json.dumps(save_result, indent=2)}")
             sys.exit(1)
-        
+
         logger.info("✅ Memory saved successfully!")
         logger.info(f"   Packet ID: {packet_id}")
         logger.info(f"   Pipeline: {save_result.get('pipeline', 'unknown')}")
-        
+
         if save_result.get("pipeline") == "main_dag":
             logger.info("   ✅ Using MAIN DAG pipeline!")
         elif save_result.get("pipeline") == "direct_db":
-            logger.info("   ⚠️  Using direct DB (fallback) - main pipeline not available")
+            logger.info(
+                "   ⚠️  Using direct DB (fallback) - main pipeline not available"
+            )
         else:
             logger.info("   ⚠️  Pipeline indicator missing")
-        
+
         if "written_tables" in save_result:
-            logger.info(f"   Written tables: {', '.join(save_result['written_tables'])}")
+            logger.info(
+                f"   Written tables: {', '.join(save_result['written_tables'])}"
+            )
             if "knowledge_facts" in save_result["written_tables"]:
                 logger.info("   ✅ Fact extraction active!")
             if "reasoning_traces" in save_result["written_tables"]:
                 logger.info("   ✅ Reasoning traces active!")
-        
+
         logger.info()
-        
+
         # Step 2: Search for memory
         logger.info("Step 2: Searching for saved memory...")
         logger.info("   Query: 'E2E Test Memory'")
         logger.info()
-        
+
         # Wait a moment for embeddings to be indexed
         await asyncio.sleep(2)
-        
+
         search_result = await mcp_client.search_memory(
             query="E2E Test Memory Main Pipeline",
             top_k=5,
             threshold=0.5,
         )
-        
+
         results = search_result.get("results", [])
         found = False
         for result in results:
@@ -399,74 +424,100 @@ async def verify_main_pipeline():
                 logger.info(f"   Similarity: {result.get('similarity', 0):.3f}")
                 logger.info(f"   Content: {result.get('content', '')[:60]}...")
                 break
-        
+
         if not found:
             logger.warning("⚠️  WARNING: Saved memory not found in search results")
-            logger.info(f"   Found {len(results)} results, but packet_id {packet_id} not in list")
+            logger.info(
+                f"   Found {len(results)} results, but packet_id {packet_id} not in list"
+            )
             if results:
                 logger.info(f"   Top result packet_id: {results[0].get('packet_id')}")
-        
+
         logger.info()
-        
+
         # Step 3: Trace through pipeline
         if tracer:
             logger.info("Step 3: Tracing through DAG pipeline...")
             logger.info()
-            
+
             trace = await tracer.trace_packet(packet_id)
-            
+
             # Check each stage
             stages_ok = []
             stages_missing = []
-            
+
             if trace["stages"]["packet_store"]["found"]:
                 logger.info("✅ Stage 1: packet_store (event log)")
-                logger.info(f"   Packet type: {trace['stages']['packet_store']['packet_type']}")
+                logger.info(
+                    f"   Packet type: {trace['stages']['packet_store']['packet_type']}"
+                )
                 logger.info(f"   Scope: {trace['stages']['packet_store']['scope']}")
                 stages_ok.append("packet_store")
             else:
                 logger.info("❌ Stage 1: packet_store - NOT FOUND")
                 stages_missing.append("packet_store")
-            
+
             if trace["stages"]["memory_embeddings"]["found"]:
                 logger.info("✅ Stage 2: memory_embeddings (vector store)")
-                logger.info(f"   Embedding type: {trace['stages']['memory_embeddings']['embedding_type']}")
+                logger.info(
+                    f"   Embedding type: {trace['stages']['memory_embeddings']['embedding_type']}"
+                )
                 stages_ok.append("memory_embeddings")
             else:
                 logger.info("❌ Stage 2: memory_embeddings - NOT FOUND")
                 stages_missing.append("memory_embeddings")
-            
+
             if trace["stages"]["knowledge_facts"]["found"]:
                 logger.info("✅ Stage 3: knowledge_facts (fact extraction)")
-                logger.info(f"   Facts extracted: {trace['stages']['knowledge_facts']['count']}")
+                logger.info(
+                    f"   Facts extracted: {trace['stages']['knowledge_facts']['count']}"
+                )
                 for fact in trace["stages"]["knowledge_facts"]["facts"][:3]:
-                    logger.info(f"   - {fact['subject']} {fact['predicate']} {fact['object'][:40]}...")
+                    logger.info(
+                        f"   - {fact['subject']} {fact['predicate']} {fact['object'][:40]}..."
+                    )
                 stages_ok.append("knowledge_facts")
             else:
                 logger.info("⚠️  Stage 3: knowledge_facts - No facts extracted")
-                logger.info("   (This is OK - fact extraction may not trigger for all packet types)")
-            
+                logger.info(
+                    "   (This is OK - fact extraction may not trigger for all packet types)"
+                )
+
             if trace["stages"]["reasoning_traces"]["found"]:
                 logger.info("✅ Stage 4: reasoning_traces (reasoning traces)")
-                logger.info(f"   Agent: {trace['stages']['reasoning_traces']['agent_id']}")
+                logger.info(
+                    f"   Agent: {trace['stages']['reasoning_traces']['agent_id']}"
+                )
                 stages_ok.append("reasoning_traces")
             else:
                 logger.info("⚠️  Stage 4: reasoning_traces - No reasoning trace created")
-                logger.info("   (This is OK - reasoning traces may not be created for all packets)")
-            
+                logger.info(
+                    "   (This is OK - reasoning traces may not be created for all packets)"
+                )
+
             logger.info()
             logger.info("=" * 80)
             logger.info("Pipeline Trace Summary")
             logger.info("=" * 80)
             logger.info(f"✅ Stages completed: {len(stages_ok)}/4")
-            logger.info(f"   - packet_store: {'✅' if 'packet_store' in stages_ok else '❌'}")
-            logger.info(f"   - memory_embeddings: {'✅' if 'memory_embeddings' in stages_ok else '❌'}")
-            logger.info(f"   - knowledge_facts: {'✅' if 'knowledge_facts' in stages_ok else '⚠️'}")
-            logger.info(f"   - reasoning_traces: {'✅' if 'reasoning_traces' in stages_ok else '⚠️'}")
+            logger.info(
+                f"   - packet_store: {'✅' if 'packet_store' in stages_ok else '❌'}"
+            )
+            logger.info(
+                f"   - memory_embeddings: {'✅' if 'memory_embeddings' in stages_ok else '❌'}"
+            )
+            logger.info(
+                f"   - knowledge_facts: {'✅' if 'knowledge_facts' in stages_ok else '⚠️'}"
+            )
+            logger.info(
+                f"   - reasoning_traces: {'✅' if 'reasoning_traces' in stages_ok else '⚠️'}"
+            )
             logger.info()
-            
+
             if "packet_store" in stages_ok and "memory_embeddings" in stages_ok:
-                logger.info("✅ MAIN PIPELINE VERIFIED: Memory went through full DAG pipeline!")
+                logger.info(
+                    "✅ MAIN PIPELINE VERIFIED: Memory went through full DAG pipeline!"
+                )
                 if save_result.get("pipeline") == "main_dag":
                     logger.info("✅ Pipeline indicator confirmed: 'main_dag'")
                 return 0
@@ -477,16 +528,18 @@ async def verify_main_pipeline():
             logger.info("⚠️  Database tracing disabled - cannot verify pipeline stages")
             logger.info("   Set MEMORY_DSN to enable full verification")
             return 0
-    
+
     except Exception as e:
         logger.error(f"❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
-    
+
     finally:
         if tracer:
             await tracer.close()
+
 
 logger = structlog.get_logger(__name__)
 if __name__ == "__main__":
@@ -502,8 +555,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "auth", "client", "event-driven", "http-client", "integration", "logging", "mcp-integration", "postgres"],
-    "keywords": ["client", "close", "connect", "e2e", "memory", "packet", "pipeline", "save"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "client",
+        "event-driven",
+        "http-client",
+        "integration",
+        "logging",
+        "mcp-integration",
+        "postgres",
+    ],
+    "keywords": [
+        "client",
+        "close",
+        "connect",
+        "e2e",
+        "memory",
+        "packet",
+        "pipeline",
+        "save",
+    ],
     "business_value": "1. Saves a test memory via MCP 2. Searches for it",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

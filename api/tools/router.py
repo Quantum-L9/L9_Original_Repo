@@ -193,6 +193,7 @@ async def tool_graph_health(request: Request) -> dict:
         "timestamp": datetime.utcnow().isoformat(),
     }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -202,8 +203,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.auth", "core.decorators", "core.tools.registry_adapter"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "messaging", "operations", "pydantic", "router"],
-    "keywords": ["execute", "executortoolregistry", "governance", "graph", "health", "registry", "router", "test"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "router",
+    ],
+    "keywords": [
+        "execute",
+        "executortoolregistry",
+        "governance",
+        "graph",
+        "health",
+        "registry",
+        "router",
+        "test",
+    ],
     "business_value": "Provides router components including ToolExecuteRequest, ToolExecuteResponse",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

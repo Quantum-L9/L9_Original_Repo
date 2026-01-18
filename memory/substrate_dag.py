@@ -31,7 +31,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j"],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["core.tools.base_registry", "memory.__init__", "memory.ingestion", "memory.substrate_dag_wrapper", "memory.substrate_service", "tests.memory.test_embedding_filter", "tests.memory.test_ingestion_pipeline_audit", "tests.memory.test_mcp_bypass_compliance", "tests.memory.test_substrate_dag_native", "tests.memory.test_unified_pipeline"],
+        "imported_by": [
+            "core.tools.base_registry",
+            "memory.__init__",
+            "memory.ingestion",
+            "memory.substrate_dag_wrapper",
+            "memory.substrate_service",
+            "tests.memory.test_embedding_filter",
+            "tests.memory.test_ingestion_pipeline_audit",
+            "tests.memory.test_mcp_bypass_compliance",
+            "tests.memory.test_substrate_dag_native",
+            "tests.memory.test_unified_pipeline",
+        ],
     },
 }
 # ============================================================================
@@ -1217,6 +1228,7 @@ class SubstrateDAG:
             enrichment_duration_ms=duration_ms,
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1226,8 +1238,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.schemas", "memory.substrate_models"],
-    "tags": ["async", "debugging", "event-driven", "learning", "llm", "logging", "memory-substrate", "messaging", "metrics", "rest-api"],
-    "keywords": ["(ingestion", "after", "build", "checkpoint", "dag", "embed", "enrich", "enrichment"],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "llm",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "metrics",
+        "rest-api",
+    ],
+    "keywords": [
+        "(ingestion",
+        "after",
+        "build",
+        "checkpoint",
+        "dag",
+        "embed",
+        "enrich",
+        "enrichment",
+    ],
     "business_value": "intake_node → reasoning_node → memory_write_node → semantic_embed_node → checkpoint_node",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -25,7 +25,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["orchestrators.pattern.__init__", "orchestrators.pattern.orchestrator", "tests.orchestrators.test_pattern_orchestrator"],
+        "imported_by": [
+            "orchestrators.pattern.__init__",
+            "orchestrators.pattern.orchestrator",
+            "tests.orchestrators.test_pattern_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -292,6 +296,7 @@ class PipelineRequest(BaseModel):
     dry_run: bool = False
     max_iterations: Optional[int] = None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -301,8 +306,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["config", "data-models", "enum", "intelligence", "metrics", "pydantic", "tracing", "validation"],
-    "keywords": ["approval", "completed", "contract", "definition", "definitions", "field", "improvement", "interface"],
+    "tags": [
+        "config",
+        "data-models",
+        "enum",
+        "intelligence",
+        "metrics",
+        "pydantic",
+        "tracing",
+        "validation",
+    ],
+    "keywords": [
+        "approval",
+        "completed",
+        "contract",
+        "definition",
+        "definitions",
+        "field",
+        "improvement",
+        "interface",
+    ],
     "business_value": "Provides interface components including NodeKind, NodeStatus, PipelineStatus",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

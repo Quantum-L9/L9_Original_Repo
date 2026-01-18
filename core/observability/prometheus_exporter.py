@@ -33,6 +33,7 @@ logger = structlog.get_logger(__name__)
 # Try to import prometheus_client
 try:
     from prometheus_client import Counter, Histogram, Gauge, Summary
+
     PROMETHEUS_AVAILABLE = True
 except ImportError:
     PROMETHEUS_AVAILABLE = False
@@ -240,7 +241,9 @@ class ObservabilityPrometheusExporter:
 
         try:
             self.agent_success_rate.labels(agent_name=agent_name).set(success_rate)
-            self.agent_tool_efficiency.labels(agent_name=agent_name).set(tool_efficiency)
+            self.agent_tool_efficiency.labels(agent_name=agent_name).set(
+                tool_efficiency
+            )
             self.agent_cost_usd.labels(agent_name=agent_name).set(cost_usd)
         except Exception as e:
             logger.warning(f"Failed to update agent KPI: {e}")
@@ -260,9 +263,13 @@ class ObservabilityPrometheusExporter:
         try:
             self.llm_calls_total.labels(model=model, status=status).inc()
             if prompt_tokens > 0:
-                self.llm_tokens_total.labels(model=model, type="prompt").inc(prompt_tokens)
+                self.llm_tokens_total.labels(model=model, type="prompt").inc(
+                    prompt_tokens
+                )
             if completion_tokens > 0:
-                self.llm_tokens_total.labels(model=model, type="completion").inc(completion_tokens)
+                self.llm_tokens_total.labels(model=model, type="completion").inc(
+                    completion_tokens
+                )
             if cost_usd > 0:
                 self.llm_cost_usd.labels(model=model).inc(cost_usd)
         except Exception as e:
@@ -307,8 +314,11 @@ def initialize_exporter() -> Optional[ObservabilityPrometheusExporter]:
         logger.info("Observability Prometheus exporter initialized")
     else:
         _exporter = None
-        logger.debug("Prometheus exporter not available (prometheus_client not installed)")
+        logger.debug(
+            "Prometheus exporter not available (prometheus_client not installed)"
+        )
     return _exporter
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -319,8 +329,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "core", "debugging", "exporter", "foundation", "logging", "metrics", "utility"],
-    "keywords": ["agent", "assembly", "exporter", "failure", "initialize", "kpi", "llm", "metrics"],
+    "tags": [
+        "api",
+        "core",
+        "debugging",
+        "exporter",
+        "foundation",
+        "logging",
+        "metrics",
+        "utility",
+    ],
+    "keywords": [
+        "agent",
+        "assembly",
+        "exporter",
+        "failure",
+        "initialize",
+        "kpi",
+        "llm",
+        "metrics",
+    ],
     "business_value": "Implements ObservabilityPrometheusExporter for prometheus exporter functionality",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

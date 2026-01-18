@@ -32,7 +32,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "PostgreSQL"],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["api.agent_routes", "api.memory.router", "api.server", "api.server_memory", "api.webhook_mac_agent", "core.agents.executor", "core.singleton_registry", "email_agent.router", "memory.__init__", "memory.smoke_test"],
+        "imported_by": [
+            "api.agent_routes",
+            "api.memory.router",
+            "api.server",
+            "api.server_memory",
+            "api.webhook_mac_agent",
+            "core.agents.executor",
+            "core.singleton_registry",
+            "email_agent.router",
+            "memory.__init__",
+            "memory.smoke_test",
+        ],
     },
 }
 # ============================================================================
@@ -903,6 +914,7 @@ async def on_task_completion(
         "errors": result.errors,
     }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -911,9 +923,35 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.decorators", "core.schemas", "memory.active_encoder", "memory.audit_utils", "memory.governance_gate"],
-    "tags": ["async", "batch-processing", "caching", "debugging", "event-driven", "learning", "logging", "memory-substrate", "messaging", "postgres"],
-    "keywords": ["agent", "assignment", "batch", "completion", "dag", "enable", "enrichment", "ingest"],
+    "dependencies": [
+        "core.decorators",
+        "core.schemas",
+        "memory.active_encoder",
+        "memory.audit_utils",
+        "memory.governance_gate",
+    ],
+    "tags": [
+        "async",
+        "batch-processing",
+        "caching",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "postgres",
+    ],
+    "keywords": [
+        "agent",
+        "assignment",
+        "batch",
+        "completion",
+        "dag",
+        "enable",
+        "enrichment",
+        "ingest",
+    ],
     "business_value": "Implements IngestionPipeline for ingestion functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

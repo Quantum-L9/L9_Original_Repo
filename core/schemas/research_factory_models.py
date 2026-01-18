@@ -29,7 +29,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.schemas.__init__", "core.schemas.research_factory_nodes", "core.schemas.research_factory_state", "core.schemas.tests.test_discriminators", "core.schemas.tests.test_research_factory", "core.schemas.universal_schema"],
+        "imported_by": [
+            "core.schemas.__init__",
+            "core.schemas.research_factory_nodes",
+            "core.schemas.research_factory_state",
+            "core.schemas.tests.test_discriminators",
+            "core.schemas.tests.test_research_factory",
+            "core.schemas.universal_schema",
+        ],
     },
 }
 # ============================================================================
@@ -279,6 +286,7 @@ class IntegrationResult(BaseModel):
         )
         return valid / total
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -288,8 +296,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["batch-processing", "data-models", "enum", "foundation", "metrics", "pydantic", "validation"],
-    "keywords": ["batch", "factory", "integration", "job", "metrics", "models", "module", "object"],
+    "tags": [
+        "batch-processing",
+        "data-models",
+        "enum",
+        "foundation",
+        "metrics",
+        "pydantic",
+        "validation",
+    ],
+    "keywords": [
+        "batch",
+        "factory",
+        "integration",
+        "job",
+        "metrics",
+        "models",
+        "module",
+        "object",
+    ],
     "business_value": "1. Pass 1 — plan_queries: derive research plan from job specification 2. Pass 2 — build_superprompts: construct optimized prompts 3. Pass 3 — execute_retrieval: call research backend(s) 4. Pass 4 — ex",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

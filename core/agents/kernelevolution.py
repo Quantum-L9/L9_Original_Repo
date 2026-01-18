@@ -27,7 +27,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["core.agents.executor", "tests.integration.test_kernel_evolution_flow"],
+        "imported_by": [
+            "core.agents.executor",
+            "tests.integration.test_kernel_evolution_flow",
+        ],
     },
 }
 # ============================================================================
@@ -54,7 +57,9 @@ class KernelUpdateProposal:
 
     proposal_id: str
     kernel_id: str
-    update_type: str  # ADD_RULE, MODIFY_RULE, REMOVE_RULE, ADD_CONSTRAINT, MODIFY_CONSTRAINT
+    update_type: (
+        str  # ADD_RULE, MODIFY_RULE, REMOVE_RULE, ADD_CONSTRAINT, MODIFY_CONSTRAINT
+    )
     priority: str  # LOW, MEDIUM, HIGH, CRITICAL
     title: str
     description: str
@@ -111,7 +116,7 @@ class KernelUpdateProposal:
 {changes_text}
 
 ### Gaps Addressed
-{', '.join(self.gaps_addressed)}
+{", ".join(self.gaps_addressed)}
 
 ### Confidence
 {self.confidence:.2%}
@@ -327,7 +332,9 @@ async def create_evolution_plan(
     proposals = generate_proposals_from_reflection(reflection)
 
     # Determine overall impact
-    high_priority_count = sum(1 for p in proposals if p.priority in ("HIGH", "CRITICAL"))
+    high_priority_count = sum(
+        1 for p in proposals if p.priority in ("HIGH", "CRITICAL")
+    )
     if high_priority_count >= 2:
         estimated_impact = "HIGH"
     elif high_priority_count == 1 or len(proposals) >= 3:
@@ -476,8 +483,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.agents.selfreflection", "core.schemas"],
-    "tags": ["agent-execution", "api", "async", "dataclass", "foundation", "logging", "testing"],
-    "keywords": ["create", "evolution", "gap", "generate", "gmp", "kernel", "kernelevolution", "module"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "dataclass",
+        "foundation",
+        "logging",
+        "testing",
+    ],
+    "keywords": [
+        "create",
+        "evolution",
+        "gap",
+        "generate",
+        "gmp",
+        "kernel",
+        "kernelevolution",
+        "module",
+    ],
     "business_value": "Provides kernelevolution components including KernelUpdateProposal, EvolutionPlan",
     "last_modified": "2026-01-14T13:21:36Z",
     "modified_by": "L9_Codegen_Engine",

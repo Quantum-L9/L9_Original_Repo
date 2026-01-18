@@ -62,23 +62,27 @@ logger = structlog.get_logger(__name__)
 # Configuration
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 
-async def query_preference_packets(database_url: str, limit: int = 1000) -> List[Dict[str, Any]]:
+
+async def query_preference_packets(
+    database_url: str, limit: int = 1000
+) -> List[Dict[str, Any]]:
     """
     Query packet_store for packets with kind=preference.
-    
+
     Also queries knowledge_facts for preferences already extracted from Slack.
-    
+
     Returns:
         List of dicts with preference data
     """
     try:
         import asyncpg
         import json as json_lib
-        
+
         conn = await asyncpg.connect(database_url)
         try:
             # Query preference packets
-            packet_rows = await conn.fetch("""
+            packet_rows = await conn.fetch(
+                """
                 SELECT 
                     packet_id,
                     envelope::jsonb->>'payload' as payload_json,
@@ -89,42 +93,59 @@ async def query_preference_packets(database_url: str, limit: int = 1000) -> List
                    OR envelope::jsonb->>'packet_type' LIKE '%preference%'
                 ORDER BY created_at DESC
                 LIMIT $1
-            """, limit)
-            
+            """,
+                limit,
+            )
+
             preferences = []
             for row in packet_rows:
                 try:
-                    payload = json_lib.loads(row["payload_json"]) if row["payload_json"] else {}
-                    metadata = json_lib.loads(row["metadata_json"]) if row["metadata_json"] else {}
-                    
-                    preference_text = (
-                        payload.get("preference") or
-                        payload.get("text") or
-                        payload.get("content") or
-                        payload.get("message") or
-                        ""
+                    payload = (
+                        json_lib.loads(row["payload_json"])
+                        if row["payload_json"]
+                        else {}
                     )
-                    
+                    metadata = (
+                        json_lib.loads(row["metadata_json"])
+                        if row["metadata_json"]
+                        else {}
+                    )
+
+                    preference_text = (
+                        payload.get("preference")
+                        or payload.get("text")
+                        or payload.get("content")
+                        or payload.get("message")
+                        or ""
+                    )
+
                     if not preference_text or len(preference_text) < 10:
                         continue
-                    
+
                     user_id = metadata.get("agent") or payload.get("user_id") or "Igor"
-                    
-                    preferences.append({
-                        "packet_id": str(row["packet_id"]),
-                        "user_id": user_id,
-                        "preference_text": preference_text,
-                        "payload": payload,
-                        "metadata": metadata,
-                        "created_at": row["created_at"].isoformat() if row["created_at"] else None,
-                        "source": "preference_packet",
-                    })
+
+                    preferences.append(
+                        {
+                            "packet_id": str(row["packet_id"]),
+                            "user_id": user_id,
+                            "preference_text": preference_text,
+                            "payload": payload,
+                            "metadata": metadata,
+                            "created_at": row["created_at"].isoformat()
+                            if row["created_at"]
+                            else None,
+                            "source": "preference_packet",
+                        }
+                    )
                 except Exception as e:
-                    logger.debug(f"Failed to parse preference packet {row['packet_id']}: {e}")
+                    logger.debug(
+                        f"Failed to parse preference packet {row['packet_id']}: {e}"
+                    )
                     continue
-            
+
             # Also query knowledge_facts for preferences already extracted
-            fact_rows = await conn.fetch("""
+            fact_rows = await conn.fetch(
+                """
                 SELECT 
                     fact_id,
                     subject,
@@ -137,48 +158,61 @@ async def query_preference_packets(database_url: str, limit: int = 1000) -> List
                 WHERE predicate = 'prefers' OR predicate = 'corrects'
                 ORDER BY created_at DESC
                 LIMIT $1
-            """, limit)
-            
+            """,
+                limit,
+            )
+
             for row in fact_rows:
                 try:
-                    object_data = json_lib.loads(row["object_json"]) if row["object_json"] else {}
-                    preference_text = (
-                        object_data.get("preference") or
-                        object_data.get("correction") or
-                        str(object_data)
+                    object_data = (
+                        json_lib.loads(row["object_json"]) if row["object_json"] else {}
                     )
-                    
+                    preference_text = (
+                        object_data.get("preference")
+                        or object_data.get("correction")
+                        or str(object_data)
+                    )
+
                     if len(preference_text) < 10:
                         continue
-                    
-                    preferences.append({
-                        "packet_id": str(row["source_packet"]) if row["source_packet"] else None,
-                        "user_id": row["subject"],
-                        "preference_text": preference_text,
-                        "payload": object_data,
-                        "metadata": {},
-                        "created_at": row["created_at"].isoformat() if row["created_at"] else None,
-                        "source": "knowledge_fact",
-                        "fact_id": str(row["fact_id"]),
-                    })
+
+                    preferences.append(
+                        {
+                            "packet_id": str(row["source_packet"])
+                            if row["source_packet"]
+                            else None,
+                            "user_id": row["subject"],
+                            "preference_text": preference_text,
+                            "payload": object_data,
+                            "metadata": {},
+                            "created_at": row["created_at"].isoformat()
+                            if row["created_at"]
+                            else None,
+                            "source": "knowledge_fact",
+                            "fact_id": str(row["fact_id"]),
+                        }
+                    )
                 except Exception as e:
-                    logger.debug(f"Failed to parse preference fact {row['fact_id']}: {e}")
+                    logger.debug(
+                        f"Failed to parse preference fact {row['fact_id']}: {e}"
+                    )
                     continue
-            
+
             # Deduplicate by preference_text (keep most recent)
             seen = {}
             for pref in preferences:
                 key = pref["preference_text"][:100]  # Use first 100 chars as key
                 if key not in seen or pref["created_at"] > seen[key]["created_at"]:
                     seen[key] = pref
-            
+
             return list(seen.values())
-            
+
         finally:
             await conn.close()
     except Exception as e:
         logger.error(f"Failed to query preference packets: {e}", exc_info=True)
         return []
+
 
 async def index_preferences(
     preferences: List[Dict[str, Any]],
@@ -187,7 +221,7 @@ async def index_preferences(
 ) -> Dict[str, Any]:
     """
     Index user preferences to memory substrate.
-    
+
     Creates:
     - Knowledge facts (subject=user_id, predicate=prefers, object=pattern)
     - Semantic embeddings for preference context
@@ -195,17 +229,17 @@ async def index_preferences(
     if dry_run:
         logger.info(f"DRY RUN - would index {len(preferences)} preferences")
         return {"preferences_indexed": len(preferences), "dry_run": True}
-    
+
     facts_created = 0
     embeddings_created = 0
     errors = []
-    
+
     for preference in preferences:
         try:
             user_id = preference["user_id"]
             preference_text = preference["preference_text"]
             packet_id = preference.get("packet_id")
-            
+
             # Create knowledge fact (if not already exists from slack_ingest)
             if preference.get("source") == "preference_packet":
                 try:
@@ -223,12 +257,12 @@ async def index_preferences(
                     facts_created += 1
                 except Exception as e:
                     logger.debug(f"Failed to create preference fact: {e}")
-            
+
             # Create semantic embedding for preference context
             preference_context = f"""
 User Preference: {user_id}
 Preference: {preference_text}
-Source: {preference.get('source', 'unknown')}
+Source: {preference.get("source", "unknown")}
 """
             try:
                 embedding_id = await substrate_service.embed_text(
@@ -245,11 +279,13 @@ Source: {preference.get('source', 'unknown')}
                 embeddings_created += 1
             except Exception as e:
                 logger.debug(f"Failed to create preference embedding: {e}")
-        
+
         except Exception as e:
-            errors.append(f"Preference {preference.get('packet_id', 'unknown')}: {str(e)}")
+            errors.append(
+                f"Preference {preference.get('packet_id', 'unknown')}: {str(e)}"
+            )
             logger.debug(f"Failed to index preference: {e}")
-    
+
     return {
         "preferences_indexed": len(preferences),
         "facts_created": facts_created,
@@ -258,44 +294,43 @@ Source: {preference.get('source', 'unknown')}
         "status": "success" if not errors else "partial",
     }
 
+
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main indexing function."""
     logger.info("Starting user preferences indexing", dry_run=dry_run)
-    
+
     if not DATABASE_URL:
         logger.error("DATABASE_URL or TEST_DATABASE_URL not set")
         return
-    
+
     # Query preference packets and facts
     logger.info("Querying packet_store and knowledge_facts for preferences...")
     preferences = await query_preference_packets(DATABASE_URL, limit=1000)
     logger.info(f"Found {len(preferences)} preferences")
-    
+
     if not preferences:
         logger.warning("No preferences found")
         return
-    
+
     if verbose:
         logger.info("Sample preferences:")
         for pref in preferences[:5]:
-            logger.info(
-                f"  {pref['user_id']}: {pref['preference_text'][:50]}..."
-            )
-    
+            logger.info(f"  {pref['user_id']}: {pref['preference_text'][:50]}...")
+
     # Initialize memory substrate service
     try:
         from memory.substrate_service import init_service, close_service
-        
+
         service = await init_service(DATABASE_URL)
         logger.info("Memory substrate service initialized")
     except Exception as e:
         logger.error(f"Failed to initialize memory substrate: {e}", exc_info=True)
         return
-    
+
     try:
         # Index preferences
         result = await index_preferences(preferences, service, dry_run=dry_run)
-        
+
         # Summary
         logger.info("=" * 60)
         logger.info("USER PREFERENCES INDEXING SUMMARY")
@@ -309,19 +344,22 @@ async def main(dry_run: bool = False, verbose: bool = False):
             for error in result["errors"][:5]:
                 logger.warning(f"    - {error}")
         logger.info("=" * 60)
-        
+
     finally:
         await close_service()
 
+
 if __name__ == "__main__":
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Index user preferences to memory graph")
+
+    parser = argparse.ArgumentParser(
+        description="Index user preferences to memory graph"
+    )
     parser.add_argument("--dry-run", action="store_true", help="Dry run (no writes)")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
-    
+
     args = parser.parse_args()
-    
+
     asyncio.run(main(dry_run=args.dry_run, verbose=args.verbose))
 
 # ============================================================================
@@ -333,8 +371,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.substrate_service"],
-    "tags": ["api", "async", "cli", "debugging", "filesystem", "logging", "memory-substrate", "messaging", "operations", "postgres"],
-    "keywords": ["graph", "index", "memory", "packets", "preference", "preferences", "query", "user"],
+    "tags": [
+        "api",
+        "async",
+        "cli",
+        "debugging",
+        "filesystem",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "operations",
+        "postgres",
+    ],
+    "keywords": [
+        "graph",
+        "index",
+        "memory",
+        "packets",
+        "preference",
+        "preferences",
+        "query",
+        "user",
+    ],
     "business_value": "Utility module for index preferences",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

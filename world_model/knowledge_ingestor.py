@@ -48,7 +48,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["world_model.__init__", "world_model.engine", "world_model.runtime", "world_model.seed_loader", "world_model.world_model_service"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model.engine",
+            "world_model.runtime",
+            "world_model.seed_loader",
+            "world_model.world_model_service",
+        ],
     },
 }
 # ============================================================================
@@ -1693,6 +1699,7 @@ class KnowledgeIngestor:
 
         return result
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1702,8 +1709,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "batch-processing", "caching", "code-quality", "config", "data-models", "dataclass", "filesystem", "learning", "logging"],
-    "keywords": ["architectural", "batch", "build", "cache", "clear", "coding", "engine", "entities"],
+    "tags": [
+        "api",
+        "batch-processing",
+        "caching",
+        "code-quality",
+        "config",
+        "data-models",
+        "dataclass",
+        "filesystem",
+        "learning",
+        "logging",
+    ],
+    "keywords": [
+        "architectural",
+        "batch",
+        "build",
+        "cache",
+        "clear",
+        "coding",
+        "engine",
+        "entities",
+    ],
     "business_value": "Provides knowledge ingestor components including SourceType, IngestResult, ExtractedFact",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

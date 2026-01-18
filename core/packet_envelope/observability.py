@@ -33,7 +33,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["core.packet_envelope.integration", "tests.upgrades.test_packet_envelope_phases"],
+        "imported_by": [
+            "core.packet_envelope.integration",
+            "tests.upgrades.test_packet_envelope_phases",
+        ],
     },
 }
 # ============================================================================
@@ -59,6 +62,7 @@ try:
     from opentelemetry.trace.propagation.tracecontext import (
         TraceContextTextMapPropagator,
     )
+
     OPENTELEMETRY_AVAILABLE = True
 except ImportError:
     OPENTELEMETRY_AVAILABLE = False
@@ -68,6 +72,7 @@ except ImportError:
 
 try:
     from opentelemetry.exporter.prometheus import PrometheusMetricReader
+
     PROMETHEUS_EXPORTER_AVAILABLE = True
 except ImportError:
     PrometheusMetricReader = None
@@ -492,6 +497,7 @@ def create_observability(enabled: bool = True) -> PacketEnvelopeObservability:
     config = ObservabilityConfig(enabled=enabled)
     return PacketEnvelopeObservability(config)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -501,8 +507,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "batch-processing", "caching", "core", "dataclass", "debugging", "event-driven", "foundation", "messaging", "metrics"],
-    "keywords": ["async", "attach", "create", "decorator", "envelope", "event", "extract", "frame"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "caching",
+        "core",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "messaging",
+        "metrics",
+    ],
+    "keywords": [
+        "async",
+        "attach",
+        "create",
+        "decorator",
+        "envelope",
+        "event",
+        "extract",
+        "frame",
+    ],
     "business_value": "Provides observability components including ObservabilityConfig, PacketEnvelopeObservability, StructuredLogEvent",
     "last_modified": "2026-01-14T12:10:12Z",
     "modified_by": "L9_Codegen_Engine",

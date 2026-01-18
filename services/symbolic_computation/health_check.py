@@ -31,6 +31,8 @@ from typing import Dict, Any
 from symbolic_computation import SymbolicComputation
 
 logger = structlog.get_logger(__name__)
+
+
 async def perform_health_check() -> Dict[str, Any]:
     """
     Perform comprehensive health check.
@@ -42,11 +44,7 @@ async def perform_health_check() -> Dict[str, Any]:
 
     try:
         # Test basic computation
-        result = await engine.compute(
-            "x + 1",
-            {"x": 1.0},
-            backend="numpy"
-        )
+        result = await engine.compute("x + 1", {"x": 1.0}, backend="numpy")
 
         # Get metrics
         health = await engine.health_check()
@@ -54,15 +52,16 @@ async def perform_health_check() -> Dict[str, Any]:
         return {
             "status": "healthy" if result.success else "degraded",
             "details": health,
-            "timestamp": str(asyncio.get_event_loop().time())
+            "timestamp": str(asyncio.get_event_loop().time()),
         }
 
     except Exception as e:
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": str(asyncio.get_event_loop().time())
+            "timestamp": str(asyncio.get_event_loop().time()),
         }
+
 
 if __name__ == "__main__":
     result = asyncio.run(perform_health_check())
@@ -80,7 +79,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "event-driven", "logging", "metrics", "monitoring", "operations", "service", "symbolic-computation", "testing"],
+    "tags": [
+        "async",
+        "event-driven",
+        "logging",
+        "metrics",
+        "monitoring",
+        "operations",
+        "service",
+        "symbolic-computation",
+        "testing",
+    ],
     "keywords": ["check", "health", "module", "perform"],
     "business_value": "Provides HTTP endpoint for health monitoring in production.",
     "last_modified": "2026-01-07T13:35:58Z",

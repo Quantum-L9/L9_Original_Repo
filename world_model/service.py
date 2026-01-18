@@ -34,7 +34,17 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.server", "api.world_model_api", "core.integration.graph_to_wm_sync", "core.integration.tool_pattern_extractor", "core.singleton_registry", "memory.substrate_dag", "memory.substrate_service", "world_model.__init__", "world_model.nodes.service_nodes"],
+        "imported_by": [
+            "api.server",
+            "api.world_model_api",
+            "core.integration.graph_to_wm_sync",
+            "core.integration.tool_pattern_extractor",
+            "core.singleton_registry",
+            "memory.substrate_dag",
+            "memory.substrate_service",
+            "world_model.__init__",
+            "world_model.nodes.service_nodes",
+        ],
     },
 }
 # ============================================================================
@@ -659,6 +669,7 @@ async def close_world_model_service():
         _service = None
         logger.info("WorldModelService closed")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -668,8 +679,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "learning", "logging", "rest-api", "service", "testing", "world-model"],
-    "keywords": ["close", "count", "create", "delete", "entities", "entity", "insights", "latest"],
+    "tags": [
+        "async",
+        "learning",
+        "logging",
+        "rest-api",
+        "service",
+        "testing",
+        "world-model",
+    ],
+    "keywords": [
+        "close",
+        "count",
+        "create",
+        "delete",
+        "entities",
+        "entity",
+        "insights",
+        "latest",
+    ],
     "business_value": "This service replaces in-memory storage with Postgres-backed persistence. WorldModelOS.yaml → service_layer world_model_layer.yaml → coordination Version: 1.0.0",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

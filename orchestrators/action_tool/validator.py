@@ -264,6 +264,7 @@ class Validator:
 
         return errors
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -273,8 +274,22 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.tools.registry_adapter"],
-    "tags": ["async", "intelligence", "logging", "orchestration", "service", "validation"],
-    "keywords": ["orchestrator", "process", "tool", "validate", "validation", "validator"],
+    "tags": [
+        "async",
+        "intelligence",
+        "logging",
+        "orchestration",
+        "service",
+        "validation",
+    ],
+    "keywords": [
+        "orchestrator",
+        "process",
+        "tool",
+        "validate",
+        "validation",
+        "validator",
+    ],
     "business_value": "Handles tool validation and safety checks.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

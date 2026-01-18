@@ -252,6 +252,7 @@ class ApplyEngine:
         logger.debug(f"Restarting service: {service}")
         await asyncio.sleep(1.0)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -261,7 +262,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "debugging", "engine", "intelligence", "logging", "messaging", "migration", "orchestration", "rest-api"],
+    "tags": [
+        "async",
+        "debugging",
+        "engine",
+        "intelligence",
+        "logging",
+        "messaging",
+        "migration",
+        "orchestration",
+        "rest-api",
+    ],
     "keywords": ["apply", "engine", "orchestrator", "rollback"],
     "business_value": "Implements ApplyEngine for apply engine functionality",
     "last_modified": "2026-01-17T23:47:56Z",

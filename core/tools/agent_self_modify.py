@@ -57,12 +57,12 @@ logger = structlog.get_logger(__name__)
 class AgentSelfModifyTool:
     """
     Allow agents to modify their own graph state.
-    
-    This tool enables L to evolve his own directives, SOPs, and 
+
+    This tool enables L to evolve his own directives, SOPs, and
     responsibilities without code changes. All modifications follow
     strict governance rules and produce audit trails.
     """
-    
+
     def __init__(
         self,
         neo4j_driver: "AsyncDriver",
@@ -70,7 +70,7 @@ class AgentSelfModifyTool:
     ):
         self.neo4j = neo4j_driver
         self.substrate = substrate_service
-    
+
     async def add_directive(
         self,
         agent_id: str,
@@ -81,23 +81,23 @@ class AgentSelfModifyTool:
     ) -> dict:
         """
         Add a new directive to agent's graph.
-        
+
         Args:
             agent_id: Agent to modify (e.g., "L")
             text: The directive text
             context: Context category (governance, safety, execution, etc.)
             severity: Directive severity level
             igor_approved: Whether Igor has pre-approved this change
-        
+
         Returns:
             dict with success status and directive details
-        
+
         Governance:
             - HIGH/CRITICAL severity REQUIRES igor_approved=True
             - LOW/MEDIUM can be added without approval
         """
         from core.agents.graph_state.schema import ADD_DIRECTIVE_QUERY
-        
+
         # Governance check: HIGH/CRITICAL require Igor approval
         if severity in ("HIGH", "CRITICAL") and not igor_approved:
             logger.warning(
@@ -111,7 +111,7 @@ class AgentSelfModifyTool:
                 "directive": text,
                 "requires_action": "request_igor_approval",
             }
-        
+
         try:
             async with self.neo4j.session() as session:
                 result = await session.run(
@@ -123,15 +123,15 @@ class AgentSelfModifyTool:
                     created_by=agent_id,
                 )
                 record = await result.single()
-                
+
                 if not record:
                     return {
                         "success": False,
                         "error": f"Agent not found: {agent_id}",
                     }
-                
+
                 directive_id = record["directive_id"]
-            
+
             # Audit log
             await self._log_modification(
                 agent_id=agent_id,
@@ -144,21 +144,21 @@ class AgentSelfModifyTool:
                     "igor_approved": igor_approved,
                 },
             )
-            
+
             logger.info(
                 "Agent added directive",
                 agent_id=agent_id,
                 directive_id=str(directive_id),
                 severity=severity,
             )
-            
+
             return {
                 "success": True,
                 "directive_id": str(directive_id),
                 "directive": text,
                 "severity": severity,
             }
-            
+
         except Exception as e:
             logger.error(
                 "Failed to add directive",
@@ -169,7 +169,7 @@ class AgentSelfModifyTool:
                 "success": False,
                 "error": str(e),
             }
-    
+
     async def update_responsibility(
         self,
         agent_id: str,
@@ -178,20 +178,20 @@ class AgentSelfModifyTool:
     ) -> dict:
         """
         Update a responsibility's description.
-        
+
         This is a low-risk operation that doesn't require approval.
         Cannot change the title or priority - only description.
-        
+
         Args:
             agent_id: Agent to modify
             responsibility_title: Exact title of responsibility to update
             new_description: New description text
-        
+
         Returns:
             dict with success status
         """
         from core.agents.graph_state.schema import UPDATE_RESPONSIBILITY_QUERY
-        
+
         try:
             async with self.neo4j.session() as session:
                 result = await session.run(
@@ -201,13 +201,13 @@ class AgentSelfModifyTool:
                     new_description=new_description,
                 )
                 record = await result.single()
-                
+
                 if not record:
                     return {
                         "success": False,
                         "error": f"Responsibility not found: {responsibility_title}",
                     }
-            
+
             # Audit log
             await self._log_modification(
                 agent_id=agent_id,
@@ -217,19 +217,19 @@ class AgentSelfModifyTool:
                     "new_description": new_description,
                 },
             )
-            
+
             logger.info(
                 "Agent updated responsibility",
                 agent_id=agent_id,
                 responsibility=responsibility_title,
             )
-            
+
             return {
                 "success": True,
                 "responsibility": responsibility_title,
                 "new_description": new_description,
             }
-            
+
         except Exception as e:
             logger.error(
                 "Failed to update responsibility",
@@ -240,7 +240,7 @@ class AgentSelfModifyTool:
                 "success": False,
                 "error": str(e),
             }
-    
+
     async def add_sop_step(
         self,
         agent_id: str,
@@ -249,20 +249,20 @@ class AgentSelfModifyTool:
     ) -> dict:
         """
         Add a step to an existing SOP.
-        
+
         This is a low-risk operation that doesn't require approval.
         Steps are always added at the end of the SOP.
-        
+
         Args:
             agent_id: Agent to modify
             sop_name: Name of SOP to update
             step: New step to add
-        
+
         Returns:
             dict with success status and updated step count
         """
         from core.agents.graph_state.schema import ADD_SOP_STEP_QUERY
-        
+
         try:
             async with self.neo4j.session() as session:
                 result = await session.run(
@@ -272,15 +272,15 @@ class AgentSelfModifyTool:
                     step=step,
                 )
                 record = await result.single()
-                
+
                 if not record:
                     return {
                         "success": False,
                         "error": f"SOP not found: {sop_name}",
                     }
-                
+
                 step_count = record["step_count"]
-            
+
             # Audit log
             await self._log_modification(
                 agent_id=agent_id,
@@ -291,21 +291,21 @@ class AgentSelfModifyTool:
                     "step_count": step_count,
                 },
             )
-            
+
             logger.info(
                 "Agent added SOP step",
                 agent_id=agent_id,
                 sop=sop_name,
                 step_count=step_count,
             )
-            
+
             return {
                 "success": True,
                 "sop": sop_name,
                 "step": step,
                 "total_steps": step_count,
             }
-            
+
         except Exception as e:
             logger.error(
                 "Failed to add SOP step",
@@ -316,7 +316,7 @@ class AgentSelfModifyTool:
                 "success": False,
                 "error": str(e),
             }
-    
+
     async def _log_modification(
         self,
         agent_id: str,
@@ -325,16 +325,16 @@ class AgentSelfModifyTool:
     ) -> None:
         """
         Log self-modification to audit trail.
-        
+
         Creates a PacketEnvelope for governance tracking.
         """
         if not self.substrate:
             logger.debug("No substrate service - skipping audit log")
             return
-        
+
         try:
             from core.schemas import PacketEnvelopeIn, PacketMetadata
-            
+
             packet = PacketEnvelopeIn(
                 packet_type="agent_self_modify",
                 agent_id=agent_id,
@@ -349,9 +349,9 @@ class AgentSelfModifyTool:
                     tags=["self_modify", action],
                 ),
             )
-            
+
             await self.substrate.write_packet(packet)
-            
+
         except Exception as e:
             # Never fail the modification due to audit logging
             logger.warning(
@@ -420,19 +420,21 @@ AGENT_SELF_MODIFY_TOOL_DEFINITIONS = [
 # FACTORY FUNCTION
 # =============================================================================
 
+
 def create_self_modify_tool(
     neo4j_driver: "AsyncDriver",
     substrate_service: Optional["MemorySubstrateService"] = None,
 ) -> AgentSelfModifyTool:
     """
     Factory function to create AgentSelfModifyTool.
-    
+
     Use this in server startup or dependency injection.
     """
     return AgentSelfModifyTool(
         neo4j_driver=neo4j_driver,
         substrate_service=substrate_service,
     )
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -442,9 +444,33 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.agents.graph_state.schema", "core.schemas", "memory.substrate_service"],
-    "tags": ["async", "audit-tool", "auth", "debugging", "foundation", "graph-db", "logging", "rest-api", "service", "testing"],
-    "keywords": ["agent", "approval", "audit", "change", "constraints", "create", "directive", "directives"],
+    "dependencies": [
+        "core.agents.graph_state.schema",
+        "core.schemas",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "async",
+        "audit-tool",
+        "auth",
+        "debugging",
+        "foundation",
+        "graph-db",
+        "logging",
+        "rest-api",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "agent",
+        "approval",
+        "audit",
+        "change",
+        "constraints",
+        "create",
+        "directive",
+        "directives",
+    ],
     "business_value": "Implements AgentSelfModifyTool for agent self modify functionality",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

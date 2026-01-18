@@ -93,6 +93,7 @@ class SubstrateRetriever(BaseRetriever):
 
         return asyncio.run(self._aget_relevant_documents(query))
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

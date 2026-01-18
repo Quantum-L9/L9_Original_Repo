@@ -281,6 +281,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
         per_change_time = 5
         return base_time + (len(upgrade.changes) * per_change_time)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -290,8 +291,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "intelligence", "logging", "messaging", "orchestration", "service", "testing"],
-    "keywords": ["apply", "evolution", "history", "implementation", "orchestrator", "rollback", "upgrade", "upgrades"],
+    "tags": [
+        "async",
+        "intelligence",
+        "logging",
+        "messaging",
+        "orchestration",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "apply",
+        "evolution",
+        "history",
+        "implementation",
+        "orchestrator",
+        "rollback",
+        "upgrade",
+        "upgrades",
+    ],
     "business_value": "Implements EvolutionOrchestrator for orchestrator functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

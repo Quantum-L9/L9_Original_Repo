@@ -33,7 +33,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "OpenAI API", "Perplexity API", "PostgreSQL"],
         "memory_layers": ["episodic_memory", "semantic_memory", "working_memory"],
-        "imported_by": ["core.agents.bootstrap.phase_0_validate", "core.singleton_registry", "core.tools.registry_adapter", "runtime.l_tools", "services.research.tools.__init__", "services.research.tools.tool_resolver", "tests.integration.test_l_bootstrap", "tests.integration.test_research_tool_integration", "tests.test_tool_registry", "tests.unit.test_registry_adapter_sanitization"],
+        "imported_by": [
+            "core.agents.bootstrap.phase_0_validate",
+            "core.singleton_registry",
+            "core.tools.registry_adapter",
+            "runtime.l_tools",
+            "services.research.tools.__init__",
+            "services.research.tools.tool_resolver",
+            "tests.integration.test_l_bootstrap",
+            "tests.integration.test_research_tool_integration",
+            "tests.test_tool_registry",
+            "tests.unit.test_registry_adapter_sanitization",
+        ],
     },
 }
 # ============================================================================
@@ -1349,6 +1360,7 @@ async def saga_execute_custom(
             "results": {},
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1357,9 +1369,35 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.agents.executor", "core.tools.tool_embeddings", "memory.substrate_dag", "memory.substrate_service", "runtime.task_queue"],
-    "tags": ["api", "async", "data-models", "debugging", "enum", "event-driven", "foundation", "logging", "messaging", "pydantic"],
-    "keywords": ["all", "ask", "calculate", "check", "correlation", "custom", "disable", "enable"],
+    "dependencies": [
+        "core.agents.executor",
+        "core.tools.tool_embeddings",
+        "memory.substrate_dag",
+        "memory.substrate_service",
+        "runtime.task_queue",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "debugging",
+        "enum",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "pydantic",
+    ],
+    "keywords": [
+        "all",
+        "ask",
+        "calculate",
+        "check",
+        "correlation",
+        "custom",
+        "disable",
+        "enable",
+    ],
     "business_value": "Provides base registry components including ToolType, ToolSchema, ToolMetadata",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

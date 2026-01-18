@@ -27,6 +27,7 @@ __dora_meta__ = {
 
 _KERNELS = None
 
+
 def _get_kernels():
     """Lazy load kernel stack."""
     global _KERNELS
@@ -36,8 +37,10 @@ def _get_kernels():
         _KERNELS = load_kernel_stack()
     return _KERNELS
 
+
 def get_identity_profile() -> dict:
     return _get_kernels().get_kernel("identity") or {}
+
 
 def apply_identity_to_response(text: str) -> str:
     identity = get_identity_profile()
@@ -45,6 +48,7 @@ def apply_identity_to_response(text: str) -> str:
     style = identity.get("style", {})
     # You can later expand this; for now, just return text.
     return text
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

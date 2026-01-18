@@ -27,6 +27,7 @@ __dora_meta__ = {
 
 _KERNELS = None
 
+
 def _get_kernels():
     """Lazy load kernel stack."""
     global _KERNELS
@@ -36,13 +37,16 @@ def _get_kernels():
         _KERNELS = load_kernel_stack()
     return _KERNELS
 
+
 def get_execution_state_machine() -> dict:
     return _get_kernels().get_kernel("execution") or {}
+
 
 def get_allowed_transitions(state: str) -> list:
     sm = get_execution_state_machine()
     transitions = sm.get("transitions", {})
     return transitions.get(state, [])
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -54,7 +58,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["runtime.kernel_loader"],
     "tags": ["core", "foundation", "utility"],
-    "keywords": ["allowed", "engine", "execution", "machine", "module", "state", "transitions", "wiring"],
+    "keywords": [
+        "allowed",
+        "engine",
+        "execution",
+        "machine",
+        "module",
+        "state",
+        "transitions",
+        "wiring",
+    ],
     "business_value": "Utility module for execution wiring",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

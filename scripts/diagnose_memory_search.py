@@ -43,6 +43,7 @@ ssl_context.verify_mode = ssl.CERT_NONE
 L9_API_URL = os.getenv("L9_API_URL", "https://157.180.73.53:9001")
 L9_EXECUTOR_API_KEY = os.getenv("L9_EXECUTOR_API_KEY", "")
 
+
 def mcp_call(tool_name: str, arguments: dict) -> dict:
     """Call MCP tool."""
     url = f"{L9_API_URL}/mcp/call"
@@ -62,6 +63,7 @@ def mcp_call(tool_name: str, arguments: dict) -> dict:
             return {"error": result.get("detail", "MCP call failed")}
     except Exception as e:
         return {"error": str(e)}
+
 
 def main():
     print("=" * 60)
@@ -155,6 +157,7 @@ def main():
         )
         print("   But writes use packet_type 'memory.{kind}' (e.g., 'memory.note')")
         print("   FIX: Update stats query OR update write packet_type format")
+
 
 if __name__ == "__main__":
     if not L9_EXECUTOR_API_KEY:

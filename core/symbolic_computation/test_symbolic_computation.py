@@ -323,6 +323,7 @@ class TestPerformance:
         assert result2.success is True
         # Note: Caching happens at lambdify level, not evaluation
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -332,8 +333,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "caching", "core", "foundation", "messaging", "metrics", "test", "testing", "validation"],
-    "keywords": ["caching", "check", "codegen", "collection", "computation", "compute", "end", "engine"],
+    "tags": [
+        "async",
+        "caching",
+        "core",
+        "foundation",
+        "messaging",
+        "metrics",
+        "test",
+        "testing",
+        "validation",
+    ],
+    "keywords": [
+        "caching",
+        "check",
+        "codegen",
+        "collection",
+        "computation",
+        "compute",
+        "end",
+        "engine",
+    ],
     "business_value": "Provides test symbolic computation components including TestExpressionEvaluator, TestCodeGenerator, TestSymbolicComputation",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

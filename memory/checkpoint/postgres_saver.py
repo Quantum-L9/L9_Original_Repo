@@ -24,7 +24,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["api.server", "memory.checkpoint.__init__", "memory.checkpoint.cursor_checkpoint_manager", "tests.integration.test_cursor_langgraph_integration"],
+        "imported_by": [
+            "api.server",
+            "memory.checkpoint.__init__",
+            "memory.checkpoint.cursor_checkpoint_manager",
+            "tests.integration.test_cursor_langgraph_integration",
+        ],
     },
 }
 # ============================================================================
@@ -197,6 +202,7 @@ class L9PostgresSaver(BaseCheckpointSaver):
         logger.debug("List checkpoints called (not yet implemented)")
         return []
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -206,7 +212,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "memory.substrate_repository"],
-    "tags": ["async", "debugging", "learning", "logging", "memory-substrate", "service"],
+    "tags": [
+        "async",
+        "debugging",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "service",
+    ],
     "keywords": ["langgraph", "postgres", "repository", "saver"],
     "business_value": "Implements L9PostgresSaver for postgres saver functionality",
     "last_modified": "2026-01-17T23:47:56Z",

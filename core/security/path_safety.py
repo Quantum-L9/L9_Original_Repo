@@ -23,7 +23,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.routes.factory", "scripts.research.factory_extract", "tests.core.security.test_path_safety"],
+        "imported_by": [
+            "api.routes.factory",
+            "scripts.research.factory_extract",
+            "tests.core.security.test_path_safety",
+        ],
     },
 }
 # ============================================================================
@@ -305,6 +309,7 @@ def _dir_open_flags() -> int:
         flags |= os.O_NOFOLLOW
     return flags
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -314,7 +319,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "audit-tool", "core", "dataclass", "filesystem", "foundation", "messaging"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "core",
+        "dataclass",
+        "filesystem",
+        "foundation",
+        "messaging",
+    ],
     "keywords": ["async", "dir", "filename", "resolve", "safe", "safety", "validate"],
     "business_value": "Provides allowlist-rooted path resolution with normalization, traversal defenses, and async-compatible helpers for auditability.",
     "last_modified": "2026-01-17T23:47:56Z",

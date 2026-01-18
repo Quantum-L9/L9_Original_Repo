@@ -82,6 +82,7 @@ class IWorldModelOrchestrator(Protocol):
         """Update world model from extracted insights."""
         ...
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -91,8 +92,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "data-models", "enum", "intelligence", "messaging", "orchestration", "pydantic", "rest-api", "scheduling", "validation"],
-    "keywords": ["execute", "insights", "interface", "model", "operation", "orchestrator", "update", "world"],
+    "tags": [
+        "async",
+        "data-models",
+        "enum",
+        "intelligence",
+        "messaging",
+        "orchestration",
+        "pydantic",
+        "rest-api",
+        "scheduling",
+        "validation",
+    ],
+    "keywords": [
+        "execute",
+        "insights",
+        "interface",
+        "model",
+        "operation",
+        "orchestrator",
+        "update",
+        "world",
+    ],
     "business_value": "Provides interface components including WorldModelOperation, WorldModelRequest, WorldModelResponse",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -266,7 +266,7 @@ __dora_footer__ = {
     "dependencies": [],
     "tags": ["api", "authorization", "caching", "cli", "filesystem", "logging", "operations", "scripts", "testing"],
     "keywords": ["cto", "directory", "process", "rename", "replace", "should", "skip"],
-    "business_value": "Import paths: `from l.` → `from l_cto.` (Python modules use underscores) Agent IDs: `agent_id="l"` → `agent_id="l-cto"` Package references in code python scripts/rename_l_to_l_cto.py [--dry-run]",
+    "business_value": "Import paths: `from l.` → `from l_cto.` (Python modules use underscores) Agent IDs: `agent_id=` → `a",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

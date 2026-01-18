@@ -42,7 +42,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["world_model.__init__", "world_model._pack_staging.test_integration", "world_model.engine", "world_model.runtime"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model._pack_staging.test_integration",
+            "world_model.engine",
+            "world_model.runtime",
+        ],
     },
 }
 # ============================================================================
@@ -589,6 +594,7 @@ class WorldModelLoader:
         """Number of specifications loaded."""
         return len(self._loaded_specs)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -598,8 +604,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["caching", "collector", "config", "debugging", "filesystem", "learning", "loader", "logging", "world-model"],
-    "keywords": ["blueprint", "causal", "count", "domain", "entity", "files", "graph", "initial"],
+    "tags": [
+        "caching",
+        "collector",
+        "config",
+        "debugging",
+        "filesystem",
+        "learning",
+        "loader",
+        "logging",
+        "world-model",
+    ],
+    "keywords": [
+        "blueprint",
+        "causal",
+        "count",
+        "domain",
+        "entity",
+        "files",
+        "graph",
+        "initial",
+    ],
     "business_value": "Loading YAML specification files Parsing entity schemas Parsing relation schemas Parsing causal graph structure Populating WorldModelRegistry Initializing WorldModelState WorldModelEngine: uses loader",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

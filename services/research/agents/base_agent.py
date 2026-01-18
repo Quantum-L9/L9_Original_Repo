@@ -21,7 +21,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["services.research.agents.__init__", "services.research.agents.critic_agent", "services.research.agents.planner_agent", "services.research.agents.researcher_agent"],
+        "imported_by": [
+            "services.research.agents.__init__",
+            "services.research.agents.critic_agent",
+            "services.research.agents.planner_agent",
+            "services.research.agents.researcher_agent",
+        ],
     },
 }
 # ============================================================================
@@ -198,6 +203,7 @@ class BaseAgent(ABC):
         """Create an assistant message."""
         return {"role": "assistant", "content": content}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -207,8 +213,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["adapter", "api", "async", "debugging", "llm", "logging", "messaging", "operations", "research-services", "serialization"],
-    "keywords": ["agent", "assistant", "format", "json", "llm", "prompt", "research", "system"],
+    "tags": [
+        "adapter",
+        "api",
+        "async",
+        "debugging",
+        "llm",
+        "logging",
+        "messaging",
+        "operations",
+        "research-services",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "assistant",
+        "format",
+        "json",
+        "llm",
+        "prompt",
+        "research",
+        "system",
+    ],
     "business_value": "Implements BaseAgent for base agent functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

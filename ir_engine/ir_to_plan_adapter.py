@@ -29,7 +29,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["ir_engine.__init__", "orchestration.orchestrator_kernel", "orchestration.unified_controller", "tests.ir_engine.test_ir_packet_formats", "tests.ir_engine.test_ir_semantic_to_plan_integration"],
+        "imported_by": [
+            "ir_engine.__init__",
+            "orchestration.orchestrator_kernel",
+            "orchestration.unified_controller",
+            "tests.ir_engine.test_ir_packet_formats",
+            "tests.ir_engine.test_ir_semantic_to_plan_integration",
+        ],
     },
 }
 # ============================================================================
@@ -484,6 +490,7 @@ class IRToPlanAdapter:
 
         return False
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -493,8 +500,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["adapter-pattern", "api", "dataclass", "intelligence", "ir-compilation", "logging", "queue"],
-    "keywords": ["adapter", "executable", "execution", "format", "formats", "insert", "langgraph", "memory"],
+    "tags": [
+        "adapter-pattern",
+        "api",
+        "dataclass",
+        "intelligence",
+        "ir-compilation",
+        "logging",
+        "queue",
+    ],
+    "keywords": [
+        "adapter",
+        "executable",
+        "execution",
+        "format",
+        "formats",
+        "insert",
+        "langgraph",
+        "memory",
+    ],
     "business_value": "Provides ir to plan adapter components including ExecutionStep, ExecutionPlan, IRToPlanAdapter",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

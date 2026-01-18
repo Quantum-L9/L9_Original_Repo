@@ -851,7 +851,7 @@ __dora_footer__ = {
     "dependencies": ["core.decorators"],
     "tags": ["async", "auth", "data-models", "dataclass", "debugging", "event-driven", "graph-db", "learning", "logging", "messaging"],
     "keywords": ["(vector", "bridge", "bridge)", "enrich", "enricher", "enrichment", "entities", "entity"],
-    "business_value": "The "killer feature" — combines vector search (pgvector) with graph enrichment (Neo4j) for comprehensive retrieval. 1. Vector search finds semantically similar documents 2. Graph bridge extracts entit",
+    "business_value": "Combines vector search (pgvector) with graph enrichment (Neo4j) for comprehensive retrieval",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

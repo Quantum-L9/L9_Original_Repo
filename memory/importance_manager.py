@@ -29,7 +29,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["memory.__init__", "tests.memory.test_frontier_memory_pipeline"],
+        "imported_by": [
+            "memory.__init__",
+            "tests.memory.test_frontier_memory_pipeline",
+        ],
     },
 }
 # ============================================================================
@@ -568,6 +571,7 @@ def init_importance_manager(
         manager._config = config
     return manager
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -577,8 +581,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "batch-processing", "dataclass", "debugging", "event-driven", "learning", "logging", "memory-substrate"],
-    "keywords": ["access", "based", "decay", "elevate", "facts", "importance", "low", "management"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+    ],
+    "keywords": [
+        "access",
+        "based",
+        "decay",
+        "elevate",
+        "facts",
+        "importance",
+        "low",
+        "management",
+    ],
     "business_value": "Access tracking (increment access_count, update last_accessed) Importance elevation (boost importance when facts are useful) Importance decay (reduce importance for unused facts) Importance-based prun",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -81,9 +81,15 @@ CANONICAL_ROUTERS = {
 STALE_PATH_PATTERNS = [
     (r"api/routes/memory\.py", "api/memory/router.py (or use apimemoryrouter.py)"),
     (r"tools/cursor_client", "agents/cursor/ (see agentscursor*.py)"),
-    (r"memory/extractor/cursor_action_extractor", "agents/cursor/extractors/cursor_action_extractor.py"),
+    (
+        r"memory/extractor/cursor_action_extractor",
+        "agents/cursor/extractors/cursor_action_extractor.py",
+    ),
     (r"core/governance/cursor_memory_kernel", "agents/cursor/cursor_gateway.py"),
-    (r"scripts/cursor_check_mistakes", "agents/cursor/scripts/cursor_check_mistakes.py"),
+    (
+        r"scripts/cursor_check_mistakes",
+        "agents/cursor/scripts/cursor_check_mistakes.py",
+    ),
 ]
 
 # Paths to scan
@@ -296,9 +302,7 @@ def main():
         default=".",
         help="Path to L9 repo root (default: current dir)",
     )
-    parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Verbose output"
-    )
+    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     parser.add_argument(
         "--fix",
         action="store_true",
@@ -324,8 +328,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "batch-processing", "caching", "cli", "event-driven", "filesystem", "operations", "serialization", "streaming", "validation"],
-    "keywords": ["alignment", "audit", "cache", "canonical", "check", "docs", "exist", "modules"],
+    "tags": [
+        "api",
+        "batch-processing",
+        "caching",
+        "cli",
+        "event-driven",
+        "filesystem",
+        "operations",
+        "serialization",
+        "streaming",
+        "validation",
+    ],
+    "keywords": [
+        "alignment",
+        "audit",
+        "cache",
+        "canonical",
+        "check",
+        "docs",
+        "exist",
+        "modules",
+    ],
     "business_value": "Implements WiringValidator for validate wiring alignment functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

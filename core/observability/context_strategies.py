@@ -324,6 +324,7 @@ class AdaptiveStrategySelector:
         else:
             return RecencyBiasedWindowStrategy()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -333,8 +334,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "core", "debugging", "foundation", "logging", "messaging", "service"],
-    "keywords": ["adaptive", "assemble", "biased", "hierarchical", "hybrid", "naive", "recency", "select"],
+    "tags": [
+        "async",
+        "core",
+        "debugging",
+        "foundation",
+        "logging",
+        "messaging",
+        "service",
+    ],
+    "keywords": [
+        "adaptive",
+        "assemble",
+        "biased",
+        "hierarchical",
+        "hybrid",
+        "naive",
+        "recency",
+        "select",
+    ],
     "business_value": "Implements 6 strategies for managing LLM context: naive, recency, summary, RAG, hybrid, adaptive.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

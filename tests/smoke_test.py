@@ -48,6 +48,7 @@ sys.path.insert(0, str(REPO_ROOT))
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = structlog.get_logger(__name__)
 
+
 class SmokeTestResults:
     def __init__(self):
         self.passed = []
@@ -71,6 +72,7 @@ class SmokeTestResults:
                 logger.error(f"  - {name}: {err}")
         return len(self.failed) == 0
 
+
 def test_compileall() -> tuple[bool, str]:
     """Test that all Python files compile (excluding venv/node_modules)."""
     import subprocess
@@ -93,6 +95,7 @@ def test_compileall() -> tuple[bool, str]:
             :200
         ] if result.stderr else "Compilation errors (see output)"
     return True, ""
+
 
 def test_core_imports() -> tuple[bool, str]:
     """Test that core imports work without circular import issues."""
@@ -118,6 +121,7 @@ def test_core_imports() -> tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
+
 def test_langgraph_not_shadowed() -> tuple[bool, str]:
     """Test that langgraph library is not shadowed by local package."""
     try:
@@ -136,6 +140,7 @@ def test_langgraph_not_shadowed() -> tuple[bool, str]:
     except ImportError:
         # langgraph not installed - that's OK for smoke test, just skip
         return True, "langgraph not installed (skipped)"
+
 
 def test_server_module_imports() -> tuple[bool, str]:
     """Test that server module can be imported (without DB connection)."""
@@ -156,6 +161,7 @@ def test_server_module_imports() -> tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
+
 def test_migrations_exist() -> tuple[bool, str]:
     """Test that migrations directory exists and has SQL files."""
     migrations_dir = REPO_ROOT / "migrations"
@@ -167,6 +173,7 @@ def test_migrations_exist() -> tuple[bool, str]:
         return False, "No .sql files in migrations/"
 
     return True, f"{len(sql_files)} migration files found"
+
 
 def test_core_modules_exist() -> tuple[bool, str]:
     """Test that core module directories exist."""
@@ -184,6 +191,7 @@ def test_core_modules_exist() -> tuple[bool, str]:
         return False, f"Missing __init__.py in: {missing_init}"
 
     return True, ""
+
 
 def test_no_nested_repos() -> tuple[bool, str]:
     """Test that there are no nested .git directories within project."""
@@ -215,6 +223,7 @@ def test_no_nested_repos() -> tuple[bool, str]:
 
     return True, ""
 
+
 def test_entrypoints_exist() -> tuple[bool, str]:
     """Test that entrypoints listed in entrypoints.txt exist."""
     entrypoints_file = REPO_ROOT / "entrypoints.txt"
@@ -238,6 +247,7 @@ def test_entrypoints_exist() -> tuple[bool, str]:
         return False, f"Missing entrypoints: {missing}"
 
     return True, ""
+
 
 async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
     """Test that memory pipeline components can be instantiated."""
@@ -274,6 +284,7 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
+
 async def test_world_model_instantiation() -> tuple[bool, str]:
     """Test that world model can be instantiated."""
     try:
@@ -285,6 +296,7 @@ async def test_world_model_instantiation() -> tuple[bool, str]:
         return True, ""
     except Exception as e:
         return False, str(e)
+
 
 def main():
     results = SmokeTestResults()
@@ -342,6 +354,7 @@ def main():
         logger.info("=" * 60)
         return 1
 
+
 if __name__ == "__main__":
     sys.exit(main())
 
@@ -353,9 +366,34 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["api.memory.router", "core.schemas", "memory.substrate_dag", "memory.substrate_service"],
-    "tags": ["api", "async", "caching", "filesystem", "logging", "messaging", "migration", "operations", "subprocess", "test"],
-    "keywords": ["async", "compileall", "core", "dry", "entrypoints", "exist", "imports", "instantiation"],
+    "dependencies": [
+        "api.memory.router",
+        "core.schemas",
+        "memory.substrate_dag",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "filesystem",
+        "logging",
+        "messaging",
+        "migration",
+        "operations",
+        "subprocess",
+        "test",
+    ],
+    "keywords": [
+        "async",
+        "compileall",
+        "core",
+        "dry",
+        "entrypoints",
+        "exist",
+        "imports",
+        "instantiation",
+    ],
     "business_value": "This test does NOT require a running database - it validates import chains and basic functionality only. python tests/smoke_test.py python dev/audit/smoke_test.py --with-db",
     "last_modified": "2026-01-14T15:02:45Z",
     "modified_by": "L9_Codegen_Engine",

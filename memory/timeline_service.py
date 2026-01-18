@@ -74,6 +74,7 @@ class TimelineService:
         events = await self.get_recent_events(agent_id, event_type, limit)
         return [e.model_dump(mode="json") for e in events]
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -83,7 +84,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.substrate_models", "memory.substrate_repository"],
-    "tags": ["async", "debugging", "event-driven", "learning", "memory-substrate", "service"],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "memory-substrate",
+        "service",
+    ],
     "keywords": ["agent", "events", "json", "memory", "recent", "service", "timeline"],
     "business_value": "Implements TimelineService for timeline service functionality",
     "last_modified": "2026-01-07T13:35:57Z",

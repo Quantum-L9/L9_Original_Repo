@@ -39,7 +39,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["PostgreSQL"],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["api.memory.router", "core.agents.adaptive_prompting", "core.singleton_registry", "memory.__init__", "tests.memory.test_e2e_memory_audit", "tests.memory.test_retrieval_audit"],
+        "imported_by": [
+            "api.memory.router",
+            "core.agents.adaptive_prompting",
+            "core.singleton_registry",
+            "memory.__init__",
+            "tests.memory.test_e2e_memory_audit",
+            "tests.memory.test_retrieval_audit",
+        ],
     },
 }
 # ============================================================================
@@ -1362,6 +1369,7 @@ async def get_governance_patterns(
         logger.error(f"Failed to retrieve governance patterns: {e}")
         return []
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1370,9 +1378,35 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.schemas", "memory.cross_encoder_reranker", "memory.governance_gate", "memory.query_classifier", "memory.retrieval_ranking"],
-    "tags": ["async", "caching", "debugging", "event-driven", "learning", "logging", "memory-substrate", "messaging", "queue", "serialization"],
-    "keywords": ["added", "apply", "chain", "cross", "decay", "encoder", "facts", "fetch"],
+    "dependencies": [
+        "core.schemas",
+        "memory.cross_encoder_reranker",
+        "memory.governance_gate",
+        "memory.query_classifier",
+        "memory.retrieval_ranking",
+    ],
+    "tags": [
+        "async",
+        "caching",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "queue",
+        "serialization",
+    ],
+    "keywords": [
+        "added",
+        "apply",
+        "chain",
+        "cross",
+        "decay",
+        "encoder",
+        "facts",
+        "fetch",
+    ],
     "business_value": "Implements RetrievalPipeline for retrieval functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

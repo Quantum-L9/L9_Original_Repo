@@ -36,7 +36,15 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["memory.__init__", "memory.ingestion", "memory.substrate_service", "memory.validators.packet_validator", "tests.memory.test_ingestion_audit", "tests.memory.test_ingestion_pipeline_audit", "tests.performance.test_memory_benchmarks"],
+        "imported_by": [
+            "memory.__init__",
+            "memory.ingestion",
+            "memory.substrate_service",
+            "memory.validators.packet_validator",
+            "tests.memory.test_ingestion_audit",
+            "tests.memory.test_ingestion_pipeline_audit",
+            "tests.performance.test_memory_benchmarks",
+        ],
     },
 }
 # ============================================================================
@@ -119,7 +127,10 @@ INJECTION_MARKERS: Set[str] = {
 # Regex patterns for more sophisticated detection
 INJECTION_REGEX_PATTERNS: list[re.Pattern] = [
     # Instruction override with variations
-    re.compile(r"ignore\s+(all\s+)?(previous|prior|above)\s+(instructions|prompts|rules)", re.IGNORECASE),
+    re.compile(
+        r"ignore\s+(all\s+)?(previous|prior|above)\s+(instructions|prompts|rules)",
+        re.IGNORECASE,
+    ),
     # Hidden instruction blocks
     re.compile(r"\[/?INST\]", re.IGNORECASE),
     re.compile(r"<</?SYS>>", re.IGNORECASE),
@@ -249,7 +260,15 @@ def _extract_text_content(packet: PacketEnvelopeIn) -> Optional[str]:
         return None
 
     # Check common text fields
-    text_fields = ["text", "content", "description", "summary", "message", "query", "input"]
+    text_fields = [
+        "text",
+        "content",
+        "description",
+        "summary",
+        "message",
+        "query",
+        "input",
+    ]
 
     for field_name in text_fields:
         value = packet.payload.get(field_name)
@@ -276,10 +295,10 @@ def _extract_text_content(packet: PacketEnvelopeIn) -> Optional[str]:
 def normalize_text(text: str) -> str:
     """
     Normalize text using NFC, strip zero-width chars, and collapse whitespace.
-    
+
     Args:
         text: Input text to normalize
-        
+
     Returns:
         Normalized text string
     """
@@ -292,10 +311,10 @@ def normalize_text(text: str) -> str:
 def normalize_payload(value: Any) -> Any:
     """
     Recursively normalize string values inside payload structures.
-    
+
     Args:
         value: Payload value (can be str, list, dict, or primitive)
-        
+
     Returns:
         Normalized payload with all strings normalized
     """
@@ -318,10 +337,10 @@ def normalize_payload(value: Any) -> Any:
 def extract_strings(payload: Any) -> Iterable[str]:
     """
     Yield all string values from a payload for scanning.
-    
+
     Args:
         payload: Payload to extract strings from
-        
+
     Yields:
         String values found in payload
     """
@@ -338,10 +357,10 @@ def extract_strings(payload: Any) -> Iterable[str]:
 def detect_pii_types(payload: Any) -> tuple[str, ...]:
     """
     Detect PII categories present in payload string values.
-    
+
     Args:
         payload: Payload to scan for PII
-        
+
     Returns:
         Tuple of PII type names found (e.g., ("email", "phone"))
     """
@@ -356,10 +375,10 @@ def detect_pii_types(payload: Any) -> tuple[str, ...]:
 def redact_pii(payload: Any) -> tuple[Any, int, tuple[str, ...]]:
     """
     Redact PII in payload, returning updated payload, redaction count, and types.
-    
+
     Args:
         payload: Payload to redact PII from
-        
+
     Returns:
         Tuple of (redacted_payload, redaction_count, pii_types_found)
     """
@@ -411,11 +430,11 @@ def _hash_payload(value: Any) -> str:
 def compute_content_hash(payload: Any, metadata_projection: dict[str, Any]) -> str:
     """
     Compute SHA256 over normalized payload + metadata projection.
-    
+
     Args:
         payload: Packet payload
         metadata_projection: Metadata fields to include in hash
-        
+
     Returns:
         SHA256 hex digest
     """
@@ -460,22 +479,22 @@ def prepare_packet_for_ingest(
     from uuid import uuid4
 
     packet_id = packet.packet_id or uuid4()
-    
+
     # Start building report
     report = AuditReport(packet_id=packet_id)
-    
+
     # Step 1: Normalize payload (if enabled)
     working_payload = packet.payload
     if normalize_enabled:
         working_payload = normalize_payload(working_payload)
-    
+
     # Step 2: Compute raw checksum (before any redaction)
     report.checksum_raw = _hash_payload(working_payload)
-    
+
     # Step 3: Detect PII
     pii_types = detect_pii_types(working_payload)
     report.pii_types = pii_types
-    
+
     # Step 4: Optional PII redaction
     if redact_pii_enabled and pii_types:
         working_payload, redaction_count, _ = redact_pii(working_payload)
@@ -507,17 +526,25 @@ def prepare_packet_for_ingest(
 
     # Step 6: Compute final content hash
     metadata = packet.metadata or PacketMetadata()
-    metadata_projection = metadata.model_dump() if hasattr(metadata, 'model_dump') else {}
+    metadata_projection = (
+        metadata.model_dump() if hasattr(metadata, "model_dump") else {}
+    )
     # Remove dynamic fields from hash
-    for key in ("content_hash", "checksum_raw", "redaction_count", "pii_types", "injection_markers"):
+    for key in (
+        "content_hash",
+        "checksum_raw",
+        "redaction_count",
+        "pii_types",
+        "injection_markers",
+    ):
         metadata_projection.pop(key, None)
-    
+
     report.content_hash = compute_content_hash(working_payload, metadata_projection)
-    
+
     # Step 7: Generate deterministic packet_id from content hash if not provided
     final_packet_id = packet.packet_id or uuid5(NAMESPACE_URL, report.content_hash)
     report.packet_id = final_packet_id
-    
+
     # Step 8: Build output packet
     if working_payload != packet.payload or final_packet_id != packet.packet_id:
         # Create modified packet using model_copy
@@ -568,8 +595,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas"],
-    "tags": ["api", "audit-tool", "dataclass", "event-driven", "learning", "logging", "memory-substrate", "messaging", "rest-api", "security"],
-    "keywords": ["audit", "compute", "concern", "concerns", "count", "detect", "detection", "extract"],
+    "tags": [
+        "api",
+        "audit-tool",
+        "dataclass",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "rest-api",
+        "security",
+    ],
+    "keywords": [
+        "audit",
+        "compute",
+        "concern",
+        "concerns",
+        "count",
+        "detect",
+        "detection",
+        "extract",
+    ],
     "business_value": "Injection marker detection for prompt injection prevention PII detection and redaction Content normalization (NFC, zero-width char removal) Content hashing for deduplication Packet pre-processing and ",
     "last_modified": "2026-01-14T13:21:36Z",
     "modified_by": "L9_Codegen_Engine",

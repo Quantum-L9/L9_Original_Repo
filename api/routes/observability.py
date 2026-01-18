@@ -19,7 +19,13 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /metrics", "GET /failures", "GET /spans", "GET /health", "GET /circuit-breakers"],
+        "api_endpoints": [
+            "GET /metrics",
+            "GET /failures",
+            "GET /spans",
+            "GET /health",
+            "GET /circuit-breakers",
+        ],
         "datasources": [],
         "memory_layers": [],
         "imported_by": ["api.server"],
@@ -333,6 +339,7 @@ async def get_circuit_breakers() -> CircuitBreakersResponse:
 
     return CircuitBreakersResponse(circuit_breakers=breakers)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -341,9 +348,33 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.decorators", "core.observability.circuit_breaker", "core.observability.service"],
-    "tags": ["api", "api-gateway", "async", "endpoint", "metrics", "operations", "pydantic", "rest-api", "router", "tracing"],
-    "keywords": ["breaker", "breakers", "circuit", "failure", "failures", "health", "metrics", "observability"],
+    "dependencies": [
+        "core.decorators",
+        "core.observability.circuit_breaker",
+        "core.observability.service",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "endpoint",
+        "metrics",
+        "operations",
+        "pydantic",
+        "rest-api",
+        "router",
+        "tracing",
+    ],
+    "keywords": [
+        "breaker",
+        "breakers",
+        "circuit",
+        "failure",
+        "failures",
+        "health",
+        "metrics",
+        "observability",
+    ],
     "business_value": "Provides observability components including SREMetricsResponse, FailureResponse, FailuresListResponse",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

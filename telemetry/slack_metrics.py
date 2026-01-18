@@ -61,7 +61,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["api.e2e_slack_audit", "api.routes.slack", "memory.slack_ingest", "telemetry.slack_metrics", "tests.api.test_e2e_slack_audit", "tests.api.test_slack_adapter"],
+        "imported_by": [
+            "api.e2e_slack_audit",
+            "api.routes.slack",
+            "memory.slack_ingest",
+            "telemetry.slack_metrics",
+            "tests.api.test_e2e_slack_audit",
+            "tests.api.test_slack_adapter",
+        ],
     },
 }
 # ============================================================================
@@ -149,6 +156,7 @@ if PROMETHEUS_AVAILABLE:
 # Recording Functions
 # =============================================================================
 
+
 def record_slack_request(
     event_type: str,
     status: str = "received",
@@ -167,6 +175,7 @@ def record_slack_request(
         SLACK_REQUESTS_TOTAL.labels(event_type=event_type, status=status).inc()
     except Exception as e:
         logger.warning("Failed to record slack request metric", error=str(e))
+
 
 def record_signature_verification(
     valid: bool,
@@ -188,6 +197,7 @@ def record_signature_verification(
     except Exception as e:
         logger.warning("Failed to record signature verification metric", error=str(e))
 
+
 def record_idempotent_hit(team_id: str) -> None:
     """
     Record a deduplicated event.
@@ -202,6 +212,7 @@ def record_idempotent_hit(team_id: str) -> None:
         SLACK_IDEMPOTENT_HITS.labels(team_id=team_id).inc()
     except Exception as e:
         logger.warning("Failed to record idempotent hit metric", error=str(e))
+
 
 def record_slack_processing(
     event_type: str,
@@ -220,10 +231,13 @@ def record_slack_processing(
         return
 
     try:
-        SLACK_PROCESSING_DURATION.labels(event_type=event_type).observe(duration_seconds)
+        SLACK_PROCESSING_DURATION.labels(event_type=event_type).observe(
+            duration_seconds
+        )
         SLACK_REQUESTS_TOTAL.labels(event_type=event_type, status=status).inc()
     except Exception as e:
         logger.warning("Failed to record slack processing metric", error=str(e))
+
 
 def record_aios_call(
     agent_type: str,
@@ -244,6 +258,7 @@ def record_aios_call(
     except Exception as e:
         logger.warning("Failed to record aios call metric", error=str(e))
 
+
 def record_packet_write_error(packet_type: str) -> None:
     """
     Record a failed packet write.
@@ -258,6 +273,7 @@ def record_packet_write_error(packet_type: str) -> None:
         SLACK_PACKET_WRITE_ERRORS.labels(packet_type=packet_type).inc()
     except Exception as e:
         logger.warning("Failed to record packet write error metric", error=str(e))
+
 
 def record_slack_reply_error(error_type: str) -> None:
     """
@@ -274,6 +290,7 @@ def record_slack_reply_error(error_type: str) -> None:
     except Exception as e:
         logger.warning("Failed to record slack reply error metric", error=str(e))
 
+
 def record_rate_limit_hit(team_id: str) -> None:
     """
     Record a rate limit rejection.
@@ -288,6 +305,7 @@ def record_rate_limit_hit(team_id: str) -> None:
         SLACK_RATE_LIMIT_HITS.labels(team_id=team_id).inc()
     except Exception as e:
         logger.warning("Failed to record rate limit hit metric", error=str(e))
+
 
 def set_active_threads(count: int) -> None:
     """
@@ -304,9 +322,11 @@ def set_active_threads(count: int) -> None:
     except Exception as e:
         logger.warning("Failed to set active threads gauge", error=str(e))
 
+
 # =============================================================================
 # Initialization
 # =============================================================================
+
 
 def init_slack_metrics() -> bool:
     """
@@ -324,6 +344,7 @@ def init_slack_metrics() -> bool:
 
     logger.info("Slack metrics initialized")
     return True
+
 
 # =============================================================================
 # Public API
@@ -352,8 +373,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["adapter", "api", "event-driven", "logging", "messaging", "metrics", "observability", "operations", "webhooks"],
-    "keywords": ["active", "adapter", "after", "agent", "aios", "created", "hit", "idempotent"],
+    "tags": [
+        "adapter",
+        "api",
+        "event-driven",
+        "logging",
+        "messaging",
+        "metrics",
+        "observability",
+        "operations",
+        "webhooks",
+    ],
+    "keywords": [
+        "active",
+        "adapter",
+        "after",
+        "agent",
+        "aios",
+        "created",
+        "hit",
+        "idempotent",
+    ],
     "business_value": "the prometheus_client library. Version: 1.0.0 Author: L9 Enterprise Created: 2026-01-08 1. request_received - Webhook request received 2. signature_verified - HMAC signature validated 3. thread_uuid_g",
     "last_modified": "2026-01-08T20:50:40Z",
     "modified_by": "L9_Codegen_Engine",

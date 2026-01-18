@@ -256,6 +256,7 @@ async def resume_research(
         logger.error(f"Resume failed: {e}")
         raise HTTPException(status_code=500, detail=f"Resume failed: {str(e)}")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -265,7 +266,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "api-gateway", "async", "endpoint", "logging", "messaging", "operations", "pydantic", "router", "testing"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "router",
+        "testing",
+    ],
     "keywords": ["api", "research", "resume", "router", "runtime", "status"],
     "business_value": "Provides research api components including ResearchRequest, ResearchResponse, ResearchStatusResponse",
     "last_modified": "2026-01-07T13:35:58Z",

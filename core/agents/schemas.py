@@ -37,7 +37,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["_archived.legacy_slack.webhook_slack", "api.agent_routes", "api.routes.commands", "api.server", "core.agents.__init__", "core.agents.agent_instance", "core.agents.bootstrap.orchestrator", "core.agents.bootstrap.phase_0_validate", "core.agents.bootstrap.phase_2_instantiate", "core.agents.executor"],
+        "imported_by": [
+            "_archived.legacy_slack.webhook_slack",
+            "api.agent_routes",
+            "api.routes.commands",
+            "api.server",
+            "core.agents.__init__",
+            "core.agents.agent_instance",
+            "core.agents.bootstrap.orchestrator",
+            "core.agents.bootstrap.phase_0_validate",
+            "core.agents.bootstrap.phase_2_instantiate",
+            "core.agents.executor",
+        ],
     },
 }
 # ============================================================================
@@ -59,6 +70,7 @@ AGENT_EXECUTOR_NAMESPACE = uuid5(NAMESPACE_DNS, "agent.executor.l9.internal")
 # Enums
 # =============================================================================
 
+
 class ExecutorState(str, Enum):
     """State machine states for the executor loop."""
 
@@ -69,6 +81,7 @@ class ExecutorState(str, Enum):
     FAILED = "failed"
     TERMINATED = "terminated"
 
+
 class TaskKind(str, Enum):
     """Kind of agent task."""
 
@@ -78,9 +91,11 @@ class TaskKind(str, Enum):
     EXECUTION = "execution"
     CONVERSATION = "conversation"
 
+
 # =============================================================================
 # Agent Task
 # =============================================================================
+
 
 class AgentTask(BaseModel):
     """
@@ -142,9 +157,11 @@ class AgentTask(BaseModel):
         """Get deduplication key for idempotency checking."""
         return str(self.id)
 
+
 # =============================================================================
 # Agent Config
 # =============================================================================
+
 
 class ToolBinding(BaseModel):
     """
@@ -167,6 +184,7 @@ class ToolBinding(BaseModel):
     enabled: bool = Field(
         default=True, description="Whether tool is enabled for this binding"
     )
+
 
 class AgentConfig(BaseModel):
     """
@@ -210,9 +228,11 @@ class AgentConfig(BaseModel):
 
     model_config = {"extra": "forbid"}
 
+
 # =============================================================================
 # Tool Call Types
 # =============================================================================
+
 
 class ToolCallRequest(BaseModel):
     """
@@ -234,6 +254,7 @@ class ToolCallRequest(BaseModel):
 
     model_config = {"extra": "forbid"}
 
+
 class ToolCallResult(BaseModel):
     """
     Result from a tool call.
@@ -253,9 +274,11 @@ class ToolCallResult(BaseModel):
 
     model_config = {"extra": "forbid"}
 
+
 # =============================================================================
 # AIOS Result
 # =============================================================================
+
 
 class AIOSResultType(str, Enum):
     """Type of AIOS result."""
@@ -263,6 +286,7 @@ class AIOSResultType(str, Enum):
     RESPONSE = "response"
     TOOL_CALL = "tool_call"
     ERROR = "error"
+
 
 class AIOSResult(BaseModel):
     """
@@ -320,9 +344,11 @@ class AIOSResult(BaseModel):
             error=error,
         )
 
+
 # =============================================================================
 # Execution Result
 # =============================================================================
+
 
 class ExecutionResult(BaseModel):
     """
@@ -364,9 +390,11 @@ class ExecutionResult(BaseModel):
 
     model_config = {"extra": "forbid"}
 
+
 # =============================================================================
 # Idempotency Response
 # =============================================================================
+
 
 class DuplicateTaskResponse(BaseModel):
     """
@@ -382,6 +410,7 @@ class DuplicateTaskResponse(BaseModel):
     task_id: UUID = Field(..., description="Original task ID")
 
     model_config = {"extra": "forbid"}
+
 
 # =============================================================================
 # Public API
@@ -431,16 +460,13 @@ __all__ = [
 __dora_footer__ = {
     # === IDENTITY ===
     "component_id": "COR-FOUN-001",
-    
     # === GOVERNANCE ===
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
     "security_classification": "internal",
-    
     # === DEPENDENCIES ===
     "dependencies": [],
-    
     # === OPERATIONAL ===
     "execution_mode": "on-demand",
     "timeout_seconds": 30,
@@ -448,7 +474,6 @@ __dora_footer__ = {
     "retry_policy": "exponential",
     "circuit_breaker_enabled": True,
     "circuit_breaker_threshold": 5,
-    
     # === OBSERVABILITY ===
     "monitoring_required": True,
     "logging_level": "info",
@@ -458,12 +483,10 @@ __dora_footer__ = {
         "availability_percent": 99.9,
         "error_rate_percent": 0.1,
     },
-    
     # === DISCOVERY ===
     "tags": ["data-models", "enum", "foundation", "llm", "pydantic", "validation"],
     "keywords": ["agent", "binding", "call", "config", "dedupe", "duplicate"],
     "business_value": "Provides schemas components including ExecutorState, TaskKind, AgentTask",
-    
     # === CHANGE TRACKING ===
     "last_modified": "2026-01-18T02:34:46Z",
     "modified_by": "L9_Codegen_Engine",

@@ -343,6 +343,7 @@ class WorldModelState(IWorldModelState):
             else:
                 self._relations[rid] = relation_data
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -353,7 +354,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["dataclass", "learning", "pydantic", "rest-api", "world-model"],
-    "keywords": ["causal", "entities", "entity", "graph", "implementation.", "memory", "model", "production"],
+    "keywords": [
+        "causal",
+        "entities",
+        "entity",
+        "graph",
+        "implementation.",
+        "memory",
+        "model",
+        "production",
+    ],
     "business_value": "Implements WorldModelState for state functionality",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

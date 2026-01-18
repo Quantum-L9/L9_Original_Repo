@@ -26,7 +26,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["api.server", "memory.slack_ingest", "memory.substrate_service"],
+        "imported_by": [
+            "api.server",
+            "memory.slack_ingest",
+            "memory.substrate_service",
+        ],
     },
 }
 # ============================================================================
@@ -38,6 +42,7 @@ from typing import Any
 from uuid import uuid4
 
 logger = structlog.get_logger(__name__)
+
 
 async def log_error_to_graph(
     error: Exception,
@@ -117,6 +122,7 @@ async def log_error_to_graph(
         logger.warning(f"Failed to log error to Neo4j: {e}")
         return ""
 
+
 async def get_error_chain(error_id: str) -> list[dict[str, Any]]:
     """
     Get the causality chain for an error (all errors that led to this one).
@@ -154,6 +160,7 @@ async def get_error_chain(error_id: str) -> list[dict[str, Any]]:
     except Exception as e:
         logger.warning(f"Failed to get error chain: {e}")
         return []
+
 
 async def get_errors_by_type(
     error_type: str,
@@ -207,6 +214,7 @@ async def get_errors_by_type(
         logger.warning(f"Failed to get errors by type: {e}")
         return []
 
+
 async def get_error_stats(hours: int = 24) -> dict[str, int]:
     """
     Get error counts by type for the last N hours.
@@ -247,6 +255,7 @@ async def get_error_stats(hours: int = 24) -> dict[str, int]:
         logger.warning(f"Failed to get error stats: {e}")
         return {}
 
+
 __all__ = [
     "log_error_to_graph",
     "get_error_chain",
@@ -263,8 +272,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.graph_client"],
-    "tags": ["api", "async", "core", "debugging", "event-driven", "foundation", "logging", "messaging", "service", "streaming"],
-    "keywords": ["analysis", "causality", "chain", "detection", "errors", "graph", "log", "pattern"],
+    "tags": [
+        "api",
+        "async",
+        "core",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "service",
+        "streaming",
+    ],
+    "keywords": [
+        "analysis",
+        "causality",
+        "chain",
+        "detection",
+        "errors",
+        "graph",
+        "log",
+        "pattern",
+    ],
     "business_value": "Utility module for error tracking",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

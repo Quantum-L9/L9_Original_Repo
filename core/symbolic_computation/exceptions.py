@@ -2,7 +2,6 @@
 Custom exceptions for symbolic computation module.
 """
 
-
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Exceptions",
@@ -23,6 +22,7 @@ __dora_meta__ = {
     },
 }
 # ============================================================================
+
 
 class SymbolicComputationError(Exception):
     """Base exception for symbolic computation errors."""
@@ -63,6 +63,7 @@ class CacheError(SymbolicComputationError):
 
     pass
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -73,7 +74,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["caching", "error-handling", "exception", "foundation", "messaging"],
-    "keywords": ["cache", "computation", "evaluation", "exceptions", "generation", "module", "symbolic", "validation"],
+    "keywords": [
+        "cache",
+        "computation",
+        "evaluation",
+        "exceptions",
+        "generation",
+        "module",
+        "symbolic",
+        "validation",
+    ],
     "business_value": "Provides exceptions components including SymbolicComputationError, EvaluationError, CodeGenerationError",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

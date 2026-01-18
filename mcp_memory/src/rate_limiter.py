@@ -158,9 +158,9 @@ class RateLimiter:
     def _assert_version(bucket: RateLimitBucket, expected_version: int) -> None:
         if bucket.version != expected_version:
             raise RuntimeError(
-                "Rate limiter bucket version mismatch; "
-                "concurrent mutation detected."
+                "Rate limiter bucket version mismatch; concurrent mutation detected."
             )
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -172,7 +172,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["async", "auth", "dataclass", "integration", "mcp-integration", "testing"],
-    "keywords": ["auth", "blocked", "bucket", "failed", "limit", "limited", "limiter", "memory"],
+    "keywords": [
+        "auth",
+        "blocked",
+        "bucket",
+        "failed",
+        "limit",
+        "limited",
+        "limiter",
+        "memory",
+    ],
     "business_value": "Provides rate limiter components including RateLimitBucket, RateLimitSnapshot, RateLimiter",
     "last_modified": "2026-01-15T10:53:20Z",
     "modified_by": "L9_Codegen_Engine",

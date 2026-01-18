@@ -33,7 +33,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Redis"],
         "memory_layers": ["working_memory"],
-        "imported_by": ["core.packet_envelope.integration", "tests.upgrades.test_packet_envelope_phases"],
+        "imported_by": [
+            "core.packet_envelope.integration",
+            "tests.upgrades.test_packet_envelope_phases",
+        ],
     },
 }
 # ============================================================================
@@ -512,6 +515,7 @@ class EventStore:
             )
             self.snapshots[agg_id] = snapshot
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -521,8 +525,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "batch-processing", "caching", "data-models", "dataclass", "engine", "event-driven", "foundation", "handler", "metrics"],
-    "keywords": ["append", "batch", "command", "consumer", "cqrs", "engine", "event", "events"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "caching",
+        "data-models",
+        "dataclass",
+        "engine",
+        "event-driven",
+        "foundation",
+        "handler",
+        "metrics",
+    ],
+    "keywords": [
+        "append",
+        "batch",
+        "command",
+        "consumer",
+        "cqrs",
+        "engine",
+        "event",
+        "events",
+    ],
     "business_value": "Provides scalability components including BatchIngestRequest, BatchIngestResult, BatchIngestionEngine",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

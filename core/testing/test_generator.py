@@ -26,7 +26,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.testing.__init__", "core.testing.test_agent", "tests.integration.test_recursive_self_testing"],
+        "imported_by": [
+            "core.testing.__init__",
+            "core.testing.test_agent",
+            "tests.integration.test_recursive_self_testing",
+        ],
     },
 }
 # ============================================================================
@@ -42,7 +46,7 @@ logger = structlog.get_logger(__name__)
 class TestGenerator:
     """
     Generates tests from code proposals.
-    
+
     Analyzes code structure and generates:
     - Unit tests for individual functions
     - Integration tests for module interactions
@@ -52,7 +56,7 @@ class TestGenerator:
     def __init__(self, use_llm: bool = False, llm_client: Optional[Any] = None):
         """
         Initialize TestGenerator.
-        
+
         Args:
             use_llm: Whether to use LLM for test generation
             llm_client: Optional LLM client for enhanced generation
@@ -67,16 +71,16 @@ class TestGenerator:
     ) -> List[str]:
         """
         Generate unit tests for a code proposal.
-        
+
         Args:
             code_proposal: Python code to generate tests for
             module_name: Optional module name for imports
-            
+
         Returns:
             List of test function strings
         """
         tests = []
-        
+
         # Parse the code to extract functions and classes
         try:
             tree = ast.parse(code_proposal)
@@ -84,28 +88,26 @@ class TestGenerator:
             logger.warning(f"Failed to parse code proposal: {e}")
             # Return a basic syntax test
             return [self._generate_syntax_test(code_proposal, module_name)]
-        
+
         # Extract function definitions
         functions = [
             node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
         ]
-        
+
         for func in functions:
             if not func.name.startswith("_"):  # Skip private functions
                 tests.extend(self._generate_function_tests(func, module_name))
-        
+
         # Extract class definitions
-        classes = [
-            node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
-        ]
-        
+        classes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
+
         for cls in classes:
             tests.extend(self._generate_class_tests(cls, module_name))
-        
+
         # Add a basic import test
         if module_name:
             tests.insert(0, self._generate_import_test(module_name))
-        
+
         return tests
 
     def generate_integration_tests(
@@ -116,28 +118,28 @@ class TestGenerator:
     ) -> List[str]:
         """
         Generate integration tests for a code proposal.
-        
+
         Args:
             code_proposal: Python code to generate tests for
             dependencies: List of module dependencies
             module_name: Optional module name
-            
+
         Returns:
             List of integration test function strings
         """
         tests = []
-        
+
         # Generate tests for each dependency interaction
         for dep in dependencies:
             tests.append(self._generate_dependency_test(dep, module_name))
-        
+
         # Generate async flow tests if async functions detected
         if "async def" in code_proposal:
             tests.append(self._generate_async_flow_test(module_name))
-        
+
         # Generate error handling tests
         tests.append(self._generate_error_handling_test(module_name))
-        
+
         return tests
 
     def _generate_function_tests(
@@ -148,7 +150,7 @@ class TestGenerator:
         """Generate tests for a function."""
         tests = []
         func_name = func.name
-        
+
         # Happy path test
         tests.append(f'''
 def test_{func_name}_happy_path():
@@ -158,7 +160,7 @@ def test_{func_name}_happy_path():
     # assert result is not None
     pass
 ''')
-        
+
         # Test with edge case inputs
         tests.append(f'''
 def test_{func_name}_edge_cases():
@@ -166,7 +168,7 @@ def test_{func_name}_edge_cases():
     # TODO: Test with None, empty, boundary values
     pass
 ''')
-        
+
         # Error handling test if function has try/except
         for node in ast.walk(func):
             if isinstance(node, ast.Try):
@@ -177,7 +179,7 @@ def test_{func_name}_error_handling():
     pass
 ''')
                 break
-        
+
         return tests
 
     def _generate_class_tests(
@@ -188,7 +190,7 @@ def test_{func_name}_error_handling():
         """Generate tests for a class."""
         tests = []
         class_name = cls.name
-        
+
         # Instantiation test
         tests.append(f'''
 def test_{class_name.lower()}_instantiation():
@@ -198,7 +200,7 @@ def test_{class_name.lower()}_instantiation():
     # assert instance is not None
     pass
 ''')
-        
+
         # Method tests for public methods
         for node in cls.body:
             if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
@@ -209,7 +211,7 @@ def test_{class_name.lower()}_{node.name}():
     # TODO: Add test implementation
     pass
 ''')
-        
+
         return tests
 
     def _generate_syntax_test(
@@ -277,14 +279,16 @@ def test_error_handling():
 '''
 
 
-def generate_unit_tests(code_proposal: str, module_name: Optional[str] = None) -> List[str]:
+def generate_unit_tests(
+    code_proposal: str, module_name: Optional[str] = None
+) -> List[str]:
     """
     Convenience function to generate unit tests.
-    
+
     Args:
         code_proposal: Code to generate tests for
         module_name: Optional module name
-        
+
     Returns:
         List of test function strings
     """
@@ -299,17 +303,19 @@ def generate_integration_tests(
 ) -> List[str]:
     """
     Convenience function to generate integration tests.
-    
+
     Args:
         code_proposal: Code to generate tests for
         dependencies: List of dependencies
         module_name: Optional module name
-        
+
     Returns:
         List of integration test function strings
     """
     generator = TestGenerator()
-    return generator.generate_integration_tests(code_proposal, dependencies, module_name)
+    return generator.generate_integration_tests(
+        code_proposal, dependencies, module_name
+    )
 
 
 # =============================================================================
@@ -332,7 +338,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["api", "ast", "async", "core", "foundation", "logging", "test", "testing"],
-    "keywords": ["analysis", "async", "flow", "generate", "generator", "handling", "integration", "module"],
+    "keywords": [
+        "analysis",
+        "async",
+        "flow",
+        "generate",
+        "generator",
+        "handling",
+        "integration",
+        "module",
+    ],
     "business_value": "Implements TestGenerator for test generator functionality",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

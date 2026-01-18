@@ -22,7 +22,17 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /packet-envelope/status", "GET /packet-envelope/features", "GET /packet-envelope/validate", "POST /packet-envelope/activate/phase-2", "POST /packet-envelope/activate/phase-3", "POST /packet-envelope/activate/phase-4", "POST /packet-envelope/activate/phase-5", "POST /packet-envelope/activate/all", "GET /health"],
+        "api_endpoints": [
+            "GET /packet-envelope/status",
+            "GET /packet-envelope/features",
+            "GET /packet-envelope/validate",
+            "POST /packet-envelope/activate/phase-2",
+            "POST /packet-envelope/activate/phase-3",
+            "POST /packet-envelope/activate/phase-4",
+            "POST /packet-envelope/activate/phase-5",
+            "POST /packet-envelope/activate/all",
+            "GET /health",
+        ],
         "datasources": [],
         "memory_layers": ["working_memory"],
         "imported_by": ["api.server"],
@@ -46,13 +56,16 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/upgrades", tags=["upgrades"])
 
+
 @lru_cache(maxsize=1)
 def get_upgrade_engine() -> PacketEnvelopeUpgradeEngine:
     """Get or create the upgrade engine singleton. CACHED."""
     return PacketEnvelopeUpgradeEngine()
 
+
 # ============================================================================
 # STATUS ENDPOINTS
+
 
 @router.get("/packet-envelope/status")
 @must_stay_async("FastAPI/ASGI route handler")
@@ -66,6 +79,7 @@ async def get_upgrade_status() -> Dict[str, Any]:
     engine = get_upgrade_engine()
     return engine.get_upgrade_status()
 
+
 @router.get("/packet-envelope/features")
 @must_stay_async("FastAPI/ASGI route handler")
 async def get_enabled_features() -> Dict[str, bool]:
@@ -78,6 +92,7 @@ async def get_enabled_features() -> Dict[str, bool]:
     engine = get_upgrade_engine()
     return engine.state.enabled_features
 
+
 @router.get("/packet-envelope/validate")
 async def validate_upgrade_deployment() -> Dict[str, Any]:
     """
@@ -88,8 +103,10 @@ async def validate_upgrade_deployment() -> Dict[str, Any]:
     """
     return await validate_deployment()
 
+
 # ============================================================================
 # ACTIVATION ENDPOINTS
+
 
 @router.post("/packet-envelope/activate/phase-2")
 async def activate_phase_2() -> Dict[str, Any]:
@@ -108,6 +125,7 @@ async def activate_phase_2() -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=result["error"])
 
     return result
+
 
 @router.post("/packet-envelope/activate/phase-3")
 async def activate_phase_3() -> Dict[str, Any]:
@@ -129,6 +147,7 @@ async def activate_phase_3() -> Dict[str, Any]:
 
     return result
 
+
 @router.post("/packet-envelope/activate/phase-4")
 async def activate_phase_4() -> Dict[str, Any]:
     """
@@ -148,6 +167,7 @@ async def activate_phase_4() -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail=result["error"])
 
     return result
+
 
 @router.post("/packet-envelope/activate/phase-5")
 async def activate_phase_5() -> Dict[str, Any]:
@@ -170,6 +190,7 @@ async def activate_phase_5() -> Dict[str, Any]:
 
     return result
 
+
 @router.post("/packet-envelope/activate/all")
 async def activate_all_phases() -> Dict[str, Any]:
     """
@@ -181,8 +202,10 @@ async def activate_all_phases() -> Dict[str, Any]:
     engine = get_upgrade_engine()
     return await engine.activate_all_phases()
 
+
 # ============================================================================
 # HEALTH ENDPOINT
+
 
 @router.get("/health")
 @must_stay_async("FastAPI/ASGI route handler")
@@ -203,6 +226,7 @@ async def upgrade_health() -> Dict[str, Any]:
         "features_enabled": len(status["enabled_features"]),
     }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -212,8 +236,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.packet_envelope"],
-    "tags": ["api", "api-gateway", "async", "batch-processing", "caching", "endpoint", "event-driven", "logging", "metrics", "operations"],
-    "keywords": ["activate", "all", "deployment", "enabled", "engine", "features", "health", "phase"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "batch-processing",
+        "caching",
+        "endpoint",
+        "event-driven",
+        "logging",
+        "metrics",
+        "operations",
+    ],
+    "keywords": [
+        "activate",
+        "all",
+        "deployment",
+        "enabled",
+        "engine",
+        "features",
+        "health",
+        "phase",
+    ],
     "business_value": "Viewing upgrade status Activating individual phases Viewing enabled features Deployment validation",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

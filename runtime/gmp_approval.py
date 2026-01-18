@@ -48,6 +48,7 @@ from runtime.gmp_worker import (
 
 logger = structlog.get_logger(__name__)
 
+
 async def list_pending_gmp_tasks() -> List[Dict[str, Any]]:
     """
     List all pending GMP tasks (not yet approved).
@@ -68,6 +69,7 @@ async def list_pending_gmp_tasks() -> List[Dict[str, Any]]:
         }
         for task in pending_tasks
     ]
+
 
 async def get_gmp_task(task_id: str) -> Optional[Dict[str, Any]]:
     """
@@ -92,6 +94,7 @@ async def get_gmp_task(task_id: str) -> Optional[Dict[str, Any]]:
         "repo_root": task.payload.get("repo_root", "unknown"),
     }
 
+
 async def approve_gmp_task(task_id: str) -> bool:
     """
     Approve a GMP task for execution.
@@ -106,6 +109,7 @@ async def approve_gmp_task(task_id: str) -> bool:
     """
     return await approve_and_enqueue(task_id)
 
+
 async def reject_gmp_task(task_id: str) -> bool:
     """
     Reject a GMP task (remove it from pending queue).
@@ -117,6 +121,7 @@ async def reject_gmp_task(task_id: str) -> bool:
         True if rejected successfully, False otherwise
     """
     return await remove_pending_task(task_id)
+
 
 # CLI interface for Igor
 async def cli_list_pending() -> None:
@@ -138,6 +143,7 @@ async def cli_list_pending() -> None:
         logger.info(f"Repo: {task.get('payload', {}).get('repo_root', 'unknown')}")
         logger.info("-" * 80)
 
+
 async def cli_approve(task_id: str) -> None:
     """CLI command: Approve a GMP task."""
     success = await approve_gmp_task(task_id)
@@ -147,6 +153,7 @@ async def cli_approve(task_id: str) -> None:
     else:
         logger.error(f"✗ Failed to approve GMP task {task_id}")
 
+
 async def cli_reject(task_id: str) -> None:
     """CLI command: Reject a GMP task."""
     success = await reject_gmp_task(task_id)
@@ -155,6 +162,7 @@ async def cli_reject(task_id: str) -> None:
         logger.info(f"✓ Rejected GMP task {task_id}")
     else:
         logger.error(f"✗ Failed to reject GMP task {task_id}")
+
 
 __all__ = [
     "list_pending_gmp_tasks",
@@ -175,8 +183,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["runtime.gmp_worker"],
-    "tags": ["async", "logging", "operations", "queue", "runtime-operations", "service"],
-    "keywords": ["approval", "approve", "cli", "gmp", "interface", "pending", "queue", "reject"],
+    "tags": [
+        "async",
+        "logging",
+        "operations",
+        "queue",
+        "runtime-operations",
+        "service",
+    ],
+    "keywords": [
+        "approval",
+        "approve",
+        "cli",
+        "gmp",
+        "interface",
+        "pending",
+        "queue",
+        "reject",
+    ],
     "business_value": "List pending GMP tasks Approve tasks (sets approved_by_igor=True) Reject tasks (removes from queue) Get task details Version: 1.0.0",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

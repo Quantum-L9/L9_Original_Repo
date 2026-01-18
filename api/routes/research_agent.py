@@ -27,7 +27,13 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /status", "POST /synthesize", "POST /discover", "POST /generate-spec", "POST /research-to-code"],
+        "api_endpoints": [
+            "GET /status",
+            "POST /synthesize",
+            "POST /discover",
+            "POST /generate-spec",
+            "POST /research-to-code",
+        ],
         "datasources": ["Perplexity API"],
         "memory_layers": [],
         "imported_by": ["api.server"],
@@ -417,6 +423,7 @@ async def research_to_code(
             error=str(e),
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -426,8 +433,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.auth", "core.decorators"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "messaging", "operations", "pydantic", "router"],
-    "keywords": ["agent", "discover", "generate", "module", "pipeline", "research", "router", "spec"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "router",
+    ],
+    "keywords": [
+        "agent",
+        "discover",
+        "generate",
+        "module",
+        "pipeline",
+        "research",
+        "router",
+        "spec",
+    ],
     "business_value": "/synthesize: Fast multi-perspective synthesis (~10 min) /discover: Deep 5-stage research pipeline (hours) /generate-spec: Module-Spec-v2.4 YAML generation (~1 min) /research-to-code: End-to-end pipeli",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

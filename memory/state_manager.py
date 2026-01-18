@@ -412,6 +412,7 @@ class MemoryStateManager:
         }
         await self.save_checkpoint(checkpoint_data)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -421,8 +422,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.schemas", "memory.substrate_service"],
-    "tags": ["async", "debugging", "event-driven", "learning", "logging", "memory-substrate", "service", "testing", "tracing"],
-    "keywords": ["active", "agent", "append", "checkpoint", "compliance", "contradiction", "count", "delete"],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "service",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "active",
+        "agent",
+        "append",
+        "checkpoint",
+        "compliance",
+        "contradiction",
+        "count",
+        "delete",
+    ],
     "business_value": "Implements MemoryStateManager for state manager functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

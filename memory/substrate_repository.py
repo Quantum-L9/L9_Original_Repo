@@ -22,7 +22,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["PostgreSQL"],
         "memory_layers": ["episodic_memory", "semantic_memory", "working_memory"],
-        "imported_by": ["core.integration.tool_pattern_extractor", "core.singleton_registry", "core.tools.tool_embeddings", "memory.__init__", "memory.agent_persistence", "memory.checkpoint.postgres_saver", "memory.consolidation", "memory.index_syncer", "memory.reasoning_replay", "memory.retention_engine"],
+        "imported_by": [
+            "core.integration.tool_pattern_extractor",
+            "core.singleton_registry",
+            "core.tools.tool_embeddings",
+            "memory.__init__",
+            "memory.agent_persistence",
+            "memory.checkpoint.postgres_saver",
+            "memory.consolidation",
+            "memory.index_syncer",
+            "memory.reasoning_replay",
+            "memory.retention_engine",
+        ],
     },
 }
 # ============================================================================
@@ -2348,6 +2359,7 @@ async def close_repository() -> None:
         await _repository.disconnect()
         _repository = None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -2356,9 +2368,33 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.schemas", "memory.governance_gate", "memory.substrate_models"],
-    "tags": ["async", "data-access", "debugging", "event-driven", "learning", "logging", "memory-substrate", "messaging", "migration", "postgres"],
-    "keywords": ["acquire", "active", "block", "check", "checkpoint", "checkpoints", "close", "connect"],
+    "dependencies": [
+        "core.schemas",
+        "memory.governance_gate",
+        "memory.substrate_models",
+    ],
+    "tags": [
+        "async",
+        "data-access",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "migration",
+        "postgres",
+    ],
+    "keywords": [
+        "acquire",
+        "active",
+        "block",
+        "check",
+        "checkpoint",
+        "checkpoints",
+        "close",
+        "connect",
+    ],
     "business_value": "Provides async functions for all memory substrate operations.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

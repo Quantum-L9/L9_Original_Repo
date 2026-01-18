@@ -95,6 +95,7 @@ class BaseExtractor(ABC):
         output_dir.mkdir(parents=True, exist_ok=True)
         return output_dir
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

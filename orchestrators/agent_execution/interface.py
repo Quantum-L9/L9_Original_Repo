@@ -80,6 +80,7 @@ class IAgentExecutionOrchestrator(Protocol):
         """Poll queue and execute tasks (main loop)."""
         ...
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -89,8 +90,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "data-models", "enum", "intelligence", "messaging", "orchestration", "pydantic", "queue", "validation"],
-    "keywords": ["agent", "execute", "execution", "interface", "orchestrator", "poll", "queue", "status"],
+    "tags": [
+        "async",
+        "data-models",
+        "enum",
+        "intelligence",
+        "messaging",
+        "orchestration",
+        "pydantic",
+        "queue",
+        "validation",
+    ],
+    "keywords": [
+        "agent",
+        "execute",
+        "execution",
+        "interface",
+        "orchestrator",
+        "poll",
+        "queue",
+        "status",
+    ],
     "business_value": "Orchestrates Mac Agent task execution from file-based queue.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

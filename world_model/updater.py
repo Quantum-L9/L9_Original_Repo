@@ -41,7 +41,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["world_model.__init__", "world_model._pack_staging.test_integration", "world_model.engine"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model._pack_staging.test_integration",
+            "world_model.engine",
+        ],
     },
 }
 # ============================================================================
@@ -771,6 +775,7 @@ class WorldModelUpdater:
         """Clear the update log."""
         self._update_log.clear()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -781,7 +786,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["batch-processing", "dataclass", "learning", "rest-api", "world-model"],
-    "keywords": ["against", "applies", "apply", "batch", "clear", "create", "delete", "entity"],
+    "keywords": [
+        "against",
+        "applies",
+        "apply",
+        "batch",
+        "clear",
+        "create",
+        "delete",
+        "entity",
+    ],
     "business_value": "Parsing incoming PacketEnvelope payloads Validating updates against registry schemas Applying entity/relation changes to state Triggering causal graph recalculation (future) Logging update operations ",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

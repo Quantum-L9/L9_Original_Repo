@@ -31,7 +31,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["api.server", "core.agents.executor", "memory.retention_engine", "memory.substrate_service", "tests.memory.test_agent_persistence"],
+        "imported_by": [
+            "api.server",
+            "core.agents.executor",
+            "memory.retention_engine",
+            "memory.substrate_service",
+            "tests.memory.test_agent_persistence",
+        ],
     },
 }
 # ============================================================================
@@ -614,6 +620,7 @@ class AgentPersistenceService:
                 error=str(e),
             )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -622,9 +629,35 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.schemas", "memory.checkpoint_metrics", "memory.checkpoint_validator", "memory.substrate_repository", "memory.substrate_service"],
-    "tags": ["async", "debugging", "event-driven", "learning", "logging", "memory-substrate", "metrics", "migration", "rest-api", "scheduling"],
-    "keywords": ["agent", "checkpoint", "checkpoints", "create", "delete", "deserialize", "integrity", "management"],
+    "dependencies": [
+        "core.schemas",
+        "memory.checkpoint_metrics",
+        "memory.checkpoint_validator",
+        "memory.substrate_repository",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "metrics",
+        "migration",
+        "rest-api",
+        "scheduling",
+    ],
+    "keywords": [
+        "agent",
+        "checkpoint",
+        "checkpoints",
+        "create",
+        "delete",
+        "deserialize",
+        "integrity",
+        "management",
+    ],
     "business_value": "Implements memory_spec_v3.0.yaml memory_layers.persistence contract.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

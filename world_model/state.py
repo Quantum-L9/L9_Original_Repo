@@ -39,7 +39,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["world_model.__init__", "world_model._pack_staging.loader", "world_model._pack_staging.neo4j_substrate", "world_model._pack_staging.orchestrator", "world_model._pack_staging.postgres_substrate", "world_model._pack_staging.query_engine", "world_model._pack_staging.redis_substrate", "world_model._pack_staging.test_integration", "world_model._pack_staging.updater", "world_model.engine"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model._pack_staging.loader",
+            "world_model._pack_staging.neo4j_substrate",
+            "world_model._pack_staging.orchestrator",
+            "world_model._pack_staging.postgres_substrate",
+            "world_model._pack_staging.query_engine",
+            "world_model._pack_staging.redis_substrate",
+            "world_model._pack_staging.test_integration",
+            "world_model._pack_staging.updater",
+            "world_model.engine",
+        ],
     },
 }
 # ============================================================================
@@ -502,6 +513,7 @@ class WorldModelState:
         """Number of relations in state."""
         return len(self._relations)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -512,7 +524,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["dataclass", "learning", "rest-api", "world-model"],
-    "keywords": ["all", "causal", "container", "count", "entities", "entity", "graph", "inference"],
+    "keywords": [
+        "all",
+        "causal",
+        "container",
+        "count",
+        "entities",
+        "entity",
+        "graph",
+        "inference",
+    ],
     "business_value": "Entity graph (nodes with attributes) Relation graph (typed edges) Causal graph handle (for inference) Temporal versioning (for rollback) Memory Substrate: state snapshots persisted as PacketEnvelope R",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

@@ -27,7 +27,12 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["POST /run", "GET /{run_id}", "GET /graph/{graph_id}", "GET /health"],
+        "api_endpoints": [
+            "POST /run",
+            "GET /{run_id}",
+            "GET /graph/{graph_id}",
+            "GET /health",
+        ],
         "datasources": [],
         "memory_layers": [],
         "imported_by": ["api.server", "core.singleton_registry"],
@@ -258,6 +263,7 @@ async def simulation_health() -> Dict[str, Any]:
             "error": str(e),
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -267,7 +273,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.auth", "core.decorators"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "metrics", "operations", "pydantic", "router"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "metrics",
+        "operations",
+        "pydantic",
+        "router",
+    ],
     "keywords": ["graph", "health", "metrics", "routes", "runs", "simulation"],
     "business_value": "POST /simulation/run — Execute simulation on IR graph GET /simulation/{run_id} — Get simulation run status GET /simulation/graph/{graph_id} — Get all runs for a graph Version: 1.0.0 (GMP-24)",
     "last_modified": "2026-01-17T23:47:56Z",

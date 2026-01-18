@@ -22,7 +22,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.singleton_registry", "services.research.tools.__init__", "tests.test_tool_registry"],
+        "imported_by": [
+            "core.singleton_registry",
+            "services.research.tools.__init__",
+            "tests.test_tool_registry",
+        ],
     },
 }
 # ============================================================================
@@ -198,6 +202,7 @@ def get_tool_resolver() -> ToolResolver:
         _resolver = ToolResolver()
     return _resolver
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -207,8 +212,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.tools.base_registry"],
-    "tags": ["async", "auth", "authorization", "debugging", "logging", "operations", "research-services", "service"],
-    "keywords": ["agent", "authorize", "can", "execute", "registry", "resolve", "resolver", "tool"],
+    "tags": [
+        "async",
+        "auth",
+        "authorization",
+        "debugging",
+        "logging",
+        "operations",
+        "research-services",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "authorize",
+        "can",
+        "execute",
+        "registry",
+        "resolve",
+        "resolver",
+        "tool",
+    ],
     "business_value": "Implements ToolResolver for tool resolver functionality",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

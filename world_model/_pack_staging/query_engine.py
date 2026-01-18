@@ -471,6 +471,7 @@ class QueryEngine:
 
         return graph
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -481,7 +482,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["dataclass", "engine", "learning", "monitoring", "queue", "world-model"],
-    "keywords": ["all", "attribute", "attributes", "component", "connected", "correlate", "count", "distinct"],
+    "keywords": [
+        "all",
+        "attribute",
+        "attributes",
+        "component",
+        "connected",
+        "correlate",
+        "count",
+        "distinct",
+    ],
     "business_value": "Provides query engine components including QueryContext, QueryEngine",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

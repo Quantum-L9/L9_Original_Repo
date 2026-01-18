@@ -27,7 +27,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["collaborative_cells.__init__", "orchestration.cell_orchestrator"],
+        "imported_by": [
+            "collaborative_cells.__init__",
+            "orchestration.cell_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -375,6 +378,7 @@ class ArchitectCell(BaseCell):
         critique = await self._run_critic(architecture, task, context)
         return critique
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -384,8 +388,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "caching", "collaborative-reasoning", "intelligence", "llm", "logging", "messaging", "queue", "serialization"],
-    "keywords": ["architect", "architecture", "cell", "collaborative", "design", "review"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "collaborative-reasoning",
+        "intelligence",
+        "llm",
+        "logging",
+        "messaging",
+        "queue",
+        "serialization",
+    ],
+    "keywords": [
+        "architect",
+        "architecture",
+        "cell",
+        "collaborative",
+        "design",
+        "review",
+    ],
     "business_value": "Implements ArchitectCell for architect cell functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

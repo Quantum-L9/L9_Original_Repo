@@ -39,7 +39,17 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["world_model.__init__", "world_model._pack_staging.loader", "world_model._pack_staging.query_engine", "world_model._pack_staging.updater", "world_model.engine", "world_model.loader", "world_model.query_engine", "world_model.runtime", "world_model.updater"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model._pack_staging.loader",
+            "world_model._pack_staging.query_engine",
+            "world_model._pack_staging.updater",
+            "world_model.engine",
+            "world_model.loader",
+            "world_model.query_engine",
+            "world_model.runtime",
+            "world_model.updater",
+        ],
     },
 }
 # ============================================================================
@@ -446,6 +456,7 @@ class WorldModelRegistry:
         """Number of registered relation types."""
         return len(self._relation_types)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -456,7 +467,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["config", "dataclass", "learning", "rest-api", "world-model"],
-    "keywords": ["count", "definitions", "entity", "kernel", "model", "reasoning", "register", "registry"],
+    "keywords": [
+        "count",
+        "definitions",
+        "entity",
+        "kernel",
+        "model",
+        "reasoning",
+        "register",
+        "registry",
+    ],
     "business_value": "Entity type definitions Relation type definitions Schema validation rules Type inheritance hierarchy WorldModelLoader: populates registry from specs WorldModelUpdater: validates against registry Reaso",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

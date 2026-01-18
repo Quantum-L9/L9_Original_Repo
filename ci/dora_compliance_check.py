@@ -115,49 +115,51 @@ def scan_files(root_path: Path, extensions: List[str]) -> List[Path]:
 def check_compliance(root_path: Path) -> Tuple[List[Path], List[Path], List[Path]]:
     """
     Check all files for DORA compliance.
-    
+
     Returns:
         Tuple of (missing_header, missing_footer, missing_trace) file lists
     """
     files = scan_files(root_path, [".py", ".yaml", ".yml"])
-    
+
     missing_header = []
     missing_footer = []
     missing_trace = []
-    
+
     for file_path in files:
         blocks = check_dora_blocks(file_path)
-        
+
         if blocks.get("error"):
             continue
-            
+
         if not blocks["header"]:
             missing_header.append(file_path)
         if not blocks["footer"]:
             missing_footer.append(file_path)
         if not blocks["trace"]:
             missing_trace.append(file_path)
-    
+
     return missing_header, missing_footer, missing_trace
 
 
 def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
     """Fix a single file using the injection script."""
     relative_path = file_path.relative_to(repo_root)
-    
+
     cmd = [
         sys.executable,
         str(repo_root / "scripts" / "audit" / "inject_dora_complete.py"),
-        "--repo", str(repo_root),
-        "--file", str(relative_path),
+        "--repo",
+        str(repo_root),
+        "--file",
+        str(relative_path),
         "--execute",
         "--force",
     ]
-    
+
     if dry_run:
         print(f"  Would run: {' '.join(cmd)}")
         return True
-    
+
     try:
         result = subprocess.run(
             cmd,
@@ -165,13 +167,13 @@ def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
             text=True,
             cwd=repo_root,
         )
-        
+
         if result.returncode == 0:
             return True
         else:
             print(f"  Error fixing {relative_path}: {result.stderr}")
             return False
-            
+
     except Exception as e:
         print(f"  Exception fixing {relative_path}: {e}")
         return False
@@ -209,37 +211,37 @@ def main():
         action="store_true",
         help="Include test files in check",
     )
-    
+
     args = parser.parse_args()
-    
+
     if not args.check and not args.fix:
         parser.error("Must specify --check or --fix")
-    
+
     # Find repo root
     repo_root = Path(__file__).parent.parent
     check_path = repo_root / args.path
-    
+
     if not check_path.exists():
         print(f"❌ Path not found: {check_path}")
         sys.exit(2)
-    
+
     # Modify skip patterns if including tests
     if args.include_tests:
         SKIP_PATTERNS.clear()
-    
+
     print(f"🔍 Scanning {check_path}...")
     print()
-    
+
     # Check compliance
     missing_header, missing_footer, missing_trace = check_compliance(check_path)
-    
+
     # Deduplicate - files missing any block
     all_missing = set(missing_header) | set(missing_footer) | set(missing_trace)
-    
+
     if not all_missing:
         print("✅ All files have complete DORA blocks!")
         sys.exit(0)
-    
+
     # Report findings
     print(f"📊 DORA Compliance Report")
     print(f"{'=' * 60}")
@@ -249,7 +251,7 @@ def main():
     print(f"  Missing trace:  {len(missing_trace)}")
     print(f"  Total non-compliant: {len(all_missing)}")
     print()
-    
+
     if args.check:
         # Check mode - report and exit with error
         print("❌ Non-compliant files:")
@@ -264,37 +266,39 @@ def main():
             if not blocks["trace"]:
                 missing.append("trace")
             print(f"  {relative} (missing: {', '.join(missing)})")
-        
+
         print()
         print("💡 Run with --fix to auto-inject DORA blocks")
         sys.exit(1)
-    
+
     if args.fix:
         # Fix mode - inject missing blocks
-        print(f"🔧 {'DRY RUN - ' if args.dry_run else ''}Fixing {len(all_missing)} files...")
+        print(
+            f"🔧 {'DRY RUN - ' if args.dry_run else ''}Fixing {len(all_missing)} files..."
+        )
         print()
-        
+
         fixed = 0
         failed = 0
-        
+
         for file_path in sorted(all_missing):
             relative = file_path.relative_to(repo_root)
             print(f"  Fixing {relative}...")
-            
+
             if fix_file(file_path, repo_root, dry_run=args.dry_run):
                 fixed += 1
             else:
                 failed += 1
-        
+
         print()
         print(f"📊 Fix Summary")
         print(f"{'=' * 60}")
         print(f"  Fixed: {fixed}")
         print(f"  Failed: {failed}")
-        
+
         if failed > 0:
             sys.exit(2)
-        
+
         if args.dry_run:
             print()
             print("💡 Run without --dry-run to apply fixes")

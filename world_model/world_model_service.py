@@ -960,6 +960,7 @@ def reset_world_model_service_api() -> None:
     _service = None
     logger.info("WorldModelServiceAPI reset")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -969,8 +970,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "code-quality", "dataclass", "learning", "logging", "metrics", "rest-api", "service", "world-model"],
-    "keywords": ["api", "constraint", "constraints", "decision", "examples", "full", "generation", "heuristic"],
+    "tags": [
+        "api",
+        "async",
+        "code-quality",
+        "dataclass",
+        "learning",
+        "logging",
+        "metrics",
+        "rest-api",
+        "service",
+        "world-model",
+    ],
+    "keywords": [
+        "api",
+        "constraint",
+        "constraints",
+        "decision",
+        "examples",
+        "full",
+        "generation",
+        "heuristic",
+    ],
     "business_value": "get_context(): Get full context for reasoning tasks get_constraints(): Get active constraints from world state get_patterns(): Get matching architectural patterns get_heuristics(): Get applicable codi",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

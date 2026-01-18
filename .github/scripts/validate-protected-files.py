@@ -64,6 +64,7 @@ ALL_PROTECTED = PROTECTED_BY_LCTO | set(
     f for files in SUBSYSTEM_PROTECTED.values() for f in files
 )
 
+
 def get_changed_files() -> Set[str]:
     """Get files changed in current PR (assumes git environment)."""
     try:
@@ -74,10 +75,13 @@ def get_changed_files() -> Set[str]:
             text=True,
             check=True,
         )
-        return set(result.stdout.strip().split('\n')) if result.stdout.strip() else set()
+        return (
+            set(result.stdout.strip().split("\n")) if result.stdout.strip() else set()
+        )
     except subprocess.CalledProcessError:
         # Fallback if no git history (e.g., first PR)
         return set()
+
 
 def validate_protected_files() -> bool:
     """Check that protected files were not modified."""
@@ -105,11 +109,13 @@ def validate_protected_files() -> bool:
     print("✅ No protected files modified")
     return True
 
+
 def main():
     if not validate_protected_files():
         sys.exit(1)
     print("\n✨ Protected file validation passed!")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

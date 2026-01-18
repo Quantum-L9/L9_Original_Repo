@@ -31,7 +31,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.server", "core.governance.session_startup", "scripts.agents.verify_agent_executor", "tests.integration.test_l_cto_end_to_end", "tests.test_l_cto_kernel_activation", "tests.unit.test_lcto_bootstrap"],
+        "imported_by": [
+            "api.server",
+            "core.governance.session_startup",
+            "scripts.agents.verify_agent_executor",
+            "tests.integration.test_l_cto_end_to_end",
+            "tests.test_l_cto_kernel_activation",
+            "tests.unit.test_lcto_bootstrap",
+        ],
     },
 }
 # ============================================================================
@@ -92,7 +99,9 @@ class KernelAwareAgentRegistry:
             )
             from agents.l_cto import LCTOAgent
 
-            logger.info("kernel_registry: initializing L-CTO with two-phase kernel activation...")
+            logger.info(
+                "kernel_registry: initializing L-CTO with two-phase kernel activation..."
+            )
 
             # Create L-CTO agent
             agent = LCTOAgent(agent_id="l9-standard-v1")
@@ -264,9 +273,24 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["agents.l_cto", "core.agents.schemas", "core.kernels.kernelloader", "core.kernels.schemas", "core.schemas.capabilities"],
+    "dependencies": [
+        "agents.l_cto",
+        "core.agents.schemas",
+        "core.kernels.kernelloader",
+        "core.kernels.schemas",
+        "core.schemas.capabilities",
+    ],
     "tags": ["agent-execution", "api", "foundation", "logging", "security", "utility"],
-    "keywords": ["activation", "agent", "aware", "create", "cto", "exists", "hashes", "integrity"],
+    "keywords": [
+        "activation",
+        "agent",
+        "aware",
+        "create",
+        "cto",
+        "exists",
+        "hashes",
+        "integrity",
+    ],
     "business_value": "This ensures L wakes up with proper identity. Phase 1: LOAD - Parse YAML, validate schema, compute hashes Phase 2: ACTIVATE - Inject context, set state, verify activation Version: 2.0.0 GMP: kernel_bo",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

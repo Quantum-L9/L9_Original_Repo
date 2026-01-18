@@ -34,6 +34,7 @@ from datetime import datetime
 from typing import Any, Optional
 from uuid import uuid4
 
+
 @dataclass
 class MockBlobStore:
     """Mock blob storage for large content."""
@@ -59,6 +60,7 @@ class MockBlobStore:
             del self.blobs[blob_id]
             return True
         return False
+
 
 class MockMemoryAdapter:
     """
@@ -260,6 +262,7 @@ class MockMemoryAdapter:
             "checkpoint_count": len(self.checkpoints),
         }
 
+
 class MockPostgresCursor:
     """
     Mock PostgreSQL cursor for testing.
@@ -305,6 +308,7 @@ class MockPostgresCursor:
         """Close cursor."""
         pass
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -314,8 +318,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["adapter-pattern", "async", "dataclass", "mocking", "operations", "security", "testing", "tests"],
-    "keywords": ["adapter", "blob", "checkpoint", "close", "cursor", "delete", "execute", "fetchall"],
+    "tags": [
+        "adapter-pattern",
+        "async",
+        "dataclass",
+        "mocking",
+        "operations",
+        "security",
+        "testing",
+        "tests",
+    ],
+    "keywords": [
+        "adapter",
+        "blob",
+        "checkpoint",
+        "close",
+        "cursor",
+        "delete",
+        "execute",
+        "fetchall",
+    ],
     "business_value": "Provides memory mocks components including MockBlobStore, MockMemoryAdapter, MockPostgresCursor",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

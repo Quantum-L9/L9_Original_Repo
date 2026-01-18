@@ -177,6 +177,7 @@ class CriticAgent(BaseAgent):
 
         return score, feedback
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

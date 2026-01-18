@@ -405,6 +405,7 @@ class WorldModelLoader(IWorldModelLoader):
 
         return True
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -415,7 +416,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["collector", "config", "filesystem", "learning", "loader", "world-model"],
-    "keywords": ["blueprint", "causal", "declarative", "domain", "entity", "graph", "initial", "load"],
+    "keywords": [
+        "blueprint",
+        "causal",
+        "declarative",
+        "domain",
+        "entity",
+        "graph",
+        "initial",
+        "load",
+    ],
     "business_value": "Implements WorldModelLoader for loader functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

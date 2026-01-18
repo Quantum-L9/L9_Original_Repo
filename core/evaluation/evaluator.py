@@ -292,6 +292,7 @@ async def ci_eval_gate(
 
     logger.info("✓ Eval passed. All deltas within thresholds.")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -301,8 +302,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "memory.substrate_service"],
-    "tags": ["async", "dataclass", "error-handling", "foundation", "logging", "mocking", "testing"],
-    "keywords": ["baseline", "compare", "define", "eval", "evaluation", "evaluator", "example", "gate"],
+    "tags": [
+        "async",
+        "dataclass",
+        "error-handling",
+        "foundation",
+        "logging",
+        "mocking",
+        "testing",
+    ],
+    "keywords": [
+        "baseline",
+        "compare",
+        "define",
+        "eval",
+        "evaluation",
+        "evaluator",
+        "example",
+        "gate",
+    ],
     "business_value": "Provides evaluator components including EvaluationExample, EvaluationSet, EvaluationResult",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

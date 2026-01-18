@@ -238,6 +238,7 @@ class SubstrateDagOrchestrator:
             error_message=f"Retries exhausted: {last_error}",
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -246,9 +247,33 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.observability.circuit_breaker", "core.schemas", "memory.dead_letter", "memory.substrate_dag"],
-    "tags": ["async", "dataclass", "event-driven", "learning", "logging", "memory-substrate", "messaging", "orchestration", "queue"],
-    "keywords": ["dag", "delay", "ingest", "orchestrator", "packet", "policy", "queue", "retry"],
+    "dependencies": [
+        "core.observability.circuit_breaker",
+        "core.schemas",
+        "memory.dead_letter",
+        "memory.substrate_dag",
+    ],
+    "tags": [
+        "async",
+        "dataclass",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "orchestration",
+        "queue",
+    ],
+    "keywords": [
+        "dag",
+        "delay",
+        "ingest",
+        "orchestrator",
+        "packet",
+        "policy",
+        "queue",
+        "retry",
+    ],
     "business_value": "Retry with exponential backoff Circuit breaker integration Dead letter queue for failed packets GMP-88: Core Resilience for SubstrateDagOrchestrator",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

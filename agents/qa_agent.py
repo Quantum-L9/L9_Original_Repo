@@ -375,6 +375,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -384,8 +385,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["agents.base_agent"],
-    "tags": ["agent", "agent-execution", "async", "code-quality", "intelligence", "logging", "messaging", "monitoring", "serialization"],
-    "keywords": ["agent", "analysis", "assess", "create", "detection", "plan", "production", "prompt"],
+    "tags": [
+        "agent",
+        "agent-execution",
+        "async",
+        "code-quality",
+        "intelligence",
+        "logging",
+        "messaging",
+        "monitoring",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "analysis",
+        "assess",
+        "create",
+        "detection",
+        "plan",
+        "production",
+        "prompt",
+    ],
     "business_value": "Implements QAAgent for qa agent functionality",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

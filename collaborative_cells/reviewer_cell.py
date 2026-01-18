@@ -27,7 +27,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["collaborative_cells.__init__", "orchestration.cell_orchestrator"],
+        "imported_by": [
+            "collaborative_cells.__init__",
+            "orchestration.cell_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -397,6 +400,7 @@ class ReviewerCell(BaseCell):
 
         return output.get("testing", {}).get("suggested_tests", [])
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -406,8 +410,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "code-quality", "collaborative-reasoning", "intelligence", "llm", "logging", "messaging", "serialization", "service"],
-    "keywords": ["audit", "cell", "collaborative", "review", "reviewer", "security", "suggestions", "test"],
+    "tags": [
+        "api",
+        "async",
+        "code-quality",
+        "collaborative-reasoning",
+        "intelligence",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "audit",
+        "cell",
+        "collaborative",
+        "review",
+        "reviewer",
+        "security",
+        "suggestions",
+        "test",
+    ],
     "business_value": "Implements ReviewerCell for reviewer cell functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

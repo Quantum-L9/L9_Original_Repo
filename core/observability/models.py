@@ -20,7 +20,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.kernels.kernelloader", "tests.core.observability.test_observability_integration", "tests.unit.test_kernel_observability"],
+        "imported_by": [
+            "core.kernels.kernelloader",
+            "tests.core.observability.test_observability_integration",
+            "tests.unit.test_kernel_observability",
+        ],
     },
 }
 # ============================================================================
@@ -34,6 +38,7 @@ import uuid
 
 class SpanKind(str, Enum):
     """Kind of span."""
+
     INTERNAL = "INTERNAL"
     SERVER = "SERVER"
     CLIENT = "CLIENT"
@@ -49,6 +54,7 @@ class SpanKind(str, Enum):
 
 class SpanStatus(str, Enum):
     """Span execution status."""
+
     UNSET = "UNSET"
     OK = "OK"
     ERROR = "ERROR"
@@ -56,6 +62,7 @@ class SpanStatus(str, Enum):
 
 class FailureClass(str, Enum):
     """Classification of failures."""
+
     TOOL_TIMEOUT = "TOOL_TIMEOUT"
     TOOL_ERROR = "TOOL_ERROR"
     CONTEXT_WINDOW_EXCEEDED = "CONTEXT_WINDOW_EXCEEDED"
@@ -72,8 +79,11 @@ class FailureClass(str, Enum):
 
 class TraceContext(BaseModel):
     """W3C-compatible trace context."""
+
     trace_id: str = Field(default_factory=lambda: str(uuid.uuid4()).replace("-", ""))
-    span_id: str = Field(default_factory=lambda: str(uuid.uuid4()).replace("-", "")[:16])
+    span_id: str = Field(
+        default_factory=lambda: str(uuid.uuid4()).replace("-", "")[:16]
+    )
     parent_span_id: Optional[str] = None
     is_sampled: bool = True
     user_id: Optional[str] = None
@@ -102,6 +112,7 @@ class TraceContext(BaseModel):
 
 class Span(BaseModel):
     """Core span model."""
+
     trace_id: str
     span_id: str
     parent_span_id: Optional[str] = None
@@ -114,7 +125,9 @@ class Span(BaseModel):
     error: Optional[str] = None
     attributes: Dict[str, Any] = Field(default_factory=dict)
 
-    def finish(self, status: SpanStatus = SpanStatus.OK, error: Optional[str] = None) -> None:
+    def finish(
+        self, status: SpanStatus = SpanStatus.OK, error: Optional[str] = None
+    ) -> None:
         """Mark span as finished."""
         self.end_time = datetime.utcnow()
         self.duration_ms = (self.end_time - self.start_time).total_seconds() * 1000
@@ -131,12 +144,12 @@ class Span(BaseModel):
         **attributes: Any,
     ) -> "Span":
         """Create and start a new span.
-        
+
         For subclasses with required fields (e.g., ToolCallSpan.tool_name),
         those fields are extracted from attributes and passed directly.
         """
         span_id = str(uuid.uuid4()).replace("-", "")[:16]
-        
+
         # Build base kwargs
         kwargs: Dict[str, Any] = {
             "trace_id": trace_id,
@@ -146,28 +159,42 @@ class Span(BaseModel):
             "kind": kind,
             "start_time": datetime.utcnow(),
         }
-        
+
         # Extract subclass-specific fields from attributes
         # ToolCallSpan requires: tool_name, tool_input
-        subclass_fields = {"tool_name", "tool_input", "tool_output", "tool_error",
-                          "model", "prompt_tokens", "completion_tokens", "total_tokens",
-                          "cost_usd", "temperature", "strategy", "tokens_used",
-                          "tokens_available", "truncation_occurred", "overflow_event"}
-        
+        subclass_fields = {
+            "tool_name",
+            "tool_input",
+            "tool_output",
+            "tool_error",
+            "model",
+            "prompt_tokens",
+            "completion_tokens",
+            "total_tokens",
+            "cost_usd",
+            "temperature",
+            "strategy",
+            "tokens_used",
+            "tokens_available",
+            "truncation_occurred",
+            "overflow_event",
+        }
+
         remaining_attrs = {}
         for key, value in attributes.items():
             if key in subclass_fields:
                 kwargs[key] = value
             else:
                 remaining_attrs[key] = value
-        
+
         kwargs["attributes"] = remaining_attrs
-        
+
         return cls(**kwargs)
 
 
 class LLMGenerationSpan(Span):
     """Span for LLM generation."""
+
     model: str = "gpt-4"
     prompt_tokens: int = 0
     completion_tokens: int = 0
@@ -178,6 +205,7 @@ class LLMGenerationSpan(Span):
 
 class ToolCallSpan(Span):
     """Span for tool invocation."""
+
     tool_name: str
     tool_input: Dict[str, Any] = Field(default_factory=dict)
     tool_output: Optional[Any] = None
@@ -186,6 +214,7 @@ class ToolCallSpan(Span):
 
 class ContextAssemblySpan(Span):
     """Span for context window assembly."""
+
     strategy: str = "recency_biased_window"
     tokens_used: int = 0
     tokens_available: int = 8000
@@ -195,6 +224,7 @@ class ContextAssemblySpan(Span):
 
 class RAGRetrievalSpan(Span):
     """Span for RAG retrieval."""
+
     query: str
     top_k: int = 5
     chunks_retrieved: int = 0
@@ -203,6 +233,7 @@ class RAGRetrievalSpan(Span):
 
 class GovernanceCheckSpan(Span):
     """Span for governance policy check."""
+
     policy_name: str
     policy_result: str = "allow"  # allow, deny, review
     policy_reason: Optional[str] = None
@@ -210,6 +241,7 @@ class GovernanceCheckSpan(Span):
 
 class AgentTrajectorySpan(Span):
     """Root span for complete agent task execution."""
+
     agent_name: str
     task_kind: str
     max_iterations: int = 10
@@ -220,6 +252,7 @@ class AgentTrajectorySpan(Span):
 
 class KernelLifecycleSpan(Span):
     """Span for kernel lifecycle events (v3.4+ / GMP-KERNEL-BOOT)."""
+
     kernel_id: str
     kernel_version: Optional[str] = None
     kernel_hash: Optional[str] = None
@@ -255,6 +288,7 @@ class KernelLifecycleSpan(Span):
 
 class FailureSignal(BaseModel):
     """Signal indicating a failure event."""
+
     failure_class: FailureClass
     span_id: str
     trace_id: str
@@ -266,6 +300,7 @@ class FailureSignal(BaseModel):
 
 class RemediationAction(BaseModel):
     """Action to remediate a failure."""
+
     action_type: str  # retry, fallback, summarize, degrade, escalate, etc.
     target: Optional[str] = None  # what to act on (tool name, model, etc.)
     parameters: Dict[str, Any] = Field(default_factory=dict)
@@ -275,6 +310,7 @@ class RemediationAction(BaseModel):
 
 class SREMetric(BaseModel):
     """SRE-level metric."""
+
     metric_name: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     value: float
@@ -284,11 +320,13 @@ class SREMetric(BaseModel):
 
 class AgentKPI(BaseModel):
     """Agent performance KPI."""
+
     agent_name: str
     metric_name: str
     value: float
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     period: str = "1h"  # 1h, 1d, 1w
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -299,8 +337,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "data-models", "enum", "event-driven", "foundation", "metrics", "pydantic", "security", "tracing", "validation"],
-    "keywords": ["action", "agent", "assembly", "check", "failure", "finish", "generation", "governance"],
+    "tags": [
+        "api",
+        "data-models",
+        "enum",
+        "event-driven",
+        "foundation",
+        "metrics",
+        "pydantic",
+        "security",
+        "tracing",
+        "validation",
+    ],
+    "keywords": [
+        "action",
+        "agent",
+        "assembly",
+        "check",
+        "failure",
+        "finish",
+        "generation",
+        "governance",
+    ],
     "business_value": "Provides models components including SpanKind, SpanStatus, FailureClass",
     "last_modified": "2026-01-14T12:10:12Z",
     "modified_by": "L9_Codegen_Engine",

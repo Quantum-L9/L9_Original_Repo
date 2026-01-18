@@ -38,6 +38,7 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
+
 async def reflection_agent_reflect_executor(
     history: list[dict[str, Any]],
     focus: str = "general",
@@ -68,6 +69,7 @@ async def reflection_agent_reflect_executor(
         focus=focus,
         goals=goals,
     )
+
 
 async def reflection_agent_analyze_failure_executor(
     failure_context: dict[str, Any],
@@ -100,6 +102,7 @@ async def reflection_agent_analyze_failure_executor(
         stack_trace=stack_trace,
     )
 
+
 async def reflection_agent_compare_approaches_executor(
     approach_a: dict[str, Any],
     approach_b: dict[str, Any],
@@ -130,6 +133,7 @@ async def reflection_agent_compare_approaches_executor(
         criteria=criteria,
     )
 
+
 async def reflection_agent_extract_patterns_executor(
     examples: list[dict[str, Any]],
 ) -> dict[str, Any]:
@@ -151,6 +155,7 @@ async def reflection_agent_extract_patterns_executor(
 
     agent = create_reflection_agent()
     return await agent.reflection_agent_extract_patterns(examples=examples)
+
 
 async def reflection_agent_generate_improvements_executor(
     current_performance: dict[str, Any],
@@ -179,6 +184,7 @@ async def reflection_agent_generate_improvements_executor(
         goals=goals,
     )
 
+
 # Export all executors for registration
 REFLECTION_TOOL_EXECUTORS = {
     "reflection_agent_reflect": reflection_agent_reflect_executor,
@@ -206,8 +212,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["agents.reflection_agent"],
-    "tags": ["async", "engine", "event-driven", "foundation", "logging", "messaging", "metrics", "tool-registry", "tracing"],
-    "keywords": ["agent", "analyze", "approaches", "compare", "executor", "extract", "failure", "generate"],
+    "tags": [
+        "async",
+        "engine",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "metrics",
+        "tool-registry",
+        "tracing",
+    ],
+    "keywords": [
+        "agent",
+        "analyze",
+        "approaches",
+        "compare",
+        "executor",
+        "extract",
+        "failure",
+        "generate",
+    ],
     "business_value": "Utility module for reflection tools",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

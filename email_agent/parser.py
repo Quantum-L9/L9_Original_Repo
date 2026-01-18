@@ -312,6 +312,7 @@ def html_to_text(html: str) -> str:
         text = html.unescape(text) if HTML_AVAILABLE else text
         return text.strip()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -321,8 +322,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["email-integration", "integration", "logging", "messaging", "parser", "utility"],
-    "keywords": ["attachments", "endtag", "extract", "handle", "headers", "html", "parse", "parser"],
+    "tags": [
+        "email-integration",
+        "integration",
+        "logging",
+        "messaging",
+        "parser",
+        "utility",
+    ],
+    "keywords": [
+        "attachments",
+        "endtag",
+        "extract",
+        "handle",
+        "headers",
+        "html",
+        "parse",
+        "parser",
+    ],
     "business_value": "Implements HTMLToTextParser for parser functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

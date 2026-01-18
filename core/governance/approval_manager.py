@@ -23,7 +23,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Slack API"],
         "memory_layers": ["working_memory"],
-        "imported_by": ["agents.cursor.integrations.cursor_executor", "api.server", "core.governance.approval_gate", "tests.integration.test_cursor_langgraph_integration"],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_executor",
+            "api.server",
+            "core.governance.approval_gate",
+            "tests.integration.test_cursor_langgraph_integration",
+        ],
     },
 }
 # ============================================================================
@@ -463,6 +468,7 @@ class ApprovalManager:
             "high_risk_tools": list(self.HIGH_RISK_TOOLS.keys()),
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -472,8 +478,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.schemas", "memory.substrate_service"],
-    "tags": ["api", "async", "caching", "data-models", "dataclass", "debugging", "foundation", "logging", "messaging", "metrics"],
-    "keywords": ["approval", "approve", "approved", "check", "decision", "expired", "manager", "metrics"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "foundation",
+        "logging",
+        "messaging",
+        "metrics",
+    ],
+    "keywords": [
+        "approval",
+        "approve",
+        "approved",
+        "check",
+        "decision",
+        "expired",
+        "manager",
+        "metrics",
+    ],
     "business_value": "This module manages the approval workflow for destructive operations.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

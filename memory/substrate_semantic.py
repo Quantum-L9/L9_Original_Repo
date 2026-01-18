@@ -22,7 +22,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["memory.__init__", "memory.substrate_service", "tests.memory.test_substrate_semantic", "tests.test_memory_substrate_basic"],
+        "imported_by": [
+            "memory.__init__",
+            "memory.substrate_service",
+            "tests.memory.test_substrate_semantic",
+            "tests.test_memory_substrate_basic",
+        ],
     },
 }
 # ============================================================================
@@ -655,6 +660,7 @@ async def embed_text(
 
     return await provider.embed_text(text)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -664,8 +670,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "batch-processing", "debugging", "learning", "llm", "logging", "memory-substrate", "security", "service"],
-    "keywords": ["batch", "create", "dimensions", "embed", "embedding", "embeddings", "generate", "hit"],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "debugging",
+        "learning",
+        "llm",
+        "logging",
+        "memory-substrate",
+        "security",
+        "service",
+    ],
+    "keywords": [
+        "batch",
+        "create",
+        "dimensions",
+        "embed",
+        "embedding",
+        "embeddings",
+        "generate",
+        "hit",
+    ],
     "business_value": "Provides a pluggable embedding provider interface.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

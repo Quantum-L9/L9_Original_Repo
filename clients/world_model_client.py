@@ -488,7 +488,7 @@ __dora_footer__ = {
     "dependencies": ["core.decorators"],
     "tags": ["api", "async", "client", "data-models", "debugging", "http-client", "integration", "logging", "pydantic", "rest-api"],
     "keywords": ["await", "check", "client", "close", "entities", "entity", "health", "insights"],
-    "business_value": "the World Model API. from clients.world_model_client import get_world_model_client client = get_world_model_client() # Get entity entity = await client.get_entity("entity-123") # List entities entitie",
+    "business_value": "the World Model API. from clients.world_model_client import get_world_model_client client = get_worl",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

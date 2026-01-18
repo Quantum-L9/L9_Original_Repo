@@ -8,7 +8,7 @@ This file is DEPRECATED and NOT registered in api/server.py.
 **Replacement**: api/routes/slack.py → memory/slack_ingest.py
 
 **What uses this file**: Nothing (not wired in server.py)
-**What should be used instead**: 
+**What should be used instead**:
   - api/routes/slack.py (FastAPI routes)
   - memory/slack_ingest.py (event handling logic)
 
@@ -17,7 +17,7 @@ This file is DEPRECATED and NOT registered in api/server.py.
   - orchestration/slack_task_router.py (task routing)
   - api/routes/slack.py (HTTP endpoints)
 
-**Why archived**: 
+**Why archived**:
   - Not registered in api/server.py (line 2101-2102: "NOT USED")
   - Duplicate functionality with routes/slack.py
   - All features successfully ported to slack_ingest.py
@@ -70,7 +70,9 @@ SLACK_BOT_USER_ID = os.getenv("SLACK_BOT_USER_ID", "")
 L_SLACK_USER_ID = os.getenv("L_SLACK_USER_ID", "l-cto")
 
 # Combined list of user IDs to ignore (L's own messages)
-L_USER_IDS = {uid.strip().lower() for uid in [SLACK_BOT_USER_ID, L_SLACK_USER_ID] if uid.strip()}
+L_USER_IDS = {
+    uid.strip().lower() for uid in [SLACK_BOT_USER_ID, L_SLACK_USER_ID] if uid.strip()
+}
 
 # =============================================================================
 # Event Deduplication Cache
@@ -78,32 +80,33 @@ L_USER_IDS = {uid.strip().lower() for uid in [SLACK_BOT_USER_ID, L_SLACK_USER_ID
 # Prevents processing the same Slack event multiple times
 # (Slack retries webhooks after 3s if no 200 response)
 
+
 class EventDedupeCache:
     """
     Thread-safe LRU cache for event deduplication.
-    
+
     Stores event_ids with timestamps to prevent duplicate processing.
     Auto-evicts entries older than TTL or when max_size is exceeded.
     """
-    
+
     def __init__(self, max_size: int = 10000, ttl_seconds: int = 300):
         self._cache: OrderedDict[str, float] = OrderedDict()
         self._lock = Lock()
         self._max_size = max_size
         self._ttl = ttl_seconds
-    
+
     def is_duplicate(self, event_id: str) -> bool:
         """
         Check if event_id was recently processed.
-        
+
         Returns True if duplicate (should skip processing).
         Returns False if new (will be marked as processed).
         """
         if not event_id:
             return False  # No event_id = can't dedupe, process it
-        
+
         now = time.time()
-        
+
         with self._lock:
             # Check if already processed
             if event_id in self._cache:
@@ -117,23 +120,24 @@ class EventDedupeCache:
                     return True
                 # Expired, remove it
                 del self._cache[event_id]
-            
+
             # Mark as processed
             self._cache[event_id] = now
-            
+
             # Move to end (LRU)
             self._cache.move_to_end(event_id)
-            
+
             # Evict old entries if over max_size
             while len(self._cache) > self._max_size:
                 self._cache.popitem(last=False)
-            
+
             return False
-    
+
     def clear(self):
         """Clear the cache (for testing)."""
         with self._lock:
             self._cache.clear()
+
 
 # Global deduplication cache
 _event_dedupe_cache = EventDedupeCache(max_size=10000, ttl_seconds=300)
@@ -157,6 +161,7 @@ L9_ENABLE_LEGACY_SLACK_ROUTER = settings.l9_enable_legacy_slack_router
 # =============================================================================
 # L-CTO Agent Handler for Slack (Phase 2 prep - not yet wired)
 # =============================================================================
+
 
 async def handle_slack_with_l_agent(
     app,
@@ -261,7 +266,9 @@ async def handle_slack_with_l_agent(
         logger.exception("handle_slack_with_l_agent: error: %s", str(e))
         return (f"Error processing message: {str(e)}", "error")
 
+
 router = APIRouter()
+
 
 @router.post("/slack/commands")
 async def slack_commands(request: Request):
@@ -438,6 +445,7 @@ async def slack_commands(request: Request):
             }
         )
 
+
 def verify_slack_signature(
     body: str,
     timestamp: str,
@@ -477,6 +485,7 @@ def verify_slack_signature(
 
     # Compare signatures using constant-time comparison
     return hmac.compare_digest(expected_sig_string, signature)
+
 
 @router.post("/slack/events")
 async def slack_events(
@@ -538,7 +547,7 @@ async def slack_events(
         event_type = event.get("type")
         event_subtype = event.get("subtype")
         event_id = data.get("event_id", "")
-        
+
         # === DEDUPLICATION CHECK ===
         # Slack retries webhooks after 3s if no 200 response
         # This prevents processing the same event multiple times
@@ -555,7 +564,7 @@ async def slack_events(
         # This prevents the recursive "Hey! L9 here. You said:" echo bug (Dec 18, 2025)
         event_user = event.get("user", "")
         event_user_lower = event_user.lower() if event_user else ""
-        
+
         is_bot_message = (
             event_subtype == "bot_message"
             or event.get("bot_id")
@@ -998,22 +1007,20 @@ async def slack_events(
     logger.warning(f"[SLACK] Unknown event type: {data.get('type')}")
     return JSONResponse(content={"status": "ok"})
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_footer__ = {
     # === IDENTITY ===
     "component_id": "_AR-OPER-001",
-    
     # === GOVERNANCE ===
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
     "security_classification": "internal",
-    
     # === DEPENDENCIES ===
     "dependencies": ["core.agents.schemas"],
-    
     # === OPERATIONAL ===
     "execution_mode": "on-demand",
     "timeout_seconds": 30,
@@ -1021,7 +1028,6 @@ __dora_footer__ = {
     "retry_policy": "exponential",
     "circuit_breaker_enabled": True,
     "circuit_breaker_threshold": 5,
-    
     # === OBSERVABILITY ===
     "monitoring_required": True,
     "logging_level": "info",
@@ -1031,12 +1037,30 @@ __dora_footer__ = {
         "availability_percent": 99.99,
         "error_rate_percent": 0.01,
     },
-    
     # === DISCOVERY ===
-    "tags": ["api", "api-gateway", "async", "caching", "debugging", "endpoint", "event-driven", "logging", "messaging", "migration"],
-    "keywords": ["agent", "cache", "clear", "commands", "dedupe", "deprecated", "duplicate", "event"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "caching",
+        "debugging",
+        "endpoint",
+        "event-driven",
+        "logging",
+        "messaging",
+        "migration",
+    ],
+    "keywords": [
+        "agent",
+        "cache",
+        "clear",
+        "commands",
+        "dedupe",
+        "deprecated",
+        "duplicate",
+        "event",
+    ],
     "business_value": "This file is DEPRECATED and NOT registered in api/server.py. api/routes/slack.py (FastAPI routes) memory/slack_ingest.py (event handling logic)",
-    
     # === CHANGE TRACKING ===
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

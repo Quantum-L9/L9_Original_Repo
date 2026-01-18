@@ -29,9 +29,11 @@ __dora_meta__ = {
 from datetime import datetime
 from typing import List, Dict, Any
 
+
 def ts() -> str:
     """Get current timestamp in ISO format."""
     return datetime.utcnow().isoformat()
+
 
 def log_step(
     log_list: List[Dict[str, Any]],
@@ -59,6 +61,7 @@ def log_step(
             "timestamp": ts(),
         }
     )
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

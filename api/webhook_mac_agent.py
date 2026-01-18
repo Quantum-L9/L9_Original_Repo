@@ -15,7 +15,11 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /tasks/next", "POST /tasks/{task_id}/result", "GET /tasks"],
+        "api_endpoints": [
+            "GET /tasks/next",
+            "POST /tasks/{task_id}/result",
+            "GET /tasks",
+        ],
         "datasources": ["HTTP API", "Slack API"],
         "memory_layers": ["working_memory"],
         "imported_by": ["api.server", "api.server_memory"],
@@ -202,6 +206,7 @@ def list_mac_tasks():
     tasks = list_tasks()
     return {"tasks": tasks}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -211,7 +216,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.slack_client", "core.schemas", "memory.ingestion"],
-    "tags": ["api", "api-gateway", "async", "debugging", "endpoint", "http-client", "logging", "messaging", "operations", "pydantic"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "debugging",
+        "endpoint",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+    ],
     "keywords": ["agent", "mac", "submit", "task", "tasks", "webhook"],
     "business_value": "Implements TaskResultRequest for webhook mac agent functionality",
     "last_modified": "2026-01-17T23:47:56Z",

@@ -29,7 +29,16 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /status", "POST /reflect", "POST /analyze-failure", "POST /compare", "POST /extract-patterns", "POST /generate-improvements", "GET /lessons-learned", "DELETE /lessons-learned"],
+        "api_endpoints": [
+            "GET /status",
+            "POST /reflect",
+            "POST /analyze-failure",
+            "POST /compare",
+            "POST /extract-patterns",
+            "POST /generate-improvements",
+            "GET /lessons-learned",
+            "DELETE /lessons-learned",
+        ],
         "datasources": [],
         "memory_layers": [],
         "imported_by": ["api.server"],
@@ -552,6 +561,7 @@ async def clear_lessons_learned(
         )
         return {"success": False, "error": str(e)}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -561,8 +571,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.auth", "core.decorators"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "event-driven", "logging", "messaging", "metrics", "operations"],
-    "keywords": ["agent", "analysis", "analyze", "approaches", "clear", "compare", "extract", "failure"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "event-driven",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+    ],
+    "keywords": [
+        "agent",
+        "analysis",
+        "analyze",
+        "approaches",
+        "clear",
+        "compare",
+        "extract",
+        "failure",
+    ],
     "business_value": "/reflect: Execute reflection on execution history /analyze-failure: Deep failure root cause analysis /compare: Compare two approaches /extract-patterns: Extract patterns from examples /generate-improv",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

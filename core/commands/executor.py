@@ -29,7 +29,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["api.routes.commands", "core.commands.__init__", "memory.slack_ingest", "tests.integration.test_igor_commands"],
+        "imported_by": [
+            "api.routes.commands",
+            "core.commands.__init__",
+            "memory.slack_ingest",
+            "tests.integration.test_igor_commands",
+        ],
     },
 }
 # ============================================================================
@@ -607,7 +612,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.agents.schemas", "core.commands.schemas", "core.decorators"],
-    "tags": ["async", "auth", "core", "engine", "executor", "foundation", "logging", "messaging", "queue"],
+    "tags": [
+        "async",
+        "auth",
+        "core",
+        "engine",
+        "executor",
+        "foundation",
+        "logging",
+        "messaging",
+        "queue",
+    ],
     "keywords": ["command", "execute", "executor", "memory", "rollback"],
     "business_value": "Implements CommandExecutor for executor functionality",
     "last_modified": "2026-01-17T23:47:56Z",

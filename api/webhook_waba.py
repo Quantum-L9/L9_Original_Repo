@@ -48,6 +48,7 @@ CHAT_URL = "http://127.0.0.1:8000/chat"
 MEMORY_EMBEDDINGS_URL = "http://127.0.0.1:8000/memory/embeddings"
 WABA_API_BASE = "https://graph.instagram.com/v18.0"
 
+
 def verify_webhook_signature(request_body: str, x_hub_signature: str) -> bool:
     """Verify Meta's webhook signature."""
     if not x_hub_signature:
@@ -57,6 +58,7 @@ def verify_webhook_signature(request_body: str, x_hub_signature: str) -> bool:
     )
     expected_signature = f"sha256={hash_obj.hexdigest()}"
     return hmac.compare_digest(expected_signature, x_hub_signature)
+
 
 async def download_media(media_id: str, mime_type: str) -> bytes:
     """Download media from WABA using Media ID."""
@@ -77,6 +79,7 @@ async def download_media(media_id: str, mime_type: str) -> bytes:
             raise Exception(f"Failed to download media: {media_resp.text}")
 
         return media_resp.content
+
 
 async def send_waba_message(to_number: str, message_type: str, content: dict):
     """Send message back via WABA API."""
@@ -102,6 +105,7 @@ async def send_waba_message(to_number: str, message_type: str, content: dict):
 
         return resp.json()
 
+
 @router.get("/waba/webhook", response_class=JSONResponse)
 @must_stay_async("FastAPI/ASGI route handler")
 async def verify_waba_webhook(request: Request):
@@ -117,6 +121,7 @@ async def verify_waba_webhook(request: Request):
         return JSONResponse(content={"hub.challenge": challenge})
     else:
         raise HTTPException(status_code=403, detail="Invalid verification token")
+
 
 @router.post("/waba/webhook", response_class=JSONResponse)
 async def waba_webhook(request: Request):
@@ -246,6 +251,7 @@ async def waba_webhook(request: Request):
 
     return JSONResponse(content={"status": "ok"})
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -255,7 +261,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "http-client", "logging", "messaging", "operations", "router"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+        "router",
+    ],
     "keywords": ["download", "media", "send", "signature", "verify", "waba", "webhook"],
     "business_value": "Utility module for webhook waba",
     "last_modified": "2026-01-17T23:47:56Z",

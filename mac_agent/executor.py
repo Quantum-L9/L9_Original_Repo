@@ -19,7 +19,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["mac_agent.runner", "mac_agent.websocket_client", "orchestrators.agent_execution.orchestrator", "tests.mac_agent.test_executor"],
+        "imported_by": [
+            "mac_agent.runner",
+            "mac_agent.websocket_client",
+            "orchestrators.agent_execution.orchestrator",
+            "tests.mac_agent.test_executor",
+        ],
     },
 }
 # ============================================================================
@@ -657,6 +662,7 @@ class AutomationExecutor:
                 "data": {"error": error_msg},
             }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -666,7 +672,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "engine", "executor", "filesystem", "integration", "logging", "mac-integration", "subprocess"],
+    "tags": [
+        "api",
+        "async",
+        "engine",
+        "executor",
+        "filesystem",
+        "integration",
+        "logging",
+        "mac-integration",
+        "subprocess",
+    ],
     "keywords": ["agent", "automation", "executor", "fallback", "gui", "steps"],
     "business_value": "Implements AutomationExecutor for executor functionality",
     "last_modified": "2026-01-17T23:47:56Z",

@@ -38,7 +38,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Redis"],
         "memory_layers": [],
-        "imported_by": ["world_model.__init__", "world_model.engine", "world_model.runtime", "world_model.seed_loader", "world_model.world_model_service"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model.engine",
+            "world_model.runtime",
+            "world_model.seed_loader",
+            "world_model.world_model_service",
+        ],
     },
 }
 # ============================================================================
@@ -1293,6 +1299,7 @@ class ReflectionMemory:
                 self._task_index[outcome_key] = []
             self._task_index[outcome_key].append(task_ref.task_id)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1302,8 +1309,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "data-models", "dataclass", "debugging", "learning", "logging", "metrics", "rest-api"],
-    "keywords": ["analysis", "challenge", "common", "confidence", "constraint", "constraints", "delete", "engine"],
+    "tags": [
+        "api",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "learning",
+        "logging",
+        "metrics",
+        "rest-api",
+    ],
+    "keywords": [
+        "analysis",
+        "challenge",
+        "common",
+        "confidence",
+        "constraint",
+        "constraints",
+        "delete",
+        "engine",
+    ],
     "business_value": "Provides reflection memory components including ReflectionType, ReflectionPriority, Reflection",
     "last_modified": "2026-01-14T16:24:36Z",
     "modified_by": "L9_Codegen_Engine",

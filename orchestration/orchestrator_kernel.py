@@ -1029,6 +1029,7 @@ class OrchestratorKernel:
         """Calculate elapsed milliseconds from start time."""
         return int((datetime.utcnow() - start).total_seconds() * 1000)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1038,8 +1039,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.schemas"],
-    "tags": ["api", "async", "auth", "data-models", "dataclass", "debugging", "intelligence", "logging", "messaging", "metrics"],
-    "keywords": ["active", "chain", "chains", "change", "client", "create", "deterministic", "execute"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "intelligence",
+        "logging",
+        "messaging",
+        "metrics",
+    ],
+    "keywords": [
+        "active",
+        "chain",
+        "chains",
+        "change",
+        "client",
+        "create",
+        "deterministic",
+        "execute",
+    ],
     "business_value": "Provides orchestrator kernel components including ChainStatus, KernelPhase, ChainStep",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -251,6 +251,7 @@ class MockSearchTool(BaseTool):
         log.debug("mock_search_executed", query_preview=query[:50])
         return mock_results
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -260,8 +261,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["adapter", "api", "async", "debugging", "http-client", "logging", "mocking", "operations", "testing", "tool-registry"],
-    "keywords": ["execute", "mock", "perplexity", "research", "search", "tool", "wrappers"],
+    "tags": [
+        "adapter",
+        "api",
+        "async",
+        "debugging",
+        "http-client",
+        "logging",
+        "mocking",
+        "operations",
+        "testing",
+        "tool-registry",
+    ],
+    "keywords": [
+        "execute",
+        "mock",
+        "perplexity",
+        "research",
+        "search",
+        "tool",
+        "wrappers",
+    ],
     "business_value": "Provides tool wrappers components including BaseTool, PerplexityTool, HTTPTool",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

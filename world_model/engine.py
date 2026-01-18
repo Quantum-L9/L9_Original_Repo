@@ -44,7 +44,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["core.singleton_registry", "world_model.__init__", "world_model.nodes.update_world_model_node", "world_model.runtime", "world_model.world_model_service"],
+        "imported_by": [
+            "core.singleton_registry",
+            "world_model.__init__",
+            "world_model.nodes.update_world_model_node",
+            "world_model.runtime",
+            "world_model.world_model_service",
+        ],
     },
 }
 # ============================================================================
@@ -785,6 +791,7 @@ def reset_world_model_engine() -> None:
     global _engine
     _engine = None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -794,8 +801,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "config", "debugging", "engine", "event-driven", "learning", "logging", "rest-api", "testing", "tracing"],
-    "keywords": ["async", "causal", "core", "count", "engine", "entity", "graph", "ingestor"],
+    "tags": [
+        "async",
+        "config",
+        "debugging",
+        "engine",
+        "event-driven",
+        "learning",
+        "logging",
+        "rest-api",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "async",
+        "causal",
+        "core",
+        "count",
+        "engine",
+        "entity",
+        "graph",
+        "ingestor",
+    ],
     "business_value": "Load specifications from YAML Initialize and manage state (async) Process incoming memory packets (async) Answer queries against current state (async) Run simulations (async, future) Memory Substrate:",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

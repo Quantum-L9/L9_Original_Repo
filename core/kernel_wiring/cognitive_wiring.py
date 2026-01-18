@@ -27,6 +27,7 @@ __dora_meta__ = {
 
 _KERNELS = None
 
+
 def _get_kernels():
     """Lazy load kernel stack."""
     global _KERNELS
@@ -36,6 +37,7 @@ def _get_kernels():
         _KERNELS = load_kernel_stack()
     return _KERNELS
 
+
 def get_reasoning_mode() -> str:
     return _get_kernels().get_rule(
         "cognitive",
@@ -43,10 +45,12 @@ def get_reasoning_mode() -> str:
         default="fast_chain",
     )
 
+
 def should_enable_meta_cognition() -> bool:
     return bool(
         _get_kernels().get_rule("cognitive", "metacognition.enabled", default=False)
     )
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -58,7 +62,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["runtime.kernel_loader"],
     "tags": ["core", "foundation", "utility"],
-    "keywords": ["cognition", "cognitive", "enable", "meta", "mode", "reasoning", "should", "wiring"],
+    "keywords": [
+        "cognition",
+        "cognitive",
+        "enable",
+        "meta",
+        "mode",
+        "reasoning",
+        "should",
+        "wiring",
+    ],
     "business_value": "Utility module for cognitive wiring",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

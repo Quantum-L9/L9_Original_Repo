@@ -87,6 +87,7 @@ class IndexSyncer:
         ok_sem = await self.smoke_test_semantic_memory()
         return ok_ext and ok_sem
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -97,7 +98,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["memory.substrate_repository"],
     "tags": ["async", "learning", "logging", "memory-substrate", "service", "testing"],
-    "keywords": ["all", "checks", "ensure", "extension", "index", "memory", "pgvector", "semantic"],
+    "keywords": [
+        "all",
+        "checks",
+        "ensure",
+        "extension",
+        "index",
+        "memory",
+        "pgvector",
+        "semantic",
+    ],
     "business_value": "Ensure pgvector extension exists Ensure semantic_memory table is accessible",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

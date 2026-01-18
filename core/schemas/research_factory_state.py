@@ -25,7 +25,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.schemas.__init__", "core.schemas.research_factory_nodes", "core.schemas.tests.test_research_factory", "core.schemas.universal_schema"],
+        "imported_by": [
+            "core.schemas.__init__",
+            "core.schemas.research_factory_nodes",
+            "core.schemas.tests.test_research_factory",
+            "core.schemas.universal_schema",
+        ],
     },
 }
 # ============================================================================
@@ -253,6 +258,7 @@ class ResearchState(BaseModel):
             pass_durations_ms=pass_durations,
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -262,8 +268,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas.research_factory_models"],
-    "tags": ["async", "batch-processing", "data-models", "enum", "foundation", "metrics", "pydantic", "validation"],
-    "keywords": ["complete", "errors", "factory", "metadata", "metrics", "pass", "plan", "queries"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "data-models",
+        "enum",
+        "foundation",
+        "metrics",
+        "pydantic",
+        "validation",
+    ],
+    "keywords": [
+        "complete",
+        "errors",
+        "factory",
+        "metadata",
+        "metrics",
+        "pass",
+        "plan",
+        "queries",
+    ],
     "business_value": "pass_1_plan_queries → pass_2_build_superprompts → pass_3_execute_retrieval → pass_4_extract_results → pass_5_integrate_results",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

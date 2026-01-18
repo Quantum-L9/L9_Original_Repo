@@ -92,6 +92,7 @@ MODULES = [
 # ============================================================================
 # Payload Extraction
 
+
 def extract_prompt_from_payload(payload_path: Path) -> str:
     """Extract the prompt section from a payload markdown file."""
     content = payload_path.read_text()
@@ -111,8 +112,10 @@ def extract_prompt_from_payload(payload_path: Path) -> str:
 
     raise ValueError(f"Could not extract prompt from {payload_path}")
 
+
 # ============================================================================
 # API Client
+
 
 async def call_deep_research(prompt: str, api_key: str) -> dict:
     """Call Perplexity Sonar Deep Research API."""
@@ -138,6 +141,7 @@ async def call_deep_research(prompt: str, api_key: str) -> dict:
         response.raise_for_status()
         return response.json()
 
+
 def extract_yaml_from_response(response: dict) -> str:
     """Extract YAML spec from API response."""
     content = response["choices"][0]["message"]["content"]
@@ -155,8 +159,10 @@ def extract_yaml_from_response(response: dict) -> str:
     # Return full content if no code block
     return content
 
+
 # ============================================================================
 # Orchestration
+
 
 async def process_module(module_name: str, api_key: str, dry_run: bool = False) -> dict:
     """Process a single module."""
@@ -221,6 +227,7 @@ async def process_module(module_name: str, api_key: str, dry_run: bool = False) 
     except Exception as e:
         logger.error(f"   ❌ Error: {e}")
         return {"module": module_name, "error": str(e)}
+
 
 async def main():
     parser = argparse.ArgumentParser(
@@ -290,6 +297,7 @@ async def main():
         logger.info("   2. Use Module-Prompt-PERPLEXITY-v3.0.md to generate code")
         logger.info("   3. /wire the generated code into the repo")
 
+
 if __name__ == "__main__":
     asyncio.run(main())
 
@@ -302,8 +310,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "auth", "cli", "filesystem", "http-client", "logging", "messaging", "operations", "scripts"],
-    "keywords": ["deep", "delegate", "extract", "module", "payload", "process", "prompt", "research"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "cli",
+        "filesystem",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+        "scripts",
+    ],
+    "keywords": [
+        "deep",
+        "delegate",
+        "extract",
+        "module",
+        "payload",
+        "process",
+        "prompt",
+        "research",
+    ],
     "business_value": "Utility module for delegate deep research",
     "last_modified": "2026-01-09T12:30:43Z",
     "modified_by": "L9_Codegen_Engine",

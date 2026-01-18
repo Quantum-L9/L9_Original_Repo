@@ -64,14 +64,17 @@ logger = structlog.get_logger(__name__)
 # governance_logger, but this script must also be usable standalone).
 # ---------------------------------------------------------------------------
 
+
 def _log(msg: str, *, level: str = "INFO", verbose: bool = True) -> None:
     if not verbose and level == "INFO":
         return
     logger.info(f"[{level}] {msg}")
 
+
 # ---------------------------------------------------------------------------
 # Core helpers
 # ---------------------------------------------------------------------------
+
 
 def ensure_cursor_commands_symlink(
     *,
@@ -103,12 +106,7 @@ def ensure_cursor_commands_symlink(
         candidates.append(Path(env_target).expanduser())
 
     # Legacy default from audit: Dropbox/Cursor Governance/GlobalCommands
-    candidates.append(
-        Path.home()
-        / "Dropbox"
-        / "Cursor Governance"
-        / "GlobalCommands"
-    )
+    candidates.append(Path.home() / "Dropbox" / "Cursor Governance" / "GlobalCommands")
 
     # Fallback: a GlobalCommands directory inside workspace
     candidates.append(cwd / "GlobalCommands")
@@ -162,8 +160,7 @@ def ensure_cursor_commands_symlink(
                 )
             else:
                 _log(
-                    f"Removing existing entry at {link_path} "
-                    "to replace with symlink.",
+                    f"Removing existing entry at {link_path} to replace with symlink.",
                     verbose=verbose,
                 )
             if link_path.is_dir() and not link_path.is_symlink():
@@ -175,9 +172,13 @@ def ensure_cursor_commands_symlink(
                         level="ERROR",
                         verbose=verbose,
                     )
-                    return False, {}, (
-                        f"Existing non-symlink directory {link_path} detected. "
-                        "Clean or move it before running this script."
+                    return (
+                        False,
+                        {},
+                        (
+                            f"Existing non-symlink directory {link_path} detected. "
+                            "Clean or move it before running this script."
+                        ),
                     )
                 # After manual cleanup, remove dir
                 link_path.rmdir()
@@ -196,6 +197,7 @@ def ensure_cursor_commands_symlink(
         link_path.symlink_to(target, target_is_directory=True)
         return True, {"link": str(link_path), "target": str(target)}, ""
 
+
 def run_env_manager(
     *,
     workspace_root: Path,
@@ -209,7 +211,9 @@ def run_env_manager(
     Assumes env-manager.py lives in `.cursor-commands/environment/env-manager.py`
     once the symlink is in place.
     """
-    env_manager_path = workspace_root / ".cursor-commands" / "environment" / "env-manager.py"
+    env_manager_path = (
+        workspace_root / ".cursor-commands" / "environment" / "env-manager.py"
+    )
 
     if not env_manager_path.exists():
         msg = f"env-manager.py not found at {env_manager_path}"
@@ -245,6 +249,7 @@ def run_env_manager(
             msg = f"Error running env-manager: {e}"
             _log(msg, level="ERROR", verbose=verbose)
             return False, {}, msg
+
 
 def run_setup_new_workspace_yaml(
     *,
@@ -300,9 +305,11 @@ def run_setup_new_workspace_yaml(
         )
         return True, {"yaml": str(yaml_path), "hint": cmd_hint}, ""
 
+
 # ---------------------------------------------------------------------------
 # Main orchestration
 # ---------------------------------------------------------------------------
+
 
 def start_new_workspace(
     *,
@@ -359,12 +366,17 @@ def start_new_workspace(
     if not ok:
         return False, data, err
 
-    _log("Workspace initialization sequence completed (or staged in dry-run).", verbose=verbose)
+    _log(
+        "Workspace initialization sequence completed (or staged in dry-run).",
+        verbose=verbose,
+    )
     return True, data, ""
+
 
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -426,6 +438,7 @@ def main() -> int:
             _log(f"Partial data: {data}", level="ERROR", verbose=True)
         return 1
 
+
 if __name__ == "__main__":
     sys.exit(main())
 
@@ -438,8 +451,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["auth", "cli", "filesystem", "logging", "operations", "profiling", "scripts", "subprocess"],
-    "keywords": ["commands", "cursor", "ensure", "env", "manager", "setup", "start", "symlink"],
+    "tags": [
+        "auth",
+        "cli",
+        "filesystem",
+        "logging",
+        "operations",
+        "profiling",
+        "scripts",
+        "subprocess",
+    ],
+    "keywords": [
+        "commands",
+        "cursor",
+        "ensure",
+        "env",
+        "manager",
+        "setup",
+        "start",
+        "symlink",
+    ],
     "business_value": "This script is intended to be part of the Spaces pack and used as the primary entrypoint when starting a new or upgraded workspace.",
     "last_modified": "2026-01-17T09:35:29Z",
     "modified_by": "L9_Codegen_Engine",

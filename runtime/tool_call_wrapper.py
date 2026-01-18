@@ -42,6 +42,7 @@ from typing import Any, Callable, Coroutine
 
 logger = structlog.get_logger(__name__)
 
+
 async def tool_call_wrapper(
     tool_name: str,
     tool_func: Callable[..., Coroutine[Any, Any, Any]],
@@ -134,6 +135,7 @@ async def tool_call_wrapper(
 
     return result
 
+
 def wrap_tool_function(
     tool_name: str,
     agent_id: str = "L",
@@ -165,6 +167,7 @@ def wrap_tool_function(
 
     return decorator
 
+
 __all__ = [
     "tool_call_wrapper",
     "wrap_tool_function",
@@ -179,8 +182,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.tools.tool_graph", "runtime.memory_helpers"],
-    "tags": ["adapter", "async", "audit-tool", "debugging", "logging", "operations", "runtime-operations"],
-    "keywords": ["agent", "audit", "decorator", "function", "gmp", "tool", "tools", "wrap"],
+    "tags": [
+        "adapter",
+        "async",
+        "audit-tool",
+        "debugging",
+        "logging",
+        "operations",
+        "runtime-operations",
+    ],
+    "keywords": [
+        "agent",
+        "audit",
+        "decorator",
+        "function",
+        "gmp",
+        "tool",
+        "tools",
+        "wrap",
+    ],
     "business_value": "Internal tools MCP tools Mac Agent tools GMP tools Version: 1.0.0",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

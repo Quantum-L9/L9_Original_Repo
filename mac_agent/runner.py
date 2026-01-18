@@ -62,6 +62,7 @@ L9_BASE_URL = config.l9_base_url
 L9_API_KEY = config.l9_api_key
 POLL_INTERVAL = 4  # seconds
 
+
 def execute_command(command: str) -> tuple[str, str]:
     """
     Execute a shell command locally (legacy support).
@@ -99,6 +100,7 @@ def execute_command(command: str) -> tuple[str, str]:
     except Exception as e:
         return f"Execution error: {str(e)}", "failed"
 
+
 async def execute_steps(task: dict) -> dict:
     """
     Execute automation steps using Playwright.
@@ -122,6 +124,7 @@ async def execute_steps(task: dict) -> dict:
     headless = task.get("headless")  # Allow per-task override
     return await executor.run_steps(steps, headless=headless)
 
+
 def format_result(result: dict) -> str:
     """Format execution result as string for API."""
     status = result.get("status", "unknown")
@@ -142,6 +145,7 @@ def format_result(result: dict) -> str:
         lines.append(json.dumps(data, indent=2))
 
     return "\n".join(lines)
+
 
 async def poll_and_execute():
     """Main polling loop (file-based task system)."""
@@ -354,6 +358,7 @@ async def poll_and_execute():
 
             await asyncio.sleep(3)
 
+
 def main():
     """Entry point."""
     try:
@@ -361,6 +366,7 @@ def main():
     except KeyboardInterrupt:
         logger.info("Mac Agent runner stopped by user")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
@@ -374,7 +380,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.slack_client"],
-    "tags": ["api", "async", "filesystem", "integration", "logging", "mac-integration", "messaging", "queue", "serialization", "service"],
+    "tags": [
+        "api",
+        "async",
+        "filesystem",
+        "integration",
+        "logging",
+        "mac-integration",
+        "messaging",
+        "queue",
+        "serialization",
+        "service",
+    ],
     "keywords": ["command", "execute", "format", "poll", "runner", "steps"],
     "business_value": "Utility module for runner",
     "last_modified": "2026-01-17T23:47:56Z",

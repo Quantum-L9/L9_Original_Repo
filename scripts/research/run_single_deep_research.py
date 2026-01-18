@@ -34,6 +34,7 @@ import httpx
 
 logger = structlog.get_logger(__name__)
 
+
 def get_api_key():
     env_path = "/Users/ib-mac/Projects/L9/.env"
     with open(env_path) as f:
@@ -41,6 +42,7 @@ def get_api_key():
             if line.startswith("PERPLEXITY_API_KEY="):
                 return line.split("=", 1)[1].strip()
     return None
+
 
 API_KEY = get_api_key()
 if not API_KEY:
@@ -156,7 +158,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "auth", "caching", "http-client", "logging", "messaging", "operations", "scripts", "utility"],
+    "tags": [
+        "api",
+        "auth",
+        "caching",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+        "scripts",
+        "utility",
+    ],
     "keywords": ["api", "deep", "research", "single"],
     "business_value": "Utility module for run single deep research",
     "last_modified": "2026-01-07T13:35:58Z",

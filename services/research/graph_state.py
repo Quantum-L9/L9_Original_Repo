@@ -22,7 +22,17 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["services.research.__init__", "services.research.agents.critic_agent", "services.research.agents.planner_agent", "services.research.agents.researcher_agent", "services.research.memory_adapter", "services.research.research_graph", "tests.integration.test_research_tool_integration", "tests.test_memory_adapter", "tests.test_research_graph"],
+        "imported_by": [
+            "services.research.__init__",
+            "services.research.agents.critic_agent",
+            "services.research.agents.planner_agent",
+            "services.research.agents.researcher_agent",
+            "services.research.memory_adapter",
+            "services.research.research_graph",
+            "tests.integration.test_research_tool_integration",
+            "tests.test_memory_adapter",
+            "tests.test_research_graph",
+        ],
     },
 }
 # ============================================================================
@@ -188,6 +198,7 @@ def create_initial_state(
         stored_insights=[],
     )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -198,7 +209,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["messaging", "operations", "research-services", "utility"],
-    "keywords": ["create", "definition", "evidence", "graph", "initial", "memory", "research", "state"],
+    "keywords": [
+        "create",
+        "definition",
+        "evidence",
+        "graph",
+        "initial",
+        "memory",
+        "research",
+        "state",
+    ],
     "business_value": "This state is persisted to the Memory Substrate via PacketEnvelope.",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

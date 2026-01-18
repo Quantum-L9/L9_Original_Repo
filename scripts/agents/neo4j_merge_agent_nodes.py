@@ -67,6 +67,7 @@ from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
+
 @must_stay_async("callers use await")
 async def get_neo4j_driver():
     """Get async Neo4j driver."""
@@ -82,6 +83,7 @@ async def get_neo4j_driver():
         neo4j_uri,
         auth=basic_auth(neo4j_user, neo4j_password),
     )
+
 
 async def find_duplicate_agents(driver) -> list[dict]:
     """
@@ -112,6 +114,7 @@ async def find_duplicate_agents(driver) -> list[dict]:
         records = await result.data()
         return records
 
+
 async def get_all_agents(driver) -> list[dict]:
     """Get all Agent nodes for inspection."""
     async with driver.session() as session:
@@ -127,6 +130,7 @@ async def get_all_agents(driver) -> list[dict]:
                    collect(DISTINCT type(r)) as relationship_types
         """)
         return await result.data()
+
 
 async def merge_agent_nodes(
     driver,
@@ -237,6 +241,7 @@ async def merge_agent_nodes(
 
         return {"status": "MERGED", "merged": len(to_merge)}
 
+
 async def verify_single_nodes(driver) -> dict:
     """Verify each logical agent has exactly one node."""
     async with driver.session() as session:
@@ -257,6 +262,7 @@ async def verify_single_nodes(driver) -> dict:
             "details": duplicates,
             "status": "PASS" if not duplicates else "FAIL",
         }
+
 
 async def run_migration(dry_run: bool = False) -> dict:
     """Run the full agent merge migration."""
@@ -288,6 +294,7 @@ async def run_migration(dry_run: bool = False) -> dict:
 
     finally:
         await driver.close()
+
 
 async def main():
     parser = argparse.ArgumentParser(description="Merge duplicate Agent nodes in Neo4j")
@@ -374,6 +381,7 @@ async def main():
         logger.info(f"\n❌ Migration FAILED: {e}")
         sys.exit(1)
 
+
 if __name__ == "__main__":
     asyncio.run(main())
 
@@ -386,8 +394,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["agent-execution", "async", "auth", "cli", "filesystem", "graph-db", "logging", "migration", "operations", "service"],
-    "keywords": ["agent", "agents", "all", "driver", "duplicate", "find", "merge", "migration"],
+    "tags": [
+        "agent-execution",
+        "async",
+        "auth",
+        "cli",
+        "filesystem",
+        "graph-db",
+        "logging",
+        "migration",
+        "operations",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "agents",
+        "all",
+        "driver",
+        "duplicate",
+        "find",
+        "merge",
+        "migration",
+    ],
     "business_value": "Graph State creates Agent nodes with agent_id, designation, role, etc. Tool Graph was creating separate Agent nodes with just id property This caused duplicate nodes and broken relationships",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

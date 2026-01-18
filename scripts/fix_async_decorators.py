@@ -75,6 +75,7 @@ COMMENT_PATTERN = re.compile(r"^(\s*)# NOTE: Must stay async - (.+)\.\s*$")
 # Import line to add
 IMPORT_LINE = "from core.decorators import must_stay_async"
 
+
 def extract_reason(comment_text: str) -> str:
     """Extract and normalize the reason from a comment."""
     # Try exact match first
@@ -89,12 +90,14 @@ def extract_reason(comment_text: str) -> str:
     # Fallback: use the comment text itself (cleaned up)
     return comment_text.rstrip(".")
 
+
 def has_import(lines: list[str], import_line: str) -> bool:
     """Check if the import already exists."""
     for line in lines:
         if import_line in line:
             return True
     return False
+
 
 def find_import_insert_position(lines: list[str]) -> int:
     """Find the best position to insert the import."""
@@ -133,6 +136,7 @@ def find_import_insert_position(lines: list[str]) -> int:
             break
 
     return last_import_idx
+
 
 def process_file(filepath: str, dry_run: bool = True) -> dict:
     """Process a single file, removing comments and adding decorators."""
@@ -201,6 +205,7 @@ def process_file(filepath: str, dry_run: bool = True) -> dict:
 
     return result
 
+
 def main():
     dry_run = "--dry-run" in sys.argv
 
@@ -261,6 +266,7 @@ def main():
     if dry_run:
         print("\n=== DRY RUN - Run without --dry-run to apply changes ===")
 
+
 if __name__ == "__main__":
     main()
 
@@ -273,8 +279,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "caching", "cli", "filesystem", "operations", "scripts", "testing"],
-    "keywords": ["async", "decorators", "extract", "find", "fix", "insert", "position", "process"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "cli",
+        "filesystem",
+        "operations",
+        "scripts",
+        "testing",
+    ],
+    "keywords": [
+        "async",
+        "decorators",
+        "extract",
+        "find",
+        "fix",
+        "insert",
+        "position",
+        "process",
+    ],
     "business_value": "1. Finds all files with the old comment pattern 2. Removes the comment 3. Adds the import for must_stay_async 4. Adds the @must_stay_async(reason) decorator python scripts/fix_async_decorators.py --dr",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

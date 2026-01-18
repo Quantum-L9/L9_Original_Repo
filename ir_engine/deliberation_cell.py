@@ -550,6 +550,7 @@ class DeliberationCell:
 
         return graph
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -559,8 +560,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "dataclass", "intelligence", "ir-compilation", "llm", "logging", "messaging", "serialization"],
-    "keywords": ["agent", "cell", "deliberate", "deliberation", "quick", "refine", "round"],
+    "tags": [
+        "api",
+        "async",
+        "dataclass",
+        "intelligence",
+        "ir-compilation",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "cell",
+        "deliberate",
+        "deliberation",
+        "quick",
+        "refine",
+        "round",
+    ],
     "business_value": "1. Agent A produces initial IR or revision 2. Agent B critiques and suggests improvements 3. Iterate until convergence or max rounds",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

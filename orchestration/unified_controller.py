@@ -1227,6 +1227,7 @@ async def broadcast_task(
 
     return count
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1235,9 +1236,34 @@ __dora_footer__ = {
     "governance_level": "high",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.decorators", "core.schemas", "core.schemas.ws_event_stream", "runtime.websocket_orchestrator"],
-    "tags": ["api", "async", "auth", "data-models", "dataclass", "debugging", "event-driven", "intelligence", "logging", "messaging"],
-    "keywords": ["agent", "broadcast", "client", "compile", "controller", "dispatch", "engine", "execute"],
+    "dependencies": [
+        "core.decorators",
+        "core.schemas",
+        "core.schemas.ws_event_stream",
+        "runtime.websocket_orchestrator",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "agent",
+        "broadcast",
+        "client",
+        "compile",
+        "controller",
+        "dispatch",
+        "engine",
+        "execute",
+    ],
     "business_value": "IR Engine (semantic compiler, validator, generator, planner) World Model Runtime Simulation Engine (via SimulationRouter) Memory Substrate (PacketEnvelope API) Collaborative cells (architect/coder/rev",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -21,7 +21,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["api.memory.router", "api.server", "tests.integration.test_orchestrator_memory_integration"],
+        "imported_by": [
+            "api.memory.router",
+            "api.server",
+            "tests.integration.test_orchestrator_memory_integration",
+        ],
     },
 }
 # ============================================================================
@@ -239,6 +243,7 @@ class MemoryOrchestrator(IMemoryOrchestrator):
             message=result.get("message", "Compact completed"),
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -248,7 +253,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.substrate_service"],
-    "tags": ["async", "batch-processing", "intelligence", "logging", "messaging", "orchestration", "service"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "intelligence",
+        "logging",
+        "messaging",
+        "orchestration",
+        "service",
+    ],
     "keywords": ["execute", "implementation", "memory", "orchestrator", "substrate"],
     "business_value": "Implements MemoryOrchestrator for orchestrator functionality",
     "last_modified": "2026-01-07T13:35:57Z",

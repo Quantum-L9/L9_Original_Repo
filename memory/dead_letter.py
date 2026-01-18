@@ -26,7 +26,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Redis"],
         "memory_layers": [],
-        "imported_by": ["memory.substrate_dag_wrapper", "tests.memory.test_dag_orchestrator_resilience"],
+        "imported_by": [
+            "memory.substrate_dag_wrapper",
+            "tests.memory.test_dag_orchestrator_resilience",
+        ],
     },
 }
 # ============================================================================
@@ -186,6 +189,7 @@ class DeadLetterQueue:
             original_envelope=json.loads(data.get("original_envelope", "{}")),
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -195,8 +199,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "dataclass", "learning", "logging", "memory-substrate", "messaging", "queue", "serialization", "streaming"],
-    "keywords": ["acknowledge", "dead", "depth", "enqueue", "entry", "letter", "memory", "peek"],
+    "tags": [
+        "async",
+        "dataclass",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "queue",
+        "serialization",
+        "streaming",
+    ],
+    "keywords": [
+        "acknowledge",
+        "dead",
+        "depth",
+        "enqueue",
+        "entry",
+        "letter",
+        "memory",
+        "peek",
+    ],
     "business_value": "Provides dead letter components including DeadLetterEntry, DeadLetterQueue",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

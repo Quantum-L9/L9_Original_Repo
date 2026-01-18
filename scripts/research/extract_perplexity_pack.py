@@ -49,6 +49,7 @@ from pathlib import Path
 
 logger = structlog.get_logger(__name__)
 
+
 def extract_files(content: str, output_dir: str = ".") -> list[dict]:
     """
     Extract files from Perplexity multi-file output.
@@ -115,6 +116,7 @@ def extract_files(content: str, output_dir: str = ".") -> list[dict]:
 
     return files_extracted
 
+
 def write_files(files: list[dict], output_dir: str, dry_run: bool = False) -> None:
     """Write extracted files to disk."""
 
@@ -151,6 +153,7 @@ def write_files(files: list[dict], output_dir: str, dry_run: bool = False) -> No
         logger.info(f"  1. Review files in {output_path}/")
         logger.info("  2. Ask Cursor to edit/wire them into the repo")
         logger.info("  3. Cursor uses search_replace (token-efficient!)")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -198,6 +201,7 @@ def main():
 
     # Write files
     write_files(files, args.output_dir, args.dry_run)
+
 
 if __name__ == "__main__":
     main()

@@ -29,7 +29,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["agents.cursor.integrations.cursor_executor", "api.server", "memory.checkpoint.cursor_checkpoint_manager", "tests.integration.test_cursor_langgraph_integration"],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_executor",
+            "api.server",
+            "memory.checkpoint.cursor_checkpoint_manager",
+            "tests.integration.test_cursor_langgraph_integration",
+        ],
     },
 }
 # ============================================================================
@@ -396,6 +401,7 @@ class CursorMemoryGateway:
             logger.error("Failed to load checkpoint", error=str(e), thread_id=thread_id)
             return None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -404,9 +410,32 @@ __dora_footer__ = {
     "governance_level": "high",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["agents.cursor.integrations.cursor_langgraph", "core.decorators", "core.schemas", "memory.governance_gate", "memory.substrate_service"],
-    "tags": ["async", "error-handling", "exception", "intelligence", "logging", "messaging", "tracing"],
-    "keywords": ["checkpoint", "cursor", "decision", "gateway", "global", "implemented", "lgraph", "load"],
+    "dependencies": [
+        "agents.cursor.integrations.cursor_langgraph",
+        "core.decorators",
+        "core.schemas",
+        "memory.governance_gate",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "async",
+        "error-handling",
+        "exception",
+        "intelligence",
+        "logging",
+        "messaging",
+        "tracing",
+    ],
+    "keywords": [
+        "checkpoint",
+        "cursor",
+        "decision",
+        "gateway",
+        "global",
+        "implemented",
+        "lgraph",
+        "load",
+    ],
     "business_value": "Provides cursor gateway components including CursorScopeViolationError, CursorMemoryGateway",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

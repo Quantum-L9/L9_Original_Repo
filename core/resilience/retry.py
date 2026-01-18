@@ -42,7 +42,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["HTTP API"],
         "memory_layers": [],
-        "imported_by": ["agents.base_agent", "core.resilience.__init__", "core.resilience.retry", "services.research.tools.perplexity_client"],
+        "imported_by": [
+            "agents.base_agent",
+            "core.resilience.__init__",
+            "core.resilience.retry",
+            "services.research.tools.perplexity_client",
+        ],
     },
 }
 # ============================================================================
@@ -61,7 +66,9 @@ T = TypeVar("T")
 class RetryExhaustedError(Exception):
     """Raised when all retry attempts have been exhausted."""
 
-    def __init__(self, message: str, last_error: Optional[Exception] = None, attempts: int = 0):
+    def __init__(
+        self, message: str, last_error: Optional[Exception] = None, attempts: int = 0
+    ):
         super().__init__(message)
         self.last_error = last_error
         self.attempts = attempts
@@ -166,7 +173,10 @@ async def async_retry(
         attempts=cfg.max_retries,
         last_error=str(last_error),
     )
-    raise RetryExhaustedError(error_msg, last_error=last_error, attempts=cfg.max_retries) from last_error
+    raise RetryExhaustedError(
+        error_msg, last_error=last_error, attempts=cfg.max_retries
+    ) from last_error
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -177,8 +187,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "dataclass", "error-handling", "foundation", "logging", "messaging"],
-    "keywords": ["async", "asyncretryconfig", "await", "backoff", "calculate", "core", "delay", "exhausted"],
+    "tags": [
+        "api",
+        "async",
+        "dataclass",
+        "error-handling",
+        "foundation",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "async",
+        "asyncretryconfig",
+        "await",
+        "backoff",
+        "calculate",
+        "core",
+        "delay",
+        "exhausted",
+    ],
     "business_value": "Provides retry components including RetryExhaustedError, AsyncRetryConfig",
     "last_modified": "2026-01-13T16:03:25Z",
     "modified_by": "L9_Codegen_Engine",

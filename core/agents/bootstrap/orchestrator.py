@@ -238,6 +238,7 @@ async def bootstrap_agent(
     orchestrator = AgentBootstrapOrchestrator(substrate_service)
     return await orchestrator.bootstrap_agent(config, kernel_dir)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -246,9 +247,31 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.agents.agent_instance", "core.agents.schemas", "memory.graph_client", "memory.substrate_service"],
-    "tags": ["agent-execution", "async", "foundation", "logging", "metrics", "orchestration", "service", "testing"],
-    "keywords": ["agent", "bootstrap", "controller", "counter", "master", "orchestrator", "phase"],
+    "dependencies": [
+        "core.agents.agent_instance",
+        "core.agents.schemas",
+        "memory.graph_client",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "agent-execution",
+        "async",
+        "foundation",
+        "logging",
+        "metrics",
+        "orchestration",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "agent",
+        "bootstrap",
+        "controller",
+        "counter",
+        "master",
+        "orchestrator",
+        "phase",
+    ],
     "business_value": "Implements AgentBootstrapOrchestrator for orchestrator functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

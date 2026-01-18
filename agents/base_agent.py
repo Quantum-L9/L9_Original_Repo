@@ -32,7 +32,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": ["episodic_memory", "working_memory"],
-        "imported_by": ["agents.__init__", "agents.architect_agent.architect_agent_a", "agents.architect_agent.architect_agent_b", "agents.coder_agent.coder_agent_a", "agents.coder_agent.coder_agent_b", "agents.l_cto", "agents.qa_agent", "agents.reflection_agent", "tests.agents.test_architect_agents", "tests.agents.test_base_agent"],
+        "imported_by": [
+            "agents.__init__",
+            "agents.architect_agent.architect_agent_a",
+            "agents.architect_agent.architect_agent_b",
+            "agents.coder_agent.coder_agent_a",
+            "agents.coder_agent.coder_agent_b",
+            "agents.l_cto",
+            "agents.qa_agent",
+            "agents.reflection_agent",
+            "tests.agents.test_architect_agents",
+            "tests.agents.test_base_agent",
+        ],
     },
 }
 # ============================================================================
@@ -409,6 +420,7 @@ class BaseAgent(ABC):
                 "error": str(e),
             }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -418,8 +430,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.resilience.retry"],
-    "tags": ["api", "async", "data-models", "dataclass", "intelligence", "llm", "logging", "messaging", "serialization"],
-    "keywords": ["agent", "agents", "assistant", "check", "clear", "format", "health", "history"],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "dataclass",
+        "intelligence",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "agents",
+        "assistant",
+        "check",
+        "clear",
+        "format",
+        "health",
+        "history",
+    ],
     "business_value": "LLM client management with retry logic Message handling Memory integration Standard interfaces Version: 2.0.0 Added retry logic with exponential backoff (uses AgentConfig.retry_count)",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

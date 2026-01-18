@@ -529,11 +529,13 @@ HTML_TEMPLATE = """
 # Routes
 # =============================================================================
 
+
 @app.get("/", response_class=HTMLResponse)
 @must_stay_async("FastAPI/ASGI route handler")
 async def index():
     """Serve the dashboard."""
     return HTML_TEMPLATE
+
 
 @app.post("/api/chat")
 async def chat(request: Request):
@@ -601,6 +603,7 @@ async def chat(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/api/health")
 @must_stay_async("FastAPI/ASGI route handler")
 async def health():
@@ -610,6 +613,7 @@ async def health():
         "l9_url": L9_API_URL,
         "conversation_count": len(conversation_history) // 2,
     }
+
 
 # =============================================================================
 # Main
@@ -655,7 +659,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "event-driven", "http-client", "logging", "messaging", "operations"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "event-driven",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+    ],
     "keywords": ["app", "chat", "health", "index"],
     "business_value": "cd /Users/ib-mac/Projects/L9/local_dashboard python app.py 3. Open: http://127.0.0.1:5050",
     "last_modified": "2026-01-17T23:47:56Z",

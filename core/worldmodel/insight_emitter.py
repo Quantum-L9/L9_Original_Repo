@@ -26,7 +26,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["core.agents.executor", "core.worldmodel.__init__", "tests.integration.test_world_model"],
+        "imported_by": [
+            "core.agents.executor",
+            "core.worldmodel.__init__",
+            "tests.integration.test_world_model",
+        ],
     },
 }
 # ============================================================================
@@ -72,7 +76,7 @@ class Insight(BaseModel):
 class InsightEmitter:
     """
     Emits world model insights from agent events.
-    
+
     Used to track state changes and create an audit trail
     of L9 system operations.
     """
@@ -80,7 +84,7 @@ class InsightEmitter:
     def __init__(self, substrate_service: Optional[Any] = None):
         """
         Initialize InsightEmitter.
-        
+
         Args:
             substrate_service: Memory substrate for storing insights
         """
@@ -126,14 +130,14 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for a tool call.
-        
+
         Args:
             tool_name: Name of the tool called
             agent_id: Agent that called the tool
             success: Whether the call succeeded
             duration_ms: Call duration in milliseconds
             error: Error message if failed
-            
+
         Returns:
             The created Insight
         """
@@ -167,13 +171,13 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for an approval status change.
-        
+
         Args:
             task_id: Task being approved/rejected
             new_status: New approval status
             approved_by: Who made the decision
             reason: Reason for the decision
-            
+
         Returns:
             The created Insight
         """
@@ -205,13 +209,13 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for a memory write operation.
-        
+
         Args:
             segment_name: Memory segment written to
             content_type: Type of content written
             agent_id: Agent that performed the write
             size_bytes: Size of content written
-            
+
         Returns:
             The created Insight
         """
@@ -247,12 +251,12 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for a kernel update.
-        
+
         Args:
             kernel_name: Name of the kernel updated
             changes: List of changes made
             updated_by: Who updated the kernel
-            
+
         Returns:
             The created Insight
         """
@@ -286,13 +290,13 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for a repository push.
-        
+
         Args:
             repo_name: Repository name
             branch: Branch pushed to
             commits: List of commit SHAs
             pushed_by: Who pushed
-            
+
         Returns:
             The created Insight
         """
@@ -326,12 +330,12 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for infrastructure status change.
-        
+
         Args:
             infra_name: Infrastructure component name
             old_status: Previous status
             new_status: New status
-            
+
         Returns:
             The created Insight
         """
@@ -362,10 +366,10 @@ _global_emitter: Optional[InsightEmitter] = None
 def get_insight_emitter(substrate_service: Optional[Any] = None) -> InsightEmitter:
     """Get or create the global InsightEmitter instance."""
     global _global_emitter
-    
+
     if _global_emitter is None:
         _global_emitter = InsightEmitter(substrate_service)
-    
+
     return _global_emitter
 
 
@@ -388,8 +392,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas"],
-    "tags": ["api", "async", "data-models", "debugging", "event-driven", "foundation", "logging", "messaging", "pydantic", "schema"],
-    "keywords": ["agent", "approval", "called", "changed", "emitter", "infrastructure", "insight", "insights"],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "pydantic",
+        "schema",
+    ],
+    "keywords": [
+        "agent",
+        "approval",
+        "called",
+        "changed",
+        "emitter",
+        "infrastructure",
+        "insight",
+        "insights",
+    ],
     "business_value": "Provides insight emitter components including Insight, InsightEmitter",
     "last_modified": "2026-01-14T13:21:36Z",
     "modified_by": "L9_Codegen_Engine",

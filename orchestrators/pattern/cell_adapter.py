@@ -40,7 +40,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["orchestrators.pattern.__init__", "orchestrators.pattern.cell_adapter", "scripts.run_pattern", "tests.orchestrators.test_pattern_orchestrator"],
+        "imported_by": [
+            "orchestrators.pattern.__init__",
+            "orchestrators.pattern.cell_adapter",
+            "scripts.run_pattern",
+            "tests.orchestrators.test_pattern_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -507,6 +512,7 @@ def create_direct_agent(
     """
     return DirectLLMAgent(api_key=api_key, model=model)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -516,8 +522,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["adapter", "adapter-pattern", "api", "async", "caching", "code-quality", "debugging", "intelligence", "llm", "logging"],
-    "keywords": ["adapter", "agent", "cache", "cell", "cellagentadapter", "cells", "clear", "collaborative"],
+    "tags": [
+        "adapter",
+        "adapter-pattern",
+        "api",
+        "async",
+        "caching",
+        "code-quality",
+        "debugging",
+        "intelligence",
+        "llm",
+        "logging",
+    ],
+    "keywords": [
+        "adapter",
+        "agent",
+        "cache",
+        "cell",
+        "cellagentadapter",
+        "cells",
+        "clear",
+        "collaborative",
+    ],
     "business_value": "This enables the pattern orchestrator to use the existing collaborative cells (ArchitectCell, CoderCell, ReviewerCell, etc.) for node execution. from orchestrators.pattern import PatternOrchestrator f",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

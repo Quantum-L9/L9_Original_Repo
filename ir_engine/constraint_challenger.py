@@ -29,7 +29,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["ir_engine.__init__", "orchestration.orchestrator_kernel", "orchestration.unified_controller"],
+        "imported_by": [
+            "ir_engine.__init__",
+            "orchestration.orchestrator_kernel",
+            "orchestration.unified_controller",
+        ],
     },
 }
 # ============================================================================
@@ -439,6 +443,7 @@ class ConstraintChallenger:
 
         return results
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -448,8 +453,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "batch-processing", "intelligence", "ir-compilation", "llm", "logging", "messaging", "serialization", "service"],
-    "keywords": ["based", "challenge", "challenger", "constraint", "constraints", "multiple", "rule"],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "intelligence",
+        "ir-compilation",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "based",
+        "challenge",
+        "challenger",
+        "constraint",
+        "constraints",
+        "multiple",
+        "rule",
+    ],
     "business_value": "Provides constraint challenger components including ChallengeResult, ConstraintChallenger",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

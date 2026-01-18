@@ -27,7 +27,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["collaborative_cells.__init__", "orchestration.cell_orchestrator"],
+        "imported_by": [
+            "collaborative_cells.__init__",
+            "orchestration.cell_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -440,6 +443,7 @@ class ReflectionCell(BaseCell):
         """Clear reflection history."""
         self._reflection_history.clear()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -449,8 +453,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "collaborative-reasoning", "event-driven", "intelligence", "llm", "logging", "messaging", "serialization", "service"],
-    "keywords": ["cell", "clear", "derive", "execution", "failure", "history", "lessons", "reflect"],
+    "tags": [
+        "api",
+        "async",
+        "collaborative-reasoning",
+        "event-driven",
+        "intelligence",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "cell",
+        "clear",
+        "derive",
+        "execution",
+        "failure",
+        "history",
+        "lessons",
+        "reflect",
+    ],
     "business_value": "Implements ReflectionCell for reflection cell functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

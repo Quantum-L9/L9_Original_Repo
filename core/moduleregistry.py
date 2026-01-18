@@ -122,6 +122,7 @@ class ModuleRegistry:
 
         return {"count": len(modules), "modules": modules}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -132,7 +133,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["core", "dataclass", "foundation", "logging"],
-    "keywords": ["definition", "module", "register", "registry", "runtime", "snapshot", "status", "they"],
+    "keywords": [
+        "definition",
+        "module",
+        "register",
+        "registry",
+        "runtime",
+        "snapshot",
+        "status",
+        "they",
+    ],
     "business_value": "This is NOT the YAML `specs/MODULE_REGISTRY.yaml` (which is a design/spec artifact).",
     "last_modified": "2026-01-08T22:15:53Z",
     "modified_by": "L9_Codegen_Engine",

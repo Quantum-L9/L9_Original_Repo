@@ -38,7 +38,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.server", "core.integration.wm_to_graph_sync", "world_model.__init__", "world_model.engine", "world_model.runtime", "world_model.world_model_service"],
+        "imported_by": [
+            "api.server",
+            "core.integration.wm_to_graph_sync",
+            "world_model.__init__",
+            "world_model.engine",
+            "world_model.runtime",
+            "world_model.world_model_service",
+        ],
     },
 }
 # ============================================================================
@@ -1536,6 +1543,7 @@ class CausalMapper:
             "new_edges_created": new_edges_created,
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1545,8 +1553,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["caching", "data-models", "dataclass", "debugging", "event-driven", "learning", "logging", "metrics", "rest-api", "testing"],
-    "keywords": ["causal", "causes", "confounders", "constraints", "decision", "decisions", "detect", "direct"],
+    "tags": [
+        "caching",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "metrics",
+        "rest-api",
+        "testing",
+    ],
+    "keywords": [
+        "causal",
+        "causes",
+        "confounders",
+        "constraints",
+        "decision",
+        "decisions",
+        "detect",
+        "direct",
+    ],
     "business_value": "Provides causal mapper components including CausalRelationType, CausalStrength, CausalNode",
     "last_modified": "2026-01-14T16:23:04Z",
     "modified_by": "L9_Codegen_Engine",

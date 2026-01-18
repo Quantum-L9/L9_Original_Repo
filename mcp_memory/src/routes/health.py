@@ -27,6 +27,7 @@ from src.config import settings
 
 router = APIRouter()
 
+
 @router.get("/health")
 async def health_check():
     db_ok = db.pool is not None
@@ -52,6 +53,7 @@ async def health_check():
         "compounding_enabled": settings.COMPOUNDING_ENABLED,
         "decay_enabled": settings.DECAY_ENABLED,
     }
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

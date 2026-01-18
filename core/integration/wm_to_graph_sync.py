@@ -332,6 +332,7 @@ async def stop_wm_graph_sync() -> None:
     if _wm_graph_sync:
         await _wm_graph_sync.stop()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -342,7 +343,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["core.decorators"],
     "tags": ["async", "core", "event-driven", "foundation", "logging", "service"],
-    "keywords": ["all", "causal", "decisions", "edges", "graph", "label", "links", "memory"],
+    "keywords": [
+        "all",
+        "causal",
+        "decisions",
+        "edges",
+        "graph",
+        "label",
+        "links",
+        "memory",
+    ],
     "business_value": "Implements WMToGraphSync for wm to graph sync functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

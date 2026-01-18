@@ -33,7 +33,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.packet_envelope.integration", "tests.upgrades.test_packet_envelope_phases"],
+        "imported_by": [
+            "core.packet_envelope.integration",
+            "tests.upgrades.test_packet_envelope_phases",
+        ],
     },
 }
 # ============================================================================
@@ -268,7 +271,9 @@ class HTTPBinaryBinding(ProtocolBinding):
         # Parse time
         time_str = headers.get("ce-time")
         time_obj = (
-            datetime.fromisoformat(time_str.replace("Z", "+00:00")) if time_str else None
+            datetime.fromisoformat(time_str.replace("Z", "+00:00"))
+            if time_str
+            else None
         )
 
         event = CloudEvent(
@@ -468,6 +473,7 @@ class CloudEventBatch:
         events = [CloudEvent.from_dict(e) for e in data]
         return cls(events=events)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -477,8 +483,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["batch-processing", "data-models", "dataclass", "event-driven", "foundation", "realtime", "serialization", "testing", "tracing"],
-    "keywords": ["batch", "binary", "binding", "bindings", "cloud", "cloudevents", "cncf", "compliance"],
+    "tags": [
+        "batch-processing",
+        "data-models",
+        "dataclass",
+        "event-driven",
+        "foundation",
+        "realtime",
+        "serialization",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "batch",
+        "binary",
+        "binding",
+        "bindings",
+        "cloud",
+        "cloudevents",
+        "cncf",
+        "compliance",
+    ],
     "business_value": "Provides standardization components including ContentMode, EventType, CloudEvent",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

@@ -967,6 +967,7 @@ class CellOrchestrator:
             "available_cells": list(self._cell_registry.keys()),
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -976,8 +977,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas"],
-    "tags": ["api", "async", "data-models", "dataclass", "debugging", "intelligence", "logging", "messaging", "orchestration"],
-    "keywords": ["active", "architect", "architectcell", "cancel", "cell", "cells", "client", "coder"],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "intelligence",
+        "logging",
+        "messaging",
+        "orchestration",
+    ],
+    "keywords": [
+        "active",
+        "architect",
+        "architectcell",
+        "cancel",
+        "cell",
+        "cells",
+        "client",
+        "coder",
+    ],
     "business_value": "Provides cell orchestrator components including WorkflowStatus, CellType, CellStep",
     "last_modified": "2026-01-14T13:21:36Z",
     "modified_by": "L9_Codegen_Engine",

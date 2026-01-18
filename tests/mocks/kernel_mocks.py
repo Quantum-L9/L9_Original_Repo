@@ -32,6 +32,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+
 class KernelViolationError(Exception):
     """Raised when kernel constraints are violated."""
 
@@ -39,6 +40,7 @@ class KernelViolationError(Exception):
         self.constraint = constraint
         self.value = value
         super().__init__(message)
+
 
 @dataclass
 class KernelState:
@@ -109,6 +111,7 @@ class KernelState:
 
         return True
 
+
 def merge_dicts(
     governance: dict[str, Any],
     agent: dict[str, Any],
@@ -152,6 +155,7 @@ def merge_dicts(
                 result[key] = agent_val
 
     return result
+
 
 def load_kernels(
     governance_path: Optional[str] = None,
@@ -219,10 +223,12 @@ def load_kernels(
         merged=merged,
     )
 
+
 # Alias for import compatibility
 def get_kernel_state() -> KernelState:
     """Get the current kernel state."""
     return load_kernels()
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -233,8 +239,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["dataclass", "error-handling", "messaging", "mocking", "operations", "testing"],
-    "keywords": ["constraints", "core", "dicts", "enforce", "implementations", "kernel", "kernels", "limit"],
+    "tags": [
+        "dataclass",
+        "error-handling",
+        "messaging",
+        "mocking",
+        "operations",
+        "testing",
+    ],
+    "keywords": [
+        "constraints",
+        "core",
+        "dicts",
+        "enforce",
+        "implementations",
+        "kernel",
+        "kernels",
+        "limit",
+    ],
     "business_value": "Provides kernel mocks components including KernelViolationError, KernelState",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

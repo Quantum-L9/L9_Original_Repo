@@ -99,7 +99,17 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "OpenAI API", "Perplexity API", "Redis"],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["api.server", "api.tools.router", "core.agents.bootstrap.phase_5_bind_tools", "core.tools.__init__", "orchestrators.action_tool.orchestrator", "orchestrators.action_tool.validator", "tests.integration.test_tool_observability_integration", "tests.unit.test_guarded_execution", "tests.unit.test_registry_adapter_sanitization"],
+        "imported_by": [
+            "api.server",
+            "api.tools.router",
+            "core.agents.bootstrap.phase_5_bind_tools",
+            "core.tools.__init__",
+            "orchestrators.action_tool.orchestrator",
+            "orchestrators.action_tool.validator",
+            "tests.integration.test_tool_observability_integration",
+            "tests.unit.test_guarded_execution",
+            "tests.unit.test_registry_adapter_sanitization",
+        ],
     },
 }
 # ============================================================================
@@ -3620,6 +3630,7 @@ async def register_l_tools() -> int:
 
     return registered_count
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -3628,9 +3639,35 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.agents.schemas", "core.decorators", "core.governance.approvals", "core.governance.engine", "core.governance.schemas"],
-    "tags": ["adapter", "api", "async", "audit-tool", "authorization", "batch-processing", "cache", "caching", "debugging", "event-driven"],
-    "keywords": ["(executortoolregistry)", "adapter", "agent", "approval", "approve", "approved", "architecture", "audit"],
+    "dependencies": [
+        "core.agents.schemas",
+        "core.decorators",
+        "core.governance.approvals",
+        "core.governance.engine",
+        "core.governance.schemas",
+    ],
+    "tags": [
+        "adapter",
+        "api",
+        "async",
+        "audit-tool",
+        "authorization",
+        "batch-processing",
+        "cache",
+        "caching",
+        "debugging",
+        "event-driven",
+    ],
+    "keywords": [
+        "(executortoolregistry)",
+        "adapter",
+        "agent",
+        "approval",
+        "approve",
+        "approved",
+        "architecture",
+        "audit",
+    ],
     "business_value": "This module implements the primary tool dispatch mechanism for L9. Tools are registered and executed through ExecutorToolRegistry, which integrates with Neo4j for governance and Postgres for data. ARC",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

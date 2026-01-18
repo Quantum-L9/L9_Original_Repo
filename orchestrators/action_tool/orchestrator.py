@@ -21,7 +21,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.server", "tests.orchestrators.test_action_tool_orchestrator"],
+        "imported_by": [
+            "api.server",
+            "tests.orchestrators.test_action_tool_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -229,6 +232,7 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
 
         return {"success": False, "error": last_error}, max_retries
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -238,7 +242,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.tools.registry_adapter"],
-    "tags": ["async", "intelligence", "logging", "messaging", "orchestration", "service"],
+    "tags": [
+        "async",
+        "intelligence",
+        "logging",
+        "messaging",
+        "orchestration",
+        "service",
+    ],
     "keywords": ["action", "execute", "implementation", "orchestrator", "tool"],
     "business_value": "Implements ActionToolOrchestrator for orchestrator functionality",
     "last_modified": "2026-01-17T23:47:56Z",

@@ -29,7 +29,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["ir_engine.__init__", "orchestration.orchestrator_kernel", "orchestration.unified_controller", "tests.ir_engine.test_ir_simulation_router_integration"],
+        "imported_by": [
+            "ir_engine.__init__",
+            "orchestration.orchestrator_kernel",
+            "orchestration.unified_controller",
+            "tests.ir_engine.test_ir_simulation_router_integration",
+        ],
     },
 }
 # ============================================================================
@@ -398,6 +403,7 @@ class SimulationRouter:
         self._results.clear()
         logger.info("Cleared simulation results")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -407,8 +413,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "dataclass", "debugging", "intelligence", "ir-compilation", "logging", "metrics", "routing"],
-    "keywords": ["best", "candidate", "candidates", "clear", "count", "create", "engine", "graph"],
+    "tags": [
+        "async",
+        "dataclass",
+        "debugging",
+        "intelligence",
+        "ir-compilation",
+        "logging",
+        "metrics",
+        "routing",
+    ],
+    "keywords": [
+        "best",
+        "candidate",
+        "candidates",
+        "clear",
+        "count",
+        "create",
+        "engine",
+        "graph",
+    ],
     "business_value": "Provides simulation router components including SimulationRequest, SimulationResult, RankedCandidate",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

@@ -187,6 +187,7 @@ class InsightExtractorAgent:
 
         return tags[:5]  # Limit to 5 tags
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -197,7 +198,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["core.decorators"],
     "tags": ["async", "logging", "operations", "research-services", "service"],
-    "keywords": ["agent", "extract", "extractor", "insight", "insights", "memory", "research", "substrate"],
+    "keywords": [
+        "agent",
+        "extract",
+        "extractor",
+        "insight",
+        "insights",
+        "memory",
+        "research",
+        "substrate",
+    ],
     "business_value": "Implements InsightExtractorAgent for insight extractor functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

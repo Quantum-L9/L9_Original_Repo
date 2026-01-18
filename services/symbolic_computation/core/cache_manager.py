@@ -26,7 +26,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Redis"],
         "memory_layers": [],
-        "imported_by": ["services.symbolic_computation.api.routes", "services.symbolic_computation.core.__init__", "services.symbolic_computation.tools.symbolic_tool", "tests.services.symbolic_computation.test_integration"],
+        "imported_by": [
+            "services.symbolic_computation.api.routes",
+            "services.symbolic_computation.core.__init__",
+            "services.symbolic_computation.tools.symbolic_tool",
+            "tests.services.symbolic_computation.test_integration",
+        ],
     },
 }
 # ============================================================================
@@ -296,6 +301,7 @@ class CacheManager:
             "max_size": self.config.cache_size,
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -305,8 +311,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "caching", "debugging", "logging", "operations", "security", "service", "symbolic-computation"],
-    "keywords": ["cache", "cached", "clear", "compiled", "expression", "function", "manager", "memory"],
+    "tags": [
+        "async",
+        "caching",
+        "debugging",
+        "logging",
+        "operations",
+        "security",
+        "service",
+        "symbolic-computation",
+    ],
+    "keywords": [
+        "cache",
+        "cached",
+        "clear",
+        "compiled",
+        "expression",
+        "function",
+        "manager",
+        "memory",
+    ],
     "business_value": "Implements CacheManager for cache manager functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

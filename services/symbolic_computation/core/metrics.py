@@ -26,7 +26,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["PostgreSQL"],
         "memory_layers": [],
-        "imported_by": ["services.symbolic_computation.api.routes", "services.symbolic_computation.core.__init__", "services.symbolic_computation.tools.symbolic_tool", "tests.services.symbolic_computation.test_integration"],
+        "imported_by": [
+            "services.symbolic_computation.api.routes",
+            "services.symbolic_computation.core.__init__",
+            "services.symbolic_computation.tools.symbolic_tool",
+            "tests.services.symbolic_computation.test_integration",
+        ],
     },
 }
 # ============================================================================
@@ -45,23 +50,23 @@ logger = structlog.get_logger(__name__)
 class MetricsCollector:
     """
     Collect and store performance metrics for symbolic computations.
-    
+
     Tracks:
     - Expression evaluation times (by backend)
     - Code generation times (by language)
     - Cache hit rates
     - Error rates
-    
+
     Metrics are stored in PostgreSQL tables:
     - sympy_metrics: evaluation metrics
     - sympy_codegen_metrics: code generation metrics
-    
+
     Example:
         collector = MetricsCollector()
         await collector.record_evaluation("x**2", "numpy", 1.5, True)
         summary = await collector.get_metrics_summary(last_hours=24)
     """
-    
+
     def __init__(
         self,
         config: Optional[SymbolicComputationConfig] = None,
@@ -69,7 +74,7 @@ class MetricsCollector:
     ):
         """
         Initialize the metrics collector.
-        
+
         Args:
             config: Configuration instance (uses global if not provided)
             postgres_client: Optional Postgres client for persistent storage
@@ -77,11 +82,11 @@ class MetricsCollector:
         self.config = config or get_config()
         self.postgres_client = postgres_client
         self.logger = logger.bind(component="metrics_collector")
-        
+
         # In-memory metrics buffer (for when Postgres is unavailable)
         self._evaluation_buffer: List[Dict[str, Any]] = []
         self._codegen_buffer: List[Dict[str, Any]] = []
-        
+
         # Aggregated stats
         self._total_evaluations = 0
         self._total_codegens = 0
@@ -90,12 +95,12 @@ class MetricsCollector:
         self._cache_hits = 0
         self._backend_usage: Dict[str, int] = {}
         self._language_usage: Dict[str, int] = {}
-        
+
         self.logger.info(
             "metrics_collector_initialized",
             postgres_enabled=postgres_client is not None,
         )
-    
+
     async def record_evaluation(
         self,
         expr: str,
@@ -106,7 +111,7 @@ class MetricsCollector:
     ) -> None:
         """
         Record an expression evaluation metric.
-        
+
         Args:
             expr: Expression that was evaluated
             backend: Backend used (numpy, math, mpmath)
@@ -116,7 +121,7 @@ class MetricsCollector:
         """
         expr_hash = self._hash_expression(expr)
         timestamp = datetime.utcnow()
-        
+
         metric = {
             "expr_hash": expr_hash,
             "backend": backend,
@@ -125,32 +130,32 @@ class MetricsCollector:
             "cache_hit": cache_hit,
             "timestamp": timestamp,
         }
-        
+
         # Update in-memory stats
         self._total_evaluations += 1
         self._evaluation_time_sum += duration_ms
         if cache_hit:
             self._cache_hits += 1
         self._backend_usage[backend] = self._backend_usage.get(backend, 0) + 1
-        
+
         # Store in buffer
         self._evaluation_buffer.append(metric)
-        
+
         # Persist to Postgres if available
         if self.postgres_client:
             await self._persist_evaluation_metric(metric)
-        
+
         # Prune buffer if too large
         if len(self._evaluation_buffer) > 10000:
             self._evaluation_buffer = self._evaluation_buffer[-5000:]
-        
+
         self.logger.debug(
             "evaluation_metric_recorded",
             expr_hash=expr_hash,
             backend=backend,
             duration_ms=duration_ms,
         )
-    
+
     async def record_compilation(
         self,
         expr: str,
@@ -160,7 +165,7 @@ class MetricsCollector:
     ) -> None:
         """
         Record a code generation metric.
-        
+
         Args:
             expr: Expression that was compiled
             language: Target language (C, Fortran, etc.)
@@ -169,7 +174,7 @@ class MetricsCollector:
         """
         expr_hash = self._hash_expression(expr)
         timestamp = datetime.utcnow()
-        
+
         metric = {
             "expr_hash": expr_hash,
             "language": language,
@@ -177,61 +182,64 @@ class MetricsCollector:
             "success": success,
             "timestamp": timestamp,
         }
-        
+
         # Update in-memory stats
         self._total_codegens += 1
         self._codegen_time_sum += duration_ms
         self._language_usage[language] = self._language_usage.get(language, 0) + 1
-        
+
         # Store in buffer
         self._codegen_buffer.append(metric)
-        
+
         # Persist to Postgres if available
         if self.postgres_client:
             await self._persist_codegen_metric(metric)
-        
+
         # Prune buffer if too large
         if len(self._codegen_buffer) > 10000:
             self._codegen_buffer = self._codegen_buffer[-5000:]
-        
+
         self.logger.debug(
             "codegen_metric_recorded",
             expr_hash=expr_hash,
             language=language,
             duration_ms=duration_ms,
         )
-    
+
     async def get_metrics_summary(
         self,
         last_hours: int = 24,
     ) -> MetricsSummary:
         """
         Get summary of performance metrics.
-        
+
         Args:
             last_hours: Time range for summary (default: 24 hours)
-        
+
         Returns:
             MetricsSummary with aggregated statistics
         """
         # If Postgres available, query it
         if self.postgres_client:
             return await self._get_postgres_summary(last_hours)
-        
+
         # Otherwise use in-memory stats
         avg_eval = (
             self._evaluation_time_sum / self._total_evaluations
-            if self._total_evaluations > 0 else 0.0
+            if self._total_evaluations > 0
+            else 0.0
         )
         avg_codegen = (
             self._codegen_time_sum / self._total_codegens
-            if self._total_codegens > 0 else 0.0
+            if self._total_codegens > 0
+            else 0.0
         )
         cache_hit_rate = (
             self._cache_hits / self._total_evaluations * 100
-            if self._total_evaluations > 0 else 0.0
+            if self._total_evaluations > 0
+            else 0.0
         )
-        
+
         return MetricsSummary(
             total_evaluations=self._total_evaluations,
             total_code_generations=self._total_codegens,
@@ -242,7 +250,7 @@ class MetricsCollector:
             language_usage=self._language_usage.copy(),
             time_range_hours=last_hours,
         )
-    
+
     async def _persist_evaluation_metric(self, metric: Dict[str, Any]) -> None:
         """Persist evaluation metric to PostgreSQL."""
         try:
@@ -264,7 +272,7 @@ class MetricsCollector:
                 "persist_evaluation_metric_failed",
                 error=str(e),
             )
-    
+
     async def _persist_codegen_metric(self, metric: Dict[str, Any]) -> None:
         """Persist code generation metric to PostgreSQL."""
         try:
@@ -285,11 +293,11 @@ class MetricsCollector:
                 "persist_codegen_metric_failed",
                 error=str(e),
             )
-    
+
     async def _get_postgres_summary(self, last_hours: int) -> MetricsSummary:
         """Get metrics summary from PostgreSQL."""
         cutoff = datetime.utcnow() - timedelta(hours=last_hours)
-        
+
         try:
             # Query evaluation metrics
             eval_result = await self.postgres_client.fetchrow(
@@ -304,7 +312,7 @@ class MetricsCollector:
                 """,
                 cutoff,
             )
-            
+
             # Query codegen metrics
             codegen_result = await self.postgres_client.fetchrow(
                 """
@@ -316,7 +324,7 @@ class MetricsCollector:
                 """,
                 cutoff,
             )
-            
+
             # Backend usage
             backend_rows = await self.postgres_client.fetch(
                 """
@@ -328,7 +336,7 @@ class MetricsCollector:
                 cutoff,
             )
             backend_usage = {row["backend"]: row["count"] for row in backend_rows}
-            
+
             # Language usage
             lang_rows = await self.postgres_client.fetch(
                 """
@@ -340,7 +348,7 @@ class MetricsCollector:
                 cutoff,
             )
             language_usage = {row["language"]: row["count"] for row in lang_rows}
-            
+
             return MetricsSummary(
                 total_evaluations=eval_result["total"] or 0,
                 total_code_generations=codegen_result["total"] or 0,
@@ -351,7 +359,7 @@ class MetricsCollector:
                 language_usage=language_usage,
                 time_range_hours=last_hours,
             )
-            
+
         except Exception as e:
             self.logger.error(
                 "postgres_summary_failed",
@@ -359,12 +367,13 @@ class MetricsCollector:
             )
             # Fall back to in-memory
             return await self.get_metrics_summary(last_hours)
-    
+
     def _hash_expression(self, expr: str) -> str:
         """Generate hash for expression."""
         import hashlib
+
         return hashlib.sha256(expr.encode()).hexdigest()[:16]
-    
+
     def reset(self) -> None:
         """Reset all in-memory metrics."""
         self._evaluation_buffer.clear()
@@ -378,6 +387,7 @@ class MetricsCollector:
         self._language_usage.clear()
         self.logger.info("metrics_reset")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -387,8 +397,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "caching", "debugging", "logging", "metrics", "operations", "security", "service", "symbolic-computation"],
-    "keywords": ["analysis", "collector", "compilation", "evaluation", "metrics", "record", "reset", "summary"],
+    "tags": [
+        "async",
+        "caching",
+        "debugging",
+        "logging",
+        "metrics",
+        "operations",
+        "security",
+        "service",
+        "symbolic-computation",
+    ],
+    "keywords": [
+        "analysis",
+        "collector",
+        "compilation",
+        "evaluation",
+        "metrics",
+        "record",
+        "reset",
+        "summary",
+    ],
     "business_value": "Implements MetricsCollector for metrics functionality",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

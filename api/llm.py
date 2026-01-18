@@ -40,11 +40,13 @@ logger = structlog.get_logger(__name__)
 MODEL = os.getenv("L9_LLM_MODEL", "gpt-4o-mini")
 USE_KERNELS = os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes")
 
+
 def get_client() -> OpenAI:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not set")
     return OpenAI(api_key=api_key)
+
 
 def get_system_prompt() -> str:
     """
@@ -116,6 +118,7 @@ No hallucinated tools.
 
 You are L. Operate as Igor's CTO."""
 
+
 def chat_with_l9(user_message: str) -> Dict[str, Any]:
     """
     Call LLM and return:
@@ -166,6 +169,7 @@ def chat_with_l9(user_message: str) -> Dict[str, Any]:
 
     return {"reply": reply, "action": action, "payload": payload}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -175,7 +179,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.kernels.prompt_builder"],
-    "tags": ["api", "api-gateway", "auth", "authorization", "event-driven", "llm", "logging", "messaging", "operations", "serialization"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "auth",
+        "authorization",
+        "event-driven",
+        "llm",
+        "logging",
+        "messaging",
+        "operations",
+        "serialization",
+    ],
     "keywords": ["chat", "client", "llm", "prompt", "system"],
     "business_value": "Utility module for llm",
     "last_modified": "2026-01-07T13:35:57Z",

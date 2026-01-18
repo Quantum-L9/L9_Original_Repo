@@ -26,7 +26,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "OpenAI API", "Redis"],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["ci.check_tool_wiring", "core.tools.registry_adapter", "runtime.execution_gate"],
+        "imported_by": [
+            "ci.check_tool_wiring",
+            "core.tools.registry_adapter",
+            "runtime.execution_gate",
+        ],
     },
 }
 # ============================================================================
@@ -42,6 +46,7 @@ from core.decorators import must_stay_async
 symbolic_compute = None
 symbolic_codegen = None
 symbolic_optimize = None
+
 
 def _get_symbolic_compute():
     """Lazy import symbolic_compute to avoid startup crash if sympy not installed."""
@@ -60,6 +65,7 @@ def _get_symbolic_compute():
             symbolic_compute = _missing
     return symbolic_compute
 
+
 def _get_symbolic_codegen():
     """Lazy import symbolic_codegen to avoid startup crash if sympy not installed."""
     global symbolic_codegen
@@ -77,6 +83,7 @@ def _get_symbolic_codegen():
             symbolic_codegen = _missing
     return symbolic_codegen
 
+
 def _get_symbolic_optimize():
     """Lazy import symbolic_optimize to avoid startup crash if sympy not installed."""
     global symbolic_optimize
@@ -93,10 +100,12 @@ def _get_symbolic_optimize():
             symbolic_optimize = _missing
     return symbolic_optimize
 
+
 logger = structlog.get_logger(__name__)
 
 # ============================================================================
 # MEMORY SUBSTRATE TOOLS
+
 
 async def memory_search(
     query: str,
@@ -145,6 +154,7 @@ async def memory_search(
         logger.error(f"Memory search failed: {e}")
         return {"error": str(e), "hits": []}
 
+
 async def memory_write(
     packet: dict[str, Any],
     segment: str,
@@ -189,8 +199,10 @@ async def memory_write(
         logger.error(f"Memory write failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # MEMORY SUBSTRATE DIRECT ACCESS (Batch 1 - GMP-31)
+
 
 async def memory_get_packet(
     packet_id: str,
@@ -225,6 +237,7 @@ async def memory_get_packet(
         logger.error(f"Memory get_packet failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_query_packets(
     filters: dict[str, Any],
     limit: int = 50,
@@ -257,6 +270,7 @@ async def memory_query_packets(
     except Exception as e:
         logger.error(f"Memory query_packets failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def memory_search_by_thread(
     thread_id: str,
@@ -294,6 +308,7 @@ async def memory_search_by_thread(
         logger.error(f"Memory search_by_thread failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_search_by_type(
     packet_type: str,
     limit: int = 50,
@@ -330,6 +345,7 @@ async def memory_search_by_type(
         logger.error(f"Memory search_by_type failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_get_events(
     event_type: Optional[str] = None,
     limit: int = 50,
@@ -361,6 +377,7 @@ async def memory_get_events(
     except Exception as e:
         logger.error(f"Memory get_events failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def memory_get_reasoning_traces(
     task_id: Optional[str] = None,
@@ -394,6 +411,7 @@ async def memory_get_reasoning_traces(
         logger.error(f"Memory get_reasoning_traces failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_get_facts(
     subject: str,
     limit: int = 20,
@@ -425,6 +443,7 @@ async def memory_get_facts(
     except Exception as e:
         logger.error(f"Memory get_facts failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def memory_write_insight(
     insight: str,
@@ -462,6 +481,7 @@ async def memory_write_insight(
         logger.error(f"Memory write_insight failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_embed_text(
     text: str,
     **kwargs: Any,
@@ -496,8 +516,10 @@ async def memory_embed_text(
         logger.error(f"Memory embed_text failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # MEMORY CLIENT API (Batch 2 - GMP-31)
+
 
 async def memory_hybrid_search(
     query: str,
@@ -542,6 +564,7 @@ async def memory_hybrid_search(
         logger.error(f"Memory hybrid_search failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_fetch_lineage(
     packet_id: str,
     direction: str = "ancestors",
@@ -583,6 +606,7 @@ async def memory_fetch_lineage(
         logger.error(f"Memory fetch_lineage failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_fetch_thread(
     thread_id: str,
     limit: int = 100,
@@ -614,6 +638,7 @@ async def memory_fetch_thread(
     except Exception as e:
         logger.error(f"Memory fetch_thread failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def memory_fetch_facts_api(
     subject: Optional[str] = None,
@@ -654,6 +679,7 @@ async def memory_fetch_facts_api(
         logger.error(f"Memory fetch_facts_api failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_fetch_insights(
     packet_id: Optional[str] = None,
     insight_type: Optional[str] = None,
@@ -692,6 +718,7 @@ async def memory_fetch_insights(
         logger.error(f"Memory fetch_insights failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_gc_stats(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -716,8 +743,10 @@ async def memory_gc_stats(
         logger.error(f"Memory gc_stats failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # GOVERNANCE TOOLS (High-Risk: Requires Igor Approval)
+
 
 async def gmp_run(
     gmp_id: str,
@@ -768,8 +797,10 @@ async def gmp_run(
         logger.error(f"GMP run failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # VERSION CONTROL TOOLS (High-Risk: Requires Igor Approval)
+
 
 async def git_commit(
     message: str,
@@ -820,8 +851,10 @@ async def git_commit(
         logger.error(f"Git commit failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # EXECUTION TOOLS (High-Risk: Requires Igor Approval)
+
 
 async def mac_agent_exec_task(
     command: str,
@@ -858,8 +891,10 @@ async def mac_agent_exec_task(
         logger.error(f"Mac exec failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # EXTERNAL PROTOCOL TOOLS (MCP)
+
 
 @must_stay_async("callers use await")
 async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
@@ -895,6 +930,7 @@ async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
     except Exception as e:
         logger.error(f"MCP list servers failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def mcp_list_tools(
     server_id: str,
@@ -936,6 +972,7 @@ async def mcp_list_tools(
     except Exception as e:
         logger.error(f"MCP list tools failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def mcp_call_tool(
     server_id: str,
@@ -1003,6 +1040,7 @@ async def mcp_call_tool(
     except Exception as e:
         logger.error(f"MCP call failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
     """
@@ -1098,8 +1136,10 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
         logger.error(f"MCP discover and register failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # MCP SERVER CONTROL TOOLS (GMP-32 Batch 6)
+
 
 async def mcp_start_server(
     server_id: str,
@@ -1135,6 +1175,7 @@ async def mcp_start_server(
         logger.error(f"MCP start server failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def mcp_stop_server(
     server_id: str,
     **kwargs: Any,
@@ -1169,6 +1210,7 @@ async def mcp_stop_server(
         logger.error(f"MCP stop server failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def mcp_stop_all_servers(**kwargs: Any) -> dict[str, Any]:
     """
     Stop all running MCP server processes.
@@ -1191,8 +1233,10 @@ async def mcp_stop_all_servers(**kwargs: Any) -> dict[str, Any]:
         logger.error(f"MCP stop all servers failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # RATE LIMITING TOOLS (GMP-32 Batch 7)
+
 
 async def redis_get_rate_limit(
     key: str,
@@ -1221,6 +1265,7 @@ async def redis_get_rate_limit(
     except Exception as e:
         logger.error(f"Redis get rate limit failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def redis_set_rate_limit(
     key: str,
@@ -1256,6 +1301,7 @@ async def redis_set_rate_limit(
         logger.error(f"Redis set rate limit failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def redis_increment_rate_limit(
     key: str,
     amount: int = 1,
@@ -1286,6 +1332,7 @@ async def redis_increment_rate_limit(
     except Exception as e:
         logger.error(f"Redis increment rate limit failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def redis_decrement_rate_limit(
     key: str,
@@ -1318,8 +1365,10 @@ async def redis_decrement_rate_limit(
         logger.error(f"Redis decrement rate limit failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # MEMORY ADVANCED TOOLS (GMP-32 Batch 8)
+
 
 async def memory_get_checkpoint(
     agent_id: str = "L",
@@ -1357,6 +1406,7 @@ async def memory_get_checkpoint(
         logger.error(f"Memory get checkpoint failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_trigger_world_model_update(
     insights: list[dict[str, Any]],
     **kwargs: Any,
@@ -1386,6 +1436,7 @@ async def memory_trigger_world_model_update(
         logger.error(f"Memory trigger world model update failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
     """
     Check health of all memory substrate components.
@@ -1407,8 +1458,10 @@ async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
         logger.error(f"Memory health check failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # TOOL GRAPH ANALYSIS TOOLS (GMP-32 Batch 9)
+
 
 async def tools_get_api_dependents(
     api_name: str,
@@ -1438,6 +1491,7 @@ async def tools_get_api_dependents(
         logger.error(f"Tools get API dependents failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def tools_get_dependencies(
     tool_name: str,
     **kwargs: Any,
@@ -1464,6 +1518,7 @@ async def tools_get_dependencies(
     except Exception as e:
         logger.error(f"Tools get dependencies failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def tools_get_blast_radius(
     api_name: str,
@@ -1492,6 +1547,7 @@ async def tools_get_blast_radius(
         logger.error(f"Tools get blast radius failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def tools_detect_circular_deps(**kwargs: Any) -> dict[str, Any]:
     """
     Detect circular dependencies in the tool graph.
@@ -1514,6 +1570,7 @@ async def tools_detect_circular_deps(**kwargs: Any) -> dict[str, Any]:
         logger.error(f"Tools detect circular deps failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def tools_get_catalog(**kwargs: Any) -> dict[str, Any]:
     """
     Get L's complete tool catalog with metadata.
@@ -1535,8 +1592,10 @@ async def tools_get_catalog(**kwargs: Any) -> dict[str, Any]:
         logger.error(f"Tools get catalog failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # WORLD MODEL ADVANCED TOOLS (GMP-32 Batch 10)
+
 
 async def world_model_restore(
     snapshot_id: str,
@@ -1567,6 +1626,7 @@ async def world_model_restore(
         logger.error(f"World model restore failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def world_model_list_updates(
     limit: int = 20,
     **kwargs: Any,
@@ -1595,8 +1655,10 @@ async def world_model_list_updates(
         logger.error(f"World model list updates failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # SIMULATION TOOLS
+
 
 async def simulation_execute(
     graph_data: dict[str, Any],
@@ -1656,8 +1718,10 @@ async def simulation_execute(
         logger.error(f"Simulation failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # WORLD MODEL TOOLS
+
 
 async def world_model_query(
     query_type: str,
@@ -1711,8 +1775,10 @@ async def world_model_query(
         logger.error(f"World model query failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # NEO4J GRAPH TOOLS
+
 
 async def neo4j_query(
     cypher: str,
@@ -1763,8 +1829,10 @@ async def neo4j_query(
         logger.error(f"Neo4j query failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # REDIS CACHE TOOLS
+
 
 async def redis_get(
     key: str,
@@ -1802,6 +1870,7 @@ async def redis_get(
     except Exception as e:
         logger.error(f"Redis GET failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def redis_set(
     key: str,
@@ -1843,6 +1912,7 @@ async def redis_set(
         logger.error(f"Redis SET failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def redis_keys(
     pattern: str = "*",
     **kwargs: Any,
@@ -1880,8 +1950,10 @@ async def redis_keys(
         logger.error(f"Redis KEYS failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # REDIS STATE MANAGEMENT (Batch 3 - GMP-31)
+
 
 async def redis_delete(
     key: str,
@@ -1910,6 +1982,7 @@ async def redis_delete(
     except Exception as e:
         logger.error(f"Redis DELETE failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def redis_enqueue_task(
     queue_name: str,
@@ -1943,6 +2016,7 @@ async def redis_enqueue_task(
         logger.error(f"Redis ENQUEUE failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def redis_dequeue_task(
     queue_name: str,
     **kwargs: Any,
@@ -1970,6 +2044,7 @@ async def redis_dequeue_task(
     except Exception as e:
         logger.error(f"Redis DEQUEUE failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def redis_queue_size(
     queue_name: str,
@@ -1999,6 +2074,7 @@ async def redis_queue_size(
         logger.error(f"Redis QUEUE_SIZE failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def redis_get_task_context(
     task_id: str,
     **kwargs: Any,
@@ -2026,6 +2102,7 @@ async def redis_get_task_context(
     except Exception as e:
         logger.error(f"Redis GET_TASK_CONTEXT failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def redis_set_task_context(
     task_id: str,
@@ -2059,8 +2136,10 @@ async def redis_set_task_context(
         logger.error(f"Redis SET_TASK_CONTEXT failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # TOOL GRAPH INTROSPECTION (Batch 4 - GMP-31)
+
 
 @must_stay_async("callers use await")
 async def tools_list_all(
@@ -2091,6 +2170,7 @@ async def tools_list_all(
         logger.error(f"Tools list_all failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 @must_stay_async("callers use await")
 async def tools_list_enabled(
     **kwargs: Any,
@@ -2118,6 +2198,7 @@ async def tools_list_enabled(
     except Exception as e:
         logger.error(f"Tools list_enabled failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 @must_stay_async("callers use await")
 async def tools_get_metadata(
@@ -2159,6 +2240,7 @@ async def tools_get_metadata(
         logger.error(f"Tools get_metadata failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 @must_stay_async("callers use await")
 async def tools_get_schema(
     tool_id: str,
@@ -2187,6 +2269,7 @@ async def tools_get_schema(
     except Exception as e:
         logger.error(f"Tools get_schema failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 @must_stay_async("callers use await")
 async def tools_get_by_type(
@@ -2223,6 +2306,7 @@ async def tools_get_by_type(
         logger.error(f"Tools get_by_type failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 @must_stay_async("callers use await")
 async def tools_get_for_role(
     role: str,
@@ -2254,8 +2338,10 @@ async def tools_get_for_role(
         logger.error(f"Tools get_for_role failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # WORLD MODEL OPERATIONS (Batch 5 - GMP-31)
+
 
 async def world_model_get_entity(
     entity_id: str,
@@ -2289,6 +2375,7 @@ async def world_model_get_entity(
     except Exception as e:
         logger.error(f"World model get_entity failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def world_model_list_entities(
     entity_type: Optional[str] = None,
@@ -2332,6 +2419,7 @@ async def world_model_list_entities(
         logger.error(f"World model list_entities failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def world_model_snapshot(
     description: Optional[str] = None,
     **kwargs: Any,
@@ -2362,6 +2450,7 @@ async def world_model_snapshot(
         logger.error(f"World model snapshot failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def world_model_list_snapshots(
     limit: int = 20,
     **kwargs: Any,
@@ -2390,6 +2479,7 @@ async def world_model_list_snapshots(
     except Exception as e:
         logger.error(f"World model list_snapshots failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 async def world_model_send_insights(
     insights: list[dict[str, Any]],
@@ -2422,6 +2512,7 @@ async def world_model_send_insights(
         logger.error(f"World model send_insights failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 async def world_model_get_state_version(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2448,8 +2539,10 @@ async def world_model_get_state_version(
         logger.error(f"World model get_state_version failed: {e}")
         return {"error": str(e), "status": "error"}
 
+
 # ============================================================================
 # KERNEL TOOLS
+
 
 @must_stay_async("callers use await")
 async def kernel_read(
@@ -2492,6 +2585,7 @@ async def kernel_read(
     except Exception as e:
         logger.error(f"Kernel read failed: {e}")
         return {"error": str(e), "status": "error"}
+
 
 # ============================================================================
 # TOOL REGISTRY
@@ -2616,6 +2710,7 @@ TOOL_EXECUTORS: dict[str, Any] = {
 # Lazy loader for research tools
 _research_tools = None
 
+
 def _get_research_tool(tool_name: str):
     """Lazy import research tools to avoid circular dependency."""
     global _research_tools
@@ -2638,8 +2733,10 @@ def _get_research_tool(tool_name: str):
             }
     return _research_tools.get(tool_name)
 
+
 # Lazy loader for reflection tools
 _reflection_tools = None
+
 
 def _get_reflection_tool(tool_name: str):
     """Lazy import reflection tools to avoid circular dependency."""
@@ -2665,6 +2762,7 @@ def _get_reflection_tool(tool_name: str):
             }
     return _reflection_tools.get(tool_name)
 
+
 def get_tool_executor(tool_name: str) -> Optional[Any]:
     """
     Get executor function for a tool by name.
@@ -2677,6 +2775,7 @@ def get_tool_executor(tool_name: str) -> Optional[Any]:
     """
     return TOOL_EXECUTORS.get(tool_name)
 
+
 def list_available_tools() -> list[str]:
     """
     List all available tool names.
@@ -2686,6 +2785,7 @@ def list_available_tools() -> list[str]:
     """
     return list(TOOL_EXECUTORS.keys())
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -2694,9 +2794,35 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["api.vps_executor", "core.decorators", "core.tools.base_registry", "core.tools.reflection_tools", "core.tools.research_tools"],
-    "tags": ["api", "async", "batch-processing", "cache", "caching", "engine", "event-driven", "logging", "messaging", "metrics"],
-    "keywords": ["agent", "all", "api", "available", "blast", "catalog", "check", "checkpoint"],
+    "dependencies": [
+        "api.vps_executor",
+        "core.decorators",
+        "core.tools.base_registry",
+        "core.tools.reflection_tools",
+        "core.tools.research_tools",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "cache",
+        "caching",
+        "engine",
+        "event-driven",
+        "logging",
+        "messaging",
+        "metrics",
+    ],
+    "keywords": [
+        "agent",
+        "all",
+        "api",
+        "available",
+        "blast",
+        "catalog",
+        "check",
+        "checkpoint",
+    ],
     "business_value": "Utility module for l tools",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

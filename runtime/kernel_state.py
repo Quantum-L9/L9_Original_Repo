@@ -24,7 +24,15 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["agents.l_cto", "conftest", "runtime.__init__", "runtime.execution_gate", "runtime.kernel_loader", "tests.runtime.test_execution_gate", "tests.runtime.test_kernel_state"],
+        "imported_by": [
+            "agents.l_cto",
+            "conftest",
+            "runtime.__init__",
+            "runtime.execution_gate",
+            "runtime.kernel_loader",
+            "tests.runtime.test_execution_gate",
+            "tests.runtime.test_kernel_state",
+        ],
     },
 }
 # ============================================================================
@@ -256,6 +264,7 @@ def create_kernel_state(
         timestamp=datetime.now(),
     )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -265,8 +274,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["auth", "dataclass", "debugging", "logging", "messaging", "operations", "runtime-operations"],
-    "keywords": ["create", "critical", "decision", "escalation", "escalations", "execution", "export", "kernel"],
+    "tags": [
+        "auth",
+        "dataclass",
+        "debugging",
+        "logging",
+        "messaging",
+        "operations",
+        "runtime-operations",
+    ],
+    "keywords": [
+        "create",
+        "critical",
+        "decision",
+        "escalation",
+        "escalations",
+        "execution",
+        "export",
+        "kernel",
+    ],
     "business_value": "This module implements GODMODE Part 1.1 (kernel_state object) and Part 7.2 (session export). Version: 1.0.0",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

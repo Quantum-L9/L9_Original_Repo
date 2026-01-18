@@ -74,11 +74,13 @@ except ImportError as e:
     _has_governance = False
     _has_mcp = False
 
+
 def get_verify_api_key():
     """Get verify_api_key dependency or raise if not available."""
     if not _has_mcp or not _verify_api_key_dep:
         raise HTTPException(status_code=503, detail="MCP memory server not available")
     return _verify_api_key_dep
+
 
 @router.get("/mcp/tools")
 async def list_tools(request: Request, authorization: str = Header(None)):
@@ -90,6 +92,7 @@ async def list_tools(request: Request, authorization: str = Header(None)):
     caller = await _verify_api_key_dep(request, authorization)
 
     return {"tools": get_mcp_tools(), "caller": caller.caller_id}
+
 
 @router.post("/mcp/call")
 async def call_tool(request: Request, authorization: str = Header(None)):
@@ -204,6 +207,7 @@ async def call_tool(request: Request, authorization: str = Header(None)):
         logger.exception("Tool call error")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/mcp/health")
 async def mcp_health_check():
     """MCP-specific health check."""
@@ -211,6 +215,7 @@ async def mcp_health_check():
         raise HTTPException(status_code=503, detail="MCP memory server not available")
 
     return await mcp_health.health_check()
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -221,8 +226,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.governance_gate", "memory.substrate_service"],
-    "tags": ["api", "api-gateway", "async", "auth", "debugging", "endpoint", "filesystem", "logging", "operations", "router"],
-    "keywords": ["api", "check", "governance", "health", "mcp", "memory", "router", "tool"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "debugging",
+        "endpoint",
+        "filesystem",
+        "logging",
+        "operations",
+        "router",
+    ],
+    "keywords": [
+        "api",
+        "check",
+        "governance",
+        "health",
+        "mcp",
+        "memory",
+        "router",
+        "tool",
+    ],
     "business_value": "Utility module for mcp",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -316,6 +316,7 @@ async def execute_tool_with_audit(
         await audit_service.log_execution(entry)
         raise
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -325,8 +326,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "memory.substrate_service"],
-    "tags": ["async", "audit-tool", "dataclass", "foundation", "logging", "metrics", "serialization", "service", "testing", "tool-registry"],
-    "keywords": ["audit", "cost", "entry", "estimate", "estimator", "execute", "execution", "flush"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "dataclass",
+        "foundation",
+        "logging",
+        "metrics",
+        "serialization",
+        "service",
+        "testing",
+        "tool-registry",
+    ],
+    "keywords": [
+        "audit",
+        "cost",
+        "entry",
+        "estimate",
+        "estimator",
+        "execute",
+        "execution",
+        "flush",
+    ],
     "business_value": "Provides tool audit components including ToolAuditEntry, ToolCostEstimator, ToolAuditService",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

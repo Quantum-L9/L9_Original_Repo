@@ -236,6 +236,7 @@ Format each suggestion as:
 
         return suggestions
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -245,8 +246,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["adapter", "adapter-pattern", "async", "intelligence", "llm", "logging", "messaging", "orchestration", "rest-api"],
-    "keywords": ["adapter", "blueprint", "generate", "improvements", "orchestrator", "score"],
+    "tags": [
+        "adapter",
+        "adapter-pattern",
+        "async",
+        "intelligence",
+        "llm",
+        "logging",
+        "messaging",
+        "orchestration",
+        "rest-api",
+    ],
+    "keywords": [
+        "adapter",
+        "blueprint",
+        "generate",
+        "improvements",
+        "orchestrator",
+        "score",
+    ],
     "business_value": "Implements BlueprintAdapter for adapter functionality",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

@@ -27,7 +27,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "Redis"],
         "memory_layers": [],
-        "imported_by": ["agents.l_cto", "conftest", "runtime.__init__", "tests.runtime.test_execution_gate"],
+        "imported_by": [
+            "agents.l_cto",
+            "conftest",
+            "runtime.__init__",
+            "tests.runtime.test_execution_gate",
+        ],
     },
 }
 # ============================================================================
@@ -139,6 +144,7 @@ FORBIDDEN_PATTERNS: Dict[str, List[str]] = {
 # =============================================================================
 # Guarded Execute Contract (GODMODE Part 2)
 # =============================================================================
+
 
 def guarded_execute(
     agent: Any,
@@ -324,6 +330,7 @@ def guarded_execute(
             "escalation": "IGOR",
         }
 
+
 def _get_tool_authorization(agent: Any, tool_id: str) -> Optional[Dict[str, Any]]:
     """
     Get tool authorization from boot_overlay or defaults.
@@ -344,6 +351,7 @@ def _get_tool_authorization(agent: Any, tool_id: str) -> Optional[Dict[str, Any]
 
     # Fall back to defaults
     return DEFAULT_TOOL_AUTHORIZATION.get(tool_id)
+
 
 def _run_safety_scan(
     tool_id: str,
@@ -373,6 +381,7 @@ def _run_safety_scan(
                 }
 
     return {"blocked": False}
+
 
 def _execute_tool(agent: Any, tool_id: str, params: Dict[str, Any]) -> Any:
     """
@@ -415,9 +424,11 @@ def _execute_tool(agent: Any, tool_id: str, params: Dict[str, Any]) -> Any:
 
     raise RuntimeError(f"No executor found for tool: {tool_id}")
 
+
 # =============================================================================
 # Confidence-Based Escalation (GODMODE Part 4.2)
 # =============================================================================
+
 
 def should_escalate_on_confidence(confidence: float, threshold: float = 0.70) -> bool:
     """
@@ -434,6 +445,7 @@ def should_escalate_on_confidence(confidence: float, threshold: float = 0.70) ->
         True if should escalate, False otherwise
     """
     return confidence < threshold
+
 
 def escalate_to_igor(
     kernel_state: Any,
@@ -477,9 +489,11 @@ Options:
     message += "\nAwaiting Igor's decision..."
     return message
 
+
 # =============================================================================
 # Mode Selection (GODMODE Part 1.2)
 # =============================================================================
+
 
 def select_mode_based_on_confidence(confidence: float) -> str:
     """
@@ -499,6 +513,7 @@ def select_mode_based_on_confidence(confidence: float) -> str:
         return "developer"  # Explain thinking, await confirmation
     else:
         return "ask"  # Escalate to Igor
+
 
 # =============================================================================
 # Public API
@@ -522,8 +537,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["runtime.kernel_state", "runtime.l_tools"],
-    "tags": ["api", "auth", "logging", "messaging", "operations", "queue", "rest-api", "runtime-operations", "tracing", "utility"],
-    "keywords": ["based", "confidence", "enforcement", "escalate", "execute", "gate", "guarded", "igor"],
+    "tags": [
+        "api",
+        "auth",
+        "logging",
+        "messaging",
+        "operations",
+        "queue",
+        "rest-api",
+        "runtime-operations",
+        "tracing",
+        "utility",
+    ],
+    "keywords": [
+        "based",
+        "confidence",
+        "enforcement",
+        "escalate",
+        "execute",
+        "gate",
+        "guarded",
+        "igor",
+    ],
     "business_value": "This module implements GODMODE Part 2 (Guarded Execute Contract). Every tool call MUST go through this gate. This is where YAML rules become Python enforcement. Version: 1.0.0",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

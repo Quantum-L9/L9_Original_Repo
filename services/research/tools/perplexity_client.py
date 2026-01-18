@@ -31,7 +31,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["HTTP API", "Perplexity API"],
         "memory_layers": [],
-        "imported_by": ["services.research.tools.__init__", "services.research.tools.tool_wrappers"],
+        "imported_by": [
+            "services.research.tools.__init__",
+            "services.research.tools.tool_wrappers",
+        ],
     },
 }
 # ============================================================================
@@ -470,6 +473,7 @@ def get_perplexity_client() -> Optional[PerplexityClient]:
         return None
     return PerplexityClient(api_key)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -479,8 +483,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.resilience.retry"],
-    "tags": ["async", "auth", "client", "data-models", "dataclass", "http-client", "logging", "messaging", "operations"],
-    "keywords": ["analyze", "best", "client", "deep", "model", "perplexity", "practices", "quick"],
+    "tags": [
+        "async",
+        "auth",
+        "client",
+        "data-models",
+        "dataclass",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+    ],
+    "keywords": [
+        "analyze",
+        "best",
+        "client",
+        "deep",
+        "model",
+        "perplexity",
+        "practices",
+        "quick",
+    ],
     "business_value": "Provides perplexity client components including PerplexityModel, SearchContextSize, PerplexityRequest",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

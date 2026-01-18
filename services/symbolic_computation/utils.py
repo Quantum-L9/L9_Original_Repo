@@ -122,12 +122,11 @@ def fibonacci(n: int) -> int:
     Returns:
         nth Fibonacci number
     """
-    return fibonacci(n-1) + fibonacci(n-2)
+    return fibonacci(n - 1) + fibonacci(n - 2)
 
 
 def generate_test_cases(
-    variables: List[str],
-    num_cases: int = 10
+    variables: List[str], num_cases: int = 10
 ) -> List[Dict[str, float]]:
     """
     Generate test cases for symbolic expressions.
@@ -164,6 +163,7 @@ class ExpressionOptimizer:
             Tuple of (replacements, reduced_expression)
         """
         from sympy.simplify.cse_main import cse
+
         expr = sp.sympify(expression)
         return cse(expr)
 
@@ -194,6 +194,7 @@ class ExpressionOptimizer:
 
         return ops
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -204,7 +205,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["operations", "symbolic-computation", "testing", "utility"],
-    "keywords": ["cases", "common", "count", "elimination", "expression", "extract", "fibonacci", "generate"],
+    "keywords": [
+        "cases",
+        "common",
+        "count",
+        "elimination",
+        "expression",
+        "extract",
+        "fibonacci",
+        "generate",
+    ],
     "business_value": "Implements ExpressionOptimizer for utils functionality",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

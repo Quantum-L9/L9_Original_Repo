@@ -30,7 +30,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["HTTP API"],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["core.singleton_registry", "runtime.l_tools", "runtime.mcp_tool"],
+        "imported_by": [
+            "core.singleton_registry",
+            "runtime.l_tools",
+            "runtime.mcp_tool",
+        ],
     },
 }
 # ============================================================================
@@ -364,7 +368,7 @@ class MCPClient:
         # Uses unified substrate (packet_store + memory_embeddings)
         # All memory operations go through MCP tools (save_memory, search_memory, etc.)
         # See: mcp_memory/README.md for details
-        # 
+        #
         # Cursor integration:
         #   - mcp.json configured with l9-memory server (SSE connection)
         #   - cursor_memory_client.py uses MCP tools via /mcp/call endpoint
@@ -690,8 +694,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "caching", "client", "event-driven", "http-client", "logging", "messaging", "operations", "runtime-operations"],
-    "keywords": ["all", "allowed", "available", "client", "mcp", "meta", "process", "running"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "client",
+        "event-driven",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+        "runtime-operations",
+    ],
+    "keywords": [
+        "all",
+        "allowed",
+        "available",
+        "client",
+        "mcp",
+        "meta",
+        "process",
+        "running",
+    ],
     "business_value": "List tools from MCP servers Call tools on MCP servers Registry of allowed MCP tools Version: 1.0.0",
     "last_modified": "2026-01-13T15:37:09Z",
     "modified_by": "L9_Codegen_Engine",

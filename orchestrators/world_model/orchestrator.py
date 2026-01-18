@@ -250,6 +250,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
             state_version=self._state_version,
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -259,8 +260,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "batch-processing", "intelligence", "logging", "messaging", "orchestration", "queue", "rest-api", "scheduling", "service"],
-    "keywords": ["execute", "implementation", "insights", "memory", "model", "orchestrator", "substrate", "update"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "intelligence",
+        "logging",
+        "messaging",
+        "orchestration",
+        "queue",
+        "rest-api",
+        "scheduling",
+        "service",
+    ],
+    "keywords": [
+        "execute",
+        "implementation",
+        "insights",
+        "memory",
+        "model",
+        "orchestrator",
+        "substrate",
+        "update",
+    ],
     "business_value": "Implements WorldModelOrchestrator for orchestrator functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

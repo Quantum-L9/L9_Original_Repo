@@ -41,6 +41,7 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger(__name__)
 
+
 async def load_identity_persona(
     instance: "BootstrapInstanceData",
     substrate_service: "MemorySubstrateService",
@@ -168,6 +169,7 @@ async def load_identity_persona(
         instance.designation = instance.agent_id
         instance.role = "Agent"
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -177,7 +179,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.graph_client", "memory.substrate_service"],
-    "tags": ["agent-execution", "api", "async", "auth", "config", "debugging", "filesystem", "foundation", "logging", "service"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "auth",
+        "config",
+        "debugging",
+        "filesystem",
+        "foundation",
+        "logging",
+        "service",
+    ],
     "keywords": ["agent", "identity", "load", "persona", "phase"],
     "business_value": "Utility module for phase 4 load identity",
     "last_modified": "2026-01-17T23:47:56Z",

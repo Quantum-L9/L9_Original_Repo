@@ -245,6 +245,7 @@ class CursorExecutor:
             logger.error("Thread resume failed", error=str(e), thread_id=thread_id)
             raise
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -253,9 +254,35 @@ __dora_footer__ = {
     "governance_level": "high",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["agents.cursor.integrations.cursor_gateway", "agents.cursor.integrations.cursor_langgraph", "core.governance.approval_manager", "memory.checkpoint.cursor_checkpoint_manager", "memory.substrate_service"],
-    "tags": ["async", "data-models", "executor", "intelligence", "logging", "pydantic", "rest-api", "schema", "tracing", "validation"],
-    "keywords": ["cursor", "executor", "governance", "memory", "resume", "spec", "task", "thread"],
+    "dependencies": [
+        "agents.cursor.integrations.cursor_gateway",
+        "agents.cursor.integrations.cursor_langgraph",
+        "core.governance.approval_manager",
+        "memory.checkpoint.cursor_checkpoint_manager",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "async",
+        "data-models",
+        "executor",
+        "intelligence",
+        "logging",
+        "pydantic",
+        "rest-api",
+        "schema",
+        "tracing",
+        "validation",
+    ],
+    "keywords": [
+        "cursor",
+        "executor",
+        "governance",
+        "memory",
+        "resume",
+        "spec",
+        "task",
+        "thread",
+    ],
     "business_value": "Provides cursor executor components including CursorTaskSpec, CursorResult, CursorExecutor",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

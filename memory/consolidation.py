@@ -31,7 +31,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["memory.__init__", "memory.substrate_service", "orchestrators.memory.housekeeping", "tests.memory.test_consolidation"],
+        "imported_by": [
+            "memory.__init__",
+            "memory.substrate_service",
+            "orchestrators.memory.housekeeping",
+            "tests.memory.test_consolidation",
+        ],
     },
 }
 # ============================================================================
@@ -616,6 +621,7 @@ class ConsolidationPipeline:
         logger.info("TTL expiration complete", expired_count=expired)
         return expired
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -625,8 +631,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.substrate_repository"],
-    "tags": ["async", "batch-processing", "debugging", "learning", "logging", "memory-substrate", "messaging", "scheduling", "service"],
-    "keywords": ["archival", "consolidation", "deduplication", "memory", "packets", "pipeline", "report", "repository"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "debugging",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "scheduling",
+        "service",
+    ],
+    "keywords": [
+        "archival",
+        "consolidation",
+        "deduplication",
+        "memory",
+        "packets",
+        "pipeline",
+        "report",
+        "repository",
+    ],
     "business_value": "Implements memory_spec_v3.0.yaml pipelines.consolidation contract. Schedule: weekly_saturday_2am_utc deduplication: Merge similar packets (similarity_threshold: 0.95) archival: Archive old, low-access",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

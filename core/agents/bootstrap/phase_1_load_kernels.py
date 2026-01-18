@@ -138,6 +138,7 @@ async def load_and_parse_kernels(
     logger.info("All kernels loaded and parsed", kernel_count=len(kernels))
     return kernels
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -147,8 +148,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["agent-execution", "async", "config", "dataclass", "filesystem", "foundation", "logging", "security"],
-    "keywords": ["agent", "kernel", "kernels", "load", "memory", "parse", "parsed", "phase"],
+    "tags": [
+        "agent-execution",
+        "async",
+        "config",
+        "dataclass",
+        "filesystem",
+        "foundation",
+        "logging",
+        "security",
+    ],
+    "keywords": [
+        "agent",
+        "kernel",
+        "kernels",
+        "load",
+        "memory",
+        "parse",
+        "parsed",
+        "phase",
+    ],
     "business_value": "Implements KernelParsed for phase 1 load kernels functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

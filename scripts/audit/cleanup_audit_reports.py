@@ -76,9 +76,9 @@ REPORT_TYPES = {
 
 # Files/patterns to NEVER delete
 PROTECTED_PATTERNS = [
-    "GMP_Report_*",      # GMP execution reports - NEVER delete
-    "GMP_*",             # Any GMP file
-    "Report_GMP-*",      # Old GMP report format
+    "GMP_Report_*",  # GMP execution reports - NEVER delete
+    "GMP_*",  # Any GMP file
+    "Report_GMP-*",  # Old GMP report format
     "dead_code_resolved*",  # Important baseline
 ]
 
@@ -87,29 +87,34 @@ KEEP_FILES = {
     "dead_code_resolved.json",
 }
 
+
 def matches_protected(filename: str) -> bool:
     """Check if filename matches any protected pattern."""
     from fnmatch import fnmatch
+
     for pattern in PROTECTED_PATTERNS:
         if fnmatch(filename, pattern):
             return True
     return filename in KEEP_FILES
 
+
 def get_report_type(filepath: Path) -> "str | None":
     """Determine the report type for a file."""
     from fnmatch import fnmatch
+
     filename = filepath.name
-    
+
     for report_type, patterns in REPORT_TYPES.items():
         for pattern in patterns:
             if fnmatch(filename, pattern):
                 return report_type
     return None
 
+
 def get_audit_files_by_type() -> "dict[str, list[Path]]":
     """Get all audit report files grouped by type."""
     files_by_type: dict[str, list[Path]] = defaultdict(list)
-    
+
     for report_type, patterns in REPORT_TYPES.items():
         for pattern in patterns:
             for filepath in REPORTS_DIR.glob(pattern):
@@ -119,16 +124,15 @@ def get_audit_files_by_type() -> "dict[str, list[Path]]":
                 if matches_protected(filepath.name):
                     continue
                 files_by_type[report_type].append(filepath)
-    
+
     # Sort each type by modification time (newest first)
     for report_type in files_by_type:
         files_by_type[report_type] = sorted(
-            files_by_type[report_type],
-            key=lambda f: f.stat().st_mtime,
-            reverse=True
+            files_by_type[report_type], key=lambda f: f.stat().st_mtime, reverse=True
         )
-    
+
     return dict(files_by_type)
+
 
 def get_audit_files() -> list[Path]:
     """Get all audit report files (flat list for backward compat)."""
@@ -138,11 +142,13 @@ def get_audit_files() -> list[Path]:
         all_files.extend(files)
     return sorted(all_files, key=lambda f: f.stat().st_mtime, reverse=True)
 
+
 def get_file_age_days(filepath: Path) -> float:
     """Get file age in days."""
     mtime = datetime.fromtimestamp(filepath.stat().st_mtime)
     age = datetime.now() - mtime
     return age.total_seconds() / 86400
+
 
 def format_file_info(filepath: Path) -> str:
     """Format file info for display."""
@@ -151,33 +157,35 @@ def format_file_info(filepath: Path) -> str:
     age_days = get_file_age_days(filepath)
     return f"{filepath.name:50} {size_kb:8.1f} KB  {mtime:%Y-%m-%d %H:%M}  ({age_days:.1f}d old)"
 
+
 def list_files(files: list[Path]) -> None:
     """Display files that would be affected."""
     if not files:
         print("No audit report files found to clean up.")
         return
-    
+
     print(f"\n📋 Found {len(files)} audit report files:\n")
     print(f"{'Filename':50} {'Size':>10}  {'Modified':16}  {'Age'}")
     print("-" * 90)
-    
+
     total_size = 0
     for f in files:
         print(format_file_info(f))
         total_size += f.stat().st_size
-    
+
     print("-" * 90)
-    print(f"Total: {len(files)} files, {total_size/1024:.1f} KB")
+    print(f"Total: {len(files)} files, {total_size / 1024:.1f} KB")
+
 
 def archive_files(files: list[Path], dry_run: bool = False) -> int:
     """Move files to _archived/ directory."""
     if not files:
         print("No files to archive.")
         return 0
-    
+
     if not dry_run:
         ARCHIVE_DIR.mkdir(exist_ok=True)
-    
+
     archived = 0
     for f in files:
         dest = ARCHIVE_DIR / f.name
@@ -192,19 +200,20 @@ def archive_files(files: list[Path], dry_run: bool = False) -> int:
                 while dest.exists():
                     dest = ARCHIVE_DIR / f"{stem}_{counter}{suffix}"
                     counter += 1
-            
+
             shutil.move(str(f), str(dest))
             print(f"  ✅ Archived: {f.name} → _archived/")
             archived += 1
-    
+
     return archived
+
 
 def delete_files(files: list[Path], dry_run: bool = False) -> int:
     """Permanently delete files."""
     if not files:
         print("No files to delete.")
         return 0
-    
+
     deleted = 0
     for f in files:
         if dry_run:
@@ -213,8 +222,9 @@ def delete_files(files: list[Path], dry_run: bool = False) -> int:
             f.unlink()
             print(f"  🗑️  Deleted: {f.name}")
             deleted += 1
-    
+
     return deleted
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -233,9 +243,9 @@ Examples:
 
   # Archive everything except latest
   python cleanup_audit_reports.py --action archive --keep 1
-"""
+""",
     )
-    
+
     parser.add_argument(
         "--action",
         choices=["list", "archive", "delete"],
@@ -264,28 +274,28 @@ Examples:
         action="store_true",
         help="Skip confirmation prompt",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Get all audit files
     all_files = get_audit_files()
-    
+
     if args.action == "list":
         list_files(all_files)
         print(f"\nProtected files (never deleted): {KEEP_FILES}")
         return 0
-    
+
     # Filter by age if specified
     if args.older_than > 0:
         all_files = [f for f in all_files if get_file_age_days(f) > args.older_than]
-    
+
     # Keep the N most recent
-    files_to_process = all_files[args.keep:] if args.keep > 0 else all_files
-    
+    files_to_process = all_files[args.keep :] if args.keep > 0 else all_files
+
     if not files_to_process:
         print(f"No files to {args.action}. Keeping {args.keep} most recent.")
         return 0
-    
+
     # Show what will be affected
     print(f"\n{'DRY RUN - ' if args.dry_run else ''}Files to {args.action}:")
     print("-" * 50)
@@ -294,14 +304,16 @@ Examples:
     print("-" * 50)
     print(f"Total: {len(files_to_process)} files")
     print(f"Keeping: {min(args.keep, len(all_files))} most recent files")
-    
+
     # Confirm unless --force or --dry-run
     if not args.force and not args.dry_run:
-        confirm = input(f"\n⚠️  {args.action.upper()} these {len(files_to_process)} files? [y/N]: ")
+        confirm = input(
+            f"\n⚠️  {args.action.upper()} these {len(files_to_process)} files? [y/N]: "
+        )
         if confirm.lower() != "y":
             print("Cancelled.")
             return 1
-    
+
     # Execute action
     if args.action == "archive":
         count = archive_files(files_to_process, args.dry_run)
@@ -311,8 +323,9 @@ Examples:
         count = delete_files(files_to_process, args.dry_run)
         if not args.dry_run:
             print(f"\n✅ Deleted {count} files")
-    
+
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -327,7 +340,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["cli", "filesystem", "operations", "rest-api", "scripts", "testing"],
-    "keywords": ["age", "archive", "audit", "cleanup", "days", "delete", "files", "format"],
+    "keywords": [
+        "age",
+        "archive",
+        "audit",
+        "cleanup",
+        "days",
+        "delete",
+        "files",
+        "format",
+    ],
     "business_value": "Utility module for cleanup audit reports",
     "last_modified": "2026-01-14T12:10:12Z",
     "modified_by": "L9_Codegen_Engine",

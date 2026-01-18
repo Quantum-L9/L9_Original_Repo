@@ -215,6 +215,7 @@ async def cursor_resume(
         logger.exception("Cursor resume execution failed", error=str(e))
         raise HTTPException(status_code=500, detail=f"Resume execution error: {e}")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -223,8 +224,23 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["agents.cursor.integrations.cursor_executor", "api.auth", "core.decorators"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "messaging", "operations", "pydantic", "rest-api"],
+    "dependencies": [
+        "agents.cursor.integrations.cursor_executor",
+        "api.auth",
+        "core.decorators",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "rest-api",
+    ],
     "keywords": ["cursor", "executor", "resume", "router", "task", "test"],
     "business_value": "Provides cursor components including CursorTaskRequest, CursorTaskResponse, CursorResumeRequest",
     "last_modified": "2026-01-17T23:47:56Z",

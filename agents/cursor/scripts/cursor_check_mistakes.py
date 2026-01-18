@@ -175,7 +175,7 @@ __dora_footer__ = {
     "dependencies": ["core.governance.mistake_prevention"],
     "tags": ["agent-execution", "api", "cli", "event-driven", "filesystem", "intelligence", "logging"],
     "keywords": ["check", "cursor", "format", "mistakes", "violation"],
-    "business_value": "This script allows Cursor to check content against L9's mistake prevention rules before execution. python scripts/cursor_check_mistakes.py "content to check" python scripts/cursor_check_mistakes.py --",
+    "business_value": "This script allows Cursor to check content against L9's mistake prevention rules before execution. p",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

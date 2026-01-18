@@ -81,6 +81,7 @@ def get_logger(name: str) -> logging.Logger:
 
     return logger
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -90,7 +91,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["core", "foundation", "messaging", "serialization", "streaming", "utility"],
+    "tags": [
+        "core",
+        "foundation",
+        "messaging",
+        "serialization",
+        "streaming",
+        "utility",
+    ],
     "keywords": ["log", "logger", "module", "structured"],
     "business_value": "Implements StructuredLogger for logger functionality",
     "last_modified": "2026-01-17T23:47:56Z",

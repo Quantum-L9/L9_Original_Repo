@@ -80,6 +80,7 @@ TEST_FILES = [
     "test_vector_search.py",
 ]
 
+
 def run_all_tests(
     verbose: bool = False, fast: bool = False, keyword: str = None
 ) -> int:
@@ -138,6 +139,7 @@ def run_all_tests(
 
     return result.returncode
 
+
 def main():
     import argparse
 
@@ -156,6 +158,7 @@ def main():
 
     sys.exit(exit_code)
 
+
 if __name__ == "__main__":
     main()
 
@@ -168,7 +171,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "cli", "filesystem", "memory-substrate", "operations", "subprocess", "testing"],
+    "tags": [
+        "api",
+        "cli",
+        "filesystem",
+        "memory-substrate",
+        "operations",
+        "subprocess",
+        "testing",
+    ],
     "keywords": ["all", "memory", "tests"],
     "business_value": "Utility module for run all memory tests",
     "last_modified": "2026-01-17T23:47:56Z",

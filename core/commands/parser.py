@@ -35,7 +35,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.routes.commands", "core.commands.__init__", "memory.slack_ingest", "tests.integration.test_igor_commands"],
+        "imported_by": [
+            "api.routes.commands",
+            "core.commands.__init__",
+            "memory.slack_ingest",
+            "tests.integration.test_igor_commands",
+        ],
     },
 }
 # ============================================================================
@@ -52,6 +57,7 @@ from core.commands.schemas import (
 )
 
 logger = structlog.get_logger(__name__)
+
 
 def parse_command(text: str) -> Union[Command, NLPPrompt]:
     """
@@ -82,11 +88,14 @@ def parse_command(text: str) -> Union[Command, NLPPrompt]:
     if text.lower().startswith("@l "):
         # Extract the content after @L for NLP processing
         nlp_text = text[3:].strip()
-        logger.debug("Unrecognized @L command, falling back to NLP", nlp_text=nlp_text[:100])
+        logger.debug(
+            "Unrecognized @L command, falling back to NLP", nlp_text=nlp_text[:100]
+        )
         return NLPPrompt(text=nlp_text, raw_text=text)
 
     # Plain text - treat as NLP prompt
     return NLPPrompt(text=text, raw_text=text)
+
 
 def _build_command(pattern_name: str, match, raw_text: str) -> Command:
     """Build Command from matched pattern."""
@@ -157,6 +166,7 @@ def _build_command(pattern_name: str, match, raw_text: str) -> Command:
             risk_level=RiskLevel.LOW,
         )
 
+
 def is_l_command(text: str) -> bool:
     """
     Check if text appears to be an @L command.
@@ -168,6 +178,7 @@ def is_l_command(text: str) -> bool:
         True if text starts with @L or @l
     """
     return text.strip().lower().startswith("@l ")
+
 
 __all__ = [
     "parse_command",

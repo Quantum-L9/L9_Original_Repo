@@ -2,7 +2,6 @@
 Custom exceptions for symbolic computation module.
 """
 
-
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Exceptions",
@@ -24,6 +23,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+
 class SymbolicComputationError(Exception):
     """Base exception for symbolic computation errors."""
 
@@ -42,22 +42,27 @@ class SymbolicComputationError(Exception):
 
 class EvaluationError(SymbolicComputationError):
     """Exception raised when expression evaluation fails."""
+
     pass
 
 
 class CodeGenerationError(SymbolicComputationError):
     """Exception raised when code generation fails."""
+
     pass
 
 
 class ValidationError(SymbolicComputationError):
     """Exception raised when input validation fails."""
+
     pass
 
 
 class CacheError(SymbolicComputationError):
     """Exception raised when cache operations fail."""
+
     pass
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -69,7 +74,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["caching", "error-handling", "exception", "messaging", "operations"],
-    "keywords": ["cache", "computation", "evaluation", "exceptions", "generation", "module", "symbolic", "validation"],
+    "keywords": [
+        "cache",
+        "computation",
+        "evaluation",
+        "exceptions",
+        "generation",
+        "module",
+        "symbolic",
+        "validation",
+    ],
     "business_value": "Provides exceptions components including SymbolicComputationError, EvaluationError, CodeGenerationError",
     "last_modified": "2026-01-17T23:51:17Z",
     "modified_by": "L9_Codegen_Engine",

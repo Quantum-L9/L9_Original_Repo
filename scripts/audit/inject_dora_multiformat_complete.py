@@ -46,6 +46,7 @@ from typing import Dict, List
 # ============================================================================
 # DATA MODELS
 
+
 @dataclass
 class HeaderMeta:
     """Header Meta - 14 mandatory fields per contract."""
@@ -65,6 +66,7 @@ class HeaderMeta:
     purpose: str
     dependencies: List[str]
 
+
 @dataclass
 class FooterMeta:
     """Footer Meta - Extended metadata."""
@@ -77,6 +79,7 @@ class FooterMeta:
     last_modified: str = ""
     modified_by: str = ""
     change_summary: str = "Initial generation"
+
 
 @dataclass
 class DoraTraceBlock:
@@ -97,8 +100,10 @@ class DoraTraceBlock:
         }
     )
 
+
 # ============================================================================
 # MULTI-FORMAT INJECTOR
+
 
 class DoraMultiFormatInjector:
     """Contract-compliant multi-format DORA block injection engine."""
@@ -820,8 +825,10 @@ l9_trace:
         print(f"⏭️  Skipped: {results['skipped']}")
         print(f"\n📄 Full report saved to: {output_path}")
 
+
 # ============================================================================
 # MAIN
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -863,6 +870,7 @@ def main():
 
     print("\n✅ DORA multi-format complete injection finished!")
 
+
 if __name__ == "__main__":
     main()
 
@@ -875,8 +883,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "batch-processing", "caching", "cli", "dataclass", "filesystem", "metrics", "migration", "monitoring", "operations"],
-    "keywords": ["all", "block", "complete", "dora", "files", "footer", "format", "generate"],
+    "tags": [
+        "api",
+        "batch-processing",
+        "caching",
+        "cli",
+        "dataclass",
+        "filesystem",
+        "metrics",
+        "migration",
+        "monitoring",
+        "operations",
+    ],
+    "keywords": [
+        "all",
+        "block",
+        "complete",
+        "dora",
+        "files",
+        "footer",
+        "format",
+        "generate",
+    ],
     "business_value": "Provides inject dora multiformat complete components including HeaderMeta, FooterMeta, DoraTraceBlock",
     "last_modified": "2026-01-18T02:10:54Z",
     "modified_by": "L9_Codegen_Engine",

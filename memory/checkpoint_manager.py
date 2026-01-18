@@ -53,6 +53,7 @@ class CheckpointManager:
         """Load latest state for an agent."""
         return await self._service.get_checkpoint(agent_id=agent_id)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

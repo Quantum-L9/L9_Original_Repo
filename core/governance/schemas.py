@@ -30,7 +30,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.governance.engine", "core.governance.loader", "core.tools.registry_adapter", "tests.core.governance.test_engine", "tests.unit.test_guarded_execution"],
+        "imported_by": [
+            "core.governance.engine",
+            "core.governance.loader",
+            "core.tools.registry_adapter",
+            "tests.core.governance.test_engine",
+            "tests.unit.test_guarded_execution",
+        ],
     },
 }
 # ============================================================================
@@ -392,7 +398,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["api", "data-models", "enum", "foundation", "pydantic", "validation"],
-    "keywords": ["allow", "condition", "deny", "effect", "evaluate", "evaluation", "governance", "matches"],
+    "keywords": [
+        "allow",
+        "condition",
+        "deny",
+        "effect",
+        "evaluate",
+        "evaluation",
+        "governance",
+        "matches",
+    ],
     "business_value": "Provides schemas components including PolicyEffect, ConditionOperator, Condition",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

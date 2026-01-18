@@ -21,7 +21,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.observability.circuit_breaker", "tests.core.observability.test_observability_integration"],
+        "imported_by": [
+            "core.observability.circuit_breaker",
+            "tests.core.observability.test_observability_integration",
+        ],
     },
 }
 # ============================================================================
@@ -133,21 +136,22 @@ class ObservabilitySettings(BaseSettings):
         gt=0,
     )
 
-    @model_validator(mode='after')
-    def auto_enable_substrate_exporter(self) -> 'ObservabilitySettings':
+    @model_validator(mode="after")
+    def auto_enable_substrate_exporter(self) -> "ObservabilitySettings":
         """
         Automatically add 'substrate' to exporters if substrate_enabled=True
         and it's not already in the list.
         """
-        if self.substrate_enabled and 'substrate' not in self.exporters:
+        if self.substrate_enabled and "substrate" not in self.exporters:
             # Create a new list to avoid mutating the default
-            self.exporters = list(self.exporters) + ['substrate']
+            self.exporters = list(self.exporters) + ["substrate"]
         return self
 
 
 def load_config() -> ObservabilitySettings:
     """Load observability configuration from environment."""
     return ObservabilitySettings()
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -158,8 +162,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "batch-processing", "core", "debugging", "foundation", "schema", "testing", "tracing", "validation"],
-    "keywords": ["auto", "configuration", "enable", "exporter", "load", "module", "observability", "substrate"],
+    "tags": [
+        "api",
+        "batch-processing",
+        "core",
+        "debugging",
+        "foundation",
+        "schema",
+        "testing",
+        "tracing",
+        "validation",
+    ],
+    "keywords": [
+        "auto",
+        "configuration",
+        "enable",
+        "exporter",
+        "load",
+        "module",
+        "observability",
+        "substrate",
+    ],
     "business_value": "Implements ObservabilitySettings for config functionality",
     "last_modified": "2026-01-12T16:30:23Z",
     "modified_by": "L9_Codegen_Engine",

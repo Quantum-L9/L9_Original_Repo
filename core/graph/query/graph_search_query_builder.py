@@ -75,15 +75,17 @@ DSL_TEMPLATES = {
 # Schema Version Computation
 # =============================================================================
 
+
 def compute_graph_schema_hash() -> str:
     """
     Compute schema hash from DSL templates.
-    
+
     Returns:
         32-character hex hash of DSL structure
     """
     schema_str = json.dumps(DSL_TEMPLATES, sort_keys=True)
     return hashlib.sha256(schema_str.encode()).hexdigest()[:32]
+
 
 GRAPH_CACHE_SCHEMA_VERSION = compute_graph_schema_hash()
 
@@ -91,49 +93,55 @@ GRAPH_CACHE_SCHEMA_VERSION = compute_graph_schema_hash()
 # Query Builder
 # =============================================================================
 
-def build_cypher_from_intent(query_intent: str, params: Dict[str, Any]) -> Dict[str, Any]:
+
+def build_cypher_from_intent(
+    query_intent: str, params: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Build Cypher query from intent string and parameters.
-    
+
     Args:
         query_intent: Intent string (e.g., "sessions for agent")
         params: Query parameters dict
-        
+
     Returns:
         Dict with:
             - cypher: Cypher query string
             - schema_version: Schema version hash
             - schema_hash: Alias for schema_version
-            
+
     Raises:
         ValueError: If intent not found in DSL_TEMPLATES
     """
     logger.debug("Building Cypher from intent", intent=query_intent, params=params)
-    
+
     # Find matching template
     match = None
     for key, template in DSL_TEMPLATES.items():
         if template["intent"] in query_intent.lower():
             match = template
             break
-    
+
     if not match:
-        raise ValueError(f"Unknown intent: {query_intent}. Available: {list(DSL_TEMPLATES.keys())}")
-    
+        raise ValueError(
+            f"Unknown intent: {query_intent}. Available: {list(DSL_TEMPLATES.keys())}"
+        )
+
     cypher = match["cypher"]
-    
+
     logger.info(
         "Cypher query built",
         intent=query_intent,
         cypher=cypher[:100],
         schema_version=GRAPH_CACHE_SCHEMA_VERSION,
     )
-    
+
     return {
         "cypher": cypher,
         "schema_version": GRAPH_CACHE_SCHEMA_VERSION,
         "schema_hash": GRAPH_CACHE_SCHEMA_VERSION,
     }
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -144,8 +152,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["core", "debugging", "event-driven", "factory", "foundation", "logging", "security", "serialization"],
-    "keywords": ["build", "builder", "compute", "cypher", "graph", "hash", "intent", "query"],
+    "tags": [
+        "core",
+        "debugging",
+        "event-driven",
+        "factory",
+        "foundation",
+        "logging",
+        "security",
+        "serialization",
+    ],
+    "keywords": [
+        "build",
+        "builder",
+        "compute",
+        "cypher",
+        "graph",
+        "hash",
+        "intent",
+        "query",
+    ],
     "business_value": "Utility module for graph search query builder",
     "last_modified": "2026-01-11T15:06:13Z",
     "modified_by": "L9_Codegen_Engine",

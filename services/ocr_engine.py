@@ -43,6 +43,7 @@ except ImportError:
     OCR_AVAILABLE = False
     logger.warning("pytesseract/Pillow not installed. OCR disabled.")
 
+
 def ocr_image(path: str) -> Dict[str, Any]:
     """
     Extract text from image using OCR.
@@ -119,6 +120,7 @@ def ocr_image(path: str) -> Dict[str, Any]:
             "error": str(e),
         }
 
+
 def ocr_pdf_first_page(path: str) -> Dict[str, Any]:
     """
     Extract text from first page of PDF using screenshot fallback.
@@ -182,6 +184,7 @@ def ocr_pdf_first_page(path: str) -> Dict[str, Any]:
             "engine": "tesseract",
             "error": str(e),
         }
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

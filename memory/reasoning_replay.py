@@ -31,7 +31,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["memory.substrate_service", "tests.memory.test_reasoning_replay"],
+        "imported_by": [
+            "memory.substrate_service",
+            "tests.memory.test_reasoning_replay",
+        ],
     },
 }
 # ============================================================================
@@ -426,6 +429,7 @@ class ReasoningReplayPipeline:
 
         return False
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -435,8 +439,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "memory.substrate_repository"],
-    "tags": ["async", "debugging", "learning", "logging", "memory-substrate", "queue", "serialization", "service", "tracing"],
-    "keywords": ["ancestors", "broken", "chain", "decision", "detect", "detection", "explain", "integrity"],
+    "tags": [
+        "async",
+        "debugging",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "queue",
+        "serialization",
+        "service",
+        "tracing",
+    ],
+    "keywords": [
+        "ancestors",
+        "broken",
+        "chain",
+        "decision",
+        "detect",
+        "detection",
+        "explain",
+        "integrity",
+    ],
     "business_value": "Implements memory_spec_v3.0.yaml pipelines.reasoning_replay contract.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -52,6 +52,7 @@ except ImportError:
 if not PDFPLUMBER_AVAILABLE and not PYPDF_AVAILABLE:
     logger.warning("Neither pdfplumber nor pypdf installed. PDF extraction disabled.")
 
+
 def extract_pdf(path: str, summarize: bool = True) -> Dict[str, Any]:
     """
     Extract text and metadata from PDF.
@@ -169,6 +170,7 @@ def extract_pdf(path: str, summarize: bool = True) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"PDF extraction failed for {path}: {e}", exc_info=True)
         return {"text": "", "pages": [], "summary": "", "error": str(e)}
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

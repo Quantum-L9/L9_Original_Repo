@@ -589,6 +589,7 @@ class PostgresSubstrate:
         self.logger.info("State loaded from PostgreSQL")
         return state
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -599,7 +600,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["dataclass", "learning", "serialization", "world-model"],
-    "keywords": ["all", "compliance", "connect", "connection", "create", "delete", "disconnect", "drop"],
+    "keywords": [
+        "all",
+        "compliance",
+        "connect",
+        "connection",
+        "create",
+        "delete",
+        "disconnect",
+        "drop",
+    ],
     "business_value": "Provides postgres substrate components including PostgresConfig, PostgresSubstrate",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

@@ -43,6 +43,7 @@ from memory.ingestion import ingest_packet
 
 logger = structlog.get_logger(__name__)
 
+
 async def smoke_test() -> dict[str, any]:
     """
     Run smoke test to verify memory system.
@@ -130,6 +131,7 @@ async def smoke_test() -> dict[str, any]:
 
     return results
 
+
 async def main():
     """Main entrypoint for smoke test."""
     results = await smoke_test()
@@ -153,6 +155,7 @@ async def main():
     # Exit with error code if tests failed
     sys.exit(0 if results["status"] == "passed" else 1)
 
+
 if __name__ == "__main__":
     asyncio.run(main())
 
@@ -165,7 +168,16 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.ingestion", "memory.substrate_service"],
-    "tags": ["async", "learning", "logging", "memory-substrate", "messaging", "migration", "service", "testing"],
+    "tags": [
+        "async",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "migration",
+        "service",
+        "testing",
+    ],
     "keywords": ["memory", "service", "smoke", "test", "verify"],
     "business_value": "Migrations applied Memory service initialized Packet ingestion works Data appears in store",
     "last_modified": "2026-01-14T13:21:36Z",

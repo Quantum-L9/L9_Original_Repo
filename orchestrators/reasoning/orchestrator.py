@@ -237,6 +237,7 @@ class ReasoningOrchestrator(IReasoningOrchestrator):
 
         return result.model_dump()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -246,8 +247,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "event-driven", "intelligence", "logging", "messaging", "orchestration", "rest-api", "service", "tracing"],
-    "keywords": ["execute", "forest", "implementation", "orchestrator", "reasoning", "thought", "tree"],
+    "tags": [
+        "async",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+        "orchestration",
+        "rest-api",
+        "service",
+        "tracing",
+    ],
+    "keywords": [
+        "execute",
+        "forest",
+        "implementation",
+        "orchestrator",
+        "reasoning",
+        "thought",
+        "tree",
+    ],
     "business_value": "Implements chain-of-thought, tree-of-thought, and forest reasoning patterns.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

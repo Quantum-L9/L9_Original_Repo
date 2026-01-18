@@ -196,6 +196,7 @@ async def bind_tools_and_capabilities(
         logger.error("Failed to bind tools", error=str(e))
         raise RuntimeError(f"Tool binding failed: {e}")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -204,9 +205,31 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.tools.registry_adapter", "memory.graph_client", "memory.substrate_service"],
-    "tags": ["agent-execution", "api", "async", "dataclass", "debugging", "foundation", "logging", "testing"],
-    "keywords": ["agent", "bind", "capabilities", "definition", "governance", "phase", "tool", "tools"],
+    "dependencies": [
+        "core.tools.registry_adapter",
+        "memory.graph_client",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "dataclass",
+        "debugging",
+        "foundation",
+        "logging",
+        "testing",
+    ],
+    "keywords": [
+        "agent",
+        "bind",
+        "capabilities",
+        "definition",
+        "governance",
+        "phase",
+        "tool",
+        "tools",
+    ],
     "business_value": "Implements ToolDefinition for phase 5 bind tools functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -33,7 +33,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "Redis"],
         "memory_layers": [],
-        "imported_by": ["memory.__init__", "memory.warming_service", "tests.memory.test_predictive_warming"],
+        "imported_by": [
+            "memory.__init__",
+            "memory.warming_service",
+            "tests.memory.test_predictive_warming",
+        ],
     },
 }
 # ============================================================================
@@ -587,6 +591,7 @@ class PredictiveCache:
         self.l1_cache.clear()
         logger.info("cache_shutdown_complete")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -595,9 +600,33 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.decorators", "memory.warming_models", "runtime.redis_client"],
-    "tags": ["async", "batch-processing", "cache", "debugging", "graph-db", "learning", "logging", "memory-substrate", "metrics", "service"],
-    "keywords": ["cache", "cached", "clear", "entities", "entity", "expired", "initialize", "memory"],
+    "dependencies": [
+        "core.decorators",
+        "memory.warming_models",
+        "runtime.redis_client",
+    ],
+    "tags": [
+        "async",
+        "batch-processing",
+        "cache",
+        "debugging",
+        "graph-db",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "metrics",
+        "service",
+    ],
+    "keywords": [
+        "cache",
+        "cached",
+        "clear",
+        "entities",
+        "entity",
+        "expired",
+        "initialize",
+        "memory",
+    ],
     "business_value": "Implements PredictiveCache for predictive cache functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

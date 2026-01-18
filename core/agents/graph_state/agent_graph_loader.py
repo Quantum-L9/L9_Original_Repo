@@ -344,7 +344,7 @@ __dora_footer__ = {
     "dependencies": [],
     "tags": ["agent-execution", "async", "auth", "caching", "dataclass", "debugging", "foundation", "graph-db", "loader", "logging"],
     "keywords": ["agent", "approval", "cache", "critical", "directive", "directives", "exists", "graph"],
-    "business_value": "This enables faster startup (~100-500ms vs 5-7s) and runtime state persistence. loader = AgentGraphLoader(neo4j_driver) state = await loader.load("L") Version: 1.0.0 Created: 2026-01-05",
+    "business_value": "This enables faster startup (~100-500ms vs 5-7s) and runtime state persistence. loader = AgentGraphL",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

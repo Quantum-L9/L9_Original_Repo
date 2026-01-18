@@ -26,7 +26,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["core.packet_envelope.__init__", "tests.upgrades.test_packet_envelope_phases"],
+        "imported_by": [
+            "core.packet_envelope.__init__",
+            "tests.upgrades.test_packet_envelope_phases",
+        ],
     },
 }
 # ============================================================================
@@ -433,6 +436,7 @@ async def validate_deployment() -> Dict[str, Any]:
 
     return validation_results
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -441,9 +445,35 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.decorators", "core.packet_envelope.governance", "core.packet_envelope.observability", "core.packet_envelope.scalability", "core.packet_envelope.standardization"],
-    "tags": ["adapter-pattern", "api", "async", "batch-processing", "data-models", "dataclass", "engine", "event-driven", "foundation", "metrics"],
-    "keywords": ["activate", "adapter", "all", "cloudevent", "deployment", "engine", "envelope", "governance"],
+    "dependencies": [
+        "core.decorators",
+        "core.packet_envelope.governance",
+        "core.packet_envelope.observability",
+        "core.packet_envelope.scalability",
+        "core.packet_envelope.standardization",
+    ],
+    "tags": [
+        "adapter-pattern",
+        "api",
+        "async",
+        "batch-processing",
+        "data-models",
+        "dataclass",
+        "engine",
+        "event-driven",
+        "foundation",
+        "metrics",
+    ],
+    "keywords": [
+        "activate",
+        "adapter",
+        "all",
+        "cloudevent",
+        "deployment",
+        "engine",
+        "envelope",
+        "governance",
+    ],
     "business_value": "• Observability → Standardization • Standardization → Scalability • Scalability → Governance Maintains backward compatibility with existing PacketEnvelope.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -30,7 +30,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["core.singleton_registry", "services.research.__init__", "services.research.graph_runtime", "services.research.research_graph", "tests.test_memory_adapter"],
+        "imported_by": [
+            "core.singleton_registry",
+            "services.research.__init__",
+            "services.research.graph_runtime",
+            "services.research.research_graph",
+            "tests.test_memory_adapter",
+        ],
     },
 }
 # ============================================================================
@@ -391,6 +397,7 @@ def init_memory_adapter(repository: SubstrateRepository) -> ResearchMemoryAdapte
     _adapter = ResearchMemoryAdapter(repository)
     return _adapter
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -399,9 +406,33 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.schemas", "memory.substrate_models", "memory.substrate_repository"],
-    "tags": ["adapter", "adapter-pattern", "async", "debugging", "event-driven", "logging", "messaging", "operations", "research-services", "tracing"],
-    "keywords": ["adapter", "checkpoint", "envelope", "event", "factory", "load", "log", "memory"],
+    "dependencies": [
+        "core.schemas",
+        "memory.substrate_models",
+        "memory.substrate_repository",
+    ],
+    "tags": [
+        "adapter",
+        "adapter-pattern",
+        "async",
+        "debugging",
+        "event-driven",
+        "logging",
+        "messaging",
+        "operations",
+        "research-services",
+        "tracing",
+    ],
+    "keywords": [
+        "adapter",
+        "checkpoint",
+        "envelope",
+        "event",
+        "factory",
+        "load",
+        "log",
+        "memory",
+    ],
     "business_value": "Implements ResearchMemoryAdapter for memory adapter functionality",
     "last_modified": "2026-01-14T13:21:46Z",
     "modified_by": "L9_Codegen_Engine",

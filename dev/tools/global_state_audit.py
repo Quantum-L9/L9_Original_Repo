@@ -43,6 +43,7 @@ from typing import List, Tuple
 logger = structlog.get_logger(__name__)
 ROOT = Path(__file__).resolve().parents[2]
 
+
 def iter_python_files() -> List[Path]:
     ignored = {"tests", ".venv", "venv", "migrations", "private"}
     files: List[Path] = []
@@ -54,6 +55,7 @@ def iter_python_files() -> List[Path]:
             continue
         files.append(path)
     return files
+
 
 class GlobalStateVisitor(ast.NodeVisitor):
     def __init__(self, filename: Path):
@@ -94,6 +96,7 @@ class GlobalStateVisitor(ast.NodeVisitor):
             child.parent = node  # type: ignore[attr-defined]
             self.visit(child)
 
+
 def main():
     files = iter_python_files()
     logger.info(f"[L9 STATE AUDIT] Scanning {len(files)} Python files under {ROOT}")
@@ -126,6 +129,7 @@ def main():
         f"\n[L9 STATE AUDIT] Suspicious global state declarations: {total_hits}"
     )
 
+
 if __name__ == "__main__":
     main()
 
@@ -135,16 +139,13 @@ if __name__ == "__main__":
 __dora_footer__ = {
     # === IDENTITY ===
     "component_id": "DEV-OPER-001",
-    
     # === GOVERNANCE ===
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
     "security_classification": "internal",
-    
     # === DEPENDENCIES ===
     "dependencies": [],
-    
     # === OPERATIONAL ===
     "execution_mode": "on-demand",
     "timeout_seconds": 30,
@@ -152,7 +153,6 @@ __dora_footer__ = {
     "retry_policy": "exponential",
     "circuit_breaker_enabled": True,
     "circuit_breaker_threshold": 5,
-    
     # === OBSERVABILITY ===
     "monitoring_required": True,
     "logging_level": "info",
@@ -162,12 +162,30 @@ __dora_footer__ = {
         "availability_percent": 99.99,
         "error_rate_percent": 0.01,
     },
-    
     # === DISCOVERY ===
-    "tags": ["ast", "audit-tool", "cli", "dev", "filesystem", "logging", "migration", "operations", "scanner", "testing"],
-    "keywords": ["audit", "cache", "files", "global", "heuristic", "module", "mutable", "python"],
+    "tags": [
+        "ast",
+        "audit-tool",
+        "cli",
+        "dev",
+        "filesystem",
+        "logging",
+        "migration",
+        "operations",
+        "scanner",
+        "testing",
+    ],
+    "keywords": [
+        "audit",
+        "cache",
+        "files",
+        "global",
+        "heuristic",
+        "module",
+        "mutable",
+        "python",
+    ],
     "business_value": "This is a heuristic tool, NOT a formal guarantee. top-level assignments to dict/list/set names like STATE, CACHE, active_*, *_state, *_cache and prints their locations for manual review.",
-    
     # === CHANGE TRACKING ===
     "last_modified": "2026-01-18T02:49:50Z",
     "modified_by": "L9_Codegen_Engine",

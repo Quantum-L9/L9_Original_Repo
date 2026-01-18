@@ -24,7 +24,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["agents.cursor.integrations.cursor_executor", "api.server", "memory.checkpoint.__init__", "tests.integration.test_cursor_langgraph_integration"],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_executor",
+            "api.server",
+            "memory.checkpoint.__init__",
+            "tests.integration.test_cursor_langgraph_integration",
+        ],
     },
 }
 # ============================================================================
@@ -42,7 +47,7 @@ logger = structlog.get_logger(__name__)
 class CursorCheckpointManager:
     """
     Dual checkpoint manager per Decision 3 + Decision 6.
-    
+
     Priority (Decision 6):
     1. PostgresSaver (LangGraph-native)
     2. PacketEnvelope (L9 substrate fallback)
@@ -55,7 +60,7 @@ class CursorCheckpointManager:
     ):
         """
         Initialize checkpoint manager.
-        
+
         Args:
             postgres_saver: L9PostgresSaver for LangGraph-native checkpoints
             memory_gateway: CursorMemoryGateway for PacketEnvelope checkpoints
@@ -71,11 +76,11 @@ class CursorCheckpointManager:
     ) -> Dict[str, Any]:
         """
         Save dual checkpoint per Decision 3.
-        
+
         Args:
             thread_id: Thread identifier
             state: CursorAgentState to checkpoint
-            
+
         Returns:
             Dict with checkpoint_id, packet_id, source
         """
@@ -83,7 +88,7 @@ class CursorCheckpointManager:
 
         # 1. Save to PostgresSaver (LangGraph-native)
         config = {"configurable": {"thread_id": thread_id}}
-        
+
         # Convert state to checkpoint format
         checkpoint_data = state.model_dump() if hasattr(state, "model_dump") else state
         metadata = {}
@@ -130,14 +135,14 @@ class CursorCheckpointManager:
     ) -> Optional[CursorAgentState]:
         """
         Restore checkpoint per Decision 6 priority.
-        
+
         Priority:
         1. PostgresSaver (if present)
         2. PacketEnvelope (fallback)
-        
+
         Args:
             thread_id: Thread identifier
-            
+
         Returns:
             CursorAgentState if found, None otherwise
         """
@@ -175,6 +180,7 @@ class CursorCheckpointManager:
         logger.warning("No checkpoint found", thread_id=thread_id)
         return None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -183,7 +189,11 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["agents.cursor.integrations.cursor_gateway", "agents.cursor.integrations.cursor_langgraph", "memory.checkpoint.postgres_saver"],
+    "dependencies": [
+        "agents.cursor.integrations.cursor_gateway",
+        "agents.cursor.integrations.cursor_langgraph",
+        "memory.checkpoint.postgres_saver",
+    ],
     "tags": ["async", "learning", "logging", "memory-substrate", "rest-api", "service"],
     "keywords": ["checkpoint", "cursor", "decision", "manager", "restore"],
     "business_value": "Implements Decision 3 + Decision 6 from design clarifications.",

@@ -34,6 +34,7 @@ import re
 
 SUBSYSTEMS = ["agents", "memory", "tools", "api"]
 
+
 def validate_readme_sections(subsystem: str) -> bool:
     """Validate README.md has all required sections from meta."""
     meta_file = Path(f"l9/core/{subsystem}/README.meta.yaml")
@@ -69,12 +70,14 @@ def validate_readme_sections(subsystem: str) -> bool:
     print(f"✅ {subsystem}: All required sections present")
     return True
 
+
 def main():
     results = [validate_readme_sections(s) for s in SUBSYSTEMS]
     if not all(results):
         sys.exit(1)
     print("\n✨ All README.md files match metadata!")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

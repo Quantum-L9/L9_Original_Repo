@@ -391,6 +391,7 @@ class MemoryConsolidationService:
         """Get consolidation metrics"""
         return self.metrics
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -400,8 +401,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.agents.graph_state", "memory.substrate_service"],
-    "tags": ["async", "data-models", "dataclass", "foundation", "graph-db", "logging", "metrics", "service"],
-    "keywords": ["archival", "consolidate", "consolidation", "evict", "fault", "graph", "handler", "load"],
+    "tags": [
+        "async",
+        "data-models",
+        "dataclass",
+        "foundation",
+        "graph-db",
+        "logging",
+        "metrics",
+        "service",
+    ],
+    "keywords": [
+        "archival",
+        "consolidate",
+        "consolidation",
+        "evict",
+        "fault",
+        "graph",
+        "handler",
+        "load",
+    ],
     "business_value": "Provides virtual context components including MemoryTier, Memory, Context",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

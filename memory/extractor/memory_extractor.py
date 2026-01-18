@@ -161,6 +161,7 @@ class MemoryExtractor(BaseExtractor):
 
         return sops
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -170,8 +171,23 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["collector", "filesystem", "learning", "memory-substrate", "serialization"],
-    "keywords": ["directives", "entries", "extract", "extractor", "json", "lessons", "memory", "sops"],
+    "tags": [
+        "collector",
+        "filesystem",
+        "learning",
+        "memory-substrate",
+        "serialization",
+    ],
+    "keywords": [
+        "directives",
+        "entries",
+        "extract",
+        "extractor",
+        "json",
+        "lessons",
+        "memory",
+        "sops",
+    ],
     "business_value": "Implements MemoryExtractor for memory extractor functionality",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

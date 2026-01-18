@@ -463,6 +463,7 @@ class OutcomeEvaluator:
         self._pass_threshold = pass_threshold
         self._conditional_threshold = conditional_threshold
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -472,8 +473,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["batch-processing", "data-models", "dataclass", "learning", "logging", "metrics"],
-    "keywords": ["create", "criteria", "criterion", "default", "evaluate", "evaluation", "evaluator", "multiple"],
+    "tags": [
+        "batch-processing",
+        "data-models",
+        "dataclass",
+        "learning",
+        "logging",
+        "metrics",
+    ],
+    "keywords": [
+        "create",
+        "criteria",
+        "criterion",
+        "default",
+        "evaluate",
+        "evaluation",
+        "evaluator",
+        "multiple",
+    ],
     "business_value": "Multi-criteria evaluation Weighted scoring Pass/fail determination Detailed feedback",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

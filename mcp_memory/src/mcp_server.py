@@ -1054,6 +1054,7 @@ async def handle_tool_call(
 
         raise
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1063,7 +1064,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.memory.cache", "api.memory.graph"],
-    "tags": ["api", "async", "cache", "caching", "data-models", "debugging", "graph-db", "integration", "logging", "messaging"],
+    "tags": [
+        "api",
+        "async",
+        "cache",
+        "caching",
+        "data-models",
+        "debugging",
+        "graph-db",
+        "integration",
+        "logging",
+        "messaging",
+    ],
     "keywords": ["handle", "mcp", "server", "tool", "tools"],
     "business_value": "Provides mcp server components including MCPTool, MCPToolCall",
     "last_modified": "2026-01-17T23:47:56Z",

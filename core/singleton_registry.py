@@ -17,7 +17,7 @@ Features:
 - ✅ Production Logging: Structured logging with error tracking
 
 Registered Singletons:
-- Core Infrastructure: redis_client, neo4j_client, memory_substrate_repository, 
+- Core Infrastructure: redis_client, neo4j_client, memory_substrate_repository,
   memory_substrate_service, tool_registry, ws_orchestrator, mcp_client
 - Memory Pipelines: ingestion_pipeline, retrieval_pipeline, insight_extraction_pipeline,
   housekeeping_engine, query_classifier
@@ -30,24 +30,24 @@ Registered Singletons:
 
 Usage:
     from core.singleton_registry import get_singleton_registry
-    
+
     registry = get_singleton_registry()
-    
+
     # Get singleton (sync)
     redis = registry.get("redis_client")
-    
+
     # Get singleton (async)
     neo4j = await registry.get_async("neo4j_client")
-    
+
     # Health check
     health = registry.get_health_status()
-    
+
     # Validate dependencies
     valid, missing = registry.validate_dependencies("memory_substrate_service")
-    
+
     # Get by category
     memory_singletons = registry.get_by_category("memory")
-    
+
     # Close all (for shutdown)
     await registry.close_all_async()
 
@@ -90,6 +90,7 @@ logger = structlog.get_logger(__name__)
 
 class SingletonLifecycle(str, Enum):
     """Singleton initialization lifecycle."""
+
     STARTUP = "startup"  # Initialized at application startup
     LAZY = "lazy"  # Initialized on first access
     MANUAL = "manual"  # Must be initialized explicitly
@@ -98,6 +99,7 @@ class SingletonLifecycle(str, Enum):
 @dataclass
 class SingletonEntry:
     """Registry entry for a singleton instance."""
+
     name: str
     module_path: str
     instance: Optional[Any] = None
@@ -120,7 +122,7 @@ class SingletonEntry:
 class SingletonRegistry:
     """
     Centralized registry for L9 singleton instances.
-    
+
     Tracks all singletons, their lifecycle, and dependencies.
     """
 
@@ -141,7 +143,7 @@ class SingletonRegistry:
     ) -> None:
         """
         Register a singleton in the registry.
-        
+
         Args:
             name: Unique name for the singleton (e.g., "redis_client")
             module_path: Module path (e.g., "runtime.redis_client")
@@ -153,7 +155,7 @@ class SingletonRegistry:
         """
         if name in self._singletons:
             logger.warning(f"Singleton {name} already registered, updating entry")
-        
+
         self._singletons[name] = SingletonEntry(
             name=name,
             module_path=module_path,
@@ -163,19 +165,19 @@ class SingletonRegistry:
             dependencies=dependencies or [],
             description=description,
         )
-        
+
         logger.debug(f"Registered singleton: {name} ({module_path})")
 
     def get(self, name: str) -> Optional[Any]:
         """
         Get singleton instance by name (sync version).
-        
+
         Args:
             name: Singleton name
-            
+
         Returns:
             Instance if found and initialized, None otherwise
-            
+
         Note:
             For async getters, use get_async() instead.
         """
@@ -183,7 +185,7 @@ class SingletonRegistry:
         if not entry:
             logger.warning(f"Singleton {name} not found in registry")
             return None
-        
+
         # If not initialized and getter exists, try to initialize
         if not entry.is_initialized() and entry.getter:
             try:
@@ -193,7 +195,7 @@ class SingletonRegistry:
                         f"Singleton {name} has async getter, use get_async() instead"
                     )
                     return None
-                
+
                 entry.instance = entry.getter()
                 if entry.instance:
                     entry.initialized_at = datetime.utcnow()
@@ -201,18 +203,20 @@ class SingletonRegistry:
                         self._initialization_order.append(name)
                     logger.debug(f"Initialized singleton: {name}")
             except Exception as e:
-                logger.error(f"Failed to initialize singleton {name}: {e}", exc_info=True)
+                logger.error(
+                    f"Failed to initialize singleton {name}: {e}", exc_info=True
+                )
                 return None
-        
+
         return entry.instance
 
     async def get_async(self, name: str) -> Optional[Any]:
         """
         Get singleton instance by name (async version).
-        
+
         Args:
             name: Singleton name
-            
+
         Returns:
             Instance if found and initialized, None otherwise
         """
@@ -220,7 +224,7 @@ class SingletonRegistry:
         if not entry:
             logger.warning(f"Singleton {name} not found in registry")
             return None
-        
+
         # If not initialized and getter exists, try to initialize
         if not entry.is_initialized() and entry.getter:
             try:
@@ -229,25 +233,27 @@ class SingletonRegistry:
                     entry.instance = await entry.getter()
                 else:
                     entry.instance = entry.getter()
-                
+
                 if entry.instance:
                     entry.initialized_at = datetime.utcnow()
                     if name not in self._initialization_order:
                         self._initialization_order.append(name)
                     logger.debug(f"Initialized singleton: {name}")
             except Exception as e:
-                logger.error(f"Failed to initialize singleton {name}: {e}", exc_info=True)
+                logger.error(
+                    f"Failed to initialize singleton {name}: {e}", exc_info=True
+                )
                 return None
-        
+
         return entry.instance
 
     def close(self, name: str) -> bool:
         """
         Close/cleanup a singleton.
-        
+
         Args:
             name: Singleton name
-            
+
         Returns:
             True if closed successfully, False otherwise
         """
@@ -255,26 +261,28 @@ class SingletonRegistry:
         if not entry:
             logger.warning(f"Singleton {name} not found in registry")
             return False
-        
+
         if not entry.is_initialized():
             logger.debug(f"Singleton {name} not initialized, nothing to close")
             return True
-        
+
         try:
             if entry.closer:
                 # Handle both sync and async closers
                 if asyncio.iscoroutinefunction(entry.closer):
                     # For async, we'd need to await - this is a limitation
-                    logger.warning(f"Singleton {name} has async closer, use close_async()")
+                    logger.warning(
+                        f"Singleton {name} has async closer, use close_async()"
+                    )
                     return False
                 else:
                     entry.closer()
-            
+
             entry.instance = None
             entry.initialized_at = None
             if name in self._initialization_order:
                 self._initialization_order.remove(name)
-            
+
             logger.debug(f"Closed singleton: {name}")
             return True
         except Exception as e:
@@ -284,10 +292,10 @@ class SingletonRegistry:
     async def close_async(self, name: str) -> bool:
         """
         Close/cleanup a singleton (async version).
-        
+
         Args:
             name: Singleton name
-            
+
         Returns:
             True if closed successfully, False otherwise
         """
@@ -295,23 +303,23 @@ class SingletonRegistry:
         if not entry:
             logger.warning(f"Singleton {name} not found in registry")
             return False
-        
+
         if not entry.is_initialized():
             logger.debug(f"Singleton {name} not initialized, nothing to close")
             return True
-        
+
         try:
             if entry.closer:
                 if asyncio.iscoroutinefunction(entry.closer):
                     await entry.closer()
                 else:
                     entry.closer()
-            
+
             entry.instance = None
             entry.initialized_at = None
             if name in self._initialization_order:
                 self._initialization_order.remove(name)
-            
+
             logger.debug(f"Closed singleton: {name}")
             return True
         except Exception as e:
@@ -321,7 +329,7 @@ class SingletonRegistry:
     def close_all(self) -> Dict[str, bool]:
         """
         Close all initialized singletons (in reverse initialization order).
-        
+
         Returns:
             Dict mapping singleton names to success status
         """
@@ -334,7 +342,7 @@ class SingletonRegistry:
     async def close_all_async(self) -> Dict[str, bool]:
         """
         Close all initialized singletons (async, reverse order).
-        
+
         Returns:
             Dict mapping singleton names to success status
         """
@@ -359,7 +367,7 @@ class SingletonRegistry:
     def reset(self) -> None:
         """
         Reset registry (for testing).
-        
+
         Closes all singletons and clears initialization order.
         Does NOT unregister entries.
         """
@@ -370,17 +378,17 @@ class SingletonRegistry:
     def validate_dependencies(self, name: str) -> tuple[bool, List[str]]:
         """
         Validate that all dependencies for a singleton are satisfied.
-        
+
         Args:
             name: Singleton name to validate
-            
+
         Returns:
             Tuple of (all_satisfied, missing_dependencies)
         """
         entry = self._singletons.get(name)
         if not entry:
             return False, []
-        
+
         missing = []
         for dep_name in entry.dependencies:
             dep_entry = self._singletons.get(dep_name)
@@ -388,19 +396,19 @@ class SingletonRegistry:
                 missing.append(f"{dep_name} (not registered)")
             elif not dep_entry.is_initialized():
                 missing.append(f"{dep_name} (not initialized)")
-        
+
         return len(missing) == 0, missing
 
     def get_by_category(self, category: str) -> List[SingletonEntry]:
         """
         Get singletons by category (inferred from module path).
-        
-        Categories: core, memory, world_model, clients, observability, 
+
+        Categories: core, memory, world_model, clients, observability,
                    research, agents, simulation
-        
+
         Args:
             category: Category name
-            
+
         Returns:
             List of singleton entries in that category
         """
@@ -414,34 +422,62 @@ class SingletonRegistry:
             "agents": ["agents."],
             "simulation": ["simulation.", "api.routes.simulation"],
         }
-        
+
         prefixes = category_map.get(category.lower(), [])
         return [
-            e for e in self._singletons.values()
+            e
+            for e in self._singletons.values()
             if any(e.module_path.startswith(p) for p in prefixes)
         ]
 
     def get_health_status(self) -> Dict[str, Any]:
         """
         Get health status of all singletons.
-        
+
         Returns:
             Dict with health metrics and status per singleton
         """
         total = len(self._singletons)
         initialized = len(self.list_initialized())
-        startup = len([e for e in self._singletons.values() if e.lifecycle == SingletonLifecycle.STARTUP])
-        lazy = len([e for e in self._singletons.values() if e.lifecycle == SingletonLifecycle.LAZY])
-        manual = len([e for e in self._singletons.values() if e.lifecycle == SingletonLifecycle.MANUAL])
-        
+        startup = len(
+            [
+                e
+                for e in self._singletons.values()
+                if e.lifecycle == SingletonLifecycle.STARTUP
+            ]
+        )
+        lazy = len(
+            [
+                e
+                for e in self._singletons.values()
+                if e.lifecycle == SingletonLifecycle.LAZY
+            ]
+        )
+        manual = len(
+            [
+                e
+                for e in self._singletons.values()
+                if e.lifecycle == SingletonLifecycle.MANUAL
+            ]
+        )
+
         status_by_category = {}
-        for category in ["core", "memory", "world_model", "clients", "observability", "research", "agents", "simulation"]:
+        for category in [
+            "core",
+            "memory",
+            "world_model",
+            "clients",
+            "observability",
+            "research",
+            "agents",
+            "simulation",
+        ]:
             entries = self.get_by_category(category)
             status_by_category[category] = {
                 "total": len(entries),
                 "initialized": len([e for e in entries if e.is_initialized()]),
             }
-        
+
         return {
             "total_singletons": total,
             "initialized": initialized,
@@ -458,7 +494,7 @@ class SingletonRegistry:
     def get_dependency_graph(self) -> Dict[str, List[str]]:
         """
         Get dependency graph for all singletons.
-        
+
         Returns:
             Dict mapping singleton names to their dependencies
         """
@@ -488,7 +524,7 @@ def get_singleton_registry() -> SingletonRegistry:
 def _register_core_singletons(registry: SingletonRegistry) -> None:
     """
     Register ALL L9 singletons across the entire codebase.
-    
+
     Enterprise-grade production registry with comprehensive coverage:
     - Core Infrastructure (Redis, Neo4j, Memory, Tools, WebSocket)
     - Memory Pipelines (Ingestion, Retrieval, Insight, Housekeeping)
@@ -498,20 +534,20 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     - Research Services (Adapter, Resolver, Runtime, Settings)
     - Agents (Cursor Memory Kernel)
     - Simulation (Engine)
-    
+
     This function uses lazy imports to avoid circular dependencies.
     All singletons are registered with proper lifecycle, dependencies, and descriptions.
     """
     registered_count = 0
-    
+
     # =============================================================================
     # Core Infrastructure Singletons
     # =============================================================================
-    
+
     # Redis Client (async getter)
     try:
         from runtime.redis_client import get_redis_client, close_redis_client
-        
+
         # Note: get_redis_client is async, but we register it directly
         # Callers should use registry.get_async() for async getters
         registry.register(
@@ -529,7 +565,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Neo4j Graph Client (async getter)
     try:
         from memory.graph_client import get_neo4j_client, close_neo4j_client
-        
+
         # Note: get_neo4j_client is async, but we register it directly
         # Callers should use registry.get_async() for async getters
         registry.register(
@@ -547,6 +583,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Memory Substrate Repository
     try:
         from memory.substrate_repository import get_repository, close_repository
+
         registry.register(
             name="memory_substrate_repository",
             module_path="memory.substrate_repository",
@@ -563,7 +600,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Memory Substrate Service (async getter)
     try:
         from memory.substrate_service import get_service, close_service
-        
+
         # Note: get_service is async, but we register it directly
         # Callers should use registry.get_async() for async getters
         registry.register(
@@ -582,6 +619,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Tool Registry
     try:
         from core.tools.base_registry import get_tool_registry
+
         registry.register(
             name="tool_registry",
             module_path="core.tools.base_registry",
@@ -597,17 +635,17 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # WebSocket Orchestrator (module-level singleton, needs wrapper)
     try:
         from runtime.websocket_orchestrator import ws_orchestrator
-        
+
         def get_ws_orchestrator():
             return ws_orchestrator
-        
+
         def close_ws_orchestrator():
             # WebSocket orchestrator doesn't have explicit close, but we can clear connections
-            if hasattr(ws_orchestrator, '_connections'):
+            if hasattr(ws_orchestrator, "_connections"):
                 ws_orchestrator._connections.clear()
                 ws_orchestrator._metadata.clear()
                 ws_orchestrator._connected_at.clear()
-        
+
         registry.register(
             name="ws_orchestrator",
             module_path="runtime.websocket_orchestrator",
@@ -623,6 +661,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # MCP Client
     try:
         from runtime.mcp_client import get_mcp_client
+
         registry.register(
             name="mcp_client",
             module_path="runtime.mcp_client",
@@ -642,6 +681,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Ingestion Pipeline
     try:
         from memory.ingestion import get_ingestion_pipeline
+
         registry.register(
             name="ingestion_pipeline",
             module_path="memory.ingestion",
@@ -658,6 +698,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Retrieval Pipeline
     try:
         from memory.retrieval import get_retrieval_pipeline
+
         registry.register(
             name="retrieval_pipeline",
             module_path="memory.retrieval",
@@ -674,6 +715,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Insight Extraction Pipeline
     try:
         from memory.insight_extraction import get_insight_pipeline
+
         registry.register(
             name="insight_extraction_pipeline",
             module_path="memory.insight_extraction",
@@ -690,6 +732,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Housekeeping Engine
     try:
         from memory.housekeeping import get_housekeeping_engine
+
         registry.register(
             name="housekeeping_engine",
             module_path="memory.housekeeping",
@@ -706,6 +749,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Query Classifier
     try:
         from memory.query_classifier import get_query_classifier
+
         registry.register(
             name="query_classifier",
             module_path="memory.query_classifier",
@@ -725,6 +769,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # World Model Repository
     try:
         from world_model.repository import get_world_model_repository
+
         registry.register(
             name="world_model_repository",
             module_path="world_model.repository",
@@ -740,7 +785,11 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
 
     # World Model Service
     try:
-        from world_model.service import get_world_model_service, close_world_model_service
+        from world_model.service import (
+            get_world_model_service,
+            close_world_model_service,
+        )
+
         registry.register(
             name="world_model_service",
             module_path="world_model.service",
@@ -757,10 +806,10 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # World Model Engine
     try:
         from world_model.engine import get_world_model_engine, reset_world_model_engine
-        
+
         def close_world_model_engine():
             reset_world_model_engine()
-        
+
         registry.register(
             name="world_model_engine",
             module_path="world_model.engine",
@@ -781,6 +830,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Memory Client
     try:
         from clients.memory_client import get_memory_client, close_memory_client
+
         registry.register(
             name="memory_client",
             module_path="clients.memory_client",
@@ -795,7 +845,11 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
 
     # World Model Client
     try:
-        from clients.world_model_client import get_world_model_client, close_world_model_client
+        from clients.world_model_client import (
+            get_world_model_client,
+            close_world_model_client,
+        )
+
         registry.register(
             name="world_model_client",
             module_path="clients.world_model_client",
@@ -815,6 +869,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Observability Service
     try:
         from core.observability.service import get_observability_service
+
         registry.register(
             name="observability_service",
             module_path="core.observability.service",
@@ -831,6 +886,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Jaeger Exporter
     try:
         from core.observability.jaeger_exporter import get_jaeger_exporter
+
         registry.register(
             name="jaeger_exporter",
             module_path="core.observability.jaeger_exporter",
@@ -847,6 +903,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Prometheus Exporter
     try:
         from core.observability.prometheus_exporter import get_exporter
+
         registry.register(
             name="prometheus_exporter",
             module_path="core.observability.prometheus_exporter",
@@ -867,6 +924,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Research Memory Adapter
     try:
         from services.research.memory_adapter import get_memory_adapter
+
         registry.register(
             name="research_memory_adapter",
             module_path="services.research.memory_adapter",
@@ -883,6 +941,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Tool Resolver
     try:
         from services.research.tools.tool_resolver import get_tool_resolver
+
         registry.register(
             name="tool_resolver",
             module_path="services.research.tools.tool_resolver",
@@ -899,6 +958,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Research Graph Runtime
     try:
         from services.research.graph_runtime import get_runtime, shutdown_runtime
+
         registry.register(
             name="research_graph_runtime",
             module_path="services.research.graph_runtime",
@@ -914,11 +974,14 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
 
     # Research Settings
     try:
-        from config.research_settings import get_research_settings, reset_research_settings
-        
+        from config.research_settings import (
+            get_research_settings,
+            reset_research_settings,
+        )
+
         def close_research_settings():
             reset_research_settings()
-        
+
         registry.register(
             name="research_settings",
             module_path="config.research_settings",
@@ -937,15 +1000,18 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
 
     # Cursor Memory Kernel
     try:
-        from agents.cursor.cursor_memory_kernel import create_cursor_memory_kernel, get_active_kernel
-        
+        from agents.cursor.cursor_memory_kernel import (
+            create_cursor_memory_kernel,
+            get_active_kernel,
+        )
+
         def get_cursor_memory_kernel():
             # Try to get active kernel first, fallback to creating new one
             kernel = get_active_kernel()
             if kernel is None:
                 kernel = create_cursor_memory_kernel()
             return kernel
-        
+
         registry.register(
             name="cursor_memory_kernel",
             module_path="agents.cursor.cursor_memory_kernel",
@@ -965,7 +1031,7 @@ def _register_core_singletons(registry: SingletonRegistry) -> None:
     # Simulation Engine (private getter, needs wrapper)
     try:
         from api.routes.simulation import _get_engine
-        
+
         registry.register(
             name="simulation_engine",
             module_path="api.routes.simulation",
@@ -1005,9 +1071,35 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["agents.cursor.cursor_memory_kernel", "api.routes.simulation", "core.observability.jaeger_exporter", "core.observability.prometheus_exporter", "core.observability.service"],
-    "tags": ["api", "async", "caching", "data-models", "dataclass", "debugging", "foundation", "logging", "metrics", "monitoring"],
-    "keywords": ["across", "agents", "all", "async", "await", "category", "clients", "close"],
+    "dependencies": [
+        "agents.cursor.cursor_memory_kernel",
+        "api.routes.simulation",
+        "core.observability.jaeger_exporter",
+        "core.observability.prometheus_exporter",
+        "core.observability.service",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "foundation",
+        "logging",
+        "metrics",
+        "monitoring",
+    ],
+    "keywords": [
+        "across",
+        "agents",
+        "all",
+        "async",
+        "await",
+        "category",
+        "clients",
+        "close",
+    ],
     "business_value": "Provides singleton registry components including SingletonLifecycle, SingletonEntry, SingletonRegistry",
     "last_modified": "2026-01-12T16:30:23Z",
     "modified_by": "L9_Codegen_Engine",

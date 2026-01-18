@@ -222,6 +222,7 @@ class ResearcherAgent(BaseAgent):
         summary = await self.call_llm(messages, max_tokens=2000)
         return summary.strip()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -232,7 +233,15 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["agent", "agent-execution", "async", "logging", "messaging", "operations"],
-    "keywords": ["agent", "evidence", "registry", "research", "researcher", "synthesize", "tool"],
+    "keywords": [
+        "agent",
+        "evidence",
+        "registry",
+        "research",
+        "researcher",
+        "synthesize",
+        "tool",
+    ],
     "business_value": "Implements ResearcherAgent for researcher agent functionality",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

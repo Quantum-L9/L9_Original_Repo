@@ -42,10 +42,13 @@ router = APIRouter()
 
 CHAT_URL = "http://127.0.0.1:8000/chat"
 
-def verify_twilio_signature(url: str, params: dict, signature: str, auth_token: str | None) -> bool:
+
+def verify_twilio_signature(
+    url: str, params: dict, signature: str, auth_token: str | None
+) -> bool:
     """
     Verify Twilio request signature using HMAC-SHA1 base64.
-    
+
     Twilio signs requests by:
     1. Taking the full URL
     2. Sorting POST params alphabetically and appending key=value pairs
@@ -53,18 +56,19 @@ def verify_twilio_signature(url: str, params: dict, signature: str, auth_token: 
     """
     if not auth_token:
         return False
-    
+
     # Build the signature base string: URL + sorted params
     s = url
     for key in sorted(params.keys()):
         s += f"{key}{params[key]}"
-    
+
     # Compute HMAC-SHA1 and base64 encode
     computed = base64.b64encode(
         hmac.new(auth_token.encode(), s.encode(), hashlib.sha1).digest()
     ).decode()
-    
+
     return hmac.compare_digest(computed, signature)
+
 
 @router.post("/twilio/webhook", response_class=PlainTextResponse)
 async def twilio_webhook(
@@ -80,7 +84,9 @@ async def twilio_webhook(
     form = await request.form()
     if not x_twilio_signature:
         raise HTTPException(status_code=401, detail="Missing Twilio signature")
-    if not verify_twilio_signature(str(request.url), dict(form), x_twilio_signature, TWILIO_AUTH_TOKEN):
+    if not verify_twilio_signature(
+        str(request.url), dict(form), x_twilio_signature, TWILIO_AUTH_TOKEN
+    ):
         raise HTTPException(status_code=401, detail="Invalid Twilio signature")
     from_number = form.get("From")
     body = form.get("Body")
@@ -109,6 +115,7 @@ async def twilio_webhook(
     # Twilio expects plain text for simple replies (it will wrap into SMS)
     return PlainTextResponse(reply)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -118,7 +125,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "http-client", "messaging", "operations", "router", "security"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "http-client",
+        "messaging",
+        "operations",
+        "router",
+        "security",
+    ],
     "keywords": ["signature", "twilio", "verify", "webhook"],
     "business_value": "Utility module for webhook twilio",
     "last_modified": "2026-01-12T14:26:37Z",

@@ -56,6 +56,7 @@ except ImportError:
     SLACK_FILES_BASE_DIR = os.path.expanduser("~/.l9/slack_files")
     Path(SLACK_FILES_BASE_DIR).mkdir(parents=True, exist_ok=True)
 
+
 def download_file(
     file_id: str, file_url_private: str, filename: str, mimetype: Optional[str] = None
 ) -> bytes:
@@ -103,6 +104,7 @@ def download_file(
     except httpx.HTTPError as e:
         logger.error("[SlackFiles] Failed to download file %s: %s", file_id, e)
         raise
+
 
 def save_to_disk(
     file_bytes: bytes,
@@ -182,6 +184,7 @@ def save_to_disk(
         logger.error("[SlackFiles] Failed to save file %s: %s", file_id, e)
         raise
 
+
 def build_artifact_record(
     file_id: str,
     filename: str,
@@ -236,6 +239,7 @@ def build_artifact_record(
         artifact.update(additional_metadata)
 
     return artifact
+
 
 def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -361,6 +365,7 @@ def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any
 
     return artifact
 
+
 async def get_file_info(file_id: str) -> Dict[str, Any]:
     """
     Retrieve file metadata from Slack API using files.info (async).
@@ -399,6 +404,7 @@ async def get_file_info(file_id: str) -> Dict[str, Any]:
         raise
     finally:
         await http_client.aclose()
+
 
 async def process_file_attachments(files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
@@ -442,22 +448,20 @@ async def process_file_attachments(files: List[Dict[str, Any]]) -> List[Dict[str
 
     return artifacts
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_footer__ = {
     # === IDENTITY ===
     "component_id": "SER-OPER-001",
-    
     # === GOVERNANCE ===
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
     "security_classification": "internal",
-    
     # === DEPENDENCIES ===
     "dependencies": ["api.slack_client"],
-    
     # === OPERATIONAL ===
     "execution_mode": "on-demand",
     "timeout_seconds": 30,
@@ -465,7 +469,6 @@ __dora_footer__ = {
     "retry_policy": "exponential",
     "circuit_breaker_enabled": True,
     "circuit_breaker_threshold": 5,
-    
     # === OBSERVABILITY ===
     "monitoring_required": True,
     "logging_level": "info",
@@ -475,12 +478,30 @@ __dora_footer__ = {
         "availability_percent": 99.99,
         "error_rate_percent": 0.01,
     },
-    
     # === DISCOVERY ===
-    "tags": ["api", "async", "auth", "debugging", "event-driven", "filesystem", "http-client", "llm", "logging", "messaging"],
-    "keywords": ["artifact", "attachments", "build", "disk", "download", "files", "orchestrator", "process"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "debugging",
+        "event-driven",
+        "filesystem",
+        "http-client",
+        "llm",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "artifact",
+        "attachments",
+        "build",
+        "disk",
+        "download",
+        "files",
+        "orchestrator",
+        "process",
+    ],
     "business_value": "Handles downloading, saving, and managing file attachments from Slack messages. Download files from Slack using Web API Save files to managed storage directory (~/.l9/slack_files/YYYY/MM/DD/) Create f",
-    
     # === CHANGE TRACKING ===
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

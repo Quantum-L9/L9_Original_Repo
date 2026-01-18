@@ -22,7 +22,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "OpenAI API", "Slack API"],
         "memory_layers": [],
-        "imported_by": ["_archived.legacy_slack.webhook_slack", "api.e2e_slack_audit", "api.server", "api.server_memory", "config.__init__", "mac_agent.runner", "memory.slack_ingest", "orchestrators.agent_execution.orchestrator", "services.slack_files", "tests.api.test_e2e_slack_audit"],
+        "imported_by": [
+            "_archived.legacy_slack.webhook_slack",
+            "api.e2e_slack_audit",
+            "api.server",
+            "api.server_memory",
+            "config.__init__",
+            "mac_agent.runner",
+            "memory.slack_ingest",
+            "orchestrators.agent_execution.orchestrator",
+            "services.slack_files",
+            "tests.api.test_e2e_slack_audit",
+        ],
     },
 }
 # ============================================================================
@@ -277,6 +288,7 @@ def get_slack_files_dir() -> str:
 
     return slack_files_dir
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -286,7 +298,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "auth", "caching", "configuration", "event-driven", "filesystem", "foundation", "migration", "queue", "schema"],
+    "tags": [
+        "api",
+        "auth",
+        "caching",
+        "configuration",
+        "event-driven",
+        "filesystem",
+        "foundation",
+        "migration",
+        "queue",
+        "schema",
+    ],
     "keywords": ["dir", "files", "integration", "integrations", "reset", "slack"],
     "business_value": "Provides settings components including IntegrationSettings, Config",
     "last_modified": "2026-01-17T23:47:56Z",

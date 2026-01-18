@@ -336,6 +336,7 @@ class WorldModelRegistry(IWorldModelRegistry):
 
         return registry
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -346,7 +347,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["caching", "dataclass", "learning", "queue", "rest-api", "world-model"],
-    "keywords": ["entity", "management.", "model", "register", "registry", "relation", "schema", "subtype"],
+    "keywords": [
+        "entity",
+        "management.",
+        "model",
+        "register",
+        "registry",
+        "relation",
+        "schema",
+        "subtype",
+    ],
     "business_value": "Implements WorldModelRegistry for registry functionality",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

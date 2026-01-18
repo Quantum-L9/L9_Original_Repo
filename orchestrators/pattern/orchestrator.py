@@ -624,7 +624,7 @@ __dora_footer__ = {
     "dependencies": ["core.decorators", "core.schemas", "memory.substrate_service"],
     "tags": ["async", "config", "debugging", "filesystem", "intelligence", "logging", "messaging", "metrics", "orchestration", "serialization"],
     "keywords": ["agent", "architecture", "create", "execute", "integration", "invoke", "memory", "orchestrator"],
-    "business_value": "orchestrator = PatternOrchestrator( pattern_path="config/patterns/pipeline_v1.yaml", subsystem_config_path="config/subsystems/code_mutation.yaml", ) result = await orchestrator.execute(user_prompts=["",
+    "business_value": "orchestrator = PatternOrchestrator( pattern_path=, subsystem_config_path=, ) result = await orchestr",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

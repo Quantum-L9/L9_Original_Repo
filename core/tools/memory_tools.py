@@ -434,6 +434,7 @@ async def register_memory_tools(
     logger.info(f"✓ Memory tools registered: {registered} tools")
     return registered
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -444,7 +445,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.substrate_service"],
     "tags": ["async", "data-models", "dataclass", "debugging", "foundation", "logging"],
-    "keywords": ["agent", "executor", "memory", "register", "search", "segment", "tools", "write"],
+    "keywords": [
+        "agent",
+        "executor",
+        "memory",
+        "register",
+        "search",
+        "segment",
+        "tools",
+        "write",
+    ],
     "business_value": "Provides memory_search and memory_write tools for agents to access their own memory. These are low-risk tools that do not require Igor approval.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

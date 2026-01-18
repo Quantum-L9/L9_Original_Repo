@@ -214,6 +214,7 @@ class SubstrateAlignmentChecker:
 
         return combined
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -223,8 +224,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "audit-tool", "dataclass", "event-driven", "learning", "logging", "memory-substrate"],
-    "keywords": ["aligned", "alignment", "check", "checker", "cross", "memory", "neo4j", "percentage"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "dataclass",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+    ],
+    "keywords": [
+        "aligned",
+        "alignment",
+        "check",
+        "checker",
+        "cross",
+        "memory",
+        "neo4j",
+        "percentage",
+    ],
     "business_value": "Provides substrate alignment components including AlignmentReport, SubstrateAlignmentChecker",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

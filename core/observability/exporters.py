@@ -174,6 +174,7 @@ class CompositeExporter:
                 except Exception as exc:
                     logger.error(f"Flush failed in {type(exporter).__name__}: {exc}")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -183,8 +184,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.schemas"],
-    "tags": ["api", "async", "batch-processing", "core", "debugging", "exporter", "foundation", "logging", "service", "tracing"],
-    "keywords": ["async", "composite", "console", "export", "exporter", "exporters", "flush", "span"],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "core",
+        "debugging",
+        "exporter",
+        "foundation",
+        "logging",
+        "service",
+        "tracing",
+    ],
+    "keywords": [
+        "async",
+        "composite",
+        "console",
+        "export",
+        "exporter",
+        "exporters",
+        "flush",
+        "span",
+    ],
     "business_value": "Provides exporters components including SpanExporter, AsyncSpanExporter, ConsoleExporter",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

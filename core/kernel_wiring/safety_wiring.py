@@ -27,6 +27,7 @@ __dora_meta__ = {
 
 _KERNELS = None
 
+
 def _get_kernels():
     """Lazy load kernel stack."""
     global _KERNELS
@@ -36,14 +37,17 @@ def _get_kernels():
         _KERNELS = load_kernel_stack()
     return _KERNELS
 
+
 def get_safety_policies() -> dict:
     return _get_kernels().get_kernel("safety") or {}
+
 
 def is_destructive_action(action: str) -> bool:
     destructive = (
         _get_kernels().get_rule("safety", "destructive.actions", default=[]) or []
     )
     return action in destructive
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

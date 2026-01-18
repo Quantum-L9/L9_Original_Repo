@@ -1086,6 +1086,7 @@ class CapabilityEnforcedRouter(TaskRouter):
 
         return decision
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1095,8 +1096,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas.capabilities"],
-    "tags": ["api", "auth", "batch-processing", "data-models", "dataclass", "debugging", "intelligence", "logging", "migration", "rest-api"],
-    "keywords": ["agent", "allowed", "based", "batch", "capabilities", "capability", "cell", "check"],
+    "tags": [
+        "api",
+        "auth",
+        "batch-processing",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "intelligence",
+        "logging",
+        "migration",
+        "rest-api",
+    ],
+    "keywords": [
+        "agent",
+        "allowed",
+        "based",
+        "batch",
+        "capabilities",
+        "capability",
+        "cell",
+        "check",
+    ],
     "business_value": "Provides task router components including TaskType, ExecutionTarget, TaskComplexity",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

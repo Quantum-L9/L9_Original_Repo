@@ -244,7 +244,7 @@ __dora_footer__ = {
     "dependencies": [],
     "tags": ["agent-execution", "api", "auth", "cli", "filesystem", "intelligence", "logging", "messaging", "serialization"],
     "keywords": ["cursor", "format", "neo4j", "query", "results"],
-    "business_value": "File locations Class definitions Import relationships Tool registrations python scripts/cursor_neo4j_query.py "MATCH (n:Tool) RETURN n.name LIMIT 10" python scripts/cursor_neo4j_query.py --count-nodes",
+    "business_value": "File locations Class definitions Import relationships Tool registrations python scripts/cursor_neo4j",
     "last_modified": "2026-01-14T12:10:12Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

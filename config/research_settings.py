@@ -22,7 +22,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API", "Perplexity API"],
         "memory_layers": [],
-        "imported_by": ["config.__init__", "core.singleton_registry", "services.research.agents.base_agent", "services.research.research_graph"],
+        "imported_by": [
+            "config.__init__",
+            "core.singleton_registry",
+            "services.research.agents.base_agent",
+            "services.research.research_graph",
+        ],
     },
 }
 # ============================================================================
@@ -136,6 +141,7 @@ def reset_research_settings() -> None:
     """Reset settings (useful for testing)."""
     get_research_settings.cache_clear()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -145,8 +151,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "caching", "configuration", "foundation", "schema", "testing", "validation"],
-    "keywords": ["configuration", "factory", "memory", "research", "reset", "service", "substrate"],
+    "tags": [
+        "api",
+        "caching",
+        "configuration",
+        "foundation",
+        "schema",
+        "testing",
+        "validation",
+    ],
+    "keywords": [
+        "configuration",
+        "factory",
+        "memory",
+        "research",
+        "reset",
+        "service",
+        "substrate",
+    ],
     "business_value": "Provides research settings components including ResearchSettings, Config",
     "last_modified": "2026-01-13T15:33:39Z",
     "modified_by": "L9_Codegen_Engine",

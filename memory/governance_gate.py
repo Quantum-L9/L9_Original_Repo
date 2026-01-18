@@ -31,7 +31,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["agents.cursor.integrations.cursor_gateway", "api.memory.router", "api.routes.mcp", "core.agents.bootstrap.phase_7_verify_and_lock", "mcp_memory.src.db", "mcp_memory.src.routes.memory_unified", "memory.__init__", "memory.ingestion", "memory.retrieval", "memory.substrate_repository"],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_gateway",
+            "api.memory.router",
+            "api.routes.mcp",
+            "core.agents.bootstrap.phase_7_verify_and_lock",
+            "mcp_memory.src.db",
+            "mcp_memory.src.routes.memory_unified",
+            "memory.__init__",
+            "memory.ingestion",
+            "memory.retrieval",
+            "memory.substrate_repository",
+        ],
     },
 }
 # ============================================================================
@@ -232,6 +243,7 @@ def build_scope_project_filter(
     params: list[Any] = [list(ctx.allowed_scopes), ctx.project_id]
     return clause, params, param_idx + 2
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -242,7 +254,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["core.decorators"],
     "tags": ["async", "auth", "dataclass", "learning", "memory-substrate", "rest-api"],
-    "keywords": ["build", "enforce", "ensure", "filter", "gate", "governance", "isolation", "memory"],
+    "keywords": [
+        "build",
+        "enforce",
+        "ensure",
+        "filter",
+        "gate",
+        "governance",
+        "isolation",
+        "memory",
+    ],
     "business_value": "Implements MemoryGovernanceContext for governance gate functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

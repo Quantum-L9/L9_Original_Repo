@@ -29,7 +29,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["api.routes.simulation", "runtime.l_tools", "simulation.__init__", "simulation.outcome_evaluator", "tests.simulation.test_simulation_engine", "world_model.runtime"],
+        "imported_by": [
+            "api.routes.simulation",
+            "runtime.l_tools",
+            "simulation.__init__",
+            "simulation.outcome_evaluator",
+            "tests.simulation.test_simulation_engine",
+            "world_model.runtime",
+        ],
     },
 }
 # ============================================================================
@@ -645,6 +652,7 @@ class SimulationEngine:
         """Clear all stored runs."""
         self._runs.clear()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -654,8 +662,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.schemas", "memory.substrate_service"],
-    "tags": ["api", "async", "authorization", "data-models", "dataclass", "debugging", "engine", "learning", "logging", "metrics"],
-    "keywords": ["clear", "engine", "execution", "graph", "length", "memory", "metrics", "mode"],
+    "tags": [
+        "api",
+        "async",
+        "authorization",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "engine",
+        "learning",
+        "logging",
+        "metrics",
+    ],
+    "keywords": [
+        "clear",
+        "engine",
+        "execution",
+        "graph",
+        "length",
+        "memory",
+        "metrics",
+        "mode",
+    ],
     "business_value": "Provides simulation engine components including SimulationMode, SimulationConfig, SimulationMetrics",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

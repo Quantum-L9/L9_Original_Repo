@@ -103,6 +103,7 @@ def create_mac_response(
     )
     return response.dict()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -112,7 +113,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["auth", "data-models", "messaging", "operations", "pydantic", "schema", "validation"],
+    "tags": [
+        "auth",
+        "data-models",
+        "messaging",
+        "operations",
+        "pydantic",
+        "schema",
+        "validation",
+    ],
     "keywords": ["create", "mac", "parse", "protocol"],
     "business_value": "Provides mac protocol components including MacMessage, MacResponse, Config",
     "last_modified": "2026-01-07T13:35:58Z",

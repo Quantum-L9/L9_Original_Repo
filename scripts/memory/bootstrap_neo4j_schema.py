@@ -227,6 +227,7 @@ HIGH_RISK_TOOLS = [
     "vercel_trigger_deploy",
 ]
 
+
 async def create_schema_constraints(driver: "AsyncDriver") -> int:
     """Create indexes and constraints for governance labels.
 
@@ -256,6 +257,7 @@ async def create_schema_constraints(driver: "AsyncDriver") -> int:
                     )
 
     return created
+
 
 async def create_governance_entities(
     driver: "AsyncDriver", agent_id: str = "L"
@@ -338,6 +340,7 @@ async def create_governance_entities(
 
     return stats
 
+
 async def create_kernel_entities(driver: "AsyncDriver", agent_id: str = "L") -> dict:
     """Create Kernel nodes and GOVERNED_BY relationships.
 
@@ -375,6 +378,7 @@ async def create_kernel_entities(driver: "AsyncDriver", agent_id: str = "L") -> 
 
     return stats
 
+
 async def create_tool_safety_guards(driver: "AsyncDriver") -> dict:
     """Create GUARDED_BY relationships between high-risk tools and SafetyKernel.
 
@@ -399,6 +403,7 @@ async def create_tool_safety_guards(driver: "AsyncDriver") -> dict:
                 stats["guarded_by"] += 1
 
     return stats
+
 
 async def create_agent_hierarchy(driver: "AsyncDriver") -> dict:
     """Create agent hierarchy relationships (REPORTS_TO).
@@ -437,6 +442,7 @@ async def create_agent_hierarchy(driver: "AsyncDriver") -> dict:
             stats["reports_to"] += 1
 
     return stats
+
 
 async def create_agent_collaborations(driver: "AsyncDriver") -> dict:
     """Create COLLABORATES_WITH relationships between peer agents.
@@ -489,6 +495,7 @@ async def create_agent_collaborations(driver: "AsyncDriver") -> dict:
             )
 
     return stats
+
 
 async def bootstrap_l_governance(driver: "AsyncDriver") -> dict:
     """Bootstrap L agent's complete governance graph.
@@ -571,6 +578,7 @@ async def bootstrap_l_governance(driver: "AsyncDriver") -> dict:
         logger.error("bootstrap_l_governance_failed", error=str(e))
         return {"success": False, "error": str(e)}
 
+
 async def main():
     """CLI entrypoint for standalone execution."""
     from neo4j import AsyncGraphDatabase, basic_auth
@@ -602,6 +610,7 @@ async def main():
     finally:
         await driver.close()
 
+
 if __name__ == "__main__":
     asyncio.run(main())
 
@@ -614,8 +623,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "auth", "code-quality", "event-driven", "graph-db", "logging", "memory-substrate", "operations", "service"],
-    "keywords": ["agent", "bootstrap", "collaborations", "constraints", "create", "entities", "governance", "guards"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "code-quality",
+        "event-driven",
+        "graph-db",
+        "logging",
+        "memory-substrate",
+        "operations",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "bootstrap",
+        "collaborations",
+        "constraints",
+        "create",
+        "entities",
+        "governance",
+        "guards",
+    ],
     "business_value": "Utility module for bootstrap neo4j schema",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

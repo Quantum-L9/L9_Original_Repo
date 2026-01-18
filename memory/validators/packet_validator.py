@@ -27,7 +27,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["memory.ingestion", "memory.substrate_service", "memory.validators.__init__", "tests.memory.test_ingestion_pipeline_audit", "tests.memory.test_packet_validation_v2"],
+        "imported_by": [
+            "memory.ingestion",
+            "memory.substrate_service",
+            "memory.validators.__init__",
+            "tests.memory.test_ingestion_pipeline_audit",
+            "tests.memory.test_packet_validation_v2",
+        ],
     },
 }
 # ============================================================================
@@ -119,11 +125,11 @@ class PacketValidator:
         - TTL future check
         - Confidence range check
         - Provenance validation (derive_type, source_timestamp)
-        
+
         Args:
             packet_in: PacketEnvelopeIn to validate
             strict: If True, reject unknown packet_types. If False (default), warn only.
-        
+
         Note: This is a pure function with no I/O, safe to call from async contexts.
         """
         # Structural validation via Pydantic
@@ -166,7 +172,11 @@ class PacketValidator:
 
         # Confidence score must be 0.0-1.0 (if provided)
         if packet_in.confidence:
-            score = packet_in.confidence.get("score") if isinstance(packet_in.confidence, dict) else getattr(packet_in.confidence, "score", None)
+            score = (
+                packet_in.confidence.get("score")
+                if isinstance(packet_in.confidence, dict)
+                else getattr(packet_in.confidence, "score", None)
+            )
             if score is not None and (score < 0.0 or score > 1.0):
                 raise PacketValidationError(
                     f"confidence.score must be between 0.0 and 1.0, got {score}",
@@ -186,7 +196,7 @@ class PacketValidator:
         Checks:
         - derive_type is one of: 'direct', 'inferred', 'synthesized'
         - source_timestamp is not in the future
-        
+
         Args:
             packet_in: PacketEnvelopeIn to validate
         """
@@ -194,7 +204,7 @@ class PacketValidator:
             return  # No provenance = valid (optional)
 
         provenance = packet_in.provenance
-        
+
         # Handle both dict and object access patterns
         if isinstance(provenance, dict):
             derive_type = provenance.get("derive_type")
@@ -218,7 +228,9 @@ class PacketValidator:
             # Handle string timestamps
             if isinstance(source_timestamp, str):
                 try:
-                    source_timestamp = datetime.fromisoformat(source_timestamp.replace("Z", "+00:00"))
+                    source_timestamp = datetime.fromisoformat(
+                        source_timestamp.replace("Z", "+00:00")
+                    )
                 except ValueError:
                     raise PacketValidationError(
                         f"source_timestamp must be valid ISO format, got '{source_timestamp}'",
@@ -226,7 +238,7 @@ class PacketValidator:
                         value=source_timestamp,
                         error_code="INVALID_SOURCE_TIMESTAMP_FORMAT",
                     )
-            
+
             if source_timestamp > datetime.utcnow():
                 raise PacketValidationError(
                     f"source_timestamp cannot be in the future, got {source_timestamp}",
@@ -273,6 +285,7 @@ class PacketValidator:
             "injection_markers": injection_markers,
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -282,8 +295,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.audit_utils"],
-    "tags": ["api", "error-handling", "event-driven", "exception", "learning", "logging", "messaging", "rest-api", "testing", "tracing"],
-    "keywords": ["allowed", "core", "extended", "memory", "packet", "scan", "security", "types"],
+    "tags": [
+        "api",
+        "error-handling",
+        "event-driven",
+        "exception",
+        "learning",
+        "logging",
+        "messaging",
+        "rest-api",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "allowed",
+        "core",
+        "extended",
+        "memory",
+        "packet",
+        "scan",
+        "security",
+        "types",
+    ],
     "business_value": "This is where we enforce business-level constraints above Pydantic's typing. v2.0.0: Expanded to cover all packet types used in codebase. Uses warn mode for unknown types instead of hard rejection to ",
     "last_modified": "2026-01-14T13:21:36Z",
     "modified_by": "L9_Codegen_Engine",

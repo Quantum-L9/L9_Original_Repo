@@ -37,7 +37,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": [],
-        "imported_by": ["api.server", "core.aios.__init__", "tests.core.aios.test_runtime"],
+        "imported_by": [
+            "api.server",
+            "core.aios.__init__",
+            "tests.core.aios.test_runtime",
+        ],
     },
 }
 # ============================================================================
@@ -225,7 +229,8 @@ class AIOSRuntime:
                     api_messages.append(
                         {
                             "role": "assistant",
-                            "content": msg.get("content") or "",  # Empty string, never None
+                            "content": msg.get("content")
+                            or "",  # Empty string, never None
                             "tool_calls": msg.get("tool_calls"),
                         }
                     )
@@ -302,7 +307,9 @@ class AIOSRuntime:
                     tool_request.arguments,
                 )
 
-                duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+                duration_ms = int(
+                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                )
                 logger.info(
                     "AIOS tool_call completed",
                     tool_id=tool_request.tool_id,
@@ -332,7 +339,9 @@ class AIOSRuntime:
 
         except Exception as e:
             duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
-            logger.exception("AIOS reasoning failed", error=str(e), duration_ms=duration_ms)
+            logger.exception(
+                "AIOS reasoning failed", error=str(e), duration_ms=duration_ms
+            )
             return AIOSResult.error_result(str(e))
 
     # =========================================================================
@@ -417,8 +426,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.agents.schemas"],
-    "tags": ["api", "async", "core", "engine", "foundation", "llm", "logging", "messaging", "serialization", "testing"],
-    "keywords": ["agent", "aios", "check", "create", "execute", "executor", "health", "model"],
+    "tags": [
+        "api",
+        "async",
+        "core",
+        "engine",
+        "foundation",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+        "testing",
+    ],
+    "keywords": [
+        "agent",
+        "aios",
+        "check",
+        "create",
+        "execute",
+        "executor",
+        "health",
+        "model",
+    ],
     "business_value": "The AIOS Runtime handles agent reasoning by calling the LLM with context and tools. It returns either a final response or a tool call request.",
     "last_modified": "2026-01-14T15:22:16Z",
     "modified_by": "L9_Codegen_Engine",

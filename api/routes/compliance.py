@@ -51,14 +51,14 @@ router = APIRouter(tags=["compliance"])
 
 class ComplianceReportResponse(BaseModel):
     """Compliance report response."""
-    
+
     success: bool
     report: dict[str, Any]
 
 
 class AuditLogExportResponse(BaseModel):
     """Audit log export response."""
-    
+
     success: bool
     count: int
     entries: list[dict[str, Any]]
@@ -80,17 +80,17 @@ async def get_daily_compliance_report(
 ):
     """
     Generate a daily compliance report.
-    
+
     Returns aggregated audit data for the specified date including:
     - Command counts by type
     - Tool execution counts
     - Approval/rejection counts
     - Memory write counts
     - Violation detection (unapproved high-risk calls)
-    
+
     Args:
         date: Date in YYYY-MM-DD format (defaults to today)
-        
+
     Returns:
         ComplianceReportResponse with report data
     """
@@ -104,23 +104,23 @@ async def get_daily_compliance_report(
                 status_code=400,
                 detail="Invalid date format. Use YYYY-MM-DD.",
             )
-    
+
     reporter = ComplianceReporter(substrate_service=substrate_service)
-    
+
     try:
         report = await reporter.generate_daily_report(date=report_date)
-        
+
         logger.info(
             "Daily compliance report generated",
             date=date or "today",
             report_id=str(report.report_id),
         )
-        
+
         return ComplianceReportResponse(
             success=True,
             report=report.to_dict(),
         )
-        
+
     except Exception as e:
         logger.error(f"Failed to generate daily report: {e}")
         raise HTTPException(
@@ -144,13 +144,13 @@ async def get_compliance_report(
 ):
     """
     Generate a compliance report for a date range.
-    
+
     Returns aggregated audit data for the specified period.
-    
+
     Args:
         from_date: Start date in YYYY-MM-DD format
         to_date: End date in YYYY-MM-DD format
-        
+
     Returns:
         ComplianceReportResponse with report data
     """
@@ -162,30 +162,30 @@ async def get_compliance_report(
             status_code=400,
             detail="Invalid date format. Use YYYY-MM-DD.",
         )
-    
+
     if from_dt >= to_dt:
         raise HTTPException(
             status_code=400,
             detail="from_date must be before to_date",
         )
-    
+
     reporter = ComplianceReporter(substrate_service=substrate_service)
-    
+
     try:
         report = await reporter.generate_report(from_date=from_dt, to_date=to_dt)
-        
+
         logger.info(
             "Compliance report generated",
             from_date=from_date,
             to_date=to_date,
             report_id=str(report.report_id),
         )
-        
+
         return ComplianceReportResponse(
             success=True,
             report=report.to_dict(),
         )
-        
+
     except Exception as e:
         logger.error(f"Failed to generate report: {e}")
         raise HTTPException(
@@ -213,15 +213,15 @@ async def export_audit_log(
 ):
     """
     Export raw audit log entries for a date range.
-    
+
     Returns all audit entries (commands, tool calls, approvals, memory writes)
     for the specified period.
-    
+
     Args:
         from_date: Start date in YYYY-MM-DD format
         to_date: End date in YYYY-MM-DD format
         format: Export format (json)
-        
+
     Returns:
         AuditLogExportResponse with entries
     """
@@ -233,35 +233,35 @@ async def export_audit_log(
             status_code=400,
             detail="Invalid date format. Use YYYY-MM-DD.",
         )
-    
+
     if format not in ["json"]:
         raise HTTPException(
             status_code=400,
             detail="Only 'json' format is currently supported.",
         )
-    
+
     reporter = ComplianceReporter(substrate_service=substrate_service)
-    
+
     try:
         entries = await reporter.export_audit_log(
             from_date=from_dt,
             to_date=to_dt,
             format=format,
         )
-        
+
         logger.info(
             "Audit log exported",
             from_date=from_date,
             to_date=to_date,
             count=len(entries),
         )
-        
+
         return AuditLogExportResponse(
             success=True,
             count=len(entries),
             entries=entries,
         )
-        
+
     except Exception as e:
         logger.error(f"Failed to export audit log: {e}")
         raise HTTPException(
@@ -285,8 +285,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.dependencies", "core.compliance.audit_reporter"],
-    "tags": ["api", "api-gateway", "async", "audit-tool", "endpoint", "logging", "operations", "pydantic", "rest-api", "router"],
-    "keywords": ["audit", "compliance", "daily", "endpoints", "export", "log", "report"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "audit-tool",
+        "endpoint",
+        "logging",
+        "operations",
+        "pydantic",
+        "rest-api",
+        "router",
+    ],
+    "keywords": [
+        "audit",
+        "compliance",
+        "daily",
+        "endpoints",
+        "export",
+        "log",
+        "report",
+    ],
     "business_value": "Provides compliance components including ComplianceReportResponse, AuditLogExportResponse",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

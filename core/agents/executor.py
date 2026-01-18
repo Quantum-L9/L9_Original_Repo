@@ -2403,9 +2403,18 @@ __l9_trace__ = {
     "timestamp": "2026-01-18T06:31:09.967674+00:00",
     "patterns_used": ["agent_execution", "reasoning_loop"],
     "graph": {"nodes": [], "edges": []},
-    "inputs": {"task_id": "test-456", "agent_id": "l_agent", "query": "verify replacement"},
+    "inputs": {
+        "task_id": "test-456",
+        "agent_id": "l_agent",
+        "query": "verify replacement",
+    },
     "outputs": {"status": "success", "iterations": 3},
-    "metrics": {"confidence": "0.95", "errors_detected": [], "stability_score": "1.0", "duration_ms": 250},
+    "metrics": {
+        "confidence": "0.95",
+        "errors_detected": [],
+        "stability_score": "1.0",
+        "duration_ms": 250,
+    },
 }
 # ============================================================================
 # END L9 DORA BLOCK

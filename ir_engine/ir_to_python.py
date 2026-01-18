@@ -981,6 +981,7 @@ def compile_ir_to_single(ir: ModuleIR, target_type: str) -> str:
     compiler = IRToPythonCompiler()
     return compiler.compile_single(ir, target_type)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -990,8 +991,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "api-gateway", "async", "batch-processing", "debugging", "endpoint", "event-driven", "filesystem", "intelligence", "logging"],
-    "keywords": ["check", "compile", "compiler", "expressions", "health", "normalize", "normalizer", "process"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "batch-processing",
+        "debugging",
+        "endpoint",
+        "event-driven",
+        "filesystem",
+        "intelligence",
+        "logging",
+    ],
+    "keywords": [
+        "check",
+        "compile",
+        "compiler",
+        "expressions",
+        "health",
+        "normalize",
+        "normalizer",
+        "process",
+    ],
     "business_value": "Implements IRToPythonCompiler for ir to python functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

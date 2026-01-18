@@ -371,6 +371,7 @@ def is_cross_encoder_available() -> bool:
     """Check if cross-encoder re-ranking is available."""
     return _HAS_CROSS_ENCODER
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -380,8 +381,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["batch-processing", "dataclass", "debugging", "learning", "logging", "memory-substrate", "messaging"],
-    "keywords": ["available", "create", "cross", "encoder", "memory", "model", "pattern", "rerank"],
+    "tags": [
+        "batch-processing",
+        "dataclass",
+        "debugging",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+    ],
+    "keywords": [
+        "available",
+        "create",
+        "cross",
+        "encoder",
+        "memory",
+        "model",
+        "pattern",
+        "rerank",
+    ],
     "business_value": "Implements neural re-ranking using cross-encoder models for improved retrieval quality after initial RRF fusion. Cross-encoders score (query, document) pairs jointly, producing more accurate relevance",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

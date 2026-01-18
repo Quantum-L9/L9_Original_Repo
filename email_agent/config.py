@@ -24,7 +24,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["email_agent.credentials", "email_agent.gmail_client", "email_agent.oauth_server", "email_agent.router", "scripts.setup_gmail_accounts", "tests.email_agent.test_email_router"],
+        "imported_by": [
+            "email_agent.credentials",
+            "email_agent.gmail_client",
+            "email_agent.oauth_server",
+            "email_agent.router",
+            "scripts.setup_gmail_accounts",
+            "tests.email_agent.test_email_router",
+        ],
     },
 }
 # ============================================================================
@@ -36,6 +43,7 @@ from typing import Dict, Optional
 
 # Feature flag for multi-account mode
 L9_EMAIL_MULTI_ACCOUNT = os.getenv("L9_EMAIL_MULTI_ACCOUNT", "true").lower() == "true"
+
 
 @dataclass
 class AccountConfig:
@@ -68,6 +76,7 @@ class AccountConfig:
     def attachments_dir(self) -> Path:
         """Path to attachments directory for this account."""
         return self.data_root / "attachments"
+
 
 # Multi-account registry
 ACCOUNTS: Dict[str, AccountConfig] = {
@@ -108,6 +117,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.send",
 ]
 
+
 def get_account_config(account: str) -> AccountConfig:
     """
     Get account configuration by name.
@@ -124,6 +134,7 @@ def get_account_config(account: str) -> AccountConfig:
     if account not in ACCOUNTS:
         raise ValueError(f"Unknown account: {account}. Valid: {VALID_ACCOUNTS}")
     return ACCOUNTS[account]
+
 
 def ensure_dirs(account: Optional[str] = None):
     """
@@ -158,6 +169,7 @@ def ensure_dirs(account: Optional[str] = None):
             "attachments_dir": str(ATTACHMENTS_DIR),
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -167,8 +179,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "auth", "dataclass", "email-integration", "filesystem", "integration", "security"],
-    "keywords": ["account", "agent", "attachments", "client", "configuration", "dir", "dirs", "ensure"],
+    "tags": [
+        "api",
+        "auth",
+        "dataclass",
+        "email-integration",
+        "filesystem",
+        "integration",
+        "security",
+    ],
+    "keywords": [
+        "account",
+        "agent",
+        "attachments",
+        "client",
+        "configuration",
+        "dir",
+        "dirs",
+        "ensure",
+    ],
     "business_value": "Implements AccountConfig for config functionality",
     "last_modified": "2026-01-13T13:58:04Z",
     "modified_by": "L9_Codegen_Engine",

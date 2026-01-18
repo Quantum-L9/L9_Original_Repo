@@ -490,6 +490,7 @@ class SubstrateOrchestrator:
             "redis": self.redis.get_cache_stats(),
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -499,8 +500,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["cache", "data-models", "debugging", "enum", "event-driven", "graph-db", "learning", "orchestration"],
-    "keywords": ["all", "cache", "check", "compliance", "connect", "consistency", "coordination.", "delete"],
+    "tags": [
+        "cache",
+        "data-models",
+        "debugging",
+        "enum",
+        "event-driven",
+        "graph-db",
+        "learning",
+        "orchestration",
+    ],
+    "keywords": [
+        "all",
+        "cache",
+        "check",
+        "compliance",
+        "connect",
+        "consistency",
+        "coordination.",
+        "delete",
+    ],
     "business_value": "Write-through cache (Redis → Neo4j → PostgreSQL) Read-aside cache (check Redis first) Consistency guarantees (eventual + strong) Fallback chains on failure NIST AI RMF Govern-2, Govern-3 (multi-substr",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

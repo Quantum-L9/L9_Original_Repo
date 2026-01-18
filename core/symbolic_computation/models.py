@@ -138,6 +138,7 @@ class CodeGenResult(BaseModel):
         default_factory=dict, description="Additional metadata"
     )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -147,8 +148,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["caching", "data-models", "enum", "foundation", "messaging", "pydantic", "validation"],
-    "keywords": ["backend", "computation", "expression", "gen", "language", "models", "module", "symbolic"],
+    "tags": [
+        "caching",
+        "data-models",
+        "enum",
+        "foundation",
+        "messaging",
+        "pydantic",
+        "validation",
+    ],
+    "keywords": [
+        "backend",
+        "computation",
+        "expression",
+        "gen",
+        "language",
+        "models",
+        "module",
+        "symbolic",
+    ],
     "business_value": "Provides strict input/output validation for all symbolic operations.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

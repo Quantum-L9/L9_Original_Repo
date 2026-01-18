@@ -27,7 +27,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["services.research.__init__", "services.research.graph_runtime", "tests.test_research_graph"],
+        "imported_by": [
+            "services.research.__init__",
+            "services.research.graph_runtime",
+            "tests.test_research_graph",
+        ],
     },
 }
 # ============================================================================
@@ -57,6 +61,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 # Node Implementations
 # =============================================================================
+
 
 async def planning_node(state: ResearchGraphState) -> ResearchGraphState:
     """
@@ -102,6 +107,7 @@ async def planning_node(state: ResearchGraphState) -> ResearchGraphState:
             **state,
             "errors": state.get("errors", []) + [f"Planning failed: {str(e)}"],
         }
+
 
 async def research_node(state: ResearchGraphState) -> ResearchGraphState:
     """
@@ -177,6 +183,7 @@ async def research_node(state: ResearchGraphState) -> ResearchGraphState:
             "errors": state.get("errors", []) + [f"Research failed: {str(e)}"],
         }
 
+
 async def merge_node(state: ResearchGraphState) -> ResearchGraphState:
     """
     Merge node - Synthesize evidence into summary.
@@ -206,6 +213,7 @@ async def merge_node(state: ResearchGraphState) -> ResearchGraphState:
             "final_summary": "Failed to synthesize evidence",
             "errors": state.get("errors", []) + [f"Merge failed: {str(e)}"],
         }
+
 
 async def critic_node(state: ResearchGraphState) -> ResearchGraphState:
     """
@@ -251,6 +259,7 @@ async def critic_node(state: ResearchGraphState) -> ResearchGraphState:
             "errors": state.get("errors", []) + [f"Critic failed: {str(e)}"],
         }
 
+
 async def finalize_node(state: ResearchGraphState) -> ResearchGraphState:
     """
     Finalize node - Package final output.
@@ -288,6 +297,7 @@ async def finalize_node(state: ResearchGraphState) -> ResearchGraphState:
         **state,
         "final_output": final_output,
     }
+
 
 async def store_insights_node(state: ResearchGraphState) -> ResearchGraphState:
     """
@@ -394,9 +404,11 @@ async def store_insights_node(state: ResearchGraphState) -> ResearchGraphState:
         "stored_insights": stored_insights,
     }
 
+
 # =============================================================================
 # Conditional Routing
 # =============================================================================
+
 
 def should_retry(
     state: ResearchGraphState,
@@ -424,9 +436,11 @@ def should_retry(
         logger.info(f"Proceeding to finalize: score={score:.2f}")
         return "finalize_node"
 
+
 # =============================================================================
 # Graph Builder
 # =============================================================================
+
 
 def build_research_graph() -> StateGraph:
     """
@@ -476,9 +490,11 @@ def build_research_graph() -> StateGraph:
     logger.info("Research graph compiled successfully (with store_insights node)")
     return compiled
 
+
 # =============================================================================
 # Execution Functions
 # =============================================================================
+
 
 async def run_research(
     query: str,
@@ -524,6 +540,7 @@ async def run_research(
             "thread_id": state["thread_id"],
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -533,8 +550,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "debugging", "event-driven", "logging", "operations", "research-services", "service"],
-    "keywords": ["agent", "build", "critic", "finalize", "graph", "insights", "memory", "merge"],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "logging",
+        "operations",
+        "research-services",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "build",
+        "critic",
+        "finalize",
+        "graph",
+        "insights",
+        "memory",
+        "merge",
+    ],
     "business_value": "Utility module for research graph",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

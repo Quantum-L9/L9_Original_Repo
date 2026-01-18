@@ -71,6 +71,7 @@ class IReasoningOrchestrator(Protocol):
         """Execute reasoning orchestration."""
         ...
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -80,7 +81,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "data-models", "enum", "intelligence", "messaging", "orchestration", "pydantic", "rest-api", "tracing", "validation"],
+    "tags": [
+        "async",
+        "data-models",
+        "enum",
+        "intelligence",
+        "messaging",
+        "orchestration",
+        "pydantic",
+        "rest-api",
+        "tracing",
+        "validation",
+    ],
     "keywords": ["execute", "interface", "mode", "orchestrator", "reasoning"],
     "business_value": "Provides interface components including ReasoningMode, ReasoningRequest, ReasoningResponse",
     "last_modified": "2026-01-17T23:47:56Z",

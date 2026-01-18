@@ -294,6 +294,7 @@ def list_tasks() -> List[Dict]:
             for task in sorted(_tasks.values(), key=lambda t: t.id, reverse=True)
         ]
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -303,8 +304,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.ingestion"],
-    "tags": ["dataclass", "event-driven", "filesystem", "logging", "messaging", "operations", "queue", "serialization", "services"],
-    "keywords": ["agent", "complete", "completed", "enqueue", "mac", "mark", "queue", "service"],
+    "tags": [
+        "dataclass",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "messaging",
+        "operations",
+        "queue",
+        "serialization",
+        "services",
+    ],
+    "keywords": [
+        "agent",
+        "complete",
+        "completed",
+        "enqueue",
+        "mac",
+        "mark",
+        "queue",
+        "service",
+    ],
     "business_value": "Implements MacTask for mac tasks functionality",
     "last_modified": "2026-01-14T16:22:49Z",
     "modified_by": "L9_Codegen_Engine",

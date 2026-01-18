@@ -73,6 +73,7 @@ class IActionToolOrchestrator(Protocol):
         """Execute action_tool orchestration."""
         ...
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -82,7 +83,16 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "data-models", "enum", "intelligence", "messaging", "orchestration", "pydantic", "validation"],
+    "tags": [
+        "async",
+        "data-models",
+        "enum",
+        "intelligence",
+        "messaging",
+        "orchestration",
+        "pydantic",
+        "validation",
+    ],
     "keywords": ["action", "execute", "interface", "orchestrator", "safety", "tool"],
     "business_value": "Provides interface components including ToolSafetyLevel, ActionToolRequest, ActionToolResponse",
     "last_modified": "2026-01-17T23:47:56Z",

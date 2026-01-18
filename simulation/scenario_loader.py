@@ -493,6 +493,7 @@ class ScenarioLoader:
         self._scenarios[name] = scenario
         return scenario
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -502,8 +503,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "auth", "data-models", "dataclass", "filesystem", "learning", "loader", "logging", "performance", "serialization"],
-    "keywords": ["all", "builtins", "composite", "condition", "conditions", "create", "directory", "edge"],
+    "tags": [
+        "api",
+        "auth",
+        "data-models",
+        "dataclass",
+        "filesystem",
+        "learning",
+        "loader",
+        "logging",
+        "performance",
+        "serialization",
+    ],
+    "keywords": [
+        "all",
+        "builtins",
+        "composite",
+        "condition",
+        "conditions",
+        "create",
+        "directory",
+        "edge",
+    ],
     "business_value": "Provides scenario loader components including ScenarioType, ScenarioCondition, Scenario",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

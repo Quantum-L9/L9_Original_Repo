@@ -363,6 +363,7 @@ class StrategyMemoryService(IStrategyMemoryService):
                 tags=strategy.tags,
             )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -372,8 +373,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "data-models", "debugging", "graph-db", "learning", "logging", "pydantic", "schema", "service", "testing"],
-    "keywords": ["auto", "candidate", "feedback", "memory", "module", "orchestrator", "outcome", "phase"],
+    "tags": [
+        "async",
+        "data-models",
+        "debugging",
+        "graph-db",
+        "learning",
+        "logging",
+        "pydantic",
+        "schema",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "auto",
+        "candidate",
+        "feedback",
+        "memory",
+        "module",
+        "orchestrator",
+        "outcome",
+        "phase",
+    ],
     "business_value": "Provides strategy retrieval and reuse for the PlanExecutor.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

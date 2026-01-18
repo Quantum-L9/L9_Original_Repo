@@ -557,6 +557,7 @@ def compile_contract_to_ir(contract: MetaContract) -> ModuleIR:
     compiler = MetaToIRCompiler()
     return compiler.compile(contract)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -566,8 +567,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "config", "dataclass", "filesystem", "intelligence", "ir-compilation", "logging", "metrics", "testing", "webhooks"],
-    "keywords": ["compile", "compiler", "contract", "dependency", "edge", "generation", "imports", "into"],
+    "tags": [
+        "api",
+        "config",
+        "dataclass",
+        "filesystem",
+        "intelligence",
+        "ir-compilation",
+        "logging",
+        "metrics",
+        "testing",
+        "webhooks",
+    ],
+    "keywords": [
+        "compile",
+        "compiler",
+        "contract",
+        "dependency",
+        "edge",
+        "generation",
+        "imports",
+        "into",
+    ],
     "business_value": "Provides compile meta to ir components including GenerationTarget, DependencyEdge, PacketSpec",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

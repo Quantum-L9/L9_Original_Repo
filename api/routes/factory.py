@@ -11,7 +11,14 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /health", "POST /validate", "POST /extract", "POST /extract-file", "GET /templates", "GET /templates/{template_name}"],
+        "api_endpoints": [
+            "GET /health",
+            "POST /validate",
+            "POST /extract",
+            "POST /extract-file",
+            "GET /templates",
+            "GET /templates/{template_name}",
+        ],
         "datasources": [],
         "memory_layers": [],
         "imported_by": ["api.server", "tests.api.test_factory_path_safety"],
@@ -470,6 +477,7 @@ async def shutdown():
     """Called on app shutdown."""
     logger.info("Research Factory routes shutting down")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -479,8 +487,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.security.path_safety"],
-    "tags": ["api", "api-gateway", "async", "config", "endpoint", "logging", "messaging", "operations", "pydantic", "rest-api"],
-    "keywords": ["agent", "extract", "factory", "health", "safety", "schema", "shutdown", "startup"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "config",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "rest-api",
+    ],
+    "keywords": [
+        "agent",
+        "extract",
+        "factory",
+        "health",
+        "safety",
+        "schema",
+        "shutdown",
+        "startup",
+    ],
     "business_value": "POST /factory/extract - Extract agent from schema POST /factory/validate - Validate schema without extracting GET /factory/templates - List available templates GET /factory/health - Health check Versi",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

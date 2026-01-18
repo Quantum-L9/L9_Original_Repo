@@ -245,6 +245,7 @@ class MetaOrchestrator(IMetaOrchestrator):
         confidence = min(1.0, best_score + (gap * 0.5))
         return confidence
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -255,7 +256,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["core.decorators"],
     "tags": ["async", "intelligence", "logging", "orchestration", "service"],
-    "keywords": ["blueprints", "compare", "evaluate", "implementation", "improvements", "meta", "orchestrator", "suggest"],
+    "keywords": [
+        "blueprints",
+        "compare",
+        "evaluate",
+        "implementation",
+        "improvements",
+        "meta",
+        "orchestrator",
+        "suggest",
+    ],
     "business_value": "Implements MetaOrchestrator for orchestrator functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

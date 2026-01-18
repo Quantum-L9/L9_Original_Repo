@@ -45,6 +45,7 @@ except ImportError:
     logger.info("❌ httpx not installed. Run: pip install httpx")
     sys.exit(1)
 
+
 def load_env():
     """Load API key from .env file."""
     env_path = PROJECT_ROOT / ".env"
@@ -55,10 +56,12 @@ def load_env():
                     return line.split("=", 1)[1].strip().strip('"').strip("'")
     return os.environ.get("PERPLEXITY_API_KEY")
 
+
 def load_file(path: Path) -> str:
     """Load file content."""
     with open(path) as f:
         return f.read()
+
 
 def main():
     # Load API key
@@ -200,6 +203,7 @@ Generate the complete Module-Spec v2.5 YAML now. Start immediately with 'schema_
 
         traceback.print_exc()
 
+
 if __name__ == "__main__":
     main()
 
@@ -212,7 +216,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "auth", "cli", "filesystem", "http-client", "logging", "messaging", "operations", "scripts", "serialization"],
+    "tags": [
+        "api",
+        "auth",
+        "cli",
+        "filesystem",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+        "scripts",
+        "serialization",
+    ],
     "keywords": ["env", "load", "perplexity", "send", "spec"],
     "business_value": "Utility module for send perplexity spec request",
     "last_modified": "2026-01-09T12:30:43Z",

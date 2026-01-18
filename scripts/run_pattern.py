@@ -49,6 +49,7 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
+
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
@@ -141,6 +142,7 @@ Examples:
 
     return parser.parse_args()
 
+
 def create_agent(agent_type: str, model: str):
     """Create agent based on type."""
     if agent_type == "cell":
@@ -155,6 +157,7 @@ def create_agent(agent_type: str, model: str):
 
     else:  # stub
         return None  # PatternOrchestrator will use StubAgent
+
 
 async def run_pattern(args: argparse.Namespace) -> dict:
     """Execute pattern with given arguments."""
@@ -220,6 +223,7 @@ async def run_pattern(args: argparse.Namespace) -> dict:
         "error": result.error,
     }
 
+
 def print_result(result: dict, as_json: bool):
     """Print execution result."""
     if as_json:
@@ -258,6 +262,7 @@ def print_result(result: dict, as_json: bool):
 
     print("\n" + "=" * 60)
 
+
 def main():
     """Main entry point."""
     args = parse_args()
@@ -291,6 +296,7 @@ def main():
             print(f"\n❌ Error: {e}")
         sys.exit(1)
 
+
 if __name__ == "__main__":
     main()
 
@@ -303,7 +309,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "auth", "cli", "debugging", "filesystem", "logging", "mocking", "operations", "scripts"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "cli",
+        "debugging",
+        "filesystem",
+        "logging",
+        "mocking",
+        "operations",
+        "scripts",
+    ],
     "keywords": ["agent", "create", "parse", "pattern", "print"],
     "business_value": "Utility module for run pattern",
     "last_modified": "2026-01-17T23:47:56Z",

@@ -404,6 +404,7 @@ class SymbolicComputation:
             logger.error(f"Health check failed: {str(e)}")
             return {"status": "unhealthy", "error": str(e)}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -413,8 +414,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "caching", "core", "debugging", "foundation", "messaging", "metrics", "service", "testing"],
-    "keywords": ["cache", "check", "computation", "compute", "core", "evaluate", "evaluator", "expression"],
+    "tags": [
+        "async",
+        "caching",
+        "core",
+        "debugging",
+        "foundation",
+        "messaging",
+        "metrics",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "cache",
+        "check",
+        "computation",
+        "compute",
+        "core",
+        "evaluate",
+        "evaluator",
+        "expression",
+    ],
     "business_value": "Implements high-performance symbolic-to-numeric conversion using SymPy utilities.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

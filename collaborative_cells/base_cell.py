@@ -28,7 +28,16 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["collaborative_cells.__init__", "collaborative_cells.architect_cell", "collaborative_cells.coder_cell", "collaborative_cells.reflection_cell", "collaborative_cells.reviewer_cell", "orchestration.cell_orchestrator", "orchestrators.pattern.cell_adapter", "tests.collaborative_cells.test_base_cell"],
+        "imported_by": [
+            "collaborative_cells.__init__",
+            "collaborative_cells.architect_cell",
+            "collaborative_cells.coder_cell",
+            "collaborative_cells.reflection_cell",
+            "collaborative_cells.reviewer_cell",
+            "orchestration.cell_orchestrator",
+            "orchestrators.pattern.cell_adapter",
+            "tests.collaborative_cells.test_base_cell",
+        ],
     },
 }
 # ============================================================================
@@ -416,6 +425,7 @@ class BaseCell(ABC):
         self._agents[agent_id] = agent
         logger.debug(f"Registered agent {agent_id} with cell {self._cell_id}")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -425,8 +435,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "data-models", "dataclass", "debugging", "intelligence", "logging", "messaging"],
-    "keywords": ["agent", "cell", "cells", "collaborative", "consensus", "execute", "packet", "payload"],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "intelligence",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "agent",
+        "cell",
+        "cells",
+        "collaborative",
+        "consensus",
+        "execute",
+        "packet",
+        "payload",
+    ],
     "business_value": "Provides base cell components including ConsensusStrategy, CellConfig, AgentMessage",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

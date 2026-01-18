@@ -25,7 +25,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["orchestrators.pattern.orchestrator", "tests.orchestrators.test_pattern_orchestrator"],
+        "imported_by": [
+            "orchestrators.pattern.orchestrator",
+            "tests.orchestrators.test_pattern_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -222,6 +225,7 @@ class PatternMetrics:
                 segment=segment,
             ).inc()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -232,7 +236,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["intelligence", "logging", "metrics", "orchestration", "tracker"],
-    "keywords": ["agent", "memory", "metrics", "orchestrator", "pattern", "pipeline", "prometheus", "record"],
+    "keywords": [
+        "agent",
+        "memory",
+        "metrics",
+        "orchestrator",
+        "pattern",
+        "pipeline",
+        "prometheus",
+        "record",
+    ],
     "business_value": "Implements PatternMetrics for metrics functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

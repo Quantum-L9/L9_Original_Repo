@@ -97,6 +97,7 @@ class CursorClient:
         """
         return self._request("/health", method="GET")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

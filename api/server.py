@@ -25,10 +25,28 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /", "GET /health", "GET /health/startup", "POST /kernels/reload", "GET /health/neo4j", "GET /health/services", "POST /lchat", "POST /chat"],
+        "api_endpoints": [
+            "GET /",
+            "GET /health",
+            "GET /health/startup",
+            "POST /kernels/reload",
+            "GET /health/neo4j",
+            "GET /health/services",
+            "POST /lchat",
+            "POST /chat",
+        ],
         "datasources": ["HTTP API", "Neo4j", "OpenAI API", "Redis", "Slack API"],
         "memory_layers": ["working_memory", "semantic_memory"],
-        "imported_by": ["api.routes.gmp_learning", "scripts.audit.find_dead_code", "tests.api.test_server_health", "tests.api.test_websocket_auth", "tests.integration.test_api_agent_integration", "tests.integration.test_api_memory_integration", "tests.integration.test_kernel_hot_reload", "tests.test_imports"],
+        "imported_by": [
+            "api.routes.gmp_learning",
+            "scripts.audit.find_dead_code",
+            "tests.api.test_server_health",
+            "tests.api.test_websocket_auth",
+            "tests.integration.test_api_agent_integration",
+            "tests.integration.test_api_memory_integration",
+            "tests.integration.test_kernel_hot_reload",
+            "tests.test_imports",
+        ],
     },
 }
 # ============================================================================
@@ -2617,8 +2635,10 @@ async def neo4j_health():
                 "status": "healthy",
                 "neo4j": True,
                 "graph_state_enabled": getattr(app.state, "graph_state_enabled", False),
-                "agent_graph_loader": getattr(app.state, "agent_graph_loader", None) is not None,
-                "graph_hydrator": getattr(app.state, "graph_hydrator", None) is not None,
+                "agent_graph_loader": getattr(app.state, "agent_graph_loader", None)
+                is not None,
+                "graph_hydrator": getattr(app.state, "graph_hydrator", None)
+                is not None,
             }
         return {"status": "unhealthy", "message": "Query returned no results"}
     except Exception as e:
@@ -2636,16 +2656,20 @@ async def services_health():
         "status": "ok",
         "services": {
             "housekeeping_engine": {
-                "available": getattr(app.state, "housekeeping_engine", None) is not None,
+                "available": getattr(app.state, "housekeeping_engine", None)
+                is not None,
             },
             "virtual_context_manager": {
-                "available": getattr(app.state, "virtual_context_manager", None) is not None,
+                "available": getattr(app.state, "virtual_context_manager", None)
+                is not None,
             },
             "consolidation_service": {
-                "available": getattr(app.state, "consolidation_service", None) is not None,
+                "available": getattr(app.state, "consolidation_service", None)
+                is not None,
             },
             "observability_service": {
-                "available": getattr(app.state, "observability_service", None) is not None,
+                "available": getattr(app.state, "observability_service", None)
+                is not None,
             },
         },
     }
@@ -3364,6 +3388,7 @@ async def l_ws(websocket: WebSocket) -> None:
     except Exception as exc:
         logger.error("lws: unexpected error: %s", str(exc), exc_info=True)
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -3372,9 +3397,35 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["agents.cursor.gmp_meta_learning", "agents.cursor.integrations.cursor_executor", "agents.cursor.integrations.cursor_gateway", "agents.cursor.integrations.cursor_langgraph", "agents.reflection_agent"],
-    "tags": ["api", "api-gateway", "async", "auth", "authorization", "batch-processing", "caching", "debugging", "endpoint", "event-driven"],
-    "keywords": ["agent", "auth", "chat", "consolidation", "cursor", "deps", "endpoint", "global"],
+    "dependencies": [
+        "agents.cursor.gmp_meta_learning",
+        "agents.cursor.integrations.cursor_executor",
+        "agents.cursor.integrations.cursor_gateway",
+        "agents.cursor.integrations.cursor_langgraph",
+        "agents.reflection_agent",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "authorization",
+        "batch-processing",
+        "caching",
+        "debugging",
+        "endpoint",
+        "event-driven",
+    ],
+    "keywords": [
+        "agent",
+        "auth",
+        "chat",
+        "consolidation",
+        "cursor",
+        "deps",
+        "endpoint",
+        "global",
+    ],
     "business_value": "REST API endpoints for OS, agent, and memory operations WebSocket endpoint for real-time agent communication World model API (optional, v1.1.0+) Version: 0.5.0 (Research Factory Integration)",
     "last_modified": "2026-01-18T02:40:22Z",
     "modified_by": "L9_Codegen_Engine",

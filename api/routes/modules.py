@@ -35,6 +35,7 @@ from core.decorators import must_stay_async
 
 router = APIRouter(prefix="/modules", tags=["modules"])
 
+
 def _get_module_registry(request: Request):
     registry = getattr(request.app.state, "module_registry", None)
     if registry is None:
@@ -43,6 +44,7 @@ def _get_module_registry(request: Request):
             detail="ModuleRegistry not initialized. Check server logs.",
         )
     return registry
+
 
 @router.get("/status")
 @must_stay_async("FastAPI/ASGI route handler")
@@ -121,6 +123,7 @@ async def get_modules_status(
     except Exception:
         pass
     return registry.snapshot()
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

@@ -26,7 +26,10 @@ __dora_meta__ = {
         "api_endpoints": ["POST /save", "POST /search", "GET /stats"],
         "datasources": ["Neo4j", "OpenAI API", "PostgreSQL"],
         "memory_layers": ["working_memory", "semantic_memory"],
-        "imported_by": ["tests.memory.test_governance_invariants", "tests.memory.test_unified_pipeline"],
+        "imported_by": [
+            "tests.memory.test_governance_invariants",
+            "tests.memory.test_unified_pipeline",
+        ],
     },
 }
 # ============================================================================
@@ -52,9 +55,11 @@ from memory.governance_gate import require_governance_context
 logger = structlog.get_logger(__name__)
 router = APIRouter()
 
+
 def get_substrate_service(request: Request):
     """Get MemorySubstrateService from app state (if initialized)."""
     return getattr(request.app.state, "substrate_service", None)
+
 
 def map_mcp_scope_to_db_scope(mcp_scope: str) -> str:
     """
@@ -75,6 +80,7 @@ def map_mcp_scope_to_db_scope(mcp_scope: str) -> str:
     }
     return mapping.get(mcp_scope, "developer")  # Default to developer
 
+
 def map_db_scope_to_mcp_scope(db_scope: str) -> str:
     """Reverse mapping: DB scope → MCP scope.
 
@@ -88,6 +94,7 @@ def map_db_scope_to_mcp_scope(db_scope: str) -> str:
         "shared": "developer",  # Legacy fallback
     }
     return mapping.get(db_scope, "developer")
+
 
 async def save_memory_handler(
     user_id: str,
@@ -185,6 +192,7 @@ async def save_memory_handler(
             status_code=500,
             detail=f"Memory ingestion failed: {str(e)}",
         )
+
 
 async def _save_via_main_pipeline(
     user_id: str,
@@ -307,9 +315,11 @@ async def _save_via_main_pipeline(
         "pipeline": "main_dag",
     }
 
+
 # GMP-89: _save_via_direct_db REMOVED
 # All writes MUST go through _save_via_main_pipeline (substrate_service.write_packet)
 # No direct DB fallback - ensures all memory flows through canonical pipeline
+
 
 async def search_memory_handler(
     user_id: str,
@@ -440,6 +450,7 @@ async def search_memory_handler(
         logger.exception("Error searching unified substrate")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # =============================================================================
 # REST Route Handlers (Governance Hardened)
 # =============================================================================
@@ -447,6 +458,7 @@ async def search_memory_handler(
 # via the router-level dependency in main.py.
 # Caller identity (user_id, caller_id, creator, source) is derived from the
 # authenticated CallerIdentity, NEVER from the request body.
+
 
 def _get_caller_from_request(request: Request) -> "CallerIdentity":
     """Get CallerIdentity from request state (set by verify_api_key dependency).
@@ -467,6 +479,7 @@ def _get_caller_from_request(request: Request) -> "CallerIdentity":
     from src.main import CallerIdentity
 
     return CallerIdentity(caller_id="unknown", user_id=settings.L_CTO_USER_ID)
+
 
 @router.post("/save")
 async def save_memory_route(
@@ -506,6 +519,7 @@ async def save_memory_route(
         substrate_service=substrate_service,
     )
 
+
 @router.post("/search")
 async def search_memory_route(
     req: Dict[str, Any],
@@ -535,9 +549,11 @@ async def search_memory_route(
         track_access=req.get("track_access", False),
     )
 
+
 # =============================================================================
 # Stats and Maintenance Handlers
 # =============================================================================
+
 
 @router.get("/stats")
 async def get_memory_stats(
@@ -629,6 +645,7 @@ async def get_memory_stats(
         )
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+
 async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
     """
     Delete expired memories from unified substrate.
@@ -668,6 +685,7 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
     except Exception as e:
         logger.exception("Error deleting expired memories")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 async def compound_similar_memories(
     user_id: str, threshold: float = 0.92
@@ -808,6 +826,7 @@ async def compound_similar_memories(
         logger.exception("Error compounding memories")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
     """
     Apply importance decay to unused memories in unified substrate.
@@ -864,6 +883,7 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
         logger.exception("Unexpected error applying importance decay", error=str(e))
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+
 async def cleanup_task():
     """
     Background cleanup task for unified substrate.
@@ -887,9 +907,11 @@ async def cleanup_task():
         except Exception as e:
             logger.error(f"Cleanup task error: {e}")
 
+
 # =============================================================================
 # 10X Memory Upgrade Handlers
 # =============================================================================
+
 
 async def get_context_injection(
     task_description: str,
@@ -989,6 +1011,7 @@ async def get_context_injection(
     except Exception as e:
         logger.exception("Error in context injection")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 async def extract_session_learnings(
     user_id: str,
@@ -1096,6 +1119,7 @@ async def extract_session_learnings(
         logger.exception("Error extracting session learnings")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 async def get_proactive_suggestions(
     current_context: str,
     user_id: str,
@@ -1180,6 +1204,7 @@ async def get_proactive_suggestions(
     except Exception as e:
         logger.exception("Error in proactive suggestions")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 async def query_temporal(
     user_id: str,
@@ -1336,6 +1361,7 @@ async def query_temporal(
         logger.exception("Error in temporal query")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 async def save_memory_with_confidence(
     user_id: str,
     content: str,
@@ -1410,6 +1436,7 @@ async def save_memory_with_confidence(
         logger.exception("Error saving memory with confidence")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1419,8 +1446,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.governance_gate"],
-    "tags": ["api", "api-gateway", "async", "auth", "debugging", "endpoint", "event-driven", "integration", "logging", "messaging"],
-    "keywords": ["agent", "apply", "cleanup", "compound", "confidence", "decay", "delete", "expired"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "debugging",
+        "endpoint",
+        "event-driven",
+        "integration",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "agent",
+        "apply",
+        "cleanup",
+        "compound",
+        "confidence",
+        "decay",
+        "delete",
+        "expired",
+    ],
     "business_value": "This replaces the deprecated memory.* tables with the unified L9 memory substrate. Uses packet_store for event log and memory_embeddings for vector storage. MANDATORY: ALL WRITES ROUTE THROUGH MAIN L9",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

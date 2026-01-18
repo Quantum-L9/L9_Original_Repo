@@ -69,36 +69,37 @@ TRASH_PATTERNS = [
     r"^\s*$",
 ]
 
+
 def is_trash_embedding(payload: Dict[str, Any]) -> bool:
     """
     Check if an embedding payload indicates trash content.
-    
+
     Returns:
         True if embedding should be deleted
     """
     # Extract text content
     text = (
-        payload.get("_text") or
-        payload.get("text") or
-        payload.get("content") or
-        payload.get("message") or
-        str(payload.get("payload", ""))
+        payload.get("_text")
+        or payload.get("text")
+        or payload.get("content")
+        or payload.get("message")
+        or str(payload.get("payload", ""))
     )
-    
+
     if not isinstance(text, str):
         text = str(text)
-    
+
     text = text.strip()
-    
+
     # Check against trash patterns
     for pattern in TRASH_PATTERNS:
         if re.search(pattern, text, re.IGNORECASE | re.MULTILINE):
             return True
-    
+
     # Check for very short content
     if len(text) < 20:
         return True
-    
+
     # Check if it's a JSON dump (starts with { and ends with })
     if text.startswith("{") and text.endswith("}") and len(text) < 500:
         try:
@@ -107,8 +108,9 @@ def is_trash_embedding(payload: Dict[str, Any]) -> bool:
             return True
         except:
             pass
-    
+
     return False
+
 
 async def cleanup_trash_embeddings(
     database_url: str,
@@ -117,14 +119,14 @@ async def cleanup_trash_embeddings(
 ) -> Dict[str, Any]:
     """
     Find and delete trash embeddings from semantic_memory table.
-    
+
     Returns:
         Dict with cleanup statistics
     """
     try:
         import asyncpg
         import json as json_lib
-        
+
         conn = await asyncpg.connect(database_url)
         try:
             # Get all embeddings with payloads
@@ -137,27 +139,31 @@ async def cleanup_trash_embeddings(
                 FROM semantic_memory
                 ORDER BY created_at DESC
             """)
-            
+
             logger.info(f"Scanning {len(rows)} embeddings...")
-            
+
             trash_ids = []
             trash_reasons = {}
-            
+
             for row in rows:
                 try:
-                    payload = json_lib.loads(row["payload_json"]) if row["payload_json"] else {}
-                    
+                    payload = (
+                        json_lib.loads(row["payload_json"])
+                        if row["payload_json"]
+                        else {}
+                    )
+
                     if is_trash_embedding(payload):
                         embedding_id = str(row["embedding_id"])
                         trash_ids.append(embedding_id)
-                        
+
                         # Determine reason
                         text = (
-                            payload.get("_text") or
-                            payload.get("text") or
-                            str(payload)[:100]
+                            payload.get("_text")
+                            or payload.get("text")
+                            or str(payload)[:100]
                         )
-                        
+
                         if "Sorry, I encountered" in str(text):
                             reason = "error_message"
                         elif len(str(text)) < 20:
@@ -166,21 +172,23 @@ async def cleanup_trash_embeddings(
                             reason = "json_dump"
                         else:
                             reason = "trash_pattern"
-                        
+
                         trash_reasons[embedding_id] = reason
-                        
+
                         if verbose:
                             logger.info(
                                 f"Marked as trash: {embedding_id[:8]}... "
                                 f"({reason}) - {str(text)[:50]}"
                             )
-                
+
                 except Exception as e:
-                    logger.debug(f"Failed to check embedding {row['embedding_id']}: {e}")
+                    logger.debug(
+                        f"Failed to check embedding {row['embedding_id']}: {e}"
+                    )
                     continue
-            
+
             logger.info(f"Found {len(trash_ids)} trash embeddings to delete")
-            
+
             if dry_run:
                 logger.info("DRY RUN - would delete:")
                 for eid in trash_ids[:10]:
@@ -190,17 +198,17 @@ async def cleanup_trash_embeddings(
                     "trash_found": len(trash_ids),
                     "dry_run": True,
                 }
-            
+
             # Delete trash embeddings
             if trash_ids:
                 # Delete in batches of 100
                 batch_size = 100
                 deleted_count = 0
-                
+
                 for i in range(0, len(trash_ids), batch_size):
-                    batch = trash_ids[i:i + batch_size]
-                    placeholders = ",".join([f"${j+1}" for j in range(len(batch))])
-                    
+                    batch = trash_ids[i : i + batch_size]
+                    placeholders = ",".join([f"${j + 1}" for j in range(len(batch))])
+
                     result = await conn.execute(
                         f"""
                         DELETE FROM semantic_memory
@@ -209,14 +217,14 @@ async def cleanup_trash_embeddings(
                         *batch,
                     )
                     deleted_count += int(result.split()[-1])
-                
+
                 logger.info(f"Deleted {deleted_count} trash embeddings")
-            
+
             # Get statistics by reason
             reason_counts = {}
             for reason in trash_reasons.values():
                 reason_counts[reason] = reason_counts.get(reason, 0) + 1
-            
+
             return {
                 "total_scanned": len(rows),
                 "trash_found": len(trash_ids),
@@ -224,56 +232,62 @@ async def cleanup_trash_embeddings(
                 "reason_counts": reason_counts,
                 "status": "success",
             }
-            
+
         finally:
             await conn.close()
-    
+
     except Exception as e:
         logger.error(f"Failed to cleanup embeddings: {e}", exc_info=True)
         return {"error": str(e), "status": "error"}
+
 
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main cleanup function."""
     if not DATABASE_URL:
         logger.error("DATABASE_URL or TEST_DATABASE_URL not set")
         return
-    
+
     logger.info("Starting trash embeddings cleanup", dry_run=dry_run)
-    
-    result = await cleanup_trash_embeddings(DATABASE_URL, dry_run=dry_run, verbose=verbose)
-    
+
+    result = await cleanup_trash_embeddings(
+        DATABASE_URL, dry_run=dry_run, verbose=verbose
+    )
+
     if "error" in result:
         logger.error(f"Cleanup failed: {result['error']}")
         return
-    
+
     # Print summary
     print("\n" + "=" * 60)
     print("TRASH EMBEDDINGS CLEANUP SUMMARY")
     print("=" * 60)
     print(f"  Total embeddings scanned: {result['total_scanned']:,}")
     print(f"  Trash embeddings found: {result['trash_found']:,}")
-    
+
     if result.get("reason_counts"):
         print("\n  Breakdown by reason:")
-        for reason, count in sorted(result["reason_counts"].items(), key=lambda x: x[1], reverse=True):
+        for reason, count in sorted(
+            result["reason_counts"].items(), key=lambda x: x[1], reverse=True
+        ):
             print(f"    {reason:20} {count:>6}")
-    
+
     if dry_run:
         print("\n  ⚠️  DRY RUN - No embeddings deleted")
     else:
         print(f"\n  ✅ Deleted: {result.get('deleted', 0):,} embeddings")
-    
+
     print("=" * 60 + "\n")
+
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Clean up trash embeddings")
     parser.add_argument("--dry-run", action="store_true", help="Dry run (no deletes)")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
-    
+
     args = parser.parse_args()
-    
+
     asyncio.run(main(dry_run=args.dry_run, verbose=args.verbose))
 
 # ============================================================================
@@ -285,7 +299,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "batch-processing", "cli", "debugging", "filesystem", "logging", "memory-substrate", "messaging", "operations", "postgres"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "cli",
+        "debugging",
+        "filesystem",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "operations",
+        "postgres",
+    ],
     "keywords": ["clean", "cleanup", "embedding", "embeddings", "trash"],
     "business_value": "Utility module for cleanup trash embeddings",
     "last_modified": "2026-01-14T15:03:00Z",

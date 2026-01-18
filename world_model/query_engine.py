@@ -38,7 +38,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["world_model.__init__", "world_model._pack_staging.test_integration"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model._pack_staging.test_integration",
+        ],
     },
 }
 # ============================================================================
@@ -554,6 +557,7 @@ class QueryEngine:
         """Get registry if available."""
         return self._registry
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -564,7 +568,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["dataclass", "engine", "learning", "monitoring", "queue", "world-model"],
-    "keywords": ["all", "analysis", "attribute", "attributes", "component", "connected", "correlate", "count"],
+    "keywords": [
+        "all",
+        "analysis",
+        "attribute",
+        "attributes",
+        "component",
+        "connected",
+        "correlate",
+        "count",
+    ],
     "business_value": "Provides query engine components including QueryContext, QueryEngine",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

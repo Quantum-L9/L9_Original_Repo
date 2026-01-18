@@ -205,6 +205,7 @@ async def execute_reasoning(
             status_code=500, detail=f"Reasoning execution failed: {str(e)}"
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -214,7 +215,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.auth", "core.decorators"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "messaging", "operations", "pydantic", "rest-api"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "rest-api",
+    ],
     "keywords": ["execute", "modes", "orchestrator", "reasoning", "router", "test"],
     "business_value": "Provides reasoning components including ReasoningExecuteRequest, ReasoningExecuteResponse",
     "last_modified": "2026-01-17T23:47:56Z",

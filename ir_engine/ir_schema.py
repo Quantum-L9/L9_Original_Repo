@@ -27,7 +27,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["ir_engine.__init__", "ir_engine.constraint_challenger", "ir_engine.deliberation_cell", "ir_engine.ir_generator", "ir_engine.ir_to_plan_adapter", "ir_engine.ir_validator", "ir_engine.semantic_compiler", "ir_engine.simulation_router", "orchestration.orchestrator_kernel", "orchestration.unified_controller"],
+        "imported_by": [
+            "ir_engine.__init__",
+            "ir_engine.constraint_challenger",
+            "ir_engine.deliberation_cell",
+            "ir_engine.ir_generator",
+            "ir_engine.ir_to_plan_adapter",
+            "ir_engine.ir_validator",
+            "ir_engine.semantic_compiler",
+            "ir_engine.simulation_router",
+            "orchestration.orchestrator_kernel",
+            "orchestration.unified_controller",
+        ],
     },
 }
 # ============================================================================
@@ -480,6 +491,7 @@ class IRValidationResult(BaseModel):
             )
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -489,8 +501,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "data-models", "enum", "event-driven", "intelligence", "logging", "messaging", "pydantic", "validation"],
-    "keywords": ["action", "actions", "active", "challenge", "challenged", "constraint", "constraints", "definitions"],
+    "tags": [
+        "api",
+        "data-models",
+        "enum",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+        "pydantic",
+        "validation",
+    ],
+    "keywords": [
+        "action",
+        "actions",
+        "active",
+        "challenge",
+        "challenged",
+        "constraint",
+        "constraints",
+        "definitions",
+    ],
     "business_value": "Provides ir schema components including IntentType, ConstraintType, ConstraintStatus",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

@@ -47,49 +47,50 @@ logger = structlog.get_logger(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 
+
 async def delete_trash_embeddings():
     """Delete trash embeddings using substrate repository."""
     if not DATABASE_URL:
         logger.error("DATABASE_URL not set")
         logger.info("Set DATABASE_URL in .env or environment")
         return False
-    
+
     try:
         import asyncpg
-        
+
         logger.info("Connecting to database...")
         conn = await asyncpg.connect(DATABASE_URL)
-        
+
         try:
             # Read embedding IDs from SQL file
             sql_file = Path("/tmp/delete_trash.sql")
             if not sql_file.exists():
                 logger.error("SQL file not found. Run generate_delete_sql.py first")
                 return False
-            
+
             # Extract IDs from SQL file
             embedding_ids = []
-            for line in sql_file.read_text().split('\n'):
+            for line in sql_file.read_text().split("\n"):
                 line = line.strip()
                 if line.startswith("'") and (line.endswith("',") or line.endswith("'")):
-                    eid = line.rstrip(',').strip("'")
+                    eid = line.rstrip(",").strip("'")
                     if eid and len(eid) == 36:  # UUID length
                         embedding_ids.append(eid)
-            
+
             if not embedding_ids:
                 logger.warning("No embedding IDs found in SQL file")
                 return False
-            
+
             logger.info(f"Found {len(embedding_ids)} trash embedding IDs to delete")
-            
+
             # Delete in batches
             batch_size = 100
             total_deleted = 0
-            
+
             for i in range(0, len(embedding_ids), batch_size):
-                batch = embedding_ids[i:i + batch_size]
-                placeholders = ",".join([f"${j+1}" for j in range(len(batch))])
-                
+                batch = embedding_ids[i : i + batch_size]
+                placeholders = ",".join([f"${j + 1}" for j in range(len(batch))])
+
                 result = await conn.execute(
                     f"""
                     DELETE FROM semantic_memory
@@ -97,20 +98,23 @@ async def delete_trash_embeddings():
                     """,
                     *batch,
                 )
-                
+
                 deleted = int(result.split()[-1])
                 total_deleted += deleted
-                logger.info(f"Deleted batch {i//batch_size + 1}: {deleted} embeddings")
-            
+                logger.info(
+                    f"Deleted batch {i // batch_size + 1}: {deleted} embeddings"
+                )
+
             logger.info(f"✅ Successfully deleted {total_deleted} trash embeddings")
             return True
-        
+
         finally:
             await conn.close()
-    
+
     except Exception as e:
         logger.error(f"Failed to delete embeddings: {e}", exc_info=True)
         return False
+
 
 async def main():
     """Main function."""
@@ -118,9 +122,9 @@ async def main():
     print("DELETE TRASH EMBEDDINGS")
     print("=" * 60)
     print()
-    
+
     success = await delete_trash_embeddings()
-    
+
     if success:
         print("\n✅ Trash embeddings deleted successfully")
         print("\nNext: Run re-indexing scripts to populate with high-value content")
@@ -128,9 +132,12 @@ async def main():
         print("\n❌ Deletion failed - check logs above")
         print("\nAlternative: Run SQL manually:")
         print("  psql -d l9_memory -f /tmp/delete_trash.sql")
-        print("  Or via Docker: docker exec -i l9-postgres psql -U l9_user -d l9_memory < /tmp/delete_trash.sql")
-    
+        print(
+            "  Or via Docker: docker exec -i l9-postgres psql -U l9_user -d l9_memory < /tmp/delete_trash.sql"
+        )
+
     print("=" * 60 + "\n")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -144,8 +151,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "batch-processing", "filesystem", "logging", "memory-substrate", "operations", "postgres", "service", "testing"],
-    "keywords": ["delete", "embeddings", "memory", "service", "substrate", "trash", "via"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "filesystem",
+        "logging",
+        "memory-substrate",
+        "operations",
+        "postgres",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "delete",
+        "embeddings",
+        "memory",
+        "service",
+        "substrate",
+        "trash",
+        "via",
+    ],
     "business_value": "Utility module for delete trash via service",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

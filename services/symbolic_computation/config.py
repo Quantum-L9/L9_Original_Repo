@@ -20,7 +20,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["services.symbolic_computation.api.routes", "services.symbolic_computation.core.cache_manager", "services.symbolic_computation.core.code_generator", "services.symbolic_computation.core.expression_evaluator", "services.symbolic_computation.core.metrics", "services.symbolic_computation.core.optimizer", "services.symbolic_computation.core.validator", "services.symbolic_computation.tools.symbolic_tool", "tests.services.symbolic_computation.test_expression_evaluator", "tests.services.symbolic_computation.test_validator"],
+        "imported_by": [
+            "services.symbolic_computation.api.routes",
+            "services.symbolic_computation.core.cache_manager",
+            "services.symbolic_computation.core.code_generator",
+            "services.symbolic_computation.core.expression_evaluator",
+            "services.symbolic_computation.core.metrics",
+            "services.symbolic_computation.core.optimizer",
+            "services.symbolic_computation.core.validator",
+            "services.symbolic_computation.tools.symbolic_tool",
+            "tests.services.symbolic_computation.test_expression_evaluator",
+            "tests.services.symbolic_computation.test_validator",
+        ],
     },
 }
 # ============================================================================
@@ -47,62 +58,57 @@ class SymbolicComputationConfig(BaseSettings):
     cache_enabled: bool = Field(
         default=True,
         env="SYMBOLIC_CACHE_ENABLED",
-        description="Enable expression caching"
+        description="Enable expression caching",
     )
     cache_size: int = Field(
-        default=128,
-        env="SYMBOLIC_CACHE_SIZE",
-        description="Maximum cache size"
+        default=128, env="SYMBOLIC_CACHE_SIZE", description="Maximum cache size"
     )
 
     # Performance settings
     default_backend: str = Field(
         default="numpy",
         env="SYMBOLIC_DEFAULT_BACKEND",
-        description="Default numerical backend"
+        description="Default numerical backend",
     )
     enable_metrics: bool = Field(
         default=True,
         env="SYMBOLIC_ENABLE_METRICS",
-        description="Enable performance metrics"
+        description="Enable performance metrics",
     )
 
     # Code generation settings
     codegen_temp_dir: str = Field(
         default="/tmp/sympy_codegen",
         env="SYMBOLIC_CODEGEN_TEMP_DIR",
-        description="Temporary directory for code generation"
+        description="Temporary directory for code generation",
     )
     default_language: str = Field(
         default="C",
         env="SYMBOLIC_DEFAULT_LANGUAGE",
-        description="Default code generation language"
+        description="Default code generation language",
     )
 
     # Logging settings
     log_level: str = Field(
-        default="INFO",
-        env="SYMBOLIC_LOG_LEVEL",
-        description="Logging level"
+        default="INFO", env="SYMBOLIC_LOG_LEVEL", description="Logging level"
     )
     enable_structured_logging: bool = Field(
         default=True,
         env="SYMBOLIC_ENABLE_STRUCTURED_LOGGING",
-        description="Enable JSON structured logging"
+        description="Enable JSON structured logging",
     )
 
     # Security settings
     max_expression_length: int = Field(
         default=10000,
         env="SYMBOLIC_MAX_EXPRESSION_LENGTH",
-        description="Maximum expression length"
+        description="Maximum expression length",
     )
     allow_dangerous_functions: bool = Field(
         default=False,
         env="SYMBOLIC_ALLOW_DANGEROUS_FUNCTIONS",
-        description="Allow potentially dangerous functions"
+        description="Allow potentially dangerous functions",
     )
-
 
 
 # Global configuration instance
@@ -124,6 +130,7 @@ def reload_config():
     global config
     config = SymbolicComputationConfig()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -133,7 +140,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["caching", "config", "metrics", "operations", "symbolic-computation", "validation"],
+    "tags": [
+        "caching",
+        "config",
+        "metrics",
+        "operations",
+        "symbolic-computation",
+        "validation",
+    ],
     "keywords": ["computation", "configuration", "module", "reload", "symbolic"],
     "business_value": "Implements SymbolicComputationConfig for config functionality",
     "last_modified": "2026-01-14T15:03:00Z",

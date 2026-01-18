@@ -26,7 +26,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.llm", "core.agents.graph_state.graph_hydrator", "core.agents.registry", "tests.integration.test_kernel_agent_activation_integration"],
+        "imported_by": [
+            "api.llm",
+            "core.agents.graph_state.graph_hydrator",
+            "core.agents.registry",
+            "tests.integration.test_kernel_agent_activation_integration",
+        ],
     },
 }
 # ============================================================================
@@ -39,6 +44,7 @@ from runtime.kernel_loader import load_kernel_stack, KernelStack
 
 logger = structlog.get_logger(__name__)
 
+
 # Cache the kernel stack (load once)
 @lru_cache(maxsize=1)
 def get_kernel_stack() -> KernelStack:
@@ -46,6 +52,7 @@ def get_kernel_stack() -> KernelStack:
     stack = load_kernel_stack()
     logger.info(f"Loaded kernel stack: {list(stack.kernels_by_id.keys())}")
     return stack
+
 
 def build_identity_section(identity_kernel: Dict[str, Any]) -> str:
     """Build identity section from identity kernel."""
@@ -80,6 +87,7 @@ def build_identity_section(identity_kernel: Dict[str, Any]) -> str:
         lines.append(f"Avoid: {', '.join(avoid)}")
 
     return "\n".join(lines)
+
 
 def build_behavioral_section(behavioral_kernel: Dict[str, Any]) -> str:
     """Build behavioral rules from behavioral kernel."""
@@ -132,6 +140,7 @@ def build_behavioral_section(behavioral_kernel: Dict[str, Any]) -> str:
 
     return "\n".join(lines)
 
+
 def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
     """Build cognitive patterns from cognitive kernel."""
     engines = cognitive_kernel.get("engines", {})
@@ -149,7 +158,9 @@ def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
         # Use engine definitions if available, otherwise defaults
         think_step = engines.get("think", "parse request, choose concrete next step")
         act_step = engines.get("act", "execute or generate action")
-        reflect_step = engines.get("reflect", "log internally, do not output long reasoning")
+        reflect_step = engines.get(
+            "reflect", "log internally, do not output long reasoning"
+        )
         lines.append(f"1) THINK: {think_step}")
         lines.append(f"2) ACT: {act_step}")
         lines.append(f"3) REFLECT: {reflect_step}")
@@ -165,6 +176,7 @@ def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
                 lines.append(f"- {style_name}: {style_desc['description']}")
 
     return "\n".join(lines)
+
 
 def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
     """Build execution rules from execution kernel."""
@@ -183,7 +195,9 @@ def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
     if task_sizing:
         small = task_sizing.get("small", "execute immediately")
         medium = task_sizing.get("medium", "one-line plan, then execute")
-        large = task_sizing.get("large", "outline 2-4 steps max, then execute next step")
+        large = task_sizing.get(
+            "large", "outline 2-4 steps max, then execute next step"
+        )
         lines.append(f"- Small tasks: {small}")
         lines.append(f"- Medium tasks: {medium}")
         lines.append(f"- Large tasks: {large}")
@@ -212,6 +226,7 @@ def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
 
     return "\n".join(lines)
 
+
 def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
     """Build safety guardrails from safety kernel."""
     guardrails = safety_kernel.get("guardrails", {})
@@ -233,8 +248,12 @@ def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
                 lines.append(f"- {guard_rule['rule']}")
     else:
         # Default safety rules
-        lines.append("- Never change files unless project_id and file_path are unambiguous")
-        lines.append("- Never change system configs or delete data without confirmation")
+        lines.append(
+            "- Never change files unless project_id and file_path are unambiguous"
+        )
+        lines.append(
+            "- Never change system configs or delete data without confirmation"
+        )
         lines.append("- Destructive actions require explicit confirmation")
 
     # Add explicit constraints if defined
@@ -252,6 +271,7 @@ def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
             lines.append(f"- {action}")
 
     return "\n".join(lines)
+
 
 def build_system_prompt_from_kernels() -> str:
     """
@@ -304,6 +324,7 @@ def build_system_prompt_from_kernels() -> str:
         # Return fallback prompt
         return get_fallback_prompt()
 
+
 @lru_cache(maxsize=1)
 def get_fallback_prompt() -> str:
     """Fallback system prompt if kernel loading fails. CACHED."""
@@ -334,6 +355,7 @@ No self-referential model talk.
 
 You are L. Operate as Igor's CTO."""
 
+
 # Public API
 __all__ = [
     "get_kernel_stack",
@@ -350,8 +372,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["runtime.kernel_loader"],
-    "tags": ["api", "auth", "authorization", "caching", "core", "factory", "foundation", "logging", "messaging"],
-    "keywords": ["behavioral", "build", "builder", "cognitive", "execution", "fallback", "identity", "kernel"],
+    "tags": [
+        "api",
+        "auth",
+        "authorization",
+        "caching",
+        "core",
+        "factory",
+        "foundation",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "behavioral",
+        "build",
+        "builder",
+        "cognitive",
+        "execution",
+        "fallback",
+        "identity",
+        "kernel",
+    ],
     "business_value": "Utility module for prompt builder",
     "last_modified": "2026-01-14T15:22:35Z",
     "modified_by": "L9_Codegen_Engine",

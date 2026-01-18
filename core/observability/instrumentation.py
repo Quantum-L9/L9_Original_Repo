@@ -31,13 +31,18 @@ import structlog
 from typing import Any, Callable, TypeVar
 
 from .models import (
-    Span, LLMGenerationSpan, ToolCallSpan, GovernanceCheckSpan,
-    SpanKind, SpanStatus,
+    Span,
+    LLMGenerationSpan,
+    ToolCallSpan,
+    GovernanceCheckSpan,
+    SpanKind,
+    SpanStatus,
 )
 
 logger = structlog.get_logger(__name__)
 
 T = TypeVar("T")
+
 
 def trace_span(
     name: str,
@@ -46,21 +51,24 @@ def trace_span(
 ) -> Callable:
     """
     Decorator to automatically create and export spans.
-    
+
     Works with both sync and async functions.
-    
+
     Usage:
         @trace_span("my_operation")
         async def my_func():
             ...
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
+
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> T:
                 from .service import ObservabilityService
+
                 service = ObservabilityService.get()
                 if not service or not service.config.enabled:
                     return await func(*args, **kwargs)
@@ -86,9 +94,11 @@ def trace_span(
 
             return async_wrapper
         else:
+
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> T:
                 from .service import ObservabilityService
+
                 service = ObservabilityService.get()
                 if not service or not service.config.enabled:
                     return func(*args, **kwargs)
@@ -115,25 +125,29 @@ def trace_span(
             return sync_wrapper
 
     return decorator
+
 
 def trace_llm_call(
     model: str = "gpt-4",
 ) -> Callable:
     """
     Decorator to trace LLM generation calls.
-    
+
     Usage:
         @trace_llm_call(model="gpt-4")
         async def generate_response(prompt: str) -> str:
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
+
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 from .service import ObservabilityService
+
                 service = ObservabilityService.get()
                 if not service or not service.config.enabled:
                     return await func(*args, **kwargs)
@@ -159,9 +173,11 @@ def trace_llm_call(
 
             return async_wrapper
         else:
+
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
                 from .service import ObservabilityService
+
                 service = ObservabilityService.get()
                 if not service or not service.config.enabled:
                     return func(*args, **kwargs)
@@ -188,25 +204,29 @@ def trace_llm_call(
             return sync_wrapper
 
     return decorator
+
 
 def trace_tool_call(
     tool_name: str,
 ) -> Callable:
     """
     Decorator to trace tool invocations.
-    
+
     Usage:
         @trace_tool_call("web_search")
         async def search(query: str) -> str:
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
+
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 from .service import ObservabilityService
+
                 service = ObservabilityService.get()
                 if not service or not service.config.enabled:
                     return await func(*args, **kwargs)
@@ -235,9 +255,11 @@ def trace_tool_call(
 
             return async_wrapper
         else:
+
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
                 from .service import ObservabilityService
+
                 service = ObservabilityService.get()
                 if not service or not service.config.enabled:
                     return func(*args, **kwargs)
@@ -267,25 +289,29 @@ def trace_tool_call(
             return sync_wrapper
 
     return decorator
+
 
 def trace_governance_check(
     policy_name: str,
 ) -> Callable:
     """
     Decorator to trace governance policy checks.
-    
+
     Usage:
         @trace_governance_check("allow_external_tools")
         async def check_policy(action: str) -> bool:
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
+
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 from .service import ObservabilityService
+
                 service = ObservabilityService.get()
                 if not service or not service.config.enabled:
                     return await func(*args, **kwargs)
@@ -314,9 +340,11 @@ def trace_governance_check(
 
             return async_wrapper
         else:
+
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
                 from .service import ObservabilityService
+
                 service = ObservabilityService.get()
                 if not service or not service.config.enabled:
                     return func(*args, **kwargs)
@@ -346,6 +374,7 @@ def trace_governance_check(
             return sync_wrapper
 
     return decorator
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -357,7 +386,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["async", "core", "foundation", "logging", "service", "tracing"],
-    "keywords": ["async", "check", "decorator", "generate", "governance", "instrumentation", "llm", "policy"],
+    "keywords": [
+        "async",
+        "check",
+        "decorator",
+        "generate",
+        "governance",
+        "instrumentation",
+        "llm",
+        "policy",
+    ],
     "business_value": "Provides @trace_span, @trace_llm_call, @trace_tool_call, @trace_governance_check.",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

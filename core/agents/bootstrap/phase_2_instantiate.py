@@ -32,7 +32,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j", "Redis"],
         "memory_layers": ["working_memory"],
-        "imported_by": ["tests.core.bootstrap.conftest", "tests.core.bootstrap.test_bootstrap_phases"],
+        "imported_by": [
+            "tests.core.bootstrap.conftest",
+            "tests.core.bootstrap.test_bootstrap_phases",
+        ],
     },
 }
 # ============================================================================
@@ -227,6 +230,7 @@ async def _init_redis_working_memory(
         )
         return False
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -235,9 +239,34 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.agents.schemas", "memory.graph_client", "memory.substrate_service", "runtime.redis_client"],
-    "tags": ["agent-execution", "api", "async", "auth", "dataclass", "debugging", "foundation", "logging", "serialization", "testing"],
-    "keywords": ["agent", "agentinstance", "bootstrap", "instance", "instantiate", "memory", "module", "phase"],
+    "dependencies": [
+        "core.agents.schemas",
+        "memory.graph_client",
+        "memory.substrate_service",
+        "runtime.redis_client",
+    ],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "auth",
+        "dataclass",
+        "debugging",
+        "foundation",
+        "logging",
+        "serialization",
+        "testing",
+    ],
+    "keywords": [
+        "agent",
+        "agentinstance",
+        "bootstrap",
+        "instance",
+        "instantiate",
+        "memory",
+        "module",
+        "phase",
+    ],
     "business_value": "Implements BootstrapInstanceData for phase 2 instantiate functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

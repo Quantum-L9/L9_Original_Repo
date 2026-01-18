@@ -695,7 +695,7 @@ __dora_footer__ = {
     "dependencies": [],
     "tags": ["async", "dataclass", "debugging", "event-driven", "learning", "logging", "memory-substrate", "queue"],
     "keywords": ["active", "based", "completion", "consolidation", "detection", "encoder", "encoding", "extract"],
-    "business_value": "Implements frontier-grade active memory management where the system automatically decides what to encode, rather than relying on explicit "remember this" commands. Automatic learning extraction from t",
+    "business_value": "Implements frontier-grade active memory management where the system automatically decides what to en",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

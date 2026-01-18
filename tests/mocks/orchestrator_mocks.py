@@ -31,6 +31,7 @@ __dora_meta__ = {
 from datetime import datetime
 from typing import Any, Optional
 
+
 class MockRedis:
     """
     Mock Redis client for testing.
@@ -199,6 +200,7 @@ class MockRedis:
                 del self._data[key]
                 del self._expiry[key]
 
+
 class MockToolRegistry:
     """
     Mock Tool Registry for testing.
@@ -318,6 +320,7 @@ class MockToolRegistry:
         """List registered tool names."""
         return list(self._tools.keys())
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -327,8 +330,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "mocking", "operations", "security", "service", "testing", "tests"],
-    "keywords": ["check", "decr", "delete", "execute", "exists", "hget", "hgetall", "hset"],
+    "tags": [
+        "async",
+        "mocking",
+        "operations",
+        "security",
+        "service",
+        "testing",
+        "tests",
+    ],
+    "keywords": [
+        "check",
+        "decr",
+        "delete",
+        "execute",
+        "exists",
+        "hget",
+        "hgetall",
+        "hset",
+    ],
     "business_value": "Orchestrator Mock Implementations Mock implementations for orchestrator testing.",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

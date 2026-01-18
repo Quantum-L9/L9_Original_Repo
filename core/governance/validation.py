@@ -29,7 +29,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["core.agents.executor", "tests.core.governance.test_validation", "tests.integration.test_l_cto_end_to_end", "tests.integration.test_l_cto_memory_governance_integration"],
+        "imported_by": [
+            "core.agents.executor",
+            "tests.core.governance.test_validation",
+            "tests.integration.test_l_cto_end_to_end",
+            "tests.integration.test_l_cto_memory_governance_integration",
+        ],
     },
 }
 # ============================================================================
@@ -48,6 +53,7 @@ _audit_trail: deque = deque(maxlen=1000)
 # =============================================================================
 # Authority Validation
 # =============================================================================
+
 
 def validate_authority(action: str, agent_id: str) -> Dict[str, Any]:
     """
@@ -92,9 +98,11 @@ def validate_authority(action: str, agent_id: str) -> Dict[str, Any]:
 
     return {"valid": True, "action": action, "agent_id": agent_id}
 
+
 # =============================================================================
 # Safety Validation
 # =============================================================================
+
 
 def validate_safety(
     action: str, payload: Optional[Dict[str, Any]] = None
@@ -148,9 +156,11 @@ def validate_safety(
 
     return {"safe": True, "action": action}
 
+
 # =============================================================================
 # Drift Detection
 # =============================================================================
+
 
 def detect_drift(
     agent_id: str, action: str, success: bool, threshold: float = 0.6
@@ -215,9 +225,11 @@ def detect_drift(
 
     return None
 
+
 # =============================================================================
 # Audit Logging
 # =============================================================================
+
 
 def audit_log(
     agent_id: str, action: str, success: bool, metadata: Optional[Dict[str, Any]] = None
@@ -243,6 +255,7 @@ def audit_log(
 
     logger.info(f"Audit: {agent_id} -> {action} -> {'✅' if success else '❌'}")
 
+
 def get_audit_trail(
     agent_id: Optional[str] = None, limit: int = 100
 ) -> List[Dict[str, Any]]:
@@ -262,6 +275,7 @@ def get_audit_trail(
         entries = [e for e in entries if e.get("agent_id") == agent_id]
 
     return entries[-limit:]
+
 
 # =============================================================================
 # Public API
@@ -284,8 +298,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "audit-tool", "foundation", "governance", "logging", "monitoring", "utility"],
-    "keywords": ["audit", "authority", "checks", "detect", "detection", "drift", "governance", "layer"],
+    "tags": [
+        "api",
+        "audit-tool",
+        "foundation",
+        "governance",
+        "logging",
+        "monitoring",
+        "utility",
+    ],
+    "keywords": [
+        "audit",
+        "authority",
+        "checks",
+        "detect",
+        "detection",
+        "drift",
+        "governance",
+        "layer",
+    ],
     "business_value": "Utility module for validation",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

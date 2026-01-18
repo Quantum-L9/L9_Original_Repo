@@ -23,7 +23,16 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["POST /evaluate", "POST /generate_code", "POST /optimize", "POST /validate", "GET /metrics", "GET /health", "GET /cache/stats", "POST /cache/clear"],
+        "api_endpoints": [
+            "POST /evaluate",
+            "POST /generate_code",
+            "POST /optimize",
+            "POST /validate",
+            "GET /metrics",
+            "GET /health",
+            "GET /cache/stats",
+            "POST /cache/clear",
+        ],
         "datasources": ["Neo4j", "Redis"],
         "memory_layers": [],
         "imported_by": ["api.server", "services.symbolic_computation.api.__init__"],
@@ -411,6 +420,7 @@ async def clear_cache() -> Dict[str, str]:
         _cache.clear()
     return {"status": "cleared"}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -420,8 +430,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "api-gateway", "async", "caching", "debugging", "endpoint", "logging", "messaging", "metrics", "operations"],
-    "keywords": ["cache", "check", "clear", "evaluate", "evaluator", "expression", "generate", "generator"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "caching",
+        "debugging",
+        "endpoint",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+    ],
+    "keywords": [
+        "cache",
+        "check",
+        "clear",
+        "evaluate",
+        "evaluator",
+        "expression",
+        "generate",
+        "generator",
+    ],
     "business_value": "Provides routes components including EvaluateRequest, OptimizeRequest, OptimizeResponse",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

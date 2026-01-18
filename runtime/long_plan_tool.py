@@ -45,6 +45,7 @@ from runtime.tool_call_wrapper import tool_call_wrapper
 
 logger = structlog.get_logger(__name__)
 
+
 async def long_plan_execute_tool(
     goal: str,
     constraints: List[str] | None = None,
@@ -100,6 +101,7 @@ async def long_plan_execute_tool(
             "error": str(e),
         }
 
+
 async def long_plan_simulate_tool(
     goal: str,
     constraints: List[str] | None = None,
@@ -145,6 +147,7 @@ async def long_plan_simulate_tool(
             "success": False,
             "error": str(e),
         }
+
 
 async def execute_long_plan_tasks(plan_id: str, repo_root: str) -> Dict[str, Any]:
     """
@@ -199,6 +202,7 @@ async def execute_long_plan_tasks(plan_id: str, repo_root: str) -> Dict[str, Any
             "error": str(e),
         }
 
+
 __all__ = [
     "long_plan_execute_tool",
     "long_plan_simulate_tool",
@@ -214,8 +218,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["runtime.task_queue", "runtime.tool_call_wrapper"],
-    "tags": ["async", "logging", "messaging", "operations", "queue", "runtime-operations", "service"],
-    "keywords": ["agent", "execute", "implementation", "long", "plan", "simulate", "tasks", "tool"],
+    "tags": [
+        "async",
+        "logging",
+        "messaging",
+        "operations",
+        "queue",
+        "runtime-operations",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "execute",
+        "implementation",
+        "long",
+        "plan",
+        "simulate",
+        "tasks",
+        "tool",
+    ],
     "business_value": "Utility module for long plan tool",
     "last_modified": "2026-01-09T01:57:28Z",
     "modified_by": "L9_Codegen_Engine",

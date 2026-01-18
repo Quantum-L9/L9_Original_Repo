@@ -47,7 +47,7 @@ logger = structlog.get_logger(__name__)
 
 class SearchHit(BaseModel):
     """Search hit result for Cursor."""
-    
+
     packet_id: UUID = Field(..., description="Packet ID")
     similarity_score: float = Field(..., description="Similarity score (0-1)")
     packet_type: Optional[str] = Field(None, description="Packet type")
@@ -70,25 +70,27 @@ async def semantic_search(
 ) -> List[SearchHit]:
     """
     Semantic search wrapper for Cursor.
-    
+
     Args:
         query: Search query string
         agent_id: Agent identifier
         project_id: Project identifier (for filtering if needed)
         top_k: Number of results to return
         substrate_service: MemorySubstrateService instance (creates if None)
-        
+
     Returns:
         List of SearchHit objects
     """
     logger.info("Semantic search", query=query[:50], agent_id=agent_id, top_k=top_k)
-    
+
     # Get substrate service if not provided
     if substrate_service is None:
         # Service must be initialized before use
         # For now, raise error to require explicit service injection
-        raise ValueError("substrate_service must be provided or initialized via init_service()")
-    
+        raise ValueError(
+            "substrate_service must be provided or initialized via init_service()"
+        )
+
     # Build search request
     request = SemanticSearchRequest(
         query=query,
@@ -96,21 +98,21 @@ async def semantic_search(
         agent_id=agent_id,
         min_score=0.5,  # Default minimum similarity
     )
-    
+
     # Execute search
     result = await substrate_service.semantic_search(request)
-    
+
     # Map SemanticHit to SearchHit
     hits = []
     for hit in result.hits:
         # Extract packet_id from payload or embedding_id
         packet_id = hit.payload.get("packet_id") or hit.embedding_id
-        
+
         # Extract metadata
         packet_type = hit.payload.get("packet_type")
         scope = hit.payload.get("scope")
         tags = hit.payload.get("tags", [])
-        
+
         search_hit = SearchHit(
             packet_id=UUID(packet_id) if isinstance(packet_id, str) else packet_id,
             similarity_score=hit.score,
@@ -120,9 +122,10 @@ async def semantic_search(
             payload=hit.payload,
         )
         hits.append(search_hit)
-    
+
     logger.info("Semantic search completed", hits_count=len(hits))
     return hits
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -133,7 +136,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.substrate_service"],
-    "tags": ["async", "data-models", "learning", "logging", "pydantic", "schema", "validation"],
+    "tags": [
+        "async",
+        "data-models",
+        "learning",
+        "logging",
+        "pydantic",
+        "schema",
+        "validation",
+    ],
     "keywords": ["cursor", "hit", "search", "semantic", "wrapper"],
     "business_value": "Implements SearchHit for semantic search functionality",
     "last_modified": "2026-01-14T15:03:00Z",

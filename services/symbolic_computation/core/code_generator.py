@@ -25,7 +25,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["services.symbolic_computation.api.routes", "services.symbolic_computation.core.__init__", "services.symbolic_computation.tools.symbolic_tool", "tests.services.symbolic_computation.test_code_generator"],
+        "imported_by": [
+            "services.symbolic_computation.api.routes",
+            "services.symbolic_computation.core.__init__",
+            "services.symbolic_computation.tools.symbolic_tool",
+            "tests.services.symbolic_computation.test_code_generator",
+        ],
     },
 }
 # ============================================================================
@@ -367,6 +372,7 @@ def {function_name}({args}):
 
         return fn
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -376,7 +382,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "debugging", "filesystem", "logging", "messaging", "metrics", "operations", "rest-api", "service", "subprocess"],
+    "tags": [
+        "async",
+        "debugging",
+        "filesystem",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+        "rest-api",
+        "service",
+        "subprocess",
+    ],
     "keywords": ["compile", "generate", "generated", "generator", "sympy"],
     "business_value": "Implements CodeGenerator for code generator functionality",
     "last_modified": "2026-01-17T23:47:56Z",

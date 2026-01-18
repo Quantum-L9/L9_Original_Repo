@@ -41,16 +41,10 @@ logger = structlog.get_logger(__name__)
 async def _init_json_codecs(conn: asyncpg.Connection) -> None:
     """Initialize connection with JSON codec for JSONB columns."""
     await conn.set_type_codec(
-        'jsonb',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
     await conn.set_type_codec(
-        'json',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
 
 
@@ -233,6 +227,7 @@ async def run_migrations(database_url: Optional[str] = None) -> dict[str, any]:
 
     return result
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -242,8 +237,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "debugging", "filesystem", "learning", "logging", "memory-substrate", "migration", "postgres", "serialization", "service"],
-    "keywords": ["all", "applied", "connect", "disconnect", "ensure", "files", "mark", "memory"],
+    "tags": [
+        "async",
+        "debugging",
+        "filesystem",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "migration",
+        "postgres",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "all",
+        "applied",
+        "connect",
+        "disconnect",
+        "ensure",
+        "files",
+        "mark",
+        "memory",
+    ],
     "business_value": "Implements MigrationRunner for migration runner functionality",
     "last_modified": "2026-01-14T18:19:41Z",
     "modified_by": "L9_Codegen_Engine",

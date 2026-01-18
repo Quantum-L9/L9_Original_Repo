@@ -461,6 +461,7 @@ class RedisSubstrate:
         except Exception as e:
             self.logger.error(f"Failed to invalidate session: {e}")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -470,8 +471,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["auth", "authorization", "cache", "caching", "dataclass", "debugging", "learning", "messaging", "monitoring", "serialization"],
-    "keywords": ["cache", "cached", "clear", "connect", "disconnect", "entities", "entity", "governance"],
+    "tags": [
+        "auth",
+        "authorization",
+        "cache",
+        "caching",
+        "dataclass",
+        "debugging",
+        "learning",
+        "messaging",
+        "monitoring",
+        "serialization",
+    ],
+    "keywords": [
+        "cache",
+        "cached",
+        "clear",
+        "connect",
+        "disconnect",
+        "entities",
+        "entity",
+        "governance",
+    ],
     "business_value": "Entity/Relation caching with TTL Atomic operations (SETEX, GETEX, DEL) Pub/Sub for state change notifications Session management (L9 authority model) Performance: Sub-ms lookups + ~1GB/10M entities in",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

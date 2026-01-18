@@ -21,7 +21,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["api.server", "core.singleton_registry", "services.research.__init__", "services.research.research_api"],
+        "imported_by": [
+            "api.server",
+            "core.singleton_registry",
+            "services.research.__init__",
+            "services.research.research_api",
+        ],
     },
 }
 # ============================================================================
@@ -200,6 +205,7 @@ async def shutdown_runtime() -> None:
         await _runtime.shutdown()
         _runtime = None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -210,7 +216,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["memory.substrate_repository"],
     "tags": ["adapter", "async", "logging", "operations", "research-services"],
-    "keywords": ["execute", "graph", "initialize", "research", "resume", "runtime", "shutdown", "status"],
+    "keywords": [
+        "execute",
+        "graph",
+        "initialize",
+        "research",
+        "resume",
+        "runtime",
+        "shutdown",
+        "status",
+    ],
     "business_value": "Implements ResearchGraphRuntime for graph runtime functionality",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

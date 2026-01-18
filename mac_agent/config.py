@@ -92,6 +92,7 @@ def get_config() -> MacAgentConfig:
         _config = MacAgentConfig()
     return _config
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -101,7 +102,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "config", "filesystem", "integration", "logging", "mac-integration"],
+    "tags": [
+        "api",
+        "config",
+        "filesystem",
+        "integration",
+        "logging",
+        "mac-integration",
+    ],
     "keywords": ["agent", "mac"],
     "business_value": "Implements MacAgentConfig for config functionality",
     "last_modified": "2026-01-07T13:35:57Z",

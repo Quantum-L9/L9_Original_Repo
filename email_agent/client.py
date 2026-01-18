@@ -25,7 +25,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Gmail API"],
         "memory_layers": [],
-        "imported_by": ["email_agent.__init__", "mac_agent.runner", "memory.slack_ingest"],
+        "imported_by": [
+            "email_agent.__init__",
+            "mac_agent.runner",
+            "memory.slack_ingest",
+        ],
     },
 }
 # ============================================================================
@@ -43,6 +47,7 @@ try:
 except ImportError:
     GMAIL_AVAILABLE = False
     logger.warning("Gmail client not available")
+
 
 def execute_email_task(
     task: Dict[str, Any], account: Optional[str] = None
@@ -364,6 +369,7 @@ def execute_email_task(
             "data": {"error": str(e)},
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -373,7 +379,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["adapter", "api", "email-integration", "integration", "logging", "messaging"],
+    "tags": [
+        "adapter",
+        "api",
+        "email-integration",
+        "integration",
+        "logging",
+        "messaging",
+    ],
     "keywords": ["account", "agent", "client", "email", "execute", "module", "task"],
     "business_value": "This module provides execute_email_task() function for Mac Agent integration. Uses gmail_client.py for actual Gmail operations. Supports multi-account mode via account parameter. Version: 2.0.0",
     "last_modified": "2026-01-18T03:13:40Z",

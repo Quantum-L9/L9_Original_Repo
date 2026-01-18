@@ -36,7 +36,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["memory.__init__", "tests.memory.test_hierarchical_consolidation"],
+        "imported_by": [
+            "memory.__init__",
+            "tests.memory.test_hierarchical_consolidation",
+        ],
     },
 }
 # ============================================================================
@@ -540,6 +543,7 @@ class NeuralDecayScheduler:
             logger.error(f"Decay preview failed: {e}", exc_info=True)
             return {"error": str(e)}
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -549,8 +553,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "batch-processing", "dataclass", "learning", "logging", "memory-substrate", "scheduling"],
-    "keywords": ["calculate", "decay", "importance", "memory", "neural", "pass", "preview", "reinforcement"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "dataclass",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "scheduling",
+    ],
+    "keywords": [
+        "calculate",
+        "decay",
+        "importance",
+        "memory",
+        "neural",
+        "pass",
+        "preview",
+        "reinforcement",
+    ],
     "business_value": "Implements neural decay for memory importance scoring. Part of Stage 2: Hierarchical Memory Consolidation Engine (SUPER-PROMPT). S(m, t) = I(m) * exp(-λt) * R(m) S(m, t) = Current salience of memory m",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

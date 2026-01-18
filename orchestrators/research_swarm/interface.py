@@ -58,6 +58,7 @@ class IResearchSwarmOrchestrator(Protocol):
         """Execute research_swarm orchestration."""
         ...
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -67,7 +68,16 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "data-models", "intelligence", "messaging", "orchestration", "pydantic", "schema", "validation"],
+    "tags": [
+        "async",
+        "data-models",
+        "intelligence",
+        "messaging",
+        "orchestration",
+        "pydantic",
+        "schema",
+        "validation",
+    ],
     "keywords": ["execute", "interface", "orchestrator", "research", "swarm"],
     "business_value": "Provides interface components including ResearchSwarmRequest, ResearchSwarmResponse, IResearchSwarmOrchestrator",
     "last_modified": "2026-01-17T23:47:56Z",

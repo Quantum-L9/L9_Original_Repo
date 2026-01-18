@@ -471,6 +471,7 @@ class InsightExtractionPipeline:
 # Singleton / Factory
 # =============================================================================
 
+
 @lru_cache(maxsize=1)
 def get_insight_pipeline() -> InsightExtractionPipeline:
     """Get or create the insight extraction pipeline singleton. CACHED."""
@@ -483,6 +484,7 @@ def init_insight_pipeline(repository) -> InsightExtractionPipeline:
     pipeline.set_repository(repository)
     return pipeline
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -492,8 +494,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.substrate_models"],
-    "tags": ["api", "async", "caching", "debugging", "learning", "logging", "memory-substrate", "messaging", "service"],
-    "keywords": ["anomalies", "detect", "detection", "extract", "extraction", "heuristic", "insight", "memory"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "debugging",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "service",
+    ],
+    "keywords": [
+        "anomalies",
+        "detect",
+        "detection",
+        "extract",
+        "extraction",
+        "heuristic",
+        "insight",
+        "memory",
+    ],
     "business_value": "Implements InsightExtractionPipeline for insight extraction functionality",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

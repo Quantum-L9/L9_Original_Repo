@@ -29,7 +29,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.agents.executor", "tests.integration.test_closed_loop_learning"],
+        "imported_by": [
+            "core.agents.executor",
+            "tests.integration.test_closed_loop_learning",
+        ],
     },
 }
 # ============================================================================
@@ -39,6 +42,7 @@ from typing import Any, Dict, List
 import structlog
 
 logger = structlog.get_logger(__name__)
+
 
 def generate_adaptive_context(patterns: List[Dict[str, Any]]) -> str:
     """
@@ -89,6 +93,7 @@ def generate_adaptive_context(patterns: List[Dict[str, Any]]) -> str:
     )
 
     return header + "\n\n".join(context_parts) + "\n---\n"
+
 
 def _extract_lessons_from_rejections(rejections: List[Dict[str, Any]]) -> str:
     """Extract lessons from rejection patterns."""
@@ -142,6 +147,7 @@ def _extract_lessons_from_rejections(rejections: List[Dict[str, Any]]) -> str:
 
     return "\n".join(lessons[:5])  # Limit to top 5 lessons
 
+
 def _extract_lessons_from_approvals(approvals: List[Dict[str, Any]]) -> str:
     """Extract lessons from approval patterns."""
     lessons = []
@@ -173,6 +179,7 @@ def _extract_lessons_from_approvals(approvals: List[Dict[str, Any]]) -> str:
 
     return "\n".join(lessons[:3])  # Limit to top 3 lessons
 
+
 async def get_adaptive_context_for_tool(tool_name: str) -> str:
     """
     Get adaptive context for a specific tool.
@@ -199,29 +206,31 @@ async def get_adaptive_context_for_tool(tool_name: str) -> str:
         logger.warning(f"Failed to get adaptive context for {tool_name}: {e}")
         return ""
 
+
 async def get_world_model_context_for_agent(agent_name: str = "L") -> str:
     """
     Get world model context for an agent.
-    
+
     Queries the world model for agent capabilities, infrastructure status,
     and integration status to provide situational awareness.
-    
+
     Args:
         agent_name: Agent name (e.g., "L", "CA")
-        
+
     Returns:
         World model context string to prepend to agent prompts
     """
     try:
         from core.worldmodel.service import get_world_model_service
-        
+
         service = get_world_model_service()
         context = await service.get_world_model_context(agent_name)
         return context
-        
+
     except Exception as e:
         logger.warning(f"Failed to get world model context for {agent_name}: {e}")
         return ""
+
 
 async def get_combined_adaptive_context(
     tool_name: str,
@@ -230,80 +239,78 @@ async def get_combined_adaptive_context(
 ) -> str:
     """
     Get combined adaptive context including governance patterns and world model.
-    
+
     Args:
         tool_name: Tool being used
         agent_name: Agent using the tool
         include_world_model: Whether to include world model context
-        
+
     Returns:
         Combined context string
     """
     context_parts = []
-    
+
     # Get governance-based adaptive context
     governance_context = await get_adaptive_context_for_tool(tool_name)
     if governance_context:
         context_parts.append(governance_context)
-    
+
     # Get world model context
     if include_world_model:
         world_model_context = await get_world_model_context_for_agent(agent_name)
         if world_model_context:
             context_parts.append(world_model_context)
-    
+
     return "\n\n".join(context_parts)
+
 
 async def get_test_failure_context(task_id: str) -> str:
     """
     Get adaptive context from test failures for a task.
-    
+
     Queries test_results segment for failures and generates
     adaptive guidance for L to refine proposals.
-    
+
     Args:
         task_id: Task ID to check for test failures
-        
+
     Returns:
         Adaptive context string based on test failures
     """
     try:
         from memory.retrieval import get_test_results_for_task
-        
+
         test_results = await get_test_results_for_task(task_id)
-        
+
         if not test_results:
             return ""
-        
+
         # Find failed tests
         failed_results = [r for r in test_results if not r.get("success", True)]
-        
+
         if not failed_results:
             return ""
-        
-        context_parts = [
-            "\n---\n**PRIOR TEST FAILURES FOR THIS TASK:**\n"
-        ]
-        
+
+        context_parts = ["\n---\n**PRIOR TEST FAILURES FOR THIS TASK:**\n"]
+
         for result in failed_results[:3]:  # Limit to 3 most recent
             tests_failed = result.get("tests_failed", 0)
             recommendations = result.get("recommendations", [])
-            
+
             context_parts.append(
                 f"- Previous attempt had {tests_failed} failing test(s)"
             )
             for rec in recommendations[:2]:
                 context_parts.append(f"  - {rec}")
-        
-        context_parts.append(
-            "\nAddress these issues in your revised proposal.\n---\n"
-        )
-        
+
+        context_parts.append("\nAddress these issues in your revised proposal.\n---\n")
+
         return "\n".join(context_parts)
-        
+
     except Exception as e:
         logger.warning(f"Failed to get test failure context: {e}")
         return ""
+
 
 # =============================================================================
 # Public API
@@ -326,8 +333,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.worldmodel.service", "memory.retrieval"],
-    "tags": ["agent-execution", "api", "async", "foundation", "logging", "service", "testing"],
-    "keywords": ["adaptive", "agent", "based", "combined", "failure", "generate", "governance", "model"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "foundation",
+        "logging",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "adaptive",
+        "agent",
+        "based",
+        "combined",
+        "failure",
+        "generate",
+        "governance",
+        "model",
+    ],
     "business_value": "Utility module for adaptive prompting",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

@@ -681,6 +681,7 @@ class DiagnosticSuite:
                     f.write(f"  - Path: `{file_info['path']}`\n")
                 f.write("\n")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -690,8 +691,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["agent-execution", "auth", "batch-processing", "collector", "config", "debugging", "filesystem", "intelligence", "metrics", "streaming"],
-    "keywords": ["action", "components", "configs", "converge", "create", "cursor", "diagnostic", "directory"],
+    "tags": [
+        "agent-execution",
+        "auth",
+        "batch-processing",
+        "collector",
+        "config",
+        "debugging",
+        "filesystem",
+        "intelligence",
+        "metrics",
+        "streaming",
+    ],
+    "keywords": [
+        "action",
+        "components",
+        "configs",
+        "converge",
+        "create",
+        "cursor",
+        "diagnostic",
+        "directory",
+    ],
     "business_value": "Implements CursorActionExtractor for cursor action extractor functionality",
     "last_modified": "2026-01-14T16:23:10Z",
     "modified_by": "L9_Codegen_Engine",

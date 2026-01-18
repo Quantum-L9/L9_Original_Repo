@@ -30,7 +30,15 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["ir_engine.__init__", "ir_engine.deliberation_cell", "orchestration.orchestrator_kernel", "orchestration.unified_controller", "tests.ir_engine.test_ir_semantic_incremental", "tests.ir_engine.test_ir_semantic_to_plan_integration", "tests.ir_engine.test_ir_validation_and_status"],
+        "imported_by": [
+            "ir_engine.__init__",
+            "ir_engine.deliberation_cell",
+            "orchestration.orchestrator_kernel",
+            "orchestration.unified_controller",
+            "tests.ir_engine.test_ir_semantic_incremental",
+            "tests.ir_engine.test_ir_semantic_to_plan_integration",
+            "tests.ir_engine.test_ir_validation_and_status",
+        ],
     },
 }
 # ============================================================================
@@ -410,6 +418,7 @@ class IRValidator:
         result = self.validate(graph)
         return result.valid
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -420,7 +429,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["intelligence", "ir-compilation", "logging", "validation", "validator"],
-    "keywords": ["completeness", "compliance", "consistency", "cycle", "quick", "status", "update", "validate"],
+    "keywords": [
+        "completeness",
+        "compliance",
+        "consistency",
+        "cycle",
+        "quick",
+        "status",
+        "update",
+        "validate",
+    ],
     "business_value": "Implements IRValidator for ir validator functionality",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

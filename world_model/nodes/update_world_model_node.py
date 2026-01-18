@@ -216,6 +216,7 @@ def create_world_model_packets_from_insights(
 
     return packets
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -226,7 +227,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": ["core.decorators"],
     "tags": ["async", "debugging", "learning", "logging", "service", "world-model"],
-    "keywords": ["create", "graph", "insights", "kernel", "langgraph", "memory", "model", "packets"],
+    "keywords": [
+        "create",
+        "graph",
+        "insights",
+        "kernel",
+        "langgraph",
+        "memory",
+        "model",
+        "packets",
+    ],
     "business_value": "1. Receives memory packets from graph state 2. Routes them to WorldModelEngine.update_from_packet() 3. Returns updated state with results LangGraph: added to StateGraph via graph.add_node() Memory Sub",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

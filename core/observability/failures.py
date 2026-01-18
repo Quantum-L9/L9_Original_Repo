@@ -300,6 +300,7 @@ def get_recovery_actions(failure_class: FailureClass) -> List[RemediationAction]
         ],
     )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -309,8 +310,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "caching", "data-models", "debugging", "enum", "event-driven", "executor", "foundation", "logging"],
-    "keywords": ["action", "actions", "detect", "detection", "detector", "execute", "executor", "failure"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "data-models",
+        "debugging",
+        "enum",
+        "event-driven",
+        "executor",
+        "foundation",
+        "logging",
+    ],
+    "keywords": [
+        "action",
+        "actions",
+        "detect",
+        "detection",
+        "detector",
+        "execute",
+        "executor",
+        "failure",
+    ],
     "business_value": "Provides failures components including RecoveryAction, FailureDetector, RecoveryExecutor",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

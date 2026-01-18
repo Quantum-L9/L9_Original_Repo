@@ -46,6 +46,7 @@ logger = structlog.get_logger(__name__)
 # Lazy import to avoid circular dependencies
 _research_agent = None
 
+
 def _get_research_agent():
     """Lazy-load ResearchAgent singleton."""
     global _research_agent
@@ -68,8 +69,10 @@ def _get_research_agent():
             return None
     return _research_agent
 
+
 # ============================================================================
 # Tool Executors
+
 
 async def research_agent_synthesize(
     topic: str,
@@ -129,6 +132,7 @@ async def research_agent_synthesize(
             "success": False,
             "error": str(e),
         }
+
 
 async def research_agent_discover(
     topic: str,
@@ -199,6 +203,7 @@ async def research_agent_discover(
             "error": str(e),
         }
 
+
 async def research_agent_generate_spec(
     topic: str,
     description: Optional[str] = None,
@@ -263,6 +268,7 @@ async def research_agent_generate_spec(
             "error": str(e),
         }
 
+
 # ============================================================================
 # Tool Executor Registry (for runtime.l_tools integration)
 
@@ -291,8 +297,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["agents.research_agent"],
-    "tags": ["api", "async", "engine", "foundation", "logging", "testing", "tool-registry"],
-    "keywords": ["agent", "discover", "generate", "module", "research", "researchagent", "spec", "synthesize"],
+    "tags": [
+        "api",
+        "async",
+        "engine",
+        "foundation",
+        "logging",
+        "testing",
+        "tool-registry",
+    ],
+    "keywords": [
+        "agent",
+        "discover",
+        "generate",
+        "module",
+        "research",
+        "researchagent",
+        "spec",
+        "synthesize",
+    ],
     "business_value": "Utility module for research tools",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

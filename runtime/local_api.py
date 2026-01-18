@@ -41,7 +41,7 @@ logger = structlog.get_logger(__name__)
 class LocalAPI:
     """
     Safe local API for shell commands and file operations.
-    
+
     Provides sandboxed execution with:
     - Command whitelist validation
     - Dangerous pattern blocking
@@ -90,7 +90,7 @@ class LocalAPI:
     def __init__(self, settings: Dict[str, Any]):
         """
         Initialize LocalAPI.
-        
+
         Args:
             settings: Configuration dict with:
                 - base_path: Root path for sandboxed operations
@@ -103,10 +103,10 @@ class LocalAPI:
     def validate_command(self, cmd: str) -> bool:
         """
         Validate command against whitelist and blocked patterns.
-        
+
         Args:
             cmd: Command string to validate
-            
+
         Returns:
             True if command is allowed, False otherwise
         """
@@ -128,11 +128,11 @@ class LocalAPI:
     def execute_shell(self, command: str, cwd: Optional[str] = None) -> Dict[str, Any]:
         """
         Execute shell command safely.
-        
+
         Args:
             command: Shell command to execute
             cwd: Working directory (defaults to base_path)
-            
+
         Returns:
             Dict with: success, output, error, exit_code
         """
@@ -182,11 +182,11 @@ class LocalAPI:
     def read_file(self, file_path: str, limit: Optional[int] = None) -> Dict[str, Any]:
         """
         Read file safely with path traversal protection.
-        
+
         Args:
             file_path: Path to file
             limit: Optional line limit
-            
+
         Returns:
             Dict with: success, content, error
         """
@@ -219,11 +219,11 @@ class LocalAPI:
     def write_file(self, file_path: str, content: str) -> Dict[str, Any]:
         """
         Write file safely with path traversal protection.
-        
+
         Args:
             file_path: Path to file
             content: Content to write
-            
+
         Returns:
             Dict with: success, error
         """
@@ -250,10 +250,10 @@ class LocalAPI:
     def list_directory(self, dir_path: str) -> Dict[str, Any]:
         """
         List directory contents safely.
-        
+
         Args:
             dir_path: Path to directory
-            
+
         Returns:
             Dict with: success, files, error
         """
@@ -297,8 +297,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "event-driven", "filesystem", "logging", "operations", "runtime-operations", "subprocess", "utility"],
-    "keywords": ["aios", "api", "command", "directory", "execute", "local", "read", "shell"],
+    "tags": [
+        "api",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "operations",
+        "runtime-operations",
+        "subprocess",
+        "utility",
+    ],
+    "keywords": [
+        "aios",
+        "api",
+        "command",
+        "directory",
+        "execute",
+        "local",
+        "read",
+        "shell",
+    ],
     "business_value": "Implements LocalAPI for local api functionality",
     "last_modified": "2026-01-13T15:10:46Z",
     "modified_by": "L9_Codegen_Engine",

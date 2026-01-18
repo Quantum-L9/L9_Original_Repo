@@ -35,7 +35,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Anthropic API", "OpenAI API"],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["memory.__init__", "tests.memory.test_frontier_memory_pipeline"],
+        "imported_by": [
+            "memory.__init__",
+            "tests.memory.test_frontier_memory_pipeline",
+        ],
     },
 }
 # ============================================================================
@@ -434,6 +437,7 @@ def init_context_builder(
         builder.set_identity_service(identity_service)
     return builder
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -443,8 +447,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "builder-pattern", "data-models", "dataclass", "learning", "logging", "serialization"],
-    "keywords": ["agent", "based", "build", "builder", "facts", "general", "hierarchical", "identity"],
+    "tags": [
+        "async",
+        "builder-pattern",
+        "data-models",
+        "dataclass",
+        "learning",
+        "logging",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "based",
+        "build",
+        "builder",
+        "facts",
+        "general",
+        "hierarchical",
+        "identity",
+    ],
     "business_value": "Provides context builder components including MemoryTier, ContextSection, HierarchicalContextBuilder",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

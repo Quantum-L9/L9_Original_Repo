@@ -27,8 +27,11 @@ import psycopg
 # Outside containers, use host networking or published ports
 MEMORY_DSN = os.getenv(
     "MEMORY_DSN",
-    os.getenv("DATABASE_URL", "postgresql://postgres:postgres@l9-postgres:5432/l9_memory"),
+    os.getenv(
+        "DATABASE_URL", "postgresql://postgres:postgres@l9-postgres:5432/l9_memory"
+    ),
 )
+
 
 def init_db():
     with psycopg.connect(MEMORY_DSN, autocommit=True) as conn:
@@ -43,6 +46,7 @@ def init_db():
                 );
             """)
 
+
 def insert_embedding(source, content, vector=None):
     with psycopg.connect(MEMORY_DSN, autocommit=True) as conn:
         with conn.cursor() as cur:
@@ -53,6 +57,7 @@ def insert_embedding(source, content, vector=None):
             """,
                 (source, content, vector),
             )
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

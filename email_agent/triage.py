@@ -40,6 +40,7 @@ except ImportError:
     GMAIL_AVAILABLE = False
     logger.warning("Gmail client or OpenAI not available")
 
+
 def summarize_inbox(limit: int = 20) -> Dict[str, Any]:
     """
     Summarize recent inbox messages using LLM.
@@ -186,6 +187,7 @@ Return JSON format:
             "summary": "",
         }
 
+
 def _simple_summary(message_details: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Fallback simple summary without LLM."""
     urgent = []
@@ -235,6 +237,7 @@ def _simple_summary(message_details: List[Dict[str, Any]]) -> Dict[str, Any]:
         "deadlines": [],
         "summary": f"Found {len(urgent)} urgent items, {len(replies_needed)} needing replies, {len(attachments)} with attachments",
     }
+
 
 def run_daily_digest() -> str:
     """
@@ -313,6 +316,7 @@ def run_daily_digest() -> str:
         logger.error(f"Daily digest failed: {e}", exc_info=True)
         return f"❌ Error generating digest: {str(e)}"
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -322,7 +326,16 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "email-integration", "integration", "llm", "logging", "messaging", "serialization", "utility"],
+    "tags": [
+        "api",
+        "email-integration",
+        "integration",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+        "utility",
+    ],
     "keywords": ["daily", "digest", "inbox", "summarize", "triage"],
     "business_value": "Utility module for triage",
     "last_modified": "2026-01-07T13:35:57Z",

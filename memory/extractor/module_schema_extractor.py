@@ -109,6 +109,7 @@ class ModuleSchemaExtractor(BaseExtractor):
 
         return count
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -119,7 +120,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["collector", "config", "filesystem", "learning", "memory-substrate"],
-    "keywords": ["extract", "extractor", "files", "generate", "kernel", "module", "modules", "schema"],
+    "keywords": [
+        "extract",
+        "extractor",
+        "files",
+        "generate",
+        "kernel",
+        "module",
+        "modules",
+        "schema",
+    ],
     "business_value": "Implements ModuleSchemaExtractor for module schema extractor functionality",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

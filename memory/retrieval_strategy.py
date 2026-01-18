@@ -33,7 +33,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Anthropic API", "OpenAI API"],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["memory.retrieval", "tests.memory.test_frontier_memory_pipeline"],
+        "imported_by": [
+            "memory.retrieval",
+            "tests.memory.test_frontier_memory_pipeline",
+        ],
     },
 }
 # ============================================================================
@@ -894,6 +897,7 @@ def init_strategy_retriever(
         retriever.set_identity_service(identity_service)
     return retriever
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -903,8 +907,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "data-models", "dataclass", "debugging", "event-driven", "learning", "logging", "tracing"],
-    "keywords": ["based", "description", "determine", "determiner", "episodes", "facts", "frontier", "identity"],
+    "tags": [
+        "async",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "tracing",
+    ],
+    "keywords": [
+        "based",
+        "description",
+        "determine",
+        "determiner",
+        "episodes",
+        "facts",
+        "frontier",
+        "identity",
+    ],
     "business_value": "Implements frontier-grade strategy-based retrieval that selects the appropriate retrieval approach based on query type and context. core_identity: Retrieve Tier 1 identity facts (values, preferences, ",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

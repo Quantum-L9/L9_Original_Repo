@@ -28,7 +28,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["HTTP API"],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["clients.__init__", "core.singleton_registry", "runtime.l_tools", "services.research.research_graph", "tests.clients.test_memory_client", "tests.memory.test_memory_adapter_basic"],
+        "imported_by": [
+            "clients.__init__",
+            "core.singleton_registry",
+            "runtime.l_tools",
+            "services.research.research_graph",
+            "tests.clients.test_memory_client",
+            "tests.memory.test_memory_adapter_basic",
+        ],
     },
 }
 # ============================================================================
@@ -637,6 +644,7 @@ async def close_memory_client() -> None:
         await _client.close()
         _client = None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -646,8 +654,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "client", "data-models", "debugging", "event-driven", "http-client", "integration", "logging", "messaging", "pydantic"],
-    "keywords": ["check", "client", "close", "envelope", "facts", "fallback", "fetch", "health"],
+    "tags": [
+        "async",
+        "client",
+        "data-models",
+        "debugging",
+        "event-driven",
+        "http-client",
+        "integration",
+        "logging",
+        "messaging",
+        "pydantic",
+    ],
+    "keywords": [
+        "check",
+        "client",
+        "close",
+        "envelope",
+        "facts",
+        "fallback",
+        "fetch",
+        "health",
+    ],
     "business_value": "Provides memory client components including PacketEnvelopeIn, PacketWriteResult, SemanticSearchRequest",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

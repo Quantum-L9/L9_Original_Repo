@@ -72,9 +72,14 @@ from services.research_factory import (
     UniversalExtractor,
     load_glue_config,
 )
-from core.security.path_safety import PathSafetyError, resolve_base_dir, safe_resolve_path
+from core.security.path_safety import (
+    PathSafetyError,
+    resolve_base_dir,
+    safe_resolve_path,
+)
 
 logger = structlog.get_logger(__name__)
+
 
 def print_validation_result(result, verbose: bool = False):
     """Print validation result."""
@@ -96,6 +101,7 @@ def print_validation_result(result, verbose: bool = False):
             logger.warning(f"    • [{warning.code}] {warning.message}")
             if warning.path and verbose:
                 logger.warning(f"      at: {warning.path}")
+
 
 def print_extraction_result(result, verbose: bool = False):
     """Print extraction result."""
@@ -130,6 +136,7 @@ def print_extraction_result(result, verbose: bool = False):
         logger.info(f"    • Total bytes: {result.manifest.total_bytes}")
 
     logger.info(f"\n  Duration: {result.duration_ms}ms")
+
 
 async def main():
     parser = argparse.ArgumentParser(
@@ -267,6 +274,7 @@ async def main():
 
     sys.exit(0 if result.success else 1)
 
+
 if __name__ == "__main__":
     asyncio.run(main())
 
@@ -279,7 +287,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.security.path_safety"],
-    "tags": ["async", "cli", "config", "filesystem", "logging", "messaging", "operations", "scripts", "serialization", "service"],
+    "tags": [
+        "async",
+        "cli",
+        "config",
+        "filesystem",
+        "logging",
+        "messaging",
+        "operations",
+        "scripts",
+        "serialization",
+        "service",
+    ],
     "keywords": ["cli", "extraction", "print", "tool", "validation"],
     "business_value": "Utility module for factory extract",
     "last_modified": "2026-01-14T12:10:12Z",

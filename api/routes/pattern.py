@@ -20,7 +20,12 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /test", "GET /config", "POST /execute", "POST /validate"],
+        "api_endpoints": [
+            "GET /test",
+            "GET /config",
+            "POST /execute",
+            "POST /validate",
+        ],
         "datasources": [],
         "memory_layers": [],
         "imported_by": ["api.server", "tests.orchestrators.test_pattern_orchestrator"],
@@ -333,6 +338,7 @@ async def validate_pattern_config(
             "errors": [f"Failed to parse config: {str(e)}"],
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -342,7 +348,18 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["api.auth", "core.decorators"],
-    "tags": ["api", "api-gateway", "async", "auth", "config", "endpoint", "logging", "messaging", "operations", "pydantic"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "config",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+    ],
     "keywords": ["execute", "orchestrator", "pattern", "router", "test", "validate"],
     "business_value": "Provides pattern components including PatternExecuteRequest, NodeResultResponse, PatternExecuteResponse",
     "last_modified": "2026-01-17T23:47:56Z",

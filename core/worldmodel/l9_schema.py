@@ -27,7 +27,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Redis"],
         "memory_layers": [],
-        "imported_by": ["core.worldmodel.__init__", "core.worldmodel.service", "tests.integration.test_world_model"],
+        "imported_by": [
+            "core.worldmodel.__init__",
+            "core.worldmodel.service",
+            "tests.integration.test_world_model",
+        ],
     },
 }
 # ============================================================================
@@ -120,16 +124,16 @@ class L9Agent(BaseModel):
 
     id: UUID = Field(default_factory=uuid4, description="Unique agent identifier")
     name: str = Field(..., description="Agent name (e.g., 'L', 'CA', 'QA', 'Mac')")
-    role: str = Field(..., description="Agent role (e.g., 'CTO', 'Research', 'Testing')")
+    role: str = Field(
+        ..., description="Agent role (e.g., 'CTO', 'Research', 'Testing')"
+    )
     capabilities: List[str] = Field(
         default_factory=list, description="List of capability names"
     )
     kernel_version: Optional[str] = Field(
         None, description="Version of kernels used by agent"
     )
-    last_active: Optional[datetime] = Field(
-        None, description="Last activity timestamp"
-    )
+    last_active: Optional[datetime] = Field(None, description="Last activity timestamp")
     status: str = Field(default="active", description="Agent status")
     entity_type: EntityType = Field(default=EntityType.AGENT)
 
@@ -182,19 +186,11 @@ class L9Infrastructure(BaseModel):
     name: str = Field(
         ..., description="Infrastructure name (e.g., 'l9-postgres', 'l9-redis')"
     )
-    infra_type: InfrastructureType = Field(
-        ..., description="Type of infrastructure"
-    )
+    infra_type: InfrastructureType = Field(..., description="Type of infrastructure")
     status: str = Field(default="running", description="Current status")
-    endpoints: List[str] = Field(
-        default_factory=list, description="Service endpoints"
-    )
-    health_check_url: Optional[str] = Field(
-        None, description="Health check endpoint"
-    )
-    container_name: Optional[str] = Field(
-        None, description="Docker container name"
-    )
+    endpoints: List[str] = Field(default_factory=list, description="Service endpoints")
+    health_check_url: Optional[str] = Field(None, description="Health check endpoint")
+    container_name: Optional[str] = Field(None, description="Docker container name")
     port: Optional[int] = Field(None, description="Service port")
     entity_type: EntityType = Field(default=EntityType.INFRASTRUCTURE)
 
@@ -217,19 +213,13 @@ class L9Tool(BaseModel):
     """Tool entity in the L9 world model."""
 
     id: UUID = Field(default_factory=uuid4, description="Unique tool identifier")
-    name: str = Field(
-        ..., description="Tool name (e.g., 'memory_write', 'gmprun')"
-    )
+    name: str = Field(..., description="Tool name (e.g., 'memory_write', 'gmprun')")
     category: ToolCategory = Field(..., description="Tool category")
     risk_level: ToolRiskLevel = Field(
         default=ToolRiskLevel.LOW, description="Risk level"
     )
-    requires_approval: bool = Field(
-        default=False, description="Requires Igor approval"
-    )
-    last_used: Optional[datetime] = Field(
-        None, description="Last usage timestamp"
-    )
+    requires_approval: bool = Field(default=False, description="Requires Igor approval")
+    last_used: Optional[datetime] = Field(None, description="Last usage timestamp")
     use_count: int = Field(default=0, description="Total usage count")
     description: Optional[str] = Field(None, description="Tool description")
     entity_type: EntityType = Field(default=EntityType.TOOL)
@@ -253,18 +243,12 @@ class L9MemorySegment(BaseModel):
     """Memory segment entity."""
 
     id: UUID = Field(default_factory=uuid4, description="Unique segment identifier")
-    name: str = Field(
-        ..., description="Segment name (e.g., 'governance_patterns')"
-    )
+    name: str = Field(..., description="Segment name (e.g., 'governance_patterns')")
     segment_type: str = Field(..., description="Type of content stored")
-    last_updated: Optional[datetime] = Field(
-        None, description="Last update timestamp"
-    )
+    last_updated: Optional[datetime] = Field(None, description="Last update timestamp")
     size_bytes: int = Field(default=0, description="Approximate size in bytes")
     query_count: int = Field(default=0, description="Total queries to this segment")
-    retention_days: Optional[int] = Field(
-        None, description="Retention period in days"
-    )
+    retention_days: Optional[int] = Field(None, description="Retention period in days")
     entity_type: EntityType = Field(default=EntityType.MEMORY_SEGMENT)
 
     def to_node_dict(self) -> Dict[str, Any]:
@@ -274,7 +258,9 @@ class L9MemorySegment(BaseModel):
             "entity_type": self.entity_type.value,
             "name": self.name,
             "segment_type": self.segment_type,
-            "last_updated": self.last_updated.isoformat() if self.last_updated else None,
+            "last_updated": self.last_updated.isoformat()
+            if self.last_updated
+            else None,
             "size_bytes": self.size_bytes,
             "query_count": self.query_count,
             "retention_days": self.retention_days,
@@ -312,7 +298,9 @@ class L9ExternalSystem(BaseModel):
             "integration_type": self.integration_type,
             "api_endpoint": self.api_endpoint,
             "connection_status": self.connection_status.value,
-            "last_contact": self.last_contact.isoformat() if self.last_contact else None,
+            "last_contact": self.last_contact.isoformat()
+            if self.last_contact
+            else None,
             "auth_method": self.auth_method,
         }
 
@@ -386,8 +374,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "auth", "caching", "data-access", "data-models", "enum", "foundation", "messaging", "pydantic", "queue"],
-    "keywords": ["agent", "category", "connection", "edge", "entity", "external", "infrastructure", "memory"],
+    "tags": [
+        "api",
+        "auth",
+        "caching",
+        "data-access",
+        "data-models",
+        "enum",
+        "foundation",
+        "messaging",
+        "pydantic",
+        "queue",
+    ],
+    "keywords": [
+        "agent",
+        "category",
+        "connection",
+        "edge",
+        "entity",
+        "external",
+        "infrastructure",
+        "memory",
+    ],
     "business_value": "Provides l9 schema components including EntityType, InfrastructureType, ToolCategory",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

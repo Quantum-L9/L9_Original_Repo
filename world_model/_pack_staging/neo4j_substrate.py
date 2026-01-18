@@ -518,6 +518,7 @@ class Neo4jSubstrate:
         self.logger.info("State loaded from Neo4j")
         return state
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -527,8 +528,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["auth", "dataclass", "debugging", "graph-db", "learning", "testing", "world-model"],
-    "keywords": ["all", "connect", "create", "cypher", "delete", "disconnect", "drop", "engine"],
+    "tags": [
+        "auth",
+        "dataclass",
+        "debugging",
+        "graph-db",
+        "learning",
+        "testing",
+        "world-model",
+    ],
+    "keywords": [
+        "all",
+        "connect",
+        "create",
+        "cypher",
+        "delete",
+        "disconnect",
+        "drop",
+        "engine",
+    ],
     "business_value": "Provides neo4j substrate components including Neo4jConfig, Neo4jSubstrate",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

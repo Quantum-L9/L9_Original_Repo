@@ -29,7 +29,17 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.e2e_slack_audit", "api.routes.slack", "api.server", "api.server_memory", "memory.slack_ingest", "tests.api.test_e2e_slack_audit", "tests.api.test_slack_adapter", "tests.integration.test_slack_dispatch_integration", "tests.test_slack_adapter"],
+        "imported_by": [
+            "api.e2e_slack_audit",
+            "api.routes.slack",
+            "api.server",
+            "api.server_memory",
+            "memory.slack_ingest",
+            "tests.api.test_e2e_slack_audit",
+            "tests.api.test_slack_adapter",
+            "tests.integration.test_slack_dispatch_integration",
+            "tests.test_slack_adapter",
+        ],
     },
 }
 # ============================================================================
@@ -315,6 +325,7 @@ class SlackRequestNormalizer:
 
         return normalized
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -324,8 +335,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "error-handling", "event-driven", "exception", "logging", "messaging", "operations", "security", "validation", "webhooks"],
-    "keywords": ["adapter", "callback", "command", "event", "header", "hmac", "inbound", "module"],
+    "tags": [
+        "api",
+        "error-handling",
+        "event-driven",
+        "exception",
+        "logging",
+        "messaging",
+        "operations",
+        "security",
+        "validation",
+        "webhooks",
+    ],
+    "keywords": [
+        "adapter",
+        "callback",
+        "command",
+        "event",
+        "header",
+        "hmac",
+        "inbound",
+        "module",
+    ],
     "business_value": "This module provides core Slack webhook validation and request normalization. All inbound Slack events are validated via HMAC-SHA256 before processing.",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

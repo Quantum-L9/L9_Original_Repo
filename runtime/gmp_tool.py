@@ -40,6 +40,7 @@ from runtime.gmp_worker import store_pending_task
 
 logger = structlog.get_logger(__name__)
 
+
 async def gmp_run_tool(
     gmp_markdown: str,
     repo_root: str,
@@ -189,6 +190,7 @@ async def gmp_run_tool(
             "error": str(e),
         }
 
+
 __all__ = ["gmp_run_tool"]
 
 # ============================================================================
@@ -199,9 +201,30 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.tools.tool_graph", "runtime.gmp_worker", "runtime.memory_helpers", "runtime.task_queue"],
-    "tags": ["async", "logging", "messaging", "operations", "queue", "runtime-operations", "service"],
-    "keywords": ["agent", "execution", "gmp", "implementation", "pending", "tasks", "tool"],
+    "dependencies": [
+        "core.tools.tool_graph",
+        "runtime.gmp_worker",
+        "runtime.memory_helpers",
+        "runtime.task_queue",
+    ],
+    "tags": [
+        "async",
+        "logging",
+        "messaging",
+        "operations",
+        "queue",
+        "runtime-operations",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "execution",
+        "gmp",
+        "implementation",
+        "pending",
+        "tasks",
+        "tool",
+    ],
     "business_value": "This tool is called by agent L to request GMP execution. It only creates pending tasks - actual execution requires Igor's approval. Version: 1.0.0",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

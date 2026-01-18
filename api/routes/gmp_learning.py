@@ -25,7 +25,15 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /autonomy-level", "GET /graduation-status", "POST /graduate", "GET /heuristics", "GET /analytics", "POST /log-execution", "POST /generate-heuristics"],
+        "api_endpoints": [
+            "GET /autonomy-level",
+            "GET /graduation-status",
+            "POST /graduate",
+            "GET /heuristics",
+            "GET /analytics",
+            "POST /log-execution",
+            "POST /generate-heuristics",
+        ],
         "datasources": [],
         "memory_layers": [],
         "imported_by": ["api.server"],
@@ -264,6 +272,7 @@ async def trigger_heuristic_generation(
         ],
     }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -273,8 +282,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["agents.cursor.gmp_meta_learning", "api.server"],
-    "tags": ["api", "api-gateway", "async", "endpoint", "logging", "messaging", "metrics", "operations", "pydantic", "router"],
-    "keywords": ["analytics", "autonomy", "endpoints", "engine", "execution", "generation", "gmp", "graduate"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "endpoint",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+        "pydantic",
+        "router",
+    ],
+    "keywords": [
+        "analytics",
+        "autonomy",
+        "endpoints",
+        "engine",
+        "execution",
+        "generation",
+        "gmp",
+        "graduate",
+    ],
     "business_value": "Provides gmp learning components including AutonomyLevelResponse, GraduationStatusResponse, HeuristicsResponse",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

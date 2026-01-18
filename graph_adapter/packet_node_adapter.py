@@ -108,6 +108,7 @@ class PacketNodeAdapter:
 
         return new_state
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -117,7 +118,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.substrate_service"],
-    "tags": ["adapter", "adapter-pattern", "async", "event-driven", "graph-integration", "integration", "tracing"],
+    "tags": [
+        "adapter",
+        "adapter-pattern",
+        "async",
+        "event-driven",
+        "graph-integration",
+        "integration",
+        "tracing",
+    ],
     "keywords": ["adapter", "langgraph", "packet", "wrapped"],
     "business_value": "Implements PacketNodeAdapter for packet node adapter functionality",
     "last_modified": "2026-01-14T13:21:36Z",

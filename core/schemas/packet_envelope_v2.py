@@ -377,12 +377,16 @@ class PacketEnvelopeIn(BaseModel):
     Allows partial fields - packet_id and timestamp auto-generated if omitted.
     """
 
-    packet_id: Optional[UUID] = Field(None, description="UUID (auto-generated if omitted)")
+    packet_id: Optional[UUID] = Field(
+        None, description="UUID (auto-generated if omitted)"
+    )
     packet_type: str = Field(
         ..., min_length=1, description="Semantic category of the packet"
     )
     payload: dict[str, Any] = Field(..., description="Flexible JSON payload")
-    timestamp: Optional[datetime] = Field(None, description="UTC timestamp (auto-generated)")
+    timestamp: Optional[datetime] = Field(
+        None, description="UTC timestamp (auto-generated)"
+    )
     metadata: Optional[dict[str, Any]] = Field(None)
     provenance: Optional[dict[str, Any]] = Field(None)
     confidence: Optional[dict[str, Any]] = Field(None)
@@ -401,7 +405,9 @@ class PacketEnvelopeIn(BaseModel):
             packet_type=self.packet_type,
             payload=self.payload,
             timestamp=self.timestamp or datetime.utcnow(),
-            metadata=PacketMetadata(**self.metadata) if self.metadata else PacketMetadata(),
+            metadata=PacketMetadata(**self.metadata)
+            if self.metadata
+            else PacketMetadata(),
             provenance=PacketProvenance(**self.provenance) if self.provenance else None,
             confidence=PacketConfidence(**self.confidence) if self.confidence else None,
             reasoning_block=self.reasoning_block,
@@ -420,7 +426,7 @@ class PacketEnvelopeIn(BaseModel):
 class PacketWriteResult(BaseModel):
     """
     Result of writing a PacketEnvelope.
-    
+
     v2.1.0: Added enrichment visibility fields for unified pipeline (GMP-67).
     """
 
@@ -435,9 +441,11 @@ class PacketWriteResult(BaseModel):
     )
 
     # Enrichment visibility fields (v2.1.0 - GMP-67 unified pipeline)
-    enrichment_status: Literal["not_attempted", "success", "failed", "disabled"] = Field(
-        default="not_attempted",
-        description="DAG enrichment outcome: not_attempted (default), success, failed, disabled",
+    enrichment_status: Literal["not_attempted", "success", "failed", "disabled"] = (
+        Field(
+            default="not_attempted",
+            description="DAG enrichment outcome: not_attempted (default), success, failed, disabled",
+        )
     )
     enrichment_error: Optional[str] = Field(
         None, description="Enrichment error message if enrichment_status='failed'"
@@ -452,7 +460,8 @@ class PacketWriteResult(BaseModel):
         description="Which write tier succeeded: full (core+enrichment), core_only, direct_db, failed",
     )
     warnings: list[str] = Field(
-        default_factory=list, description="Non-fatal warnings (enrichment timeout, fallback used, etc.)"
+        default_factory=list,
+        description="Non-fatal warnings (enrichment timeout, fallback used, etc.)",
     )
 
 
@@ -485,6 +494,7 @@ class SemanticSearchResult(BaseModel):
         default_factory=list, description="List of matching results"
     )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -494,8 +504,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "data-models", "enum", "event-driven", "foundation", "messaging", "pydantic", "security", "serialization", "tracing"],
-    "keywords": ["compute", "confidence", "derivation", "derive", "envelope", "frozen", "hash", "hit"],
+    "tags": [
+        "api",
+        "data-models",
+        "enum",
+        "event-driven",
+        "foundation",
+        "messaging",
+        "pydantic",
+        "security",
+        "serialization",
+        "tracing",
+    ],
+    "keywords": [
+        "compute",
+        "confidence",
+        "derivation",
+        "derive",
+        "envelope",
+        "frozen",
+        "hash",
+        "hit",
+    ],
     "business_value": "This is the SINGLE SOURCE OF TRUTH for PacketEnvelope. All new code should import from this module. Immutability enforced (frozen=True) Thread tracking (thread_id) DAG lineage (lineage) Tagging system",
     "last_modified": "2026-01-13T17:23:56Z",
     "modified_by": "L9_Codegen_Engine",

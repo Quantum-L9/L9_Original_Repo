@@ -29,7 +29,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.schemas.__init__", "core.schemas.tests.test_research_factory", "core.schemas.universal_schema"],
+        "imported_by": [
+            "core.schemas.__init__",
+            "core.schemas.tests.test_research_factory",
+            "core.schemas.universal_schema",
+        ],
     },
 }
 # ============================================================================
@@ -62,6 +66,7 @@ ExtractionBackend = Callable[[dict[str, Any]], tuple[dict[str, Any], float]]
 # =============================================================================
 # Pass 1: Plan Queries
 # =============================================================================
+
 
 @must_stay_async("callers use await")
 async def pass_1_plan_queries(state: ResearchState) -> ResearchState:
@@ -136,9 +141,11 @@ async def pass_1_plan_queries(state: ResearchState) -> ResearchState:
         logger.error(f"Pass 1 failed: {e}")
         return state.complete_pass(1, error=str(e))
 
+
 # =============================================================================
 # Pass 2: Build Superprompts
 # =============================================================================
+
 
 @must_stay_async("callers use await")
 async def pass_2_build_superprompts(state: ResearchState) -> ResearchState:
@@ -203,9 +210,11 @@ Format: JSON with keys [results, metadata, sources]
         logger.error(f"Pass 2 failed: {e}")
         return state.complete_pass(2, error=str(e))
 
+
 # =============================================================================
 # Pass 3: Execute Retrieval
 # =============================================================================
+
 
 @must_stay_async("callers use await")
 async def pass_3_execute_retrieval(
@@ -269,9 +278,11 @@ async def pass_3_execute_retrieval(
         logger.error(f"Pass 3 failed: {e}")
         return state.complete_pass(3, error=str(e))
 
+
 # =============================================================================
 # Pass 4: Extract Results
 # =============================================================================
+
 
 @must_stay_async("callers use await")
 async def pass_4_extract_results(
@@ -345,9 +356,11 @@ async def pass_4_extract_results(
         logger.error(f"Pass 4 failed: {e}")
         return state.complete_pass(4, error=str(e))
 
+
 # =============================================================================
 # Pass 5: Integrate Results
 # =============================================================================
+
 
 @must_stay_async("callers use await")
 async def pass_5_integrate_results(state: ResearchState) -> ResearchState:
@@ -416,9 +429,11 @@ async def pass_5_integrate_results(state: ResearchState) -> ResearchState:
         logger.error(f"Pass 5 failed: {e}")
         return state.complete_pass(5, error=str(e))
 
+
 # =============================================================================
 # Graph Builder Helper
 # =============================================================================
+
 
 def build_research_graph():
     """
@@ -456,6 +471,7 @@ def build_research_graph():
 
     return graph.compile()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -464,9 +480,32 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.decorators", "core.schemas.research_factory_models", "core.schemas.research_factory_state"],
-    "tags": ["async", "batch-processing", "core", "foundation", "logging", "metrics", "mocking", "service", "testing"],
-    "keywords": ["build", "execute", "extract", "factory", "graph", "integrate", "langgraph", "nodes"],
+    "dependencies": [
+        "core.decorators",
+        "core.schemas.research_factory_models",
+        "core.schemas.research_factory_state",
+    ],
+    "tags": [
+        "async",
+        "batch-processing",
+        "core",
+        "foundation",
+        "logging",
+        "metrics",
+        "mocking",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "build",
+        "execute",
+        "extract",
+        "factory",
+        "graph",
+        "integrate",
+        "langgraph",
+        "nodes",
+    ],
     "business_value": "Implements the 5-pass structured research pipeline as LangGraph node functions.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

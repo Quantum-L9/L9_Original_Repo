@@ -451,6 +451,7 @@ async def stop_tool_pattern_extraction() -> None:
     extractor = get_tool_pattern_extractor()
     await extractor.stop()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -460,8 +461,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "memory.substrate_repository"],
-    "tags": ["async", "audit-tool", "core", "debugging", "foundation", "logging", "metrics", "scheduling", "service"],
-    "keywords": ["audit", "extraction", "extractor", "insights", "model", "pattern", "patterns", "service"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "core",
+        "debugging",
+        "foundation",
+        "logging",
+        "metrics",
+        "scheduling",
+        "service",
+    ],
+    "keywords": [
+        "audit",
+        "extraction",
+        "extractor",
+        "insights",
+        "model",
+        "pattern",
+        "patterns",
+        "service",
+    ],
     "business_value": "Queries tool_audit_log table for usage patterns Identifies frequently used tools, common sequences, error patterns Creates World Model entities for tool usage insights Runs on a schedule (default: eve",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

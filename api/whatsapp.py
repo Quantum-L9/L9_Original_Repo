@@ -23,6 +23,7 @@ import os
 from typing import Dict, Any
 from twilio.rest import Client
 
+
 def load_twilio_client():
     cfg_path = "/opt/l9/twilio_config.env"
     if os.path.exists(cfg_path):
@@ -43,6 +44,7 @@ def load_twilio_client():
 
     return Client(account_sid, auth_token)
 
+
 def send_whatsapp_message(body: str, to: str | None = None) -> Dict[str, Any]:
     client = load_twilio_client()
     from_number = os.getenv("TWILIO_WHATSAPP_FROM")
@@ -56,6 +58,7 @@ def send_whatsapp_message(body: str, to: str | None = None) -> Dict[str, Any]:
         body=body,
     )
     return {"sid": msg.sid, "status": msg.status}
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

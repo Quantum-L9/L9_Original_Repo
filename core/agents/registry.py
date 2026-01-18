@@ -55,6 +55,7 @@ logger = structlog.get_logger(__name__)
 # Check if kernels should be used
 USE_KERNELS = os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes")
 
+
 def _get_kernel_system_prompt() -> Optional[str]:
     """Get kernel-based system prompt if available."""
     if not USE_KERNELS:
@@ -69,6 +70,7 @@ def _get_kernel_system_prompt() -> Optional[str]:
         logger.warning(f"Kernel loading failed, using YAML prompt: {e}")
         return None
 
+
 # =============================================================================
 # Constants
 # =============================================================================
@@ -79,6 +81,7 @@ DEFAULT_AGENT_ID = "l9-standard-v1"
 # =============================================================================
 # Agent Registry
 # =============================================================================
+
 
 class AgentRegistry:
     """
@@ -479,9 +482,11 @@ BEHAVIOR
             ],
         }
 
+
 # =============================================================================
 # Factory Functions
 # =============================================================================
+
 
 def create_agent_registry(config_dir: Optional[str | Path] = None) -> AgentRegistry:
     """
@@ -495,6 +500,7 @@ def create_agent_registry(config_dir: Optional[str | Path] = None) -> AgentRegis
     """
     return AgentRegistry(config_dir)
 
+
 def create_default_registry() -> AgentRegistry:
     """
     Create a registry with the default config directory.
@@ -506,6 +512,7 @@ def create_default_registry() -> AgentRegistry:
     if config_path.exists():
         return AgentRegistry(config_path)
     return AgentRegistry()
+
 
 # =============================================================================
 # Public API
@@ -533,16 +540,17 @@ __all__ = [
 __dora_footer__ = {
     # === IDENTITY ===
     "component_id": "COR-FOUN-001",
-    
     # === GOVERNANCE ===
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
     "security_classification": "internal",
-    
     # === DEPENDENCIES ===
-    "dependencies": ["core.agents.schemas", "core.decorators", "core.kernels.prompt_builder"],
-    
+    "dependencies": [
+        "core.agents.schemas",
+        "core.decorators",
+        "core.kernels.prompt_builder",
+    ],
     # === OPERATIONAL ===
     "execution_mode": "on-demand",
     "timeout_seconds": 30,
@@ -550,7 +558,6 @@ __dora_footer__ = {
     "retry_policy": "exponential",
     "circuit_breaker_enabled": True,
     "circuit_breaker_threshold": 5,
-    
     # === OBSERVABILITY ===
     "monitoring_required": True,
     "logging_level": "info",
@@ -560,12 +567,18 @@ __dora_footer__ = {
         "availability_percent": 99.9,
         "error_rate_percent": 0.1,
     },
-    
     # === DISCOVERY ===
-    "tags": ["agent-execution", "async", "cache", "foundation", "graph-db", "logging", "service"],
+    "tags": [
+        "agent-execution",
+        "async",
+        "cache",
+        "foundation",
+        "graph-db",
+        "logging",
+        "service",
+    ],
     "keywords": ["agent", "agents", "all", "config", "configs", "create"],
     "business_value": "Provides agent registration, discovery, and configuration management.",
-    
     # === CHANGE TRACKING ===
     "last_modified": "2026-01-18T02:10:54Z",
     "modified_by": "L9_Codegen_Engine",

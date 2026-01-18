@@ -239,6 +239,7 @@ async def event_queue_health(event_queue: EventQueue) -> dict:
         "metrics": metrics,
     }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -248,8 +249,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "data-models", "dataclass", "event-driven", "foundation", "logging", "messaging", "metrics", "queue", "routing"],
-    "keywords": ["agent", "coordination", "driven", "event", "forever", "health", "kind", "metrics"],
+    "tags": [
+        "async",
+        "data-models",
+        "dataclass",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "metrics",
+        "queue",
+        "routing",
+    ],
+    "keywords": [
+        "agent",
+        "coordination",
+        "driven",
+        "event",
+        "forever",
+        "health",
+        "kind",
+        "metrics",
+    ],
     "business_value": "Provides event queue components including EventKind, Event, EventQueue",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

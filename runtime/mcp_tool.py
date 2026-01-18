@@ -40,6 +40,7 @@ from runtime.mcp_client import get_mcp_client
 
 logger = structlog.get_logger(__name__)
 
+
 async def mcp_call_tool(
     server_id: str,
     tool_name: str,
@@ -174,6 +175,7 @@ async def mcp_call_tool(
             "error": error or "Unknown error",
         }
 
+
 __all__ = ["mcp_call_tool"]
 
 # ============================================================================
@@ -184,8 +186,19 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.tools.tool_graph", "runtime.mcp_client", "runtime.memory_helpers"],
-    "tags": ["async", "logging", "messaging", "operations", "runtime-operations", "service"],
+    "dependencies": [
+        "core.tools.tool_graph",
+        "runtime.mcp_client",
+        "runtime.memory_helpers",
+    ],
+    "tags": [
+        "async",
+        "logging",
+        "messaging",
+        "operations",
+        "runtime-operations",
+        "service",
+    ],
     "keywords": ["agent", "implementation", "mcp", "tool", "tools"],
     "business_value": "This tool is called by agent L to invoke MCP tools on external servers. Version: 1.0.0",
     "last_modified": "2026-01-07T13:35:58Z",

@@ -33,7 +33,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.packet_envelope.integration", "tests.upgrades.test_packet_envelope_phases"],
+        "imported_by": [
+            "core.packet_envelope.integration",
+            "tests.upgrades.test_packet_envelope_phases",
+        ],
     },
 }
 # ============================================================================
@@ -566,6 +569,7 @@ class ComplianceExporter:
 
         return report
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -575,8 +579,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "audit-tool", "auth", "data-models", "dataclass", "engine", "event-driven", "exporter", "foundation"],
-    "keywords": ["aggregate", "anonymization", "anonymize", "approve", "audit", "compliance", "date", "delete"],
+    "tags": [
+        "api",
+        "async",
+        "audit-tool",
+        "auth",
+        "data-models",
+        "dataclass",
+        "engine",
+        "event-driven",
+        "exporter",
+        "foundation",
+    ],
+    "keywords": [
+        "aggregate",
+        "anonymization",
+        "anonymize",
+        "approve",
+        "audit",
+        "compliance",
+        "date",
+        "delete",
+    ],
     "business_value": "Provides governance components including RetentionPolicy, DataRetentionConfig, RetentionManager",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger(__name__)
 
+
 async def bind_kernels_to_agent(
     instance: "BootstrapInstanceData",
     kernels: Dict[str, "KernelParsed"],
@@ -130,6 +131,7 @@ async def bind_kernels_to_agent(
         logger.error("Failed to bind kernels", error=str(e))
         raise RuntimeError(f"Kernel binding failed: {e}")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -139,7 +141,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.graph_client", "memory.substrate_service"],
-    "tags": ["agent-execution", "api", "async", "debugging", "foundation", "logging", "security", "service", "testing"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "debugging",
+        "foundation",
+        "logging",
+        "security",
+        "service",
+        "testing",
+    ],
     "keywords": ["agent", "bind", "kernel", "kernels", "phase"],
     "business_value": "Utility module for phase 3 bind kernels",
     "last_modified": "2026-01-17T23:47:56Z",

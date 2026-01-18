@@ -402,6 +402,7 @@ class CacheGetSessionContextArgs(BaseModel):
     class Config:
         extra = "forbid"
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -411,8 +412,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["caching", "data-models", "integration", "pydantic", "schema", "validation"],
-    "keywords": ["apply", "cache", "compound", "confidence", "decay", "delete", "entity", "expired"],
+    "tags": [
+        "caching",
+        "data-models",
+        "integration",
+        "pydantic",
+        "schema",
+        "validation",
+    ],
+    "keywords": [
+        "apply",
+        "cache",
+        "compound",
+        "confidence",
+        "decay",
+        "delete",
+        "entity",
+        "expired",
+    ],
     "business_value": "Provides models components including SaveMemoryRequest, MemoryResponse, SearchMemoryRequest",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

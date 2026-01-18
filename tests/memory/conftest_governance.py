@@ -36,25 +36,30 @@ os.environ["MCP_API_KEY_C"] = "test-cursor-key-dev-global"
 os.environ["GOVERNANCE_HARDENING_ENABLED"] = "True"
 os.environ["GOVERNANCE_ENFORCEMENT_MODE"] = "enforce"
 
+
 @pytest.fixture
 def cursor_auth() -> Dict[str, str]:
     """Cursor API key with developer+global scopes only."""
     return {"Authorization": "Bearer test-cursor-key-dev-global"}
+
 
 @pytest.fixture
 def l_auth() -> Dict[str, str]:
     """L-CTO API key with all scopes including l-private."""
     return {"Authorization": "Bearer test-lcto-key-all-scopes"}
 
+
 @pytest.fixture
 def no_auth() -> Dict[str, str]:
     """No authentication headers (should be rejected)."""
     return {}
 
+
 @pytest.fixture
 def invalid_auth() -> Dict[str, str]:
     """Invalid authentication token (should be rejected)."""
     return {"Authorization": "Bearer invalid-token-should-fail"}
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -66,7 +71,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["api", "auth", "memory-substrate", "operations", "test", "testing"],
-    "keywords": ["auth", "conftest", "cursor", "fixtures", "governance", "invalid", "memory", "tests"],
+    "keywords": [
+        "auth",
+        "conftest",
+        "cursor",
+        "fixtures",
+        "governance",
+        "invalid",
+        "memory",
+        "tests",
+    ],
     "business_value": "Utility module for conftest governance",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

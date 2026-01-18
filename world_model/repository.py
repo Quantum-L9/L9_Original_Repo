@@ -35,7 +35,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["PostgreSQL"],
         "memory_layers": [],
-        "imported_by": ["core.singleton_registry", "tests.integration.test_world_model_repository_integration", "tests.world_model.test_wm_scope", "tests.world_model.test_world_model_repository_basic", "world_model.__init__", "world_model.service"],
+        "imported_by": [
+            "core.singleton_registry",
+            "tests.integration.test_world_model_repository_integration",
+            "tests.world_model.test_wm_scope",
+            "tests.world_model.test_world_model_repository_basic",
+            "world_model.__init__",
+            "world_model.service",
+        ],
     },
 }
 # ============================================================================
@@ -55,17 +62,12 @@ logger = structlog.get_logger(__name__)
 async def _init_json_codecs(conn: asyncpg.Connection) -> None:
     """Initialize connection with JSON codec for JSONB columns."""
     await conn.set_type_codec(
-        'jsonb',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
     await conn.set_type_codec(
-        'json',
-        encoder=json.dumps,
-        decoder=json.loads,
-        schema='pg_catalog'
+        "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
     )
+
 
 # =============================================================================
 # Database Configuration
@@ -75,7 +77,9 @@ async def _init_json_codecs(conn: asyncpg.Connection) -> None:
 # Default uses 'l9-postgres' service name from docker-compose.yml
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    os.getenv("MEMORY_DSN", "postgresql://postgres:postgres@l9-postgres:5432/l9_memory"),
+    os.getenv(
+        "MEMORY_DSN", "postgresql://postgres:postgres@l9-postgres:5432/l9_memory"
+    ),
 )
 
 
@@ -91,8 +95,8 @@ async def get_pool():
     global _pool
     if _pool is None:
         _pool = await asyncpg.create_pool(
-            DATABASE_URL, 
-            min_size=2, 
+            DATABASE_URL,
+            min_size=2,
             max_size=10,
             init=_init_json_codecs,  # Register JSON codecs for JSONB columns
         )
@@ -892,6 +896,7 @@ def get_world_model_repository() -> WorldModelRepository:
         _repository = WorldModelRepository()
     return _repository
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -901,8 +906,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "audit-tool", "data-access", "debugging", "learning", "logging", "postgres", "serialization", "service", "testing"],
-    "keywords": ["audit", "close", "count", "delete", "entities", "entity", "latest", "load"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "data-access",
+        "debugging",
+        "learning",
+        "logging",
+        "postgres",
+        "serialization",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "audit",
+        "close",
+        "count",
+        "delete",
+        "entities",
+        "entity",
+        "latest",
+        "load",
+    ],
     "business_value": "Provides repository components including WorldModelEntityRow, WorldModelUpdateRow, WorldModelSnapshotRow",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

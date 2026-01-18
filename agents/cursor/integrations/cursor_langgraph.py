@@ -26,7 +26,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["agents.cursor.integrations.cursor_executor", "agents.cursor.integrations.cursor_gateway", "api.server", "memory.checkpoint.cursor_checkpoint_manager", "tests.integration.test_cursor_langgraph_integration"],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_executor",
+            "agents.cursor.integrations.cursor_gateway",
+            "api.server",
+            "memory.checkpoint.cursor_checkpoint_manager",
+            "tests.integration.test_cursor_langgraph_integration",
+        ],
     },
 }
 # ============================================================================
@@ -493,6 +499,7 @@ def build_cursor_langgraph(
 
     return graph.compile()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -502,8 +509,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "data-models", "debugging", "intelligence", "logging", "messaging", "pydantic", "schema", "tracing", "validation"],
-    "keywords": ["agent", "build", "cursor", "decision", "gate", "governance", "langgraph", "memory"],
+    "tags": [
+        "async",
+        "data-models",
+        "debugging",
+        "intelligence",
+        "logging",
+        "messaging",
+        "pydantic",
+        "schema",
+        "tracing",
+        "validation",
+    ],
+    "keywords": [
+        "agent",
+        "build",
+        "cursor",
+        "decision",
+        "gate",
+        "governance",
+        "langgraph",
+        "memory",
+    ],
     "business_value": "Provides cursor langgraph components including CursorAgentState, CursorPlanningNode, CursorMemoryWriteNode",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

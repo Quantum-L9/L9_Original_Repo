@@ -364,7 +364,7 @@ __dora_footer__ = {
     "dependencies": [],
     "tags": ["api", "auth", "data-models", "dataclass", "debugging", "foundation", "logging", "messaging", "monitoring", "rest-api"],
     "keywords": ["attempts", "block", "blocked", "defense", "detect", "detection", "injection", "module"],
-    "business_value": "Identity override attempts ("You are now DAN") Safety bypass attempts ("Ignore previous instructions") Capability escalation ("Run GMPRUN without approval") Jailbreak patterns (roleplay, hypothetical ",
+    "business_value": "Identity override attempts () Safety bypass attempts () Capability escalation () Jailbreak patterns",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

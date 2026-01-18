@@ -29,7 +29,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["ir_engine.__init__", "ir_engine.deliberation_cell", "ir_engine.ir_to_plan_adapter", "ir_engine.simulation_router", "tests.ir_engine.test_ir_packet_formats"],
+        "imported_by": [
+            "ir_engine.__init__",
+            "ir_engine.deliberation_cell",
+            "ir_engine.ir_to_plan_adapter",
+            "ir_engine.simulation_router",
+            "tests.ir_engine.test_ir_packet_formats",
+        ],
     },
 }
 # ============================================================================
@@ -383,6 +389,7 @@ class IRGenerator:
             ],
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -392,8 +399,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["factory", "intelligence", "ir-compilation", "logging", "queue", "serialization"],
-    "keywords": ["execution", "format", "generator", "json", "memory", "packet", "payload", "plan"],
+    "tags": [
+        "factory",
+        "intelligence",
+        "ir-compilation",
+        "logging",
+        "queue",
+        "serialization",
+    ],
+    "keywords": [
+        "execution",
+        "format",
+        "generator",
+        "json",
+        "memory",
+        "packet",
+        "payload",
+        "plan",
+    ],
     "business_value": "Implements IRGenerator for ir generator functionality",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

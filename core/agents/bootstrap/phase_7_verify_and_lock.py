@@ -41,6 +41,7 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger(__name__)
 
+
 async def verify_and_lock(
     instance: "BootstrapInstanceData",
     substrate_service: "MemorySubstrateService",
@@ -212,6 +213,7 @@ async def verify_and_lock(
 
     return signature
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -220,8 +222,24 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.schemas", "memory.governance_gate", "memory.graph_client", "memory.substrate_service"],
-    "tags": ["agent-execution", "api", "async", "audit-tool", "debugging", "event-driven", "foundation", "logging", "security", "service"],
+    "dependencies": [
+        "core.schemas",
+        "memory.governance_gate",
+        "memory.graph_client",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "audit-tool",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "logging",
+        "security",
+        "service",
+    ],
     "keywords": ["agent", "audit", "lock", "phase", "verify"],
     "business_value": "Utility module for phase 7 verify and lock",
     "last_modified": "2026-01-17T23:47:56Z",

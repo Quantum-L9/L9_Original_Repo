@@ -36,6 +36,7 @@ from typing import Set, Dict, List
 import subprocess
 import yaml
 
+
 def get_changed_files() -> Set[str]:
     """Get files changed in current PR."""
     try:
@@ -45,9 +46,12 @@ def get_changed_files() -> Set[str]:
             text=True,
             check=True,
         )
-        return set(result.stdout.strip().split('\n')) if result.stdout.strip() else set()
+        return (
+            set(result.stdout.strip().split("\n")) if result.stdout.strip() else set()
+        )
     except subprocess.CalledProcessError:
         return set()
+
 
 def load_code_map() -> Dict:
     """Load CODE-MAP.yaml."""
@@ -56,6 +60,7 @@ def load_code_map() -> Dict:
         return {}
     with open(code_map_path) as f:
         return yaml.safe_load(f) or {}
+
 
 def analyze_pr(changed_files: Set[str], code_map: Dict) -> Dict[str, List[str]]:
     """Map changed files to subsystems and AI scopes."""
@@ -69,7 +74,7 @@ def analyze_pr(changed_files: Set[str], code_map: Dict) -> Dict[str, List[str]]:
     touched_subsystems = set()
 
     for changed_file in changed_files:
-        if not changed_file or changed_file == '':
+        if not changed_file or changed_file == "":
             continue
 
         found = False
@@ -103,10 +108,13 @@ def analyze_pr(changed_files: Set[str], code_map: Dict) -> Dict[str, List[str]]:
 
     return analysis
 
+
 def pattern_match(path: str, pattern: str) -> bool:
     """Simple glob-style pattern matching."""
     from fnmatch import fnmatch
+
     return fnmatch(path, pattern)
+
 
 def format_report(analysis: Dict, changed_files: Set[str]) -> str:
     """Format markdown report."""
@@ -118,47 +126,58 @@ def format_report(analysis: Dict, changed_files: Set[str]) -> str:
     ]
 
     if analysis["allowed"]:
-        lines.extend([
-            "#### ✅ AI-Allowed Scopes (Can be modified by Cursor)",
-            "",
-        ])
+        lines.extend(
+            [
+                "#### ✅ AI-Allowed Scopes (Can be modified by Cursor)",
+                "",
+            ]
+        )
         for f in analysis["allowed"]:
             lines.append(f"- {f}")
         lines.append("")
 
     if analysis["restricted"]:
-        lines.extend([
-            "#### ⚠️ Restricted Scopes (AI advisory only, human approval required)",
-            "",
-        ])
+        lines.extend(
+            [
+                "#### ⚠️ Restricted Scopes (AI advisory only, human approval required)",
+                "",
+            ]
+        )
         for f in analysis["restricted"]:
             lines.append(f"- {f}")
         lines.append("")
 
     if analysis["protected"]:
-        lines.extend([
-            "#### 🔒 Protected Surfaces (LCTO-controlled, requires approval)",
-            "",
-        ])
+        lines.extend(
+            [
+                "#### 🔒 Protected Surfaces (LCTO-controlled, requires approval)",
+                "",
+            ]
+        )
         for f in analysis["protected"]:
             lines.append(f"- {f}")
         lines.append("")
-        lines.extend([
-            "**⚠️ WARNING:** This PR touches protected files.",
-            "Please obtain approval from the code owner before merging.",
-            "",
-        ])
+        lines.extend(
+            [
+                "**⚠️ WARNING:** This PR touches protected files.",
+                "Please obtain approval from the code owner before merging.",
+                "",
+            ]
+        )
 
     if analysis["untouched_subsystems"]:
-        lines.extend([
-            "#### 📦 Untouched Subsystems",
-            "",
-        ])
+        lines.extend(
+            [
+                "#### 📦 Untouched Subsystems",
+                "",
+            ]
+        )
         for subsys in analysis["untouched_subsystems"]:
             lines.append(f"- {subsys}")
         lines.append("")
 
     return "\n".join(lines)
+
 
 def main():
     changed = get_changed_files()
@@ -175,6 +194,7 @@ def main():
     # Return non-zero if protected files touched (will trigger PR comment)
     return 1 if analysis["protected"] else 0
 
+
 if __name__ == "__main__":
     sys.exit(main())
 
@@ -187,8 +207,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": [".dora", "cli", "config", "filesystem", "operations", "rest-api", "subprocess"],
-    "keywords": ["analyze", "changed", "collab", "files", "format", "generate", "load", "map"],
+    "tags": [
+        ".dora",
+        "cli",
+        "config",
+        "filesystem",
+        "operations",
+        "rest-api",
+        "subprocess",
+    ],
+    "keywords": [
+        "analyze",
+        "changed",
+        "collab",
+        "files",
+        "format",
+        "generate",
+        "load",
+        "map",
+    ],
     "business_value": "Utility module for generate-ai-collab-report",
     "last_modified": "2026-01-18T02:07:37Z",
     "modified_by": "L9_Codegen_Engine",

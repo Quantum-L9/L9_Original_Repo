@@ -381,6 +381,7 @@ async def stop_graph_wm_sync() -> None:
     if _sync_service:
         await _sync_service.stop()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -390,8 +391,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.agents.graph_state", "core.decorators"],
-    "tags": ["async", "auth", "core", "debugging", "foundation", "graph-db", "logging", "service", "streaming"],
-    "keywords": ["agent", "graph", "model", "service", "start", "state", "status", "stop"],
+    "tags": [
+        "async",
+        "auth",
+        "core",
+        "debugging",
+        "foundation",
+        "graph-db",
+        "logging",
+        "service",
+        "streaming",
+    ],
+    "keywords": [
+        "agent",
+        "graph",
+        "model",
+        "service",
+        "start",
+        "state",
+        "status",
+        "stop",
+    ],
     "business_value": "World Model has real-time view of L's graph state Agent entity in WM has attributes matching Neo4j Changes via AgentSelfModifyTool appear in WM Neo4j Graph State → GraphToWorldModelSync → World Model ",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

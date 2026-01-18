@@ -27,7 +27,17 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["HTTP API", "Slack API"],
         "memory_layers": [],
-        "imported_by": ["api.server", "api.server_memory", "api.webhook_mac_agent", "mac_agent.runner", "memory.slack_ingest", "orchestrators.agent_execution.orchestrator", "services.slack_files", "tests.api.test_slack_adapter", "tests.test_slack_adapter"],
+        "imported_by": [
+            "api.server",
+            "api.server_memory",
+            "api.webhook_mac_agent",
+            "mac_agent.runner",
+            "memory.slack_ingest",
+            "orchestrators.agent_execution.orchestrator",
+            "services.slack_files",
+            "tests.api.test_slack_adapter",
+            "tests.test_slack_adapter",
+        ],
     },
 }
 # ============================================================================
@@ -595,6 +605,7 @@ async def post_result_async(
         # Don't raise - fail silently (matching legacy behavior)
         return None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -604,8 +615,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "auth", "client", "debugging", "error-handling", "exception", "http-client", "logging", "messaging"],
-    "keywords": ["async", "chat", "client", "full", "messages", "module", "post", "posting"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "client",
+        "debugging",
+        "error-handling",
+        "exception",
+        "http-client",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "async",
+        "chat",
+        "client",
+        "full",
+        "messages",
+        "module",
+        "post",
+        "posting",
+    ],
     "business_value": "This module provides a thin async wrapper around the Slack Web API for posting messages (chat.postMessage) with full thread support. It is NOT a full Slack SDK; it only implements the subset needed fo",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

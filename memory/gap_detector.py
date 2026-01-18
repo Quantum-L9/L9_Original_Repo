@@ -31,7 +31,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["memory.__init__", "memory.warming_service", "tests.memory.test_predictive_warming"],
+        "imported_by": [
+            "memory.__init__",
+            "memory.warming_service",
+            "tests.memory.test_predictive_warming",
+        ],
     },
 }
 # ============================================================================
@@ -413,6 +417,7 @@ class GapDetector:
             count=len(entity_ids),
         )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -422,8 +427,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "memory.warming_models"],
-    "tags": ["async", "debugging", "event-driven", "learning", "logging", "memory-substrate", "metrics", "service", "streaming"],
-    "keywords": ["all", "cache", "critical", "detect", "detector", "entities", "entity", "frequency"],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "metrics",
+        "service",
+        "streaming",
+    ],
+    "keywords": [
+        "all",
+        "cache",
+        "critical",
+        "detect",
+        "detector",
+        "entities",
+        "entity",
+        "frequency",
+    ],
     "business_value": "Implements GapDetector for gap detector functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

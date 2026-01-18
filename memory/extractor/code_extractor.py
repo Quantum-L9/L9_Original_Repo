@@ -176,6 +176,7 @@ class CodeExtractor(BaseExtractor):
 
         return "\n".join(code_lines).strip()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -185,7 +186,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "auth", "collector", "debugging", "filesystem", "learning", "memory-substrate"],
+    "tags": [
+        "api",
+        "auth",
+        "collector",
+        "debugging",
+        "filesystem",
+        "learning",
+        "memory-substrate",
+    ],
     "keywords": ["blocks", "extract", "extractor", "files", "find"],
     "business_value": "Implements CodeExtractor for code extractor functionality",
     "last_modified": "2026-01-07T13:35:57Z",

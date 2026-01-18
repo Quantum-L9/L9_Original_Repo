@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger(__name__)
 
+
 async def validate_agent_blueprint(
     agent_config: "AgentConfig",
     substrate_service: "MemorySubstrateService",
@@ -128,6 +129,7 @@ async def validate_agent_blueprint(
     )
     return True, ""
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -136,8 +138,23 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.agents.schemas", "core.tools.base_registry", "memory.graph_client", "memory.substrate_service"],
-    "tags": ["agent-execution", "async", "debugging", "filesystem", "foundation", "logging", "messaging", "service", "testing"],
+    "dependencies": [
+        "core.agents.schemas",
+        "core.tools.base_registry",
+        "memory.graph_client",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "agent-execution",
+        "async",
+        "debugging",
+        "filesystem",
+        "foundation",
+        "logging",
+        "messaging",
+        "service",
+        "testing",
+    ],
     "keywords": ["agent", "blueprint", "phase", "validate"],
     "business_value": "Utility module for phase 0 validate",
     "last_modified": "2026-01-17T23:47:56Z",

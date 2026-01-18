@@ -194,6 +194,7 @@ class ExpressionOptimizer:
 
         return ops
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -204,7 +205,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["core", "foundation", "testing", "utility"],
-    "keywords": ["cases", "common", "count", "elimination", "expression", "extract", "fibonacci", "generate"],
+    "keywords": [
+        "cases",
+        "common",
+        "count",
+        "elimination",
+        "expression",
+        "extract",
+        "fibonacci",
+        "generate",
+    ],
     "business_value": "Implements ExpressionOptimizer for utils functionality",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

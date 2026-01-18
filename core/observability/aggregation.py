@@ -104,7 +104,9 @@ class MetricsAggregator:
         # Tool efficiency (tool spans per task)
         task_spans = [s for s in agent_spans if "task" in s.name]
         tool_spans = [s for s in agent_spans if s.name.startswith("tool.")]
-        tool_efficiency = len(task_spans) / max(1, len(tool_spans)) if tool_spans else 0.0
+        tool_efficiency = (
+            len(task_spans) / max(1, len(tool_spans)) if tool_spans else 0.0
+        )
 
         # Cost (estimated from LLM spans)
         llm_spans = [s for s in agent_spans if hasattr(s, "cost_usd")]
@@ -115,7 +117,9 @@ class MetricsAggregator:
             "success_rate": success_rate,
             "tool_efficiency": tool_efficiency,
             "total_cost_usd": total_cost,
-            "avg_latency_ms": mean([s.duration_ms for s in agent_spans if s.duration_ms]),
+            "avg_latency_ms": mean(
+                [s.duration_ms for s in agent_spans if s.duration_ms]
+            ),
             "period": period,
         }
 
@@ -126,7 +130,7 @@ class MetricsAggregator:
         threshold_percent: float = 20.0,
     ) -> List[Dict[str, Any]]:
         """Detect metric regressions vs baseline.
-        
+
         Returns list of regressions (metric name, baseline, current, change_percent).
         """
         regressions = []
@@ -146,17 +150,23 @@ class MetricsAggregator:
             # Determine if it's a regression (higher latency/error is bad, higher success is good)
             is_regression = False
             if "error" in metric_name.lower() or "latency" in metric_name.lower():
-                is_regression = current_val > baseline_val and change_percent > threshold_percent
+                is_regression = (
+                    current_val > baseline_val and change_percent > threshold_percent
+                )
             elif "success" in metric_name.lower():
-                is_regression = current_val < baseline_val and change_percent > threshold_percent
+                is_regression = (
+                    current_val < baseline_val and change_percent > threshold_percent
+                )
 
             if is_regression:
-                regressions.append({
-                    "metric_name": metric_name,
-                    "baseline": baseline_val,
-                    "current": current_val,
-                    "change_percent": change_percent,
-                })
+                regressions.append(
+                    {
+                        "metric_name": metric_name,
+                        "baseline": baseline_val,
+                        "current": current_val,
+                        "change_percent": change_percent,
+                    }
+                )
                 logger.warning(
                     f"Regression detected: {metric_name} "
                     f"({baseline_val} → {current_val}, +{change_percent:.1f}%)"
@@ -182,7 +192,7 @@ class KPITracker:
 
     def __init__(self, window_size: int = 100):
         """Initialize KPI tracker.
-        
+
         Args:
             window_size: Number of data points to keep in memory.
         """
@@ -195,14 +205,16 @@ class KPITracker:
         if key not in self.history:
             self.history[key] = []
 
-        self.history[key].append({
-            "value": kpi.value,
-            "timestamp": kpi.timestamp,
-        })
+        self.history[key].append(
+            {
+                "value": kpi.value,
+                "timestamp": kpi.timestamp,
+            }
+        )
 
         # Keep only recent window
         if len(self.history[key]) > self.window_size:
-            self.history[key] = self.history[key][-self.window_size:]
+            self.history[key] = self.history[key][-self.window_size :]
 
     def get_trend(self, kpi_name: str) -> Optional[str]:
         """Get trend (up, down, stable) for a KPI."""
@@ -213,7 +225,9 @@ class KPITracker:
         avg_recent = mean([p["value"] for p in recent])
         avg_previous = mean([p["value"] for p in recent[:-1]])
 
-        change_percent = abs((avg_recent - avg_previous) / avg_previous) * 100 if avg_previous else 0
+        change_percent = (
+            abs((avg_recent - avg_previous) / avg_previous) * 100 if avg_previous else 0
+        )
 
         if change_percent < 5:
             return "stable"
@@ -232,14 +246,17 @@ class KPITracker:
 
             recent = self.history[kpi_name][-1]
             if recent["value"] > threshold:
-                alerts.append({
-                    "kpi_name": kpi_name,
-                    "value": recent["value"],
-                    "threshold": threshold,
-                    "timestamp": recent["timestamp"],
-                })
+                alerts.append(
+                    {
+                        "kpi_name": kpi_name,
+                        "value": recent["value"],
+                        "threshold": threshold,
+                        "timestamp": recent["timestamp"],
+                    }
+                )
 
         return alerts
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -251,7 +268,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["core", "foundation", "logging", "metrics", "utility"],
-    "keywords": ["agent", "aggregation", "aggregator", "alerts", "breakdown", "compute", "cost", "detect"],
+    "keywords": [
+        "agent",
+        "aggregation",
+        "aggregator",
+        "alerts",
+        "breakdown",
+        "compute",
+        "cost",
+        "detect",
+    ],
     "business_value": "Provides aggregation components including MetricsAggregator, KPITracker",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

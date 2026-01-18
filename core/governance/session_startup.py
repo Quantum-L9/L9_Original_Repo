@@ -35,7 +35,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["api.server", "scripts.workspace.init_workspace", "tests.unit.test_startup_readiness"],
+        "imported_by": [
+            "api.server",
+            "scripts.workspace.init_workspace",
+            "tests.unit.test_startup_readiness",
+        ],
     },
 }
 # ============================================================================
@@ -53,14 +57,14 @@ logger = structlog.get_logger(__name__)
 class StartupFile:
     """
     A mandatory startup file.
-    
+
     Attributes:
         path: Relative path from workspace root
         component_id: Unique identifier (e.g., "PRF-SSP-001")
         required: Whether missing file is a failure
         description: What this file provides
     """
-    
+
     path: str
     component_id: str
     required: bool = True
@@ -70,7 +74,7 @@ class StartupFile:
 @dataclass
 class PreflightResult:
     """Result of a preflight check."""
-    
+
     name: str
     passed: bool
     message: str
@@ -145,7 +149,7 @@ class SessionStartup:
         self._errors: list[str] = []
         self._warnings: list[str] = []
         self._kernel_result: Optional[KernelReadinessResult] = None
-    
+
     @property
     def mandatory_files(self) -> list[StartupFile]:
         """Get list of mandatory startup files."""
@@ -235,23 +239,25 @@ class SessionStartup:
                 description="Workflow state tracking",
             ),
         ]
-    
+
     def run_preflight(self) -> list[PreflightResult]:
         """
         Execute preflight checks.
-        
+
         Returns:
             List of PreflightResult objects
         """
         results: list[PreflightResult] = []
-        
+
         # Check 1: Workspace root exists
-        results.append(PreflightResult(
-            name="workspace_exists",
-            passed=self.root.exists(),
-            message=f"Workspace root: {self.root}",
-        ))
-        
+        results.append(
+            PreflightResult(
+                name="workspace_exists",
+                passed=self.root.exists(),
+                message=f"Workspace root: {self.root}",
+            )
+        )
+
         # Check 2: .cursor-commands symlink
         symlink = self.root / ".cursor-commands"
         symlink_valid = symlink.is_symlink() and symlink.exists()
@@ -261,45 +267,53 @@ class SessionStartup:
                 symlink_target = str(symlink.resolve())
             except Exception:
                 symlink_target = "unresolvable"
-        
-        results.append(PreflightResult(
-            name="symlink_valid",
-            passed=symlink_valid,
-            message=f"Symlink target: {symlink_target}",
-            details={"target": symlink_target, "is_symlink": symlink.is_symlink()},
-        ))
-        
+
+        results.append(
+            PreflightResult(
+                name="symlink_valid",
+                passed=symlink_valid,
+                message=f"Symlink target: {symlink_target}",
+                details={"target": symlink_target, "is_symlink": symlink.is_symlink()},
+            )
+        )
+
         # Check 3: Symlink points to Dropbox (not Library)
         dropbox_valid = "Dropbox" in symlink_target
-        results.append(PreflightResult(
-            name="symlink_dropbox",
-            passed=dropbox_valid,
-            message="Symlink must point to Dropbox, not Library",
-            details={"contains_dropbox": dropbox_valid},
-        ))
-        
+        results.append(
+            PreflightResult(
+                name="symlink_dropbox",
+                passed=dropbox_valid,
+                message="Symlink must point to Dropbox, not Library",
+                details={"contains_dropbox": dropbox_valid},
+            )
+        )
+
         # Check 4: workflow_state.md exists
         workflow_state = self.root / "workflow_state.md"
-        results.append(PreflightResult(
-            name="workflow_state_exists",
-            passed=workflow_state.exists(),
-            message=f"Workflow state: {workflow_state}",
-        ))
-        
+        results.append(
+            PreflightResult(
+                name="workflow_state_exists",
+                passed=workflow_state.exists(),
+                message=f"Workflow state: {workflow_state}",
+            )
+        )
+
         # Check 5: core/governance/ exists
         gov_dir = self.root / "core" / "governance"
-        results.append(PreflightResult(
-            name="governance_dir_exists",
-            passed=gov_dir.exists(),
-            message=f"Governance directory: {gov_dir}",
-        ))
-        
+        results.append(
+            PreflightResult(
+                name="governance_dir_exists",
+                passed=gov_dir.exists(),
+                message=f"Governance directory: {gov_dir}",
+            )
+        )
+
         return results
-    
+
     def load_mandatory_files(self) -> dict[str, Any]:
         """
         Load all mandatory startup files.
-        
+
         Returns:
             Dict with loaded, failed, and total counts
         """
@@ -308,45 +322,53 @@ class SessionStartup:
             "failed": [],
             "total": len(self.mandatory_files),
         }
-        
+
         for sf in self.mandatory_files:
             path = self.root / sf.path
-            
+
             if path.exists():
                 try:
                     # Just verify we can read it
                     content = path.read_text(encoding="utf-8")
                     self._files_loaded.append(sf.component_id)
-                    results["loaded"].append({
-                        "path": sf.path,
-                        "component_id": sf.component_id,
-                        "size_bytes": len(content),
-                    })
+                    results["loaded"].append(
+                        {
+                            "path": sf.path,
+                            "component_id": sf.component_id,
+                            "size_bytes": len(content),
+                        }
+                    )
                     logger.debug(
                         "session_startup.file_loaded",
                         path=sf.path,
                         component_id=sf.component_id,
                     )
                 except Exception as e:
-                    results["failed"].append({
-                        "path": sf.path,
-                        "error": str(e),
-                    })
+                    results["failed"].append(
+                        {
+                            "path": sf.path,
+                            "error": str(e),
+                        }
+                    )
                     if sf.required:
                         self._errors.append(f"CRITICAL: Cannot read {sf.path}: {e}")
                     else:
                         self._warnings.append(f"Cannot read {sf.path}: {e}")
             else:
-                results["failed"].append({
-                    "path": sf.path,
-                    "error": "File not found",
-                })
+                results["failed"].append(
+                    {
+                        "path": sf.path,
+                        "error": "File not found",
+                    }
+                )
                 if sf.required:
                     self._errors.append(f"CRITICAL: Missing required file {sf.path}")
                 else:
                     self._warnings.append(f"Optional file missing: {sf.path}")
-        
-        results["success"] = len([f for f in results["failed"] if "CRITICAL" in str(f)]) == 0
+
+        results["success"] = (
+            len([f for f in results["failed"] if "CRITICAL" in str(f)]) == 0
+        )
         return results
 
     def check_kernel_readiness(self) -> KernelReadinessResult:
@@ -378,9 +400,7 @@ class SessionStartup:
         # Count and hash kernel files
         kernel_files = list(kernel_dir.glob("*.yaml"))
         if len(kernel_files) < 10:
-            errors.append(
-                f"Insufficient kernel files: {len(kernel_files)}/10 required"
-            )
+            errors.append(f"Insufficient kernel files: {len(kernel_files)}/10 required")
 
         # Compute hashes for integrity verification
         try:
@@ -530,7 +550,7 @@ class SessionStartup:
             kernel_state=kernel_state,
             kernel_hash_snapshot=kernel_hash_snapshot,
         )
-    
+
     def _calc_duration_ms(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
         return int((datetime.utcnow() - start_time).total_seconds() * 1000)
@@ -540,10 +560,10 @@ class SessionStartup:
 def create_session_startup(workspace_root: Optional[Path] = None) -> SessionStartup:
     """
     Create a SessionStartup instance.
-    
+
     Args:
         workspace_root: Workspace root (defaults to L9 project)
-        
+
     Returns:
         Configured SessionStartup
     """
@@ -569,8 +589,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.agents.kernel_registry"],
-    "tags": ["dataclass", "debugging", "filesystem", "foundation", "governance", "logging", "messaging", "profiling", "security"],
-    "keywords": ["check", "checks", "create", "execute", "files", "governance", "kernel", "load"],
+    "tags": [
+        "dataclass",
+        "debugging",
+        "filesystem",
+        "foundation",
+        "governance",
+        "logging",
+        "messaging",
+        "profiling",
+        "security",
+    ],
+    "keywords": [
+        "check",
+        "checks",
+        "create",
+        "execute",
+        "files",
+        "governance",
+        "kernel",
+        "load",
+    ],
     "business_value": "Provides session startup components including StartupFile, PreflightResult, KernelReadinessResult",
     "last_modified": "2026-01-07T23:04:26Z",
     "modified_by": "L9_Codegen_Engine",

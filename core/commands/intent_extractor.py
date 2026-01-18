@@ -26,7 +26,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API", "Slack API"],
         "memory_layers": [],
-        "imported_by": ["api.routes.commands", "core.commands.__init__", "memory.slack_ingest", "tests.integration.test_igor_commands"],
+        "imported_by": [
+            "api.routes.commands",
+            "core.commands.__init__",
+            "memory.slack_ingest",
+            "tests.integration.test_igor_commands",
+        ],
     },
 }
 # ============================================================================
@@ -77,6 +82,7 @@ Respond with JSON only:
 
 Be conservative with confidence. If unclear, use confidence < 0.7."""
 
+
 async def extract_intent(
     nlp_prompt: NLPPrompt,
     openai_client: Optional[AsyncOpenAI] = None,
@@ -97,6 +103,7 @@ async def extract_intent(
     # Use provided client or create default
     if openai_client is None:
         import os
+
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             logger.warning("No OpenAI API key, using rule-based fallback")
@@ -126,7 +133,9 @@ async def extract_intent(
         # Build suggested command if high confidence
         suggested_command = None
         if confidence >= 0.8:
-            suggested_command = _intent_to_command(intent_type, entities, nlp_prompt.raw_text)
+            suggested_command = _intent_to_command(
+                intent_type, entities, nlp_prompt.raw_text
+            )
 
         return IntentModel(
             intent_type=intent_type,
@@ -140,6 +149,7 @@ async def extract_intent(
     except Exception as e:
         logger.error("Intent extraction failed", error=str(e))
         return _rule_based_intent(text, nlp_prompt.raw_text)
+
 
 def extract_intent_sync(
     nlp_prompt: NLPPrompt,
@@ -161,6 +171,7 @@ def extract_intent_sync(
     # Use provided client or create default
     if openai_client is None:
         import os
+
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             logger.warning("No OpenAI API key, using rule-based fallback")
@@ -189,7 +200,9 @@ def extract_intent_sync(
 
         suggested_command = None
         if confidence >= 0.8:
-            suggested_command = _intent_to_command(intent_type, entities, nlp_prompt.raw_text)
+            suggested_command = _intent_to_command(
+                intent_type, entities, nlp_prompt.raw_text
+            )
 
         return IntentModel(
             intent_type=intent_type,
@@ -203,6 +216,7 @@ def extract_intent_sync(
     except Exception as e:
         logger.error("Intent extraction failed (sync)", error=str(e))
         return _rule_based_intent(text, nlp_prompt.raw_text)
+
 
 async def confirm_intent(
     intent: IntentModel,
@@ -275,12 +289,14 @@ async def confirm_intent(
         timestamp=datetime.utcnow().isoformat(),
     )
 
+
 def _parse_intent_type(value: str) -> IntentType:
     """Parse intent type string to enum."""
     try:
         return IntentType(value.lower())
     except ValueError:
         return IntentType.UNKNOWN
+
 
 def _intent_to_command(
     intent_type: IntentType,
@@ -322,6 +338,7 @@ def _intent_to_command(
         risk_level=risk_mapping.get(intent_type, RiskLevel.LOW),
     )
 
+
 def _describe_action(intent: IntentModel) -> str:
     """Generate human-readable action description."""
     action_descriptions: dict[IntentType, str] = {
@@ -345,6 +362,7 @@ def _describe_action(intent: IntentModel) -> str:
 
     return base_description
 
+
 def _rule_based_intent(text: str, raw_text: str) -> IntentModel:
     """
     Rule-based intent extraction fallback when LLM unavailable.
@@ -357,7 +375,9 @@ def _rule_based_intent(text: str, raw_text: str) -> IntentModel:
     if any(kw in text_lower for kw in ["propose", "create", "new", "gmp", "plan"]):
         intent_type = IntentType.PROPOSE
         confidence = 0.6
-    elif any(kw in text_lower for kw in ["analyze", "check", "examine", "inspect", "state"]):
+    elif any(
+        kw in text_lower for kw in ["analyze", "check", "examine", "inspect", "state"]
+    ):
         intent_type = IntentType.ANALYZE
         confidence = 0.7
     elif any(kw in text_lower for kw in ["approve", "accept", "yes", "confirm"]):
@@ -375,7 +395,9 @@ def _rule_based_intent(text: str, raw_text: str) -> IntentModel:
     elif any(kw in text_lower for kw in ["run", "execute", "shell", "command"]):
         intent_type = IntentType.EXECUTE
         confidence = 0.5
-    elif "?" in text or any(kw in text_lower for kw in ["what", "how", "why", "when", "where"]):
+    elif "?" in text or any(
+        kw in text_lower for kw in ["what", "how", "why", "when", "where"]
+    ):
         intent_type = IntentType.QUERY
         confidence = 0.7
     else:
@@ -390,6 +412,7 @@ def _rule_based_intent(text: str, raw_text: str) -> IntentModel:
         original_text=raw_text,
         suggested_command=None,
     )
+
 
 __all__ = [
     "extract_intent",
@@ -407,7 +430,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.commands.schemas"],
-    "tags": ["api", "async", "core", "foundation", "llm", "logging", "messaging", "serialization", "service"],
+    "tags": [
+        "api",
+        "async",
+        "core",
+        "foundation",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+        "service",
+    ],
     "keywords": ["confirm", "extract", "extractor", "intent", "sync"],
     "business_value": "Handles ambiguity resolution and high-risk confirmation flows. Version: 1.0.0 (GMP-11)",
     "last_modified": "2026-01-07T13:35:57Z",

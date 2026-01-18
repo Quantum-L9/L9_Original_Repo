@@ -35,7 +35,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
-        "imported_by": ["core.agents.executor", "orchestration.long_plan_graph", "runtime.git_tool", "runtime.gmp_tool", "runtime.mcp_tool", "runtime.tool_call_wrapper"],
+        "imported_by": [
+            "core.agents.executor",
+            "orchestration.long_plan_graph",
+            "runtime.git_tool",
+            "runtime.gmp_tool",
+            "runtime.mcp_tool",
+            "runtime.tool_call_wrapper",
+        ],
     },
 }
 # ============================================================================
@@ -57,6 +64,7 @@ ALL_SEGMENTS = [
     MEMORY_SEGMENT_TOOL_AUDIT,
     MEMORY_SEGMENT_SESSION_CONTEXT,
 ]
+
 
 async def memory_search(
     segment: str,
@@ -142,6 +150,7 @@ async def memory_search(
         logger.error(f"Memory search failed: {e}", exc_info=True)
         return []
 
+
 async def memory_write(
     segment: str,
     payload: Dict[str, Any],
@@ -213,6 +222,7 @@ async def memory_write(
         logger.error(f"Memory write failed: {e}", exc_info=True)
         return None
 
+
 # =============================================================================
 # L Usage Rules (Documented)
 # =============================================================================
@@ -268,8 +278,24 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas", "memory.ingestion", "memory.substrate_service"],
-    "tags": ["async", "audit-tool", "logging", "operations", "runtime-operations", "service"],
-    "keywords": ["audit", "helpers", "memory", "rules", "search", "segment", "state", "write"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "logging",
+        "operations",
+        "runtime-operations",
+        "service",
+    ],
+    "keywords": [
+        "audit",
+        "helpers",
+        "memory",
+        "rules",
+        "search",
+        "segment",
+        "state",
+        "write",
+    ],
     "business_value": "memory_search(segment, query, agent_id) memory_write(segment, payload, agent_id) governance_meta: Rules, authority, policies project_history: Project decisions, milestones, context tool_audit: Tool ca",
     "last_modified": "2026-01-14T13:21:36Z",
     "modified_by": "L9_Codegen_Engine",

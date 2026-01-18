@@ -325,7 +325,10 @@ class Housekeeping:
                 logger.info("✓ Importance decay completed")
             except Exception as e:
                 logger.error(f"❌ Importance decay failed: {e}")
-                results["decay_unaccessed_importance"] = {"status": "error", "error": str(e)}
+                results["decay_unaccessed_importance"] = {
+                    "status": "error",
+                    "error": str(e),
+                }
 
             # 2. Refresh materialized views
             try:
@@ -352,26 +355,33 @@ class Housekeeping:
                 logger.info("✓ Reflection expiration completed")
             except Exception as e:
                 logger.error(f"❌ Reflection expiration failed: {e}")
-                results["evict_expired_reflections"] = {"status": "error", "error": str(e)}
-            
+                results["evict_expired_reflections"] = {
+                    "status": "error",
+                    "error": str(e),
+                }
+
             # 5. Run consolidation (v3.1) - weekly schedule
             # Note: This should run on Saturday 2am UTC, but included here for manual trigger
             # In production, this would be called separately via scheduler
             try:
                 consolidation_result = await self.run_consolidation(dry_run=False)
                 if consolidation_result.get("success"):
-                    results["consolidation"] = {"status": "ok", "report": consolidation_result.get("report")}
+                    results["consolidation"] = {
+                        "status": "ok",
+                        "report": consolidation_result.get("report"),
+                    }
                     logger.info("✓ Consolidation completed")
                 else:
-                    results["consolidation"] = {"status": "error", "error": consolidation_result.get("message")}
+                    results["consolidation"] = {
+                        "status": "error",
+                        "error": consolidation_result.get("message"),
+                    }
                     logger.warning("⚠ Consolidation completed with errors")
             except Exception as e:
                 logger.error(f"❌ Consolidation failed: {e}")
                 results["consolidation"] = {"status": "error", "error": str(e)}
 
-        all_ok = all(
-            r.get("status") == "ok" for r in results.values() if r is not None
-        )
+        all_ok = all(r.get("status") == "ok" for r in results.values() if r is not None)
 
         return {
             "success": all_ok,
@@ -388,16 +398,16 @@ class Housekeeping:
     ) -> Dict[str, Any]:
         """
         Run memory consolidation pipeline (v3.1).
-        
+
         Per memory_spec_v3.0.yaml pipelines.consolidation:
         - Schedule: weekly_saturday_2am_utc
         - Strategies: deduplication, archival, summarization, ttl_expiration
-        
+
         Args:
             dry_run: If True, log actions without executing
             batch_size: Number of packets to process per batch
             sleep_between_batches_ms: Sleep time between batches
-            
+
         Returns:
             Consolidation report dict
         """
@@ -408,20 +418,20 @@ class Housekeeping:
                 "message": "Repository not available",
                 "status": "unavailable",
             }
-        
+
         try:
             consolidation = ConsolidationPipeline(
                 repository=repository,
                 dry_run=dry_run,
             )
-            
+
             report = await consolidation.run_consolidation(
                 batch_size=batch_size,
                 sleep_between_batches_ms=sleep_between_batches_ms,
             )
-            
+
             report_dict = report.to_dict()
-            
+
             logger.info(
                 "Consolidation complete",
                 deduplication=report.deduplication_count,
@@ -430,14 +440,14 @@ class Housekeeping:
                 expired=report.expired_count,
                 errors=len(report.errors),
             )
-            
+
             return {
                 "success": len(report.errors) == 0,
                 "status": "complete",
                 "report": report_dict,
                 "timestamp": datetime.utcnow().isoformat(),
             }
-        
+
         except Exception as e:
             logger.error(f"Consolidation failed: {e}", exc_info=True)
             return {
@@ -446,6 +456,7 @@ class Housekeeping:
                 "message": str(e),
                 "timestamp": datetime.utcnow().isoformat(),
             }
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -456,8 +467,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.consolidation", "memory.substrate_repository"],
-    "tags": ["async", "batch-processing", "debugging", "intelligence", "logging", "messaging", "migration", "orchestration", "scheduling", "service"],
-    "keywords": ["check", "collect", "compact", "consolidation", "garbage", "health", "housekeeping", "maintenance"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "debugging",
+        "intelligence",
+        "logging",
+        "messaging",
+        "migration",
+        "orchestration",
+        "scheduling",
+        "service",
+    ],
+    "keywords": [
+        "check",
+        "collect",
+        "compact",
+        "consolidation",
+        "garbage",
+        "health",
+        "housekeeping",
+        "maintenance",
+    ],
     "business_value": "Handles garbage collection, compaction, and maintenance.",
     "last_modified": "2026-01-12T16:30:23Z",
     "modified_by": "L9_Codegen_Engine",

@@ -20,7 +20,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["agents.base_agent", "agents.cursor.integrations.cursor_gateway", "agents.cursor.integrations.cursor_langgraph", "agents.research_agent", "api.agent_routes", "api.e2e_slack_audit", "api.memory.router", "api.os_routes", "api.routes.commands", "api.routes.cursor"],
+        "imported_by": [
+            "agents.base_agent",
+            "agents.cursor.integrations.cursor_gateway",
+            "agents.cursor.integrations.cursor_langgraph",
+            "agents.research_agent",
+            "api.agent_routes",
+            "api.e2e_slack_audit",
+            "api.memory.router",
+            "api.os_routes",
+            "api.routes.commands",
+            "api.routes.cursor",
+        ],
     },
 }
 # ============================================================================
@@ -28,6 +39,7 @@ __dora_meta__ = {
 from typing import Callable, TypeVar, Any
 
 F = TypeVar("F", bound=Callable[..., Any])
+
 
 def must_stay_async(reason: str) -> Callable[[F], F]:
     """
@@ -64,17 +76,21 @@ def must_stay_async(reason: str) -> Callable[[F], F]:
 
     return decorator
 
+
 def must_stay_async_route(func: F) -> F:
     """Shorthand for FastAPI/ASGI route handlers."""
     return must_stay_async("FastAPI/ASGI route handler")(func)
+
 
 def must_stay_async_protocol(func: F) -> F:
     """Shorthand for async protocol methods (__aenter__, __aexit__, __call__)."""
     return must_stay_async("async protocol method")(func)
 
+
 def must_stay_async_interface(func: F) -> F:
     """Shorthand for interface methods where callers use await."""
     return must_stay_async("callers use await")(func)
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -85,8 +101,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "core", "event-driven", "foundation", "linting", "service"],
-    "keywords": ["async", "decorator", "decorators", "interface", "memory", "must", "protocol", "route"],
+    "tags": [
+        "api",
+        "async",
+        "core",
+        "event-driven",
+        "foundation",
+        "linting",
+        "service",
+    ],
+    "keywords": [
+        "async",
+        "decorator",
+        "decorators",
+        "interface",
+        "memory",
+        "must",
+        "protocol",
+        "route",
+    ],
     "business_value": "Provides reusable decorators for marking code patterns and intentions.",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

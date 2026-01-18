@@ -378,6 +378,7 @@ class WorldModelUpdater(IWorldModelUpdater):
         """
         self._registry = registry
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -387,8 +388,23 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["batch-processing", "dataclass", "learning", "serialization", "world-model"],
-    "keywords": ["apply", "batch", "create", "delete", "entity", "governance", "model", "mutation"],
+    "tags": [
+        "batch-processing",
+        "dataclass",
+        "learning",
+        "serialization",
+        "world-model",
+    ],
+    "keywords": [
+        "apply",
+        "batch",
+        "create",
+        "delete",
+        "entity",
+        "governance",
+        "model",
+        "mutation",
+    ],
     "business_value": "Provides updater components including UpdateOperation, UpdateResult, WorldModelUpdater",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

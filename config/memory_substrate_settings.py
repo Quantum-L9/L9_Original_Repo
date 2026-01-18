@@ -119,6 +119,7 @@ def reset_settings() -> None:
     """Reset settings (useful for testing)."""
     get_settings.cache_clear()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -128,7 +129,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "caching", "configuration", "foundation", "schema", "testing", "validation"],
+    "tags": [
+        "api",
+        "caching",
+        "configuration",
+        "foundation",
+        "schema",
+        "testing",
+        "validation",
+    ],
     "keywords": ["configuration", "memory", "reset", "substrate"],
     "business_value": "Provides memory substrate settings components including MemorySubstrateSettings, Config",
     "last_modified": "2026-01-13T17:26:59Z",

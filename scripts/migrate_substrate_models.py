@@ -83,10 +83,12 @@ SKIP_PATTERNS = [
     "migrate_substrate_models.py",  # This script
 ]
 
+
 def should_skip(path: Path) -> bool:
     """Check if file should be skipped."""
     path_str = str(path)
     return any(skip in path_str for skip in SKIP_PATTERNS)
+
 
 def find_files_to_migrate(root: Path) -> list[Path]:
     """Find all Python files that import from memory.substrate_models."""
@@ -102,6 +104,7 @@ def find_files_to_migrate(root: Path) -> list[Path]:
             continue
     return files
 
+
 def parse_imports(content: str) -> tuple[list[str], str]:
     """
     Parse the substrate_models import statement and return:
@@ -115,12 +118,12 @@ def parse_imports(content: str) -> tuple[list[str], str]:
         import_str = match.group(1)
         # Split by comma or newline, strip whitespace
         symbols = []
-        for s in re.split(r'[,\n]', import_str):
+        for s in re.split(r"[,\n]", import_str):
             s = s.strip()
-            if s and not s.startswith('#'):
+            if s and not s.startswith("#"):
                 symbols.append(s)
         return symbols, match.group(0)
-    
+
     # Match single-line import
     single_pattern = r"from memory\.substrate_models import ([^\n]+)"
     match = re.search(single_pattern, content)
@@ -131,14 +134,15 @@ def parse_imports(content: str) -> tuple[list[str], str]:
             import_str = import_str[1:-1]
         symbols = [s.strip().rstrip(",") for s in import_str.split(",") if s.strip()]
         return symbols, match.group(0)
-    
+
     return [], ""
+
 
 def generate_new_imports(symbols: list[str]) -> str:
     """Generate new import statements based on which symbols go where."""
     v2_imports = []
     legacy_imports = []
-    
+
     for sym in symbols:
         sym = sym.strip()
         if not sym:
@@ -151,9 +155,9 @@ def generate_new_imports(symbols: list[str]) -> str:
             # Unknown symbol - keep in legacy for safety
             print(f"  ⚠ Unknown symbol '{sym}' - keeping in substrate_models")
             legacy_imports.append(sym)
-    
+
     lines = []
-    
+
     if v2_imports:
         if len(v2_imports) <= 3:
             lines.append(f"from core.schemas import {', '.join(sorted(v2_imports))}")
@@ -162,69 +166,75 @@ def generate_new_imports(symbols: list[str]) -> str:
             for sym in sorted(v2_imports):
                 lines.append(f"    {sym},")
             lines.append(")")
-    
+
     if legacy_imports:
         if len(legacy_imports) <= 3:
-            lines.append(f"from memory.substrate_models import {', '.join(sorted(legacy_imports))}")
+            lines.append(
+                f"from memory.substrate_models import {', '.join(sorted(legacy_imports))}"
+            )
         else:
             lines.append("from memory.substrate_models import (")
             for sym in sorted(legacy_imports):
                 lines.append(f"    {sym},")
             lines.append(")")
-    
+
     return "\n".join(lines)
+
 
 def migrate_file(path: Path, dry_run: bool = True) -> tuple[bool, str]:
     """
     Migrate a single file.
-    
+
     Returns:
         (changed, message)
     """
     content = path.read_text()
     symbols, old_import = parse_imports(content)
-    
+
     if not symbols:
         return False, f"Could not parse imports in {path}"
-    
+
     new_import = generate_new_imports(symbols)
-    
+
     # Check if all symbols were legacy-only (no change needed for v2)
     v2_count = sum(1 for s in symbols if s in V2_SYMBOLS)
     if v2_count == 0:
         return False, f"No v2 symbols in {path} (all legacy)"
-    
+
     new_content = content.replace(old_import, new_import)
-    
+
     if new_content == content:
         return False, f"No changes needed for {path}"
-    
+
     if dry_run:
-        short_old = old_import.replace('\n', ' ')[:60]
-        short_new = new_import.replace('\n', ' ')[:60]
+        short_old = old_import.replace("\n", " ")[:60]
+        short_new = new_import.replace("\n", " ")[:60]
         return True, f"{path}\n    FROM: {short_old}...\n    TO:   {short_new}..."
     else:
         path.write_text(new_content)
         return True, f"Updated {path}"
 
+
 def main():
     dry_run = "--dry-run" in sys.argv
-    
+
     # Find project root (parent of scripts/)
     script_path = Path(__file__).resolve()
     root = script_path.parent.parent
-    
-    print(f"{'DRY RUN - ' if dry_run else ''}Migrating from memory.substrate_models to core.schemas.packet_envelope_v2")
+
+    print(
+        f"{'DRY RUN - ' if dry_run else ''}Migrating from memory.substrate_models to core.schemas.packet_envelope_v2"
+    )
     print(f"Project root: {root}")
     print("=" * 80)
-    
+
     files = find_files_to_migrate(root)
     print(f"Found {len(files)} files to migrate\n")
-    
+
     changed = 0
     skipped = 0
     errors = []
-    
+
     for path in sorted(files):
         try:
             was_changed, msg = migrate_file(path, dry_run)
@@ -237,7 +247,7 @@ def main():
         except Exception as e:
             errors.append((path, str(e)))
             print(f"✗ Error processing {path}: {e}")
-    
+
     print("\n" + "=" * 80)
     print("Summary:")
     print(f"  Files {'would be ' if dry_run else ''}changed: {changed}")
@@ -246,11 +256,12 @@ def main():
         print(f"  Errors: {len(errors)}")
         for path, err in errors:
             print(f"    - {path}: {err}")
-    
+
     if dry_run and changed > 0:
         print("\n🔸 Run without --dry-run to apply changes")
     elif not dry_run and changed > 0:
         print("\n✅ Migration complete! Run py_compile and tests to verify.")
+
 
 if __name__ == "__main__":
     main()
@@ -264,8 +275,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["caching", "cli", "event-driven", "filesystem", "messaging", "migration", "operations", "scripts", "testing", "tracing"],
-    "keywords": ["files", "find", "generate", "imports", "migrate", "models", "parse", "should"],
+    "tags": [
+        "caching",
+        "cli",
+        "event-driven",
+        "filesystem",
+        "messaging",
+        "migration",
+        "operations",
+        "scripts",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "files",
+        "find",
+        "generate",
+        "imports",
+        "migrate",
+        "models",
+        "parse",
+        "should",
+    ],
     "business_value": "Utility module for migrate substrate models",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

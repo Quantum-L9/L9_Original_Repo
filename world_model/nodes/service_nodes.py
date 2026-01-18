@@ -371,6 +371,7 @@ def create_insights_from_facts(
 
     return insights
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -381,7 +382,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["async", "debugging", "learning", "logging", "service", "world-model"],
-    "keywords": ["based", "create", "facts", "graph", "insights", "langgraph", "memory", "model"],
+    "keywords": [
+        "based",
+        "create",
+        "facts",
+        "graph",
+        "insights",
+        "langgraph",
+        "memory",
+        "model",
+    ],
     "business_value": "Implements WorldModelGraphState for service nodes functionality",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

@@ -155,7 +155,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
                     <head><title>Gmail OAuth Complete</title></head>
                     <body>
                         <h1>✅ Gmail OAuth completed successfully!</h1>
-                        <p><strong>Account:</strong> {CURRENT_ACCOUNT or 'legacy'}</p>
+                        <p><strong>Account:</strong> {CURRENT_ACCOUNT or "legacy"}</p>
                         <p><strong>Email:</strong> {account_email}</p>
                         <p><strong>Tokens saved to:</strong> {tokens_path}</p>
                         <p>You can close this window.</p>
@@ -164,7 +164,9 @@ class OAuthHandler(BaseHTTPRequestHandler):
                 """.encode("utf-8")
                 )
 
-                logger.info(f"✅ OAuth completed for account: {CURRENT_ACCOUNT or 'legacy'}")
+                logger.info(
+                    f"✅ OAuth completed for account: {CURRENT_ACCOUNT or 'legacy'}"
+                )
                 logger.info(f"   Email: {account_email}")
                 logger.info(f"   Tokens: {tokens_path}")
             else:
@@ -255,8 +257,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["auth", "cli", "debugging", "email-integration", "handler", "integration", "logging", "messaging", "security"],
-    "keywords": ["account", "auth", "callback", "handle", "handler", "log", "mode", "oauth"],
+    "tags": [
+        "auth",
+        "cli",
+        "debugging",
+        "email-integration",
+        "handler",
+        "integration",
+        "logging",
+        "messaging",
+        "security",
+    ],
+    "keywords": [
+        "account",
+        "auth",
+        "callback",
+        "handle",
+        "handler",
+        "log",
+        "mode",
+        "oauth",
+    ],
     "business_value": "Implements OAuthHandler for oauth server functionality",
     "last_modified": "2026-01-13T13:59:39Z",
     "modified_by": "L9_Codegen_Engine",

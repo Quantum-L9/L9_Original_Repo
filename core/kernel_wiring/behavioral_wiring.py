@@ -27,6 +27,7 @@ __dora_meta__ = {
 
 _KERNELS = None
 
+
 def _get_kernels():
     """Lazy load kernel stack."""
     global _KERNELS
@@ -36,6 +37,7 @@ def _get_kernels():
         _KERNELS = load_kernel_stack()
     return _KERNELS
 
+
 def get_output_verbosity() -> str:
     return _get_kernels().get_rule(
         "behavioral",
@@ -43,11 +45,13 @@ def get_output_verbosity() -> str:
         default="minimal",
     )
 
+
 def is_topic_blocked(topic: str) -> bool:
     blocked = (
         _get_kernels().get_rule("behavioral", "prohibited_topics", default=[]) or []
     )
     return topic in blocked
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

@@ -38,7 +38,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["api.server", "core.agents.kernel_registry", "tests.integration.test_kernel_hot_reload", "tests.unit.test_kernel_loader_activation", "tests.unit.test_kernel_observability", "tests.unit.test_lcto_bootstrap"],
+        "imported_by": [
+            "api.server",
+            "core.agents.kernel_registry",
+            "tests.integration.test_kernel_hot_reload",
+            "tests.unit.test_kernel_loader_activation",
+            "tests.unit.test_kernel_observability",
+            "tests.unit.test_lcto_bootstrap",
+        ],
     },
 }
 # ============================================================================
@@ -104,7 +111,9 @@ def _create_kernel_span(
             name=name,
             trace_id=trace_id,
             parent_span_id=parent_span_id,
-            kind=SpanKind.KERNEL_LOAD if phase == "load" else SpanKind.KERNEL_ACTIVATION,
+            kind=SpanKind.KERNEL_LOAD
+            if phase == "load"
+            else SpanKind.KERNEL_ACTIVATION,
             kernel_id=kernel_id,
             phase=phase,
             **attributes,
@@ -134,7 +143,9 @@ def _finish_span(
             if obs_service:
                 obs_service.emit_span(span)
         except Exception as e:
-            logger.debug("kernel_loader.span_emission_failed", error=str(e))  # Best-effort emission
+            logger.debug(
+                "kernel_loader.span_emission_failed", error=str(e)
+            )  # Best-effort emission
     except Exception as e:
         logger.debug("kernel_loader.span_finish_failed", error=str(e))
 
@@ -439,7 +450,9 @@ def load_kernels_phase1(
         _finish_span(
             phase1_span,
             status="OK" if len(all_errors) == 0 else "ERROR",
-            error="; ".join([e.message for e in all_errors[:3]]) if all_errors else None,
+            error="; ".join([e.message for e in all_errors[:3]])
+            if all_errors
+            else None,
         )
 
     return kernels_by_path, hashes, all_errors
@@ -894,7 +907,8 @@ def reload_kernels(
     # Check integrity to find modified kernels
     integrity_status = verify_kernel_integrity(agent, base_path)
     modified_kernels = [
-        path for path, status in integrity_status.items()
+        path
+        for path, status in integrity_status.items()
         if status in ("MODIFIED", "NEW") or force
     ]
 
@@ -1041,9 +1055,33 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.kernels.schemas", "core.observability.models", "core.observability.service"],
-    "tags": ["api", "authorization", "config", "core", "debugging", "filesystem", "foundation", "logging", "messaging", "rest-api"],
-    "keywords": ["absorb", "activate", "activation", "agent", "aware", "integrity", "kernel", "kernels"],
+    "dependencies": [
+        "core.kernels.schemas",
+        "core.observability.models",
+        "core.observability.service",
+    ],
+    "tags": [
+        "api",
+        "authorization",
+        "config",
+        "core",
+        "debugging",
+        "filesystem",
+        "foundation",
+        "logging",
+        "messaging",
+        "rest-api",
+    ],
+    "keywords": [
+        "absorb",
+        "activate",
+        "activation",
+        "agent",
+        "aware",
+        "integrity",
+        "kernel",
+        "kernels",
+    ],
     "business_value": "This is the ONLY way kernels enter the system. If this file isn't used → kernels are not real. Version: 2.0.0 GMP: kernel_boot_frontier_phase1 Two-phase activation (LOAD → ACTIVATE) Pydantic schema va",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

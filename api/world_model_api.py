@@ -31,7 +31,17 @@ __dora_meta__ = {
     "type": "router",
     "status": "active",
     "integrates_with": {
-        "api_endpoints": ["GET /health", "GET /entities/{entity_id}", "GET /entities", "GET /state-version", "POST /snapshot", "POST /restore", "GET /snapshots", "POST /insights", "GET /updates"],
+        "api_endpoints": [
+            "GET /health",
+            "GET /entities/{entity_id}",
+            "GET /entities",
+            "GET /state-version",
+            "POST /snapshot",
+            "POST /restore",
+            "GET /snapshots",
+            "POST /insights",
+            "GET /updates",
+        ],
         "datasources": [],
         "memory_layers": [],
         "imported_by": ["api.server"],
@@ -437,6 +447,7 @@ async def list_updates(
         total=len(records),
     )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -446,8 +457,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "api-gateway", "async", "endpoint", "logging", "operations", "pydantic", "rest-api", "router", "validation"],
-    "keywords": ["api", "create", "entities", "entity", "health", "insight", "insights", "model"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "endpoint",
+        "logging",
+        "operations",
+        "pydantic",
+        "rest-api",
+        "router",
+        "validation",
+    ],
+    "keywords": [
+        "api",
+        "create",
+        "entities",
+        "entity",
+        "health",
+        "insight",
+        "insights",
+        "model",
+    ],
     "business_value": "Provides world model api components including EntityResponse, EntityListResponse, StateVersionResponse",
     "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",

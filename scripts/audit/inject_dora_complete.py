@@ -586,11 +586,16 @@ class DoraCompleteInjector:
             datasources.add("S3")
 
         # Gmail/Google API indicators
-        if any(p in content for p in ["GmailClient", "gmail_client", "googleapiclient"]):
+        if any(
+            p in content for p in ["GmailClient", "gmail_client", "googleapiclient"]
+        ):
             datasources.add("Gmail API")
 
         # Slack API indicators
-        if any(p in content for p in ["SlackClient", "slack_sdk", "WebClient", "slack_client"]):
+        if any(
+            p in content
+            for p in ["SlackClient", "slack_sdk", "WebClient", "slack_client"]
+        ):
             datasources.add("Slack API")
 
         # OpenAI indicators
@@ -602,7 +607,9 @@ class DoraCompleteInjector:
             datasources.add("Anthropic API")
 
         # HTTP client indicators (external APIs)
-        if any(p in content for p in ["httpx", "aiohttp", "requests.get", "requests.post"]):
+        if any(
+            p in content for p in ["httpx", "aiohttp", "requests.get", "requests.post"]
+        ):
             datasources.add("HTTP API")
 
         # Perplexity indicators
@@ -1081,15 +1088,18 @@ class DoraCompleteInjector:
 
             if is_yaml:
                 return {
-                    "header": "# DORA META" in content or "# component_name:" in content,
+                    "header": "# DORA META" in content
+                    or "# component_name:" in content,
                     "footer": "# DORA FOOTER" in content or "# tags:" in content,
                     "trace": True,  # YAML files don't have trace blocks
                     "legacy": False,
                 }
             else:
                 return {
-                    "header": "__dora_meta__" in content or "DORA HEADER META" in content,
-                    "footer": "__dora_footer__" in content or "DORA FOOTER META" in content,
+                    "header": "__dora_meta__" in content
+                    or "DORA HEADER META" in content,
+                    "footer": "__dora_footer__" in content
+                    or "DORA FOOTER META" in content,
                     "trace": "__l9_trace__" in content or "L9 DORA BLOCK" in content,
                     # Also check for old-style blocks to skip
                     "legacy": "__dora_block__" in content,
@@ -1174,12 +1184,16 @@ class DoraCompleteInjector:
 
         # Clean up orphaned DORA comment blocks (76 = signs, any format)
         # Pattern: ={76} line followed by DORA-related comment, followed by ={76} line
-        orphan_pattern = r"\n?# ={76}\n(?:# (?:DORA|See footer|L9 DORA|END L9)[^\n]*\n)+# ={76}\n?"
+        orphan_pattern = (
+            r"\n?# ={76}\n(?:# (?:DORA|See footer|L9 DORA|END L9)[^\n]*\n)+# ={76}\n?"
+        )
         content = re.sub(orphan_pattern, "\n", content)
-        
+
         # Clean up standalone 76-char banner lines (orphaned after dict removal)
         content = re.sub(r"# ={76}\n(?=\n)", "", content)  # Before blank line
-        content = re.sub(r"\n# ={76}\n(?=from |import )", "\n", content)  # Before imports
+        content = re.sub(
+            r"\n# ={76}\n(?=from |import )", "\n", content
+        )  # Before imports
         content = re.sub(r"\n{3,}", "\n\n", content)
 
         return content
@@ -1244,7 +1258,9 @@ __dora_meta__ = {{
         self, footer: FooterMeta, header: HeaderMeta, file_path: str
     ) -> str:
         """Format Footer Meta block for YAML file (BOTTOM)."""
-        tags = self._generate_smart_tags_yaml(file_path, header.domain, header.type, header.layer)
+        tags = self._generate_smart_tags_yaml(
+            file_path, header.domain, header.type, header.layer
+        )
         keywords = self._generate_smart_keywords_yaml(file_path, header.component_name)
 
         return f'''
@@ -1315,6 +1331,7 @@ __dora_meta__ = {{
 
             # Extract top-level keys as keywords
             import yaml
+
             try:
                 data = yaml.safe_load(content)
                 if isinstance(data, dict):
@@ -1348,8 +1365,12 @@ __dora_meta__ = {{
             if any(
                 p in content
                 for p in [
-                    "working_memory", "WorkingMemory", "session_context",
-                    "context_manager", "ContextManager", "short_term"
+                    "working_memory",
+                    "WorkingMemory",
+                    "session_context",
+                    "context_manager",
+                    "ContextManager",
+                    "short_term",
                 ]
             ):
                 memory_layers.append("working_memory")
@@ -1358,8 +1379,12 @@ __dora_meta__ = {{
             if any(
                 p in content
                 for p in [
-                    "episodic", "EpisodicMemory", "project_history",
-                    "conversation_history", "chat_history", "message_history"
+                    "episodic",
+                    "EpisodicMemory",
+                    "project_history",
+                    "conversation_history",
+                    "chat_history",
+                    "message_history",
                 ]
             ):
                 memory_layers.append("episodic_memory")
@@ -1368,8 +1393,13 @@ __dora_meta__ = {{
             if any(
                 p in content
                 for p in [
-                    "semantic", "SemanticSearch", "pgvector", "embedding",
-                    "vector_store", "similarity_search", "VectorStore"
+                    "semantic",
+                    "SemanticSearch",
+                    "pgvector",
+                    "embedding",
+                    "vector_store",
+                    "similarity_search",
+                    "VectorStore",
                 ]
             ):
                 memory_layers.append("semantic_memory")
@@ -1378,8 +1408,12 @@ __dora_meta__ = {{
             if any(
                 p in content
                 for p in [
-                    "memory.substrate", "MemorySubstrate", "substrate_service",
-                    "PacketStore", "PacketEnvelope", "ingest_packet"
+                    "memory.substrate",
+                    "MemorySubstrate",
+                    "substrate_service",
+                    "PacketStore",
+                    "PacketEnvelope",
+                    "ingest_packet",
                 ]
             ):
                 if "working_memory" not in memory_layers:
@@ -1603,9 +1637,21 @@ __dora_footer__ = {{
 
         # Analysis verbs that indicate "we detect X" not "we are X"
         analysis_verbs = [
-            "scan", "detect", "find", "look for", "search", "check",
-            "analyze", "inspect", "audit", "identify", "discover",
-            "suspicious", "pattern", "violation", "warn",
+            "scan",
+            "detect",
+            "find",
+            "look for",
+            "search",
+            "check",
+            "analyze",
+            "inspect",
+            "audit",
+            "identify",
+            "discover",
+            "suspicious",
+            "pattern",
+            "violation",
+            "warn",
         ]
 
         # Extract docstring for context analysis
@@ -1627,7 +1673,10 @@ __dora_footer__ = {{
                 # it's likely describing what we DETECT, not what we ARE
                 if is_analysis_tool and keyword in docstring:
                     # Check if it's mentioned as an implementation (import, class, etc.)
-                    if f"import {keyword}" in content_lower or f"from {keyword}" in content_lower:
+                    if (
+                        f"import {keyword}" in content_lower
+                        or f"from {keyword}" in content_lower
+                    ):
                         tags.add(tag)
                     # Skip - it's what we analyze, not what we implement
                 else:
@@ -1659,17 +1708,91 @@ __dora_footer__ = {{
 
         # Stop words to filter out (generic, common terms)
         stop_words = {
-            "self", "none", "true", "false", "return", "def", "class", "import",
-            "from", "the", "and", "for", "with", "this", "that", "are", "was",
-            "get", "set", "has", "have", "init", "main", "run", "call", "make",
-            "new", "add", "del", "pop", "len", "str", "int", "list", "dict",
-            "iter", "next", "item", "items", "key", "keys", "value", "values",
-            "args", "kwargs", "func", "method", "attr", "name", "path", "file",
-            "data", "info", "result", "output", "input", "param", "params",
-            "config", "options", "settings", "context", "request", "response",
-            "error", "exception", "message", "text", "content", "body", "type",
-            "base", "node", "generic", "visit", "child", "children", "parent",
-            "level", "line", "lineno", "lines", "code", "source", "target",
+            "self",
+            "none",
+            "true",
+            "false",
+            "return",
+            "def",
+            "class",
+            "import",
+            "from",
+            "the",
+            "and",
+            "for",
+            "with",
+            "this",
+            "that",
+            "are",
+            "was",
+            "get",
+            "set",
+            "has",
+            "have",
+            "init",
+            "main",
+            "run",
+            "call",
+            "make",
+            "new",
+            "add",
+            "del",
+            "pop",
+            "len",
+            "str",
+            "int",
+            "list",
+            "dict",
+            "iter",
+            "next",
+            "item",
+            "items",
+            "key",
+            "keys",
+            "value",
+            "values",
+            "args",
+            "kwargs",
+            "func",
+            "method",
+            "attr",
+            "name",
+            "path",
+            "file",
+            "data",
+            "info",
+            "result",
+            "output",
+            "input",
+            "param",
+            "params",
+            "config",
+            "options",
+            "settings",
+            "context",
+            "request",
+            "response",
+            "error",
+            "exception",
+            "message",
+            "text",
+            "content",
+            "body",
+            "type",
+            "base",
+            "node",
+            "generic",
+            "visit",
+            "child",
+            "children",
+            "parent",
+            "level",
+            "line",
+            "lineno",
+            "lines",
+            "code",
+            "source",
+            "target",
         }
 
         def is_valid_keyword(word: str) -> bool:
@@ -1709,11 +1832,35 @@ __dora_footer__ = {{
                         word_counts[w] = word_counts.get(w, 0) + 1
                 # Add words that appear multiple times or are domain-specific
                 domain_terms = {
-                    "mutable", "state", "global", "suspicious", "pattern", "module",
-                    "assignment", "analysis", "scan", "audit", "heuristic", "detection",
-                    "violation", "compliance", "governance", "trace", "memory", "cache",
-                    "queue", "executor", "agent", "kernel", "substrate", "orchestrator",
-                    "router", "handler", "middleware", "service", "repository",
+                    "mutable",
+                    "state",
+                    "global",
+                    "suspicious",
+                    "pattern",
+                    "module",
+                    "assignment",
+                    "analysis",
+                    "scan",
+                    "audit",
+                    "heuristic",
+                    "detection",
+                    "violation",
+                    "compliance",
+                    "governance",
+                    "trace",
+                    "memory",
+                    "cache",
+                    "queue",
+                    "executor",
+                    "agent",
+                    "kernel",
+                    "substrate",
+                    "orchestrator",
+                    "router",
+                    "handler",
+                    "middleware",
+                    "service",
+                    "repository",
                 }
                 for w, count in word_counts.items():
                     if count >= 2 or w in domain_terms:

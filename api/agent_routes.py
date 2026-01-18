@@ -271,6 +271,7 @@ async def shutdown():
     """Called on app shutdown if exists."""
     logger.info("Agent routes shutting down")
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -279,9 +280,35 @@ __dora_footer__ = {
     "governance_level": "medium",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["api.auth", "core.agents.schemas", "core.decorators", "core.schemas", "memory.ingestion"],
-    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "messaging", "operations", "pydantic", "queue"],
-    "keywords": ["agent", "execute", "health", "memory", "queue", "routes", "shutdown", "startup"],
+    "dependencies": [
+        "api.auth",
+        "core.agents.schemas",
+        "core.decorators",
+        "core.schemas",
+        "memory.ingestion",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "queue",
+    ],
+    "keywords": [
+        "agent",
+        "execute",
+        "health",
+        "memory",
+        "queue",
+        "routes",
+        "shutdown",
+        "startup",
+    ],
     "business_value": "Provides agent routes components including ExecuteTaskRequest, ExecuteTaskResponse",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

@@ -49,7 +49,13 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["HTTP API", "Perplexity API"],
         "memory_layers": [],
-        "imported_by": ["conftest", "ir_engine.__init__", "ir_engine.compile_meta_to_ir", "ir_engine.schema_validator", "runtime.construct_enhancer"],
+        "imported_by": [
+            "conftest",
+            "ir_engine.__init__",
+            "ir_engine.compile_meta_to_ir",
+            "ir_engine.schema_validator",
+            "runtime.construct_enhancer",
+        ],
     },
 }
 # ============================================================================
@@ -70,6 +76,7 @@ logger = structlog.get_logger(__name__)
 
 class ModuleTier(str, Enum):
     """Module tier classification (0-7)."""
+
     TIER_0 = "0"
     TIER_1 = "1"
     TIER_2 = "2"
@@ -82,6 +89,7 @@ class ModuleTier(str, Enum):
 
 class OwnershipTeam(str, Enum):
     """Team responsible for the module."""
+
     CORE = "core"
     INFRA = "infra"
     INTEGRATIONS = "integrations"
@@ -91,6 +99,7 @@ class OwnershipTeam(str, Enum):
 
 class ServiceType(str, Enum):
     """Which service the module runs in."""
+
     API = "api"
     WORKER = "worker"
     SCHEDULER = "scheduler"
@@ -99,6 +108,7 @@ class ServiceType(str, Enum):
 
 class StartupPhase(str, Enum):
     """When the module starts relative to others."""
+
     EARLY = "early"
     NORMAL = "normal"
     LATE = "late"
@@ -106,18 +116,21 @@ class StartupPhase(str, Enum):
 
 class CallableFrom(str, Enum):
     """Who can call this module."""
+
     EXTERNAL = "external"
     INTERNAL = "internal"
 
 
 class InterfaceType(str, Enum):
     """Interface type for outbound calls."""
+
     HTTP = "http"
     TOOL = "tool"
 
 
 class IdempotencyPattern(str, Enum):
     """Idempotency deduplication pattern."""
+
     EVENT_ID = "event_id"
     COMPOSITE_KEY = "composite_key"
     SUBSTRATE_LOOKUP = "substrate_lookup"
@@ -125,6 +138,7 @@ class IdempotencyPattern(str, Enum):
 
 class IdempotencySource(str, Enum):
     """Source of idempotency key."""
+
     PLATFORM_EVENT_ID = "platform_event_id"
     WEBHOOK_HEADER = "webhook_header"
     COMPUTED_HASH = "computed_hash"
@@ -132,18 +146,21 @@ class IdempotencySource(str, Enum):
 
 class IdempotencyDurability(str, Enum):
     """Durability of idempotency state."""
+
     IN_MEMORY = "in_memory"
     SUBSTRATE = "substrate"
 
 
 class ErrorStrategy(str, Enum):
     """Default error handling strategy."""
+
     FAIL_FAST = "fail_fast"
     BEST_EFFORT = "best_effort"
 
 
 class AlertLevel(str, Enum):
     """Alert level for escalation."""
+
     NONE = "none"
     LOG = "log"
     METRIC = "metric"
@@ -151,12 +168,14 @@ class AlertLevel(str, Enum):
 
 class LogLevel(str, Enum):
     """Logging level."""
+
     INFO = "info"
     DEBUG = "debug"
 
 
 class AuthType(str, Enum):
     """Authentication type."""
+
     HMAC_SHA256 = "hmac-sha256"
     BEARER = "bearer"
     API_KEY = "api_key"
@@ -165,6 +184,7 @@ class AuthType(str, Enum):
 
 class BootImpactLevel(str, Enum):
     """Boot impact level."""
+
     NONE = "none"
     SOFT = "soft"
     HARD = "hard"
@@ -172,6 +192,7 @@ class BootImpactLevel(str, Enum):
 
 class SpecConfidenceLevel(str, Enum):
     """Spec confidence level."""
+
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
@@ -184,11 +205,11 @@ class SpecConfidenceLevel(str, Enum):
 
 class ModuleMetadata(BaseModel):
     """Section 1: Module metadata."""
-    
+
     module_id: str = Field(
         ...,
         description="Unique identifier (lowercase, snake_case)",
-        pattern=r"^[a-z][a-z0-9_]*$"
+        pattern=r"^[a-z][a-z0-9_]*$",
     )
     name: str = Field(..., description="Human-readable name")
     tier: str = Field(..., description="Module tier classification (0-7)")
@@ -205,10 +226,10 @@ class ModuleMetadata(BaseModel):
 
 class OwnershipSpec(BaseModel):
     """Section 2: Enterprise hygiene for ops and incident escalation."""
-    
+
     team: str = Field(
         ...,
-        description="Team responsible (core | infra | integrations | security | observability)"
+        description="Team responsible (core | infra | integrations | security | observability)",
     )
     primary_contact: str = Field(..., description="Primary contact role")
 
@@ -223,22 +244,20 @@ class RuntimeWiringSpec(BaseModel):
     Section 3: SINGLE SOURCE OF TRUTH for docker-compose ordering,
     startup health checks, and boot-failure tests.
     """
-    
+
     service: str = Field(
         ...,
-        description="Which service this module runs in (api | worker | scheduler | memory)"
+        description="Which service this module runs in (api | worker | scheduler | memory)",
     )
     startup_phase: str = Field(
-        ...,
-        description="When to start relative to others (early | normal | late)"
+        ..., description="When to start relative to others (early | normal | late)"
     )
     depends_on: List[str] = Field(
         default_factory=list,
-        description="Services that must be running before this module starts"
+        description="Services that must be running before this module starts",
     )
     blocks_startup_on_failure: bool = Field(
-        ...,
-        description="Does missing dependency cause hard boot failure?"
+        ..., description="Does missing dependency cause hard boot failure?"
     )
 
 
@@ -249,13 +268,12 @@ class RuntimeWiringSpec(BaseModel):
 
 class ExternalSurface(BaseModel):
     """Section 4: External surface exposure."""
-    
+
     exposes_http_endpoint: bool = Field(..., description="Exposes HTTP endpoint")
     exposes_webhook: bool = Field(..., description="Exposes webhook")
     exposes_tool: bool = Field(..., description="Exposes tool")
     callable_from: List[str] = Field(
-        default_factory=list,
-        description="Who can call this (external | internal)"
+        default_factory=list, description="Who can call this (external | internal)"
     )
 
 
@@ -266,7 +284,7 @@ class ExternalSurface(BaseModel):
 
 class OutboundCall(BaseModel):
     """Single outbound call declaration."""
-    
+
     module: str = Field(..., description="Target module")
     interface: str = Field(..., description="Interface type (http | tool)")
     endpoint: str = Field(..., description="Endpoint path or tool_id")
@@ -274,14 +292,13 @@ class OutboundCall(BaseModel):
 
 class DependencySpec(BaseModel):
     """Section 5: Explicit dependencies with endpoints."""
-    
+
     allowed_tiers: List[int] = Field(
-        default_factory=list,
-        description="Which tiers this module may call"
+        default_factory=list, description="Which tiers this module may call"
     )
     outbound_calls: List[OutboundCall] = Field(
         default_factory=list,
-        description="Explicit outbound calls with interface + endpoint"
+        description="Explicit outbound calls with interface + endpoint",
     )
 
 
@@ -292,15 +309,13 @@ class DependencySpec(BaseModel):
 
 class PacketContract(BaseModel):
     """Section 6: Runtime blocks undeclared packet writes."""
-    
+
     emits: List[str] = Field(
-        ...,
-        description="All packet types this module can emit",
-        min_length=1
+        ..., description="All packet types this module can emit", min_length=1
     )
     requires_metadata: List[str] = Field(
         default_factory=lambda: ["task_id", "thread_uuid", "source", "tool_id"],
-        description="Metadata fields MANDATORY on every packet"
+        description="Metadata fields MANDATORY on every packet",
     )
 
 
@@ -311,19 +326,13 @@ class PacketContract(BaseModel):
 
 class IdempotencySpec(BaseModel):
     """Section 7: Idempotency configuration."""
-    
+
     pattern: str = Field(
         ...,
-        description="Deduplication pattern (event_id | composite_key | substrate_lookup)"
+        description="Deduplication pattern (event_id | composite_key | substrate_lookup)",
     )
-    source: str = Field(
-        ...,
-        description="Source of idempotency key"
-    )
-    durability: str = Field(
-        ...,
-        description="State durability (in_memory | substrate)"
-    )
+    source: str = Field(..., description="Source of idempotency key")
+    durability: str = Field(..., description="State durability (in_memory | substrate)")
 
 
 # =============================================================================
@@ -333,14 +342,14 @@ class IdempotencySpec(BaseModel):
 
 class RetryConfig(BaseModel):
     """Retry configuration."""
-    
+
     enabled: bool = Field(..., description="Retries enabled")
     max_attempts: int = Field(default=3, description="Maximum retry attempts")
 
 
 class EscalationConfig(BaseModel):
     """Escalation behavior (v2.4 new)."""
-    
+
     emit_error_packet: bool = Field(..., description="Emit error packet on failure")
     mark_task_failed: bool = Field(..., description="Mark task as failed")
     alert: str = Field(default="log", description="Alert level (none | log | metric)")
@@ -348,7 +357,7 @@ class EscalationConfig(BaseModel):
 
 class ErrorCategory(BaseModel):
     """Error category handling."""
-    
+
     status: int = Field(..., description="HTTP status code")
     action: str = Field(..., description="Action to take")
     log: str = Field(..., description="Log message key")
@@ -356,14 +365,11 @@ class ErrorCategory(BaseModel):
 
 class ErrorPolicy(BaseModel):
     """Section 8: Error handling with escalation."""
-    
-    default: str = Field(
-        ...,
-        description="Default strategy (fail_fast | best_effort)"
-    )
+
+    default: str = Field(..., description="Default strategy (fail_fast | best_effort)")
     retries: RetryConfig = Field(..., description="Retry configuration")
     escalation: EscalationConfig = Field(..., description="Escalation behavior")
-    
+
     # Error categories (optional detailed handling)
     invalid_signature: Optional[ErrorCategory] = None
     stale_timestamp: Optional[ErrorCategory] = None
@@ -379,14 +385,14 @@ class ErrorPolicy(BaseModel):
 
 class LogsConfig(BaseModel):
     """Logging configuration."""
-    
+
     enabled: bool = Field(default=True, description="Logging enabled")
     level: str = Field(default="info", description="Log level (info | debug)")
 
 
 class MetricsConfig(BaseModel):
     """Metrics configuration."""
-    
+
     enabled: bool = Field(default=True, description="Metrics enabled")
     counters: List[str] = Field(default_factory=list, description="Counter metrics")
     histograms: List[str] = Field(default_factory=list, description="Histogram metrics")
@@ -394,13 +400,13 @@ class MetricsConfig(BaseModel):
 
 class TracesConfig(BaseModel):
     """Tracing configuration."""
-    
+
     enabled: bool = Field(default=False, description="Tracing enabled")
 
 
 class ObservabilitySpec(BaseModel):
     """Section 9: Intent declaration for observability."""
-    
+
     logs: LogsConfig = Field(default_factory=LogsConfig)
     metrics: MetricsConfig = Field(default_factory=MetricsConfig)
     traces: TracesConfig = Field(default_factory=TracesConfig)
@@ -413,7 +419,7 @@ class ObservabilitySpec(BaseModel):
 
 class RuntimeTouchpoints(BaseModel):
     """Section 10: What runtime resources this module touches."""
-    
+
     touches_db: bool = Field(..., description="Touches database")
     touches_tools: bool = Field(..., description="Touches tools")
     touches_external_network: bool = Field(..., description="Touches external network")
@@ -427,7 +433,7 @@ class RuntimeTouchpoints(BaseModel):
 
 class TestScope(BaseModel):
     """Section 11: Required test coverage."""
-    
+
     unit: bool = Field(default=True, description="Unit tests required")
     integration: bool = Field(..., description="Integration tests required")
     docker_smoke: bool = Field(..., description="Docker smoke tests required")
@@ -440,25 +446,23 @@ class TestScope(BaseModel):
 
 class AcceptanceCriterion(BaseModel):
     """Single acceptance criterion."""
-    
+
     id: str = Field(..., description="Criterion ID (e.g., AP-1, AN-1)")
     description: str = Field(..., description="What is being tested")
     test: Optional[str] = Field(None, description="Test function name")
-    expected_behavior: Optional[str] = Field(None, description="Expected behavior (for negative)")
+    expected_behavior: Optional[str] = Field(
+        None, description="Expected behavior (for negative)"
+    )
 
 
 class AcceptanceSpec(BaseModel):
     """Section 12: Acceptance criteria."""
-    
+
     positive: List[AcceptanceCriterion] = Field(
-        ...,
-        description="Positive test cases",
-        min_length=1
+        ..., description="Positive test cases", min_length=1
     )
     negative: List[AcceptanceCriterion] = Field(
-        ...,
-        description="Negative test cases (at least one required)",
-        min_length=1
+        ..., description="Negative test cases (at least one required)", min_length=1
     )
 
 
@@ -469,19 +473,21 @@ class AcceptanceSpec(BaseModel):
 
 class GlobalInvariantsAck(BaseModel):
     """Section 13: All values MUST be true. Any deviation invalidates spec."""
-    
+
     emits_packet_on_ingress: bool = Field(default=True)
     tool_calls_traceable: bool = Field(default=True)
     unknown_tool_id_hard_fail: bool = Field(default=True)
     malformed_packet_blocked: bool = Field(default=True)
     missing_env_fails_boot: bool = Field(default=True)
-    
-    @model_validator(mode='after')
-    def validate_all_true(self) -> 'GlobalInvariantsAck':
+
+    @model_validator(mode="after")
+    def validate_all_true(self) -> "GlobalInvariantsAck":
         """All invariants must be True."""
         for field_name, value in self.model_dump().items():
             if value is not True:
-                raise ValueError(f"Global invariant '{field_name}' must be True, got {value}")
+                raise ValueError(
+                    f"Global invariant '{field_name}' must be True, got {value}"
+                )
         return self
 
 
@@ -492,7 +498,7 @@ class GlobalInvariantsAck(BaseModel):
 
 class SpecConfidence(BaseModel):
     """Section 14: Confidence level and basis."""
-    
+
     level: str = Field(..., description="Confidence level (high | medium | low)")
     basis: List[str] = Field(default_factory=list, description="Basis for confidence")
 
@@ -504,15 +510,15 @@ class SpecConfidence(BaseModel):
 
 class RepoSpec(BaseModel):
     """Section 15: File manifest for code generation."""
-    
-    root_path: str = Field(default="/Users/ib-mac/Projects/L9", description="Repository root")
+
+    root_path: str = Field(
+        default="/Users/ib-mac/Projects/L9", description="Repository root"
+    )
     allowed_new_files: List[str] = Field(
-        default_factory=list,
-        description="Files that may be created"
+        default_factory=list, description="Files that may be created"
     )
     allowed_modified_files: List[str] = Field(
-        default_factory=list,
-        description="Files that may be modified"
+        default_factory=list, description="Files that may be modified"
     )
 
 
@@ -523,7 +529,7 @@ class RepoSpec(BaseModel):
 
 class InboundInterface(BaseModel):
     """Inbound interface definition."""
-    
+
     name: str = Field(..., description="Route name")
     method: str = Field(default="POST", description="HTTP method")
     route: str = Field(..., description="Route path")
@@ -534,7 +540,7 @@ class InboundInterface(BaseModel):
 
 class OutboundInterface(BaseModel):
     """Outbound interface definition."""
-    
+
     name: str = Field(..., description="Interface name")
     endpoint: str = Field(..., description="Endpoint URL or path")
     method: str = Field(default="POST", description="HTTP method")
@@ -544,7 +550,7 @@ class OutboundInterface(BaseModel):
 
 class InterfacesSpec(BaseModel):
     """Section 16: Interface definitions."""
-    
+
     inbound: List[InboundInterface] = Field(default_factory=list)
     outbound: List[OutboundInterface] = Field(default_factory=list)
 
@@ -556,7 +562,7 @@ class InterfacesSpec(BaseModel):
 
 class EnvVar(BaseModel):
     """Environment variable definition."""
-    
+
     name: str = Field(..., description="Variable name")
     description: str = Field(..., description="Variable description")
     default: Optional[str] = Field(None, description="Default value")
@@ -564,9 +570,13 @@ class EnvVar(BaseModel):
 
 class EnvironmentSpec(BaseModel):
     """Section 17: Environment variables."""
-    
-    required: List[EnvVar] = Field(default_factory=list, description="Required env vars")
-    optional: List[EnvVar] = Field(default_factory=list, description="Optional env vars")
+
+    required: List[EnvVar] = Field(
+        default_factory=list, description="Required env vars"
+    )
+    optional: List[EnvVar] = Field(
+        default_factory=list, description="Optional env vars"
+    )
 
 
 # =============================================================================
@@ -576,7 +586,7 @@ class EnvironmentSpec(BaseModel):
 
 class ContextRead(BaseModel):
     """Context read operation."""
-    
+
     method: str = Field(..., description="Method to call")
     filter: str = Field(..., description="Filter criteria")
     purpose: str = Field(..., description="Purpose of read")
@@ -584,7 +594,7 @@ class ContextRead(BaseModel):
 
 class AIOSCall(BaseModel):
     """AIOS call definition."""
-    
+
     endpoint: str = Field(..., description="Endpoint to call")
     input: str = Field(..., description="Input description")
     output: str = Field(..., description="Output description")
@@ -592,7 +602,7 @@ class AIOSCall(BaseModel):
 
 class SideEffect(BaseModel):
     """Side effect definition."""
-    
+
     action: str = Field(..., description="Action description")
     service: str = Field(..., description="Service to call")
     packet_type: Optional[str] = Field(None, description="Packet type if applicable")
@@ -600,7 +610,7 @@ class SideEffect(BaseModel):
 
 class OrchestrationSpec(BaseModel):
     """Section 18: Orchestration flow."""
-    
+
     validation: List[str] = Field(default_factory=list, description="Validation steps")
     context_reads: List[ContextRead] = Field(default_factory=list)
     aios_calls: List[AIOSCall] = Field(default_factory=list)
@@ -614,7 +624,7 @@ class OrchestrationSpec(BaseModel):
 
 class BootImpact(BaseModel):
     """Section 19: Boot impact level and reason."""
-    
+
     level: str = Field(..., description="Impact level (none | soft | hard)")
     reason: str = Field(..., description="Explanation of boot impact")
 
@@ -626,27 +636,27 @@ class BootImpact(BaseModel):
 
 class IdentityStandard(BaseModel):
     """Identity standard."""
-    
+
     canonical_identifier: str = Field(default="tool_id")
 
 
 class LoggingStandard(BaseModel):
     """Logging standard."""
-    
+
     library: str = Field(default="structlog")
     forbidden: List[str] = Field(default_factory=lambda: ["logging", "print"])
 
 
 class HttpClientStandard(BaseModel):
     """HTTP client standard."""
-    
+
     library: str = Field(default="httpx")
     forbidden: List[str] = Field(default_factory=lambda: ["aiohttp", "requests"])
 
 
 class StandardsSpec(BaseModel):
     """Section 20: Mandatory standards."""
-    
+
     identity: IdentityStandard = Field(default_factory=IdentityStandard)
     logging: LoggingStandard = Field(default_factory=LoggingStandard)
     http_client: HttpClientStandard = Field(default_factory=HttpClientStandard)
@@ -659,15 +669,15 @@ class StandardsSpec(BaseModel):
 
 class GoalsSpec(BaseModel):
     """Section 21: Goals and non-goals."""
-    
+
     goals: List[str] = Field(default_factory=list, description="Module goals")
     non_goals: List[str] = Field(
         default_factory=lambda: [
             "No new database tables",
             "No new migrations",
-            "No parallel memory/logging/config systems"
+            "No parallel memory/logging/config systems",
         ],
-        description="Module non-goals"
+        description="Module non-goals",
     )
 
 
@@ -685,7 +695,7 @@ class GoalsSpec(BaseModel):
 class MetaContract(BaseModel):
     """
     Complete Module Spec v2.4.0 (OPERATIONAL / ENTERPRISE GRADE).
-    
+
     A single spec is sufficient to:
     - Determine runtime placement
     - Determine startup order
@@ -696,94 +706,87 @@ class MetaContract(BaseModel):
     - Generate docker-compose wiring
     - Generate runtime + smoke tests
     """
-    
+
     # Schema version for validation gating
     schema_version: str = Field(default="2.4", description="Schema version")
-    
+
     # === SECTION 1: METADATA ===
     metadata: ModuleMetadata = Field(..., description="Module metadata")
-    
+
     # === SECTION 2: OWNERSHIP ===
     ownership: OwnershipSpec = Field(..., description="Ownership and contact")
-    
+
     # === SECTION 3: RUNTIME WIRING (KEYSTONE) ===
     runtime_wiring: RuntimeWiringSpec = Field(
-        ...,
-        description="Runtime wiring - SINGLE SOURCE OF TRUTH"
+        ..., description="Runtime wiring - SINGLE SOURCE OF TRUTH"
     )
-    
+
     # === SECTION 4: EXTERNAL SURFACE ===
     external_surface: ExternalSurface = Field(..., description="External surface")
-    
+
     # === SECTION 5: DEPENDENCIES ===
     dependencies: DependencySpec = Field(..., description="Dependencies")
-    
+
     # === SECTION 6: PACKET CONTRACT ===
     packet_contract: PacketContract = Field(..., description="Packet contract")
-    
+
     # === SECTION 7: IDEMPOTENCY ===
     idempotency: IdempotencySpec = Field(..., description="Idempotency config")
-    
+
     # === SECTION 8: ERROR POLICY ===
     error_policy: ErrorPolicy = Field(..., description="Error handling policy")
-    
+
     # === SECTION 9: OBSERVABILITY ===
     observability: ObservabilitySpec = Field(
-        default_factory=ObservabilitySpec,
-        description="Observability config"
+        default_factory=ObservabilitySpec, description="Observability config"
     )
-    
+
     # === SECTION 10: RUNTIME TOUCHPOINTS ===
     runtime_touchpoints: RuntimeTouchpoints = Field(
-        ...,
-        description="Runtime touchpoints"
+        ..., description="Runtime touchpoints"
     )
-    
+
     # === SECTION 11: TEST SCOPE ===
     test_scope: TestScope = Field(..., description="Test scope requirements")
-    
+
     # === SECTION 12: ACCEPTANCE ===
     acceptance: AcceptanceSpec = Field(..., description="Acceptance criteria")
-    
+
     # === SECTION 13: GLOBAL INVARIANTS ACKNOWLEDGEMENT ===
     global_invariants_ack: GlobalInvariantsAck = Field(
         default_factory=GlobalInvariantsAck,
-        description="Global invariants acknowledgement"
+        description="Global invariants acknowledgement",
     )
-    
+
     # === SECTION 14: SPEC CONFIDENCE ===
     spec_confidence: SpecConfidence = Field(..., description="Spec confidence")
-    
+
     # === SECTION 15: FILE MANIFEST (REPO) ===
     repo: RepoSpec = Field(default_factory=RepoSpec, description="File manifest")
-    
+
     # === SECTION 16: INTERFACES ===
     interfaces: InterfacesSpec = Field(
-        default_factory=InterfacesSpec,
-        description="Interface definitions"
+        default_factory=InterfacesSpec, description="Interface definitions"
     )
-    
+
     # === SECTION 17: ENVIRONMENT VARIABLES ===
     environment: EnvironmentSpec = Field(
-        default_factory=EnvironmentSpec,
-        description="Environment variables"
+        default_factory=EnvironmentSpec, description="Environment variables"
     )
-    
+
     # === SECTION 18: ORCHESTRATION FLOW ===
     orchestration: OrchestrationSpec = Field(
-        default_factory=OrchestrationSpec,
-        description="Orchestration flow"
+        default_factory=OrchestrationSpec, description="Orchestration flow"
     )
-    
+
     # === SECTION 19: BOOT IMPACT ===
     boot_impact: BootImpact = Field(..., description="Boot impact")
-    
+
     # === SECTION 20: MANDATORY STANDARDS ===
     standards: StandardsSpec = Field(
-        default_factory=StandardsSpec,
-        description="Mandatory standards"
+        default_factory=StandardsSpec, description="Mandatory standards"
     )
-    
+
     # === SECTION 21: GOALS & NON-GOALS ===
     # Using separate fields for compatibility
     goals: List[str] = Field(default_factory=list, description="Module goals")
@@ -791,21 +794,20 @@ class MetaContract(BaseModel):
         default_factory=lambda: [
             "No new database tables",
             "No new migrations",
-            "No parallel memory/logging/config systems"
+            "No parallel memory/logging/config systems",
         ],
-        description="Module non-goals"
+        description="Module non-goals",
     )
-    
+
     # === SECTION 22: NOTES FOR P ===
     notes_for_perplexity: List[str] = Field(
-        default_factory=list,
-        description="Notes for Perplexity code generation"
+        default_factory=list, description="Notes for Perplexity code generation"
     )
-    
+
     # === VALIDATION ===
-    
-    @model_validator(mode='after')
-    def validate_test_scope_rules(self) -> 'MetaContract':
+
+    @model_validator(mode="after")
+    def validate_test_scope_rules(self) -> "MetaContract":
         """
         Enforce validation rules from Module-Spec-v2.4:
         - If external_surface.exposes_http_endpoint == true → docker_smoke: true
@@ -813,37 +815,40 @@ class MetaContract(BaseModel):
         - If startup_phase == early → boot-failure test REQUIRED (via boot_impact.level == hard)
         """
         # Rule 1: HTTP endpoint requires docker smoke test
-        if self.external_surface.exposes_http_endpoint and not self.test_scope.docker_smoke:
+        if (
+            self.external_surface.exposes_http_endpoint
+            and not self.test_scope.docker_smoke
+        ):
             logger.warning(
                 "validation_warning",
-                rule="HTTP endpoint exposed but docker_smoke not set to true"
+                rule="HTTP endpoint exposed but docker_smoke not set to true",
             )
-        
+
         # Rule 2: Non-API service requires integration tests
         if self.runtime_wiring.service != "api" and not self.test_scope.integration:
             logger.warning(
                 "validation_warning",
-                rule="Non-API service but integration tests not required"
+                rule="Non-API service but integration tests not required",
             )
-        
+
         return self
-    
+
     def get_module_id(self) -> str:
         """Get the module ID."""
         return self.metadata.module_id
-    
+
     def get_allowed_files(self) -> List[str]:
         """Get list of files that may be created or modified."""
         return self.repo.allowed_new_files + self.repo.allowed_modified_files
-    
+
     def get_required_env_vars(self) -> List[str]:
         """Get list of required environment variable names."""
         return [env.name for env in self.environment.required]
-    
+
     def get_packet_types(self) -> List[str]:
         """Get list of packet types this module emits."""
         return self.packet_contract.emits
-    
+
     def to_generation_context(self) -> Dict[str, Any]:
         """
         Convert to a context dict suitable for code generation templates.
@@ -882,7 +887,7 @@ class MetaContract(BaseModel):
 
 class MetaContractValidationError(BaseModel):
     """Validation error for MetaContract."""
-    
+
     field: str
     message: str
     severity: Literal["error", "warning", "info"] = "error"
@@ -890,23 +895,26 @@ class MetaContractValidationError(BaseModel):
 
 class MetaContractValidationResult(BaseModel):
     """Result of MetaContract validation."""
-    
+
     valid: bool = True
     errors: List[MetaContractValidationError] = Field(default_factory=list)
     warnings: List[MetaContractValidationError] = Field(default_factory=list)
-    
+
     def add_error(self, field: str, message: str) -> None:
         """Add a validation error."""
-        self.errors.append(MetaContractValidationError(
-            field=field, message=message, severity="error"
-        ))
+        self.errors.append(
+            MetaContractValidationError(field=field, message=message, severity="error")
+        )
         self.valid = False
-    
+
     def add_warning(self, field: str, message: str) -> None:
         """Add a validation warning."""
-        self.warnings.append(MetaContractValidationError(
-            field=field, message=message, severity="warning"
-        ))
+        self.warnings.append(
+            MetaContractValidationError(
+                field=field, message=message, severity="warning"
+            )
+        )
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -917,8 +925,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "auth", "client", "data-models", "debugging", "enum", "event-driven", "intelligence", "logging", "messaging"],
-    "keywords": ["acceptance", "ack", "alert", "all", "allowed", "auth", "boot", "callable"],
+    "tags": [
+        "api",
+        "auth",
+        "client",
+        "data-models",
+        "debugging",
+        "enum",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "acceptance",
+        "ack",
+        "alert",
+        "all",
+        "allowed",
+        "auth",
+        "boot",
+        "callable",
+    ],
     "business_value": "1. Metadata 2. Ownership 3. Runtime Wiring (KEYSTONE) 4. External Surface 5. Dependencies 6. Packet Contract 7. Idempotency 8. Error Policy 9. Observability 10. Runtime Touchpoints 11. Test Scope 12. ",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

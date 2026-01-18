@@ -39,12 +39,14 @@ logger = structlog.get_logger(__name__)
 
 MODEL = os.getenv("L9_LLM_MODEL", "gpt-4o-mini")
 
+
 def get_client() -> OpenAI:
     """Get OpenAI client."""
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not set")
     return OpenAI(api_key=api_key)
+
 
 def route_email_task(
     text: str, artifacts: List[Dict[str, Any]], user: str
@@ -213,6 +215,7 @@ NOTE: This router ONLY creates email_task types. Browser automation should use s
             },
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -222,7 +225,16 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "intelligence", "llm", "logging", "messaging", "orchestration", "router", "serialization"],
+    "tags": [
+        "api",
+        "intelligence",
+        "llm",
+        "logging",
+        "messaging",
+        "orchestration",
+        "router",
+        "serialization",
+    ],
     "keywords": ["agent", "client", "email", "route", "router", "task"],
     "business_value": "This router ONLY creates email_task types. Mac Agent tasks use slack_task_router.py.",
     "last_modified": "2026-01-12T14:26:37Z",

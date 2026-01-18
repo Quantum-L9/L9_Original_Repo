@@ -15,7 +15,7 @@ Sunset timeline:
 Migration:
     # OLD (deprecated)
     from core.schemas.packet_envelope import PacketEnvelope
-    
+
     # NEW (canonical)
     from core.schemas import PacketEnvelope
 
@@ -49,7 +49,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["ci.check_schema_deprecation", "core.schemas.packet_envelope", "core.schemas.tests.test_discriminators", "core.schemas.tests.test_packet_envelope"],
+        "imported_by": [
+            "ci.check_schema_deprecation",
+            "core.schemas.packet_envelope",
+            "core.schemas.tests.test_discriminators",
+            "core.schemas.tests.test_packet_envelope",
+        ],
     },
 }
 # ============================================================================
@@ -301,6 +306,7 @@ class SemanticSearchResult(BaseModel):
         default_factory=list, description="List of matching results"
     )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -310,8 +316,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["data-models", "enum", "event-driven", "foundation", "messaging", "migration", "pydantic", "tracing", "validation"],
-    "keywords": ["block", "canonical", "confidence", "core", "days", "deprecated", "deprecation", "envelope"],
+    "tags": [
+        "data-models",
+        "enum",
+        "event-driven",
+        "foundation",
+        "messaging",
+        "migration",
+        "pydantic",
+        "tracing",
+        "validation",
+    ],
+    "keywords": [
+        "block",
+        "canonical",
+        "confidence",
+        "core",
+        "days",
+        "deprecated",
+        "deprecation",
+        "envelope",
+    ],
     "business_value": "This module is DEPRECATED as of 2026-01-05. Use `core.schemas.packet_envelope_v2` for the canonical PacketEnvelope. 2026-01-05: Deprecation announced 2026-02-20: Sunset warning (45 days) 2026-03-22: W",
     "last_modified": "2026-01-14T13:21:36Z",
     "modified_by": "L9_Codegen_Engine",

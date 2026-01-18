@@ -46,13 +46,16 @@ import ast
 # CACHE MANAGER
 # =============================================================================
 
+
 @dataclass
 class CacheEntry:
     """Single cache entry."""
+
     path: str
     hash: str
     modified: float
     audit_type: str
+
 
 class CacheManager:
     """Manage incremental audit caching."""
@@ -131,26 +134,27 @@ class CacheManager:
         """Invalidate cache entries matching pattern."""
         manifest = self.load_manifest()
         if pattern:
-            manifest = {
-                k: v for k, v in manifest.items()
-                if pattern not in k
-            }
+            manifest = {k: v for k, v in manifest.items() if pattern not in k}
         else:
             manifest = {}
         self.save_manifest(manifest)
+
 
 # =============================================================================
 # CALL GRAPH BUILDER
 # =============================================================================
 
+
 @dataclass
 class CallGraphEdge:
     """Edge in call graph."""
+
     caller: str
     caller_file: str
     callee: str
     callee_type: str  # 'function', 'method', 'class'
     line_num: int
+
 
 class CallGraphBuilder(ast.NodeVisitor):
     """Build call graph from Python AST."""
@@ -196,19 +200,23 @@ class CallGraphBuilder(ast.NodeVisitor):
                 callee = f"{node.func.value.id}.{node.func.attr}"
 
         if callee and self.current_scope:
-            self.calls.append(CallGraphEdge(
-                caller=self.current_scope,
-                caller_file=self.filepath,
-                callee=callee,
-                callee_type="function",
-                line_num=node.lineno,
-            ))
+            self.calls.append(
+                CallGraphEdge(
+                    caller=self.current_scope,
+                    caller_file=self.filepath,
+                    callee=callee,
+                    callee_type="function",
+                    line_num=node.lineno,
+                )
+            )
 
         self.generic_visit(node)
+
 
 # =============================================================================
 # REPORTER (Multi-format)
 # =============================================================================
+
 
 class Reporter:
     """Generate audit reports in multiple formats."""
@@ -253,7 +261,9 @@ class Reporter:
         output_path.write_text(markdown_content)
         return output_path
 
-    def generate_html_template(self, title: str, summary: Dict[str, Any], content: str) -> str:
+    def generate_html_template(
+        self, title: str, summary: Dict[str, Any], content: str
+    ) -> str:
         """Generate basic HTML template."""
         html_content = f"""
 <!DOCTYPE html>
@@ -312,13 +322,16 @@ class Reporter:
         """
         return html_content
 
+
 # =============================================================================
 # GMP INTEGRATION
 # =============================================================================
 
+
 @dataclass
 class GMPTODOItem:
     """GMP TODO item."""
+
     id: str
     file_path: str
     line_range: tuple[int, int]
@@ -326,6 +339,7 @@ class GMPTODOItem:
     target: str
     expected_behavior: str
     imports_needed: List[str] = field(default_factory=list)
+
 
 class GMPIntegration:
     """Generate GMP TODO plans from audit findings."""
@@ -346,15 +360,17 @@ class GMPIntegration:
     ):
         """Add a TODO item."""
         todo_id = f"TODO_{self.audit_name.upper()}_{len(self.todos) + 1:03d}"
-        self.todos.append(GMPTODOItem(
-            id=todo_id,
-            file_path=file_path,
-            line_range=(line_start, line_end),
-            action=action,
-            target=target,
-            expected_behavior=behavior,
-            imports_needed=imports or [],
-        ))
+        self.todos.append(
+            GMPTODOItem(
+                id=todo_id,
+                file_path=file_path,
+                line_range=(line_start, line_end),
+                action=action,
+                target=target,
+                expected_behavior=behavior,
+                imports_needed=imports or [],
+            )
+        )
 
     def generate_plan(self) -> str:
         """Generate GMP TODO plan markdown."""
@@ -373,19 +389,23 @@ class GMPIntegration:
 
         return plan
 
+
 # =============================================================================
 # CONFIG VALIDATOR
 # =============================================================================
 
+
 @dataclass
 class ValidationRule:
     """Single validation rule."""
+
     variable: str
     expected_type: str
     required: bool = True
     min_value: Optional[float] = None
     max_value: Optional[float] = None
     allowed_values: Optional[List[str]] = None
+
 
 class ConfigValidator:
     """Validate configuration against rules."""
@@ -419,7 +439,9 @@ class ConfigValidator:
                         if value.lower() not in ["true", "false", "1", "0"]:
                             errors[var_name].append(f"Expected bool, got '{value}'")
                     else:
-                        errors[var_name].append(f"Expected bool, got {type(value).__name__}")
+                        errors[var_name].append(
+                            f"Expected bool, got {type(value).__name__}"
+                        )
 
             # Check range
             if rule.min_value is not None and value < rule.min_value:
@@ -433,9 +455,11 @@ class ConfigValidator:
 
         return dict(errors)
 
+
 # =============================================================================
 # OBSERVABILITY HOOKS
 # =============================================================================
+
 
 class ObservabilityHooks:
     """Integration with L9 observability layer."""
@@ -473,13 +497,16 @@ class ObservabilityHooks:
             for span in self.spans:
                 f.write(json.dumps(span) + "\n")
 
+
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
 
+
 def setup_logger(name: str) -> structlog.stdlib.BoundLogger:
     """Get a structlog logger for the given name."""
     return structlog.get_logger(name)
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -490,8 +517,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["ast", "builder-pattern", "caching", "dataclass", "filesystem", "logging", "operations", "scripts", "security", "serialization"],
-    "keywords": ["audit", "builder", "cache", "core", "edge", "entry", "export", "files"],
+    "tags": [
+        "ast",
+        "builder-pattern",
+        "caching",
+        "dataclass",
+        "filesystem",
+        "logging",
+        "operations",
+        "scripts",
+        "security",
+        "serialization",
+    ],
+    "keywords": [
+        "audit",
+        "builder",
+        "cache",
+        "core",
+        "edge",
+        "entry",
+        "export",
+        "files",
+    ],
     "business_value": "CallGraphBuilder (AST-based call graph) CacheManager (incremental audit caching) Reporter (multi-format output) GMPIntegration (GMP TODO plan generation) ConfigValidator (rules engine)",
     "last_modified": "2026-01-14T15:05:34Z",
     "modified_by": "L9_Codegen_Engine",

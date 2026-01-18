@@ -24,7 +24,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Gmail API"],
         "memory_layers": [],
-        "imported_by": ["_archived.legacy_slack.webhook_slack", "email_agent.__init__", "email_agent.client", "email_agent.router", "email_agent.triage", "tests.email_agent.test_email_router"],
+        "imported_by": [
+            "_archived.legacy_slack.webhook_slack",
+            "email_agent.__init__",
+            "email_agent.client",
+            "email_agent.router",
+            "email_agent.triage",
+            "tests.email_agent.test_email_router",
+        ],
     },
 }
 # ============================================================================
@@ -116,7 +123,9 @@ class GmailClient:
             self.attachments_dir = config.attachments_dir
             # Ensure account directories exist
             ensure_dirs(account)
-            logger.info(f"GmailClient initialized for account: {account} ({config.email})")
+            logger.info(
+                f"GmailClient initialized for account: {account} ({config.email})"
+            )
         else:
             self.email = GMAIL_ACCOUNT
             # Ensure legacy directories exist
@@ -649,6 +658,7 @@ class GmailClient:
             logger.error(f"Gmail API error forwarding email: {e}")
             return None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -658,8 +668,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["adapter", "api", "auth", "client", "email-integration", "integration", "logging", "messaging", "streaming"],
-    "keywords": ["client", "draft", "email", "extract", "filename", "forward", "gmail", "messages"],
+    "tags": [
+        "adapter",
+        "api",
+        "auth",
+        "client",
+        "email-integration",
+        "integration",
+        "logging",
+        "messaging",
+        "streaming",
+    ],
+    "keywords": [
+        "client",
+        "draft",
+        "email",
+        "extract",
+        "filename",
+        "forward",
+        "gmail",
+        "messages",
+    ],
     "business_value": "Implements GmailClient for gmail client functionality",
     "last_modified": "2026-01-14T16:23:18Z",
     "modified_by": "L9_Codegen_Engine",

@@ -44,7 +44,14 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["OpenAI API"],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["api.server", "tests.smoke_test", "tests.smoke_test_root", "world_model.__init__", "world_model.runtime", "world_model.world_model_service"],
+        "imported_by": [
+            "api.server",
+            "tests.smoke_test",
+            "tests.smoke_test_root",
+            "world_model.__init__",
+            "world_model.runtime",
+            "world_model.world_model_service",
+        ],
     },
 }
 # ============================================================================
@@ -1991,6 +1998,7 @@ async def get_or_create_runtime(
 
     return _global_runtime
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -1999,9 +2007,33 @@ __dora_footer__ = {
     "governance_level": "high",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.decorators", "memory.substrate_repository", "memory.substrate_service"],
-    "tags": ["api", "async", "batch-processing", "code-quality", "config", "data-models", "dataclass", "debugging", "event-driven", "filesystem"],
-    "keywords": ["apply", "build", "consolidate", "create", "engine", "entity", "fetch", "forever"],
+    "dependencies": [
+        "core.decorators",
+        "memory.substrate_repository",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "code-quality",
+        "config",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "filesystem",
+    ],
+    "keywords": [
+        "apply",
+        "build",
+        "consolidate",
+        "create",
+        "engine",
+        "entity",
+        "fetch",
+        "forever",
+    ],
     "business_value": "Provides runtime components including RuntimeMode, RuntimeConfig, PacketSource",
     "last_modified": "2026-01-17T23:47:57Z",
     "modified_by": "L9_Codegen_Engine",

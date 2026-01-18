@@ -36,6 +36,7 @@ from typing import Any, Dict
 
 from core.schemas import PacketEnvelope, PacketEnvelopeIn
 
+
 def envelope_to_dict(envelope: PacketEnvelope) -> Dict[str, Any]:
     """
     Convert a PacketEnvelope to a JSON-serializable dict.
@@ -49,11 +50,13 @@ def envelope_to_dict(envelope: PacketEnvelope) -> Dict[str, Any]:
         data["timestamp"] = ts.isoformat()
     return data
 
+
 def envelope_from_dict(data: Dict[str, Any]) -> PacketEnvelope:
     """
     Construct a PacketEnvelope from a dict that likely came from JSON.
     """
     return PacketEnvelope.model_validate(data)
+
 
 def packet_in_from_dict(data: Dict[str, Any]) -> PacketEnvelopeIn:
     """
@@ -63,13 +66,16 @@ def packet_in_from_dict(data: Dict[str, Any]) -> PacketEnvelopeIn:
     """
     return PacketEnvelopeIn.model_validate(data)
 
+
 def envelope_to_json(envelope: PacketEnvelope) -> str:
     """Dump a PacketEnvelope to a JSON string."""
     return json.dumps(envelope_to_dict(envelope), separators=(",", ":"))
 
+
 def envelope_from_json(payload: str) -> PacketEnvelope:
     """Load a PacketEnvelope from a JSON string."""
     return envelope_from_dict(json.loads(payload))
+
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -80,7 +86,14 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.schemas"],
-    "tags": ["api", "learning", "memory-substrate", "serialization", "testing", "utility"],
+    "tags": [
+        "api",
+        "learning",
+        "memory-substrate",
+        "serialization",
+        "testing",
+        "utility",
+    ],
     "keywords": ["envelope", "json", "memory", "packet", "serializer"],
     "business_value": "Utility module for packet serializer",
     "last_modified": "2026-01-14T13:21:36Z",

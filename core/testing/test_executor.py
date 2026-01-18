@@ -26,7 +26,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.testing.__init__", "core.testing.test_agent", "tests.integration.test_recursive_self_testing"],
+        "imported_by": [
+            "core.testing.__init__",
+            "core.testing.test_agent",
+            "tests.integration.test_recursive_self_testing",
+        ],
     },
 }
 # ============================================================================
@@ -48,7 +52,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class TestResult:
     """Result of a single test."""
-    
+
     name: str
     passed: bool
     duration_ms: float
@@ -59,7 +63,7 @@ class TestResult:
 @dataclass
 class TestResults:
     """Results of a test run."""
-    
+
     run_id: UUID = field(default_factory=uuid4)
     timestamp: datetime = field(default_factory=datetime.utcnow)
     total_tests: int = 0
@@ -72,7 +76,7 @@ class TestResults:
     stdout: str = ""
     stderr: str = ""
     success: bool = False
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for storage."""
         return {
@@ -100,7 +104,7 @@ class TestResults:
 class TestExecutor:
     """
     Executes tests in a sandbox environment.
-    
+
     Creates isolated test environments using temp directories
     or Docker containers for running generated tests.
     """
@@ -113,7 +117,7 @@ class TestExecutor:
     ):
         """
         Initialize TestExecutor.
-        
+
         Args:
             use_docker: Whether to use Docker for isolation
             timeout_seconds: Max time for test execution
@@ -131,30 +135,30 @@ class TestExecutor:
     ) -> TestResults:
         """
         Run tests in a sandbox environment.
-        
+
         Args:
             test_code: Python test code to execute
             source_code: Optional source code being tested
             env_config: Optional environment variables
-            
+
         Returns:
             TestResults with execution results
         """
         start_time = datetime.utcnow()
-        
+
         # Create temp directory for test execution
         with tempfile.TemporaryDirectory() as tmpdir:
             tmppath = Path(tmpdir)
-            
+
             # Write test file
             test_file = tmppath / "test_generated.py"
             test_file.write_text(test_code)
-            
+
             # Write source file if provided
             if source_code:
                 source_file = tmppath / "module_under_test.py"
                 source_file.write_text(source_code)
-            
+
             # Write conftest for pytest
             conftest = tmppath / "conftest.py"
             conftest.write_text("""
@@ -166,7 +170,7 @@ def mock_substrate():
     from unittest.mock import AsyncMock
     return AsyncMock()
 """)
-            
+
             # Run pytest
             try:
                 results = await self._run_pytest(tmppath, test_file, env_config)
@@ -176,10 +180,10 @@ def mock_substrate():
                     success=False,
                     stderr=str(e),
                 )
-        
+
         # Calculate duration
         results.duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
-        
+
         return results
 
     async def _run_pytest(
@@ -191,22 +195,24 @@ def mock_substrate():
         """Run pytest and parse results."""
         # Build pytest command
         cmd = [
-            "python3", "-m", "pytest",
+            "python3",
+            "-m",
+            "pytest",
             str(test_file),
             "-v",
             "--tb=short",
             "-q",
         ]
-        
+
         if self._coverage:
             cmd.extend(["--cov=.", "--cov-report=term-missing"])
-        
+
         # Set up environment
         env = os.environ.copy()
         env["PYTHONPATH"] = str(working_dir)
         if env_config:
             env.update(env_config)
-        
+
         # Run pytest
         try:
             process = await asyncio.create_subprocess_exec(
@@ -216,17 +222,17 @@ def mock_substrate():
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            
+
             stdout, stderr = await asyncio.wait_for(
                 process.communicate(),
                 timeout=self._timeout,
             )
-            
+
             stdout_str = stdout.decode("utf-8", errors="replace")
             stderr_str = stderr.decode("utf-8", errors="replace")
-            
+
             return self._parse_pytest_output(stdout_str, stderr_str, process.returncode)
-            
+
         except asyncio.TimeoutError:
             return TestResults(
                 success=False,
@@ -245,47 +251,55 @@ def mock_substrate():
             stderr=stderr,
             success=(returncode == 0),
         )
-        
+
         # Parse test counts from output
         # Example: "5 passed, 2 failed, 1 skipped"
         import re
-        
+
         passed_match = re.search(r"(\d+) passed", stdout)
         failed_match = re.search(r"(\d+) failed", stdout)
         skipped_match = re.search(r"(\d+) skipped", stdout)
-        
+
         if passed_match:
             results.passed = int(passed_match.group(1))
         if failed_match:
             results.failed = int(failed_match.group(1))
         if skipped_match:
             results.skipped = int(skipped_match.group(1))
-        
+
         results.total_tests = results.passed + results.failed + results.skipped
-        
+
         # Parse coverage if present
         cov_match = re.search(r"TOTAL\s+\d+\s+\d+\s+(\d+)%", stdout)
         if cov_match:
             results.coverage_percent = float(cov_match.group(1))
-        
+
         # Parse individual test results
         for line in stdout.split("\n"):
             if "PASSED" in line:
-                test_name = line.split("::")[1].split()[0] if "::" in line else "unknown"
-                results.results.append(TestResult(
-                    name=test_name,
-                    passed=True,
-                    duration_ms=0,  # Would need timing info
-                ))
+                test_name = (
+                    line.split("::")[1].split()[0] if "::" in line else "unknown"
+                )
+                results.results.append(
+                    TestResult(
+                        name=test_name,
+                        passed=True,
+                        duration_ms=0,  # Would need timing info
+                    )
+                )
             elif "FAILED" in line:
-                test_name = line.split("::")[1].split()[0] if "::" in line else "unknown"
-                results.results.append(TestResult(
-                    name=test_name,
-                    passed=False,
-                    duration_ms=0,
-                    error="Test failed",
-                ))
-        
+                test_name = (
+                    line.split("::")[1].split()[0] if "::" in line else "unknown"
+                )
+                results.results.append(
+                    TestResult(
+                        name=test_name,
+                        passed=False,
+                        duration_ms=0,
+                        error="Test failed",
+                    )
+                )
+
         return results
 
 
@@ -296,12 +310,12 @@ async def run_tests_in_sandbox(
 ) -> TestResults:
     """
     Convenience function to run tests in sandbox.
-    
+
     Args:
         test_code: Test code to execute
         source_code: Optional source code
         env_config: Optional environment config
-        
+
     Returns:
         TestResults
     """
@@ -329,8 +343,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "async", "core", "dataclass", "executor", "filesystem", "foundation", "logging", "mocking", "test"],
-    "keywords": ["executor", "mock", "results", "sandbox", "substrate", "test", "tests"],
+    "tags": [
+        "api",
+        "async",
+        "core",
+        "dataclass",
+        "executor",
+        "filesystem",
+        "foundation",
+        "logging",
+        "mocking",
+        "test",
+    ],
+    "keywords": [
+        "executor",
+        "mock",
+        "results",
+        "sandbox",
+        "substrate",
+        "test",
+        "tests",
+    ],
     "business_value": "Provides test executor components including TestResult, TestResults, TestExecutor",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

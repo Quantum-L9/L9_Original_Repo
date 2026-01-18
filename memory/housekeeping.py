@@ -29,7 +29,12 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["api.memory.router", "api.server", "core.singleton_registry", "memory.__init__"],
+        "imported_by": [
+            "api.memory.router",
+            "api.server",
+            "core.singleton_registry",
+            "memory.__init__",
+        ],
     },
 }
 # ============================================================================
@@ -440,6 +445,7 @@ class HousekeepingEngine:
 # Singleton / Factory
 # =============================================================================
 
+
 @lru_cache(maxsize=1)
 def get_housekeeping_engine() -> HousekeepingEngine:
     """Get or create the housekeeping engine singleton. CACHED."""
@@ -452,6 +458,7 @@ def init_housekeeping_engine(repository) -> HousekeepingEngine:
     engine.set_repository(repository)
     return engine
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -461,8 +468,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "caching", "debugging", "engine", "event-driven", "learning", "logging", "memory-substrate", "serialization", "service"],
-    "keywords": ["artifacts", "cleanup", "engine", "evict", "expired", "full", "housekeeping", "memory"],
+    "tags": [
+        "async",
+        "caching",
+        "debugging",
+        "engine",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "artifacts",
+        "cleanup",
+        "engine",
+        "evict",
+        "expired",
+        "full",
+        "housekeeping",
+        "memory",
+    ],
     "business_value": "TTL eviction for expired packets Tag-based garbage collection Orphan packet cleanup (parentless, dangling references) Artifact orphan cleanup All operations are async-safe and use logging (no print st",
     "last_modified": "2026-01-13T15:36:11Z",
     "modified_by": "L9_Codegen_Engine",

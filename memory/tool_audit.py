@@ -34,7 +34,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["PostgreSQL"],
         "memory_layers": ["working_memory"],
-        "imported_by": ["tests.integration.test_tool_observability_integration", "tests.memory.test_tool_audit"],
+        "imported_by": [
+            "tests.integration.test_tool_observability_integration",
+            "tests.memory.test_tool_audit",
+        ],
     },
 }
 # ============================================================================
@@ -54,6 +57,7 @@ logger = structlog.get_logger(__name__)
 
 # Default TTL for tool audit packets (24 hours)
 TOOL_AUDIT_TTL_HOURS = 24
+
 
 @must_stay_async("callers use await")
 async def log_tool_invocation(
@@ -177,6 +181,7 @@ async def log_tool_invocation(
             tool_id=tool_id,
         )
 
+
 async def _ingest_audit_packet(packet: PacketEnvelopeIn) -> None:
     """
     Internal: Actually ingest the audit packet (runs in background).
@@ -201,6 +206,7 @@ async def _ingest_audit_packet(packet: PacketEnvelopeIn) -> None:
             packet_id=str(packet.packet_id),
             error=str(e),
         )
+
 
 async def _write_to_audit_table(
     call_id: UUID,
@@ -261,6 +267,7 @@ async def _write_to_audit_table(
             error=str(e),
         )
 
+
 def _sanitize_arguments(arguments: dict) -> dict:
     """
     Sanitize tool arguments for audit logging.
@@ -291,6 +298,7 @@ def _sanitize_arguments(arguments: dict) -> dict:
 
     return sanitized
 
+
 # =============================================================================
 # Public API
 # =============================================================================
@@ -308,9 +316,34 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.decorators", "core.schemas", "memory.ingestion", "memory.substrate_models"],
-    "tags": ["api", "async", "audit-tool", "auth", "debugging", "engine", "event-driven", "learning", "logging", "memory-substrate"],
-    "keywords": ["audit", "governance", "invocation", "log", "logging", "memory", "module", "substrate"],
+    "dependencies": [
+        "core.decorators",
+        "core.schemas",
+        "memory.ingestion",
+        "memory.substrate_models",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "audit-tool",
+        "auth",
+        "debugging",
+        "engine",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+    ],
+    "keywords": [
+        "audit",
+        "governance",
+        "invocation",
+        "log",
+        "logging",
+        "memory",
+        "module",
+        "substrate",
+    ],
     "business_value": "Zero-impact on tool execution latency (fire-and-forget) Never failing the tool call itself Automatic 24-hour TTL for cleanup Full audit trail for governance Version: 1.0.0 Author: L9 Enterprise",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

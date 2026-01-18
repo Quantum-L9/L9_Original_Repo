@@ -31,7 +31,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["world_model.__init__", "world_model._pack_staging.loader", "world_model._pack_staging.neo4j_substrate", "world_model._pack_staging.orchestrator", "world_model._pack_staging.postgres_substrate", "world_model._pack_staging.query_engine", "world_model._pack_staging.redis_substrate", "world_model._pack_staging.registry", "world_model._pack_staging.state", "world_model._pack_staging.test_integration"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model._pack_staging.loader",
+            "world_model._pack_staging.neo4j_substrate",
+            "world_model._pack_staging.orchestrator",
+            "world_model._pack_staging.postgres_substrate",
+            "world_model._pack_staging.query_engine",
+            "world_model._pack_staging.redis_substrate",
+            "world_model._pack_staging.registry",
+            "world_model._pack_staging.state",
+            "world_model._pack_staging.test_integration",
+        ],
     },
 }
 # ============================================================================
@@ -241,6 +252,7 @@ class IWorldModelLoader(Protocol):
         """Extract causal structure from specification."""
         ...
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -250,8 +262,25 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["config", "engine", "learning", "loader", "rest-api", "utility", "world-model"],
-    "keywords": ["apply", "causal", "causes", "effects", "engine", "entity", "graph", "initialize"],
+    "tags": [
+        "config",
+        "engine",
+        "learning",
+        "loader",
+        "rest-api",
+        "utility",
+        "world-model",
+    ],
+    "keywords": [
+        "apply",
+        "causal",
+        "causes",
+        "effects",
+        "engine",
+        "entity",
+        "graph",
+        "initialize",
+    ],
     "business_value": "World Model Engine and L9 core World Model State and Memory Substrate World Model Updater and LangGraph nodes",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

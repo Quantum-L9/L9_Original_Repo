@@ -33,6 +33,7 @@ from datetime import datetime
 from typing import Any, Optional
 from uuid import uuid4
 
+
 def get_wm_status() -> dict[str, Any]:
     """
     Get world model status.
@@ -52,6 +53,7 @@ def get_wm_status() -> dict[str, Any]:
         },
     }
 
+
 @dataclass
 class MockNode:
     """A mock node in the world model graph."""
@@ -61,6 +63,7 @@ class MockNode:
     data: dict[str, Any]
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
+
 
 @dataclass
 class MockEdge:
@@ -73,6 +76,7 @@ class MockEdge:
     weight: float = 1.0
     metadata: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.utcnow)
+
 
 class MockWorldModel:
     """
@@ -339,6 +343,7 @@ class MockWorldModel:
             "edge_types": list(set(e.edge_type for e in self.edges)),
         }
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -349,7 +354,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["async", "dataclass", "mocking", "operations", "testing", "tests"],
-    "keywords": ["create", "delete", "edge", "edges", "implementations", "link", "mock", "mocks"],
+    "keywords": [
+        "create",
+        "delete",
+        "edge",
+        "edges",
+        "implementations",
+        "link",
+        "mock",
+        "mocks",
+    ],
     "business_value": "Provides world model mocks components including MockNode, MockEdge, MockWorldModel",
     "last_modified": "2026-01-07T13:35:58Z",
     "modified_by": "L9_Codegen_Engine",

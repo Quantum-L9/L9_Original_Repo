@@ -43,7 +43,18 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
-        "imported_by": ["ci.check_schema_deprecation", "memory.__init__", "memory.identity_tier", "memory.insight_extraction", "memory.retrieval", "memory.substrate_dag", "memory.substrate_repository", "memory.timeline_service", "memory.tool_audit", "scripts.migrate_substrate_models"],
+        "imported_by": [
+            "ci.check_schema_deprecation",
+            "memory.__init__",
+            "memory.identity_tier",
+            "memory.insight_extraction",
+            "memory.retrieval",
+            "memory.substrate_dag",
+            "memory.substrate_repository",
+            "memory.timeline_service",
+            "memory.tool_audit",
+            "scripts.migrate_substrate_models",
+        ],
     },
 }
 # ============================================================================
@@ -506,6 +517,7 @@ class EpisodicSemanticLinkRow(BaseModel):
     # Timestamp
     created_at: datetime
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -515,8 +527,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["auth", "data-models", "enum", "event-driven", "learning", "metrics", "migration", "pydantic", "security", "testing"],
-    "keywords": ["added", "agent", "block", "changelog", "checkpoint", "core", "database", "dtos"],
+    "tags": [
+        "auth",
+        "data-models",
+        "enum",
+        "event-driven",
+        "learning",
+        "metrics",
+        "migration",
+        "pydantic",
+        "security",
+        "testing",
+    ],
+    "keywords": [
+        "added",
+        "agent",
+        "block",
+        "changelog",
+        "checkpoint",
+        "core",
+        "database",
+        "dtos",
+    ],
     "business_value": "Database row DTOs (PacketStoreRow, KnowledgeFactRow, etc.) Memory-specific models (StructuredReasoningBlock, SubstrateState) Knowledge extraction models (KnowledgeFact, ExtractedInsight) Enrichment pi",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",
