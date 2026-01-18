@@ -1,27 +1,3 @@
-###############################################################################
-# PART A: SYSTEM-LEVEL DIAGNOSTICS
-###############################################################################
-
-echo
-echo "A1) SYSTEM IDENTITY"
-echo "-------------------"
-hostname
-whoami
-ip addr show | grep 'inet ' | grep -v '127.0.0.1'
-uname -a
-
-echo
-echo "A2) ALL LISTENING PORTS (TOP 50)"
-echo "--------------------------------"
-sudo ss -tlnp 2>/dev/null | head -50 || true
-
-echo
-echo "A3) FIREWALL STATUS (UFW + CLOUD-FIREWALL HINT)"
-echo "----------------------------------------------"
-sudo ufw status numbered 2>/dev/null || echo "UFW not active or not installed"
-echo
-echo "===== END OF L9 VPS MRI ====="t Executor required for new Slack routing', set L9_ENABLE_LEGACY_SLACK_ROUTER=true as workaround" observability).")"yload)"ad)"s
-
 ===== L9 VPS MRI – UPDATED FULL DIAGNOSTIC =====
 Sat Jan 17 08:25:35 PM UTC 2026
 

@@ -11,18 +11,12 @@ Verifies:
 import pytest
 from pathlib import Path
 
-# Try new location first, fallback to old location
-try:
-    import sys
-    from pathlib import Path
-    startup_path = Path(__file__).parent.parent.parent / ".cursor-commands" / "startup"
-    if startup_path.exists():
-        sys.path.insert(0, str(startup_path.parent))
-        from startup.session_startup import SessionStartup, StartupResult
-    else:
-        from core.governance.session_startup import SessionStartup, StartupResult
-except ImportError:
-    from core.governance.session_startup import SessionStartup, StartupResult
+# Always use core.governance.session_startup which has check_kernel_readiness()
+# Note: .cursor-commands/startup/session_startup.py has check_cursor_workflow_kernel() instead
+from core.governance.session_startup import (
+    SessionStartup,
+    StartupResult,
+)
 
 
 # Default workspace root for tests
@@ -332,4 +326,3 @@ class TestStartupErrorHandling:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

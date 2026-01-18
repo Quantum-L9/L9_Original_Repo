@@ -1,0 +1,23 @@
+{
+  "total_files": 1,
+  "header_injected": 1,
+  "footer_injected": 1,
+  "trace_injected": 1,
+  "skipped": 0,
+  "failed": 0,
+  "legacy_migration_needed": 0,
+  "files": [
+    {
+      "file": "core/agents/agent_instance.py",
+      "component_id": "COR-FOUN-001",
+      "injected": {
+        "header": true,
+        "footer": true,
+        "trace": true
+      },
+      "classes": [
+        "AgentInstance"
+      ]
+    }
+  ]
+}
