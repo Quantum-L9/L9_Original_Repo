@@ -20,6 +20,34 @@ This module does NOT:
 Version: 1.0.0
 """
 
+# ============================================================================
+# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# See footer for extended metadata
+# ============================================================================
+__dora_meta__ = {
+    "component_id": "COR-FOUN-001",
+    "component_name": "Executor",
+    "module_version": "1.0.0",
+    "created_at": "2026-01-18T05:25:09Z",
+    "created_by": "L9_Codegen_Engine",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "type": "engine",
+    "status": "active",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "purpose": "Provides executor components including AIOSRuntime, ToolRegistryProtocol, SubstrateServiceProtocol",
+    "dependencies": [
+        "core.agents.adaptive_prompting",
+        "core.agents.agent_instance",
+        "core.agents.kernelevolution",
+        "core.agents.prompt_builder",
+        "core.agents.prompt_defense",
+    ],
+}
+# ============================================================================
+
 from __future__ import annotations
 
 import json
@@ -2344,3 +2372,37 @@ __all__ = [
     "SubstrateServiceProtocol",
     "AgentRegistryProtocol",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Extended metadata referenced by header
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "security_classification": "internal",
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "batch",
+    "last_modified": "2026-01-18T05:25:09Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -13,6 +13,31 @@ The Agent Registry:
 Version: 1.0.0
 """
 
+# ============================================================================
+# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_meta__ = {
+    "component_id": "COR-FOUN-001",
+    "component_name": "Registry",
+    "module_version": "1.0.0",
+    "created_by": "L9_Codegen_Engine",
+    "created_at": "2026-01-18T05:36:29Z",
+    "updated_at": "2026-01-18T05:36:29Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "registry",
+    "type": "utility",
+    "status": "active",
+    "purpose": "Implements AgentRegistry for registry functionality",
+    "summary": "Implements AgentRegistry for registry functionality",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL", "Neo4j", "Redis"],
+        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+    },
+}
+# ============================================================================
+
 from __future__ import annotations
 
 import structlog
@@ -501,3 +526,65 @@ __all__ = [
     "DEFAULT_CONFIG_DIR",
     "DEFAULT_AGENT_ID",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    # === IDENTITY ===
+    "component_id": "COR-FOUN-001",
+    # === GOVERNANCE ===
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "security_classification": "internal",
+    # === DEPENDENCIES ===
+    "dependencies": [
+        "core.agents.schemas",
+        "core.decorators",
+        "core.kernels.prompt_builder",
+    ],
+    # === OPERATIONAL ===
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "batch",
+    "retry_policy": "exponential",
+    "circuit_breaker_enabled": True,
+    "circuit_breaker_threshold": 5,
+    # === OBSERVABILITY ===
+    "monitoring_required": True,
+    "logging_level": "info",
+    "success_metrics": {
+        "latency_p95_ms": 500,
+        "throughput_ops_per_sec": 100,
+        "availability_percent": 99.9,
+        "error_rate_percent": 0.1,
+    },
+    # === DISCOVERY ===
+    "tags": ["agent", "utility", "agent-execution", "foundation", "runtime"],
+    "keywords": ["registry", "executor", "runtime"],
+    "business_value": "Implements AgentRegistry for registry functionality",
+    # === CHANGE TRACKING ===
+    "last_modified": "2026-01-18T05:36:29Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
