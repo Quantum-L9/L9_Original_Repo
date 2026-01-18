@@ -72,7 +72,7 @@ from memory.saga_patterns import (
 )
 from memory.audit_utils import prepare_packet_for_ingest
 from memory.governance_gate import (
-    build_governance_context,
+    ensure_governance_context,
     enforce_packet_governance,
     governance_context,
     require_governance_context,
@@ -117,8 +117,9 @@ class MemorySubstrateService:
 
         # Initialize embedding provider
         if embedding_provider is None:
-            logger.warning("No embedding provider specified, using stub provider")
-            embedding_provider = StubEmbeddingProvider()
+            raise RuntimeError("Embedding provider required; missing embedding context")
+        if isinstance(embedding_provider, StubEmbeddingProvider):
+            raise RuntimeError("Stub embedding provider is not allowed in enforcement mode")
         self._embedding_provider = embedding_provider
 
         # Initialize semantic service
@@ -155,6 +156,14 @@ class MemorySubstrateService:
         self._saga_patterns: Optional[SagaPatterns] = None
 
         logger.info("MemorySubstrateService initialized")
+
+    def _require_rls_context(self, operation: str) -> Any:
+        ctx = require_governance_context(operation)
+        if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+            raise RuntimeError(
+                f"RLS scope required for memory operation: {operation}"
+            )
+        return ctx
 
     # =========================================================================
     # RLS Session Scope
@@ -242,7 +251,7 @@ class MemorySubstrateService:
             PacketWriteResult with status and written tables
         """
         # GMP-70: Governance enforcement (fail-closed)
-        ctx = require_governance_context("write_packet")
+        ctx = self._require_rls_context("write_packet")
         if tenant_id and tenant_id != ctx.tenant_id:
             raise RuntimeError("tenant_id must be derived server-side")
         if org_id and org_id != ctx.org_id:
@@ -360,14 +369,21 @@ class MemorySubstrateService:
         """
         from uuid import UUID
 
+        ctx = self._require_rls_context("get_packet")
         try:
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
             row = await self._repository.get_packet(UUID(packet_id))
             if row:
                 return row.envelope
             return None
         except Exception as e:
             logger.error(f"Error retrieving packet {packet_id}: {e}")
-            return None
+            raise
 
     async def search_packets_by_thread(
         self,
@@ -388,7 +404,14 @@ class MemorySubstrateService:
         """
         from uuid import UUID
 
+        ctx = self._require_rls_context("search_packets_by_thread")
         try:
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
             rows = await self._repository.search_packets_by_thread(
                 thread_id=UUID(thread_id),
                 packet_type=packet_type,
@@ -406,7 +429,7 @@ class MemorySubstrateService:
             return results
         except Exception as e:
             logger.error(f"Error searching packets by thread {thread_id}: {e}")
-            return []
+            raise
 
     async def search_packets_by_type(
         self,
@@ -426,17 +449,13 @@ class MemorySubstrateService:
             List of packet envelopes as dicts
         """
         try:
-            # GMP-75: Establish governance context for service-level searches
-            # Multiple callers (l_tools, base_registry, kernel_loader) rely on this
-            system_ctx = build_governance_context(
-                caller_id="substrate_service",
-                role="system",
-                tenant_id="system",
-                org_id="l9",
-                project_ids=["*"],  # System-level access for internal operations
-            )
-
-            async with governance_context(system_ctx):
+            async with ensure_governance_context("search_packets_by_type") as ctx:
+                await self.set_session_scope(
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
+                    ctx.role,
+                )
                 rows = await self._repository.search_packets_by_type(
                     packet_type=packet_type,
                     agent_id=agent_id,
@@ -454,7 +473,7 @@ class MemorySubstrateService:
             return results
         except Exception as e:
             logger.error(f"Error searching packets by type {packet_type}: {e}")
-            return []
+            raise
 
     async def query_packets(
         self,
@@ -488,23 +507,17 @@ class MemorySubstrateService:
             Dict with 'packets' list and metadata
         """
         try:
-            # Set RLS scope if provided
-            if tenant_id and org_id and user_id:
-                await self.set_session_scope(tenant_id, org_id, user_id, role)
-
-            # GMP-74: Establish governance context for internal polling operations
-            # World Model Runtime calls this every 60s without external context
-            system_ctx = build_governance_context(
-                caller_id="world_model_runtime",
-                role=role or "system",
-                tenant_id=tenant_id or "system",
-                org_id=org_id or "l9",
-                project_ids=["*"],  # System-level access for internal polling
+            ctx = self._require_rls_context("query_packets")
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
             )
 
             all_packets = []
 
-            async with governance_context(system_ctx):
+            async with governance_context(ctx):
                 if packet_types:
                     # Fetch each type and combine
                     for ptype in packet_types:
@@ -562,7 +575,7 @@ class MemorySubstrateService:
                 )
             except ImportError:
                 pass
-            return {"packets": [], "count": 0, "error": str(e)}
+            raise
 
     # =========================================================================
     # Semantic Search Operations
@@ -580,6 +593,7 @@ class MemorySubstrateService:
         Returns:
             SemanticSearchResult with hits
         """
+        self._require_rls_context("semantic_search")
         logger.info(
             f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}"
         )
@@ -630,6 +644,7 @@ class MemorySubstrateService:
         Returns:
             embedding_id
         """
+        self._require_rls_context("embed_text")
         return await self._semantic_service.embed_and_store(
             text=text,
             payload=payload,

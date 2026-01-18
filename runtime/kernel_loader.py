@@ -310,8 +310,8 @@ def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
         full_path = base_path / kernel_path
 
         if not full_path.exists():
-            logger.warning("kernel_loader.missing: %s", kernel_path)
-            continue
+            logger.error("kernel_loader.missing: %s", kernel_path)
+            raise RuntimeError(f"Missing kernel file during load: {kernel_path}")
 
         try:
             data = yaml.safe_load(full_path.read_text())
@@ -976,8 +976,7 @@ def load_all_private_kernels(
     base = Path(base_path)
 
     if not base.exists():
-        logger.warning(f"Kernel base path does not exist: {base_path}")
-        return []
+        raise RuntimeError(f"Kernel base path does not exist: {base_path}")
 
     # Integrity check
     if check_integrity:

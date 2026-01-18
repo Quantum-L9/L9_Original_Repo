@@ -552,6 +552,8 @@ class AgentExecutorService:
             return None
 
         kernel_state = getattr(self._kernel_aware_agent, "kernel_state", None)
+        if kernel_state is None:
+            return None
         if isinstance(kernel_state, str):
             if kernel_state != "ACTIVE":
                 return None
@@ -1804,38 +1806,30 @@ class AgentExecutorService:
                 "memory_context": memory_context,  # Inject memory context
             }
 
-            # Check if registry supports guarded execution and agent has kernels
-            if hasattr(self._tool_registry, "guarded_execute"):
-                agent = self._get_kernel_aware_agent()
-                if not agent:
-                    logger.error(
-                        "agent.executor.kernel_enforcement_required",
-                        task_id=str(instance.task.id),
-                        tool_id=tool_call.tool_id,
-                    )
-                    return ToolCallResult(
-                        call_id=tool_call.call_id,
-                        tool_id=tool_call.tool_id,
-                        success=False,
-                        error="KERNEL_ENFORCEMENT_REQUIRED",
-                        result={
-                            "status": "blocked",
-                            "message": "Kernel-aware agent required for tool execution",
-                        },
-                    )
-                # Use guarded execution (kernel-aware)
-                result = await self._tool_registry.guarded_execute(
-                    agent=agent,
+            # Require guarded execution with active kernels (fail-closed)
+            agent = self._get_kernel_aware_agent()
+            if not agent:
+                return ToolCallResult(
+                    call_id=tool_call.call_id,
                     tool_id=tool_call.tool_id,
-                    arguments=tool_call.arguments,
-                    context=context,
+                    success=False,
+                    error="Kernel-aware agent required for tool dispatch",
                 )
-            else:
-                result = await self._tool_registry.dispatch_tool_call(
+            if not hasattr(self._tool_registry, "guarded_execute"):
+                return ToolCallResult(
+                    call_id=tool_call.call_id,
                     tool_id=tool_call.tool_id,
-                    arguments=tool_call.arguments,
-                    context=context,
+                    success=False,
+                    error="Tool registry missing guarded_execute enforcement",
                 )
+
+            # Use guarded execution (kernel-aware)
+            result = await self._tool_registry.guarded_execute(
+                agent=agent,
+                tool_id=tool_call.tool_id,
+                arguments=tool_call.arguments,
+                context=context,
+            )
 
             # Persist task result after execution
             await self._persist_task_result(
@@ -2030,10 +2024,8 @@ class AgentExecutorService:
         """
         Emit a packet to the memory substrate.
 
-        BEHAVIOR: Best-effort, non-blocking.
-        - Packet write failures are logged but do NOT stop execution.
-        - This is intentional: execution must complete even if observability fails.
-        - Critical failures (e.g., substrate down) are logged at WARNING level.
+        BEHAVIOR: Enforced, fail-closed.
+        - Packet write failures are logged and raised to stop execution.
 
         REQUIRED FIELDS (all packets include):
         - packet_type: Discriminator for packet routing
@@ -2050,26 +2042,25 @@ class AgentExecutorService:
             payload: Packet payload (must contain task_id)
             thread_id: Thread identifier
         """
+        # Use task.agent_id if available in payload, otherwise "agent.executor"
+        agent_id = payload.get("agent_id", "agent.executor")
+
+        packet = PacketEnvelopeIn(
+            packet_type=packet_type,
+            payload=payload,
+            thread_id=thread_id,
+            metadata={"agent": agent_id, "schema_version": "1.0.0"},
+        )
         try:
-            # Use task.agent_id if available in payload, otherwise "agent.executor"
-            agent_id = payload.get("agent_id", "agent.executor")
-
-            packet = PacketEnvelopeIn(
-                packet_type=packet_type,
-                payload=payload,
-                thread_id=thread_id,
-                metadata={"agent": agent_id, "schema_version": "1.0.0"},
-            )
             await self._substrate_service.write_packet(packet)
-
         except Exception as e:
-            # Best-effort: log but don't fail execution
-            logger.warning(
+            logger.error(
                 "agent.executor.packet_write_failed: packet_type=%s, thread_id=%s, error=%s",
                 packet_type,
                 str(thread_id),
                 str(e),
             )
+            raise
 
     # =========================================================================
     # Active Memory Encoding (GMP-80-A7: Frontier Memory)
