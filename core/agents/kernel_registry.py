@@ -49,10 +49,12 @@ class KernelAwareAgentRegistry:
         if USE_KERNELS:
             self._initialize_with_kernels()
         else:
-            logger.warning(
-                "kernel_registry: L9_USE_KERNELS=false, using fallback prompts"
+            logger.critical(
+                "kernel_registry: L9_USE_KERNELS=false is not permitted in enforced mode"
             )
-            self._initialize_fallback()
+            raise RuntimeError(
+                "FATAL: Kernel enforcement required. L9_USE_KERNELS=false is not permitted."
+            )
 
     def _initialize_with_kernels(self) -> None:
         """
