@@ -83,9 +83,8 @@ async def _get_openai_client():
         from openai import AsyncOpenAI
 
         return AsyncOpenAI()
-    except ImportError:
-        logger.warning("OpenAI client not available")
-        return None
+    except ImportError as exc:
+        raise RuntimeError("OpenAI client not available") from exc
 
 
 async def _get_db_pool():
@@ -94,9 +93,8 @@ async def _get_db_pool():
         from memory.substrate_repository import get_pool
 
         return await get_pool()
-    except ImportError:
-        logger.warning("Database pool not available")
-        return None
+    except ImportError as exc:
+        raise RuntimeError("Database pool not available") from exc
 
 
 async def embed_tool_description(description: str) -> list[float] | None:
@@ -110,8 +108,6 @@ async def embed_tool_description(description: str) -> list[float] | None:
         List of floats (embedding vector) or None if failed
     """
     client = await _get_openai_client()
-    if not client:
-        return None
 
     try:
         response = await client.embeddings.create(
@@ -121,7 +117,7 @@ async def embed_tool_description(description: str) -> list[float] | None:
         return response.data[0].embedding
     except Exception as e:
         logger.error(f"Failed to embed tool description: {e}")
-        return None
+        raise
 
 
 async def store_tool_embedding(
@@ -145,14 +141,9 @@ async def store_tool_embedding(
         True if stored successfully
     """
     pool = await _get_db_pool()
-    if not pool:
-        return False
 
     # Generate embedding
     embedding = await embed_tool_description(description)
-    if not embedding:
-        logger.warning(f"Could not generate embedding for tool: {tool_name}")
-        return False
 
     try:
         async with pool.acquire() as conn:
@@ -182,7 +173,7 @@ async def store_tool_embedding(
 
     except Exception as e:
         logger.error(f"Failed to store tool embedding: {e}")
-        return False
+        raise
 
 
 async def find_relevant_tools(
@@ -204,14 +195,9 @@ async def find_relevant_tools(
         List of ToolEmbeddingResult ordered by relevance
     """
     pool = await _get_db_pool()
-    if not pool:
-        return []
 
     # Generate query embedding
     query_embedding = await embed_tool_description(query)
-    if not query_embedding:
-        logger.warning("Could not generate query embedding")
-        return []
 
     try:
         async with pool.acquire() as conn:
@@ -261,7 +247,7 @@ async def find_relevant_tools(
 
     except Exception as e:
         logger.error(f"Failed to search tool embeddings: {e}")
-        return []
+        raise
 
 
 async def sync_all_tool_embeddings() -> int:
@@ -315,11 +301,10 @@ async def sync_all_tool_embeddings() -> int:
         return count
 
     except ImportError as e:
-        logger.warning(f"Could not import tool definitions: {e}")
-        return 0
+        raise RuntimeError(f"Could not import tool definitions: {e}") from e
     except Exception as e:
         logger.error(f"Failed to sync tool embeddings: {e}")
-        return 0
+        raise
 
 
 async def get_tool_embedding(tool_name: str) -> ToolEmbeddingResult | None:
@@ -333,8 +318,6 @@ async def get_tool_embedding(tool_name: str) -> ToolEmbeddingResult | None:
         ToolEmbeddingResult or None if not found
     """
     pool = await _get_db_pool()
-    if not pool:
-        return None
 
     try:
         async with pool.acquire() as conn:
@@ -361,7 +344,7 @@ async def get_tool_embedding(tool_name: str) -> ToolEmbeddingResult | None:
 
     except Exception as e:
         logger.error(f"Failed to get tool embedding: {e}")
-        return None
+        raise
 
 
 async def delete_tool_embedding(tool_name: str) -> bool:
@@ -375,8 +358,6 @@ async def delete_tool_embedding(tool_name: str) -> bool:
         True if deleted successfully
     """
     pool = await _get_db_pool()
-    if not pool:
-        return False
 
     try:
         async with pool.acquire() as conn:
@@ -389,7 +370,7 @@ async def delete_tool_embedding(tool_name: str) -> bool:
 
     except Exception as e:
         logger.error(f"Failed to delete tool embedding: {e}")
-        return False
+        raise
 
 
 __all__ = [

@@ -254,13 +254,16 @@ class ExecutorToolRegistry:
         if base_registry is None:
             try:
                 from core.tools.base_registry import get_tool_registry
-
-                self._registry = get_tool_registry()
-            except ImportError:
-                logger.warning("Could not import tool_registry, using empty registry")
-                self._registry = None
+            except ImportError as exc:
+                raise RuntimeError(
+                    "Tool registry import failed; tool dispatch blocked"
+                ) from exc
+            self._registry = get_tool_registry()
         else:
             self._registry = base_registry
+
+        if self._registry is None:
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
 
         self._governance_enabled = governance_enabled
         self._governance_engine = governance_engine
@@ -304,7 +307,7 @@ class ExecutorToolRegistry:
             List of approved ToolBinding objects
         """
         if self._registry is None:
-            return []
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
 
         bindings: list[ToolBinding] = []
 
@@ -403,7 +406,7 @@ class ExecutorToolRegistry:
             List of ToolBinding objects for relevant + approved tools
         """
         if self._registry is None:
-            return []
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
 
         # Step 1: Get semantically relevant tools via embeddings
         relevant_tool_names: set[str] = set()
@@ -421,14 +424,10 @@ class ExecutorToolRegistry:
                 len(relevant_tool_names),
                 query=query[:50],
             )
-        except ImportError:
-            logger.warning(
-                "tool_embeddings not available, falling back to all approved"
-            )
-            return self.get_approved_tools(agent_id, principal_id)
         except Exception as e:
-            logger.warning(f"Semantic tool search failed, using fallback: {e}")
-            return self.get_approved_tools(agent_id, principal_id)
+            raise RuntimeError(
+                f"Semantic tool retrieval unavailable; tool binding blocked: {e}"
+            ) from e
 
         if not relevant_tool_names:
             # No semantic results, fall back to all approved
@@ -918,7 +917,13 @@ class ExecutorToolRegistry:
 
         # GATE 1: Verify kernel activation
         kernel_state = getattr(agent, "kernel_state", None)
-        if kernel_state != "ACTIVE":
+        kernel_active = False
+        if isinstance(kernel_state, str):
+            kernel_active = kernel_state == "ACTIVE"
+        elif hasattr(kernel_state, "initialized"):
+            kernel_active = bool(kernel_state.initialized)
+
+        if not kernel_active:
             logger.error(
                 "guarded_execute.kernel_not_active",
                 agent_id=agent_id,
@@ -1021,12 +1026,17 @@ class ExecutorToolRegistry:
                     policy_id=eval_result.policy_id,
                 )
             except Exception as gov_err:
-                # Governance check failure is a soft failure - log but continue
-                logger.warning(
+                logger.error(
                     "guarded_execute.governance_check_error",
                     agent_id=agent_id,
                     tool_id=tool_id,
                     error=str(gov_err),
+                )
+                return ToolCallResult(
+                    call_id=call_id,
+                    tool_id=tool_id,
+                    success=False,
+                    error=f"Governance check failed: {gov_err}",
                 )
 
         # GATE 6: Check tool approval for high-risk tools
@@ -1057,9 +1067,13 @@ class ExecutorToolRegistry:
                             success=False,
                             error=f"Tool {tool_id} requires approval. Request ID: {call_id}",
                         )
-        except ImportError:
-            # ApprovalManager not available - skip check
-            pass
+        except ImportError as approval_import_error:
+            return ToolCallResult(
+                call_id=call_id,
+                tool_id=tool_id,
+                success=False,
+                error=f"Approval enforcement unavailable: {approval_import_error}",
+            )
         except Exception as approval_err:
             logger.warning(
                 "guarded_execute.approval_check_error",

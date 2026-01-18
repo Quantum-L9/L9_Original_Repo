@@ -50,6 +50,8 @@ __dora_meta__ = {
 import structlog
 from typing import Any, Dict, List, Optional
 
+from memory.governance_gate import require_governance_context
+
 logger = structlog.get_logger(__name__)
 
 # Memory segment constants
@@ -94,14 +96,15 @@ async def memory_search(
     if segment not in ALL_SEGMENTS:
         logger.warning(f"Unknown memory segment: {segment}, using default search")
 
+    ctx = require_governance_context("memory_search")
+    if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+        raise RuntimeError("RLS scope required for memory_search")
+
     try:
         from memory.substrate_service import get_service
         from core.schemas import SemanticSearchRequest
 
-        service = get_service()
-        if not service:
-            logger.warning("Memory service not available")
-            return []
+        service = await get_service()
 
         # Use semantic search with segment tag
         # The segment is encoded in the packet_type or tags
@@ -143,12 +146,11 @@ async def memory_search(
 
         return filtered
 
-    except ImportError:
-        logger.warning("Memory service not available - returning empty results")
-        return []
+    except ImportError as exc:
+        raise RuntimeError("Memory service not available") from exc
     except Exception as e:
         logger.error(f"Memory search failed: {e}", exc_info=True)
-        return []
+        raise
 
 
 async def memory_write(
@@ -178,6 +180,10 @@ async def memory_write(
     """
     if segment not in ALL_SEGMENTS:
         logger.warning(f"Unknown memory segment: {segment}, writing anyway")
+
+    ctx = require_governance_context("memory_write")
+    if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+        raise RuntimeError("RLS scope required for memory_write")
 
     try:
         from memory.ingestion import ingest_packet
@@ -215,12 +221,11 @@ async def memory_write(
             logger.warning(f"Memory write to {segment} returned no packet_id")
             return None
 
-    except ImportError:
-        logger.warning("Memory ingestion not available - skipping write")
-        return None
+    except ImportError as exc:
+        raise RuntimeError("Memory ingestion not available") from exc
     except Exception as e:
         logger.error(f"Memory write failed: {e}", exc_info=True)
-        return None
+        raise
 
 
 # =============================================================================
