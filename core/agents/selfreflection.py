@@ -12,6 +12,27 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Selfreflection",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-08T15:53:43Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "selfreflection",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.agents.executor", "core.agents.kernelevolution", "tests.integration.test_governance_tracking_e2e", "tests.integration.test_kernel_evolution_flow"],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 from dataclasses import dataclass, field
@@ -452,3 +473,37 @@ __all__ = [
     "detect_behavior_gaps",
     "analyze_task_execution",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-037",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["agent-execution", "api", "async", "dataclass", "debugging", "foundation", "logging", "rest-api"],
+    "keywords": ["analyze", "behavior", "block", "correction", "detect", "detection", "excessive", "execution"],
+    "business_value": "Provides behavioral gap detection for kernel-aware agents. Analyzes task execution results to identify patterns that suggest kernel updates may be needed. Version: 1.0.0 GMP: kernel_boot_frontier_phas",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

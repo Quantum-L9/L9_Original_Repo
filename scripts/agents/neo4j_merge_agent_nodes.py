@@ -32,6 +32,27 @@ Created: 2026-01-05
 GMP: GMP-UKG-2 (Graph Merge)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Neo4J Merge Agent Nodes",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "agent_execution",
+    "module_name": "neo4j_merge_agent_nodes",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import argparse
 import os
@@ -45,7 +66,6 @@ import structlog
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
-
 
 @must_stay_async("callers use await")
 async def get_neo4j_driver():
@@ -62,7 +82,6 @@ async def get_neo4j_driver():
         neo4j_uri,
         auth=basic_auth(neo4j_user, neo4j_password),
     )
-
 
 async def find_duplicate_agents(driver) -> list[dict]:
     """
@@ -93,7 +112,6 @@ async def find_duplicate_agents(driver) -> list[dict]:
         records = await result.data()
         return records
 
-
 async def get_all_agents(driver) -> list[dict]:
     """Get all Agent nodes for inspection."""
     async with driver.session() as session:
@@ -109,7 +127,6 @@ async def get_all_agents(driver) -> list[dict]:
                    collect(DISTINCT type(r)) as relationship_types
         """)
         return await result.data()
-
 
 async def merge_agent_nodes(
     driver,
@@ -220,7 +237,6 @@ async def merge_agent_nodes(
 
         return {"status": "MERGED", "merged": len(to_merge)}
 
-
 async def verify_single_nodes(driver) -> dict:
     """Verify each logical agent has exactly one node."""
     async with driver.session() as session:
@@ -241,7 +257,6 @@ async def verify_single_nodes(driver) -> dict:
             "details": duplicates,
             "status": "PASS" if not duplicates else "FAIL",
         }
-
 
 async def run_migration(dry_run: bool = False) -> dict:
     """Run the full agent merge migration."""
@@ -273,7 +288,6 @@ async def run_migration(dry_run: bool = False) -> dict:
 
     finally:
         await driver.close()
-
 
 async def main():
     parser = argparse.ArgumentParser(description="Merge duplicate Agent nodes in Neo4j")
@@ -360,6 +374,39 @@ async def main():
         logger.info(f"\n❌ Migration FAILED: {e}")
         sys.exit(1)
 
-
 if __name__ == "__main__":
     asyncio.run(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["agent-execution", "async", "auth", "cli", "filesystem", "graph-db", "logging", "migration", "operations", "service"],
+    "keywords": ["agent", "agents", "all", "driver", "duplicate", "find", "merge", "migration"],
+    "business_value": "Graph State creates Agent nodes with agent_id, designation, role, etc. Tool Graph was creating separate Agent nodes with just id property This caused duplicate nodes and broken relationships",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

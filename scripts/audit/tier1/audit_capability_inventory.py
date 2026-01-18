@@ -27,6 +27,27 @@ Usage:
   python scripts/audit/tier1/audit_capability_inventory.py --missing-acl
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Audit Capability Inventory",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T19:43:29Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "audit_capability_inventory",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import json
 import inspect
 import ast
@@ -527,3 +548,37 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-018",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "ast", "async", "authorization", "cli", "data-models", "dataclass", "event-driven", "filesystem", "logging"],
+    "keywords": ["assess", "async", "audit", "build", "capability", "exposed", "extract", "generate"],
+    "business_value": "Provides audit capability inventory components including Impact, Risk, ParameterSchema",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

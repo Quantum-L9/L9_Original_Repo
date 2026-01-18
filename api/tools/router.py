@@ -9,6 +9,27 @@ DEPRECATED: ActionToolOrchestrator (v1.x) removed in v2.0.
 Using ExecutorToolRegistry for governance-aware dispatch.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Router",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-26T17:26:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "router",
+    "type": "router",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": ["POST /test", "POST /execute", "GET /health"],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": ["api.server", "api.tools.__init__"],
+    },
+}
+# ============================================================================
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 from api.auth import verify_api_key
@@ -171,3 +192,37 @@ async def tool_graph_health(request: Request) -> dict:
         "tools_executable": True,
         "timestamp": datetime.utcnow().isoformat(),
     }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-010",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.decorators", "core.tools.registry_adapter"],
+    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "messaging", "operations", "pydantic", "router"],
+    "keywords": ["execute", "executortoolregistry", "governance", "graph", "health", "registry", "router", "test"],
+    "business_value": "Provides router components including ToolExecuteRequest, ToolExecuteResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

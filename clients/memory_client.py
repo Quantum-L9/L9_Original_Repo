@@ -12,6 +12,27 @@ Endpoints:
   - POST /api/v1/memory/semantic/search → semantic_search()
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Memory Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "data_models",
+    "module_name": "memory_client",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["clients.__init__", "core.singleton_registry", "runtime.l_tools", "services.research.research_graph", "tests.clients.test_memory_client", "tests.memory.test_memory_adapter_basic"],
+    },
+}
+# ============================================================================
+
 import structlog
 import os
 from typing import Any, Optional
@@ -615,3 +636,37 @@ async def close_memory_client() -> None:
     if _client is not None:
         await _client.close()
         _client = None
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CLI-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "client", "data-models", "debugging", "event-driven", "http-client", "integration", "logging", "messaging", "pydantic"],
+    "keywords": ["check", "client", "close", "envelope", "facts", "fallback", "fetch", "health"],
+    "business_value": "Provides memory client components including PacketEnvelopeIn, PacketWriteResult, SemanticSearchRequest",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

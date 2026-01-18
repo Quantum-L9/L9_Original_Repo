@@ -17,6 +17,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "WebSocket Orchestrator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "websocket_orchestrator",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server", "core.singleton_registry", "orchestration.unified_controller", "runtime.__init__", "tests.runtime.test_websocket_orchestrator_basic"],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -244,3 +265,37 @@ class WebSocketOrchestrator:
 ws_orchestrator = WebSocketOrchestrator()
 
 __all__ = ["WebSocketOrchestrator", "ws_orchestrator"]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-013",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.executor", "core.decorators", "core.schemas.ws_event_stream", "runtime.task_queue"],
+    "tags": ["adapter", "api", "async", "debugging", "event-driven", "logging", "messaging", "operations", "orchestration", "queue"],
+    "keywords": ["agent", "agents", "broadcast", "connected", "dispatch", "event", "handle", "incoming"],
+    "business_value": "The module-level singleton `ws_orchestrator` is the canonical instance. Version: 1.0.0",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -4,6 +4,27 @@ Jaeger exporter for Five-Tier Observability spans.
 Exports spans to Jaeger via OTLP (OpenTelemetry Protocol) for distributed tracing visualization.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Jaeger Exporter",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-12T15:32:48Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "jaeger_exporter",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.singleton_registry"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import List, Optional, Any, TYPE_CHECKING
 
@@ -240,3 +261,37 @@ def initialize_jaeger_exporter(
         _exporter = None
         logger.debug("Jaeger exporter not available (opentelemetry not installed)")
     return _exporter
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-056",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "batch-processing", "core", "debugging", "exporter", "foundation", "logging", "service", "static-analysis", "tracing"],
+    "keywords": ["async", "export", "exporter", "flush", "initialize", "jaeger", "span", "spans"],
+    "business_value": "Implements JaegerExporter for jaeger exporter functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

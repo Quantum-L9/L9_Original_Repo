@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Terminology-Guard"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-06T15:07:54Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "operations"
+# domain: ".github"
+# file_name: "terminology-guard"
+# type: "service"
+# status: "active"
+# ============================================================================
+
 # L9 Terminology Guard — Enforces New Architecture Terminology
 # Blocks PRs using deprecated agent initialization terms
 #
@@ -134,3 +149,10 @@ jobs:
           
           echo "✓ Feature flag check complete"
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".github", "agent-config", "api-config", "kernel", "operations", "service"]
+# keywords: ["guard", "jobs", "name", "terminology"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

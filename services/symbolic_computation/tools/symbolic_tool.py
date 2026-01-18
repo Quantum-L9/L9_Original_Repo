@@ -10,6 +10,27 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Symbolic Tool",
+    "module_version": "6.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "symbolic_computation",
+    "module_name": "symbolic_tool",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": [],
+        "imported_by": ["services.symbolic_computation.tools.__init__", "tests.services.symbolic_computation.test_integration"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Dict, List, Optional
 
 import structlog
@@ -328,3 +349,36 @@ def create_sympy_tool(
         postgres_client=postgres_client,
     )
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-021",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["async", "caching", "logging", "messaging", "metrics", "operations", "service", "symbolic-computation"],
+    "keywords": ["agent", "create", "definitions", "evaluate", "generate", "optimize", "sym", "symbolic"],
+    "business_value": "Implements SymPyTool for symbolic tool functionality",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

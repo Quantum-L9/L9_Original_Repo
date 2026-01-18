@@ -1,3 +1,24 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Webhook Waba",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-11T02:49:53Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "webhook_waba",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /waba/webhook", "POST /waba/webhook"],
+        "datasources": ["HTTP API"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": ["api.server", "api.server_memory"],
+    },
+}
+# ============================================================================
+
 import os
 import hashlib
 import hmac
@@ -27,7 +48,6 @@ CHAT_URL = "http://127.0.0.1:8000/chat"
 MEMORY_EMBEDDINGS_URL = "http://127.0.0.1:8000/memory/embeddings"
 WABA_API_BASE = "https://graph.instagram.com/v18.0"
 
-
 def verify_webhook_signature(request_body: str, x_hub_signature: str) -> bool:
     """Verify Meta's webhook signature."""
     if not x_hub_signature:
@@ -37,7 +57,6 @@ def verify_webhook_signature(request_body: str, x_hub_signature: str) -> bool:
     )
     expected_signature = f"sha256={hash_obj.hexdigest()}"
     return hmac.compare_digest(expected_signature, x_hub_signature)
-
 
 async def download_media(media_id: str, mime_type: str) -> bytes:
     """Download media from WABA using Media ID."""
@@ -58,7 +77,6 @@ async def download_media(media_id: str, mime_type: str) -> bytes:
             raise Exception(f"Failed to download media: {media_resp.text}")
 
         return media_resp.content
-
 
 async def send_waba_message(to_number: str, message_type: str, content: dict):
     """Send message back via WABA API."""
@@ -84,7 +102,6 @@ async def send_waba_message(to_number: str, message_type: str, content: dict):
 
         return resp.json()
 
-
 @router.get("/waba/webhook", response_class=JSONResponse)
 @must_stay_async("FastAPI/ASGI route handler")
 async def verify_waba_webhook(request: Request):
@@ -100,7 +117,6 @@ async def verify_waba_webhook(request: Request):
         return JSONResponse(content={"hub.challenge": challenge})
     else:
         raise HTTPException(status_code=403, detail="Invalid verification token")
-
 
 @router.post("/waba/webhook", response_class=JSONResponse)
 async def waba_webhook(request: Request):
@@ -229,3 +245,37 @@ async def waba_webhook(request: Request):
                     pass
 
     return JSONResponse(content={"status": "ok"})
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "http-client", "logging", "messaging", "operations", "router"],
+    "keywords": ["download", "media", "send", "signature", "verify", "waba", "webhook"],
+    "business_value": "Utility module for webhook waba",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

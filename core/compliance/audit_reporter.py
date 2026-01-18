@@ -9,6 +9,27 @@ Version: 1.0.0 (GMP-21)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Audit Reporter",
+    "module_version": "1.0.0 (GMP-21)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "audit_reporter",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.routes.compliance", "tests.integration.test_compliance_audit"],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
@@ -383,3 +404,36 @@ __all__ = [
     "ComplianceReporter",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-065",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "audit-tool", "core", "dataclass", "foundation", "logging"],
+    "keywords": ["audit", "compliance", "daily", "export", "generate", "log", "report", "reporter"],
+    "business_value": "Provides audit reporter components including ComplianceReport, ComplianceReporter",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

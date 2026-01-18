@@ -10,6 +10,27 @@ Usage:
     python3 scripts/check_embeddings_via_api.py [--limit N]
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Check Embeddings via VPS API",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "check_embeddings_via_api",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import asyncio
@@ -27,7 +48,6 @@ logger = structlog.get_logger(__name__)
 
 VPS_URL = os.getenv("VPS_MEMORY_URL", "https://157.180.73.53:9001")
 API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
-
 
 async def check_embeddings_via_search(limit: int = 20):
     """Check embeddings by doing semantic searches and inspecting results."""
@@ -104,7 +124,6 @@ async def check_embeddings_via_search(limit: int = 20):
     print("  - JSON dumps → Unstructured data got embedded")
     print("\n")
 
-
 if __name__ == "__main__":
     import argparse
     
@@ -115,3 +134,36 @@ if __name__ == "__main__":
     
     asyncio.run(check_embeddings_via_search(limit=args.limit))
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "auth", "cli", "filesystem", "http-client", "logging", "memory-substrate", "messaging", "operations"],
+    "keywords": ["api", "check", "embeddings", "search", "via", "vps"],
+    "business_value": "Utility module for check embeddings via api",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

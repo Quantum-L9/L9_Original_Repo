@@ -20,6 +20,27 @@ Version: 1.0.0
 Created: 2026-01-05
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Migrate Kernels To Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-09T01:57:28Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "migrate_kernels_to_graph",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import argparse
 import os
@@ -32,7 +53,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import structlog
 
 logger = structlog.get_logger(__name__)
-
 
 async def run_migration(force: bool = False) -> dict:
     """
@@ -82,7 +102,6 @@ async def run_migration(force: bool = False) -> dict:
     finally:
         await driver.close()
 
-
 async def verify_migration() -> dict:
     """
     Verify the migration was successful.
@@ -108,7 +127,6 @@ async def verify_migration() -> dict:
         
     finally:
         await driver.close()
-
 
 async def main():
     parser = argparse.ArgumentParser(
@@ -227,7 +245,39 @@ async def main():
         logger.info(f"\n❌ Migration FAILED: {e}")
         sys.exit(1)
 
-
 if __name__ == "__main__":
     asyncio.run(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.graph_state.bootstrap_l_graph"],
+    "tags": ["api", "async", "auth", "cli", "config", "debugging", "filesystem", "graph-db", "logging", "memory-substrate"],
+    "keywords": ["graph", "kernels", "migrate", "migration", "verify"],
+    "business_value": "Utility module for migrate kernels to graph",
+    "last_modified": "2026-01-09T01:57:28Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

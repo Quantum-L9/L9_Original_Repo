@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Semgrep"
+# module_version: "1.0.0"
+# created_by: "cryptoxdog"
+# created_at: "2026-01-12T22:08:42Z"
+# updated_at: "2026-01-14T12:10:12Z"
+# layer: "operations"
+# domain: ".sec"
+# file_name: "semgrep"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 rules:
   - id: insecure-path-join
     message: "Potential unsafe path construction; use core.security.path_safety.safe_resolve_path"
@@ -6,3 +21,11 @@ rules:
     pattern-either:
       - pattern: os.path.join($A, $B)
       - pattern: Path($A) / $B
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".sec", "operations", "utility"]
+# keywords: ["rules", "semgrep"]
+# last_modified: "2026-01-14T12:10:12Z"
+# ============================================================================

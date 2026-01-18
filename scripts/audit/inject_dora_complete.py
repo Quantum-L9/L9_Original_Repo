@@ -121,6 +121,20 @@ class DoraCompleteInjector:
         "schemas": "foundation",
         "scripts": "operations",
         "tests": "operations",
+        # Agent-specific folders
+        "email_agent": "integration",
+        "mac_agent": "integration",
+        "slack_agent": "integration",
+        "mcp_memory": "integration",
+        "clients": "integration",
+        # Additional folders
+        "workers": "operations",
+        "telemetry": "operations",
+        "ir_engine": "intelligence",
+        "graph_adapter": "integration",
+        "collaborative_cells": "intelligence",
+        "dev": "operations",
+        "codegen": "foundation",
     }
 
     # Domain mapping
@@ -138,17 +152,39 @@ class DoraCompleteInjector:
         "api": "api_gateway",
         "runtime": "runtime_operations",
         "config": "configuration",
+        # Agent integrations
+        "email_agent": "email_integration",
+        "mac_agent": "mac_integration",
+        "slack_agent": "slack_integration",
+        "mcp_memory": "mcp_integration",
+        "clients": "external_clients",
+        # Additional domains
+        "workers": "background_workers",
+        "telemetry": "observability",
+        "ir_engine": "ir_compilation",
+        "graph_adapter": "graph_integration",
+        "collaborative_cells": "collaborative_reasoning",
+        "dev": "development_tools",
+        "codegen": "code_generation",
+        "services/research": "research_services",
     }
 
-    # Type mapping based on filename patterns
+    # Type mapping based on filename patterns (order matters - first match wins)
     TYPE_PATTERNS = {
-        "service": ["service", "client", "adapter"],
-        "engine": ["engine", "executor", "processor"],
-        "collector": ["collector", "extractor", "loader"],
-        "tracker": ["tracker", "monitor", "observer"],
-        "utility": ["helper", "util", "tool"],
-        "schema": ["schema", "model", "config"],
-        "adapter": ["adapter", "bridge", "wrapper"],
+        "client": ["client", "api_client", "sdk"],
+        "adapter": ["adapter", "bridge", "wrapper", "compatibility"],
+        "service": ["service", "svc"],
+        "engine": ["engine", "executor", "processor", "compiler"],
+        "collector": ["collector", "extractor", "loader", "ingest"],
+        "tracker": ["tracker", "monitor", "observer", "metrics"],
+        "router": ["router", "routes", "handler"],
+        "schema": ["schema", "model", "types"],
+        "config": ["config", "settings", "constants"],
+        "utility": ["helper", "util", "tool", "utils"],
+        "factory": ["factory", "builder", "generator"],
+        "repository": ["repository", "repo", "store", "dao"],
+        "controller": ["controller", "orchestrator"],
+        "validator": ["validator", "checker", "verifier"],
     }
 
     def __init__(self, repo_path: str):
@@ -160,42 +196,58 @@ class DoraCompleteInjector:
     def scan_repository(
         self, single_file: Optional[str] = None, force: bool = False
     ) -> None:
-        """Scan repository for Python files with classes."""
+        """Scan repository for Python and YAML files."""
         if single_file:
             file_path = Path(single_file)
             if not file_path.is_absolute():
                 file_path = self.repo_path / file_path
-            if file_path.exists():
-                classes = self._extract_classes(file_path)
-                if classes:
-                    self.files_to_process[str(file_path)] = classes
-                    self.classes_found.extend(classes)
-            print(f"🔍 Processing single file: {file_path}")
+            if file_path.exists() and file_path.suffix in (".py", ".yaml", ".yml"):
+                if file_path.suffix == ".py":
+                    classes = self._extract_classes(file_path)
+                else:
+                    classes = []  # YAML files don't have classes
+                # Process file even if no classes (function-only modules or YAML)
+                self.files_to_process[str(file_path)] = classes
+                self.classes_found.extend(classes)
+            print(f"🔍 Processing single file: {single_file}")
             return
 
         print(f"🔍 Scanning repository: {self.repo_path}")
 
+        skip_dirs = [
+            "_archived",
+            "__pycache__",
+            ".venv",
+            "venv",
+            "node_modules",
+            ".git",
+            "tests",
+        ]
+
+        # Scan Python files
         for py_file in self.repo_path.rglob("*.py"):
-            # Skip directories
-            skip_dirs = [
-                "_archived",
-                "__pycache__",
-                ".venv",
-                "venv",
-                "node_modules",
-                ".git",
-                "tests",
-            ]
             if any(skip in str(py_file) for skip in skip_dirs):
                 continue
-
             classes = self._extract_classes(py_file)
             if classes:
                 self.files_to_process[str(py_file)] = classes
                 self.classes_found.extend(classes)
 
+        # Scan YAML files
+        for yaml_file in self.repo_path.rglob("*.yaml"):
+            if any(skip in str(yaml_file) for skip in skip_dirs):
+                continue
+            self.files_to_process[str(yaml_file)] = []
+
+        for yml_file in self.repo_path.rglob("*.yml"):
+            if any(skip in str(yml_file) for skip in skip_dirs):
+                continue
+            self.files_to_process[str(yml_file)] = []
+
+        py_count = sum(1 for f in self.files_to_process if f.endswith(".py"))
+        yaml_count = len(self.files_to_process) - py_count
         print(
-            f"✅ Found {len(self.classes_found)} classes in {len(self.files_to_process)} files"
+            f"✅ Found {len(self.classes_found)} classes in {py_count} Python files, {yaml_count} YAML files"
         )
 
     def _extract_classes(self, file_path: Path) -> List[ClassInfo]:
@@ -301,6 +353,85 @@ class DoraCompleteInjector:
 
         return "utility"
 
+    def _infer_status(self, file_path: str) -> str:
+        """Infer component status from path, content, and markers."""
+        path_str = str(file_path).lower()
+
+        # Priority 1: Folder-based detection
+        if "_archived" in path_str or "/archived/" in path_str:
+            return "archived"
+        if "/deprecated/" in path_str or "_deprecated" in path_str:
+            return "deprecated"
+        if "/experimental/" in path_str or "_experimental" in path_str:
+            return "experimental"
+        if "/draft/" in path_str or "_draft" in path_str:
+            return "draft"
+        if "/legacy/" in path_str or "_legacy" in path_str:
+            return "deprecated"
+
+        # Priority 2: Content-based detection
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                content_lower = content.lower()
+
+            # Check for deprecation markers
+            deprecation_markers = [
+                "@deprecated",
+                "# deprecated",
+                "# todo: deprecate",
+                "# todo: remove",
+                "warnings.warn.*deprecat",
+                "deprecationwarning",
+                "this module is deprecated",
+                "this class is deprecated",
+            ]
+            for marker in deprecation_markers:
+                if marker in content_lower:
+                    return "deprecated"
+
+            # Check for experimental markers
+            experimental_markers = [
+                "# experimental",
+                "# wip",
+                "# work in progress",
+                "this is experimental",
+                "experimental feature",
+            ]
+            for marker in experimental_markers:
+                if marker in content_lower:
+                    return "experimental"
+
+            # Check for draft markers
+            draft_markers = [
+                "# draft",
+                "# todo: finish",
+                "# incomplete",
+                "not yet implemented",
+            ]
+            for marker in draft_markers:
+                if marker in content_lower:
+                    return "draft"
+
+            # Check docstring for status indicators
+            docstring_match = re.search(r'^"""(.*?)"""', content, re.DOTALL)
+            if docstring_match:
+                docstring = docstring_match.group(1).lower()
+                if "deprecated" in docstring:
+                    return "deprecated"
+                if "experimental" in docstring:
+                    return "experimental"
+                if "stable" in docstring:
+                    return "stable"
+                if "production" in docstring:
+                    return "production"
+
+        except (IOError, UnicodeDecodeError):
+            pass
+
+        # Default: active
+        return "active"
+
     def _detect_type_from_content(
         self, file_path: str, classes: List[ClassInfo]
     ) -> Optional[str]:
@@ -345,7 +476,24 @@ class DoraCompleteInjector:
                 if base in base_class_mapping:
                     return base_class_mapping[base]
 
-        # Priority 3: Content patterns
+        # Priority 3: Docstring-based type detection
+        docstring_match = re.search(r'^"""(.*?)"""', content, re.DOTALL)
+        if docstring_match:
+            docstring = docstring_match.group(1).lower()
+            docstring_type_hints = {
+                "adapter": ["compatibility layer", "wrapper", "adapter", "bridge"],
+                "client": ["client for", "api client", "sdk client", "http client"],
+                "service": ["service for", "provides service", "backend service"],
+                "utility": ["utility", "helper functions", "common functions"],
+                "router": ["api routes", "endpoints", "rest api"],
+                "schema": ["pydantic", "data model", "schema definition"],
+                "engine": ["engine for", "processor", "compiler", "executor"],
+            }
+            for comp_type, hints in docstring_type_hints.items():
+                if any(hint in docstring for hint in hints):
+                    return comp_type
+
+        # Priority 4: Content patterns
         content_patterns = {
             "router": ["APIRouter()", "from fastapi import APIRouter"],
             "schema": ["class Config:", "model_validator", "field_validator"],
@@ -436,6 +584,30 @@ class DoraCompleteInjector:
         # S3/Blob indicators
         if any(p in content for p in ["boto3", "s3", "S3", "blob_store"]):
             datasources.add("S3")
+
+        # Gmail/Google API indicators
+        if any(p in content for p in ["GmailClient", "gmail_client", "googleapiclient"]):
+            datasources.add("Gmail API")
+
+        # Slack API indicators
+        if any(p in content for p in ["SlackClient", "slack_sdk", "WebClient", "slack_client"]):
+            datasources.add("Slack API")
+
+        # OpenAI indicators
+        if any(p in content for p in ["openai", "OpenAI", "ChatCompletion"]):
+            datasources.add("OpenAI API")
+
+        # Anthropic indicators
+        if any(p in content for p in ["anthropic", "Anthropic", "Claude"]):
+            datasources.add("Anthropic API")
+
+        # HTTP client indicators (external APIs)
+        if any(p in content for p in ["httpx", "aiohttp", "requests.get", "requests.post"]):
+            datasources.add("HTTP API")
+
+        # Perplexity indicators
+        if any(p in content for p in ["perplexity", "PerplexityClient"]):
+            datasources.add("Perplexity API")
 
         return sorted(list(datasources))
 
@@ -863,8 +1035,8 @@ class DoraCompleteInjector:
         purpose = doc_meta["purpose"] or self._generate_purpose(classes, file_path)
         # Use docstring version
         module_version = doc_meta["version"]
-        # Use docstring-detected status
-        status = doc_meta["status"]
+        # Use comprehensive status detection (folders, decorators, comments, docstring)
+        status = self._infer_status(file_path)
         dependencies = self._extract_dependencies(file_path)
 
         header = HeaderMeta(
@@ -905,13 +1077,23 @@ class DoraCompleteInjector:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            return {
-                "header": "__dora_meta__" in content or "DORA HEADER META" in content,
-                "footer": "__dora_footer__" in content or "DORA FOOTER META" in content,
-                "trace": "__l9_trace__" in content or "L9 DORA BLOCK" in content,
-                # Also check for old-style blocks to skip
-                "legacy": "__dora_block__" in content,
-            }
+            is_yaml = file_path.endswith((".yaml", ".yml"))
+
+            if is_yaml:
+                return {
+                    "header": "# DORA META" in content or "# component_name:" in content,
+                    "footer": "# DORA FOOTER" in content or "# tags:" in content,
+                    "trace": True,  # YAML files don't have trace blocks
+                    "legacy": False,
+                }
+            else:
+                return {
+                    "header": "__dora_meta__" in content or "DORA HEADER META" in content,
+                    "footer": "__dora_footer__" in content or "DORA FOOTER META" in content,
+                    "trace": "__l9_trace__" in content or "L9 DORA BLOCK" in content,
+                    # Also check for old-style blocks to skip
+                    "legacy": "__dora_block__" in content,
+                }
         except Exception:
             return {"header": False, "footer": False, "trace": False, "legacy": False}
 
@@ -947,29 +1129,57 @@ class DoraCompleteInjector:
         # Remove comment blocks with their dict definitions
         # IMPORTANT: Use precise patterns to avoid touching other section headers
 
-        # Header block (76 = signs specifically)
-        header_pattern = r"# ={76}\n# DORA HEADER META[^\n]*\n# ={76}\n"
+        # Header block (76 = signs) - old format with comment lines
+        header_pattern = r"# ={76}\n# DORA HEADER META[^\n]*\n(?:# [^\n]*\n)?# ={76}\n"
         content = re.sub(header_pattern, "", content, flags=re.DOTALL)
+
+        # Header block (76 = signs) - new format (just banner + __dora_meta__)
+        # Pattern: ={76} line immediately before __dora_meta__
+        header_pattern_new = r"# ={76}\n(?=__dora_meta__)"
+        content = re.sub(header_pattern_new, "", content)
 
         # Footer block (76 = signs specifically)
         footer_pattern = r"\n?# ={76}\n# DORA FOOTER META[^\n]*\n# ={76}\n"
         content = re.sub(footer_pattern, "", content, flags=re.DOTALL)
 
-        # Trace block (76 = signs specifically)
-        trace_pattern = (
-            r"\n?# ={76}\n# L9 DORA BLOCK[^\n]*\n[^#]*# END L9 DORA BLOCK\n# ={76}\n?"
-        )
-        content = re.sub(trace_pattern, "", content, flags=re.DOTALL)
-
-        # Remove dict definitions using brace counting
+        # Remove dict definitions FIRST using brace counting (before comment patterns)
         content = self._strip_dict_block(content, "__dora_meta__")
         content = self._strip_dict_block(content, "__dora_footer__")
         content = self._strip_dict_block(content, "__l9_trace__")
         content = self._strip_dict_block(content, "__dora_block__")  # Legacy
 
-        # Clean up ONLY orphaned DORA-related comment blocks (76 = signs)
-        # IMPORTANT: Don't touch other section headers (typically 73 or 75 = signs)
-        content = re.sub(r"# ={76}\n(?=\n)", "", content)  # Only 76-char DORA headers
+        # Trace block - full block with dict (76 = signs specifically)
+        trace_pattern = (
+            r"\n?# ={76}\n# L9 DORA BLOCK[^\n]*\n[^#]*# END L9 DORA BLOCK\n# ={76}\n?"
+        )
+        content = re.sub(trace_pattern, "", content, flags=re.DOTALL)
+
+        # Trace block - empty/stub blocks (just comments, no dict)
+        # These are malformed blocks without __l9_trace__ dict
+        stub_trace_pattern = (
+            r"\n?# ={76}\n"
+            r"# L9 DORA BLOCK[^\n]*\n"
+            r"(?:# [^\n]*\n)*"  # Any comment lines
+            r"# ={76}\n"
+            r"(?:# ={76}\n)?"  # Optional extra separator
+            r"# END L9 DORA BLOCK[^\n]*\n?"
+            r"(?:# ={76}\n?)?"
+        )
+        # Apply multiple times to catch all duplicates
+        for _ in range(10):
+            new_content = re.sub(stub_trace_pattern, "\n", content, flags=re.DOTALL)
+            if new_content == content:
+                break
+            content = new_content
+
+        # Clean up orphaned DORA comment blocks (76 = signs, any format)
+        # Pattern: ={76} line followed by DORA-related comment, followed by ={76} line
+        orphan_pattern = r"\n?# ={76}\n(?:# (?:DORA|See footer|L9 DORA|END L9)[^\n]*\n)+# ={76}\n?"
+        content = re.sub(orphan_pattern, "\n", content)
+        
+        # Clean up standalone 76-char banner lines (orphaned after dict removal)
+        content = re.sub(r"# ={76}\n(?=\n)", "", content)  # Before blank line
+        content = re.sub(r"\n# ={76}\n(?=from |import )", "\n", content)  # Before imports
         content = re.sub(r"\n{3,}", "\n\n", content)
 
         return content
@@ -986,10 +1196,7 @@ class DoraCompleteInjector:
         )
 
         return f'''# ============================================================================
-# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
 __dora_meta__ = {{
-    "component_id": "{header.component_id}",
     "component_name": "{header.component_name}",
     "module_version": "{header.module_version}",
     "created_by": "{header.created_by}",
@@ -1000,7 +1207,6 @@ __dora_meta__ = {{
     "module_name": "{module_name}",
     "type": "{header.type}",
     "status": "{header.status}",
-    "purpose": "{header.purpose}",
     "integrates_with": {{
         "api_endpoints": {json.dumps(integrates_with["api_endpoints"])},
         "datasources": {json.dumps(integrates_with["datasources"])},
@@ -1010,6 +1216,118 @@ __dora_meta__ = {{
 }}
 # ============================================================================
 '''
+
+    def _format_header_meta_yaml(
+        self, header: HeaderMeta, file_path: str, modified_at: str
+    ) -> str:
+        """Format Header Meta block for YAML file (TOP)."""
+        file_name = Path(file_path).stem
+
+        return f'''# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "{header.component_name}"
+# module_version: "{header.module_version}"
+# created_by: "{header.created_by}"
+# created_at: "{header.created_at}"
+# updated_at: "{modified_at}"
+# layer: "{header.layer}"
+# domain: "{header.domain}"
+# file_name: "{file_name}"
+# type: "{header.type}"
+# status: "{header.status}"
+# ============================================================================
+
+'''
+
+    def _format_footer_meta_yaml(
+        self, footer: FooterMeta, header: HeaderMeta, file_path: str
+    ) -> str:
+        """Format Footer Meta block for YAML file (BOTTOM)."""
+        tags = self._generate_smart_tags_yaml(file_path, header.domain, header.type, header.layer)
+        keywords = self._generate_smart_keywords_yaml(file_path, header.component_name)
+
+        return f'''
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: {json.dumps(tags)}
+# keywords: {json.dumps(keywords)}
+# last_modified: "{footer.last_modified}"
+# ============================================================================
+'''
+
+    def _generate_smart_tags_yaml(
+        self, file_path: str, domain: str, comp_type: str, layer: str
+    ) -> List[str]:
+        """Generate tags for YAML files."""
+        tags = set()
+        tags.add(layer)
+        tags.add(comp_type)
+        tags.add(domain.replace("_", "-"))
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read().lower()
+
+            # YAML-specific tags
+            yaml_tags = {
+                "agent": "agent-config",
+                "schema": "schema",
+                "workflow": "workflow",
+                "pipeline": "pipeline",
+                "config": "configuration",
+                "kernel": "kernel",
+                "prompt": "prompt",
+                "tool": "tool-config",
+                "model": "model-config",
+                "api": "api-config",
+                "database": "database-config",
+                "redis": "redis-config",
+                "openai": "openai",
+                "anthropic": "anthropic",
+            }
+
+            for keyword, tag in yaml_tags.items():
+                if keyword in content:
+                    tags.add(tag)
+
+        except (IOError, UnicodeDecodeError):
+            pass
+
+        return sorted(list(tags))[:8]
+
+    def _generate_smart_keywords_yaml(
+        self, file_path: str, component_name: str
+    ) -> List[str]:
+        """Generate keywords for YAML files."""
+        keywords = set()
+
+        # Add component name words
+        for word in component_name.lower().replace("_", " ").replace("-", " ").split():
+            if len(word) > 2:
+                keywords.add(word)
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            # Extract top-level keys as keywords
+            import yaml
+            try:
+                data = yaml.safe_load(content)
+                if isinstance(data, dict):
+                    for key in list(data.keys())[:10]:
+                        if isinstance(key, str) and len(key) > 2:
+                            keywords.add(key.lower())
+            except yaml.YAMLError:
+                pass
+
+        except (IOError, UnicodeDecodeError):
+            pass
+
+        return sorted(list(keywords))[:6]
 
     def _generate_integrates_with(
         self, file_path: str, domain: str, layer: str
@@ -1025,20 +1343,48 @@ __dora_meta__ = {{
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
+
+            # Working memory indicators
             if any(
                 p in content
-                for p in ["working_memory", "WorkingMemory", "session_context"]
+                for p in [
+                    "working_memory", "WorkingMemory", "session_context",
+                    "context_manager", "ContextManager", "short_term"
+                ]
             ):
                 memory_layers.append("working_memory")
-            if any(
-                p in content for p in ["episodic", "EpisodicMemory", "project_history"]
-            ):
-                memory_layers.append("episodic_memory")
+
+            # Episodic memory indicators
             if any(
                 p in content
-                for p in ["semantic", "SemanticSearch", "pgvector", "embedding"]
+                for p in [
+                    "episodic", "EpisodicMemory", "project_history",
+                    "conversation_history", "chat_history", "message_history"
+                ]
+            ):
+                memory_layers.append("episodic_memory")
+
+            # Semantic memory indicators
+            if any(
+                p in content
+                for p in [
+                    "semantic", "SemanticSearch", "pgvector", "embedding",
+                    "vector_store", "similarity_search", "VectorStore"
+                ]
             ):
                 memory_layers.append("semantic_memory")
+
+            # Memory substrate indicators (general memory system usage)
+            if any(
+                p in content
+                for p in [
+                    "memory.substrate", "MemorySubstrate", "substrate_service",
+                    "PacketStore", "PacketEnvelope", "ingest_packet"
+                ]
+            ):
+                if "working_memory" not in memory_layers:
+                    memory_layers.append("working_memory")
+
         except (IOError, UnicodeDecodeError):
             pass
 
@@ -1071,57 +1417,24 @@ __dora_meta__ = {{
             tags = self._generate_tags(header.domain, header.type, header.layer)
             keywords = self._generate_keywords(header.component_name, header.domain)
 
-        # Generate success metrics based on performance tier
-        metrics = self._generate_success_metrics(footer.performance_tier)
-
         return f'''
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_footer__ = {{
-    # === IDENTITY ===
     "component_id": "{footer.component_id}",
-    
-    # === GOVERNANCE ===
     "governance_level": "{header.governance_level}",
     "compliance_required": {str(header.compliance_required)},
     "audit_trail": {str(header.audit_trail)},
-    "security_classification": "{footer.security_classification}",
-    
-    # === DEPENDENCIES ===
     "dependencies": {json.dumps(header.dependencies)},
-    
-    # === OPERATIONAL ===
-    "execution_mode": "{footer.execution_mode}",
-    "timeout_seconds": {footer.timeout_seconds},
-    "performance_tier": "{footer.performance_tier}",
-    "retry_policy": "exponential",
-    "circuit_breaker_enabled": True,
-    "circuit_breaker_threshold": 5,
-    
-    # === OBSERVABILITY ===
-    "monitoring_required": True,
-    "logging_level": "info",
-    "success_metrics": {{
-        "latency_p95_ms": {metrics["latency_p95_ms"]},
-        "throughput_ops_per_sec": {metrics["throughput_ops_per_sec"]},
-        "availability_percent": {metrics["availability_percent"]},
-        "error_rate_percent": {metrics["error_rate_percent"]},
-    }},
-    
-    # === DISCOVERY ===
     "tags": {json.dumps(tags)},
     "keywords": {json.dumps(keywords)},
     "business_value": "{header.purpose}",
-    
-    # === CHANGE TRACKING ===
     "last_modified": "{footer.last_modified}",
     "modified_by": "{footer.modified_by}",
     "change_summary": "{footer.change_summary}",
-}}
-# ============================================================================
-'''
+}}'''
 
     def _generate_tags(self, domain: str, comp_type: str, layer: str) -> List[str]:
         """Generate tags based on domain, type, and layer."""
@@ -1179,7 +1492,11 @@ __dora_footer__ = {{
         except (IOError, UnicodeDecodeError):
             return list(tags)[:8]
 
-        # Technology tags from imports
+        # Strip existing DORA blocks to avoid circular detection
+        content = self._strip_existing_blocks(content)
+        content_lower = content.lower()
+
+        # Technology tags from imports (expanded)
         import_tags = {
             "fastapi": "api",
             "pydantic": "validation",
@@ -1195,28 +1512,132 @@ __dora_footer__ = {{
             "httpx": "http-client",
             "websocket": "realtime",
             "jwt": "auth",
+            "ast": "ast",
+            "subprocess": "subprocess",
+            "pathlib": "filesystem",
+            "yaml": "config",
+            "json": "serialization",
+            "sqlalchemy": "orm",
+            "aiohttp": "http-client",
+            "click": "cli",
+            "argparse": "cli",
+            "typer": "cli",
         }
 
-        content_lower = content.lower()
         for imp, tag in import_tags.items():
-            if imp in content_lower:
+            if f"import {imp}" in content_lower or f"from {imp}" in content_lower:
                 tags.add(tag)
 
-        # Pattern tags from class names
+        # Design pattern tags from class names
+        pattern_suffixes = {
+            "visitor": "visitor-pattern",
+            "factory": "factory-pattern",
+            "builder": "builder-pattern",
+            "adapter": "adapter-pattern",
+            "scanner": "scanner",
+            "parser": "parser",
+            "analyzer": "analyzer",
+            "inspector": "inspector",
+            "auditor": "audit-tool",
+            "validator": "validation",
+            "handler": "handler",
+            "middleware": "middleware",
+            "service": "service",
+            "repository": "data-access",
+            "client": "client",
+            "engine": "engine",
+            "executor": "executor",
+            "orchestrator": "orchestration",
+            "router": "routing",
+            "loader": "loader",
+            "exporter": "exporter",
+            "importer": "importer",
+        }
+
         for cls in classes:
             name_lower = cls.name.lower()
-            if "service" in name_lower:
-                tags.add("service")
-            if "repository" in name_lower:
-                tags.add("data-access")
-            if "handler" in name_lower:
-                tags.add("handler")
-            if "middleware" in name_lower:
-                tags.add("middleware")
-            if "validator" in name_lower:
-                tags.add("validation")
-            if "client" in name_lower:
-                tags.add("client")
+            for suffix, tag in pattern_suffixes.items():
+                if suffix in name_lower:
+                    tags.add(tag)
+
+        # Docstring-based semantic tags with context awareness
+        # These tags indicate what the file IMPLEMENTS (not what it analyzes)
+        implementation_tags = {
+            "static analysis": "static-analysis",
+            "code quality": "code-quality",
+            "lint": "linting",
+            "benchmark": "performance",
+            "profile": "profiling",
+            "debug": "debugging",
+            "trace": "tracing",
+            "metric": "metrics",
+            "monitor": "monitoring",
+            "queue": "queue",
+            "message": "messaging",
+            "event": "event-driven",
+            "webhook": "webhooks",
+            "rest": "rest-api",
+            "graphql": "graphql",
+            "grpc": "grpc",
+            "websocket": "realtime",
+            "stream": "streaming",
+            "batch": "batch-processing",
+            "schedule": "scheduling",
+            "cron": "scheduling",
+            "permission": "authorization",
+            "encrypt": "security",
+            "hash": "security",
+            "secret": "security",
+        }
+
+        # Tags that need context check (might be "what we detect" vs "what we are")
+        context_sensitive_tags = {
+            "cache": "caching",
+            "api": "api",
+            "auth": "auth",
+            "migration": "migration",
+            "test": "testing",
+            "mock": "mocking",
+            "fixture": "testing",
+        }
+
+        # Analysis verbs that indicate "we detect X" not "we are X"
+        analysis_verbs = [
+            "scan", "detect", "find", "look for", "search", "check",
+            "analyze", "inspect", "audit", "identify", "discover",
+            "suspicious", "pattern", "violation", "warn",
+        ]
+
+        # Extract docstring for context analysis
+        docstring_match = re.search(r'^"""(.*?)"""', content, re.DOTALL)
+        docstring = docstring_match.group(1).lower() if docstring_match else ""
+
+        # Check if file is primarily an analysis/detection tool
+        is_analysis_tool = any(verb in docstring for verb in analysis_verbs[:8])
+
+        # Add implementation tags (these are safe, no context needed)
+        for keyword, tag in implementation_tags.items():
+            if keyword in content_lower:
+                tags.add(tag)
+
+        # Add context-sensitive tags only if NOT in analysis context
+        for keyword, tag in context_sensitive_tags.items():
+            if keyword in content_lower:
+                # If this is an analysis tool and the keyword is in docstring,
+                # it's likely describing what we DETECT, not what we ARE
+                if is_analysis_tool and keyword in docstring:
+                    # Check if it's mentioned as an implementation (import, class, etc.)
+                    if f"import {keyword}" in content_lower or f"from {keyword}" in content_lower:
+                        tags.add(tag)
+                    # Skip - it's what we analyze, not what we implement
+                else:
+                    tags.add(tag)
+
+        # Action-based tags (what the file DOES as its primary purpose)
+        if any(v in docstring for v in ["scan", "scans"]):
+            tags.add("scanner")
+        if any(v in docstring for v in ["audit", "audits"]):
+            tags.add("audit-tool")
 
         # Decorator-based tags
         if "@router" in content or "@app." in content:
@@ -1228,7 +1649,7 @@ __dora_footer__ = {{
         if "BaseModel" in content:
             tags.add("pydantic")
 
-        return sorted(list(tags))[:8]  # Limit to 8 tags
+        return sorted(list(tags))[:10]  # Limit to 10 tags
 
     def _generate_smart_keywords(
         self, file_path: str, classes: List[ClassInfo], component_name: str
@@ -1236,9 +1657,28 @@ __dora_footer__ = {{
         """Generate keywords from actual content analysis."""
         keywords = set()
 
+        # Stop words to filter out (generic, common terms)
+        stop_words = {
+            "self", "none", "true", "false", "return", "def", "class", "import",
+            "from", "the", "and", "for", "with", "this", "that", "are", "was",
+            "get", "set", "has", "have", "init", "main", "run", "call", "make",
+            "new", "add", "del", "pop", "len", "str", "int", "list", "dict",
+            "iter", "next", "item", "items", "key", "keys", "value", "values",
+            "args", "kwargs", "func", "method", "attr", "name", "path", "file",
+            "data", "info", "result", "output", "input", "param", "params",
+            "config", "options", "settings", "context", "request", "response",
+            "error", "exception", "message", "text", "content", "body", "type",
+            "base", "node", "generic", "visit", "child", "children", "parent",
+            "level", "line", "lineno", "lines", "code", "source", "target",
+        }
+
+        def is_valid_keyword(word: str) -> bool:
+            """Check if word is a valid keyword (not a stop word, sufficient length)."""
+            return len(word) > 2 and word.lower() not in stop_words
+
         # Add component name words
         for word in component_name.lower().replace("_", " ").replace("-", " ").split():
-            if len(word) > 2:
+            if is_valid_keyword(word):
                 keywords.add(word)
 
         # Add class names as keywords
@@ -1246,26 +1686,52 @@ __dora_footer__ = {{
             # Split CamelCase into words
             words = re.findall(r"[A-Z][a-z]+|[a-z]+", cls.name)
             for word in words:
-                if len(word) > 2:
+                if is_valid_keyword(word):
                     keywords.add(word.lower())
 
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            # Extract function names as keywords
+            # Strip existing DORA blocks to avoid circular detection
+            content = self._strip_existing_blocks(content)
+
+            # Extract keywords from docstring (highest value)
+            docstring_match = re.search(r'^"""(.*?)"""', content, re.DOTALL)
+            if docstring_match:
+                docstring = docstring_match.group(1).lower()
+                # Extract significant words from docstring
+                doc_words = re.findall(r"\b([a-z]{4,})\b", docstring)
+                # Prioritize nouns and domain terms (appear multiple times or are capitalized originally)
+                word_counts = {}
+                for w in doc_words:
+                    if is_valid_keyword(w):
+                        word_counts[w] = word_counts.get(w, 0) + 1
+                # Add words that appear multiple times or are domain-specific
+                domain_terms = {
+                    "mutable", "state", "global", "suspicious", "pattern", "module",
+                    "assignment", "analysis", "scan", "audit", "heuristic", "detection",
+                    "violation", "compliance", "governance", "trace", "memory", "cache",
+                    "queue", "executor", "agent", "kernel", "substrate", "orchestrator",
+                    "router", "handler", "middleware", "service", "repository",
+                }
+                for w, count in word_counts.items():
+                    if count >= 2 or w in domain_terms:
+                        keywords.add(w)
+
+            # Extract function names as keywords (but filter stop words)
             func_pattern = r"def\s+([a-z_][a-z0-9_]*)\s*\("
             for match in re.finditer(func_pattern, content):
                 func_name = match.group(1)
                 if not func_name.startswith("_") and len(func_name) > 3:
                     # Split snake_case
                     for word in func_name.split("_"):
-                        if len(word) > 2:
+                        if is_valid_keyword(word):
                             keywords.add(word)
         except (IOError, UnicodeDecodeError):
             pass
 
-        return sorted(list(keywords))[:6]  # Limit to 6 keywords
+        return sorted(list(keywords))[:8]  # Limit to 8 keywords
 
     def _find_test_coverage(self, file_path: str) -> Dict[str, any]:
         """Find associated test files and estimate coverage."""
@@ -1353,7 +1819,6 @@ __dora_footer__ = {{
     def _format_trace_block(self, trace: DoraTraceBlock) -> str:
         """Format DORA Trace Block for Python file (VERY END)."""
         return f'''
-
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
@@ -1410,6 +1875,7 @@ __l9_trace__ = {{
             insert_line += 1
 
         # CRITICAL: Skip 'from __future__' imports (must be first after docstring)
+        # PEP 236: __future__ imports must appear before any other imports
         while insert_line < len(lines):
             line = lines[insert_line].strip()
             if line.startswith("from __future__"):
@@ -1434,8 +1900,9 @@ __l9_trace__ = {{
         dry_run: bool = True,
         force: bool = False,
     ) -> Dict[str, bool]:
-        """Inject all three DORA blocks into a Python file."""
+        """Inject DORA blocks into a Python or YAML file."""
         results = {"header": False, "footer": False, "trace": False}
+        is_yaml = file_path.endswith((".yaml", ".yml"))
 
         try:
             existing = self._check_existing_blocks(file_path)
@@ -1461,36 +1928,57 @@ __l9_trace__ = {{
                     "legacy": False,
                 }
 
-            # 1. Inject Header Meta at TOP (if not exists)
-            if not existing["header"]:
-                header_block = self._format_header_meta(
-                    header, file_path, footer.last_modified
-                )
-                insert_pos = self._find_insertion_point(new_content)
-                new_content = (
-                    new_content[:insert_pos]
-                    + header_block
-                    + "\n"
-                    + new_content[insert_pos:]
-                )
-                results["header"] = True
-                modified = True
+            if is_yaml:
+                # YAML file injection
+                if not existing["header"]:
+                    header_block = self._format_header_meta_yaml(
+                        header, file_path, footer.last_modified
+                    )
+                    # Insert at top of YAML file
+                    new_content = header_block + new_content.lstrip()
+                    results["header"] = True
+                    modified = True
 
-            # 2. Inject Footer Meta at BOTTOM (if not exists)
-            if not existing["footer"]:
-                footer_block = self._format_footer_meta(
-                    footer, header, file_path, classes
-                )
-                new_content = new_content.rstrip() + footer_block
-                results["footer"] = True
-                modified = True
+                if not existing["footer"]:
+                    footer_block = self._format_footer_meta_yaml(
+                        footer, header, file_path
+                    )
+                    new_content = new_content.rstrip() + footer_block
+                    results["footer"] = True
+                    modified = True
 
-            # 3. Inject Trace Block at VERY END (if not exists)
-            if not existing["trace"]:
-                trace_block = self._format_trace_block(trace)
-                new_content = new_content.rstrip() + trace_block
-                results["trace"] = True
-                modified = True
+                # YAML files don't get trace blocks (not executable)
+                results["trace"] = True  # Mark as done to avoid warnings
+
+            else:
+                # Python file injection
+                if not existing["header"]:
+                    header_block = self._format_header_meta(
+                        header, file_path, footer.last_modified
+                    )
+                    insert_pos = self._find_insertion_point(new_content)
+                    new_content = (
+                        new_content[:insert_pos]
+                        + header_block
+                        + "\n"
+                        + new_content[insert_pos:]
+                    )
+                    results["header"] = True
+                    modified = True
+
+                if not existing["footer"]:
+                    footer_block = self._format_footer_meta(
+                        footer, header, file_path, classes
+                    )
+                    new_content = new_content.rstrip() + footer_block
+                    results["footer"] = True
+                    modified = True
+
+                if not existing["trace"]:
+                    trace_block = self._format_trace_block(trace)
+                    new_content = new_content.rstrip() + trace_block
+                    results["trace"] = True
+                    modified = True
 
             if modified:
                 if not dry_run:

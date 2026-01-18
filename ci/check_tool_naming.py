@@ -16,6 +16,27 @@ Exit codes:
 Created: 2026-01-09
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Check Tool Naming",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-09T02:11:23Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "ci",
+    "module_name": "check_tool_naming",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import re
 import structlog
 import sys
@@ -54,12 +75,10 @@ SKIP_PATTERNS = [
     "_test.py",
 ]
 
-
 def should_skip(path: Path) -> bool:
     """Check if file should be skipped."""
     path_str = str(path)
     return any(skip in path_str for skip in SKIP_PATTERNS)
-
 
 def check_file(filepath: Path) -> list[dict]:
     """Check a single file for non-compliant tool IDs."""
@@ -83,7 +102,6 @@ def check_file(filepath: Path) -> list[dict]:
     
     return violations
 
-
 def check_all_files(base_path: Path) -> list[dict]:
     """Check all relevant files."""
     all_violations = []
@@ -100,7 +118,6 @@ def check_all_files(base_path: Path) -> list[dict]:
                     all_violations.extend(check_file(py_file))
     
     return all_violations
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -154,7 +171,39 @@ def main():
         logger.info("✅ All tool IDs are OpenAI-compliant!")
         return 0
 
-
 if __name__ == "__main__":
     sys.exit(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CI-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "caching", "ci", "cli", "filesystem", "logging", "operations", "testing"],
+    "keywords": ["all", "check", "files", "naming", "should", "skip", "tool"],
+    "business_value": "Utility module for check tool naming",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

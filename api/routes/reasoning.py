@@ -5,6 +5,27 @@ Version: 1.0.0
 Reasoning orchestration endpoints for chain/tree/forest-of-thought reasoning.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Reasoning",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-26T17:26:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "reasoning",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /test", "GET /modes", "POST /execute"],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 from api.auth import verify_api_key
@@ -183,3 +204,37 @@ async def execute_reasoning(
         raise HTTPException(
             status_code=500, detail=f"Reasoning execution failed: {str(e)}"
         )
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-023",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.decorators"],
+    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "messaging", "operations", "pydantic", "rest-api"],
+    "keywords": ["execute", "modes", "orchestrator", "reasoning", "router", "test"],
+    "business_value": "Provides reasoning components including ReasoningExecuteRequest, ReasoningExecuteResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -22,6 +22,27 @@ GMP: GMP-UKG-3 (World Model Sync)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Graph To Wm Sync",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "graph_to_wm_sync",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL"],
+        "memory_layers": [],
+        "imported_by": ["api.server", "tests.integration.test_graph_wm_sync"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import os
 from datetime import datetime
@@ -359,3 +380,37 @@ async def stop_graph_wm_sync() -> None:
     global _sync_service
     if _sync_service:
         await _sync_service.stop()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-027",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.graph_state", "core.decorators"],
+    "tags": ["async", "auth", "core", "debugging", "foundation", "graph-db", "logging", "service", "streaming"],
+    "keywords": ["agent", "graph", "model", "service", "start", "state", "status", "stop"],
+    "business_value": "World Model has real-time view of L's graph state Agent entity in WM has attributes matching Neo4j Changes via AgentSelfModifyTool appear in WM Neo4j Graph State → GraphToWorldModelSync → World Model ",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -13,12 +13,32 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Adaptive Prompting",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "adaptive_prompting",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.agents.executor", "tests.integration.test_closed_loop_learning"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Dict, List
 
 import structlog
 
 logger = structlog.get_logger(__name__)
-
 
 def generate_adaptive_context(patterns: List[Dict[str, Any]]) -> str:
     """
@@ -69,7 +89,6 @@ def generate_adaptive_context(patterns: List[Dict[str, Any]]) -> str:
     )
 
     return header + "\n\n".join(context_parts) + "\n---\n"
-
 
 def _extract_lessons_from_rejections(rejections: List[Dict[str, Any]]) -> str:
     """Extract lessons from rejection patterns."""
@@ -123,7 +142,6 @@ def _extract_lessons_from_rejections(rejections: List[Dict[str, Any]]) -> str:
 
     return "\n".join(lessons[:5])  # Limit to top 5 lessons
 
-
 def _extract_lessons_from_approvals(approvals: List[Dict[str, Any]]) -> str:
     """Extract lessons from approval patterns."""
     lessons = []
@@ -155,7 +173,6 @@ def _extract_lessons_from_approvals(approvals: List[Dict[str, Any]]) -> str:
 
     return "\n".join(lessons[:3])  # Limit to top 3 lessons
 
-
 async def get_adaptive_context_for_tool(tool_name: str) -> str:
     """
     Get adaptive context for a specific tool.
@@ -182,7 +199,6 @@ async def get_adaptive_context_for_tool(tool_name: str) -> str:
         logger.warning(f"Failed to get adaptive context for {tool_name}: {e}")
         return ""
 
-
 async def get_world_model_context_for_agent(agent_name: str = "L") -> str:
     """
     Get world model context for an agent.
@@ -206,7 +222,6 @@ async def get_world_model_context_for_agent(agent_name: str = "L") -> str:
     except Exception as e:
         logger.warning(f"Failed to get world model context for {agent_name}: {e}")
         return ""
-
 
 async def get_combined_adaptive_context(
     tool_name: str,
@@ -238,7 +253,6 @@ async def get_combined_adaptive_context(
             context_parts.append(world_model_context)
     
     return "\n\n".join(context_parts)
-
 
 async def get_test_failure_context(task_id: str) -> str:
     """
@@ -291,7 +305,6 @@ async def get_test_failure_context(task_id: str) -> str:
         logger.warning(f"Failed to get test failure context: {e}")
         return ""
 
-
 # =============================================================================
 # Public API
 # =============================================================================
@@ -304,3 +317,36 @@ __all__ = [
     "get_test_failure_context",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.worldmodel.service", "memory.retrieval"],
+    "tags": ["agent-execution", "api", "async", "foundation", "logging", "service", "testing"],
+    "keywords": ["adaptive", "agent", "based", "combined", "failure", "generate", "governance", "model"],
+    "business_value": "Utility module for adaptive prompting",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

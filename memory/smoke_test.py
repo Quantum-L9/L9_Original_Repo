@@ -10,6 +10,27 @@ Run this after server startup to verify:
 - Data appears in store
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Smoke Test",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "smoke_test",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 import os
@@ -20,9 +41,7 @@ from memory.substrate_service import get_service
 from core.schemas import PacketEnvelopeIn
 from memory.ingestion import ingest_packet
 
-
 logger = structlog.get_logger(__name__)
-
 
 async def smoke_test() -> dict[str, any]:
     """
@@ -111,7 +130,6 @@ async def smoke_test() -> dict[str, any]:
 
     return results
 
-
 async def main():
     """Main entrypoint for smoke test."""
     results = await smoke_test()
@@ -135,11 +153,39 @@ async def main():
     # Exit with error code if tests failed
     sys.exit(0 if results["status"] == "passed" else 1)
 
-
 if __name__ == "__main__":
     asyncio.run(main())
 
-
-
-
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.ingestion", "memory.substrate_service"],
+    "tags": ["async", "learning", "logging", "memory-substrate", "messaging", "migration", "service", "testing"],
+    "keywords": ["memory", "service", "smoke", "test", "verify"],
+    "business_value": "Migrations applied Memory service initialized Packet ingestion works Data appears in store",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

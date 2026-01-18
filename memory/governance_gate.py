@@ -15,6 +15,27 @@ GMP-80: RLS Full Instantiation
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Governance Gate",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T12:05:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "governance_gate",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["agents.cursor.integrations.cursor_gateway", "api.memory.router", "api.routes.mcp", "core.agents.bootstrap.phase_7_verify_and_lock", "mcp_memory.src.db", "mcp_memory.src.routes.memory_unified", "memory.__init__", "memory.ingestion", "memory.retrieval", "memory.substrate_repository"],
+    },
+}
+# ============================================================================
+
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
@@ -210,3 +231,37 @@ def build_scope_project_filter(
     )
     params: list[Any] = [list(ctx.allowed_scopes), ctx.project_id]
     return clause, params, param_idx + 2
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-014",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "auth", "dataclass", "learning", "memory-substrate", "rest-api"],
+    "keywords": ["build", "enforce", "ensure", "filter", "gate", "governance", "isolation", "memory"],
+    "business_value": "Implements MemoryGovernanceContext for governance gate functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

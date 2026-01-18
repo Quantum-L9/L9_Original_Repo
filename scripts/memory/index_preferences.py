@@ -21,6 +21,27 @@ Features:
 - Uses memory substrate APIs
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Index User Preferences to Memory Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "index_preferences",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 from pathlib import Path
@@ -40,7 +61,6 @@ logger = structlog.get_logger(__name__)
 
 # Configuration
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
-
 
 async def query_preference_packets(database_url: str, limit: int = 1000) -> List[Dict[str, Any]]:
     """
@@ -160,7 +180,6 @@ async def query_preference_packets(database_url: str, limit: int = 1000) -> List
         logger.error(f"Failed to query preference packets: {e}", exc_info=True)
         return []
 
-
 async def index_preferences(
     preferences: List[Dict[str, Any]],
     substrate_service: Any,
@@ -239,7 +258,6 @@ Source: {preference.get('source', 'unknown')}
         "status": "success" if not errors else "partial",
     }
 
-
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main indexing function."""
     logger.info("Starting user preferences indexing", dry_run=dry_run)
@@ -295,7 +313,6 @@ async def main(dry_run: bool = False, verbose: bool = False):
     finally:
         await close_service()
 
-
 if __name__ == "__main__":
     import argparse
     
@@ -307,3 +324,36 @@ if __name__ == "__main__":
     
     asyncio.run(main(dry_run=args.dry_run, verbose=args.verbose))
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.substrate_service"],
+    "tags": ["api", "async", "cli", "debugging", "filesystem", "logging", "memory-substrate", "messaging", "operations", "postgres"],
+    "keywords": ["graph", "index", "memory", "packets", "preference", "preferences", "query", "user"],
+    "business_value": "Utility module for index preferences",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

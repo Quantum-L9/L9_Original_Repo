@@ -22,6 +22,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Dora",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "dora",
+    "type": "dataclass",
+    "status": "draft",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.agents.executor", "runtime.__init__"],
+    },
+}
+# ============================================================================
+
 import functools
 import inspect
 import json
@@ -497,3 +518,20 @@ def get_empty_dora_block_python() -> str:
 # =============================================================================
 # END MODULE
 # =============================================================================
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "dataclass", "debugging", "filesystem", "logging", "messaging", "metrics", "operations", "runtime-operations", "serialization"],
+    "keywords": ["async", "auto", "block", "create", "decorator", "dora", "emit", "empty"],
+    "business_value": "Provides the @l9_traced decorator and DORA block auto-update machinery.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}

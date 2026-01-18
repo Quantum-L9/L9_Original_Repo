@@ -12,6 +12,27 @@ Provides:
 Version: 0.5.0 (Research Factory Integration)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Server",
+    "module_version": "0.5.0 (Research Factory Integration)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-18T02:40:22Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "server",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /", "GET /health", "GET /health/startup", "POST /kernels/reload", "GET /health/neo4j", "GET /health/services", "POST /lchat", "POST /chat"],
+        "datasources": ["HTTP API", "Neo4j", "OpenAI API", "Redis", "Slack API"],
+        "memory_layers": ["working_memory", "semantic_memory"],
+        "imported_by": ["api.routes.gmp_learning", "scripts.audit.find_dead_code", "tests.api.test_server_health", "tests.api.test_websocket_auth", "tests.integration.test_api_agent_integration", "tests.integration.test_api_memory_integration", "tests.integration.test_kernel_hot_reload", "tests.test_imports"],
+    },
+}
+# ============================================================================
+
 from config.settings import settings
 
 import os
@@ -630,8 +651,6 @@ async def lifespan(app: FastAPI):
                 embedding_provider=os.getenv("EMBEDDING_PROVIDER", "openai"),
                 exc_info=True,
             )
-            # Store error for downstream diagnostics (Agent Executor will read this)
-            app.state._substrate_init_error = str(e)
             app.state.substrate_service = None
             app.state.agent_persistence = None
             app.state.restored_agent_state = None
@@ -1430,7 +1449,6 @@ async def lifespan(app: FastAPI):
     # L-CTO agent initialization is now handled by KernelAwareAgentRegistry
     # which loads kernels and activates the agent via runtime/kernel_loader.py.
     # See core/agents/kernel_registry.py for the new kernel-based initialization.
-    app.state.l_cto_startup = None  # Kept for backward compatibility
 
     # ========================================================================
     # AGENT BOOTSTRAP CEREMONY (v3.0+ Paradigm Shift)
@@ -1466,7 +1484,6 @@ async def lifespan(app: FastAPI):
 
                 l_instance = await bootstrap.bootstrap_agent(l_config)
                 app.state.l_agent_instance = l_instance
-                app.state.l_agent_ready = True
 
                 logger.info(
                     "✓ L-CTO Agent Bootstrap complete",
@@ -1477,17 +1494,12 @@ async def lifespan(app: FastAPI):
                 )
             else:
                 logger.warning("Bootstrap skipped: substrate_service not available")
-                app.state.l_agent_ready = False
 
         except Exception as e:
             logger.error("Agent Bootstrap failed: %s", str(e), exc_info=True)
-            app.state.l_agent_ready = False
             # Non-fatal in dev mode - fall back to legacy initialization
     elif L9_NEW_AGENT_INIT:
         logger.warning("L9_NEW_AGENT_INIT=true but bootstrap module not available")
-        app.state.l_agent_ready = False
-    else:
-        app.state.l_agent_ready = False  # Using legacy init
 
     # Validate Permission Graph (required if Slack is enabled)
     if os.getenv("SLACK_BOT_TOKEN"):
@@ -1580,26 +1592,21 @@ async def lifespan(app: FastAPI):
                 substrate_service=substrate_service,
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
-            app.state.memory_tools_registered = True
         else:
             logger.warning("⚠️ Memory tools not registered: tool_registry not available")
-            app.state.memory_tools_registered = False
     except Exception as e:
         logger.error(f"❌ Memory tool registration failed: {e}", exc_info=True)
-        app.state.memory_tools_registered = False
 
     # ========================================================================
     # STARTUP: Initialize Prometheus metrics
     # ========================================================================
     if _has_prometheus:
         metrics_ok = init_metrics()
-        app.state.prometheus_enabled = metrics_ok
         if metrics_ok:
             logger.info("✓ Prometheus metrics initialized")
         else:
             logger.warning("⚠️ Prometheus metrics init returned False")
     else:
-        app.state.prometheus_enabled = False
         logger.info(
             "Prometheus metrics not available (prometheus_client not installed)"
         )
@@ -2080,20 +2087,17 @@ async def lifespan(app: FastAPI):
             global gmp_learning_engine
             gmp_learning_engine = GMPMetaLearningEngine(database_url)
             await gmp_learning_engine.create_tables()
-            app.state.gmp_learning_engine = gmp_learning_engine
+            # Note: Routes access via global import, not app.state
             logger.info("GMP Learning Engine initialized (v2.0)")
         except ImportError as e:
             logger.debug(f"GMP Learning Engine not available: {e}")
-            app.state.gmp_learning_engine = None
         except Exception as e:
             logger.error(f"GMP Learning Engine init failed: {e}", exc_info=True)
-            app.state.gmp_learning_engine = None
     else:
         if not settings.l9_gmp_learning_enabled:
             logger.debug("GMP Learning disabled (L9_GMP_LEARNING_ENABLED=false)")
         elif not database_url:
             logger.debug("GMP Learning skipped (no database_url)")
-        app.state.gmp_learning_engine = None
 
     # ------------------------------------------------------------------------
     # Stage 5: Predictive Memory Warming (GMP-STAGE5)
@@ -2601,6 +2605,7 @@ async def neo4j_health():
     """
     Neo4j graph database health check.
     Returns healthy if connected, unavailable if not configured.
+    Includes graph feature status flags.
     """
     if not hasattr(app.state, "neo4j_client") or not app.state.neo4j_client:
         return {"status": "unavailable", "message": "Neo4j not configured"}
@@ -2608,10 +2613,42 @@ async def neo4j_health():
     try:
         result = await app.state.neo4j_client.run_query("RETURN 1 as check")
         if result:
-            return {"status": "healthy", "neo4j": True}
+            return {
+                "status": "healthy",
+                "neo4j": True,
+                "graph_state_enabled": getattr(app.state, "graph_state_enabled", False),
+                "agent_graph_loader": getattr(app.state, "agent_graph_loader", None) is not None,
+                "graph_hydrator": getattr(app.state, "graph_hydrator", None) is not None,
+            }
         return {"status": "unhealthy", "message": "Query returned no results"}
     except Exception as e:
         return {"status": "unhealthy", "error": str(e)}
+
+
+# Services Health Check (GMP-WIRE-B: Category B wiring)
+@app.get("/health/services")
+async def services_health():
+    """
+    Internal services health check.
+    Returns status of optional services initialized at startup.
+    """
+    return {
+        "status": "ok",
+        "services": {
+            "housekeeping_engine": {
+                "available": getattr(app.state, "housekeeping_engine", None) is not None,
+            },
+            "virtual_context_manager": {
+                "available": getattr(app.state, "virtual_context_manager", None) is not None,
+            },
+            "consolidation_service": {
+                "available": getattr(app.state, "consolidation_service", None) is not None,
+            },
+            "observability_service": {
+                "available": getattr(app.state, "observability_service", None) is not None,
+            },
+        },
+    }
 
 
 # Chat endpoint (from server_memory.py for compatibility)
@@ -3326,3 +3363,37 @@ async def l_ws(websocket: WebSocket) -> None:
         logger.debug("lws: client disconnected")
     except Exception as exc:
         logger.error("lws: unexpected error: %s", str(exc), exc_info=True)
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.cursor.gmp_meta_learning", "agents.cursor.integrations.cursor_executor", "agents.cursor.integrations.cursor_gateway", "agents.cursor.integrations.cursor_langgraph", "agents.reflection_agent"],
+    "tags": ["api", "api-gateway", "async", "auth", "authorization", "batch-processing", "caching", "debugging", "endpoint", "event-driven"],
+    "keywords": ["agent", "auth", "chat", "consolidation", "cursor", "deps", "endpoint", "global"],
+    "business_value": "REST API endpoints for OS, agent, and memory operations WebSocket endpoint for real-time agent communication World model API (optional, v1.1.0+) Version: 0.5.0 (Research Factory Integration)",
+    "last_modified": "2026-01-18T02:40:22Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

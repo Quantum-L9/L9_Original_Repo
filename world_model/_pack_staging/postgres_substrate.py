@@ -9,6 +9,27 @@ DDL Schema:
 ACID compliance + NIST AI RMF Govern-2 (persistence governance).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Relational Persistence for World Model.",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T23:45:01Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "postgres_substrate",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from typing import List, Optional
 from dataclasses import dataclass
 import json
@@ -567,3 +588,37 @@ class PostgresSubstrate:
 
         self.logger.info("State loaded from PostgreSQL")
         return state
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-019",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["dataclass", "learning", "serialization", "world-model"],
+    "keywords": ["all", "compliance", "connect", "connection", "create", "delete", "disconnect", "drop"],
+    "business_value": "Provides postgres substrate components including PostgresConfig, PostgresSubstrate",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

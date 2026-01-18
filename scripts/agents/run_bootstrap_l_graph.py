@@ -16,6 +16,27 @@ This populates Neo4j with L's:
 Safe to run multiple times (idempotent via MERGE).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Run Bootstrap L Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-09T12:29:10Z",
+    "updated_at": "2026-01-09T13:31:42Z",
+    "layer": "operations",
+    "domain": "agent_execution",
+    "module_name": "run_bootstrap_l_graph",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import os
 import sys
@@ -24,7 +45,6 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from neo4j import AsyncGraphDatabase
-
 
 async def main():
     # Get Neo4j credentials from environment
@@ -87,7 +107,39 @@ async def main():
     
     print("\n✅ Bootstrap complete!")
 
-
 if __name__ == "__main__":
     asyncio.run(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.graph_state.bootstrap_l_graph"],
+    "tags": ["agent-execution", "async", "auth", "graph-db", "operations", "service", "testing"],
+    "keywords": ["bootstrap", "graph"],
+    "business_value": "Agent node Responsibilities (4) Directives (5) SOPs (3) Tools (8) REPORTS_TO Igor relationship Safe to run multiple times (idempotent via MERGE).",
+    "last_modified": "2026-01-09T13:31:42Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

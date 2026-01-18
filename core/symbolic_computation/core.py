@@ -5,6 +5,27 @@ Implements high-performance symbolic-to-numeric conversion using SymPy utilities
 Provides production-ready interfaces for AI agents to perform mathematical computations.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Core",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "core",
+    "type": "service",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import time
 from typing import Dict, List, Union, Any, Callable
@@ -382,3 +403,37 @@ class SymbolicComputation:
         except Exception as e:
             logger.error(f"Health check failed: {str(e)}")
             return {"status": "unhealthy", "error": str(e)}
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-051",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["async", "caching", "core", "debugging", "foundation", "messaging", "metrics", "service", "testing"],
+    "keywords": ["cache", "check", "computation", "compute", "core", "evaluate", "evaluator", "expression"],
+    "business_value": "Implements high-performance symbolic-to-numeric conversion using SymPy utilities.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

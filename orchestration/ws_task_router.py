@@ -19,6 +19,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "WebSocket Task Router",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "ws_task_router",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["orchestration.__init__", "tests.integration.test_ws_task_routing_integration", "tests.orchestrators.test_ws_task_router_routing"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Callable, Dict, Optional
 
@@ -583,3 +604,37 @@ __all__ = [
     "WSTaskRouter",
     "LangGraphRouter",  # Phase 3 stub
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-034",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas.tasks", "core.schemas.ws_event_stream"],
+    "tags": ["api", "async", "debugging", "event-driven", "intelligence", "logging", "messaging", "orchestration", "queue", "realtime"],
+    "keywords": ["event", "events", "graph", "handle", "handler", "lang", "phase", "register"],
+    "business_value": "Provides ws task router components including RouterConfig, WSTaskRouter, RouterState",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Dead Code Gmp Todos"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-13T18:30:12Z"
+# updated_at: "2026-01-13T19:16:46Z"
+# layer: "operations"
+# domain: "reports"
+# file_name: "dead_code_gmp_todos"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # GMP Phase 0 TODO Plan: Dead Code Remediation
 # Generated: 2026-01-13 18:16 EST
 
@@ -3333,3 +3348,11 @@ todos:
       Wire 'WiringSpec.lifespan_init' to functionality or delete if unnecessary
     confidence: 0.6499999999999999
     test_needed: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "kernel", "model-config", "operations", "pipeline", "prompt"]
+# keywords: ["code", "dead", "generated_at", "gmp", "gmp_id", "risk_level"]
+# last_modified: "2026-01-13T19:16:46Z"
+# ============================================================================

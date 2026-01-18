@@ -22,6 +22,27 @@ Features:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Two-Phase Activation",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-08T15:53:43Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "kernelloader",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": ["api.server", "core.agents.kernel_registry", "tests.integration.test_kernel_hot_reload", "tests.unit.test_kernel_loader_activation", "tests.unit.test_kernel_observability", "tests.unit.test_lcto_bootstrap"],
+    },
+}
+# ============================================================================
+
 import hashlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, Tuple
@@ -1012,3 +1033,36 @@ __all__ = [
     "KernelAwareAgent",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-003",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.kernels.schemas", "core.observability.models", "core.observability.service"],
+    "tags": ["api", "authorization", "config", "core", "debugging", "filesystem", "foundation", "logging", "messaging", "rest-api"],
+    "keywords": ["absorb", "activate", "activation", "agent", "aware", "integrity", "kernel", "kernels"],
+    "business_value": "This is the ONLY way kernels enter the system. If this file isn't used → kernels are not real. Version: 2.0.0 GMP: kernel_boot_frontier_phase1 Two-phase activation (LOAD → ACTIVATE) Pydantic schema va",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

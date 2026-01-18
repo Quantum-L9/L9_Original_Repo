@@ -12,6 +12,27 @@ Version: 1.0.0 (GMP-11)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Commands Router",
+    "module_version": "1.0.0 (GMP-11)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "commands",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["POST /execute", "POST /parse", "POST /intent", "GET /help", "POST /governance/feedback"],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Optional
 
@@ -473,3 +494,37 @@ async def record_approval_feedback(
 
 
 __all__ = ["router"]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-024",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.agents.schemas", "core.commands.executor", "core.commands.intent_extractor", "core.commands.parser"],
+    "tags": ["api", "api-gateway", "async", "auth", "debugging", "endpoint", "logging", "messaging", "operations", "pydantic"],
+    "keywords": ["approval", "command", "commands", "endpoint", "execute", "extract", "feedback", "help"],
+    "business_value": "Provides commands components including CommandExecuteRequest, CommandExecuteResponse, IntentExtractResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

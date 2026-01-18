@@ -3,6 +3,27 @@ Mac Agent Configuration
 Loads settings from config.yaml and environment variables.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Config",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "integration",
+    "domain": "mac_integration",
+    "module_name": "config",
+    "type": "config",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["mac_agent.executor", "mac_agent.runner"],
+    },
+}
+# ============================================================================
+
 import os
 import yaml
 from pathlib import Path
@@ -70,3 +91,37 @@ def get_config() -> MacAgentConfig:
     if _config is None:
         _config = MacAgentConfig()
     return _config
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MAC-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "config", "filesystem", "integration", "logging", "mac-integration"],
+    "keywords": ["agent", "mac"],
+    "business_value": "Implements MacAgentConfig for config functionality",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

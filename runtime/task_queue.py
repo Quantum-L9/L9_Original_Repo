@@ -14,6 +14,27 @@ Note: Automatically uses Redis if available, falls back to in-memory.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Task Queue",
+    "module_version": "2.0.0 (Redis support)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "task_queue",
+    "type": "dataclass",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": [],
+        "imported_by": ["core.agents.executor", "core.tools.base_registry", "orchestrators.ws_bridge", "runtime.__init__", "runtime.git_tool", "runtime.gmp_tool", "runtime.gmp_worker", "runtime.l_tools", "runtime.long_plan_tool", "runtime.websocket_orchestrator"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from collections import deque
@@ -392,3 +413,37 @@ async def enqueue_long_plan_tasks(
 
 
 __all__ = ["TaskQueue", "QueuedTask", "enqueue_long_plan_tasks"]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["runtime.redis_client"],
+    "tags": ["async", "cache", "dataclass", "debugging", "event-driven", "logging", "operations", "queue", "runtime-operations"],
+    "keywords": ["dequeue", "dispatch", "enqueue", "handler", "immediate", "long", "memory", "one"],
+    "business_value": "Provides task queue components including QueuedTask, TaskQueue",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -11,6 +11,27 @@ Provides:
   - ConfigValidator (rules engine)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Audit Shared Core",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T19:43:29Z",
+    "updated_at": "2026-01-14T15:05:34Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "audit_shared_core",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import hashlib
 import json
 import structlog
@@ -459,3 +480,37 @@ class ObservabilityHooks:
 def setup_logger(name: str) -> structlog.stdlib.BoundLogger:
     """Get a structlog logger for the given name."""
     return structlog.get_logger(name)
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-016",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["ast", "builder-pattern", "caching", "dataclass", "filesystem", "logging", "operations", "scripts", "security", "serialization"],
+    "keywords": ["audit", "builder", "cache", "core", "edge", "entry", "export", "files"],
+    "business_value": "CallGraphBuilder (AST-based call graph) CacheManager (incremental audit caching) Reporter (multi-format output) GMPIntegration (GMP TODO plan generation) ConfigValidator (rules engine)",
+    "last_modified": "2026-01-14T15:05:34Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

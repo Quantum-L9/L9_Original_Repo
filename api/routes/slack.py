@@ -20,6 +20,27 @@ Error handling:
 Note: Dependencies are injected (no env reads at import time).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Slack",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "slack",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["POST /events", "POST /commands"],
+        "datasources": ["Neo4j", "Slack API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server", "api.server_memory"],
+    },
+}
+# ============================================================================
+
 import json
 from typing import Dict, Any
 from fastapi import APIRouter, Request, Header, HTTPException, Depends
@@ -52,11 +73,9 @@ except ImportError:
     def record_rate_limit_hit(*args, **kwargs):
         pass
 
-
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/slack", tags=["slack"])
-
 
 # Dependency injection for validator (injected at app startup)
 @must_stay_async("callers use await")
@@ -66,7 +85,6 @@ async def get_slack_validator(request: Request) -> SlackRequestValidator:
     if not validator:
         raise HTTPException(status_code=500, detail="Slack validator not initialized")
     return validator
-
 
 @router.post("/events")
 async def slack_events(
@@ -266,7 +284,6 @@ async def slack_events(
         # Return 200 to prevent Slack redelivery, but log error for investigation
         return {"ok": True, "error_logged": True}
 
-
 @router.post("/commands")
 async def slack_commands(
     request: Request,
@@ -407,3 +424,37 @@ async def slack_commands(
         "response_type": "ephemeral",
         "text": "Processing your command...",
     }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.slack_adapter", "core.decorators", "memory.slack_ingest"],
+    "tags": ["api", "api-gateway", "async", "auth", "authorization", "debugging", "endpoint", "event-driven", "logging", "messaging"],
+    "keywords": ["async", "command", "commands", "endpoints", "events", "form", "handler", "hit"],
+    "business_value": "Utility module for slack",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

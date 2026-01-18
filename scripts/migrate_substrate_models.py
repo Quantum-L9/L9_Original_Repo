@@ -7,6 +7,27 @@ Usage:
     python scripts/migrate_substrate_models.py            # Apply changes
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Migrate Substrate Models",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "migrate_substrate_models",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import re
 import sys
 from pathlib import Path
@@ -62,12 +83,10 @@ SKIP_PATTERNS = [
     "migrate_substrate_models.py",  # This script
 ]
 
-
 def should_skip(path: Path) -> bool:
     """Check if file should be skipped."""
     path_str = str(path)
     return any(skip in path_str for skip in SKIP_PATTERNS)
-
 
 def find_files_to_migrate(root: Path) -> list[Path]:
     """Find all Python files that import from memory.substrate_models."""
@@ -82,7 +101,6 @@ def find_files_to_migrate(root: Path) -> list[Path]:
         except Exception:
             continue
     return files
-
 
 def parse_imports(content: str) -> tuple[list[str], str]:
     """
@@ -115,7 +133,6 @@ def parse_imports(content: str) -> tuple[list[str], str]:
         return symbols, match.group(0)
     
     return [], ""
-
 
 def generate_new_imports(symbols: list[str]) -> str:
     """Generate new import statements based on which symbols go where."""
@@ -157,7 +174,6 @@ def generate_new_imports(symbols: list[str]) -> str:
     
     return "\n".join(lines)
 
-
 def migrate_file(path: Path, dry_run: bool = True) -> tuple[bool, str]:
     """
     Migrate a single file.
@@ -190,7 +206,6 @@ def migrate_file(path: Path, dry_run: bool = True) -> tuple[bool, str]:
     else:
         path.write_text(new_content)
         return True, f"Updated {path}"
-
 
 def main():
     dry_run = "--dry-run" in sys.argv
@@ -237,6 +252,39 @@ def main():
     elif not dry_run and changed > 0:
         print("\n✅ Migration complete! Run py_compile and tests to verify.")
 
-
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["caching", "cli", "event-driven", "filesystem", "messaging", "migration", "operations", "scripts", "testing", "tracing"],
+    "keywords": ["files", "find", "generate", "imports", "migrate", "models", "parse", "should"],
+    "business_value": "Utility module for migrate substrate models",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

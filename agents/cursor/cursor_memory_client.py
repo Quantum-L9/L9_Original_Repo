@@ -58,6 +58,27 @@ Cursor Memory Client — Access L9 Memory Substrate via MCP Tools
     Session UUID: Date-based (same ID for entire day)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor Memory Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-14T12:08:12Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "cursor_memory_client",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": ["working_memory", "semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import json
 import argparse
@@ -83,7 +104,6 @@ SUPPORTED_VERSIONS = ["1.0.0", "1.0.1", "1.1.0", "1.1.1", "2.0.0"]
 # Namespace UUID for Cursor sessions (fixed, used for UUID5 generation)
 CURSOR_SESSION_NAMESPACE = uuid.UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
 
-
 def get_daily_session_id() -> str:
     """
     Generate deterministic session UUID based on current date.
@@ -95,12 +115,10 @@ def get_daily_session_id() -> str:
     session_uuid = uuid.uuid5(CURSOR_SESSION_NAMESPACE, f"cursor-session-{today}")
     return str(session_uuid)
 
-
 def compute_content_hash(payload: dict) -> str:
     """Compute SHA-256 content hash for PacketEnvelope v2.0 integrity."""
     content_str = json.dumps(payload, sort_keys=True, default=str)
     return hashlib.sha256(content_str.encode()).hexdigest()
-
 
 # =============================================================================
 # Configuration
@@ -125,11 +143,9 @@ ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
 
-
 # =============================================================================
 # MCP Client (Primary - MCP Server ONLY)
 # =============================================================================
-
 
 def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
     """
@@ -168,11 +184,9 @@ def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
     except urllib.error.URLError as e:
         return {"error": str(e)}
 
-
 # =============================================================================
 # FALLBACK: Direct HTTP API (Graph/Cache ONLY - No MCP tools available)
 # =============================================================================
-
 
 def api_request(method: str, path: str, data: dict = None) -> dict:
     """
@@ -208,11 +222,9 @@ def api_request(method: str, path: str, data: dict = None) -> dict:
     except urllib.error.URLError as e:
         return {"error": str(e)}
 
-
 # =============================================================================
 # Commands
 # =============================================================================
-
 
 def cmd_stats():
     """Get memory stats via MCP."""
@@ -224,7 +236,6 @@ def cmd_stats():
         },
     )
     print(json.dumps(result, indent=2))
-
 
 def cmd_health():
     """
@@ -305,7 +316,6 @@ def cmd_health():
 
     print(json.dumps(results, indent=2))
 
-
 def cmd_search(
     query: str, limit: int = 10, min_confidence: float = 0.0, sort_by: str = "relevance"
 ):
@@ -363,7 +373,6 @@ def cmd_search(
         )
     )
 
-
 def cmd_write(content: str, kind: str = "note", thread_id: str = None):
     """
     Write to memory via MCP using PacketEnvelope v2.0 schema.
@@ -407,7 +416,6 @@ def cmd_write(content: str, kind: str = "note", thread_id: str = None):
 
     print(json.dumps(result, indent=2))
 
-
 def cmd_session():
     """Show current daily session ID."""
     session_id = get_daily_session_id()
@@ -422,7 +430,6 @@ def cmd_session():
             indent=2,
         )
     )
-
 
 def cmd_mcp_test():
     """
@@ -527,7 +534,6 @@ def cmd_mcp_test():
 
     print(json.dumps(results, indent=2))
 
-
 def cmd_session_close():
     """
     Close session and create embedding anchor for future retrieval.
@@ -597,7 +603,6 @@ def cmd_session_close():
     }
 
     print(json.dumps(output, indent=2))
-
 
 def cmd_session_resume(task_description: str = None):
     """
@@ -697,7 +702,6 @@ def cmd_session_resume(task_description: str = None):
 
     print(json.dumps(output, indent=2))
 
-
 def cmd_resume_for(task: str):
     """
     Resume for a specific task - finds most relevant past session by semantic similarity.
@@ -705,7 +709,6 @@ def cmd_resume_for(task: str):
     Usage: python cursor_memory_client.py resume-for "implement Redis session context"
     """
     cmd_session_resume(task)
-
 
 def cmd_warn(task_description: str):
     """
@@ -820,7 +823,6 @@ def cmd_warn(task_description: str):
     }
 
     print(json.dumps(output, indent=2))
-
 
 def cmd_inject(task_description: str = None, layers: str = "all"):
     """
@@ -953,7 +955,6 @@ def cmd_inject(task_description: str = None, layers: str = "all"):
 
     print(json.dumps(output, indent=2))
 
-
 def cmd_temporal(query: str, since: str = "24h", until: str = None):
     """
     Temporal Context Windowing - time-scoped memory queries.
@@ -995,7 +996,6 @@ def cmd_temporal(query: str, since: str = "24h", until: str = None):
     }
 
     print(json.dumps(output, indent=2))
-
 
 def cmd_fix_error(error_message: str):
     """
@@ -1077,7 +1077,6 @@ def cmd_fix_error(error_message: str):
 
     print(json.dumps(output, indent=2))
 
-
 def cmd_suggest(context: str = None):
     """
     Proactive Suggestion Engine - pattern-based next-step suggestions.
@@ -1139,7 +1138,6 @@ def cmd_suggest(context: str = None):
 
     print(json.dumps(output, indent=2))
 
-
 def cmd_dedupe_check(content: str):
     """
     Semantic Deduplication - check if content already exists before writing.
@@ -1192,7 +1190,6 @@ def cmd_dedupe_check(content: str):
     }
 
     print(json.dumps(output, indent=2))
-
 
 def cmd_session_diff():
     """
@@ -1260,18 +1257,15 @@ def cmd_session_diff():
 
     print(json.dumps(output, indent=2))
 
-
 # =============================================================================
 # Graph Operations (Neo4j via REST API) - FALLBACK METHOD
 # No MCP tools available for graph operations
 # =============================================================================
 
-
 def cmd_graph_health():
     """Check Neo4j graph health via REST API (FALLBACK - no MCP tool)."""
     result = api_request("GET", "/api/v1/memory/graph/health")
     print(json.dumps(result, indent=2))
-
 
 def cmd_graph_context(domain: str, limit: int = 10):
     """
@@ -1282,7 +1276,6 @@ def cmd_graph_context(domain: str, limit: int = 10):
     """
     result = api_request("GET", f"/api/v1/memory/graph/context/{domain}?limit={limit}")
     print(json.dumps(result, indent=2))
-
 
 def cmd_graph_query(query: str, params: str = None):
     """
@@ -1302,7 +1295,6 @@ def cmd_graph_query(query: str, params: str = None):
     result = api_request("POST", "/api/v1/memory/graph/query", data)
     print(json.dumps(result, indent=2))
 
-
 def cmd_graph_entity(entity_type: str, entity_id: str):
     """
     Get an entity from the graph.
@@ -1313,7 +1305,6 @@ def cmd_graph_entity(entity_type: str, entity_id: str):
         "GET", f"/api/v1/memory/graph/entity/{entity_type}/{entity_id}"
     )
     print(json.dumps(result, indent=2))
-
 
 def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "both"):
     """
@@ -1328,18 +1319,15 @@ def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "
     )
     print(json.dumps(result, indent=2))
 
-
 # =============================================================================
 # Cache Operations (Redis via REST API) - FALLBACK METHOD
 # No MCP tools available for cache operations
 # =============================================================================
 
-
 def cmd_cache_health():
     """Check Redis cache health via REST API (FALLBACK - no MCP tool)."""
     result = api_request("GET", "/api/v1/memory/cache/health")
     print(json.dumps(result, indent=2))
-
 
 def cmd_cache_get(key: str):
     """
@@ -1349,7 +1337,6 @@ def cmd_cache_get(key: str):
     """
     result = api_request("GET", f"/api/v1/memory/cache/get/{key}")
     print(json.dumps(result, indent=2))
-
 
 def cmd_cache_set(key: str, value: str, ttl: int = None):
     """
@@ -1365,7 +1352,6 @@ def cmd_cache_set(key: str, value: str, ttl: int = None):
     result = api_request("POST", "/api/v1/memory/cache/set", data)
     print(json.dumps(result, indent=2))
 
-
 def cmd_cache_session_context(session_id: str = None):
     """
     Get session context from Redis.
@@ -1378,7 +1364,6 @@ def cmd_cache_session_context(session_id: str = None):
 
     output = {"session_id": sid, "from_cache": True, **result}
     print(json.dumps(output, indent=2))
-
 
 def cmd_cache_set_session_context(context_json: str):
     """
@@ -1403,7 +1388,6 @@ def cmd_cache_set_session_context(context_json: str):
     result = api_request("POST", "/api/v1/memory/cache/session/context", data)
     print(json.dumps(result, indent=2))
 
-
 def cmd_cache_list_sessions():
     """
     List recent sessions from Redis.
@@ -1413,11 +1397,9 @@ def cmd_cache_list_sessions():
     result = api_request("GET", "/api/v1/memory/cache/session/list")
     print(json.dumps(result, indent=2))
 
-
 # =============================================================================
 # Main
 # =============================================================================
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -1659,6 +1641,39 @@ def main():
     elif args.command == "cache-sessions":
         cmd_cache_list_sessions()
 
-
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["agent-execution", "api", "auth", "cache", "caching", "cli", "event-driven", "filesystem", "intelligence", "messaging"],
+    "keywords": ["api", "cache", "check", "client", "close", "cmd", "compute", "cursor"],
+    "business_value": "Utility module for cursor memory client",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

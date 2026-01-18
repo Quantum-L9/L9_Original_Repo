@@ -14,6 +14,27 @@ Version: 1.0.0 (GMP-24)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Simulation Routes",
+    "module_version": "1.0.0 (GMP-24)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "simulation",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["POST /run", "GET /{run_id}", "GET /graph/{graph_id}", "GET /health"],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server", "core.singleton_registry"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -236,3 +257,37 @@ async def simulation_health() -> Dict[str, Any]:
             "status": "unhealthy",
             "error": str(e),
         }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-014",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.decorators"],
+    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "metrics", "operations", "pydantic", "router"],
+    "keywords": ["graph", "health", "metrics", "routes", "runs", "simulation"],
+    "business_value": "POST /simulation/run — Execute simulation on IR graph GET /simulation/{run_id} — Get simulation run status GET /simulation/graph/{graph_id} — Get all runs for a graph Version: 1.0.0 (GMP-24)",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

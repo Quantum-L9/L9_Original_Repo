@@ -25,6 +25,27 @@ This file is DEPRECATED and NOT registered in api/server.py.
 **Do not use this file** - it exists only for reference.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "NOT USED ⚠️",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "webhook_slack",
+    "type": "router",
+    "status": "archived",
+    "integrates_with": {
+        "api_endpoints": ["POST /slack/commands", "POST /slack/events"],
+        "datasources": ["Gmail API", "OpenAI API", "Slack API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import hmac
 import hashlib
@@ -50,7 +71,6 @@ L_SLACK_USER_ID = os.getenv("L_SLACK_USER_ID", "l-cto")
 
 # Combined list of user IDs to ignore (L's own messages)
 L_USER_IDS = {uid.strip().lower() for uid in [SLACK_BOT_USER_ID, L_SLACK_USER_ID] if uid.strip()}
-
 
 # =============================================================================
 # Event Deduplication Cache
@@ -115,7 +135,6 @@ class EventDedupeCache:
         with self._lock:
             self._cache.clear()
 
-
 # Global deduplication cache
 _event_dedupe_cache = EventDedupeCache(max_size=10000, ttl_seconds=300)
 
@@ -135,11 +154,9 @@ EMAIL_PHRASE_KEYWORDS = ["send email to", "reply to", "forward to"]
 # When False, route Slack messages through AgentTask + AgentExecutorService
 L9_ENABLE_LEGACY_SLACK_ROUTER = settings.l9_enable_legacy_slack_router
 
-
 # =============================================================================
 # L-CTO Agent Handler for Slack (Phase 2 prep - not yet wired)
 # =============================================================================
-
 
 async def handle_slack_with_l_agent(
     app,
@@ -244,9 +261,7 @@ async def handle_slack_with_l_agent(
         logger.exception("handle_slack_with_l_agent: error: %s", str(e))
         return (f"Error processing message: {str(e)}", "error")
 
-
 router = APIRouter()
-
 
 @router.post("/slack/commands")
 async def slack_commands(request: Request):
@@ -423,7 +438,6 @@ async def slack_commands(request: Request):
             }
         )
 
-
 def verify_slack_signature(
     body: str,
     timestamp: str,
@@ -463,7 +477,6 @@ def verify_slack_signature(
 
     # Compare signatures using constant-time comparison
     return hmac.compare_digest(expected_sig_string, signature)
-
 
 @router.post("/slack/events")
 async def slack_events(
@@ -984,3 +997,67 @@ async def slack_events(
     # Unknown event type
     logger.warning(f"[SLACK] Unknown event type: {data.get('type')}")
     return JSONResponse(content={"status": "ok"})
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    # === IDENTITY ===
+    "component_id": "_AR-OPER-001",
+    
+    # === GOVERNANCE ===
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "security_classification": "internal",
+    
+    # === DEPENDENCIES ===
+    "dependencies": ["core.agents.schemas"],
+    
+    # === OPERATIONAL ===
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "realtime",
+    "retry_policy": "exponential",
+    "circuit_breaker_enabled": True,
+    "circuit_breaker_threshold": 5,
+    
+    # === OBSERVABILITY ===
+    "monitoring_required": True,
+    "logging_level": "info",
+    "success_metrics": {
+        "latency_p95_ms": 50,
+        "throughput_ops_per_sec": 1000,
+        "availability_percent": 99.99,
+        "error_rate_percent": 0.01,
+    },
+    
+    # === DISCOVERY ===
+    "tags": ["api", "api-gateway", "async", "caching", "debugging", "endpoint", "event-driven", "logging", "messaging", "migration"],
+    "keywords": ["agent", "cache", "clear", "commands", "dedupe", "deprecated", "duplicate", "event"],
+    "business_value": "This file is DEPRECATED and NOT registered in api/server.py. api/routes/slack.py (FastAPI routes) memory/slack_ingest.py (event handling logic)",
+    
+    # === CHANGE TRACKING ===
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

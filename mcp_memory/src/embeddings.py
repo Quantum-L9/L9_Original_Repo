@@ -8,6 +8,27 @@ Version: 2.0.0
 - Added retry logic with exponential backoff (3 retries, 0.5s base)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "OpenAI Embedding Generation",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "mcp_integration",
+    "module_name": "embeddings",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import random
 import structlog
@@ -21,7 +42,6 @@ client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 # Retry configuration
 MAX_RETRIES = 3
 BASE_BACKOFF = 0.5  # seconds
-
 
 async def _with_retries(coro_func, *, operation: str):
     """
@@ -67,7 +87,6 @@ async def _with_retries(coro_func, *, operation: str):
         f"Embedding request failed after {MAX_RETRIES} retries: {last_error}"
     ) from last_error
 
-
 async def embed_text(text: str) -> List[float]:
     """Generate embedding for single text with retry logic."""
 
@@ -80,7 +99,6 @@ async def embed_text(text: str) -> List[float]:
         return response.data[0].embedding
 
     return await _with_retries(_embed, operation="embed_text")
-
 
 async def embed_texts(texts: List[str]) -> List[List[float]]:
     """Generate embeddings for batch of texts with retry logic."""
@@ -95,3 +113,37 @@ async def embed_texts(texts: List[str]) -> List[List[float]]:
         return [item.embedding for item in sorted_data]
 
     return await _with_retries(_embed, operation="embed_texts")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MCP-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "batch-processing", "integration", "llm", "logging", "mcp-integration", "service"],
+    "keywords": ["embed", "embedding", "generation", "logic", "memory", "openai", "retry", "texts"],
+    "business_value": "Utility module for embeddings",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

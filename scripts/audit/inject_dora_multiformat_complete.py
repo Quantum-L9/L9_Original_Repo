@@ -13,6 +13,27 @@ Usage:
     python scripts/audit/inject_dora_multiformat_complete.py --repo /path/to/L9 --execute --types yaml,md
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Inject Dora Multiformat Complete",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-18T02:10:54Z",
+    "updated_at": "2026-01-18T02:10:54Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "inject_dora_multiformat_complete",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import json
 import re
@@ -24,8 +45,6 @@ from typing import Dict, List
 
 # ============================================================================
 # DATA MODELS
-# ============================================================================
-
 
 @dataclass
 class HeaderMeta:
@@ -46,7 +65,6 @@ class HeaderMeta:
     purpose: str
     dependencies: List[str]
 
-
 @dataclass
 class FooterMeta:
     """Footer Meta - Extended metadata."""
@@ -59,7 +77,6 @@ class FooterMeta:
     last_modified: str = ""
     modified_by: str = ""
     change_summary: str = "Initial generation"
-
 
 @dataclass
 class DoraTraceBlock:
@@ -80,11 +97,8 @@ class DoraTraceBlock:
         }
     )
 
-
 # ============================================================================
 # MULTI-FORMAT INJECTOR
-# ============================================================================
-
 
 class DoraMultiFormatInjector:
     """Contract-compliant multi-format DORA block injection engine."""
@@ -356,11 +370,7 @@ class DoraMultiFormatInjector:
             f"  dependencies:\n{deps}" if header.dependencies else "  dependencies: []"
         )
 
-        return f'''# ============================================================================
-# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# See footer for extended metadata
-# ============================================================================
-dora_meta:
+        return f'''dora_meta:
   component_id: "{header.component_id}"
   component_name: "{header.component_name}"
   module_version: "{header.module_version}"
@@ -375,7 +385,6 @@ dora_meta:
   audit_trail: {str(header.audit_trail).lower()}
   purpose: "{header.purpose}"
 {deps_block}
-# ============================================================================
 
 '''
 
@@ -421,9 +430,6 @@ l9_trace:
     confidence: ""
     errors_detected: []
     stability_score: ""
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
 '''
 
     # ========================================================================
@@ -814,11 +820,8 @@ l9_trace:
         print(f"⏭️  Skipped: {results['skipped']}")
         print(f"\n📄 Full report saved to: {output_path}")
 
-
 # ============================================================================
 # MAIN
-# ============================================================================
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -860,6 +863,39 @@ def main():
 
     print("\n✅ DORA multi-format complete injection finished!")
 
-
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "batch-processing", "caching", "cli", "dataclass", "filesystem", "metrics", "migration", "monitoring", "operations"],
+    "keywords": ["all", "block", "complete", "dora", "files", "footer", "format", "generate"],
+    "business_value": "Provides inject dora multiformat complete components including HeaderMeta, FooterMeta, DoraTraceBlock",
+    "last_modified": "2026-01-18T02:10:54Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

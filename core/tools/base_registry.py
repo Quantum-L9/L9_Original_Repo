@@ -17,6 +17,27 @@ Production-ready features (v2.1.0):
 - Async execution with timeout handling
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Base Registry",
+    "module_version": "2.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "base_registry",
+    "type": "enum",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "Perplexity API", "PostgreSQL"],
+        "memory_layers": ["episodic_memory", "semantic_memory", "working_memory"],
+        "imported_by": ["core.agents.bootstrap.phase_0_validate", "core.singleton_registry", "core.tools.registry_adapter", "runtime.l_tools", "services.research.tools.__init__", "services.research.tools.tool_resolver", "tests.integration.test_l_bootstrap", "tests.integration.test_research_tool_integration", "tests.test_tool_registry", "tests.unit.test_registry_adapter_sanitization"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from collections import defaultdict
@@ -1327,3 +1348,37 @@ async def saga_execute_custom(
             "error": str(e),
             "results": {},
         }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-019",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.executor", "core.tools.tool_embeddings", "memory.substrate_dag", "memory.substrate_service", "runtime.task_queue"],
+    "tags": ["api", "async", "data-models", "debugging", "enum", "event-driven", "foundation", "logging", "messaging", "pydantic"],
+    "keywords": ["all", "ask", "calculate", "check", "correlation", "custom", "disable", "enable"],
+    "business_value": "Provides base registry components including ToolType, ToolSchema, ToolMetadata",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -26,6 +26,27 @@ All handlers:
 7. Fail loudly if ingestion fails
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Router",
+    "module_version": "4.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-14T13:21:46Z",
+    "layer": "integration",
+    "domain": "api_gateway",
+    "module_name": "router",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["POST /{account}/query", "POST /{account}/get", "POST /{account}/draft", "POST /{account}/send", "POST /{account}/reply", "POST /{account}/forward"],
+        "datasources": ["Gmail API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server", "api.server_memory", "tests.email_agent.test_email_router", "tests.smoke_email"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -733,3 +754,37 @@ async def forward_email(
         )
         logger.error(f"[{trace_id}] Email forward failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"{str(e)} (trace_id={trace_id})")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "EMA-INTE-005",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.schemas", "memory.ingestion"],
+    "tags": ["api", "api-gateway", "async", "auth", "debugging", "endpoint", "event-driven", "integration", "logging", "messaging"],
+    "keywords": ["account", "action", "agent", "draft", "email", "emails", "endpoints", "event"],
+    "business_value": "Provides router components including QueryRequest, GetRequest, DraftRequest",
+    "last_modified": "2026-01-14T13:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

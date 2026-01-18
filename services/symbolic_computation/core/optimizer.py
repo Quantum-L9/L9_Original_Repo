@@ -10,6 +10,27 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Optimizer",
+    "module_version": "6.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "symbolic_computation",
+    "module_name": "optimizer",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["services.symbolic_computation.api.routes", "services.symbolic_computation.core.__init__", "services.symbolic_computation.tools.symbolic_tool", "tests.services.symbolic_computation.test_integration"],
+    },
+}
+# ============================================================================
+
 from typing import List, Tuple
 
 import structlog
@@ -243,3 +264,36 @@ class Optimizer:
         
         return sympy.count_ops(parsed_expr)
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-027",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["debugging", "logging", "operations", "symbolic-computation", "utility"],
+    "keywords": ["apply", "count", "cse", "expand", "expression", "factor", "operations", "optimize"],
+    "business_value": "Implements Optimizer for optimizer functionality",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

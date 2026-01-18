@@ -15,6 +15,27 @@ These interfaces define the contract between:
 - World Model Updater and LangGraph nodes
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Interfaces",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "interfaces",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["world_model.__init__", "world_model._pack_staging.loader", "world_model._pack_staging.neo4j_substrate", "world_model._pack_staging.orchestrator", "world_model._pack_staging.postgres_substrate", "world_model._pack_staging.query_engine", "world_model._pack_staging.redis_substrate", "world_model._pack_staging.registry", "world_model._pack_staging.state", "world_model._pack_staging.test_integration"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Optional, Protocol
 
 
@@ -219,3 +240,37 @@ class IWorldModelLoader(Protocol):
     def load_causal_structure(self, spec: dict[str, Any]) -> dict[str, Any]:
         """Extract causal structure from specification."""
         ...
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-001",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["config", "engine", "learning", "loader", "rest-api", "utility", "world-model"],
+    "keywords": ["apply", "causal", "causes", "effects", "engine", "entity", "graph", "initialize"],
+    "business_value": "World Model Engine and L9 core World Model State and Memory Substrate World Model Updater and LangGraph nodes",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -3,6 +3,27 @@ Mac Agent Executor V2
 Playwright automation engine with GUI fallback.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Executor",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "mac_integration",
+    "module_name": "executor",
+    "type": "engine",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["mac_agent.runner", "mac_agent.websocket_client", "orchestrators.agent_execution.orchestrator", "tests.mac_agent.test_executor"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 import os
@@ -635,3 +656,37 @@ class AutomationExecutor:
                 "screenshot_path": screenshot_path,
                 "data": {"error": error_msg},
             }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MAC-INTE-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "async", "engine", "executor", "filesystem", "integration", "logging", "mac-integration", "subprocess"],
+    "keywords": ["agent", "automation", "executor", "fallback", "gui", "steps"],
+    "business_value": "Implements AutomationExecutor for executor functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

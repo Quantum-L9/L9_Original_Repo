@@ -16,6 +16,27 @@ Usage:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Verify Memory Spec V3",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-13T16:13:17Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "verify_memory_spec_v3",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import ast
 import re
@@ -24,7 +45,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 
 # =============================================================================
 # Configuration
@@ -42,7 +62,6 @@ DEPRECATED_SPEC_PATTERNS = [
     "*-wirein-*.yaml",
 ]
 
-
 # =============================================================================
 # Spec Loader
 # =============================================================================
@@ -55,7 +74,6 @@ def load_spec() -> dict[str, Any]:
     
     with open(SPEC_FILE) as f:
         return yaml.safe_load(f)
-
 
 # =============================================================================
 # Check 1: No Duplicate Specs
@@ -88,7 +106,6 @@ def check_no_duplicate_specs(verbose: bool = False) -> tuple[bool, list[str]]:
     
     passed = len(issues) == 0
     return passed, issues
-
 
 # =============================================================================
 # Check 2: Required Modules Exist
@@ -141,7 +158,6 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
     passed = len(issues) == 0
     return passed, issues
 
-
 # =============================================================================
 # Check 3: Required Methods Exist
 # =============================================================================
@@ -166,7 +182,6 @@ def extract_class_methods(file_path: Path) -> dict[str, list[str]]:
     
     return methods_by_class
 
-
 def extract_function_names(file_path: Path) -> list[str]:
     """Extract all top-level function names from a Python file."""
     functions = []
@@ -183,12 +198,10 @@ def extract_function_names(file_path: Path) -> list[str]:
     
     return functions
 
-
 def parse_method_signature(sig: str) -> str:
     """Extract method name from signature like 'store_embedding(vector: List[float], ...) -> UUID'."""
     match = re.match(r"(\w+)\s*\(", sig)
     return match.group(1) if match else sig
-
 
 def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]:
     """Verify all required_methods from spec are implemented."""
@@ -262,7 +275,6 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
     passed = len(issues) == 0
     return passed, issues
 
-
 # =============================================================================
 # Check 4: Feature Flags Defined
 # =============================================================================
@@ -312,7 +324,6 @@ def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[s
     # Feature flags not found is not a failure - they may be planned
     return True, []
 
-
 # =============================================================================
 # Check 5: Contracts Validation (Lightweight)
 # =============================================================================
@@ -353,7 +364,6 @@ def check_contracts(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]
     
     passed = len(issues) == 0
     return passed, issues
-
 
 # =============================================================================
 # Main Verification
@@ -435,7 +445,6 @@ def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bo
     
     return all_passed
 
-
 def main():
     parser = argparse.ArgumentParser(description="Verify memory spec v3.0 implementation")
     parser.add_argument("--verbose", "-v", action="store_true", help="Show detailed output")
@@ -445,6 +454,39 @@ def main():
     success = run_verification(verbose=args.verbose, fix_suggestions=args.fix_suggestions)
     sys.exit(0 if success else 1)
 
-
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["ast", "cli", "config", "filesystem", "operations", "scripts", "testing"],
+    "keywords": ["check", "contracts", "duplicate", "extract", "feature", "flags", "function", "load"],
+    "business_value": "Utility module for verify memory spec v3",
+    "last_modified": "2026-01-13T16:13:17Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

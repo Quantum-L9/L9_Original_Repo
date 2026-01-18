@@ -7,6 +7,27 @@ Purpose: Smoke test all systems, sign initialization hash, write audit trail, fl
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Phase 7 Verify And Lock",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "phase_7_verify_and_lock",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["tests.core.bootstrap.test_bootstrap_phases"],
+    },
+}
+# ============================================================================
+
 from typing import Dict, TYPE_CHECKING
 from datetime import datetime
 import hashlib
@@ -19,7 +40,6 @@ if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
-
 
 async def verify_and_lock(
     instance: "BootstrapInstanceData",
@@ -191,3 +211,37 @@ async def verify_and_lock(
     )
 
     return signature
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.governance_gate", "memory.graph_client", "memory.substrate_service"],
+    "tags": ["agent-execution", "api", "async", "audit-tool", "debugging", "event-driven", "foundation", "logging", "security", "service"],
+    "keywords": ["agent", "audit", "lock", "phase", "verify"],
+    "business_value": "Utility module for phase 7 verify and lock",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

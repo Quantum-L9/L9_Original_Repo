@@ -15,6 +15,27 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Kernel-Aware Agent Registry",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "kernel_registry",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server", "core.governance.session_startup", "scripts.agents.verify_agent_executor", "tests.integration.test_l_cto_end_to_end", "tests.test_l_cto_kernel_activation", "tests.unit.test_lcto_bootstrap"],
+    },
+}
+# ============================================================================
+
 import os
 from typing import Dict, Optional
 
@@ -234,3 +255,37 @@ __all__ = [
     "KernelAwareAgentRegistry",
     "create_kernel_aware_registry",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-035",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.l_cto", "core.agents.schemas", "core.kernels.kernelloader", "core.kernels.schemas", "core.schemas.capabilities"],
+    "tags": ["agent-execution", "api", "foundation", "logging", "security", "utility"],
+    "keywords": ["activation", "agent", "aware", "create", "cto", "exists", "hashes", "integrity"],
+    "business_value": "This ensures L wakes up with proper identity. Phase 1: LOAD - Parse YAML, validate schema, compute hashes Phase 2: ACTIVATE - Inject context, set state, verify activation Version: 2.0.0 GMP: kernel_bo",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

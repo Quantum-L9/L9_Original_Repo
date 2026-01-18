@@ -15,6 +15,27 @@ Version: 1.0.0
 Created: 2026-01-06
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Dependencies",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-18T02:40:23Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "dependencies",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.routes.compliance", "ci.check_dependency_patterns"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Optional
 
 from fastapi import Request, HTTPException
@@ -42,11 +63,9 @@ __all__ = [
     "get_consolidation_service",
 ]
 
-
 # =============================================================================
 # Core Service Dependencies
 # =============================================================================
-
 
 def get_substrate_service(request: Request) -> Any:
     """
@@ -64,7 +83,6 @@ def get_substrate_service(request: Request) -> Any:
             status_code=503, detail="Memory substrate service not available"
         )
     return service
-
 
 def get_agent_executor(
     request: Request,
@@ -84,7 +102,6 @@ def get_agent_executor(
             status_code=503, detail="Agent executor service not available"
         )
     return executor
-
 
 def get_governance_engine(
     request: Request,
@@ -106,7 +123,6 @@ def get_governance_engine(
         raise HTTPException(status_code=503, detail="Governance engine not available")
     return engine
 
-
 def get_tool_registry(request: Request) -> Any:
     """
     Get ExecutorToolRegistry from app.state.
@@ -122,11 +138,9 @@ def get_tool_registry(request: Request) -> Any:
         raise HTTPException(status_code=503, detail="Tool registry not available")
     return registry
 
-
 # =============================================================================
 # Infrastructure Dependencies
 # =============================================================================
-
 
 def get_neo4j_client(
     request: Request,
@@ -148,7 +162,6 @@ def get_neo4j_client(
         raise HTTPException(status_code=503, detail="Neo4j client not available")
     return client
 
-
 def get_redis_client(
     request: Request,
 ) -> Any:  # SCAFFOLDING: Routes use own lazy import
@@ -169,11 +182,9 @@ def get_redis_client(
         raise HTTPException(status_code=503, detail="Redis client not available")
     return client
 
-
 # =============================================================================
 # Optional Service Dependencies (return None if not available)
 # =============================================================================
-
 
 def get_observability_service(
     request: Request,
@@ -190,7 +201,6 @@ def get_observability_service(
     """
     return getattr(request.app.state, "observability_service", None)
 
-
 def get_memory_orchestrator(request: Request) -> Optional[Any]:
     """
     Get MemoryOrchestrator from app.state.
@@ -200,7 +210,6 @@ def get_memory_orchestrator(request: Request) -> Optional[Any]:
     Note: Does not raise - orchestrator is optional.
     """
     return getattr(request.app.state, "memory_orchestrator", None)
-
 
 def get_world_model_service(
     request: Request,
@@ -217,11 +226,9 @@ def get_world_model_service(
     """
     return getattr(request.app.state, "world_model_service", None)
 
-
 # =============================================================================
 # Memory & Timeline Dependencies
 # =============================================================================
-
 
 def get_timeline_service(request: Request) -> Optional[Any]:
     """
@@ -234,7 +241,6 @@ def get_timeline_service(request: Request) -> Optional[Any]:
     """
     return getattr(request.app.state, "timeline_service", None)
 
-
 def get_memory_state_manager(request: Request) -> Optional[Any]:
     """
     Get MemoryStateManager from app.state.
@@ -245,7 +251,6 @@ def get_memory_state_manager(request: Request) -> Optional[Any]:
     Note: Does not raise - state manager is optional.
     """
     return getattr(request.app.state, "memory_state_manager", None)
-
 
 def get_consolidation_service(request: Request) -> Optional[Any]:
     """
@@ -258,11 +263,9 @@ def get_consolidation_service(request: Request) -> Optional[Any]:
     """
     return getattr(request.app.state, "consolidation_service", None)
 
-
 # =============================================================================
 # Runtime Dependencies
 # =============================================================================
-
 
 def get_aios_runtime(request: Request) -> Optional[Any]:
     """
@@ -275,7 +278,6 @@ def get_aios_runtime(request: Request) -> Optional[Any]:
     """
     return getattr(request.app.state, "aios_runtime", None)
 
-
 def get_evaluator(request: Request) -> Optional[Any]:
     """
     Get Evaluator from app.state.
@@ -286,3 +288,59 @@ def get_evaluator(request: Request) -> Optional[Any]:
     Note: Does not raise - evaluator is optional.
     """
     return getattr(request.app.state, "evaluator", None)
+
+def get_virtual_context_manager(request: Request) -> Optional[Any]:
+    """
+    Get VirtualContextManager from app.state.
+
+    Returns the virtual context manager for memory windowing,
+    or None if not available.
+
+    Note: Does not raise - virtual context is optional.
+    """
+    return getattr(request.app.state, "virtual_context_manager", None)
+
+def get_housekeeping_engine(request: Request) -> Optional[Any]:
+    """
+    Get HousekeepingEngine from app.state.
+
+    Returns the memory housekeeping engine for scheduled cleanup,
+    or None if not available.
+
+    Note: Does not raise - housekeeping is optional.
+    """
+    return getattr(request.app.state, "housekeeping_engine", None)
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth"],
+    "tags": ["adapter", "api", "api-gateway", "auth", "batch-processing", "caching", "logging", "metrics", "operations", "scheduling"],
+    "keywords": ["agent", "aios", "client", "consolidation", "dependencies", "engine", "evaluator", "executor"],
+    "business_value": "SubstrateService (memory substrate) AgentExecutorService (agent execution) GovernanceEngineService (governance policies) ExecutorToolRegistry (tool dispatch) Neo4j/Redis clients (infrastructure) Versi",
+    "last_modified": "2026-01-18T02:40:23Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

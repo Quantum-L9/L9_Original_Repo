@@ -18,6 +18,27 @@ Changes v1.1.0:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Dependency Graph",
+    "module_version": "1.1.0 (UKG Phase 2 - Unified Knowledge Graph)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "tool_graph",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL", "Redis"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": ["api.server", "core.agents.executor", "core.tools.__init__", "core.tools.registry_adapter", "core.tools.tool_embeddings", "orchestration.long_plan_graph", "runtime.git_tool", "runtime.gmp_tool", "runtime.l_tools", "runtime.mcp_tool"],
+    },
+}
+# ============================================================================
+
 import re
 import structlog
 import os
@@ -1690,3 +1711,37 @@ __all__ = [
     "L_INTERNAL_TOOLS",
     "register_l_tools",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-018",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.graph_state.schema", "memory.graph_client"],
+    "tags": ["async", "batch-processing", "cache", "caching", "dataclass", "debugging", "event-driven", "foundation", "graph-db", "logging"],
+    "keywords": ["agent", "all", "api", "blast", "catalog", "circular", "create", "definition"],
+    "business_value": "Provides tool graph components including ToolDefinition, ToolGraph",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

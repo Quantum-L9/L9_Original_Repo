@@ -11,6 +11,27 @@ Config: .cursor/cursor-memory/l9.workflow_todo_kernel.v2.yaml
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Session Memory & TODO Tracking",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "cursor_memory_kernel",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
+        "memory_layers": [],
+        "imported_by": ["agents.cursor.__init__", "core.singleton_registry"],
+    },
+}
+# ============================================================================
+
 import os
 import subprocess
 import json
@@ -739,3 +760,37 @@ if __name__ == "__main__":
         logger.info(f"Session: {state.session_id}")
         logger.info(f"Lessons: {len(state.lessons)}")
         logger.info(f"TODOs: {len(state.todos)}")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-020",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["agent-execution", "authorization", "cache", "config", "dataclass", "event-driven", "filesystem", "intelligence", "logging", "security"],
+    "keywords": ["activate", "activation", "active", "agent", "behavior", "complete", "confidence", "count"],
+    "business_value": "Provides session-start memory loading, TODO tracking, and confidence logic. Factory: create_cursor_memory_kernel() Config: .cursor/cursor-memory/l9.workflow_todo_kernel.v2.yaml",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

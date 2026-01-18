@@ -3,6 +3,27 @@
 Single deep research request for config_loader module.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Run Single Deep Research",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "run_single_deep_research",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Perplexity API", "PostgreSQL", "Redis"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 import sys
@@ -13,7 +34,6 @@ import httpx
 
 logger = structlog.get_logger(__name__)
 
-
 def get_api_key():
     env_path = "/Users/ib-mac/Projects/L9/.env"
     with open(env_path) as f:
@@ -21,7 +41,6 @@ def get_api_key():
             if line.startswith("PERPLEXITY_API_KEY="):
                 return line.split("=", 1)[1].strip()
     return None
-
 
 API_KEY = get_api_key()
 if not API_KEY:
@@ -127,3 +146,37 @@ except httpx.TimeoutException:
     )
 except Exception as e:
     logger.error(f"❌ Exception: {type(e).__name__}: {e}")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "auth", "caching", "http-client", "logging", "messaging", "operations", "scripts", "utility"],
+    "keywords": ["api", "deep", "research", "single"],
+    "business_value": "Utility module for run single deep research",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

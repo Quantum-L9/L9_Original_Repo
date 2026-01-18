@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Docker-Compose"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-07T12:24:29Z"
+# updated_at: "2026-01-14T15:10:18Z"
+# layer: "operations"
+# domain: "symbolic_computation"
+# file_name: "docker-compose"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 version: '3.8'
 
 services:
@@ -64,3 +79,11 @@ volumes:
 networks:
   aios_network:
     driver: bridge
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["operations", "symbolic-computation", "utility"]
+# keywords: ["compose", "docker", "networks", "services", "version", "volumes"]
+# last_modified: "2026-01-14T15:10:18Z"
+# ============================================================================

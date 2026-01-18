@@ -13,6 +13,27 @@ LGRAPH-007: Implemented search_memory() via semantic_search
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor Gateway",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "error_handling",
+    "module_name": "cursor_gateway",
+    "type": "exception",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["agents.cursor.integrations.cursor_executor", "api.server", "memory.checkpoint.cursor_checkpoint_manager", "tests.integration.test_cursor_langgraph_integration"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, List, Dict, Optional
 from uuid import UUID
@@ -374,3 +395,37 @@ class CursorMemoryGateway:
         except Exception as e:
             logger.error("Failed to load checkpoint", error=str(e), thread_id=thread_id)
             return None
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-023",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.cursor.integrations.cursor_langgraph", "core.decorators", "core.schemas", "memory.governance_gate", "memory.substrate_service"],
+    "tags": ["async", "error-handling", "exception", "intelligence", "logging", "messaging", "tracing"],
+    "keywords": ["checkpoint", "cursor", "decision", "gateway", "global", "implemented", "lgraph", "load"],
+    "business_value": "Provides cursor gateway components including CursorScopeViolationError, CursorMemoryGateway",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

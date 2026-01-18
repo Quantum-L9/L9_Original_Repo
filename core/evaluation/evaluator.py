@@ -7,6 +7,27 @@ Purpose: Continuous evaluation, LLM-as-judge scoring, CI/CD integration.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Evaluator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "error_handling",
+    "module_name": "evaluator",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 import statistics
 import time
 from typing import List, Optional, Dict, Any, TYPE_CHECKING
@@ -270,3 +291,37 @@ async def ci_eval_gate(
         raise RegressionError(f"Latency regression: +{delta['latency_delta_ms']}ms")
 
     logger.info("✓ Eval passed. All deltas within thresholds.")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-094",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "memory.substrate_service"],
+    "tags": ["async", "dataclass", "error-handling", "foundation", "logging", "mocking", "testing"],
+    "keywords": ["baseline", "compare", "define", "eval", "evaluation", "evaluator", "example", "gate"],
+    "business_value": "Provides evaluator components including EvaluationExample, EvaluationSet, EvaluationResult",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

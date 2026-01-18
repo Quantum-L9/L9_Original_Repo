@@ -15,6 +15,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Long Plan LangGraph DAG",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-25T18:55:20Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "long_plan_graph",
+    "type": "service",
+    "status": "draft",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["episodic_memory", "working_memory"],
+        "imported_by": ["runtime.long_plan_tool", "tests.integration.test_l_bootstrap"],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 from typing import Any, Dict, List, Literal, Optional, TypedDict
@@ -897,3 +918,37 @@ __all__ = [
     "simulate_long_plan",
     "extract_tasks_from_plan",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-031",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.tools.tool_graph", "memory.substrate_service", "runtime.gmp_tool", "runtime.mcp_tool"],
+    "tags": ["api", "async", "auth", "intelligence", "llm", "logging", "messaging", "orchestration", "service"],
+    "keywords": ["agent", "artifact", "build", "changes", "dag", "draft", "execute", "extract"],
+    "business_value": "Implements LongPlanState for long plan graph functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

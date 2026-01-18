@@ -20,6 +20,27 @@ Features:
 - Uses memory substrate APIs
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Index GMP Reports to Memory Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "index_gmp_reports",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import re
@@ -41,7 +62,6 @@ logger = structlog.get_logger(__name__)
 # Configuration
 REPO_DIR = PROJECT_ROOT
 REPORTS_DIR = REPO_DIR / "reports"
-
 
 def parse_gmp_report(file_path: Path) -> Optional[Dict[str, Any]]:
     """
@@ -138,7 +158,6 @@ def parse_gmp_report(file_path: Path) -> Optional[Dict[str, Any]]:
         "content": content,
         "file_path": str(file_path.relative_to(REPO_DIR)),
     }
-
 
 async def index_gmp_report(
     report_data: Dict[str, Any],
@@ -249,7 +268,6 @@ Files Modified:
             "error": str(e),
         }
 
-
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main indexing function."""
     logger.info("Starting GMP reports indexing", dry_run=dry_run)
@@ -317,7 +335,6 @@ async def main(dry_run: bool = False, verbose: bool = False):
     finally:
         await close_service()
 
-
 if __name__ == "__main__":
     import argparse
     
@@ -329,3 +346,36 @@ if __name__ == "__main__":
     
     asyncio.run(main(dry_run=args.dry_run, verbose=args.verbose))
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.substrate_service"],
+    "tags": ["api", "async", "cli", "debugging", "filesystem", "logging", "memory-substrate", "operations", "service", "testing"],
+    "keywords": ["gmp", "graph", "index", "memory", "parse", "report", "reports"],
+    "business_value": "Utility module for index gmp reports",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

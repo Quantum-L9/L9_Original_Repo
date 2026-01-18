@@ -20,6 +20,8 @@ This module does NOT:
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 # ============================================================================
 # DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # See footer for extended metadata
@@ -48,8 +50,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from __future__ import annotations
-
 import json
 import os
 import structlog
@@ -75,7 +75,7 @@ from memory.agent_persistence import AgentPersistenceService
 from core.governance.approvals import ApprovalManager
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
-from runtime.dora import emit_executor_trace
+from runtime.dora import emit_executor_trace, update_dora_block_in_file
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 
 # Initialize logger early for import error handling
@@ -787,7 +787,7 @@ class AgentExecutorService:
             )
 
             # Emit DORA trace block (auto-updates on every execution)
-            await emit_executor_trace(
+            _dora_trace = await emit_executor_trace(
                 task_id=task_id_str,
                 task_name=getattr(task, "name", None) or f"task_{task.kind.value}",
                 agent_id=task.agent_id,
@@ -801,6 +801,11 @@ class AgentExecutorService:
                 errors=[result.error] if result.error else None,
                 patterns=["agent_execution", "reasoning_loop"],
             )
+
+            # Update DORA trace block in executor source file (GMP-DORA-WIRE)
+            # This writes the runtime trace to __l9_trace__ at end of this file
+            if os.environ.get("L9_DORA_UPDATE_SOURCE", "").lower() == "true":
+                update_dora_block_in_file(__file__, _dora_trace)
 
             # Active memory encoding hook (GMP-80-A7: Frontier Memory)
             # System automatically extracts and encodes learnings from task outcomes
@@ -2391,17 +2396,16 @@ __dora_footer__ = {
 
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
 # ============================================================================
 __l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
+    "trace_id": "f892b0df",
+    "task": "l_agent:second_test",
+    "timestamp": "2026-01-18T06:31:09.967674+00:00",
+    "patterns_used": ["agent_execution", "reasoning_loop"],
     "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+    "inputs": {"task_id": "test-456", "agent_id": "l_agent", "query": "verify replacement"},
+    "outputs": {"status": "success", "iterations": 3},
+    "metrics": {"confidence": "0.95", "errors_detected": [], "stability_score": "1.0", "duration_ms": 250},
 }
 # ============================================================================
 # END L9 DORA BLOCK

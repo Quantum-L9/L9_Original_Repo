@@ -19,6 +19,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Hybrid RAG Pipeline (Vector-Graph Bridge)",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-12T21:19:05Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "hybrid_rag",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["memory.__init__", "tests.memory.test_hybrid_rag"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from enum import Enum
@@ -818,3 +839,37 @@ __all__ = [
     "get_hybrid_rag_pipeline",
     "hybrid_search",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-024",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "auth", "data-models", "dataclass", "debugging", "event-driven", "graph-db", "learning", "logging", "messaging"],
+    "keywords": ["(vector", "bridge", "bridge)", "enrich", "enricher", "enrichment", "entities", "entity"],
+    "business_value": "The "killer feature" — combines vector search (pgvector) with graph enrichment (Neo4j) for comprehensive retrieval. 1. Vector search finds semantically similar documents 2. Graph bridge extracts entit",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

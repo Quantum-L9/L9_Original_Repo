@@ -26,6 +26,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Async Retry Utility",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-13T16:03:25Z",
+    "layer": "foundation",
+    "domain": "error_handling",
+    "module_name": "retry",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["agents.base_agent", "core.resilience.__init__", "core.resilience.retry", "services.research.tools.perplexity_client"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import random
 import structlog
@@ -146,3 +167,37 @@ async def async_retry(
         last_error=str(last_error),
     )
     raise RetryExhaustedError(error_msg, last_error=last_error, attempts=cfg.max_retries) from last_error
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-083",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "dataclass", "error-handling", "foundation", "logging", "messaging"],
+    "keywords": ["async", "asyncretryconfig", "await", "backoff", "calculate", "core", "delay", "exhausted"],
+    "business_value": "Provides retry components including RetryExhaustedError, AsyncRetryConfig",
+    "last_modified": "2026-01-13T16:03:25Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -3,6 +3,27 @@
 NOTE: Legacy routes disabled (GMP-68). Use memory_unified.py instead.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Memory",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "api_gateway",
+    "module_name": "memory",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["POST /save", "POST /search", "GET /stats"],
+        "datasources": [],
+        "memory_layers": ["working_memory", "semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import structlog
 import time
 import json
@@ -24,16 +45,13 @@ from src.config import settings
 
 logger = structlog.get_logger(__name__)
 
-
 def _legacy_memory_disabled() -> None:
     """Dependency that disables legacy memory routes."""
     raise HTTPException(
         status_code=410, detail="Legacy memory routes disabled. Use /unified/* routes."
     )
 
-
 router = APIRouter(dependencies=[Depends(_legacy_memory_disabled)])
-
 
 @router.post("/save", response_model=MemoryResponse)
 async def save_memory(req: SaveMemoryRequest) -> MemoryResponse:
@@ -47,7 +65,6 @@ async def save_memory(req: SaveMemoryRequest) -> MemoryResponse:
         importance=req.importance,
         metadata=req.metadata,
     )
-
 
 async def save_memory_handler(
     user_id: str,
@@ -154,7 +171,6 @@ async def save_memory_handler(
         logger.exception("Error saving memory")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post("/search", response_model=SearchMemoryResponse)
 async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
     return await search_memory_handler(
@@ -167,7 +183,6 @@ async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
         duration=req.duration,
         track_access=req.track_access,
     )
-
 
 async def search_memory_handler(
     user_id: str,
@@ -259,7 +274,6 @@ async def search_memory_handler(
         logger.exception("Error searching memory")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/stats", response_model=MemoryStatsResponse)
 async def get_memory_stats(
     user_id: Optional[str] = Query(None), duration: str = Query("all")
@@ -309,7 +323,6 @@ async def get_memory_stats(
         logger.exception("Error getting stats")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
     short_r = await fetch_one(
         "SELECT COUNT(*) as cnt FROM memory.short_term WHERE expires_at < CURRENT_TIMESTAMP"
@@ -345,7 +358,6 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
         "total_expired": short_expired + medium_expired,
         "action": "deleted" if not dry_run else "would_delete",
     }
-
 
 async def compound_similar_memories(
     user_id: str, threshold: float = 0.92
@@ -424,7 +436,6 @@ async def compound_similar_memories(
         "threshold_used": threshold,
     }
 
-
 async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
     if not settings.DECAY_ENABLED:
         return {"status": "disabled", "message": "Importance decay is disabled"}
@@ -453,7 +464,6 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
         "action": "decayed" if not dry_run else "would_decay",
     }
 
-
 async def cleanup_task():
     while True:
         try:
@@ -470,11 +480,9 @@ async def cleanup_task():
         except Exception as e:
             logger.error(f"Cleanup task error: {e}")
 
-
 # =============================================================================
 # 10x Memory Upgrade Handlers
 # =============================================================================
-
 
 async def get_context_injection(
     task_description: str,
@@ -564,7 +572,6 @@ async def get_context_injection(
     except Exception as e:
         logger.exception("Error in context injection")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 async def extract_session_learnings(
     user_id: str,
@@ -670,7 +677,6 @@ async def extract_session_learnings(
     except Exception as e:
         logger.exception("Error extracting session learnings")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 async def get_proactive_suggestions(
     current_context: str,
@@ -779,7 +785,6 @@ async def get_proactive_suggestions(
         logger.exception("Error in proactive suggestions")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 async def query_temporal(
     user_id: str,
     since: Optional[str] = None,
@@ -875,7 +880,6 @@ async def query_temporal(
         logger.exception("Error in temporal query")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 async def save_memory_with_confidence(
     user_id: str,
     content: str,
@@ -949,3 +953,37 @@ async def save_memory_with_confidence(
     except Exception as e:
         logger.exception("Error saving memory with confidence")
         raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MCP-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "api-gateway", "async", "debugging", "endpoint", "integration", "logging", "messaging", "rest-api", "router"],
+    "keywords": ["apply", "cleanup", "compound", "confidence", "decay", "delete", "expired", "extract"],
+    "business_value": "Utility module for memory",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

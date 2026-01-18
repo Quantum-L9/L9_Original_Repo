@@ -25,6 +25,27 @@ Usage:
         return packet
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Schema Registry",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "error_handling",
+    "module_name": "schema_registry",
+    "type": "exception",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["ci.check_schema_deprecation", "core.schemas.schema_registry", "tests.core.schemas.test_content_hash_integrity", "tests.core.schemas.test_schema_registry"],
+    },
+}
+# ============================================================================
+
 import hashlib
 import json
 from copy import deepcopy
@@ -436,3 +457,36 @@ def upcast(raw: dict, target_version: str = SCHEMA_VERSION) -> dict:
     """Convenience function to upcast a packet dict."""
     return SchemaRegistry.upcast(raw, target_version)
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-072",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas"],
+    "tags": ["batch-processing", "debugging", "error-handling", "exception", "foundation", "logging", "queue", "security", "serialization"],
+    "keywords": ["cache", "current", "decorator", "detect", "detection", "found", "invalid", "latest"],
+    "business_value": "Provides transparent migration of old packet versions to the latest schema. Version detection from raw packet dicts Decorator-based upcaster registration Chained migration (v1.0.0 → v1.0.1 → v1.1.0 → ",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

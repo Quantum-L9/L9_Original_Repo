@@ -5,6 +5,27 @@ Email Inbox Triage and Daily Digest
 Functions for summarizing inbox, extracting priorities, and generating daily digests.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Triage",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "integration",
+    "domain": "email_integration",
+    "module_name": "triage",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Gmail API", "OpenAI API"],
+        "memory_layers": [],
+        "imported_by": ["email_agent.__init__", "tests.email_agent.test_email_triage"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Dict, Any, List
 
@@ -18,7 +39,6 @@ try:
 except ImportError:
     GMAIL_AVAILABLE = False
     logger.warning("Gmail client or OpenAI not available")
-
 
 def summarize_inbox(limit: int = 20) -> Dict[str, Any]:
     """
@@ -166,7 +186,6 @@ Return JSON format:
             "summary": "",
         }
 
-
 def _simple_summary(message_details: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Fallback simple summary without LLM."""
     urgent = []
@@ -216,7 +235,6 @@ def _simple_summary(message_details: List[Dict[str, Any]]) -> Dict[str, Any]:
         "deadlines": [],
         "summary": f"Found {len(urgent)} urgent items, {len(replies_needed)} needing replies, {len(attachments)} with attachments",
     }
-
 
 def run_daily_digest() -> str:
     """
@@ -294,3 +312,37 @@ def run_daily_digest() -> str:
     except Exception as e:
         logger.error(f"Daily digest failed: {e}", exc_info=True)
         return f"❌ Error generating digest: {str(e)}"
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "EMA-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "email-integration", "integration", "llm", "logging", "messaging", "serialization", "utility"],
+    "keywords": ["daily", "digest", "inbox", "summarize", "triage"],
+    "business_value": "Utility module for triage",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

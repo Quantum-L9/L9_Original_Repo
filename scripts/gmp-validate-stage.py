@@ -7,6 +7,27 @@ Usage:
     python scripts/gmp-validate-stage.py --stage 2 --report reports/GMP-Stage-2-Report-*.md
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Gmp-Validate-Stage",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T15:23:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "gmp-validate-stage",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import hashlib
 import json
@@ -304,3 +325,37 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["auth", "cli", "config", "dataclass", "filesystem", "messaging", "operations", "scripts", "security", "serialization"],
+    "keywords": ["all", "checklist", "coverage", "declaration", "final", "gmp", "hash", "integrity"],
+    "business_value": "Provides gmp-validate-stage components including ValidationResult, GMPStageValidator",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

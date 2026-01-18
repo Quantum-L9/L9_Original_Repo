@@ -15,6 +15,27 @@ Created: 2026-01-05
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Agent Graph Loader",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "agent_graph_loader",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": ["tests.core.bootstrap.test_graph_state", "tests.memory.test_consolidation_graph"],
+    },
+}
+# ============================================================================
+
 from typing import TYPE_CHECKING, Optional
 from dataclasses import dataclass, field
 
@@ -312,3 +333,36 @@ class AgentGraphLoader:
                 if r["requires_approval"]
             ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-047",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["agent-execution", "async", "auth", "caching", "dataclass", "debugging", "foundation", "graph-db", "loader", "logging"],
+    "keywords": ["agent", "approval", "cache", "critical", "directive", "directives", "exists", "graph"],
+    "business_value": "This enables faster startup (~100-500ms vs 5-7s) and runtime state persistence. loader = AgentGraphLoader(neo4j_driver) state = await loader.load("L") Version: 1.0.0 Created: 2026-01-05",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,3 +1,24 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Llm",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "llm",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 from typing import Dict, Any
@@ -19,13 +40,11 @@ logger = structlog.get_logger(__name__)
 MODEL = os.getenv("L9_LLM_MODEL", "gpt-4o-mini")
 USE_KERNELS = os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes")
 
-
 def get_client() -> OpenAI:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not set")
     return OpenAI(api_key=api_key)
-
 
 def get_system_prompt() -> str:
     """
@@ -97,7 +116,6 @@ No hallucinated tools.
 
 You are L. Operate as Igor's CTO."""
 
-
 def chat_with_l9(user_message: str) -> Dict[str, Any]:
     """
     Call LLM and return:
@@ -147,3 +165,37 @@ def chat_with_l9(user_message: str) -> Dict[str, Any]:
         reply = reply[:580] + "…"
 
     return {"reply": reply, "action": action, "payload": payload}
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.kernels.prompt_builder"],
+    "tags": ["api", "api-gateway", "auth", "authorization", "event-driven", "llm", "logging", "messaging", "operations", "serialization"],
+    "keywords": ["chat", "client", "llm", "prompt", "system"],
+    "business_value": "Utility module for llm",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

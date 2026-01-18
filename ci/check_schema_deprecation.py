@@ -27,6 +27,27 @@ Exit codes:
     2 = Error (script failure)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Check Schema Deprecation",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "ci",
+    "module_name": "check_schema_deprecation",
+    "type": "cli",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import structlog
 import re
@@ -339,3 +360,36 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CI-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["caching", "ci", "cli", "filesystem", "logging", "migration", "operations", "testing"],
+    "keywords": ["check", "current", "deprecation", "description", "exclude", "files", "find", "phase"],
+    "business_value": "1. Imports of PacketEnvelope from memory.substrate_models (will error - class removed) 2. Imports from core.schemas.packet_envelope (old v1 location, use v2) python ci/check_schema_deprecation.py [--s",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

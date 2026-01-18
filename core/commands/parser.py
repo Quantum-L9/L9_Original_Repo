@@ -19,6 +19,27 @@ Version: 1.0.0 (GMP-11)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Parser",
+    "module_version": "1.0.0 (GMP-11)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "parser",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.routes.commands", "core.commands.__init__", "memory.slack_ingest", "tests.integration.test_igor_commands"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Union
 
@@ -31,7 +52,6 @@ from core.commands.schemas import (
 )
 
 logger = structlog.get_logger(__name__)
-
 
 def parse_command(text: str) -> Union[Command, NLPPrompt]:
     """
@@ -67,7 +87,6 @@ def parse_command(text: str) -> Union[Command, NLPPrompt]:
 
     # Plain text - treat as NLP prompt
     return NLPPrompt(text=text, raw_text=text)
-
 
 def _build_command(pattern_name: str, match, raw_text: str) -> Command:
     """Build Command from matched pattern."""
@@ -138,7 +157,6 @@ def _build_command(pattern_name: str, match, raw_text: str) -> Command:
             risk_level=RiskLevel.LOW,
         )
 
-
 def is_l_command(text: str) -> bool:
     """
     Check if text appears to be an @L command.
@@ -151,7 +169,6 @@ def is_l_command(text: str) -> bool:
     """
     return text.strip().lower().startswith("@l ")
 
-
 __all__ = [
     "parse_command",
     "is_l_command",
@@ -159,3 +176,36 @@ __all__ = [
     "NLPPrompt",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.commands.schemas"],
+    "tags": ["core", "debugging", "foundation", "logging", "utility"],
+    "keywords": ["command", "igor", "parse", "parser", "patterns", "structured"],
+    "business_value": "Utility module for parser",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

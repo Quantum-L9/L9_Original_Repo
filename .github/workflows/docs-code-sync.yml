@@ -1,0 +1,117 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Docs-Code-Sync"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-18T02:07:37Z"
+# updated_at: "2026-01-18T02:07:37Z"
+# layer: "operations"
+# domain: ".dora"
+# file_name: "docs-code-sync"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+name: "Docs-Code Sync Validator"
+description: "Automated consistency checks between CODE-MAP.yaml, README.meta.yaml, and source code"
+
+on:
+  pull_request:
+    paths:
+      - 'l9/**/*.py'
+      - 'docs/CODE-MAP.yaml'
+      - 'l9/core/**/README.meta.yaml'
+      - 'l9/core/**/README.md'
+      - '.github/workflows/docs-code-sync.yml'
+
+jobs:
+  validate-consistency:
+    name: "Validate Docs-Code Consistency"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: "Install dependencies"
+        run: |
+          pip install pyyaml
+
+      - name: "Run extract_code_facts.py"
+        run: |
+          python scripts/extract_code_facts.py
+        id: extract
+
+      - name: "Check CODE-MAP.yaml freshness"
+        run: |
+          # If CODE-MAP.yaml was modified, fail the check
+          if git diff --name-only | grep -q "docs/CODE-MAP.yaml"; then
+            echo "❌ CODE-MAP.yaml is stale. Run: python scripts/extract_code_facts.py"
+            echo "Then commit the changes."
+            exit 1
+          fi
+          echo "✅ CODE-MAP.yaml is fresh"
+
+      - name: "Validate README.meta.yaml files exist"
+        run: |
+          for subsystem in agents memory tools api; do
+            if [ ! -f "l9/core/$subsystem/README.meta.yaml" ]; then
+              echo "❌ Missing: l9/core/$subsystem/README.meta.yaml"
+              exit 1
+            fi
+          done
+          echo "✅ All README.meta.yaml files present"
+
+      - name: "Validate README.md sections match metadata"
+        run: |
+          python .github/scripts/validate-readme-sections.py
+        continue-on-error: false
+
+      - name: "Validate no code changes to protected files"
+        run: |
+          python .github/scripts/validate-protected-files.py
+        continue-on-error: false
+
+      - name: "Generate AI collaboration report"
+        run: |
+          python .github/scripts/generate-ai-collab-report.py > /tmp/ai-collab-report.txt
+          cat /tmp/ai-collab-report.txt
+
+      - name: "Comment PR with validation results"
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('/tmp/ai-collab-report.txt', 'utf-8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## 📋 Docs-Code Sync Report\n\n' + report
+            });
+
+  test-code-facts:
+    name: "Test code extraction"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: pip install pyyaml pytest
+      - run: pytest tests/test_code_facts_extraction.py -v
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".dora", "agent-config", "api-config", "operations", "tool-config", "utility", "workflow"]
+# keywords: ["code", "description", "docs", "jobs", "name", "sync"]
+# last_modified: "2026-01-18T02:07:37Z"
+# ============================================================================

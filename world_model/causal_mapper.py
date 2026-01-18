@@ -22,6 +22,27 @@ Version: 1.2.0 (decision-outcome tracking)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Causal Mapper",
+    "module_version": "1.2.0 (decision-outcome tracking)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T16:23:04Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "causal_mapper",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server", "core.integration.wm_to_graph_sync", "world_model.__init__", "world_model.engine", "world_model.runtime", "world_model.world_model_service"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -1514,3 +1535,37 @@ class CausalMapper:
             "edges_weakened": edges_weakened,
             "new_edges_created": new_edges_created,
         }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-005",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["caching", "data-models", "dataclass", "debugging", "event-driven", "learning", "logging", "metrics", "rest-api", "testing"],
+    "keywords": ["causal", "causes", "confounders", "constraints", "decision", "decisions", "detect", "direct"],
+    "business_value": "Provides causal mapper components including CausalRelationType, CausalStrength, CausalNode",
+    "last_modified": "2026-01-14T16:23:04Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

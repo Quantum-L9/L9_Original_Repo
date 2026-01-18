@@ -24,6 +24,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cell Adapter",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T00:41:22Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "cell_adapter",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": [],
+        "imported_by": ["orchestrators.pattern.__init__", "orchestrators.pattern.cell_adapter", "scripts.run_pattern", "tests.orchestrators.test_pattern_orchestrator"],
+    },
+}
+# ============================================================================
+
 import json
 from typing import Any, Optional, Type
 
@@ -485,3 +506,37 @@ def create_direct_agent(
         Configured DirectLLMAgent
     """
     return DirectLLMAgent(api_key=api_key, model=model)
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-025",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["adapter", "adapter-pattern", "api", "async", "caching", "code-quality", "debugging", "intelligence", "llm", "logging"],
+    "keywords": ["adapter", "agent", "cache", "cell", "cellagentadapter", "cells", "clear", "collaborative"],
+    "business_value": "This enables the pattern orchestrator to use the existing collaborative cells (ArchitectCell, CoderCell, ReviewerCell, etc.) for node execution. from orchestrators.pattern import PatternOrchestrator f",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

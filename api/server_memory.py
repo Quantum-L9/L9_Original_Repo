@@ -1,3 +1,24 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Server Memory",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "server_memory",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /", "GET /health", "POST /chat"],
+        "datasources": ["HTTP API", "Neo4j", "OpenAI API", "Slack API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["tests.test_imports"],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 from fastapi import FastAPI, HTTPException, Depends, Header
@@ -236,3 +257,37 @@ logger.info(
 # === DEBUG: Print all mounted routes at startup ===
 for route in app.routes:
     logger.info(f"ROUTE: {route.path}")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-005",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "api.db", "api.memory.router", "api.routes.slack", "api.slack_adapter"],
+    "tags": ["api", "api-gateway", "async", "auth", "authorization", "debugging", "endpoint", "event-driven", "http-client", "llm"],
+    "keywords": ["chat", "health", "memory", "root", "server"],
+    "business_value": "Provides server memory components including ChatRequest, ChatResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

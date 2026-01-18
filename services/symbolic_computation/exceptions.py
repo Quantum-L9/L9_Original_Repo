@@ -3,6 +3,27 @@ Custom exceptions for symbolic computation module.
 """
 
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Exceptions",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-17T23:51:17Z",
+    "layer": "operations",
+    "domain": "error_handling",
+    "module_name": "exceptions",
+    "type": "exception",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 class SymbolicComputationError(Exception):
     """Base exception for symbolic computation errors."""
 
@@ -38,5 +59,36 @@ class CacheError(SymbolicComputationError):
     """Exception raised when cache operations fail."""
     pass
 
-
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-019",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["caching", "error-handling", "exception", "messaging", "operations"],
+    "keywords": ["cache", "computation", "evaluation", "exceptions", "generation", "module", "symbolic", "validation"],
+    "business_value": "Provides exceptions components including SymbolicComputationError, EvaluationError, CodeGenerationError",
+    "last_modified": "2026-01-17T23:51:17Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

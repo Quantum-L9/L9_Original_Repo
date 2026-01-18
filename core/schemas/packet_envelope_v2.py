@@ -23,6 +23,27 @@ Contracts:
 - Schema version is 2.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Packet Envelope V2",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-13T17:23:56Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "packet_envelope_v2",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["core.schemas.__init__"],
+    },
+}
+# ============================================================================
+
 import hashlib
 import json
 from datetime import datetime
@@ -464,3 +485,36 @@ class SemanticSearchResult(BaseModel):
         default_factory=list, description="List of matching results"
     )
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-076",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "data-models", "enum", "event-driven", "foundation", "messaging", "pydantic", "security", "serialization", "tracing"],
+    "keywords": ["compute", "confidence", "derivation", "derive", "envelope", "frozen", "hash", "hit"],
+    "business_value": "This is the SINGLE SOURCE OF TRUTH for PacketEnvelope. All new code should import from this module. Immutability enforced (frozen=True) Thread tracking (thread_id) DAG lineage (lineage) Tagging system",
+    "last_modified": "2026-01-13T17:23:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

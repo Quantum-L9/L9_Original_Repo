@@ -10,6 +10,27 @@ migrations, feature flags, tests, and telemetry catalogs.
 Works with distributed API architectures (memory APIs, agent routers, VPS-facing, local-dev).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Enhanced L9 Repository Index Generator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "tools",
+    "module_name": "export_repo_indexes",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL", "Redis"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 import sys
@@ -40,7 +61,6 @@ SKIP_DIRS = {
     "l9/venv", "secrets", ".DS_Store", "node_modules", ".pytest_cache",
 }
 
-
 def load_gitignore_patterns():
     """Load and parse .gitignore patterns."""
     gitignore_path = os.path.join(REPO_DIR, ".gitignore")
@@ -57,7 +77,6 @@ def load_gitignore_patterns():
     except Exception:
         pass
     return patterns
-
 
 def is_ignored(rel_path, patterns, is_dir=False):
     """Check if a path matches any gitignore pattern."""
@@ -78,7 +97,6 @@ def is_ignored(rel_path, patterns, is_dir=False):
             if any(fnmatch.fnmatch(part, pattern) for part in path_parts):
                 return True
     return False
-
 
 # =============================================================================
 # ORIGINAL GENERATORS (kept for compatibility)
@@ -124,7 +142,6 @@ def generate_tree():
     walk_dir(REPO_DIR, "", max_depth=3, current_depth=0, rel_path_prefix="")
     return "\n".join(lines)
 
-
 def generate_api_surfaces():
     """Map all callable interfaces across different API surface types."""
     api_surfaces = defaultdict(list)
@@ -168,7 +185,6 @@ def generate_api_surfaces():
                 lines.extend(sorted(set(api_surfaces[surface_type]))[:20])
         return "\n".join(lines)
     return "No API surfaces found."
-
 
 def generate_entrypoints():
     """Identify app entrypoints with useful metadata."""
@@ -245,7 +261,6 @@ def generate_entrypoints():
         return "\n".join(lines)
     return "No entrypoints found."
 
-
 def generate_env_refs():
     """Extract environment variable references."""
     env_vars = set()
@@ -276,7 +291,6 @@ def generate_env_refs():
         return "\n".join(sorted(env_vars))
     return "No environment variables found."
 
-
 def generate_imports():
     """Extract top-level Python imports from source code."""
     imports = defaultdict(set)
@@ -304,7 +318,6 @@ def generate_imports():
         return "\n".join(lines)
     return "No imports found."
 
-
 def generate_dependencies():
     """Parse requirements.txt and show actual vs declared dependencies."""
     lines = ["# Dependencies from requirements.txt\n"]
@@ -319,7 +332,6 @@ def generate_dependencies():
         except Exception:
             pass
     return "\n".join(lines) if len(lines) > 1 else "No requirements.txt found."
-
 
 def generate_class_definitions():
     """Extract class definitions with docstrings."""
@@ -343,7 +355,6 @@ def generate_class_definitions():
     if classes:
         return "\n".join(sorted(classes))
     return "No classes found."
-
 
 def generate_function_signatures():
     """Extract function names and signatures."""
@@ -370,7 +381,6 @@ def generate_function_signatures():
         return "\n".join(sorted(functions))
     return "No functions found."
 
-
 def generate_config_files():
     """List all configuration files."""
     config_patterns = [".yaml", ".yml", ".json", ".toml", ".ini", ".cfg", "Dockerfile", "docker-compose"]
@@ -384,7 +394,6 @@ def generate_config_files():
     if config_files:
         return "\n".join(sorted(set(config_files)))
     return "No config files found."
-
 
 def generate_module_architecture():
     """Map module structure and purposes from __init__.py docstrings."""
@@ -407,7 +416,6 @@ def generate_module_architecture():
     if architecture:
         return "\n".join(sorted(architecture))
     return "No module architecture found."
-
 
 # =============================================================================
 # EXISTING WIRING & CATALOG GENERATORS
@@ -506,7 +514,6 @@ def generate_wiring_map():
     ]
     return "\n".join(lines)
 
-
 def generate_agent_catalog():
     """Generate catalog of all agents with roles and capabilities."""
     lines = [
@@ -581,7 +588,6 @@ def generate_agent_catalog():
     ])
     return "\n".join(lines)
 
-
 def generate_kernel_catalog():
     """Generate catalog of the 10 governance kernels."""
     lines = [
@@ -626,7 +632,6 @@ def generate_kernel_catalog():
     lines.append("| 6 | wire_governance_gates() | Apply safety constraints |")
     return "\n".join(lines)
 
-
 def generate_tool_catalog():
     """Generate catalog of all tools with metadata."""
     lines = [
@@ -663,7 +668,6 @@ def generate_tool_catalog():
     ]
     return "\n".join(lines)
 
-
 def generate_orchestrator_catalog():
     """Generate catalog of all orchestrators."""
     lines = [
@@ -694,7 +698,6 @@ def generate_orchestrator_catalog():
                 "",
             ])
     return "\n".join(lines)
-
 
 def generate_event_types():
     """Generate catalog of event types and packet kinds."""
@@ -729,7 +732,6 @@ def generate_event_types():
     ]
     return "\n".join(lines)
 
-
 def generate_singleton_registry():
     """Generate registry of key singleton instances."""
     lines = [
@@ -763,7 +765,6 @@ def generate_singleton_registry():
         "   - `close_redis_client()` - Close Redis",
     ]
     return "\n".join(lines)
-
 
 # =============================================================================
 # NEW GENERATORS (v2.0) - Agent Init, Memory, Governance, Migrations, etc.
@@ -837,7 +838,6 @@ def generate_bootstrap_phases():
     ]
     return "\n".join(lines)
 
-
 def generate_memory_architecture():
     """Generate comprehensive memory architecture documentation."""
     lines = [
@@ -907,7 +907,6 @@ def generate_memory_architecture():
         "| `reflection_store` | Reflections with effectiveness |",
     ]
     return "\n".join(lines)
-
 
 def generate_governance_model():
     """Generate governance and approval model documentation."""
@@ -996,7 +995,6 @@ def generate_governance_model():
     ]
     return "\n".join(lines)
 
-
 def generate_migration_catalog():
     """Generate catalog of all SQL migrations."""
     lines = [
@@ -1048,7 +1046,6 @@ def generate_migration_catalog():
         "```",
     ])
     return "\n".join(lines)
-
 
 def generate_feature_flags():
     """Generate catalog of all L9 feature flags."""
@@ -1116,7 +1113,6 @@ def generate_feature_flags():
     ])
     return "\n".join(lines)
 
-
 def generate_test_catalog():
     """Generate catalog of all tests with coverage stats."""
     lines = [
@@ -1170,7 +1166,6 @@ def generate_test_catalog():
         "```",
     ])
     return "\n".join(lines)
-
 
 def generate_telemetry_endpoints():
     """Generate telemetry and observability documentation."""
@@ -1226,7 +1221,6 @@ def generate_telemetry_endpoints():
     ]
     return "\n".join(lines)
 
-
 def generate_deployment_manifest():
     """Generate deployment and infrastructure documentation."""
     lines = [
@@ -1280,7 +1274,6 @@ def generate_deployment_manifest():
     ]
     return "\n".join(lines)
 
-
 # =============================================================================
 # NEW GENERATORS (v2.1) - Full Neo4j Graph Support
 # =============================================================================
@@ -1325,7 +1318,6 @@ def generate_inheritance_graph():
         return "\n".join(lines)
     return "No inheritance relationships found."
 
-
 def generate_method_catalog():
     """Generate class::method(args) catalog for Neo4j (Class)-[:HAS_METHOD]->(Method)."""
     lines = [
@@ -1364,7 +1356,6 @@ def generate_method_catalog():
         ])
         return "\n".join(lines)
     return "No class methods found."
-
 
 def generate_route_handlers():
     """Generate API route → handler function mapping."""
@@ -1407,7 +1398,6 @@ def generate_route_handlers():
         return "\n".join(lines)
     return "No route handlers found."
 
-
 def generate_file_metrics():
     """Generate file-level metrics: lines, classes, functions, complexity."""
     lines = [
@@ -1447,7 +1437,6 @@ def generate_file_metrics():
         f"# Total lines: {sum(m[0] for m in metrics):,}",
     ])
     return "\n".join(lines)
-
 
 def generate_pydantic_models():
     """Generate catalog of Pydantic models (BaseModel subclasses)."""
@@ -1491,7 +1480,6 @@ def generate_pydantic_models():
         ])
         return "\n".join(lines)
     return "No Pydantic models found."
-
 
 def generate_dynamic_tool_catalog():
     """Dynamically scan core/tools/ for actual tool definitions."""
@@ -1555,7 +1543,6 @@ def generate_dynamic_tool_catalog():
         return "\n".join(lines)
     return "No tools found in core/tools/."
 
-
 def generate_async_function_map():
     """Map all async functions for understanding concurrency patterns."""
     lines = [
@@ -1590,7 +1577,6 @@ def generate_async_function_map():
         ])
         return "\n".join(lines)
     return "No async functions found."
-
 
 def generate_decorator_catalog():
     """Catalog all decorators used across the codebase."""
@@ -1642,7 +1628,6 @@ def generate_decorator_catalog():
         ])
         return "\n".join(lines)
     return "No decorators found."
-
 
 def main():
     """Generate index files and export them."""
@@ -1770,6 +1755,39 @@ def main():
     logger.info("   9. tree.txt - directory structure")
     logger.info("   10. test_catalog.txt - test coverage")
 
-
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TOO-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "ast", "async", "auth", "authorization", "caching", "config", "dataclass", "debugging", "event-driven"],
+    "keywords": ["agent", "api", "architecture", "async", "bootstrap", "catalog", "decorator", "definitions"],
+    "business_value": "Utility module for export repo indexes",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

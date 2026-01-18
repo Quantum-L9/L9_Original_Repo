@@ -16,6 +16,27 @@ All operations are async-safe with proper logging.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Ingestion Pipeline",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "ingestion",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["api.agent_routes", "api.memory.router", "api.server", "api.server_memory", "api.webhook_mac_agent", "core.agents.executor", "core.singleton_registry", "email_agent.router", "memory.__init__", "memory.smoke_test"],
+    },
+}
+# ============================================================================
+
 import structlog
 from functools import lru_cache
 from typing import Any, Optional, TYPE_CHECKING
@@ -881,3 +902,37 @@ async def on_task_completion(
         "execution_time_ms": result.execution_time_ms,
         "errors": result.errors,
     }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-004",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas", "memory.active_encoder", "memory.audit_utils", "memory.governance_gate"],
+    "tags": ["async", "batch-processing", "caching", "debugging", "event-driven", "learning", "logging", "memory-substrate", "messaging", "postgres"],
+    "keywords": ["agent", "assignment", "batch", "completion", "dag", "enable", "enrichment", "ingest"],
+    "business_value": "Implements IngestionPipeline for ingestion functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

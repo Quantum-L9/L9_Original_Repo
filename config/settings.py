@@ -6,6 +6,27 @@ Centralized configuration for all external integrations.
 All integrations can be toggled on/off via environment variables.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Settings",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "configuration",
+    "module_name": "settings",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "Slack API"],
+        "memory_layers": [],
+        "imported_by": ["_archived.legacy_slack.webhook_slack", "api.e2e_slack_audit", "api.server", "api.server_memory", "config.__init__", "mac_agent.runner", "memory.slack_ingest", "orchestrators.agent_execution.orchestrator", "services.slack_files", "tests.api.test_e2e_slack_audit"],
+    },
+}
+# ============================================================================
+
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -255,3 +276,37 @@ def get_slack_files_dir() -> str:
     Path(slack_files_dir).mkdir(parents=True, exist_ok=True)
 
     return slack_files_dir
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CON-FOUN-005",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "auth", "caching", "configuration", "event-driven", "filesystem", "foundation", "migration", "queue", "schema"],
+    "keywords": ["dir", "files", "integration", "integrations", "reset", "slack"],
+    "business_value": "Provides settings components including IntegrationSettings, Config",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

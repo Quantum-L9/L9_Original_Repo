@@ -23,6 +23,27 @@ Changelog:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Retrieval Pipeline",
+    "module_version": "1.3.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "retrieval",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["api.memory.router", "core.agents.adaptive_prompting", "core.singleton_registry", "memory.__init__", "tests.memory.test_e2e_memory_audit", "tests.memory.test_retrieval_audit"],
+    },
+}
+# ============================================================================
+
 import math
 import structlog
 from datetime import datetime
@@ -1340,3 +1361,37 @@ async def get_governance_patterns(
     except Exception as e:
         logger.error(f"Failed to retrieve governance patterns: {e}")
         return []
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-031",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.cross_encoder_reranker", "memory.governance_gate", "memory.query_classifier", "memory.retrieval_ranking"],
+    "tags": ["async", "caching", "debugging", "event-driven", "learning", "logging", "memory-substrate", "messaging", "queue", "serialization"],
+    "keywords": ["added", "apply", "chain", "cross", "decay", "encoder", "facts", "fetch"],
+    "business_value": "Implements RetrievalPipeline for retrieval functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -7,6 +7,27 @@ Routes /mcp/* requests to MCP tool handlers.
 GMP-68: Governance context is established from caller identity before tool calls.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Mcp",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-12T20:17:23Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "mcp",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /mcp/tools", "POST /mcp/call", "GET /mcp/health"],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 import structlog
 from fastapi import APIRouter, HTTPException, Header, Request
 from pydantic import ValidationError
@@ -53,13 +74,11 @@ except ImportError as e:
     _has_governance = False
     _has_mcp = False
 
-
 def get_verify_api_key():
     """Get verify_api_key dependency or raise if not available."""
     if not _has_mcp or not _verify_api_key_dep:
         raise HTTPException(status_code=503, detail="MCP memory server not available")
     return _verify_api_key_dep
-
 
 @router.get("/mcp/tools")
 async def list_tools(request: Request, authorization: str = Header(None)):
@@ -71,7 +90,6 @@ async def list_tools(request: Request, authorization: str = Header(None)):
     caller = await _verify_api_key_dep(request, authorization)
 
     return {"tools": get_mcp_tools(), "caller": caller.caller_id}
-
 
 @router.post("/mcp/call")
 async def call_tool(request: Request, authorization: str = Header(None)):
@@ -186,7 +204,6 @@ async def call_tool(request: Request, authorization: str = Header(None)):
         logger.exception("Tool call error")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.get("/mcp/health")
 async def mcp_health_check():
     """MCP-specific health check."""
@@ -194,3 +211,37 @@ async def mcp_health_check():
         raise HTTPException(status_code=503, detail="MCP memory server not available")
 
     return await mcp_health.health_check()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.governance_gate", "memory.substrate_service"],
+    "tags": ["api", "api-gateway", "async", "auth", "debugging", "endpoint", "filesystem", "logging", "operations", "router"],
+    "keywords": ["api", "check", "governance", "health", "mcp", "memory", "router", "tool"],
+    "business_value": "Utility module for mcp",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

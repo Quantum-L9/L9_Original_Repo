@@ -4,6 +4,27 @@ HTTP client wrapper for Cursor remote API.
 Simple POST wrapper with timeout and error handling.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T15:24:45Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "cursor_client",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["agents.cursor.__init__"],
+    },
+}
+# ============================================================================
+
 import requests
 import structlog
 from typing import Dict, Any, Optional
@@ -75,3 +96,37 @@ class CursorClient:
         Returns: {success: bool, response: Dict}
         """
         return self._request("/health", method="GET")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-018",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["adapter", "agent-execution", "api", "client", "intelligence", "logging"],
+    "keywords": ["check", "client", "command", "cursor", "health", "send", "wrapper"],
+    "business_value": "Implements CursorClient for cursor client functionality",
+    "last_modified": "2026-01-14T15:24:45Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

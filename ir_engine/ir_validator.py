@@ -14,6 +14,27 @@ Validation checks:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "IR Validator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "intelligence",
+    "domain": "ir_compilation",
+    "module_name": "ir_validator",
+    "type": "validator",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["ir_engine.__init__", "ir_engine.deliberation_cell", "orchestration.orchestrator_kernel", "orchestration.unified_controller", "tests.ir_engine.test_ir_semantic_incremental", "tests.ir_engine.test_ir_semantic_to_plan_integration", "tests.ir_engine.test_ir_validation_and_status"],
+    },
+}
+# ============================================================================
+
 import structlog
 from uuid import UUID
 
@@ -388,3 +409,37 @@ class IRValidator:
         """
         result = self.validate(graph)
         return result.valid
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "IR_-INTE-003",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["intelligence", "ir-compilation", "logging", "validation", "validator"],
+    "keywords": ["completeness", "compliance", "consistency", "cycle", "quick", "status", "update", "validate"],
+    "business_value": "Implements IRValidator for ir validator functionality",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -24,6 +24,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cross-DB Saga Pattern",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "saga",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": ["api.memory.router", "memory.__init__", "memory.saga_patterns", "memory.substrate_service", "tests.memory.test_saga"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -714,3 +735,37 @@ __all__ = [
     # Convenience
     "get_saga_executor",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-011",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "async", "builder-pattern", "data-models", "dataclass", "debugging", "executor", "learning", "logging", "streaming"],
+    "keywords": ["build", "builder", "cross", "database", "entities", "execute", "executor", "find"],
+    "business_value": "The Saga Pattern reduces LLM reasoning steps by bundling related database operations into atomic, pre-defined workflows. 1. Vector search in Postgres (find similar documents) 2. Extract entity IDs fro",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

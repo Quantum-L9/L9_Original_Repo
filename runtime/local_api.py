@@ -8,6 +8,27 @@ Relocated from aios/local_api.py (GMP-61: aios/ elimination)
 Version: 1.1.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Local API",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-13T15:10:46Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "local_api",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["mac_agent.websocket_client"],
+    },
+}
+# ============================================================================
+
 import subprocess
 import shlex
 import structlog
@@ -266,3 +287,37 @@ class LocalAPI:
 # =============================================================================
 
 __all__ = ["LocalAPI"]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-009",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "event-driven", "filesystem", "logging", "operations", "runtime-operations", "subprocess", "utility"],
+    "keywords": ["aios", "api", "command", "directory", "execute", "local", "read", "shell"],
+    "business_value": "Implements LocalAPI for local api functionality",
+    "last_modified": "2026-01-13T15:10:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

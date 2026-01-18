@@ -17,6 +17,27 @@ Features:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "THE CHOKE POINT",
+    "module_version": "2.1.0 - Consolidated from private_loader.py",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "kernel_loader",
+    "type": "service",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["agents.l_cto", "core.kernel_wiring.behavioral_wiring", "core.kernel_wiring.cognitive_wiring", "core.kernel_wiring.developer_wiring", "core.kernel_wiring.execution_wiring", "core.kernel_wiring.identity_wiring", "core.kernel_wiring.master_wiring", "core.kernel_wiring.memory_wiring", "core.kernel_wiring.packet_protocol_wiring", "core.kernel_wiring.safety_wiring"],
+    },
+}
+# ============================================================================
+
 import hashlib
 from functools import lru_cache
 from pathlib import Path
@@ -1355,3 +1376,37 @@ __all__ = [
     "verify_kernel_activation",
     "require_kernel_activation",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-010",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.kernels.integrity", "memory.graph_client", "memory.substrate_service", "runtime.kernel_state"],
+    "tags": ["api", "async", "authorization", "caching", "config", "debugging", "event-driven", "filesystem", "logging", "messaging"],
+    "keywords": ["absorb", "activation", "agent", "all", "apply", "aware", "boot", "cached"],
+    "business_value": "This is the ONLY way kernels enter the system. If this file isn't used → kernels are not real. Version: 2.1.0 - Consolidated from private_loader.py Agent kernel absorption (load_kernels) KernelStack l",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,3 +1,24 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Router",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-14T12:08:12Z",
+    "updated_at": "2026-01-14T12:10:12Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "router",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["POST /test", "POST /packet", "POST /semantic/search"],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 L9 Memory API Router
 Version: 1.1.0
 
@@ -26,11 +47,8 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
-
 # ============================================================================
 # Dependency: Get MemoryOrchestrator from app.state
-# ============================================================================
-
 
 def get_memory_orchestrator(request: Request) -> MemoryOrchestrator:
     """Get MemoryOrchestrator from app.state."""
@@ -41,7 +59,6 @@ def get_memory_orchestrator(request: Request) -> MemoryOrchestrator:
             detail="MemoryOrchestrator not initialized. Check server logs.",
         )
     return orchestrator
-
 
 class PacketRequest(BaseModel):
     """Request model for packet ingestion (PacketEnvelope v2.0 compatible)."""
@@ -56,7 +73,6 @@ class PacketRequest(BaseModel):
     tags: Optional[List[str]] = None
     ttl: Optional[int] = None  # seconds until expiration
 
-
 class PacketResponse(BaseModel):
     """Response model for packet ingestion."""
 
@@ -65,7 +81,6 @@ class PacketResponse(BaseModel):
     written_tables: List[str]
     error_message: Optional[str] = None
 
-
 @router.post("/test")
 async def memory_test(
     authorization: str = Header(None),
@@ -73,7 +88,6 @@ async def memory_test(
 ):
     """Test endpoint to verify memory router is reachable."""
     return {"ok": True, "msg": "memory endpoint reachable"}
-
 
 @router.post("/packet", response_model=PacketResponse)
 async def create_packet(
@@ -131,7 +145,6 @@ async def create_packet(
             status_code=500, detail=f"Packet ingestion failed: {str(e)}"
         )
 
-
 @router.post("/semantic/search")
 async def semantic_search(
     request: SemanticSearchRequest,
@@ -147,3 +160,37 @@ async def semantic_search(
         logger.error(f"Memory system not initialized: {e}")
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CUR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "logging", "messaging", "operations", "pydantic", "router"],
+    "keywords": ["create", "memory", "orchestrator", "packet", "router", "search", "semantic", "test"],
+    "business_value": "Utility module for router",
+    "last_modified": "2026-01-14T12:10:12Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

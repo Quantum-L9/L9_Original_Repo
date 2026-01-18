@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Pipeline V1"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-16T00:01:21Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "pipeline_v1"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 spec_kind: l9_architecture_pattern
 version: 1
 revision: "2026-01-16"
@@ -103,3 +118,11 @@ observability:
   tracing:
     format: opentelemetry
     required_fields: [trace_id, span_id, node_id, duration_ms, status]
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "configuration", "foundation", "model-config", "pipeline", "prompt", "schema", "tool-config"]
+# keywords: ["description", "l_improvement_loop_config", "name", "nodes", "observability", "phase_0_mandatory"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

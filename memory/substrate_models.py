@@ -27,6 +27,27 @@ Changelog v1.1.0:
 - Updated PacketStoreRow with new DB columns
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Database DTOs and Memory-Specific Models",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "substrate_models",
+    "type": "enum",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+        "imported_by": ["ci.check_schema_deprecation", "memory.__init__", "memory.identity_tier", "memory.insight_extraction", "memory.retrieval", "memory.substrate_dag", "memory.substrate_repository", "memory.timeline_service", "memory.tool_audit", "scripts.migrate_substrate_models"],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
@@ -484,3 +505,37 @@ class EpisodicSemanticLinkRow(BaseModel):
 
     # Timestamp
     created_at: datetime
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-003",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["auth", "data-models", "enum", "event-driven", "learning", "metrics", "migration", "pydantic", "security", "testing"],
+    "keywords": ["added", "agent", "block", "changelog", "checkpoint", "core", "database", "dtos"],
+    "business_value": "Database row DTOs (PacketStoreRow, KnowledgeFactRow, etc.) Memory-specific models (StructuredReasoningBlock, SubstrateState) Knowledge extraction models (KnowledgeFact, ExtractedInsight) Enrichment pi",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

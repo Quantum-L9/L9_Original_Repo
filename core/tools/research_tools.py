@@ -16,6 +16,27 @@ GMP: wire_research_lcto_integration
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Research Tools",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T12:13:08Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "research_tools",
+    "type": "engine",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["runtime.l_tools"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Optional
 
 import structlog
@@ -24,7 +45,6 @@ logger = structlog.get_logger(__name__)
 
 # Lazy import to avoid circular dependencies
 _research_agent = None
-
 
 def _get_research_agent():
     """Lazy-load ResearchAgent singleton."""
@@ -48,11 +68,8 @@ def _get_research_agent():
             return None
     return _research_agent
 
-
 # ============================================================================
 # Tool Executors
-# ============================================================================
-
 
 async def research_agent_synthesize(
     topic: str,
@@ -112,7 +129,6 @@ async def research_agent_synthesize(
             "success": False,
             "error": str(e),
         }
-
 
 async def research_agent_discover(
     topic: str,
@@ -183,7 +199,6 @@ async def research_agent_discover(
             "error": str(e),
         }
 
-
 async def research_agent_generate_spec(
     topic: str,
     description: Optional[str] = None,
@@ -248,10 +263,8 @@ async def research_agent_generate_spec(
             "error": str(e),
         }
 
-
 # ============================================================================
 # Tool Executor Registry (for runtime.l_tools integration)
-# ============================================================================
 
 RESEARCH_TOOL_EXECUTORS = {
     "research_agent_synthesize": research_agent_synthesize,
@@ -259,10 +272,8 @@ RESEARCH_TOOL_EXECUTORS = {
     "research_agent_generate_spec": research_agent_generate_spec,
 }
 
-
 # ============================================================================
 # Public API
-# ============================================================================
 
 __all__ = [
     "research_agent_synthesize",
@@ -270,3 +281,37 @@ __all__ = [
     "research_agent_generate_spec",
     "RESEARCH_TOOL_EXECUTORS",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.research_agent"],
+    "tags": ["api", "async", "engine", "foundation", "logging", "testing", "tool-registry"],
+    "keywords": ["agent", "discover", "generate", "module", "research", "researchagent", "spec", "synthesize"],
+    "business_value": "Utility module for research tools",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

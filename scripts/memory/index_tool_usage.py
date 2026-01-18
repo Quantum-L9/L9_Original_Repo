@@ -20,6 +20,27 @@ Features:
 - Uses Neo4j HTTP API (VPS)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Index Tool Usage Patterns to Neo4j Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "index_tool_usage",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Neo4j", "PostgreSQL"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 from pathlib import Path
@@ -42,7 +63,6 @@ logger = structlog.get_logger(__name__)
 VPS_URL = os.getenv("VPS_MEMORY_URL", "https://157.180.73.53:9001")
 API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
-
 
 async def query_tool_usage_stats(database_url: str) -> List[Dict[str, Any]]:
     """
@@ -101,7 +121,6 @@ async def query_tool_usage_stats(database_url: str) -> List[Dict[str, Any]]:
         logger.error(f"Failed to query tool usage stats: {e}", exc_info=True)
         return []
 
-
 async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
     """Make authenticated API request to VPS."""
     if not API_KEY:
@@ -129,7 +148,6 @@ async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
             logger.error(f"API request failed: {e}")
             return {"error": str(e), "success": False}
 
-
 async def execute_cypher(query: str, parameters: Optional[Dict] = None) -> Dict[str, Any]:
     """Execute Cypher query via VPS API."""
     return await api_request(
@@ -137,7 +155,6 @@ async def execute_cypher(query: str, parameters: Optional[Dict] = None) -> Dict[
         "/api/v1/memory/graph/query",
         json={"query": query, "parameters": parameters or {}}
     )
-
 
 async def index_tool_usage_to_neo4j(
     tool_stats: List[Dict[str, Any]],
@@ -207,7 +224,6 @@ async def index_tool_usage_to_neo4j(
         "status": "success" if not errors else "partial",
     }
 
-
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main indexing function."""
     logger.info("Starting tool usage indexing", dry_run=dry_run)
@@ -249,7 +265,6 @@ async def main(dry_run: bool = False, verbose: bool = False):
             logger.warning(f"    - {error}")
     logger.info("=" * 60)
 
-
 if __name__ == "__main__":
     import argparse
     
@@ -261,3 +276,36 @@ if __name__ == "__main__":
     
     asyncio.run(main(dry_run=args.dry_run, verbose=args.verbose))
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "auth", "batch-processing", "cli", "filesystem", "http-client", "logging", "memory-substrate", "metrics"],
+    "keywords": ["api", "cypher", "execute", "graph", "index", "neo4j", "patterns", "query"],
+    "business_value": "Utility module for index tool usage",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

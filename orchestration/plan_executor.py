@@ -31,6 +31,27 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Plan Executor",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "plan_executor",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["orchestration.__init__", "orchestration.unified_controller"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from dataclasses import dataclass, field
@@ -1099,3 +1120,37 @@ class PlanExecutor:
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
         return int((datetime.utcnow() - start).total_seconds() * 1000)
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-037",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas", "memory.strategymemory"],
+    "tags": ["api", "async", "batch-processing", "data-models", "dataclass", "debugging", "executor", "filesystem", "intelligence", "logging"],
+    "keywords": ["active", "apply", "cancel", "client", "dependency", "duration", "execute", "execution"],
+    "business_value": "Provides plan executor components including ExecutionStatus, StepStatus, StepResult",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Ci"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-06T19:43:29Z"
+# updated_at: "2026-01-18T03:24:23Z"
+# layer: "operations"
+# domain: ".github"
+# file_name: "ci"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =============================================================================
 # L9 AI OS — Complete CI Pipeline
 # =============================================================================
@@ -63,6 +78,28 @@ jobs:
           echo "🔍 Running L9 CI Gates..."
           chmod +x ci/run_ci_gates.sh
           ./ci/run_ci_gates.sh --all || true
+
+  # ===========================================================================
+  # JOB 1B: DORA-CHECK — DORA Block Compliance
+  # ===========================================================================
+  dora-check:
+    name: DORA Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Check DORA compliance
+        run: |
+          echo "🔍 Checking DORA block compliance..."
+          python ci/dora_compliance_check.py --check --path .
+        continue-on-error: true  # Don't block CI yet - report only
 
   # ===========================================================================
   # JOB 2: DOCKER-CHECK — Validate Docker Files
@@ -300,7 +337,7 @@ jobs:
   ci-complete:
     name: CI Complete
     runs-on: ubuntu-latest
-    needs: [validate, docker-check, test, docker-smoke, security]
+    needs: [validate, dora-check, docker-check, test, docker-smoke, security]
     if: always()
     
     steps:
@@ -312,6 +349,7 @@ jobs:
           echo ""
           echo "Jobs:"
           echo "  ├─ Validate:     ${{ needs.validate.result }}"
+          echo "  ├─ DORA Check:   ${{ needs.dora-check.result }}"
           echo "  ├─ Docker Check: ${{ needs.docker-check.result }}"
           echo "  ├─ Test:         ${{ needs.test.result }}"
           echo "  ├─ Docker Smoke: ${{ needs.docker-smoke.result }}"
@@ -330,3 +368,11 @@ jobs:
           fi
           
           echo "✅ All critical checks passed"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".github", "api-config", "configuration", "database-config", "operations", "pipeline", "redis-config", "utility"]
+# keywords: ["env", "jobs", "name"]
+# last_modified: "2026-01-18T03:24:23Z"
+# ============================================================================

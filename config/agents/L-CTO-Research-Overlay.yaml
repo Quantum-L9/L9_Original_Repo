@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "L-Cto-Research-Overlay"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-15T11:17:09Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "L-CTO-Research-Overlay"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # L-CTO Research Overlay
 # ======================
 # Authority: Igor
@@ -185,3 +200,11 @@ metadata:
   required_citations: true
   zero_ambiguity: true
   citation_format: "Tool results + frontier sources + kernel references"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "anthropic", "api-config", "configuration", "database-config", "foundation", "kernel", "model-config"]
+# keywords: ["agent_id", "cto", "description", "metadata", "model", "name"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

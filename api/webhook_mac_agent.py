@@ -2,6 +2,27 @@
 Mac Agent API endpoints for polling and reporting task results.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Webhook Mac Agent",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "webhook_mac_agent",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /tasks/next", "POST /tasks/{task_id}/result", "GET /tasks"],
+        "datasources": ["HTTP API", "Slack API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server", "api.server_memory"],
+    },
+}
+# ============================================================================
+
 import structlog
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -180,3 +201,37 @@ def list_mac_tasks():
     """
     tasks = list_tasks()
     return {"tasks": tasks}
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.slack_client", "core.schemas", "memory.ingestion"],
+    "tags": ["api", "api-gateway", "async", "debugging", "endpoint", "http-client", "logging", "messaging", "operations", "pydantic"],
+    "keywords": ["agent", "mac", "submit", "task", "tasks", "webhook"],
+    "business_value": "Implements TaskResultRequest for webhook mac agent functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -10,6 +10,27 @@ Usage:
     python3 scripts/delete_trash_embeddings.py [--dry-run] [--verbose]
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Delete Trash Embeddings via Substrate Service",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "delete_trash_embeddings",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import asyncio
@@ -33,7 +54,6 @@ ERROR_PATTERNS = [
     "No response generated.",
     "This message has already been processed.",
 ]
-
 
 async def delete_trash_embeddings(
     database_url: str,
@@ -136,7 +156,6 @@ async def delete_trash_embeddings(
         logger.error(f"Failed to delete embeddings: {e}", exc_info=True)
         return {"error": str(e)}
 
-
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main function."""
     if not DATABASE_URL:
@@ -171,7 +190,6 @@ async def main(dry_run: bool = False, verbose: bool = False):
     
     print("=" * 60 + "\n")
 
-
 if __name__ == "__main__":
     import argparse
     
@@ -183,3 +201,36 @@ if __name__ == "__main__":
     
     asyncio.run(main(dry_run=args.dry_run, verbose=args.verbose))
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "batch-processing", "cli", "debugging", "filesystem", "logging", "memory-substrate", "messaging", "operations"],
+    "keywords": ["delete", "embeddings", "service", "substrate", "trash", "via"],
+    "business_value": "Utility module for delete trash embeddings",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

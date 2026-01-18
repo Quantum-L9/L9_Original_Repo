@@ -13,6 +13,27 @@ Implements a 5-pass structured research pipeline:
 5. Pass 5 — integrate_results: persist output to hypergraph and world model
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Research Factory Models",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "research_factory_models",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.schemas.__init__", "core.schemas.research_factory_nodes", "core.schemas.research_factory_state", "core.schemas.tests.test_discriminators", "core.schemas.tests.test_research_factory", "core.schemas.universal_schema"],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
@@ -257,3 +278,37 @@ class IntegrationResult(BaseModel):
             if p.validation_status == ValidationStatus.VALID
         )
         return valid / total
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-070",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["batch-processing", "data-models", "enum", "foundation", "metrics", "pydantic", "validation"],
+    "keywords": ["batch", "factory", "integration", "job", "metrics", "models", "module", "object"],
+    "business_value": "1. Pass 1 — plan_queries: derive research plan from job specification 2. Pass 2 — build_superprompts: construct optimized prompts 3. Pass 3 — execute_retrieval: call research backend(s) 4. Pass 4 — ex",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

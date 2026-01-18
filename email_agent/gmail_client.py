@@ -8,6 +8,27 @@ Supports multi-account mode (igor, l) with backward compatibility.
 Version: 2.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Gmail Client",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-14T16:23:18Z",
+    "layer": "integration",
+    "domain": "email_integration",
+    "module_name": "gmail_client",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Gmail API"],
+        "memory_layers": [],
+        "imported_by": ["_archived.legacy_slack.webhook_slack", "email_agent.__init__", "email_agent.client", "email_agent.router", "email_agent.triage", "tests.email_agent.test_email_router"],
+    },
+}
+# ============================================================================
+
 import os
 import base64
 import structlog
@@ -627,3 +648,37 @@ class GmailClient:
         except HttpError as e:
             logger.error(f"Gmail API error forwarding email: {e}")
             return None
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "EMA-INTE-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["adapter", "api", "auth", "client", "email-integration", "integration", "logging", "messaging", "streaming"],
+    "keywords": ["client", "draft", "email", "extract", "filename", "forward", "gmail", "messages"],
+    "business_value": "Implements GmailClient for gmail client functionality",
+    "last_modified": "2026-01-14T16:23:18Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

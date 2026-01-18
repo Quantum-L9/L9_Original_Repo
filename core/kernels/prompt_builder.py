@@ -10,6 +10,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Prompt Builder",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-14T15:22:35Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "prompt_builder",
+    "type": "factory",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.llm", "core.agents.graph_state.graph_hydrator", "core.agents.registry", "tests.integration.test_kernel_agent_activation_integration"],
+    },
+}
+# ============================================================================
+
 import structlog
 from functools import lru_cache
 from typing import Any, Dict
@@ -25,7 +46,6 @@ def get_kernel_stack() -> KernelStack:
     stack = load_kernel_stack()
     logger.info(f"Loaded kernel stack: {list(stack.kernels_by_id.keys())}")
     return stack
-
 
 def build_identity_section(identity_kernel: Dict[str, Any]) -> str:
     """Build identity section from identity kernel."""
@@ -60,7 +80,6 @@ def build_identity_section(identity_kernel: Dict[str, Any]) -> str:
         lines.append(f"Avoid: {', '.join(avoid)}")
 
     return "\n".join(lines)
-
 
 def build_behavioral_section(behavioral_kernel: Dict[str, Any]) -> str:
     """Build behavioral rules from behavioral kernel."""
@@ -113,7 +132,6 @@ def build_behavioral_section(behavioral_kernel: Dict[str, Any]) -> str:
 
     return "\n".join(lines)
 
-
 def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
     """Build cognitive patterns from cognitive kernel."""
     engines = cognitive_kernel.get("engines", {})
@@ -147,7 +165,6 @@ def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
                 lines.append(f"- {style_name}: {style_desc['description']}")
 
     return "\n".join(lines)
-
 
 def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
     """Build execution rules from execution kernel."""
@@ -195,7 +212,6 @@ def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
 
     return "\n".join(lines)
 
-
 def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
     """Build safety guardrails from safety kernel."""
     guardrails = safety_kernel.get("guardrails", {})
@@ -236,7 +252,6 @@ def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
             lines.append(f"- {action}")
 
     return "\n".join(lines)
-
 
 def build_system_prompt_from_kernels() -> str:
     """
@@ -289,7 +304,6 @@ def build_system_prompt_from_kernels() -> str:
         # Return fallback prompt
         return get_fallback_prompt()
 
-
 @lru_cache(maxsize=1)
 def get_fallback_prompt() -> str:
     """Fallback system prompt if kernel loading fails. CACHED."""
@@ -320,10 +334,43 @@ No self-referential model talk.
 
 You are L. Operate as Igor's CTO."""
 
-
 # Public API
 __all__ = [
     "get_kernel_stack",
     "build_system_prompt_from_kernels",
     "get_fallback_prompt",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["runtime.kernel_loader"],
+    "tags": ["api", "auth", "authorization", "caching", "core", "factory", "foundation", "logging", "messaging"],
+    "keywords": ["behavioral", "build", "builder", "cognitive", "execution", "fallback", "identity", "kernel"],
+    "business_value": "Utility module for prompt builder",
+    "last_modified": "2026-01-14T15:22:35Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

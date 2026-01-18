@@ -19,6 +19,27 @@ Author: L9 System
 Created: 2026-01-06
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Load Gmp Reports To Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T19:43:29Z",
+    "updated_at": "2026-01-09T01:57:28Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "load_gmp_reports_to_graph",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import os
 import re
@@ -34,7 +55,6 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 REPORTS_DIR = Path(__file__).parent.parent / "reports"
-
 
 def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
     """Parse a GMP report markdown file and extract metadata.
@@ -184,7 +204,6 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
     
     return result
 
-
 async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
     """Create GMP nodes in Neo4j.
     
@@ -246,7 +265,6 @@ async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
     
     return stats
 
-
 async def create_gmp_schema(driver: "AsyncDriver") -> int:
     """Create GMP-related constraints and indexes.
     
@@ -270,7 +288,6 @@ async def create_gmp_schema(driver: "AsyncDriver") -> int:
                     logger.warning("constraint_failed", constraint=constraint[:50], error=str(e))
     
     return created
-
 
 async def load_gmp_reports(driver: "AsyncDriver") -> dict:
     """Load all GMP reports from reports/ directory into Neo4j.
@@ -319,7 +336,6 @@ async def load_gmp_reports(driver: "AsyncDriver") -> dict:
         logger.error("load_gmp_reports_failed", error=str(e))
         return {"success": False, "error": str(e)}
 
-
 async def main():
     """CLI entrypoint for standalone execution."""
     from neo4j import AsyncGraphDatabase, basic_auth
@@ -346,7 +362,39 @@ async def main():
     finally:
         await driver.close()
 
-
 if __name__ == "__main__":
     asyncio.run(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "auth", "filesystem", "graph-db", "logging", "memory-substrate", "operations", "service"],
+    "keywords": ["create", "gmp", "graph", "load", "nodes", "parse", "report", "reports"],
+    "business_value": "Utility module for load gmp reports to graph",
+    "last_modified": "2026-01-09T01:57:28Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

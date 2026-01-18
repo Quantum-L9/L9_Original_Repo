@@ -10,6 +10,27 @@ Usage:
     python3 scripts/audit_graphs_vps.py
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "VPS API Version",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "audit_graphs_vps",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Neo4j"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import os
 import sys
@@ -34,7 +55,6 @@ if not API_KEY:
     print("ERROR: L9_EXECUTOR_API_KEY not set in environment")
     sys.exit(1)
 
-
 async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
     """Make authenticated API request to VPS."""
     headers = {
@@ -58,13 +78,11 @@ async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
         except httpx.HTTPError as e:
             return {"error": str(e), "status_code": getattr(e.response, "status_code", None)}
 
-
 async def audit_memory_stats() -> Dict[str, Any]:
     """Get memory system stats."""
     print("📊 Fetching memory stats...")
     result = await api_request("GET", "/api/v1/memory/stats")
     return result
-
 
 async def audit_packets(limit: int = 10) -> Dict[str, Any]:
     """Audit packet store via semantic search."""
@@ -81,7 +99,6 @@ async def audit_packets(limit: int = 10) -> Dict[str, Any]:
         "sample_packets": result.get("results", [])[:limit],
         "total_found": len(result.get("results", [])),
     }
-
 
 async def audit_facts(limit: int = 20) -> Dict[str, Any]:
     """Audit knowledge facts."""
@@ -106,7 +123,6 @@ async def audit_facts(limit: int = 20) -> Dict[str, Any]:
         "top_predicates": sorted(predicates.items(), key=lambda x: x[1], reverse=True)[:10],
         "top_subjects": sorted(subjects.items(), key=lambda x: x[1], reverse=True)[:10],
     }
-
 
 async def audit_neo4j_via_api() -> Dict[str, Any]:
     """Query Neo4j via graph API endpoint."""
@@ -214,7 +230,6 @@ async def audit_neo4j_via_api() -> Dict[str, Any]:
     
     return results
 
-
 async def run_audit() -> Dict[str, Any]:
     """Run full audit."""
     print("=" * 80)
@@ -250,7 +265,6 @@ async def run_audit() -> Dict[str, Any]:
     results["neo4j"] = neo4j
     
     return results
-
 
 def print_report(results: Dict[str, Any]):
     """Print formatted report."""
@@ -368,7 +382,6 @@ def print_report(results: Dict[str, Any]):
     
     print("\n" + "=" * 80)
 
-
 async def main():
     """Main entry point."""
     try:
@@ -388,7 +401,39 @@ async def main():
         traceback.print_exc()
         sys.exit(1)
 
-
 if __name__ == "__main__":
     asyncio.run(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "auth", "event-driven", "filesystem", "http-client", "memory-substrate", "operations", "serialization", "service"],
+    "keywords": ["api", "audit", "facts", "memory", "neo4j", "packets", "print", "report"],
+    "business_value": "Utility module for audit graphs vps",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

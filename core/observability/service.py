@@ -4,6 +4,27 @@ Main observability service orchestration.
 Manages span export, metrics computation, failure detection, and service lifecycle.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "service",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.routes.observability", "api.server", "core.kernels.kernelloader", "core.observability.__init__", "core.singleton_registry", "tests.core.observability.test_observability_integration"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from typing import List, Optional, Dict, Any
@@ -375,3 +396,37 @@ def get_observability_service() -> Optional[ObservabilityService]:
 
 # Import SpanStatus for export_span
 from .models import SpanStatus
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-057",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "async", "core", "debugging", "event-driven", "foundation", "logging", "metrics", "service", "tracing"],
+    "keywords": ["agent", "compute", "current", "detect", "detection", "export", "exporters", "failures"],
+    "business_value": "Implements ObservabilityService for service functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

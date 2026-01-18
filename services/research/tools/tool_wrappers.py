@@ -6,6 +6,27 @@ Concrete tool implementations for research.
 Uses production Perplexity client with best practices codified.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Wrappers",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "tool_registry",
+    "module_name": "tool_wrappers",
+    "type": "adapter",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Perplexity API"],
+        "memory_layers": [],
+        "imported_by": ["core.tools.base_registry", "services.research.tools.__init__"],
+    },
+}
+# ============================================================================
+
 import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
@@ -229,3 +250,37 @@ class MockSearchTool(BaseTool):
 
         log.debug("mock_search_executed", query_preview=query[:50])
         return mock_results
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-007",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["adapter", "api", "async", "debugging", "http-client", "logging", "mocking", "operations", "testing", "tool-registry"],
+    "keywords": ["execute", "mock", "perplexity", "research", "search", "tool", "wrappers"],
+    "business_value": "Provides tool wrappers components including BaseTool, PerplexityTool, HTTPTool",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

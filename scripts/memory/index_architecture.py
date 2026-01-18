@@ -21,6 +21,27 @@ Features:
 - Uses memory substrate APIs and Neo4j API
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Index Architectural Decisions to Memory Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "index_architecture",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Neo4j"],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import re
@@ -49,7 +70,6 @@ DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 
 # File extensions to scan for architecture comments
 CODE_EXTENSIONS = {".py", ".ts", ".tsx", ".js", ".jsx", ".go", ".rs", ".java", ".cpp", ".c"}
-
 
 def extract_architecture_from_code(file_path: Path) -> List[Dict[str, Any]]:
     """
@@ -105,7 +125,6 @@ def extract_architecture_from_code(file_path: Path) -> List[Dict[str, Any]]:
                 })
     
     return decisions
-
 
 def extract_architecture_from_gmp_reports() -> List[Dict[str, Any]]:
     """Extract architectural decisions from GMP reports."""
@@ -171,7 +190,6 @@ def extract_architecture_from_gmp_reports() -> List[Dict[str, Any]]:
     
     return decisions
 
-
 async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
     """Make authenticated API request to VPS."""
     if not API_KEY:
@@ -197,7 +215,6 @@ async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
             logger.error(f"API request failed: {e}")
             return {"error": str(e), "success": False}
 
-
 async def execute_cypher(query: str, parameters: Optional[Dict] = None) -> Dict[str, Any]:
     """Execute Cypher query via VPS API."""
     return await api_request(
@@ -205,7 +222,6 @@ async def execute_cypher(query: str, parameters: Optional[Dict] = None) -> Dict[
         "/api/v1/memory/graph/query",
         json={"query": query, "parameters": parameters or {}}
     )
-
 
 async def index_architecture_decisions(
     decisions: List[Dict[str, Any]],
@@ -295,7 +311,6 @@ async def index_architecture_decisions(
         "status": "success" if not errors else "partial",
     }
 
-
 async def main(dry_run: bool = False, verbose: bool = False):
     """Main indexing function."""
     logger.info("Starting architectural decisions indexing", dry_run=dry_run)
@@ -378,7 +393,6 @@ async def main(dry_run: bool = False, verbose: bool = False):
     finally:
         await close_service()
 
-
 if __name__ == "__main__":
     import argparse
     
@@ -390,3 +404,36 @@ if __name__ == "__main__":
     
     asyncio.run(main(dry_run=args.dry_run, verbose=args.verbose))
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.substrate_service"],
+    "tags": ["api", "async", "auth", "cli", "debugging", "filesystem", "http-client", "logging", "memory-substrate", "operations"],
+    "keywords": ["api", "architectural", "architecture", "cypher", "decisions", "execute", "extract", "gmp"],
+    "business_value": "Utility module for index architecture",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

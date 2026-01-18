@@ -16,6 +16,27 @@ Usage:
     3. Open: http://127.0.0.1:5050
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "App",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "app",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /", "POST /api/chat", "GET /api/health"],
+        "datasources": ["HTTP API"],
+        "memory_layers": ["episodic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 import sys
@@ -54,7 +75,6 @@ app = FastAPI(title="L9 Local Dashboard", docs_url=None, redoc_url=None)
 
 # Conversation history (in-memory for this session)
 conversation_history: list[dict] = []
-
 
 # =============================================================================
 # HTML Template
@@ -505,18 +525,15 @@ HTML_TEMPLATE = """
 </html>
 """
 
-
 # =============================================================================
 # Routes
 # =============================================================================
-
 
 @app.get("/", response_class=HTMLResponse)
 @must_stay_async("FastAPI/ASGI route handler")
 async def index():
     """Serve the dashboard."""
     return HTML_TEMPLATE
-
 
 @app.post("/api/chat")
 async def chat(request: Request):
@@ -584,7 +601,6 @@ async def chat(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.get("/api/health")
 @must_stay_async("FastAPI/ASGI route handler")
 async def health():
@@ -594,7 +610,6 @@ async def health():
         "l9_url": L9_API_URL,
         "conversation_count": len(conversation_history) // 2,
     }
-
 
 # =============================================================================
 # Main
@@ -630,3 +645,37 @@ if __name__ == "__main__":
 """)
 
     uvicorn.run(app, host=LOCAL_HOST, port=LOCAL_PORT, log_level="warning")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "LOC-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "event-driven", "http-client", "logging", "messaging", "operations"],
+    "keywords": ["app", "chat", "health", "index"],
+    "business_value": "cd /Users/ib-mac/Projects/L9/local_dashboard python app.py 3. Open: http://127.0.0.1:5050",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

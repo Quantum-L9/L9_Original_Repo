@@ -31,6 +31,27 @@ Usage:
     python cleanup_audit_reports.py --keep 2               # Keep 2 most recent per type
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cleanup Audit Reports",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-14T12:08:12Z",
+    "updated_at": "2026-01-14T12:10:12Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "cleanup_audit_reports",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import shutil
 import sys
@@ -66,7 +87,6 @@ KEEP_FILES = {
     "dead_code_resolved.json",
 }
 
-
 def matches_protected(filename: str) -> bool:
     """Check if filename matches any protected pattern."""
     from fnmatch import fnmatch
@@ -74,7 +94,6 @@ def matches_protected(filename: str) -> bool:
         if fnmatch(filename, pattern):
             return True
     return filename in KEEP_FILES
-
 
 def get_report_type(filepath: Path) -> "str | None":
     """Determine the report type for a file."""
@@ -86,7 +105,6 @@ def get_report_type(filepath: Path) -> "str | None":
             if fnmatch(filename, pattern):
                 return report_type
     return None
-
 
 def get_audit_files_by_type() -> "dict[str, list[Path]]":
     """Get all audit report files grouped by type."""
@@ -112,7 +130,6 @@ def get_audit_files_by_type() -> "dict[str, list[Path]]":
     
     return dict(files_by_type)
 
-
 def get_audit_files() -> list[Path]:
     """Get all audit report files (flat list for backward compat)."""
     files_by_type = get_audit_files_by_type()
@@ -121,13 +138,11 @@ def get_audit_files() -> list[Path]:
         all_files.extend(files)
     return sorted(all_files, key=lambda f: f.stat().st_mtime, reverse=True)
 
-
 def get_file_age_days(filepath: Path) -> float:
     """Get file age in days."""
     mtime = datetime.fromtimestamp(filepath.stat().st_mtime)
     age = datetime.now() - mtime
     return age.total_seconds() / 86400
-
 
 def format_file_info(filepath: Path) -> str:
     """Format file info for display."""
@@ -135,7 +150,6 @@ def format_file_info(filepath: Path) -> str:
     mtime = datetime.fromtimestamp(filepath.stat().st_mtime)
     age_days = get_file_age_days(filepath)
     return f"{filepath.name:50} {size_kb:8.1f} KB  {mtime:%Y-%m-%d %H:%M}  ({age_days:.1f}d old)"
-
 
 def list_files(files: list[Path]) -> None:
     """Display files that would be affected."""
@@ -154,7 +168,6 @@ def list_files(files: list[Path]) -> None:
     
     print("-" * 90)
     print(f"Total: {len(files)} files, {total_size/1024:.1f} KB")
-
 
 def archive_files(files: list[Path], dry_run: bool = False) -> int:
     """Move files to _archived/ directory."""
@@ -186,7 +199,6 @@ def archive_files(files: list[Path], dry_run: bool = False) -> int:
     
     return archived
 
-
 def delete_files(files: list[Path], dry_run: bool = False) -> int:
     """Permanently delete files."""
     if not files:
@@ -203,7 +215,6 @@ def delete_files(files: list[Path], dry_run: bool = False) -> int:
             deleted += 1
     
     return deleted
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -303,6 +314,39 @@ Examples:
     
     return 0
 
-
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["cli", "filesystem", "operations", "rest-api", "scripts", "testing"],
+    "keywords": ["age", "archive", "audit", "cleanup", "days", "delete", "files", "format"],
+    "business_value": "Utility module for cleanup audit reports",
+    "last_modified": "2026-01-14T12:10:12Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

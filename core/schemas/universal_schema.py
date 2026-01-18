@@ -15,6 +15,27 @@ Usage:
     )
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Universal Schema",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "universal_schema",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["core.schemas.universal_schema"],
+    },
+}
+# ============================================================================
+
 # =============================================================================
 # Packet Envelope (Memory.yaml v1.0.1)
 # =============================================================================
@@ -108,7 +129,6 @@ __all__ = [
     "build_research_graph",
 ]
 
-
 # =============================================================================
 # Schema Version Info
 # =============================================================================
@@ -121,7 +141,6 @@ SOURCE_SCHEMAS = [
     "research_factory_schema.yaml (research_factory.v1.0.0)",
 ]
 
-
 def get_schema_info() -> dict:
     """Return schema version information."""
     return {
@@ -131,3 +150,37 @@ def get_schema_info() -> dict:
         "source_schemas": SOURCE_SCHEMAS,
         "total_models": len(__all__),
     }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "core.schemas.research_factory_models", "core.schemas.research_factory_nodes", "core.schemas.research_factory_state"],
+    "tags": ["api", "batch-processing", "core", "foundation", "metrics", "schema"],
+    "keywords": ["core", "memory", "module", "schema", "schemas", "universal"],
+    "business_value": "This module re-exports all L9 core schemas for convenient access. Import from here for the complete schema set. from core.schemas.universal_schema import ( PacketEnvelope, ResearchJobSpec, ResearchSta",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

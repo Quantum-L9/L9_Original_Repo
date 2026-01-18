@@ -4,6 +4,27 @@ Failure detection and recovery orchestration.
 Maps failure classes to remediation actions (retry, fallback, degrade, escalate).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Failures",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "failures",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["tests.core.observability.test_observability_integration"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from typing import List, Dict, Optional
@@ -278,3 +299,37 @@ def get_recovery_actions(failure_class: FailureClass) -> List[RemediationAction]
             ),
         ],
     )
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-062",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "async", "caching", "data-models", "debugging", "enum", "event-driven", "executor", "foundation", "logging"],
+    "keywords": ["action", "actions", "detect", "detection", "detector", "execute", "executor", "failure"],
+    "business_value": "Provides failures components including RecoveryAction, FailureDetector, RecoveryExecutor",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

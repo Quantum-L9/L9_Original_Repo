@@ -31,6 +31,27 @@ Created: 2026-01-05
 GMP: GMP-UKG-1 (Schema Unification)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Neo4J Unify Relationships",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "agent_execution",
+    "module_name": "neo4j_unify_relationships",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import argparse
 import os
@@ -49,7 +70,6 @@ logger = structlog.get_logger(__name__)
 LEGACY_REL = "HAS_TOOL"
 UNIFIED_REL = "CAN_EXECUTE"
 
-
 @must_stay_async("callers use await")
 async def get_neo4j_driver():
     """Get async Neo4j driver."""
@@ -66,7 +86,6 @@ async def get_neo4j_driver():
         auth=basic_auth(neo4j_user, neo4j_password),
     )
 
-
 async def count_relationships(driver, rel_type: str) -> int:
     """Count relationships of a given type."""
     async with driver.session() as session:
@@ -75,7 +94,6 @@ async def count_relationships(driver, rel_type: str) -> int:
         )
         record = await result.single()
         return record["count"] if record else 0
-
 
 async def get_legacy_relationships(driver) -> list[dict]:
     """Get all legacy HAS_TOOL relationships with their properties."""
@@ -90,7 +108,6 @@ async def get_legacy_relationships(driver) -> list[dict]:
         """)
         records = await result.data()
         return records
-
 
 async def migrate_relationship(
     driver,
@@ -137,7 +154,6 @@ async def migrate_relationship(
         logger.info(f"Migrated: ({agent_id})-[:{UNIFIED_REL}]->({tool_id})")
         return True
 
-
 async def delete_legacy_relationships(driver, dry_run: bool = False) -> int:
     """
     Delete all legacy HAS_TOOL relationships.
@@ -167,7 +183,6 @@ async def delete_legacy_relationships(driver, dry_run: bool = False) -> int:
         logger.info(f"Deleted {deleted} legacy {LEGACY_REL} relationships")
         return deleted
 
-
 async def verify_migration(driver) -> dict:
     """
     Verify migration was successful.
@@ -184,7 +199,6 @@ async def verify_migration(driver) -> dict:
         "migration_complete": legacy_count == 0 and unified_count > 0,
         "status": "COMPLETE" if legacy_count == 0 else "PENDING",
     }
-
 
 async def run_migration(dry_run: bool = False, delete_legacy: bool = False) -> dict:
     """
@@ -257,7 +271,6 @@ async def run_migration(dry_run: bool = False, delete_legacy: bool = False) -> d
 
     finally:
         await driver.close()
-
 
 async def main():
     parser = argparse.ArgumentParser(
@@ -349,6 +362,39 @@ async def main():
         logger.info(f"\n❌ Migration FAILED: {e}")
         sys.exit(1)
 
-
 if __name__ == "__main__":
     asyncio.run(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["agent-execution", "async", "auth", "cli", "filesystem", "graph-db", "logging", "migration", "operations", "service"],
+    "keywords": ["count", "delete", "driver", "legacy", "migrate", "migration", "neo4j", "relationship"],
+    "business_value": "1. Finds all (Agent)-[:HAS_TOOL]->(Tool) relationships 2. Creates equivalent (Agent)-[:CAN_EXECUTE]->(Tool) relationships 3. Optionally deletes the legacy HAS_TOOL relationships",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

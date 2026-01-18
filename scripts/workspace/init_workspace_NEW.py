@@ -28,6 +28,27 @@ primary entrypoint when starting a new or upgraded workspace.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Init Workspace New",
+    "module_version": "9.0.0 (Suite 6)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T09:35:29Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "init_workspace_NEW",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import os
 import subprocess
@@ -38,7 +59,6 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-
 # ---------------------------------------------------------------------------
 # Utility: Logging (simple stdout logger; in-governance code will use
 # governance_logger, but this script must also be usable standalone).
@@ -48,7 +68,6 @@ def _log(msg: str, *, level: str = "INFO", verbose: bool = True) -> None:
     if not verbose and level == "INFO":
         return
     logger.info(f"[{level}] {msg}")
-
 
 # ---------------------------------------------------------------------------
 # Core helpers
@@ -177,7 +196,6 @@ def ensure_cursor_commands_symlink(
         link_path.symlink_to(target, target_is_directory=True)
         return True, {"link": str(link_path), "target": str(target)}, ""
 
-
 def run_env_manager(
     *,
     workspace_root: Path,
@@ -227,7 +245,6 @@ def run_env_manager(
             msg = f"Error running env-manager: {e}"
             _log(msg, level="ERROR", verbose=verbose)
             return False, {}, msg
-
 
 def run_setup_new_workspace_yaml(
     *,
@@ -282,7 +299,6 @@ def run_setup_new_workspace_yaml(
             verbose=verbose,
         )
         return True, {"yaml": str(yaml_path), "hint": cmd_hint}, ""
-
 
 # ---------------------------------------------------------------------------
 # Main orchestration
@@ -345,7 +361,6 @@ def start_new_workspace(
 
     _log("Workspace initialization sequence completed (or staged in dry-run).", verbose=verbose)
     return True, data, ""
-
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -411,6 +426,39 @@ def main() -> int:
             _log(f"Partial data: {data}", level="ERROR", verbose=True)
         return 1
 
-
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["auth", "cli", "filesystem", "logging", "operations", "profiling", "scripts", "subprocess"],
+    "keywords": ["commands", "cursor", "ensure", "env", "manager", "setup", "start", "symlink"],
+    "business_value": "This script is intended to be part of the Spaces pack and used as the primary entrypoint when starting a new or upgraded workspace.",
+    "last_modified": "2026-01-17T09:35:29Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

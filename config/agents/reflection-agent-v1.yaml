@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Reflection-Agent-V1"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-16T12:13:08Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "reflection-agent-v1"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # L9 Reflection Agent v1
 # =======================
 #
@@ -148,3 +163,11 @@ tags:
   - failure-analysis
   - pattern-extraction
   - lessons-learned
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "foundation", "model-config", "openai", "prompt", "tool-config"]
+# keywords: ["agent", "agent_id", "capabilities", "description", "factory_function", "max_tokens"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

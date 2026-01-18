@@ -14,6 +14,27 @@ For full DB-connected tests, set MEMORY_DSN and run:
     python dev/audit/smoke_test.py --with-db
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Smoke Test Root",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:23:43Z",
+    "updated_at": "2026-01-14T15:02:45Z",
+    "layer": "operations",
+    "domain": "tests",
+    "module_name": "smoke_test_root",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import sys
 import asyncio
 import logging
@@ -26,7 +47,6 @@ sys.path.insert(0, str(REPO_ROOT))
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = structlog.get_logger(__name__)
-
 
 class SmokeTestResults:
     def __init__(self):
@@ -51,7 +71,6 @@ class SmokeTestResults:
                 logger.error(f"  - {name}: {err}")
         return len(self.failed) == 0
 
-
 def test_compileall() -> tuple[bool, str]:
     """Test that all Python files compile (excluding venv/node_modules)."""
     import subprocess
@@ -74,7 +93,6 @@ def test_compileall() -> tuple[bool, str]:
             :200
         ] if result.stderr else "Compilation errors (see output)"
     return True, ""
-
 
 def test_core_imports() -> tuple[bool, str]:
     """Test that core imports work without circular import issues."""
@@ -100,7 +118,6 @@ def test_core_imports() -> tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
-
 def test_langgraph_not_shadowed() -> tuple[bool, str]:
     """Test that langgraph library is not shadowed by local package."""
     try:
@@ -119,7 +136,6 @@ def test_langgraph_not_shadowed() -> tuple[bool, str]:
     except ImportError:
         # langgraph not installed - that's OK for smoke test, just skip
         return True, "langgraph not installed (skipped)"
-
 
 def test_server_module_imports() -> tuple[bool, str]:
     """Test that server module can be imported (without DB connection)."""
@@ -140,7 +156,6 @@ def test_server_module_imports() -> tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
-
 def test_migrations_exist() -> tuple[bool, str]:
     """Test that migrations directory exists and has SQL files."""
     migrations_dir = REPO_ROOT / "migrations"
@@ -152,7 +167,6 @@ def test_migrations_exist() -> tuple[bool, str]:
         return False, "No .sql files in migrations/"
 
     return True, f"{len(sql_files)} migration files found"
-
 
 def test_core_modules_exist() -> tuple[bool, str]:
     """Test that core module directories exist."""
@@ -170,7 +184,6 @@ def test_core_modules_exist() -> tuple[bool, str]:
         return False, f"Missing __init__.py in: {missing_init}"
 
     return True, ""
-
 
 def test_no_nested_repos() -> tuple[bool, str]:
     """Test that there are no nested .git directories within project."""
@@ -202,7 +215,6 @@ def test_no_nested_repos() -> tuple[bool, str]:
 
     return True, ""
 
-
 def test_entrypoints_exist() -> tuple[bool, str]:
     """Test that entrypoints listed in entrypoints.txt exist."""
     entrypoints_file = REPO_ROOT / "entrypoints.txt"
@@ -226,7 +238,6 @@ def test_entrypoints_exist() -> tuple[bool, str]:
         return False, f"Missing entrypoints: {missing}"
 
     return True, ""
-
 
 async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
     """Test that memory pipeline components can be instantiated."""
@@ -263,7 +274,6 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
-
 async def test_world_model_instantiation() -> tuple[bool, str]:
     """Test that world model can be instantiated."""
     try:
@@ -275,7 +285,6 @@ async def test_world_model_instantiation() -> tuple[bool, str]:
         return True, ""
     except Exception as e:
         return False, str(e)
-
 
 def main():
     results = SmokeTestResults()
@@ -333,6 +342,39 @@ def main():
         print("=" * 60)
         return 1
 
-
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TES-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.memory.router", "core.schemas", "memory.substrate_dag", "memory.substrate_service"],
+    "tags": ["api", "async", "caching", "filesystem", "logging", "messaging", "migration", "operations", "subprocess", "test"],
+    "keywords": ["async", "compileall", "core", "dry", "entrypoints", "exist", "imports", "instantiation"],
+    "business_value": "This test does NOT require a running database - it validates import chains and basic functionality only. python tests/smoke_test_root.py python dev/audit/smoke_test.py --with-db",
+    "last_modified": "2026-01-14T15:02:45Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

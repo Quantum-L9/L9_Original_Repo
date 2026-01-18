@@ -6,6 +6,27 @@ Thin repository for Postgres + pgvector database access.
 Provides async functions for all memory substrate operations.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Repository Layer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "substrate_repository",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["episodic_memory", "semantic_memory", "working_memory"],
+        "imported_by": ["core.integration.tool_pattern_extractor", "core.singleton_registry", "core.tools.tool_embeddings", "memory.__init__", "memory.agent_persistence", "memory.checkpoint.postgres_saver", "memory.consolidation", "memory.index_syncer", "memory.reasoning_replay", "memory.retention_engine"],
+    },
+}
+# ============================================================================
+
 import json
 import structlog
 from contextlib import asynccontextmanager
@@ -2326,3 +2347,37 @@ async def close_repository() -> None:
     if _repository:
         await _repository.disconnect()
         _repository = None
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-037",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.governance_gate", "memory.substrate_models"],
+    "tags": ["async", "data-access", "debugging", "event-driven", "learning", "logging", "memory-substrate", "messaging", "migration", "postgres"],
+    "keywords": ["acquire", "active", "block", "check", "checkpoint", "checkpoints", "close", "connect"],
+    "business_value": "Provides async functions for all memory substrate operations.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

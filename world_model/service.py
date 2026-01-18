@@ -18,6 +18,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service Layer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "service",
+    "type": "service",
+    "status": "draft",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server", "api.world_model_api", "core.integration.graph_to_wm_sync", "core.integration.tool_pattern_extractor", "core.singleton_registry", "memory.substrate_dag", "memory.substrate_service", "world_model.__init__", "world_model.nodes.service_nodes"],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Optional
@@ -637,3 +658,37 @@ async def close_world_model_service():
         await close_pool()
         _service = None
         logger.info("WorldModelService closed")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-002",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["async", "learning", "logging", "rest-api", "service", "testing", "world-model"],
+    "keywords": ["close", "count", "create", "delete", "entities", "entity", "insights", "latest"],
+    "business_value": "This service replaces in-memory storage with Postgres-backed persistence. WorldModelOS.yaml → service_layer world_model_layer.yaml → coordination Version: 1.0.0",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

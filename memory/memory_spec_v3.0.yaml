@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Memory Spec V3.0"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-11T18:13:39Z"
+# updated_at: "2026-01-13T16:42:05Z"
+# layer: "learning"
+# domain: "memory_substrate"
+# file_name: "memory_spec_v3.0"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ===========================================================
 # L9 MEMORY MODULE — CANONICAL SPEC v3.0
 # ============================================================
@@ -841,3 +856,11 @@ feature_flags:
   ENABLE_REASONING_REPLAY:
     default: true
     description: Enable reasoning chain reconstruction API
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "database-config", "learning", "memory-substrate", "model-config", "openai"]
+# keywords: ["dependencies", "dependency_contract", "external_surface", "memory", "metadata", "ownership"]
+# last_modified: "2026-01-13T16:42:05Z"
+# ============================================================================

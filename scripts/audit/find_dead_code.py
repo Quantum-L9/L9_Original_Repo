@@ -12,6 +12,27 @@ Detects unused code using:
 Version: 1.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Phase 1: Baseline Static Analysis",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "find_dead_code",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Perplexity API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import ast
 import json
 import re
@@ -2200,3 +2221,37 @@ Examples:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-017",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "ast", "caching", "cli", "dataclass", "debugging", "endpoint", "event-driven", "filesystem", "logging"],
+    "keywords": ["agents", "analysis", "analyze", "app", "audit", "background", "baseline", "confidence"],
+    "business_value": "Provides find dead code components including DeadCodeFinding, DataclassFieldInfo, AuditResult",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

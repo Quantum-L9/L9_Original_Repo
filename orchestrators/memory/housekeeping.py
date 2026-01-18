@@ -6,6 +6,27 @@ Specialized component for memory orchestration.
 Handles garbage collection, compaction, and maintenance.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Housekeeping",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-12T16:30:23Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "housekeeping",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["tests.integration.test_orchestrator_memory_integration"],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
@@ -425,3 +446,37 @@ class Housekeeping:
                 "message": str(e),
                 "timestamp": datetime.utcnow().isoformat(),
             }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-006",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.consolidation", "memory.substrate_repository"],
+    "tags": ["async", "batch-processing", "debugging", "intelligence", "logging", "messaging", "migration", "orchestration", "scheduling", "service"],
+    "keywords": ["check", "collect", "compact", "consolidation", "garbage", "health", "housekeeping", "maintenance"],
+    "business_value": "Handles garbage collection, compaction, and maintenance.",
+    "last_modified": "2026-01-12T16:30:23Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

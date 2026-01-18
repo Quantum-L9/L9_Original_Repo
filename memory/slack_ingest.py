@@ -34,6 +34,27 @@ Error handling:
   - Memory persistence fails: Log error, still return 200 to Slack
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Slack Ingest",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "slack_ingest",
+    "type": "engine",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "OpenAI API", "Slack API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["api.e2e_slack_audit", "api.routes.slack", "tests.api.test_e2e_slack_audit", "tests.api.test_slack_adapter"],
+    },
+}
+# ============================================================================
+
 import httpx
 from typing import Any, Dict, Optional, Tuple
 import structlog
@@ -67,7 +88,6 @@ except ImportError:
     def record_slack_reply_error(*args, **kwargs):
         pass
 
-
 logger = structlog.get_logger(__name__)
 
 # =============================================================================
@@ -91,11 +111,9 @@ L9_ENABLE_LEGACY_SLACK_ROUTER = getattr(
     settings, "l9_enable_legacy_slack_router", False
 )
 
-
 # =============================================================================
 # L-CTO Agent Handler (ported from webhook_slack.py)
 # =============================================================================
-
 
 async def handle_slack_with_l_agent(
     app,
@@ -192,11 +210,9 @@ async def handle_slack_with_l_agent(
         logger.exception("handle_slack_with_l_agent: error: %s", str(e))
         return (f"Error processing message: {str(e)}", "error")
 
-
 # =============================================================================
 # File Attachment Processing (ported from webhook_slack.py)
 # =============================================================================
-
 
 async def _process_file_attachments(files: list) -> list:
     """
@@ -218,11 +234,9 @@ async def _process_file_attachments(files: list) -> list:
         logger.error("_process_file_attachments error", error=str(e))
         return []
 
-
 # =============================================================================
 # !mac Command Handler (ported from webhook_slack.py)
 # =============================================================================
-
 
 async def _handle_mac_command(
     text: str,
@@ -307,11 +321,9 @@ async def _handle_mac_command(
         )
         return {"ok": True, "handled": "mac_error"}
 
-
 # =============================================================================
 # Email Command Detection (ported from webhook_slack.py)
 # =============================================================================
-
 
 def _is_email_command(text: str) -> bool:
     """
@@ -338,11 +350,9 @@ def _is_email_command(text: str) -> bool:
 
     return False
 
-
 # =============================================================================
 # Task Routing (ported from webhook_slack.py)
 # =============================================================================
-
 
 async def _route_to_mac_task(
     text: str,
@@ -403,7 +413,6 @@ async def _route_to_mac_task(
     except Exception as e:
         logger.error("_route_to_mac_task error", error=str(e))
         return None
-
 
 async def _route_to_email_task(
     text: str,
@@ -468,7 +477,6 @@ async def _route_to_email_task(
     except Exception as e:
         logger.error("_route_to_email_task error", error=str(e))
         return None
-
 
 async def handle_slack_events(
     request_body: bytes,
@@ -1198,7 +1206,6 @@ async def handle_slack_events(
 
     return {"ok": True}
 
-
 async def handle_slack_commands(
     payload: Dict[str, Any],
     substrate_service: MemorySubstrateService,
@@ -1330,11 +1337,8 @@ async def handle_slack_commands(
 
     return {"ok": True}
 
-
 # ============================================================================
 # Helper Functions
-# ============================================================================
-
 
 async def _check_duplicate(
     substrate_service: MemorySubstrateService,
@@ -1435,7 +1439,6 @@ async def _check_duplicate(
         # On error, return not duplicate to allow processing (fail open)
         return {"is_duplicate": False, "reason": "dedupe_check_failed"}
 
-
 async def _retrieve_thread_context(
     substrate_service: MemorySubstrateService,
     thread_uuid: str,
@@ -1471,7 +1474,6 @@ async def _retrieve_thread_context(
         except ImportError:
             pass
         return {"packets": [], "error": str(e)}
-
 
 async def _retrieve_semantic_hits(
     substrate_service: MemorySubstrateService,
@@ -1522,7 +1524,6 @@ async def _retrieve_semantic_hits(
         except ImportError:
             pass
         return {"results": [], "error": str(e)}
-
 
 async def _index_slack_conversation(
     substrate_service: MemorySubstrateService,
@@ -1635,7 +1636,6 @@ async def _index_slack_conversation(
     except Exception as e:
         logger.debug(f"Slack conversation indexing error: {e}")
 
-
 def _build_system_prompt(
     thread_context: Dict[str, Any],
     semantic_hits: Dict[str, Any],
@@ -1669,3 +1669,37 @@ def _build_system_prompt(
                 parts.append(f"  - {content}")
 
     return "\n".join(parts)
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.slack_adapter", "api.slack_client", "core.agents.schemas", "core.commands.executor", "core.commands.intent_extractor"],
+    "tags": ["api", "async", "auth", "debugging", "engine", "event-driven", "http-client", "learning", "logging", "memory-substrate"],
+    "keywords": ["agent", "agentexecutorservice", "aios", "check", "command", "commands", "delivery", "detection"],
+    "business_value": "1. Dedupe check (prevent double-processing) 2. Memory context retrieval (fetch thread history + semantic hits) 3. L-CTO agent routing via AgentExecutorService (when legacy flag is False) 4. AIOS /chat",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

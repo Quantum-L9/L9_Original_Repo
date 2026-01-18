@@ -33,6 +33,27 @@ Contracts:
 - Only packet_type, payload, timestamp are guaranteed.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Packet Envelope",
+    "module_version": "1.0.1 (DEPRECATED)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "packet_envelope",
+    "type": "enum",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["ci.check_schema_deprecation", "core.schemas.packet_envelope", "core.schemas.tests.test_discriminators", "core.schemas.tests.test_packet_envelope"],
+    },
+}
+# ============================================================================
+
 import warnings
 from datetime import datetime
 from enum import Enum
@@ -279,3 +300,37 @@ class SemanticSearchResult(BaseModel):
     hits: list[SemanticHit] = Field(
         default_factory=list, description="List of matching results"
     )
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-067",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["data-models", "enum", "event-driven", "foundation", "messaging", "migration", "pydantic", "tracing", "validation"],
+    "keywords": ["block", "canonical", "confidence", "core", "days", "deprecated", "deprecation", "envelope"],
+    "business_value": "This module is DEPRECATED as of 2026-01-05. Use `core.schemas.packet_envelope_v2` for the canonical PacketEnvelope. 2026-01-05: Deprecation announced 2026-02-20: Sunset warning (45 days) 2026-03-22: W",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

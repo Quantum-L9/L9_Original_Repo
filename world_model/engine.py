@@ -28,6 +28,27 @@ Version: 1.2.0 (async interface)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Engine",
+    "module_version": "1.2.0 (async interface)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "engine",
+    "type": "engine",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["core.singleton_registry", "world_model.__init__", "world_model.nodes.update_world_model_node", "world_model.runtime", "world_model.world_model_service"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from datetime import datetime
@@ -763,3 +784,37 @@ def reset_world_model_engine() -> None:
     """Reset the singleton engine (for testing)."""
     global _engine
     _engine = None
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-012",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "config", "debugging", "engine", "event-driven", "learning", "logging", "rest-api", "testing", "tracing"],
+    "keywords": ["async", "causal", "core", "count", "engine", "entity", "graph", "ingestor"],
+    "business_value": "Load specifications from YAML Initialize and manage state (async) Process incoming memory packets (async) Answer queries against current state (async) Run simulations (async, future) Memory Substrate:",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

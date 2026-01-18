@@ -4,6 +4,27 @@ Context window assembly strategies.
 Implements 6 strategies for managing LLM context: naive, recency, summary, RAG, hybrid, adaptive.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Context Strategies",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "context_strategies",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["tests.core.observability.test_observability_integration"],
+    },
+}
+# ============================================================================
+
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional, Any
 import structlog
@@ -302,3 +323,37 @@ class AdaptiveStrategySelector:
             return HybridStrategy()
         else:
             return RecencyBiasedWindowStrategy()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-061",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "core", "debugging", "foundation", "logging", "messaging", "service"],
+    "keywords": ["adaptive", "assemble", "biased", "hierarchical", "hybrid", "naive", "recency", "select"],
+    "business_value": "Implements 6 strategies for managing LLM context: naive, recency, summary, RAG, hybrid, adaptive.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

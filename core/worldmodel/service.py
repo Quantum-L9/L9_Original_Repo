@@ -10,6 +10,27 @@ Version: 1.0.0 (GMP-18)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service",
+    "module_version": "1.0.0 (GMP-18)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "world_model",
+    "module_name": "service",
+    "type": "service",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Anthropic API", "Neo4j", "Perplexity API", "Redis"],
+        "memory_layers": ["episodic_memory", "working_memory"],
+        "imported_by": ["core.agents.adaptive_prompting", "core.worldmodel.__init__", "tests.integration.test_world_model"],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
@@ -623,3 +644,37 @@ __all__ = [
     "WorldModelService",
     "get_world_model_service",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-080",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.worldmodel.l9_schema"],
+    "tags": ["api", "async", "auth", "caching", "foundation", "logging", "messaging", "rest-api", "service", "testing"],
+    "keywords": ["activity", "agent", "approvals", "capabilities", "infrastructure", "initialize", "integrations", "model"],
+    "business_value": "Implements WorldModelService for service functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

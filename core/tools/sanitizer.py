@@ -17,6 +17,27 @@ This module is intentionally conservative and fast:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Input Sanitizer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-09T01:42:58Z",
+    "updated_at": "2026-01-08T22:15:53Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "sanitizer",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.tools.registry_adapter", "tests.unit.test_tool_input_sanitizer"],
+    },
+}
+# ============================================================================
+
 import json
 import re
 from dataclasses import dataclass
@@ -286,4 +307,36 @@ class ToolInputSanitizer:
         parts = re.split(r"[\\/]+", path)
         return any(p == ".." for p in parts)
 
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-014",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["dataclass", "event-driven", "foundation", "serialization", "tool-registry"],
+    "keywords": ["arguments", "enforce", "lengths", "limits", "module", "provides", "resource", "sanitization"],
+    "business_value": "If a tool provides a schema, we reject unknown keys by default. If a tool provides no schema (or an empty schema), we only enforce resource limits.",
+    "last_modified": "2026-01-08T22:15:53Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

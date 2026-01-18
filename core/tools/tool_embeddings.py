@@ -26,6 +26,27 @@ Created: 2026-01-15
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Embeddings Service",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T15:23:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "tool_embeddings",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API", "PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["api.server", "core.tools.base_registry", "core.tools.registry_adapter"],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 from dataclasses import dataclass
@@ -378,3 +399,37 @@ __all__ = [
     "get_tool_embedding",
     "delete_tool_embedding",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-013",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.tools.tool_graph", "memory.substrate_repository"],
+    "tags": ["async", "dataclass", "debugging", "foundation", "llm", "logging", "tool-registry"],
+    "keywords": ["all", "definitions", "delete", "description", "embed", "embedding", "embeddings", "find"],
+    "business_value": "Provides semantic search over tool definitions using pgvector embeddings. Instead of exposing all 100+ tools to the LLM, this service enables retrieval of only the 3-5 most relevant tools per query. e",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

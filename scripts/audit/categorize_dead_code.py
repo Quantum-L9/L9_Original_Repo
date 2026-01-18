@@ -17,6 +17,27 @@ Actions:
 Version: 1.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Phase 3: Risk Categorization",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "categorize_dead_code",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import json
 import sys
 from dataclasses import dataclass, field, asdict
@@ -515,3 +536,37 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-014",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "cli", "data-models", "dataclass", "filesystem", "logging", "messaging", "metrics", "operations", "serialization"],
+    "keywords": ["action", "categorization", "categorize", "categorized", "dead", "finding", "fix", "generate"],
+    "business_value": "Provides categorize dead code components including RiskLevel, FixAction, CategorizedFinding",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

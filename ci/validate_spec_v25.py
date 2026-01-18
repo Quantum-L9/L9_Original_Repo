@@ -20,6 +20,27 @@ Usage:
     python ci/validate_spec_v25.py --all  # Validate all specs in repo
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Validate Spec V25",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-14T16:23:18Z",
+    "layer": "operations",
+    "domain": "error_handling",
+    "module_name": "validate_spec_v25",
+    "type": "exception",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import sys
 import structlog
 import os
@@ -583,7 +604,36 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
-
-
-
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CI-OPER-004",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "config", "error-handling", "event-driven", "exception", "filesystem", "logging", "operations", "scheduling", "testing"],
+    "keywords": ["acceptance", "all", "contract", "dependency", "expectations", "external", "find", "global"],
+    "business_value": "Provides validate spec v25 components including SpecValidationError, ValidationResult",
+    "last_modified": "2026-01-14T16:23:18Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

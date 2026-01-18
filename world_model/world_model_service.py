@@ -28,6 +28,27 @@ Version: 2.0.0 (full service layer per README_RUNTIMES.md)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service Layer API",
+    "module_version": "2.0.0 (full service layer per README_RUNTIMES.md)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "world_model_service",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["world_model.__init__"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -938,3 +959,37 @@ def reset_world_model_service_api() -> None:
     global _service
     _service = None
     logger.info("WorldModelServiceAPI reset")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-009",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "code-quality", "dataclass", "learning", "logging", "metrics", "rest-api", "service", "world-model"],
+    "keywords": ["api", "constraint", "constraints", "decision", "examples", "full", "generation", "heuristic"],
+    "business_value": "get_context(): Get full context for reasoning tasks get_constraints(): Get active constraints from world state get_patterns(): Get matching architectural patterns get_heuristics(): Get applicable codi",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

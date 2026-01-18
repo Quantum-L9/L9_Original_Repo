@@ -15,6 +15,27 @@ Responsibilities:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Agent Persistence Service",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "agent_persistence",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server", "core.agents.executor", "memory.retention_engine", "memory.substrate_service", "tests.memory.test_agent_persistence"],
+    },
+}
+# ============================================================================
+
 import structlog
 import json
 from datetime import datetime
@@ -592,3 +613,37 @@ class AgentPersistenceService:
                 agent_id=agent_id,
                 error=str(e),
             )
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-043",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.checkpoint_metrics", "memory.checkpoint_validator", "memory.substrate_repository", "memory.substrate_service"],
+    "tags": ["async", "debugging", "event-driven", "learning", "logging", "memory-substrate", "metrics", "migration", "rest-api", "scheduling"],
+    "keywords": ["agent", "checkpoint", "checkpoints", "create", "delete", "deserialize", "integrity", "management"],
+    "business_value": "Implements memory_spec_v3.0.yaml memory_layers.persistence contract.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

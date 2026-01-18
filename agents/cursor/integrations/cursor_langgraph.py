@@ -10,6 +10,27 @@ Follows Research Factory pattern: Pydantic BaseModel state, async node functions
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor Langgraph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "cursor_langgraph",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["agents.cursor.integrations.cursor_executor", "agents.cursor.integrations.cursor_gateway", "api.server", "memory.checkpoint.cursor_checkpoint_manager", "tests.integration.test_cursor_langgraph_integration"],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Literal, Optional
@@ -471,3 +492,37 @@ def build_cursor_langgraph(
         pass
 
     return graph.compile()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-024",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "data-models", "debugging", "intelligence", "logging", "messaging", "pydantic", "schema", "tracing", "validation"],
+    "keywords": ["agent", "build", "cursor", "decision", "gate", "governance", "langgraph", "memory"],
+    "business_value": "Provides cursor langgraph components including CursorAgentState, CursorPlanningNode, CursorMemoryWriteNode",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

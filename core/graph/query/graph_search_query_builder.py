@@ -10,6 +10,27 @@ Per Missing Components.md specification.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Graph Search Query Builder",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-11T15:06:13Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "graph_search_query_builder",
+    "type": "factory",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["memory.graph_search_cache"],
+    },
+}
+# ============================================================================
+
 import hashlib
 import json
 import structlog
@@ -17,13 +38,11 @@ from typing import Any, Dict
 
 logger = structlog.get_logger(__name__)
 
-
 # =============================================================================
 # Schema Version
 # =============================================================================
 
 GRAPH_SCHEMA_VERSION = "1.0"
-
 
 # =============================================================================
 # DSL Templates
@@ -52,11 +71,9 @@ DSL_TEMPLATES = {
     },
 }
 
-
 # =============================================================================
 # Schema Version Computation
 # =============================================================================
-
 
 def compute_graph_schema_hash() -> str:
     """
@@ -68,14 +85,11 @@ def compute_graph_schema_hash() -> str:
     schema_str = json.dumps(DSL_TEMPLATES, sort_keys=True)
     return hashlib.sha256(schema_str.encode()).hexdigest()[:32]
 
-
 GRAPH_CACHE_SCHEMA_VERSION = compute_graph_schema_hash()
-
 
 # =============================================================================
 # Query Builder
 # =============================================================================
-
 
 def build_cypher_from_intent(query_intent: str, params: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -121,3 +135,36 @@ def build_cypher_from_intent(query_intent: str, params: Dict[str, Any]) -> Dict[
         "schema_hash": GRAPH_CACHE_SCHEMA_VERSION,
     }
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["core", "debugging", "event-driven", "factory", "foundation", "logging", "security", "serialization"],
+    "keywords": ["build", "builder", "compute", "cypher", "graph", "hash", "intent", "query"],
+    "business_value": "Utility module for graph search query builder",
+    "last_modified": "2026-01-11T15:06:13Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

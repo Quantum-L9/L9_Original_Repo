@@ -30,6 +30,27 @@ Usage:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Memory Metrics",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-13T13:49:43Z",
+    "layer": "operations",
+    "domain": "observability",
+    "module_name": "memory_metrics",
+    "type": "tracker",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+        "imported_by": ["api.server", "memory.substrate_service", "memory.tool_audit", "telemetry.memory_metrics", "tests.integration.test_tool_observability_integration", "tests.telemetry.conftest", "tests.telemetry.test_memory_metrics"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Optional
 
@@ -43,7 +64,6 @@ try:
 except ImportError:
     PROMETHEUS_AVAILABLE = False
     logger.warning("prometheus_client not installed - metrics disabled")
-
 
 # =============================================================================
 # Metric Definitions
@@ -184,11 +204,9 @@ if PROMETHEUS_AVAILABLE:
         ["segment"],
     )
 
-
 # =============================================================================
 # Recording Functions
 # =============================================================================
-
 
 def record_memory_write(
     segment: str,
@@ -213,7 +231,6 @@ def record_memory_write(
     except Exception as e:
         logger.warning("Failed to record memory write metric", error=str(e))
 
-
 def record_memory_search(
     segment: str,
     hit_count: int = 0,
@@ -235,7 +252,6 @@ def record_memory_search(
         MEMORY_SEARCH_HITS.labels(segment=segment).observe(hit_count)
     except Exception as e:
         logger.warning("Failed to record memory search metric", error=str(e))
-
 
 def record_tool_invocation(
     tool_id: str,
@@ -259,7 +275,6 @@ def record_tool_invocation(
     except Exception as e:
         logger.warning("Failed to record tool invocation metric", error=str(e))
 
-
 def set_memory_substrate_health(healthy: bool) -> None:
     """
     Set the memory substrate health gauge.
@@ -274,7 +289,6 @@ def set_memory_substrate_health(healthy: bool) -> None:
         MEMORY_SUBSTRATE_HEALTHY.set(1 if healthy else 0)
     except Exception as e:
         logger.warning("Failed to set memory substrate health", error=str(e))
-
 
 def update_packet_store_size(segment: str, count: int) -> None:
     """
@@ -292,11 +306,9 @@ def update_packet_store_size(segment: str, count: int) -> None:
     except Exception as e:
         logger.warning("Failed to update packet store size", error=str(e))
 
-
 # =============================================================================
 # Audit Mode Recording Functions (v2.0)
 # =============================================================================
-
 
 def record_memory_ingest(status: str = "ok") -> None:
     """Record a memory ingest operation."""
@@ -308,7 +320,6 @@ def record_memory_ingest(status: str = "ok") -> None:
     except Exception as e:
         logger.warning("Failed to record memory ingest metric", error=str(e))
 
-
 def record_memory_dedup(reason: str, count: int = 1) -> None:
     """Record deduplication events."""
     if not PROMETHEUS_AVAILABLE:
@@ -318,7 +329,6 @@ def record_memory_dedup(reason: str, count: int = 1) -> None:
         MEMORY_DEDUP_TOTAL.labels(reason=reason).inc(count)
     except Exception as e:
         logger.warning("Failed to record memory dedup metric", error=str(e))
-
 
 def record_memory_quarantine(reason: str, count: int = 1) -> None:
     """Record quarantined packet events."""
@@ -330,7 +340,6 @@ def record_memory_quarantine(reason: str, count: int = 1) -> None:
     except Exception as e:
         logger.warning("Failed to record memory quarantine metric", error=str(e))
 
-
 def record_memory_poison_suspect(signal: str, count: int = 1) -> None:
     """Record potential poisoning signals."""
     if not PROMETHEUS_AVAILABLE:
@@ -340,7 +349,6 @@ def record_memory_poison_suspect(signal: str, count: int = 1) -> None:
         MEMORY_POISON_SUSPECT_TOTAL.labels(signal=signal).inc(count)
     except Exception as e:
         logger.warning("Failed to record memory poison metric", error=str(e))
-
 
 def record_retrieval_quality(
     recall_at_k: dict[int, float],
@@ -359,7 +367,6 @@ def record_retrieval_quality(
         MEMORY_MRR.set(mrr)
     except Exception as e:
         logger.warning("Failed to record retrieval quality metrics", error=str(e))
-
 
 def record_latency(metric: str, duration_seconds: float) -> None:
     """
@@ -384,7 +391,6 @@ def record_latency(metric: str, duration_seconds: float) -> None:
     except Exception as e:
         logger.warning("Failed to record latency metric", error=str(e))
 
-
 def update_vector_index_size(segment: str, count: int) -> None:
     """Update vector index size gauge for a segment."""
     if not PROMETHEUS_AVAILABLE:
@@ -395,11 +401,9 @@ def update_vector_index_size(segment: str, count: int) -> None:
     except Exception as e:
         logger.warning("Failed to update vector index size", error=str(e))
 
-
 # =============================================================================
 # Initialization
 # =============================================================================
-
 
 def init_metrics() -> bool:
     """
@@ -417,7 +421,6 @@ def init_metrics() -> bool:
 
     logger.info("Memory metrics initialized")
     return True
-
 
 # =============================================================================
 # Public API
@@ -442,5 +445,36 @@ __all__ = [
     "update_vector_index_size",
 ]
 
-
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TEL-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "audit-tool", "event-driven", "logging", "metrics", "observability", "operations", "tracker"],
+    "keywords": ["after", "dedup", "health", "index", "ingest", "invocation", "latency", "memory"],
+    "business_value": "the prometheus_client library. Version: 1.0.0 Author: L9 Enterprise from telemetry.memory_metrics import ( record_memory_write, record_memory_search, record_tool_invocation, ) record_memory_write(segm",
+    "last_modified": "2026-01-13T13:49:43Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

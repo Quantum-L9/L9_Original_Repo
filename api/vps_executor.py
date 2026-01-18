@@ -1,3 +1,24 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Vps Executor",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T15:04:42Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "vps_executor",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /agent/health", "POST /agent/exec"],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["runtime.l_tools"],
+    },
+}
+# ============================================================================
+
 import os
 import subprocess
 from typing import Literal, Optional
@@ -213,3 +234,37 @@ if __name__ == "__main__":
         reload=False,
         log_level="info",
     )
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-009",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "http-client", "operations", "pydantic", "rest-api", "router"],
+    "keywords": ["agent", "allowed", "auth", "check", "command", "composite", "exec", "executor"],
+    "business_value": "Provides vps executor components including ShellTask, MemoryHealthTask, CompositeTask",
+    "last_modified": "2026-01-14T15:04:42Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -13,32 +13,32 @@ The Agent Registry:
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 # ============================================================================
 # DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_meta__ = {
     "component_id": "COR-FOUN-001",
-    "component_name": "Registry",
+    "component_name": "Agent Registry",
     "module_version": "1.0.0",
-    "created_by": "L9_Codegen_Engine",
-    "created_at": "2026-01-18T05:36:29Z",
-    "updated_at": "2026-01-18T05:36:29Z",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-18T02:10:54Z",
     "layer": "foundation",
     "domain": "agent_execution",
     "module_name": "registry",
-    "type": "utility",
+    "type": "service",
     "status": "active",
-    "purpose": "Implements AgentRegistry for registry functionality",
-    "summary": "Implements AgentRegistry for registry functionality",
+    "purpose": "Provides agent registration, discovery, and configuration management.",
     "integrates_with": {
         "api_endpoints": [],
-        "datasources": ["PostgreSQL", "Neo4j", "Redis"],
+        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
         "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+        "imported_by": [],
     },
 }
 # ============================================================================
-
-from __future__ import annotations
 
 import structlog
 import os
@@ -55,7 +55,6 @@ logger = structlog.get_logger(__name__)
 # Check if kernels should be used
 USE_KERNELS = os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes")
 
-
 def _get_kernel_system_prompt() -> Optional[str]:
     """Get kernel-based system prompt if available."""
     if not USE_KERNELS:
@@ -70,7 +69,6 @@ def _get_kernel_system_prompt() -> Optional[str]:
         logger.warning(f"Kernel loading failed, using YAML prompt: {e}")
         return None
 
-
 # =============================================================================
 # Constants
 # =============================================================================
@@ -78,11 +76,9 @@ def _get_kernel_system_prompt() -> Optional[str]:
 DEFAULT_CONFIG_DIR = "config/agents"
 DEFAULT_AGENT_ID = "l9-standard-v1"
 
-
 # =============================================================================
 # Agent Registry
 # =============================================================================
-
 
 class AgentRegistry:
     """
@@ -483,11 +479,9 @@ BEHAVIOR
             ],
         }
 
-
 # =============================================================================
 # Factory Functions
 # =============================================================================
-
 
 def create_agent_registry(config_dir: Optional[str | Path] = None) -> AgentRegistry:
     """
@@ -501,7 +495,6 @@ def create_agent_registry(config_dir: Optional[str | Path] = None) -> AgentRegis
     """
     return AgentRegistry(config_dir)
 
-
 def create_default_registry() -> AgentRegistry:
     """
     Create a registry with the default config directory.
@@ -513,7 +506,6 @@ def create_default_registry() -> AgentRegistry:
     if config_path.exists():
         return AgentRegistry(config_path)
     return AgentRegistry()
-
 
 # =============================================================================
 # Public API
@@ -528,22 +520,29 @@ __all__ = [
 ]
 
 # ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
+
+# ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_footer__ = {
     # === IDENTITY ===
     "component_id": "COR-FOUN-001",
+    
     # === GOVERNANCE ===
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
     "security_classification": "internal",
+    
     # === DEPENDENCIES ===
-    "dependencies": [
-        "core.agents.schemas",
-        "core.decorators",
-        "core.kernels.prompt_builder",
-    ],
+    "dependencies": ["core.agents.schemas", "core.decorators", "core.kernels.prompt_builder"],
+    
     # === OPERATIONAL ===
     "execution_mode": "on-demand",
     "timeout_seconds": 30,
@@ -551,6 +550,7 @@ __dora_footer__ = {
     "retry_policy": "exponential",
     "circuit_breaker_enabled": True,
     "circuit_breaker_threshold": 5,
+    
     # === OBSERVABILITY ===
     "monitoring_required": True,
     "logging_level": "info",
@@ -560,12 +560,14 @@ __dora_footer__ = {
         "availability_percent": 99.9,
         "error_rate_percent": 0.1,
     },
+    
     # === DISCOVERY ===
-    "tags": ["agent", "utility", "agent-execution", "foundation", "runtime"],
-    "keywords": ["registry", "executor", "runtime"],
-    "business_value": "Implements AgentRegistry for registry functionality",
+    "tags": ["agent-execution", "async", "cache", "foundation", "graph-db", "logging", "service"],
+    "keywords": ["agent", "agents", "all", "config", "configs", "create"],
+    "business_value": "Provides agent registration, discovery, and configuration management.",
+    
     # === CHANGE TRACKING ===
-    "last_modified": "2026-01-18T05:36:29Z",
+    "last_modified": "2026-01-18T02:10:54Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",
 }

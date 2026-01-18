@@ -6,6 +6,27 @@ Pydantic settings for the Research Factory service.
 Uses the Memory Substrate for persistence (no separate DB connection).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Configuration Settings",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-13T15:33:39Z",
+    "layer": "foundation",
+    "domain": "configuration",
+    "module_name": "research_settings",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API", "Perplexity API"],
+        "memory_layers": [],
+        "imported_by": ["config.__init__", "core.singleton_registry", "services.research.agents.base_agent", "services.research.research_graph"],
+    },
+}
+# ============================================================================
+
 from functools import lru_cache
 from typing import Optional
 
@@ -114,3 +135,37 @@ def get_research_settings() -> ResearchSettings:
 def reset_research_settings() -> None:
     """Reset settings (useful for testing)."""
     get_research_settings.cache_clear()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CON-FOUN-003",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "caching", "configuration", "foundation", "schema", "testing", "validation"],
+    "keywords": ["configuration", "factory", "memory", "research", "reset", "service", "substrate"],
+    "business_value": "Provides research settings components including ResearchSettings, Config",
+    "last_modified": "2026-01-13T15:33:39Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -4,6 +4,27 @@ Mac Agent Runner V2
 Polls L9 for Mac automation tasks and executes them using Playwright.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Runner",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "mac_integration",
+    "module_name": "runner",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Slack API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import time
@@ -40,7 +61,6 @@ config = get_config()
 L9_BASE_URL = config.l9_base_url
 L9_API_KEY = config.l9_api_key
 POLL_INTERVAL = 4  # seconds
-
 
 def execute_command(command: str) -> tuple[str, str]:
     """
@@ -79,7 +99,6 @@ def execute_command(command: str) -> tuple[str, str]:
     except Exception as e:
         return f"Execution error: {str(e)}", "failed"
 
-
 async def execute_steps(task: dict) -> dict:
     """
     Execute automation steps using Playwright.
@@ -103,7 +122,6 @@ async def execute_steps(task: dict) -> dict:
     headless = task.get("headless")  # Allow per-task override
     return await executor.run_steps(steps, headless=headless)
 
-
 def format_result(result: dict) -> str:
     """Format execution result as string for API."""
     status = result.get("status", "unknown")
@@ -124,7 +142,6 @@ def format_result(result: dict) -> str:
         lines.append(json.dumps(data, indent=2))
 
     return "\n".join(lines)
-
 
 async def poll_and_execute():
     """Main polling loop (file-based task system)."""
@@ -337,7 +354,6 @@ async def poll_and_execute():
 
             await asyncio.sleep(3)
 
-
 def main():
     """Entry point."""
     try:
@@ -346,6 +362,39 @@ def main():
         logger.info("Mac Agent runner stopped by user")
         sys.exit(0)
 
-
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MAC-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.slack_client"],
+    "tags": ["api", "async", "filesystem", "integration", "logging", "mac-integration", "messaging", "queue", "serialization", "service"],
+    "keywords": ["command", "execute", "format", "poll", "runner", "steps"],
+    "business_value": "Utility module for runner",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

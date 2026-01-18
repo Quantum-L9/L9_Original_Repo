@@ -6,6 +6,27 @@ Orchestrating service that coordinates repository, semantic, and graph layers.
 Provides a unified interface for substrate operations.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service Layer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "substrate_service",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["agents.cursor.integrations.cursor_executor", "agents.cursor.integrations.cursor_gateway", "agents.l_cto", "api.memory.router", "api.routes.mcp", "api.server", "core.agents.bootstrap.orchestrator", "core.agents.bootstrap.phase_0_validate", "core.agents.bootstrap.phase_2_instantiate", "core.agents.bootstrap.phase_3_bind_kernels"],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Optional
@@ -56,7 +77,6 @@ from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerCon
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
-
 
 class MemorySubstrateService:
     """
@@ -1119,11 +1139,9 @@ class MemorySubstrateService:
             limit=limit,
         )
 
-
 # =============================================================================
 # Factory Function
 # =============================================================================
-
 
 async def create_substrate_service(
     database_url: str,
@@ -1235,10 +1253,8 @@ async def create_substrate_service(
         )
         raise RuntimeError(f"MemorySubstrateService creation failed: {e}") from e
 
-
 # Singleton instance
 _service: Optional[MemorySubstrateService] = None
-
 
 @must_stay_async("callers use await")
 async def get_service() -> MemorySubstrateService:
@@ -1246,7 +1262,6 @@ async def get_service() -> MemorySubstrateService:
     if _service is None:
         raise RuntimeError("Service not initialized. Call init_service() first.")
     return _service
-
 
 async def init_service(
     database_url: str,
@@ -1257,10 +1272,73 @@ async def init_service(
     _service = await create_substrate_service(database_url, **kwargs)
     return _service
 
-
 async def close_service() -> None:
     """Close the service and release resources."""
     global _service
     if _service:
         await _service._repository.disconnect()
         _service = None
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    # === IDENTITY ===
+    "component_id": "MEM-LEAR-001",
+    
+    # === GOVERNANCE ===
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "security_classification": "internal",
+    
+    # === DEPENDENCIES ===
+    "dependencies": ["core.decorators", "core.error_tracking", "core.observability.circuit_breaker", "core.schemas", "memory.agent_persistence"],
+    
+    # === OPERATIONAL ===
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "batch",
+    "retry_policy": "exponential",
+    "circuit_breaker_enabled": True,
+    "circuit_breaker_threshold": 5,
+    
+    # === OBSERVABILITY ===
+    "monitoring_required": True,
+    "logging_level": "info",
+    "success_metrics": {
+        "latency_p95_ms": 500,
+        "throughput_ops_per_sec": 100,
+        "availability_percent": 99.9,
+        "error_rate_percent": 0.1,
+    },
+    
+    # === DISCOVERY ===
+    "tags": ["api", "async", "debugging", "event-driven", "learning", "logging", "memory-substrate", "messaging", "metrics", "monitoring"],
+    "keywords": ["agent", "check", "checkpoint", "classifier", "close", "consolidation", "correlate", "create"],
+    "business_value": "Orchestrating service that coordinates repository, semantic, and graph layers.",
+    
+    # === CHANGE TRACKING ===
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

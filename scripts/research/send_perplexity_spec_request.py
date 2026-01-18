@@ -1,4 +1,25 @@
 #!/usr/bin/env python3
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Send Perplexity Spec Request",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-09T12:30:43Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "send_perplexity_spec_request",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Perplexity API", "PostgreSQL", "Redis"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -24,7 +45,6 @@ except ImportError:
     logger.info("❌ httpx not installed. Run: pip install httpx")
     sys.exit(1)
 
-
 def load_env():
     """Load API key from .env file."""
     env_path = PROJECT_ROOT / ".env"
@@ -35,12 +55,10 @@ def load_env():
                     return line.split("=", 1)[1].strip().strip('"').strip("'")
     return os.environ.get("PERPLEXITY_API_KEY")
 
-
 def load_file(path: Path) -> str:
     """Load file content."""
     with open(path) as f:
         return f.read()
-
 
 def main():
     # Load API key
@@ -182,17 +200,39 @@ Generate the complete Module-Spec v2.5 YAML now. Start immediately with 'schema_
 
         traceback.print_exc()
 
-
 if __name__ == "__main__":
     main()
 
-
-
-
-
-
-
-
-
-
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "auth", "cli", "filesystem", "http-client", "logging", "messaging", "operations", "scripts", "serialization"],
+    "keywords": ["env", "load", "perplexity", "send", "spec"],
+    "business_value": "Utility module for send perplexity spec request",
+    "last_modified": "2026-01-09T12:30:43Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -11,12 +11,32 @@ GMP: wire_reflection_agent_yaml
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Reflection Tools",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T12:13:08Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "reflection_tools",
+    "type": "engine",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["runtime.l_tools"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Optional
 
 import structlog
 
 logger = structlog.get_logger(__name__)
-
 
 async def reflection_agent_reflect_executor(
     history: list[dict[str, Any]],
@@ -49,7 +69,6 @@ async def reflection_agent_reflect_executor(
         goals=goals,
     )
 
-
 async def reflection_agent_analyze_failure_executor(
     failure_context: dict[str, Any],
     error: str,
@@ -81,7 +100,6 @@ async def reflection_agent_analyze_failure_executor(
         stack_trace=stack_trace,
     )
 
-
 async def reflection_agent_compare_approaches_executor(
     approach_a: dict[str, Any],
     approach_b: dict[str, Any],
@@ -112,7 +130,6 @@ async def reflection_agent_compare_approaches_executor(
         criteria=criteria,
     )
 
-
 async def reflection_agent_extract_patterns_executor(
     examples: list[dict[str, Any]],
 ) -> dict[str, Any]:
@@ -134,7 +151,6 @@ async def reflection_agent_extract_patterns_executor(
 
     agent = create_reflection_agent()
     return await agent.reflection_agent_extract_patterns(examples=examples)
-
 
 async def reflection_agent_generate_improvements_executor(
     current_performance: dict[str, Any],
@@ -163,7 +179,6 @@ async def reflection_agent_generate_improvements_executor(
         goals=goals,
     )
 
-
 # Export all executors for registration
 REFLECTION_TOOL_EXECUTORS = {
     "reflection_agent_reflect": reflection_agent_reflect_executor,
@@ -181,3 +196,37 @@ __all__ = [
     "reflection_agent_generate_improvements_executor",
     "REFLECTION_TOOL_EXECUTORS",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.reflection_agent"],
+    "tags": ["async", "engine", "event-driven", "foundation", "logging", "messaging", "metrics", "tool-registry", "tracing"],
+    "keywords": ["agent", "analyze", "approaches", "compare", "executor", "extract", "failure", "generate"],
+    "business_value": "Utility module for reflection tools",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -17,6 +17,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Credentials Policy Enforcer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "credentials_policy",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Anthropic API", "OpenAI API", "PostgreSQL"],
+        "memory_layers": [],
+        "imported_by": ["scripts.workspace.init_workspace"],
+    },
+}
+# ============================================================================
+
 import re
 import structlog
 from dataclasses import dataclass
@@ -772,3 +793,36 @@ def create_rotation_policy() -> CredentialRotationPolicy:
     """Create a CredentialRotationPolicy instance."""
     return CredentialRotationPolicy()
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-093",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["data-models", "dataclass", "foundation", "logging", "scheduling", "security", "webhooks"],
+    "keywords": ["all", "audit", "check", "compliance", "create", "credential", "credentials", "days"],
+    "business_value": "Provides credentials policy components including SecretType, SecretPattern, SecretViolation",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

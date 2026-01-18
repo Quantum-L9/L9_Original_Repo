@@ -1,3 +1,24 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Db",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "db",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": ["api.server", "api.server_memory"],
+    },
+}
+# ============================================================================
+
 import os
 import psycopg
 
@@ -8,7 +29,6 @@ MEMORY_DSN = os.getenv(
     "MEMORY_DSN",
     os.getenv("DATABASE_URL", "postgresql://postgres:postgres@l9-postgres:5432/l9_memory"),
 )
-
 
 def init_db():
     with psycopg.connect(MEMORY_DSN, autocommit=True) as conn:
@@ -23,7 +43,6 @@ def init_db():
                 );
             """)
 
-
 def insert_embedding(source, content, vector=None):
     with psycopg.connect(MEMORY_DSN, autocommit=True) as conn:
         with conn.cursor() as cur:
@@ -34,3 +53,37 @@ def insert_embedding(source, content, vector=None):
             """,
                 (source, content, vector),
             )
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api-gateway", "operations", "utility"],
+    "keywords": ["embedding", "insert"],
+    "business_value": "Utility module for db",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

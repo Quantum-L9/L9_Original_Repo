@@ -10,6 +10,27 @@ Version: 1.0.0 (GMP-19)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Test Executor",
+    "module_version": "1.0.0 (GMP-19)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "test_executor",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.testing.__init__", "core.testing.test_agent", "tests.integration.test_recursive_self_testing"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import os
 import tempfile
@@ -299,3 +320,36 @@ __all__ = [
     "run_tests_in_sandbox",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-079",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "async", "core", "dataclass", "executor", "filesystem", "foundation", "logging", "mocking", "test"],
+    "keywords": ["executor", "mock", "results", "sandbox", "substrate", "test", "tests"],
+    "business_value": "Provides test executor components including TestResult, TestResults, TestExecutor",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

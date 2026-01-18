@@ -19,6 +19,27 @@ Features:
 - Efficient (batched queries, minimal overwrites)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "L9 Repository Graph Loader (VPS API)",
+    "module_version": "2.0.0 (VPS-native)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "load_indexes_to_neo4j_vps",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 from pathlib import Path
@@ -637,3 +658,37 @@ if __name__ == "__main__":
     import asyncio
 
     asyncio.run(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-003",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "async", "auth", "batch-processing", "cli", "debugging", "filesystem", "http-client", "loader", "logging"],
+    "keywords": ["(vps", "all", "api", "api)", "audit", "clear", "create", "cypher"],
+    "business_value": "Implements VPSRepoGraphLoader for load indexes to neo4j vps functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

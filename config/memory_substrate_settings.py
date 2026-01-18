@@ -5,6 +5,27 @@ Version: 1.0.0
 Pydantic settings for environment variables and configuration.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Configuration Settings",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-13T17:26:59Z",
+    "layer": "foundation",
+    "domain": "configuration",
+    "module_name": "memory_substrate_settings",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["config.__init__", "tests.memory.test_unified_pipeline"],
+    },
+}
+# ============================================================================
+
 from functools import lru_cache
 from typing import Optional
 
@@ -97,3 +118,37 @@ def get_settings() -> MemorySubstrateSettings:
 def reset_settings() -> None:
     """Reset settings (useful for testing)."""
     get_settings.cache_clear()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CON-FOUN-004",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "caching", "configuration", "foundation", "schema", "testing", "validation"],
+    "keywords": ["configuration", "memory", "reset", "substrate"],
+    "business_value": "Provides memory substrate settings components including MemorySubstrateSettings, Config",
+    "last_modified": "2026-01-13T17:26:59Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

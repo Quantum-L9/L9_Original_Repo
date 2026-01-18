@@ -15,6 +15,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Post-execution self-audit and session management.",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T11:17:09Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "introspection",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["agents.l_cto"],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from typing import Any, Dict, Optional, TYPE_CHECKING
 import structlog
@@ -433,3 +454,37 @@ __all__ = [
     "on_session_start",
     "on_session_end",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-011",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "audit-tool", "auth", "debugging", "logging", "messaging", "mocking", "operations", "runtime-operations", "utility"],
+    "keywords": ["agent", "audit", "calibration", "confidence", "decision", "end", "execution", "export"],
+    "business_value": "This module implements GODMODE Part 7 (Introspection Loop). 1. Decision audit - Was each decision authorized? Consistent? 2. Confidence calibration - Did estimates match outcomes? 3. Tool execution re",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

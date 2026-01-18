@@ -8,6 +8,27 @@ Used by ExecutorToolRegistry to validate tool arguments before dispatch.
 Version: 1.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "L Tools",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-27T02:00:41Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "l_tools",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from pydantic import BaseModel, Field
 from typing import Any
 
@@ -225,3 +246,37 @@ __all__ = [
     "WorldModelQueryInput",
     "KernelReadInput",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-075",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["data-models", "foundation", "messaging", "pydantic", "schema", "validation"],
+    "keywords": ["agent", "commit", "exec", "git", "kernel", "mac", "memory", "model"],
+    "business_value": "Provides l tools components including MemorySearchInput, MemoryWriteInput, GMPRunInput",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

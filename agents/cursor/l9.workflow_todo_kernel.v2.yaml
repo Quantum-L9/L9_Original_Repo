@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "L9.Workflow Todo Kernel.V2"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-14T12:08:12Z"
+# updated_at: "2026-01-14T12:10:12Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "l9.workflow_todo_kernel.v2"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 id: "l9.workflow_todo_kernel.v2"
 name: "L9 TODO + Roadmap + Workflow Behavior Kernel"
 version: "2.0.0"
@@ -127,3 +142,11 @@ hooks:
     action:
       - extract_milestone_tags_from_prompt
       - associate_with_relevant_todo
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "configuration", "intelligence", "kernel", "model-config", "prompt", "schema"]
+# keywords: ["author", "description", "init", "kernel.v2", "l9.workflow", "name"]
+# last_modified: "2026-01-14T12:10:12Z"
+# ============================================================================

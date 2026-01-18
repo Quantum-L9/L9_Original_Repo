@@ -8,16 +8,14 @@
   "legacy_migration_needed": 0,
   "files": [
     {
-      "file": "core/agents/agent_instance.py",
-      "component_id": "COR-FOUN-001",
+      "file": "/Users/ib-mac/Projects/l9/tools/export_repo_indexes.py",
+      "component_id": "TOO-OPER-001",
       "injected": {
         "header": true,
         "footer": true,
         "trace": true
       },
-      "classes": [
-        "AgentInstance"
-      ]
+      "classes": []
     }
   ]
 }

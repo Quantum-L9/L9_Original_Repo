@@ -15,6 +15,27 @@ Best Practices (from Perplexity docs):
 v3.0.0: Added retry logic with exponential backoff for transient failures
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Perplexity Client",
+    "module_version": "3.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "perplexity_client",
+    "type": "dataclass",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Perplexity API"],
+        "memory_layers": [],
+        "imported_by": ["services.research.tools.__init__", "services.research.tools.tool_wrappers"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from enum import Enum
@@ -448,3 +469,37 @@ def get_perplexity_client() -> Optional[PerplexityClient]:
         log.warning("perplexity_not_configured", hint="Set PERPLEXITY_API_KEY")
         return None
     return PerplexityClient(api_key)
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-008",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.resilience.retry"],
+    "tags": ["async", "auth", "client", "data-models", "dataclass", "http-client", "logging", "messaging", "operations"],
+    "keywords": ["analyze", "best", "client", "deep", "model", "perplexity", "practices", "quick"],
+    "business_value": "Provides perplexity client components including PerplexityModel, SearchContextSize, PerplexityRequest",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

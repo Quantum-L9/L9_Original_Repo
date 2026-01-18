@@ -10,6 +10,27 @@ Version: 1.0.0 (GMP-11)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Intent Extractor",
+    "module_version": "1.0.0 (GMP-11)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "intent_extractor",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API", "Slack API"],
+        "memory_layers": [],
+        "imported_by": ["api.routes.commands", "core.commands.__init__", "memory.slack_ingest", "tests.integration.test_igor_commands"],
+    },
+}
+# ============================================================================
+
 import json
 import structlog
 from datetime import datetime
@@ -55,7 +76,6 @@ Respond with JSON only:
 }
 
 Be conservative with confidence. If unclear, use confidence < 0.7."""
-
 
 async def extract_intent(
     nlp_prompt: NLPPrompt,
@@ -121,7 +141,6 @@ async def extract_intent(
         logger.error("Intent extraction failed", error=str(e))
         return _rule_based_intent(text, nlp_prompt.raw_text)
 
-
 def extract_intent_sync(
     nlp_prompt: NLPPrompt,
     openai_client: Optional[OpenAI] = None,
@@ -184,7 +203,6 @@ def extract_intent_sync(
     except Exception as e:
         logger.error("Intent extraction failed (sync)", error=str(e))
         return _rule_based_intent(text, nlp_prompt.raw_text)
-
 
 async def confirm_intent(
     intent: IntentModel,
@@ -257,14 +275,12 @@ async def confirm_intent(
         timestamp=datetime.utcnow().isoformat(),
     )
 
-
 def _parse_intent_type(value: str) -> IntentType:
     """Parse intent type string to enum."""
     try:
         return IntentType(value.lower())
     except ValueError:
         return IntentType.UNKNOWN
-
 
 def _intent_to_command(
     intent_type: IntentType,
@@ -306,7 +322,6 @@ def _intent_to_command(
         risk_level=risk_mapping.get(intent_type, RiskLevel.LOW),
     )
 
-
 def _describe_action(intent: IntentModel) -> str:
     """Generate human-readable action description."""
     action_descriptions: dict[IntentType, str] = {
@@ -329,7 +344,6 @@ def _describe_action(intent: IntentModel) -> str:
         base_description = f"{base_description} ({target})"
 
     return base_description
-
 
 def _rule_based_intent(text: str, raw_text: str) -> IntentModel:
     """
@@ -377,7 +391,6 @@ def _rule_based_intent(text: str, raw_text: str) -> IntentModel:
         suggested_command=None,
     )
 
-
 __all__ = [
     "extract_intent",
     "extract_intent_sync",
@@ -385,3 +398,36 @@ __all__ = [
     "IntentModel",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.commands.schemas"],
+    "tags": ["api", "async", "core", "foundation", "llm", "logging", "messaging", "serialization", "service"],
+    "keywords": ["confirm", "extract", "extractor", "intent", "sync"],
+    "business_value": "Handles ambiguity resolution and high-risk confirmation flows. Version: 1.0.0 (GMP-11)",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

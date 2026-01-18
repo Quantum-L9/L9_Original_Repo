@@ -9,6 +9,27 @@ Helpers to wrap arbitrary LangGraph node functions so they:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Packet Node Adapter",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "integration",
+    "domain": "graph_integration",
+    "module_name": "packet_node_adapter",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["graph_adapter.__init__"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Awaitable, Callable, Dict, TYPE_CHECKING
 
 from core.schemas import PacketEnvelopeIn
@@ -86,3 +107,37 @@ class PacketNodeAdapter:
         await self._service.write_packet(post_packet)
 
         return new_state
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "GRA-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.substrate_service"],
+    "tags": ["adapter", "adapter-pattern", "async", "event-driven", "graph-integration", "integration", "tracing"],
+    "keywords": ["adapter", "langgraph", "packet", "wrapped"],
+    "business_value": "Implements PacketNodeAdapter for packet node adapter functionality",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

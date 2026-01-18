@@ -22,6 +22,27 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cell Orchestrator",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "cell_orchestrator",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["orchestration.__init__", "orchestration.unified_controller"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -945,3 +966,37 @@ class CellOrchestrator:
             "by_status": by_status,
             "available_cells": list(self._cell_registry.keys()),
         }
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-033",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas"],
+    "tags": ["api", "async", "data-models", "dataclass", "debugging", "intelligence", "logging", "messaging", "orchestration"],
+    "keywords": ["active", "architect", "architectcell", "cancel", "cell", "cells", "client", "coder"],
+    "business_value": "Provides cell orchestrator components including WorkflowStatus, CellType, CellStep",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -13,6 +13,27 @@ Features:
 Version: 1.1.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Slack Files",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "services",
+    "module_name": "slack_files",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "OpenAI API", "Slack API"],
+        "memory_layers": [],
+        "imported_by": ["_archived.legacy_slack.webhook_slack", "memory.slack_ingest"],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 import httpx
@@ -34,7 +55,6 @@ except ImportError:
     # Fallback if config not available
     SLACK_FILES_BASE_DIR = os.path.expanduser("~/.l9/slack_files")
     Path(SLACK_FILES_BASE_DIR).mkdir(parents=True, exist_ok=True)
-
 
 def download_file(
     file_id: str, file_url_private: str, filename: str, mimetype: Optional[str] = None
@@ -83,7 +103,6 @@ def download_file(
     except httpx.HTTPError as e:
         logger.error("[SlackFiles] Failed to download file %s: %s", file_id, e)
         raise
-
 
 def save_to_disk(
     file_bytes: bytes,
@@ -163,7 +182,6 @@ def save_to_disk(
         logger.error("[SlackFiles] Failed to save file %s: %s", file_id, e)
         raise
 
-
 def build_artifact_record(
     file_id: str,
     filename: str,
@@ -218,7 +236,6 @@ def build_artifact_record(
         artifact.update(additional_metadata)
 
     return artifact
-
 
 def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -344,7 +361,6 @@ def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any
 
     return artifact
 
-
 async def get_file_info(file_id: str) -> Dict[str, Any]:
     """
     Retrieve file metadata from Slack API using files.info (async).
@@ -383,7 +399,6 @@ async def get_file_info(file_id: str) -> Dict[str, Any]:
         raise
     finally:
         await http_client.aclose()
-
 
 async def process_file_attachments(files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
@@ -426,3 +441,67 @@ async def process_file_attachments(files: List[Dict[str, Any]]) -> List[Dict[str
     )
 
     return artifacts
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    # === IDENTITY ===
+    "component_id": "SER-OPER-001",
+    
+    # === GOVERNANCE ===
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "security_classification": "internal",
+    
+    # === DEPENDENCIES ===
+    "dependencies": ["api.slack_client"],
+    
+    # === OPERATIONAL ===
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "realtime",
+    "retry_policy": "exponential",
+    "circuit_breaker_enabled": True,
+    "circuit_breaker_threshold": 5,
+    
+    # === OBSERVABILITY ===
+    "monitoring_required": True,
+    "logging_level": "info",
+    "success_metrics": {
+        "latency_p95_ms": 50,
+        "throughput_ops_per_sec": 1000,
+        "availability_percent": 99.99,
+        "error_rate_percent": 0.01,
+    },
+    
+    # === DISCOVERY ===
+    "tags": ["api", "async", "auth", "debugging", "event-driven", "filesystem", "http-client", "llm", "logging", "messaging"],
+    "keywords": ["artifact", "attachments", "build", "disk", "download", "files", "orchestrator", "process"],
+    "business_value": "Handles downloading, saving, and managing file attachments from Slack messages. Download files from Slack using Web API Save files to managed storage directory (~/.l9/slack_files/YYYY/MM/DD/) Create f",
+    
+    # === CHANGE TRACKING ===
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

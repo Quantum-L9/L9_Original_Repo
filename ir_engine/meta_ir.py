@@ -33,6 +33,27 @@ Version: 2.4.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "MetaContract Schema",
+    "module_version": "2.4.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "meta_ir",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Perplexity API"],
+        "memory_layers": [],
+        "imported_by": ["conftest", "ir_engine.__init__", "ir_engine.compile_meta_to_ir", "ir_engine.schema_validator", "runtime.construct_enhancer"],
+    },
+}
+# ============================================================================
+
 from enum import Enum
 from typing import Any, Dict, List, Literal, Optional
 
@@ -887,3 +908,36 @@ class MetaContractValidationResult(BaseModel):
             field=field, message=message, severity="warning"
         ))
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "IR_-INTE-001",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "auth", "client", "data-models", "debugging", "enum", "event-driven", "intelligence", "logging", "messaging"],
+    "keywords": ["acceptance", "ack", "alert", "all", "allowed", "auth", "boot", "callable"],
+    "business_value": "1. Metadata 2. Ownership 3. Runtime Wiring (KEYSTONE) 4. External Surface 5. Dependencies 6. Packet Contract 7. Idempotency 8. Error Policy 9. Observability 10. Runtime Touchpoints 11. Test Scope 12. ",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

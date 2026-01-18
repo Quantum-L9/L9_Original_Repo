@@ -20,6 +20,27 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cross-Encoder Reranker",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T23:45:01Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "cross_encoder_reranker",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Anthropic API", "OpenAI API"],
+        "memory_layers": [],
+        "imported_by": ["memory.retrieval"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -349,3 +370,37 @@ def create_reranker_with_model(model_preset: str) -> CrossEncoderReranker:
 def is_cross_encoder_available() -> bool:
     """Check if cross-encoder re-ranking is available."""
     return _HAS_CROSS_ENCODER
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["batch-processing", "dataclass", "debugging", "learning", "logging", "memory-substrate", "messaging"],
+    "keywords": ["available", "create", "cross", "encoder", "memory", "model", "pattern", "rerank"],
+    "business_value": "Implements neural re-ranking using cross-encoder models for improved retrieval quality after initial RRF fusion. Cross-encoders score (query, document) pairs jointly, producing more accurate relevance",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

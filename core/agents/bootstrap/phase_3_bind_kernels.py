@@ -7,6 +7,27 @@ Purpose: Activate all 10 kernels on the agent instance. Verify kernel integrity.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Phase 3 Bind Kernels",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "phase_3_bind_kernels",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["tests.core.bootstrap.test_bootstrap_phases"],
+    },
+}
+# ============================================================================
+
 from typing import Dict, TYPE_CHECKING
 from datetime import datetime
 
@@ -18,7 +39,6 @@ if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
-
 
 async def bind_kernels_to_agent(
     instance: "BootstrapInstanceData",
@@ -109,3 +129,37 @@ async def bind_kernels_to_agent(
     except Exception as e:
         logger.error("Failed to bind kernels", error=str(e))
         raise RuntimeError(f"Kernel binding failed: {e}")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.graph_client", "memory.substrate_service"],
+    "tags": ["agent-execution", "api", "async", "debugging", "foundation", "logging", "security", "service", "testing"],
+    "keywords": ["agent", "bind", "kernel", "kernels", "phase"],
+    "business_value": "Utility module for phase 3 bind kernels",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

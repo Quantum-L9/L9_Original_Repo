@@ -14,6 +14,27 @@ Auto-generated scaffold by L9 CodeGenAgent, implementation by governance design.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Remediation Engine",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T00:41:22Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "remediation_engine",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["workers.__init__", "workers.anomaly_response_monitor"],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -484,3 +505,37 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "async", "caching", "data-models", "engine", "enum", "logging", "messaging", "monitoring", "operations"],
+    "keywords": ["action", "actions", "anomaly", "cache", "check", "create", "engine", "governance"],
+    "business_value": "Provides remediation engine components including RemediationAction, RemediationStatus, RemediationEngineRequest",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
