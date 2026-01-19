@@ -102,6 +102,15 @@ from memory.audit_utils import (
     normalize_payload,
 )
 
+# Governance Gate (single enforcement layer)
+from memory.governance_gate import (
+    MemoryGovernanceContext,
+    build_governance_context,
+    ensure_governance_context,
+    governance_context,
+    require_governance_context,
+)
+
 # Strategy Memory (Phase 0)
 from memory.strategymemory import (
     IStrategyMemoryService,

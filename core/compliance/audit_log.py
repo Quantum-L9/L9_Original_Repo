@@ -299,7 +299,7 @@ class AuditLogger:
         )
 
         if self._substrate is None:
-            return True
+            return False
 
         try:
             from core.schemas import PacketEnvelopeIn
@@ -367,4 +367,3 @@ __all__ = [
     "AuditLogger",
     "log_command_to_audit",
 ]
-

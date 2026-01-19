@@ -5,7 +5,7 @@ import time
 import json
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 import asyncio
 
 from src.db import fetch_all, fetch_one, execute
@@ -20,21 +20,16 @@ from src.models import (
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
-router = APIRouter()
+def _legacy_memory_disabled() -> None:
+    raise HTTPException(status_code=410, detail="Legacy memory routes disabled")
+
+
+router = APIRouter(dependencies=[Depends(_legacy_memory_disabled)], deprecated=True)
 
 
 @router.post("/save", response_model=MemoryResponse)
 async def save_memory(req: SaveMemoryRequest) -> MemoryResponse:
-    return await save_memory_handler(
-        user_id=req.user_id,
-        content=req.content,
-        kind=req.kind,
-        scope=req.scope,
-        duration=req.duration,
-        tags=req.tags,
-        importance=req.importance,
-        metadata=req.metadata,
-    )
+    raise HTTPException(status_code=410, detail="Legacy memory routes disabled")
 
 
 async def save_memory_handler(
@@ -143,15 +138,7 @@ async def save_memory_handler(
 
 @router.post("/search", response_model=SearchMemoryResponse)
 async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
-    return await search_memory_handler(
-        user_id=req.user_id,
-        query=req.query,
-        scopes=req.scopes,
-        kinds=req.kinds,
-        top_k=req.top_k,
-        threshold=req.threshold,
-        duration=req.duration,
-    )
+    raise HTTPException(status_code=410, detail="Legacy memory routes disabled")
 
 
 async def search_memory_handler(
@@ -248,47 +235,7 @@ async def search_memory_handler(
 async def get_memory_stats(
     user_id: Optional[str] = Query(None), duration: str = Query("all")
 ) -> MemoryStatsResponse:
-    try:
-        short_count = medium_count = long_count = unique_users = 0
-        avg_importance = 0.0
-
-        if duration in ["all", "short"]:
-            q = (
-                "SELECT COUNT(*) as cnt FROM memory.short_term WHERE expires_at > CURRENT_TIMESTAMP"
-                + (f" AND user_id = '{user_id}'" if user_id else "")
-            )
-            r = await fetch_one(q)
-            short_count = r["cnt"] if r else 0
-
-        if duration in ["all", "medium"]:
-            q = (
-                "SELECT COUNT(*) as cnt FROM memory.medium_term WHERE expires_at > CURRENT_TIMESTAMP"
-                + (f" AND user_id = '{user_id}'" if user_id else "")
-            )
-            r = await fetch_one(q)
-            medium_count = r["cnt"] if r else 0
-
-        if duration in ["all", "long"]:
-            q = (
-                "SELECT COUNT(*) as cnt, COUNT(DISTINCT user_id) as users, AVG(importance) as avg_imp FROM memory.long_term"
-                + (f" WHERE user_id = '{user_id}'" if user_id else "")
-            )
-            r = await fetch_one(q)
-            if r:
-                long_count, unique_users = r["cnt"], r["users"]
-                avg_importance = float(r["avg_imp"]) if r["avg_imp"] else 0.0
-
-        return MemoryStatsResponse(
-            short_term_count=short_count,
-            medium_term_count=medium_count,
-            long_term_count=long_count,
-            total_count=short_count + medium_count + long_count,
-            unique_users=unique_users,
-            avg_importance=avg_importance,
-        )
-    except Exception as e:
-        logger.exception("Error getting stats")
-        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=410, detail="Legacy memory routes disabled")
 
 
 async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:

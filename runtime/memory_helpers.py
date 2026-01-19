@@ -21,8 +21,11 @@ from __future__ import annotations
 
 import structlog
 from typing import Any, Dict, List, Optional
+import os
 
 logger = structlog.get_logger(__name__)
+
+from memory.governance_gate import build_governance_context, governance_context
 
 # Memory segment constants
 MEMORY_SEGMENT_GOVERNANCE_META = "governance_meta"
@@ -70,20 +73,31 @@ async def memory_search(
         from memory.substrate_service import get_service
         from core.schemas import SemanticSearchRequest
 
-        service = get_service()
-        if not service:
-            logger.warning("Memory service not available")
-            return []
-
-        # Use semantic search with segment tag
-        # The segment is encoded in the packet_type or tags
-        request = SemanticSearchRequest(
-            query=query,
-            top_k=top_k,
-            agent_id=agent_id,
+        scope = os.getenv("L9_MEMORY_SCOPE", "shared")
+        project_id = os.getenv("L9_PROJECT_ID", "l9")
+        ctx = build_governance_context(
+            caller_id="runtime",
+            role="end_user",
+            scope=scope,
+            project_id=project_id,
+            allowed_scopes=[scope],
         )
 
-        result = await service.semantic_search(request)
+        async with governance_context(ctx):
+            service = await get_service()
+            if not service:
+                logger.warning("Memory service not available")
+                return []
+
+            # Use semantic search with segment tag
+            # The segment is encoded in the packet_type or tags
+            request = SemanticSearchRequest(
+                query=query,
+                top_k=top_k,
+                agent_id=agent_id,
+            )
+
+            result = await service.semantic_search(request)
 
         # Filter by segment tag
         filtered = []
@@ -113,7 +127,7 @@ async def memory_search(
                 )
                 filtered.append(payload)
 
-        return filtered
+            return filtered
 
     except ImportError:
         logger.warning("Memory service not available - returning empty results")
@@ -155,37 +169,48 @@ async def memory_write(
         from memory.ingestion import ingest_packet
         from core.schemas import PacketEnvelopeIn, PacketMetadata
 
-        # Create metadata with segment and agent
-        packet_metadata = PacketMetadata(
-            agent=agent_id,
-            domain="l9_internal",
+        scope = os.getenv("L9_MEMORY_SCOPE", "shared")
+        project_id = os.getenv("L9_PROJECT_ID", "l9")
+        ctx = build_governance_context(
+            caller_id="runtime",
+            role="end_user",
+            scope=scope,
+            project_id=project_id,
+            allowed_scopes=[scope],
         )
 
-        # Merge with additional metadata if provided
-        if metadata:
-            if packet_metadata.model_dump(exclude_none=True):
-                packet_metadata_dict = packet_metadata.model_dump(exclude_none=True)
-                packet_metadata_dict.update(metadata)
-                packet_metadata = PacketMetadata(**packet_metadata_dict)
-
-        # Create packet with segment encoded in packet_type
-        packet_in = PacketEnvelopeIn(
-            packet_type=f"memory_{segment}",
-            payload=payload,
-            metadata=packet_metadata,
-            tags=[segment, agent_id],  # Tag with segment for filtering
-        )
-
-        result = await ingest_packet(packet_in)
-
-        if result and result.packet_id:
-            logger.info(
-                f"Wrote to memory segment {segment}: packet_id={result.packet_id}"
+        async with governance_context(ctx):
+            # Create metadata with segment and agent
+            packet_metadata = PacketMetadata(
+                agent=agent_id,
+                domain="l9_internal",
             )
-            return str(result.packet_id)
-        else:
-            logger.warning(f"Memory write to {segment} returned no packet_id")
-            return None
+
+            # Merge with additional metadata if provided
+            if metadata:
+                if packet_metadata.model_dump(exclude_none=True):
+                    packet_metadata_dict = packet_metadata.model_dump(exclude_none=True)
+                    packet_metadata_dict.update(metadata)
+                    packet_metadata = PacketMetadata(**packet_metadata_dict)
+
+            # Create packet with segment encoded in packet_type
+            packet_in = PacketEnvelopeIn(
+                packet_type=f"memory_{segment}",
+                payload=payload,
+                metadata=packet_metadata,
+                tags=[segment, agent_id],  # Tag with segment for filtering
+            )
+
+            result = await ingest_packet(packet_in)
+
+            if result and result.packet_id:
+                logger.info(
+                    f"Wrote to memory segment {segment}: packet_id={result.packet_id}"
+                )
+                return str(result.packet_id)
+            else:
+                logger.warning(f"Memory write to {segment} returned no packet_id")
+                return None
 
     except ImportError:
         logger.warning("Memory ingestion not available - skipping write")

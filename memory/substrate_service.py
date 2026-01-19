@@ -39,6 +39,7 @@ from memory.saga_patterns import (
     SagaPatterns,
 )
 from memory.audit_utils import prepare_packet_for_ingest
+from memory.governance_gate import enforce_packet_governance, require_governance_context
 from telemetry.memory_metrics import (
     record_memory_write,
     record_memory_search,
@@ -201,6 +202,18 @@ class MemorySubstrateService:
         Returns:
             PacketWriteResult with status and written tables
         """
+        ctx = require_governance_context("write_packet")
+        if tenant_id and tenant_id != ctx.tenant_id:
+            raise RuntimeError("tenant_id must be derived server-side")
+        if org_id and org_id != ctx.org_id:
+            raise RuntimeError("org_id must be derived server-side")
+        if user_id and user_id != ctx.user_id:
+            raise RuntimeError("user_id must be derived server-side")
+        if role != "end_user" and role != ctx.role:
+            raise RuntimeError("role must be derived server-side")
+
+        packet_in = enforce_packet_governance(packet_in, ctx)
+
         logger.info(f"Processing packet: type={packet_in.packet_type}")
 
         # Audit mode: normalize, redact PII, detect injection markers
@@ -250,13 +263,13 @@ class MemorySubstrateService:
         # Run through DAG with RLS scope if provided
         # Use transaction with RLS scope to ensure all operations use same connection
         result: PacketWriteResult
-        if tenant_id and org_id and user_id:
+        if ctx.tenant_id and ctx.org_id and ctx.user_id:
             # Use transaction with RLS scope - all DAG operations will use same connection
             async with self._repository.transaction(
-                tenant_id=tenant_id,
-                org_id=org_id,
-                user_id=user_id,
-                role=role,
+                tenant_id=ctx.tenant_id,
+                org_id=ctx.org_id,
+                user_id=ctx.user_id,
+                role=ctx.role,
             ):
                 # Run DAG within transaction - repository methods will use RLS-scoped connection
                 try:
@@ -311,6 +324,21 @@ class MemorySubstrateService:
             status=result.status,
         )
 
+        if result.status == "ok" and packet_in.packet_type != "audit_memory_write":
+            from core.compliance.audit_log import AuditLogger
+
+            audit_logger = AuditLogger(self)
+            logged = await audit_logger.log_memory_write(
+                agent_id=(packet_in.metadata or {}).get("agent", "unknown"),
+                segment=packet_in.packet_type or "unknown",
+                content_type=packet_in.packet_type or "unknown",
+                size_bytes=len(str(packet_in.payload or "")),
+                packet_type=packet_in.packet_type,
+                thread_id=str(packet_in.thread_id) if packet_in.thread_id else None,
+            )
+            if not logged:
+                raise RuntimeError("Memory write audit logging failed")
+
         logger.info(
             f"Packet {envelope.packet_id} processed: "
             f"status={result.status}, tables={result.written_tables}"
@@ -331,6 +359,7 @@ class MemorySubstrateService:
         from uuid import UUID
 
         try:
+            require_governance_context("get_packet")
             row = await self._repository.get_packet(UUID(packet_id))
             if row:
                 return row.envelope
@@ -359,6 +388,7 @@ class MemorySubstrateService:
         from uuid import UUID
 
         try:
+            require_governance_context("search_packets_by_thread")
             rows = await self._repository.search_packets_by_thread(
                 thread_id=UUID(thread_id),
                 packet_type=packet_type,
@@ -396,6 +426,7 @@ class MemorySubstrateService:
             List of packet envelopes as dicts
         """
         try:
+            require_governance_context("search_packets_by_type")
             rows = await self._repository.search_packets_by_type(
                 packet_type=packet_type,
                 agent_id=agent_id,
@@ -447,9 +478,12 @@ class MemorySubstrateService:
             Dict with 'packets' list and metadata
         """
         try:
+            ctx = require_governance_context("query_packets")
             # Set RLS scope if provided
-            if tenant_id and org_id and user_id:
-                await self.set_session_scope(tenant_id, org_id, user_id, role)
+            if ctx.tenant_id and ctx.org_id and ctx.user_id:
+                await self.set_session_scope(
+                    ctx.tenant_id, ctx.org_id, ctx.user_id, ctx.role
+                )
 
             all_packets = []
 
@@ -523,6 +557,7 @@ class MemorySubstrateService:
         Returns:
             SemanticSearchResult with hits
         """
+        require_governance_context("semantic_search")
         logger.info(f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}")
 
         # Get more results to allow filtering by min_score
@@ -598,6 +633,7 @@ class MemorySubstrateService:
         Returns:
             List of memory events as dicts
         """
+        require_governance_context("get_memory_events")
         rows = await self._repository.get_memory_events(
             agent_id=agent_id,
             event_type=event_type,
@@ -628,6 +664,7 @@ class MemorySubstrateService:
         """
         from uuid import UUID
 
+        require_governance_context("get_reasoning_traces")
         pid = UUID(packet_id) if packet_id else None
 
         rows = await self._repository.get_reasoning_traces(
@@ -651,6 +688,7 @@ class MemorySubstrateService:
         Returns:
             Checkpoint state as dict or None
         """
+        require_governance_context("get_checkpoint")
         row = await self._repository.get_checkpoint(agent_id)
         if row:
             return row.model_dump(mode="json")
@@ -675,6 +713,7 @@ class MemorySubstrateService:
         Returns:
             Status dict with counts
         """
+        require_governance_context("write_insights")
         facts_written = 0
 
         for insight in insights:
@@ -719,11 +758,14 @@ class MemorySubstrateService:
         Returns:
             Status dict with update results
         """
+        ctx = require_governance_context("trigger_world_model_update")
         logger.info(f"World model update triggered with {len(insights)} insights")
 
         # Set RLS scope for world model operations
-        if tenant_id and org_id and user_id:
-            await self.set_session_scope(tenant_id, org_id, user_id, role)
+        if ctx.tenant_id and ctx.org_id and ctx.user_id:
+            await self.set_session_scope(
+                ctx.tenant_id, ctx.org_id, ctx.user_id, ctx.role
+            )
 
         # Filter to insights that should trigger updates
         triggering = [i for i in insights if i.get("trigger_world_model", False)]
@@ -787,6 +829,7 @@ class MemorySubstrateService:
         Returns:
             List of facts as dicts
         """
+        require_governance_context("get_facts_by_subject")
         rows = await self._repository.get_facts_by_subject(
             subject=subject or "",
             predicate=predicate,

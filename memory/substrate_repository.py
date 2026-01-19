@@ -38,6 +38,10 @@ _current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
 )
 
 from core.schemas import PacketEnvelope, SemanticHit
+from memory.governance_gate import (
+    build_scope_project_filter,
+    require_governance_context,
+)
 from memory.substrate_models import (
     AgentMemoryEventRow,
     GraphCheckpointRow,
@@ -94,6 +98,7 @@ class SubstrateRepository:
         """Acquire a connection from the pool."""
         if self._pool is None:
             raise RuntimeError("Repository not connected. Call connect() first.")
+        require_governance_context("repository.acquire")
         async with self._pool.acquire() as conn:
             yield conn
 
@@ -125,17 +130,26 @@ class SubstrateRepository:
         """
         if self._pool is None:
             raise RuntimeError("Repository not connected. Call connect() first.")
+        ctx = require_governance_context("repository.transaction")
+        if tenant_id and tenant_id != ctx.tenant_id:
+            raise RuntimeError("tenant_id must be derived server-side")
+        if org_id and org_id != ctx.org_id:
+            raise RuntimeError("org_id must be derived server-side")
+        if user_id and user_id != ctx.user_id:
+            raise RuntimeError("user_id must be derived server-side")
+        if role != ctx.role:
+            raise RuntimeError("role must be derived server-side")
         
         async with self._pool.acquire() as conn:
             async with conn.transaction():
                 # Set RLS scope within transaction (SET LOCAL makes it transaction-scoped)
-                if tenant_id and org_id and user_id:
+                if ctx.tenant_id and ctx.org_id and ctx.user_id:
                     await conn.execute(
                         """SELECT l9_set_scope($1::uuid, $2::uuid, $3::uuid, $4::text)""",
-                        tenant_id,
-                        org_id,
-                        user_id,
-                        role,
+                        ctx.tenant_id,
+                        ctx.org_id,
+                        ctx.user_id,
+                        ctx.role,
                     )
                 
                 # Store connection in context variable for repository methods to use
@@ -175,6 +189,7 @@ class SubstrateRepository:
             importance_score = envelope.confidence.score
         
         # Use RLS-scoped connection if available, otherwise acquire new one
+        require_governance_context("repository.insert_packet")
         rls_conn = _current_rls_connection.get()
         if rls_conn:
             # Use existing RLS-scoped connection (within transaction)
@@ -251,9 +266,15 @@ class SubstrateRepository:
 
     async def get_packet(self, packet_id: UUID) -> Optional[PacketStoreRow]:
         """Retrieve a packet by ID."""
+        ctx = require_governance_context("repository.get_packet")
         async with self.acquire() as conn:
+            filter_clause, params, _ = build_scope_project_filter(
+                ctx, param_idx=2, table_alias="packet_store"
+            )
             row = await conn.fetchrow(
-                "SELECT * FROM packet_store WHERE packet_id = $1", packet_id
+                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",
+                packet_id,
+                *params,
             )
             if row:
                 return self._row_to_packet_store(row)
@@ -278,12 +299,17 @@ class SubstrateRepository:
         Returns:
             List of PacketStoreRow sorted by timestamp ascending
         """
+        ctx = require_governance_context("repository.search_packets_by_thread")
         async with self.acquire() as conn:
             if packet_type:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=5, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT * FROM packet_store 
                     WHERE thread_id = $1 AND packet_type = $2
+                    {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $3 OFFSET $4
                     """,
@@ -291,18 +317,24 @@ class SubstrateRepository:
                     packet_type,
                     limit,
                     offset,
+                    *params,
                 )
             else:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=4, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT * FROM packet_store 
                     WHERE thread_id = $1
+                    {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $2 OFFSET $3
                     """,
                     thread_id,
                     limit,
                     offset,
+                    *params,
                 )
             return [self._row_to_packet_store(r) for r in rows]
 
@@ -325,6 +357,7 @@ class SubstrateRepository:
         Returns:
             List of PacketStoreRow sorted by timestamp descending
         """
+        ctx = require_governance_context("repository.search_packets_by_type")
         async with self.acquire() as conn:
             conditions = ["packet_type = $1"]
             params: list[Any] = [packet_type]
@@ -340,11 +373,16 @@ class SubstrateRepository:
                 params.append(since)
                 param_idx += 1
 
+            filter_clause, filter_params, param_idx = build_scope_project_filter(
+                ctx, param_idx=param_idx, table_alias="packet_store"
+            )
+            params.extend(filter_params)
             params.append(limit)
 
             query = f"""
                 SELECT * FROM packet_store 
                 WHERE {" AND ".join(conditions)}
+                {filter_clause}
                 ORDER BY timestamp DESC
                 LIMIT ${param_idx}
             """
@@ -410,6 +448,7 @@ class SubstrateRepository:
         event_id = uuid4()
         
         # Use RLS-scoped connection if available, otherwise acquire new one
+        require_governance_context("repository.insert_memory_event")
         rls_conn = _current_rls_connection.get()
         if rls_conn:
             # Use existing RLS-scoped connection (within transaction)
@@ -452,27 +491,42 @@ class SubstrateRepository:
         limit: int = 100,
     ) -> list[AgentMemoryEventRow]:
         """Retrieve memory events for an agent."""
+        ctx = require_governance_context("repository.get_memory_events")
         async with self.acquire() as conn:
             if event_type:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=4, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
-                    SELECT * FROM agent_memory_events 
-                    WHERE agent_id = $1 AND event_type = $2
+                    f"""
+                    SELECT ame.*
+                    FROM agent_memory_events ame
+                    LEFT JOIN packet_store ON packet_store.packet_id = ame.packet_id
+                    WHERE ame.agent_id = $1 AND ame.event_type = $2
+                    {filter_clause}
                     ORDER BY timestamp DESC LIMIT $3
                     """,
                     agent_id,
                     event_type,
                     limit,
+                    *params,
                 )
             else:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=3, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
-                    SELECT * FROM agent_memory_events 
-                    WHERE agent_id = $1
+                    f"""
+                    SELECT ame.*
+                    FROM agent_memory_events ame
+                    LEFT JOIN packet_store ON packet_store.packet_id = ame.packet_id
+                    WHERE ame.agent_id = $1
+                    {filter_clause}
                     ORDER BY timestamp DESC LIMIT $2
                     """,
                     agent_id,
                     limit,
+                    *params,
                 )
             return [
                 AgentMemoryEventRow(
@@ -495,6 +549,7 @@ class SubstrateRepository:
     async def insert_reasoning_block(self, block: StructuredReasoningBlock) -> UUID:
         """Insert a reasoning block into reasoning_traces."""
         # Use RLS-scoped connection if available, otherwise acquire new one
+        require_governance_context("repository.insert_reasoning_block")
         rls_conn = _current_rls_connection.get()
         if rls_conn:
             # Use existing RLS-scoped connection (within transaction)
@@ -544,23 +599,57 @@ class SubstrateRepository:
         limit: int = 100,
     ) -> list[ReasoningTraceRow]:
         """Retrieve reasoning traces with optional filters."""
+        ctx = require_governance_context("repository.get_reasoning_traces")
         async with self.acquire() as conn:
             if packet_id:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=3, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    "SELECT * FROM reasoning_traces WHERE packet_id = $1 ORDER BY created_at DESC LIMIT $2",
+                    f"""
+                    SELECT rt.*
+                    FROM reasoning_traces rt
+                    INNER JOIN packet_store ON packet_store.packet_id = rt.packet_id
+                    WHERE rt.packet_id = $1
+                    {filter_clause}
+                    ORDER BY rt.created_at DESC LIMIT $2
+                    """,
                     packet_id,
                     limit,
+                    *params,
                 )
             elif agent_id:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=3, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    "SELECT * FROM reasoning_traces WHERE agent_id = $1 ORDER BY created_at DESC LIMIT $2",
+                    f"""
+                    SELECT rt.*
+                    FROM reasoning_traces rt
+                    INNER JOIN packet_store ON packet_store.packet_id = rt.packet_id
+                    WHERE rt.agent_id = $1
+                    {filter_clause}
+                    ORDER BY rt.created_at DESC LIMIT $2
+                    """,
                     agent_id,
                     limit,
+                    *params,
                 )
             else:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=2, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    "SELECT * FROM reasoning_traces ORDER BY created_at DESC LIMIT $1",
+                    f"""
+                    SELECT rt.*
+                    FROM reasoning_traces rt
+                    INNER JOIN packet_store ON packet_store.packet_id = rt.packet_id
+                    WHERE TRUE
+                    {filter_clause}
+                    ORDER BY rt.created_at DESC LIMIT $1
+                    """,
                     limit,
+                    *params,
                 )
             return [
                 ReasoningTraceRow(
@@ -634,6 +723,7 @@ class SubstrateRepository:
         object_json = json.dumps(object_value)
         
         # Use RLS-scoped connection if available, otherwise acquire new one
+        require_governance_context("repository.insert_knowledge_fact")
         rls_conn = _current_rls_connection.get()
         
         if rls_conn:
@@ -717,6 +807,7 @@ class SubstrateRepository:
         Returns:
             List of KnowledgeFactRow
         """
+        ctx = require_governance_context("repository.get_knowledge_facts")
         async with self.acquire() as conn:
             conditions = ["deprecated = FALSE OR deprecated IS NULL"]
             params: list[Any] = []
@@ -732,11 +823,18 @@ class SubstrateRepository:
                 params.append(subject)
                 param_idx += 1
             
+            filter_clause, filter_params, param_idx = build_scope_project_filter(
+                ctx, param_idx=param_idx, table_alias="packet_store"
+            )
+            params.extend(filter_params)
             params.append(limit)
-            
+
             query = f"""
-                SELECT * FROM knowledge_facts
+                SELECT knowledge_facts.*
+                FROM knowledge_facts
+                INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
                 WHERE {" AND ".join(conditions)}
+                {filter_clause}
                 ORDER BY created_at DESC
                 LIMIT ${param_idx}
             """
@@ -777,6 +875,7 @@ class SubstrateRepository:
             embedding_id of the inserted record
         """
         embedding_id = uuid4()
+        require_governance_context("repository.insert_semantic_embedding")
         async with self.acquire() as conn:
             # pgvector expects vector as string format '[x,y,z,...]'
             vector_str = f"[{','.join(str(v) for v in vector)}]"
@@ -811,38 +910,52 @@ class SubstrateRepository:
         Returns:
             List of SemanticHit with embedding_id, score, payload
         """
+        ctx = require_governance_context("repository.search_semantic_memory")
         async with self.acquire() as conn:
             vector_str = f"[{','.join(str(v) for v in query_embedding)}]"
 
             if agent_id:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=4, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT 
-                        embedding_id, 
-                        payload,
-                        1 - (vector <=> $1::vector) as score
-                    FROM semantic_memory
-                    WHERE agent_id = $2
-                    ORDER BY vector <=> $1::vector
+                        sm.embedding_id, 
+                        sm.payload,
+                        1 - (sm.vector <=> $1::vector) as score
+                    FROM semantic_memory sm
+                    INNER JOIN packet_store ON packet_store.packet_id = (sm.payload->>'packet_id')::uuid
+                    WHERE sm.agent_id = $2
+                    {filter_clause}
+                    ORDER BY sm.vector <=> $1::vector
                     LIMIT $3
                     """,
                     vector_str,
                     agent_id,
                     top_k,
+                    *params,
                 )
             else:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=3, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT 
-                        embedding_id, 
-                        payload,
-                        1 - (vector <=> $1::vector) as score
-                    FROM semantic_memory
-                    ORDER BY vector <=> $1::vector
+                        sm.embedding_id, 
+                        sm.payload,
+                        1 - (sm.vector <=> $1::vector) as score
+                    FROM semantic_memory sm
+                    INNER JOIN packet_store ON packet_store.packet_id = (sm.payload->>'packet_id')::uuid
+                    WHERE TRUE
+                    {filter_clause}
+                    ORDER BY sm.vector <=> $1::vector
                     LIMIT $2
                     """,
                     vector_str,
                     top_k,
+                    *params,
                 )
 
             return [
@@ -881,6 +994,8 @@ class SubstrateRepository:
             Checkpoint UUID
         """
         checkpoint_id = uuid4()
+        ctx = require_governance_context("repository.save_checkpoint")
+        graph_state = {**graph_state, "project_id": ctx.project_id}
         
         # Use RLS-scoped connection if available, otherwise acquire new one
         rls_conn = _current_rls_connection.get()
@@ -941,10 +1056,17 @@ class SubstrateRepository:
 
     async def get_checkpoint(self, agent_id: str) -> Optional[GraphCheckpointRow]:
         """Retrieve the latest checkpoint for an agent."""
+        ctx = require_governance_context("repository.get_checkpoint")
         async with self.acquire() as conn:
             row = await conn.fetchrow(
-                "SELECT * FROM graph_checkpoints WHERE agent_id = $1 ORDER BY updated_at DESC LIMIT 1",
+                """
+                SELECT * FROM graph_checkpoints
+                WHERE agent_id = $1
+                AND graph_state->>'project_id' = $2
+                ORDER BY updated_at DESC LIMIT 1
+                """,
                 agent_id,
+                ctx.project_id,
             )
             if row:
                 return GraphCheckpointRow(
@@ -974,15 +1096,18 @@ class SubstrateRepository:
         Returns:
             List of GraphCheckpointRow ordered by updated_at DESC
         """
+        ctx = require_governance_context("repository.list_checkpoints")
         async with self.acquire() as conn:
             rows = await conn.fetch(
                 """
                 SELECT * FROM graph_checkpoints
                 WHERE agent_id = $1
+                AND graph_state->>'project_id' = $2
                 ORDER BY updated_at DESC
-                LIMIT $2
+                LIMIT $3
                 """,
                 agent_id,
+                ctx.project_id,
                 limit,
             )
             checkpoints = []
@@ -1018,10 +1143,16 @@ class SubstrateRepository:
         Returns:
             True if any checkpoint was deleted, False if none found
         """
+        ctx = require_governance_context("repository.delete_checkpoint")
         async with self.acquire() as conn:
             result = await conn.execute(
-                "DELETE FROM graph_checkpoints WHERE agent_id = $1",
+                """
+                DELETE FROM graph_checkpoints
+                WHERE agent_id = $1
+                AND graph_state->>'project_id' = $2
+                """,
                 agent_id,
+                ctx.project_id,
             )
             deleted = result.split()[-1] != "0"
             if deleted:
@@ -1045,22 +1176,26 @@ class SubstrateRepository:
         Returns:
             Number of checkpoints deleted
         """
+        ctx = require_governance_context("repository.delete_old_checkpoints")
         async with self.acquire() as conn:
             # Delete all checkpoints except the most recent keep_last
             result = await conn.execute(
                 """
                 DELETE FROM graph_checkpoints
                 WHERE agent_id = $1
+                AND graph_state->>'project_id' = $3
                 AND checkpoint_id NOT IN (
                     SELECT checkpoint_id
                     FROM graph_checkpoints
                     WHERE agent_id = $1
+                    AND graph_state->>'project_id' = $3
                     ORDER BY updated_at DESC
                     LIMIT $2
                 )
                 """,
                 agent_id,
                 keep_last,
+                ctx.project_id,
             )
             # Parse "DELETE N" to get count
             deleted_count = int(result.split()[-1])
@@ -1084,6 +1219,7 @@ class SubstrateRepository:
     ) -> UUID:
         """Insert a log entry."""
         log_id = uuid4()
+        require_governance_context("repository.insert_log")
         async with self.acquire() as conn:
             await conn.execute(
                 """
@@ -1116,47 +1252,77 @@ class SubstrateRepository:
         Returns:
             List of KnowledgeFactRow
         """
+        ctx = require_governance_context("repository.get_facts_by_subject")
         async with self.acquire() as conn:
             # If subject is empty, return all facts
             if not subject:
                 if predicate:
+                    filter_clause, params, _ = build_scope_project_filter(
+                        ctx, param_idx=3, table_alias="packet_store"
+                    )
                     rows = await conn.fetch(
-                        """
-                        SELECT * FROM knowledge_facts 
+                        f"""
+                        SELECT knowledge_facts.*
+                        FROM knowledge_facts
+                        INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
                         WHERE predicate = $1
+                        {filter_clause}
                         ORDER BY created_at DESC LIMIT $2
                         """,
                         predicate,
                         limit,
+                        *params,
                     )
                 else:
+                    filter_clause, params, _ = build_scope_project_filter(
+                        ctx, param_idx=2, table_alias="packet_store"
+                    )
                     rows = await conn.fetch(
-                        """
-                        SELECT * FROM knowledge_facts 
+                        f"""
+                        SELECT knowledge_facts.*
+                        FROM knowledge_facts
+                        INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
+                        WHERE TRUE
+                        {filter_clause}
                         ORDER BY created_at DESC LIMIT $1
                         """,
                         limit,
+                        *params,
                     )
             elif predicate:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=3, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
-                    SELECT * FROM knowledge_facts 
+                    f"""
+                    SELECT knowledge_facts.*
+                    FROM knowledge_facts
+                    INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
                     WHERE subject = $1 AND predicate = $2
+                    {filter_clause}
                     ORDER BY created_at DESC LIMIT $3
                     """,
                     subject,
                     predicate,
                     limit,
+                    *params,
                 )
             else:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=3, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
-                    SELECT * FROM knowledge_facts 
+                    f"""
+                    SELECT knowledge_facts.*
+                    FROM knowledge_facts
+                    INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
                     WHERE subject = $1
+                    {filter_clause}
                     ORDER BY created_at DESC LIMIT $2
                     """,
                     subject,
                     limit,
+                    *params,
                 )
             return [
                 KnowledgeFactRow(
@@ -1188,15 +1354,23 @@ class SubstrateRepository:
         Returns:
             List of KnowledgeFactRow
         """
+        ctx = require_governance_context("repository.get_facts_by_packet")
         async with self.acquire() as conn:
+            filter_clause, params, _ = build_scope_project_filter(
+                ctx, param_idx=3, table_alias="packet_store"
+            )
             rows = await conn.fetch(
-                """
-                SELECT * FROM knowledge_facts 
+                f"""
+                SELECT knowledge_facts.*
+                FROM knowledge_facts
+                INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
                 WHERE source_packet = $1
+                {filter_clause}
                 ORDER BY created_at DESC LIMIT $2
                 """,
                 packet_id,
                 limit,
+                *params,
             )
             return [
                 KnowledgeFactRow(
@@ -1234,6 +1408,7 @@ class SubstrateRepository:
         Returns:
             True if deprecated, False if not found
         """
+        require_governance_context("repository.deprecate_fact")
         async with self.acquire() as conn:
             result = await conn.execute(
                 """
@@ -1262,6 +1437,7 @@ class SubstrateRepository:
         Returns:
             New contradiction count
         """
+        require_governance_context("repository.increment_contradiction_count")
         async with self.acquire() as conn:
             row = await conn.fetchrow(
                 """
@@ -1291,17 +1467,25 @@ class SubstrateRepository:
         Returns:
             List of active KnowledgeFactRow
         """
+        ctx = require_governance_context("repository.get_active_facts")
         async with self.acquire() as conn:
+            filter_clause, params, _ = build_scope_project_filter(
+                ctx, param_idx=3, table_alias="packet_store"
+            )
             rows = await conn.fetch(
-                """
-                SELECT * FROM knowledge_facts 
+                f"""
+                SELECT knowledge_facts.*
+                FROM knowledge_facts
+                INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
                 WHERE subject = $1 
                   AND deprecated = FALSE
                   AND confidence >= $2
+                {filter_clause}
                 ORDER BY confidence DESC, created_at DESC
                 """,
                 subject,
                 min_confidence,
+                *params,
             )
             return [
                 KnowledgeFactRow(
@@ -1333,6 +1517,7 @@ class SubstrateRepository:
         Returns:
             Contradiction count (0 if not found)
         """
+        require_governance_context("repository.get_contradiction_count")
         async with self.acquire() as conn:
             row = await conn.fetchrow(
                 """

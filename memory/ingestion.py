@@ -30,6 +30,11 @@ from memory.substrate_service import MemorySubstrateService
 from memory.graph_client import get_neo4j_client
 from memory.validators.packet_validator import PacketValidator, PacketValidationError
 from memory.audit_utils import prepare_packet_for_ingest
+from memory.governance_gate import (
+    enforce_packet_governance,
+    ensure_governance_context,
+    require_governance_context,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -144,6 +149,8 @@ class IngestionPipeline:
         Returns:
             PacketWriteResult with status and written tables
         """
+        ctx = require_governance_context("ingest")
+        packet_in = enforce_packet_governance(packet_in, ctx)
         logger.info(f"Ingesting packet: type={packet_in.packet_type}")
 
         should_embed = embed if embed is not None else self._auto_embed
@@ -190,7 +197,12 @@ class IngestionPipeline:
         # Wrap packet_store and agent_memory_events in transaction for atomicity
         if self._repository:
             try:
-                async with self._repository.transaction() as conn:
+                async with self._repository.transaction(
+                    tenant_id=ctx.tenant_id,
+                    org_id=ctx.org_id,
+                    user_id=ctx.user_id,
+                    role=ctx.role,
+                ) as conn:
                     # Store structured packet (uses transaction connection)
                     await self._store_packet_with_connection(envelope, conn)
                     written_tables.append("packet_store")
@@ -729,16 +741,34 @@ async def ingest_packet(
                 "Memory system not initialized. Call memory.init_service() at startup."
             )
 
-    # SIMPLIFIED: Use IngestionPipeline directly (no DAG)
-    # This path includes: validation, embedding, packet_store, neo4j sync, checkpoints
-    # DAG features (reasoning, insights, world model) can be added later
-    pipeline = get_ingestion_pipeline()
-    pipeline.set_repository(service._repository)
-    pipeline.set_semantic_service(service._semantic_service)
-    
-    # Wire agent persistence for critical checkpoints
-    agent_persistence = service.get_agent_persistence()
-    if agent_persistence:
-        pipeline.set_agent_persistence(agent_persistence)
-    
-    return await pipeline.ingest(packet_in)
+    async with ensure_governance_context("ingest_packet"):
+        # SIMPLIFIED: Use IngestionPipeline directly (no DAG)
+        # This path includes: validation, embedding, packet_store, neo4j sync, checkpoints
+        # DAG features (reasoning, insights, world model) can be added later
+        pipeline = get_ingestion_pipeline()
+        pipeline.set_repository(service._repository)
+        pipeline.set_semantic_service(service._semantic_service)
+
+        # Wire agent persistence for critical checkpoints
+        agent_persistence = service.get_agent_persistence()
+        if agent_persistence:
+            pipeline.set_agent_persistence(agent_persistence)
+
+        result = await pipeline.ingest(packet_in)
+
+        if result.status in {"ok", "partial"} and packet_in.packet_type != "audit_memory_write":
+            from core.compliance.audit_log import AuditLogger
+
+            audit_logger = AuditLogger(service)
+            logged = await audit_logger.log_memory_write(
+                agent_id=(packet_in.metadata or {}).get("agent", "unknown"),
+                segment=packet_in.packet_type or "unknown",
+                content_type=packet_in.packet_type or "unknown",
+                size_bytes=len(str(packet_in.payload or "")),
+                packet_type=packet_in.packet_type,
+                thread_id=str(packet_in.thread_id) if packet_in.thread_id else None,
+            )
+            if not logged:
+                raise RuntimeError("Memory write audit logging failed")
+
+        return result

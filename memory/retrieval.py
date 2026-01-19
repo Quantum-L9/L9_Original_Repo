@@ -30,6 +30,11 @@ from uuid import UUID
 
 from core.schemas import SemanticHit, SemanticSearchResult
 from memory.substrate_models import KnowledgeFactRow, PacketStoreRow
+from memory.governance_gate import (
+    build_scope_project_filter,
+    ensure_governance_context,
+    require_governance_context,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -348,18 +353,24 @@ class RetrievalPipeline:
         if self._repository is None:
             return []
 
+        ctx = require_governance_context("retrieval.fetch_thread")
         async with self._repository.acquire() as conn:
             order_clause = "ASC" if order == "asc" else "DESC"
+            filter_clause, params, _ = build_scope_project_filter(
+                ctx, param_idx=3, table_alias="packet_store"
+            )
 
             rows = await conn.fetch(
                 f"""
                 SELECT * FROM packet_store
                 WHERE thread_id = $1
+                {filter_clause}
                 ORDER BY timestamp {order_clause}
                 LIMIT $2
                 """,
                 thread_id,
                 limit,
+                *params,
             )
 
             return [
@@ -399,6 +410,7 @@ class RetrievalPipeline:
         if self._repository is None:
             return {"packet_id": str(packet_id), "chain": [], "depth": 0}
 
+        ctx = require_governance_context("retrieval.fetch_lineage")
         chain = []
         visited = set()
         queue = [(packet_id, 0)]
@@ -434,12 +446,17 @@ class RetrievalPipeline:
             else:
                 # Traverse down to children
                 async with self._repository.acquire() as conn:
+                    filter_clause, params, _ = build_scope_project_filter(
+                        ctx, param_idx=2, table_alias="packet_store"
+                    )
                     rows = await conn.fetch(
-                        """
+                        f"""
                         SELECT packet_id FROM packet_store
                         WHERE $1 = ANY(parent_ids)
+                        {filter_clause}
                         """,
                         current_id,
+                        *params,
                     )
                     for r in rows:
                         queue.append((r["packet_id"], depth + 1))
@@ -486,15 +503,24 @@ class RetrievalPipeline:
                 subject, predicate, limit
             )
         else:
+            ctx = require_governance_context("retrieval.fetch_facts")
             # Fetch recent facts
             async with self._repository.acquire() as conn:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=2, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
-                    SELECT * FROM knowledge_facts
+                    f"""
+                    SELECT knowledge_facts.*
+                    FROM knowledge_facts
+                    INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
+                    WHERE TRUE
+                    {filter_clause}
                     ORDER BY created_at DESC
                     LIMIT $1
                     """,
                     limit,
+                    *params,
                 )
                 facts = [
                     KnowledgeFactRow(
@@ -533,40 +559,53 @@ class RetrievalPipeline:
         if self._repository is None:
             return []
 
+        ctx = require_governance_context("retrieval.fetch_insights")
         async with self._repository.acquire() as conn:
+            filter_clause, params, param_idx = build_scope_project_filter(
+                ctx, param_idx=3, table_alias="packet_store"
+            )
             if packet_id:
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
                     AND envelope->>'source_packet' = $1
+                    {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $2
                     """,
                     str(packet_id),
                     limit,
+                    *params,
                 )
             elif insight_type:
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
                     AND envelope->'payload'->>'insight_type' = $1
+                    {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $2
                     """,
                     insight_type,
                     limit,
+                    *params,
                 )
             else:
+                filter_clause, params, _ = build_scope_project_filter(
+                    ctx, param_idx=2, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
-                    """
+                    f"""
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
+                    {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $1
                     """,
                     limit,
+                    *params,
                 )
 
         return [
@@ -696,58 +735,63 @@ async def get_governance_patterns(
         return []
 
     try:
-        # Query governance_pattern packets
-        async with pipeline._repository.acquire() as conn:
-            # Build query with filters
-            # Note: packet_store uses packet_id (not id), envelope (not payload), timestamp (not created_at)
-            query = """
-                SELECT packet_id, packet_type, envelope, provenance, timestamp
-                FROM packet_store
-                WHERE packet_type = 'governance_pattern'
-            """
-            params = []
-            param_idx = 1
+        async with ensure_governance_context("retrieval.get_governance_patterns") as ctx:
+            # Query governance_pattern packets
+            async with pipeline._repository.acquire() as conn:
+                # Build query with filters
+                # Note: packet_store uses packet_id (not id), envelope (not payload), timestamp (not created_at)
+                query = """
+                    SELECT packet_id, packet_type, envelope, provenance, timestamp
+                    FROM packet_store
+                    WHERE packet_type = 'governance_pattern'
+                """
+                params = []
+                filter_clause, filter_params, param_idx = build_scope_project_filter(
+                    ctx, param_idx=1, table_alias="packet_store"
+                )
+                params.extend(filter_params)
+                query += f" {filter_clause}"
 
-            if tool_name:
-                query += f" AND envelope->'payload'->>'tool_name' = ${param_idx}"
-                params.append(tool_name)
-                param_idx += 1
+                if tool_name:
+                    query += f" AND envelope->'payload'->>'tool_name' = ${param_idx}"
+                    params.append(tool_name)
+                    param_idx += 1
 
-            if task_type:
-                query += f" AND envelope->'payload'->>'task_type' = ${param_idx}"
-                params.append(task_type)
-                param_idx += 1
+                if task_type:
+                    query += f" AND envelope->'payload'->>'task_type' = ${param_idx}"
+                    params.append(task_type)
+                    param_idx += 1
 
-            if decision:
-                query += f" AND envelope->'payload'->>'decision' = ${param_idx}"
-                params.append(decision)
-                param_idx += 1
+                if decision:
+                    query += f" AND envelope->'payload'->>'decision' = ${param_idx}"
+                    params.append(decision)
+                    param_idx += 1
 
-            query += f" ORDER BY timestamp DESC LIMIT ${param_idx}"
-            params.append(limit)
+                query += f" ORDER BY timestamp DESC LIMIT ${param_idx}"
+                params.append(limit)
 
-            rows = await conn.fetch(query, *params)
+                rows = await conn.fetch(query, *params)
 
-            patterns = []
-            for row in rows:
-                try:
-                    envelope = row["envelope"]
-                    if isinstance(envelope, str):
-                        import json
+                patterns = []
+                for row in rows:
+                    try:
+                        envelope = row["envelope"]
+                        if isinstance(envelope, str):
+                            import json
 
-                        envelope = json.loads(envelope)
-                    # Extract payload from envelope
-                    payload = envelope.get("payload", envelope)
-                    patterns.append(payload)
-                except Exception as e:
-                    logger.warning(f"Failed to parse pattern: {e}")
+                            envelope = json.loads(envelope)
+                        # Extract payload from envelope
+                        payload = envelope.get("payload", envelope)
+                        patterns.append(payload)
+                    except Exception as e:
+                        logger.warning(f"Failed to parse pattern: {e}")
 
-            logger.info(
-                f"Retrieved {len(patterns)} governance patterns",
-                tool_name=tool_name,
-                task_type=task_type,
-            )
-            return patterns
+                logger.info(
+                    f"Retrieved {len(patterns)} governance patterns",
+                    tool_name=tool_name,
+                    task_type=task_type,
+                )
+                return patterns
 
     except Exception as e:
         logger.error(f"Failed to retrieve governance patterns: {e}")

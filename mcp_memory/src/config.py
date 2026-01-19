@@ -81,6 +81,9 @@ class Settings(BaseSettings):
     # See: memory-setup-instructions.md → userid_strategy
     L_CTO_USER_ID: str = "l9-shared"  # Shared userid for L + Cursor collaboration
 
+    # Project isolation (server-derived, not client-supplied)
+    MCP_PROJECT_ID: str = "l9"
+
     # Redis (optional)
     REDIS_ENABLED: bool = False
     REDIS_HOST: str = "127.0.0.1"

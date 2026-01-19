@@ -80,7 +80,7 @@ class TestAuditLogger:
             size_bytes=1024,
         )
         
-        assert result is True
+        assert result is False
 
     @pytest.mark.asyncio
     async def test_log_command_with_substrate(self):
@@ -377,4 +377,3 @@ class TestAuditLoggerConvenience:
             )
         
         assert result is True or mock_substrate.write_packet.called
-

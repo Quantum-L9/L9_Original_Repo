@@ -17,49 +17,38 @@ import uuid
 import asyncpg
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query
 import asyncio
 
 from src.db import fetch_all, fetch_one, execute
 from src.embeddings import embed_text
 from src.config import settings
+from memory.governance_gate import ensure_governance_context, require_governance_context
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 
-def get_substrate_service(request: Request):
-    """Get MemorySubstrateService from app state (if initialized)."""
-    return getattr(request.app.state, "substrate_service", None)
-
-
 def map_mcp_scope_to_db_scope(mcp_scope: str) -> str:
     """
-    Map MCP governance scopes to DB scope values.
-    
+    Map MCP scopes to DB scopes, preserving semantics.
+
     MCP scopes: 'developer', 'l-private', 'global'
-    DB scopes: 'shared', 'l-private' (current), 'developer', 'global' (target after migration)
-    
-    For now, map:
-    - 'developer' → 'shared' (shared between L and Cursor)
-    - 'l-private' → 'l-private' (L only)
-    - 'global' → 'shared' (cross-project, shared)
+    DB scopes: 'developer', 'l-private', 'global'
+
+    Requires migration 0014 to add these scope values.
     """
     mapping = {
-        "developer": "shared",  # Shared developer collaboration
-        "l-private": "l-private",  # L's private operations
-        "global": "shared",  # Cross-project shared knowledge
+        "developer": "developer",
+        "l-private": "l-private",
+        "global": "global",
     }
-    return mapping.get(mcp_scope, "shared")
+    return mapping.get(mcp_scope, "developer")
 
 
 def map_db_scope_to_mcp_scope(db_scope: str) -> str:
     """Reverse mapping: DB scope → MCP scope."""
-    # For now, 'shared' maps to 'developer' (most common case)
-    # 'l-private' stays the same
-    if db_scope == "l-private":
-        return "l-private"
-    return "developer"  # Default 'shared' → 'developer'
+    return db_scope
 
 
 async def save_memory_handler(
@@ -71,10 +60,6 @@ async def save_memory_handler(
     tags: Optional[List[str]] = None,
     importance: float = 1.0,
     metadata: Optional[Dict[str, Any]] = None,
-    # Governance fields (enforced server-side, not client-provided)
-    caller_id: str = "unknown",
-    creator: str = "unknown",
-    source: str = "unknown",
     # Optional: substrate service from app state (for main ingestion pipeline)
     substrate_service: Optional[Any] = None,
 ) -> Dict[str, Any]:
@@ -93,11 +78,11 @@ async def save_memory_handler(
     
     Args:
         scope: MCP scope ('developer', 'l-private', 'global')
-        caller_id: "L" or "C" (from API key)
-        creator: "L-CTO" or "Cursor-IDE" (server-enforced)
-        source: "l9-kernel" or "cursor-ide" (server-enforced)
         substrate_service: Optional MemorySubstrateService instance
     """
+    ctx = require_governance_context("mcp_memory.save_memory")
+    if scope != ctx.scope:
+        raise HTTPException(status_code=403, detail="Scope not authorized")
     pipeline_error = None
     
     # Tier 1: Full pipeline (preferred path)
@@ -112,9 +97,6 @@ async def save_memory_handler(
                 tags=tags,
                 importance=importance,
                 metadata=metadata,
-                caller_id=caller_id,
-                creator=creator,
-                source=source,
                 substrate_service=substrate_service,
             )
             
@@ -142,9 +124,6 @@ async def save_memory_handler(
             tags=tags,
             importance=importance,
             metadata=metadata,
-            caller_id=caller_id,
-            creator=creator,
-            source=source,
         )
         # Mark as fallback tier
         result["tier_used"] = "direct_db"
@@ -175,24 +154,17 @@ async def _save_via_main_pipeline(
     tags: Optional[List[str]],
     importance: float,
     metadata: Optional[Dict[str, Any]],
-    caller_id: str,
-    creator: str,
-    source: str,
     substrate_service: Any,
 ) -> Dict[str, Any]:
     """Save memory via main L9 ingestion pipeline (full DAG)."""
     from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
     from datetime import timedelta
+    ctx = require_governance_context("mcp_memory.save_memory.pipeline")
     
     # Map MCP scope to DB scope
     db_scope = map_mcp_scope_to_db_scope(scope)
     
-    # Determine project_id
-    project_id = None
-    if metadata:
-        project_id = metadata.get("project_id")
-    if project_id is None:
-        project_id = "l9" if scope != "global" else None
+    project_id = ctx.project_id
     
     # Calculate TTL based on duration
     ttl = None
@@ -202,24 +174,43 @@ async def _save_via_main_pipeline(
         ttl = datetime.utcnow() + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
     
     # Build metadata dict (not PacketMetadata model - that's for envelope metadata)
+    sanitized_metadata = (
+        {}
+        if metadata is None
+        else {
+            k: v
+            for k, v in metadata.items()
+            if k
+            not in {
+                "caller",
+                "creator",
+                "source",
+                "project_id",
+                "scope",
+                "db_scope",
+                "agent",
+            }
+        }
+    )
+
     envelope_metadata = {
-        "creator": creator,
-        "source": source,
-        "caller": caller_id,
-        "agent": "l-cto" if caller_id == "L" else "cursor-ide",
+        "creator": ctx.creator or "unknown",
+        "source": ctx.source or "unknown",
+        "caller": ctx.caller_id,
+        "agent": "l-cto" if ctx.caller_id == "L" else "cursor-ide",
         "user_id": user_id,
         "project_id": project_id,
         "importance": importance,
         "duration": duration,
         "scope": scope,  # MCP scope preserved
         "db_scope": db_scope,  # DB scope for filtering
-        **(metadata or {}),
+        **sanitized_metadata,
     }
     
     # Build provenance
     provenance = PacketProvenance(
-        source=source,
-        source_agent="l-cto" if caller_id == "L" else "cursor-ide",
+        source=ctx.source or "unknown",
+        source_agent="l-cto" if ctx.caller_id == "L" else "cursor-ide",
     )
     
     # Create PacketEnvelopeIn for main ingestion pipeline
@@ -259,7 +250,7 @@ async def _save_via_main_pipeline(
         packet_id=str(result.packet_id),
         scope=scope,
         kind=kind,
-        caller=caller_id,
+        caller=ctx.caller_id,
         written_tables=result.written_tables,
         ingest_time_ms=ingest_time_ms,
         enrichment_status=result.enrichment_status,
@@ -300,11 +291,9 @@ async def _save_via_direct_db(
     tags: Optional[List[str]],
     importance: float,
     metadata: Optional[Dict[str, Any]],
-    caller_id: str,
-    creator: str,
-    source: str,
 ) -> Dict[str, Any]:
     """Fallback: Save memory via direct DB access (legacy path)."""
+    ctx = require_governance_context("mcp_memory.save_memory.direct_db")
     # Generate packet ID
     packet_id = uuid.uuid4()
     thread_id = uuid.uuid4()  # Daily session thread (could be passed in)
@@ -319,11 +308,7 @@ async def _save_via_direct_db(
     embed_time_ms = (time.time() - embed_start) * 1000
     
     # Build PacketEnvelope structure
-    project_id = None
-    if metadata:
-        project_id = metadata.get("project_id")
-    if project_id is None:
-        project_id = "l9" if scope != "global" else None
+    project_id = ctx.project_id
     
     envelope = {
         "packet_id": str(packet_id),
@@ -336,15 +321,15 @@ async def _save_via_direct_db(
             "project_id": project_id,
         },
         "metadata": {
-            "creator": creator,
-            "source": source,
-            "caller": caller_id,
-            "agent": "l-cto" if caller_id == "L" else "cursor-ide",
+            "creator": ctx.creator or "unknown",
+            "source": ctx.source or "unknown",
+            "caller": ctx.caller_id,
+            "agent": "l-cto" if ctx.caller_id == "L" else "cursor-ide",
             "user_id": user_id,
             "project_id": project_id,
             "importance": importance,
             "duration": duration,
-            **({} if metadata is None else {k: v for k, v in metadata.items() if k != "project_id"}),
+            **({} if metadata is None else {k: v for k, v in metadata.items() if k not in {"project_id", "caller", "creator", "source", "scope"}}),
         },
         "thread_id": str(thread_id),
         "tags": tags or [],
@@ -422,7 +407,7 @@ async def _save_via_direct_db(
         scope=scope,
         db_scope=db_scope,
         kind=kind,
-        caller=caller_id,
+        caller=ctx.caller_id,
         project_id=project_id,
     )
     
@@ -448,7 +433,6 @@ async def search_memory_handler(
     top_k: int = 5,
     threshold: float = 0.7,
     duration: str = "all",
-    caller_id: str = "unknown",  # Perplexity: for audit logging
 ) -> Dict[str, Any]:
     """
     Search unified L9 substrate using memory_embeddings with packet_store join.
@@ -457,6 +441,7 @@ async def search_memory_handler(
     for full envelope data and scope filtering.
     """
     try:
+        ctx = require_governance_context("mcp_memory.search_memory")
         embed_start = time.time()
         query_embedding = await embed_text(query)
         embed_time_ms = (time.time() - embed_start) * 1000
@@ -466,11 +451,18 @@ async def search_memory_handler(
         query_embedding_str = f"[{','.join(str(v) for v in query_embedding)}]"
         
         # Map MCP scopes to DB scopes
-        db_scopes = [map_mcp_scope_to_db_scope(s) for s in (scopes or ["developer", "global"])]
+        requested_scopes = scopes or ["developer", "global"]
+        db_scopes = [
+            map_mcp_scope_to_db_scope(s)
+            for s in requested_scopes
+            if s in ctx.allowed_scopes
+        ]
+        if not db_scopes:
+            raise HTTPException(status_code=403, detail="No authorized scopes available")
         
         search_start = time.time()
         
-        # Build WHERE clause for scope filtering
+        # Build WHERE clause for scope + project filtering
         scope_filter = ""
         params = [query_embedding_str, threshold, top_k]
         param_idx = 4
@@ -480,6 +472,10 @@ async def search_memory_handler(
             scope_filter = f"AND ps.scope IN ({scope_placeholders})"
             params.extend(db_scopes)
             param_idx += len(db_scopes)
+
+        project_filter = f"AND COALESCE(ps.envelope->'metadata'->>'project_id', 'l9') = ${param_idx}"
+        params.append(ctx.project_id)
+        param_idx += 1
         
         # Build WHERE clause for kind filtering (from envelope payload)
         # SECURITY: Use parameterized queries to prevent SQL injection
@@ -524,6 +520,7 @@ async def search_memory_handler(
         INNER JOIN packet_store ps ON me.packet_id = ps.packet_id
         WHERE me.embedding_type = 'content'
         {scope_filter}  -- Perplexity: SQL-level scope enforcement
+        {project_filter}
         {kind_filter}
         {duration_filter}
         AND 1 - (me.vector <-> $1::vector) >= $2
@@ -605,38 +602,15 @@ async def search_memory_handler(
 @router.post("/save")
 async def save_memory_route(
     req: Dict[str, Any],
-    request: Request,
 ) -> Dict[str, Any]:
     """REST endpoint for saving memory."""
-    substrate_service = get_substrate_service(request)
-    return await save_memory_handler(
-        user_id=req.get("user_id", settings.L_CTO_USER_ID),
-        content=req["content"],
-        kind=req["kind"],
-        scope=req.get("scope", "developer"),
-        duration=req.get("duration", "long"),
-        tags=req.get("tags", []),
-        importance=req.get("importance", 1.0),
-        metadata=req.get("metadata"),
-        caller_id=req.get("caller_id", "unknown"),
-        creator=req.get("creator", "unknown"),
-        source=req.get("source", "unknown"),
-        substrate_service=substrate_service,
-    )
+    raise HTTPException(status_code=410, detail="Legacy REST memory routes disabled")
 
 
 @router.post("/search")
 async def search_memory_route(req: Dict[str, Any]) -> Dict[str, Any]:
     """REST endpoint for searching memory."""
-    return await search_memory_handler(
-        user_id=req.get("user_id", settings.L_CTO_USER_ID),
-        query=req["query"],
-        scopes=req.get("scopes", ["developer", "global"]),
-        kinds=req.get("kinds"),
-        top_k=req.get("top_k", 5),
-        threshold=req.get("threshold", 0.7),
-        duration=req.get("duration", "all"),
-    )
+    raise HTTPException(status_code=410, detail="Legacy REST memory routes disabled")
 
 
 # =============================================================================
@@ -654,6 +628,7 @@ async def get_memory_stats(
     Queries packet_store instead of deprecated memory.* tables.
     """
     try:
+        ctx = require_governance_context("mcp_memory.get_memory_stats")
         # Use user_id from metadata.envelope->>'metadata'->>'user_id' or filter by scope
         user_filter = ""
         params = []
@@ -678,8 +653,10 @@ async def get_memory_stats(
             AND ttl > CURRENT_TIMESTAMP
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
+            AND scope = ANY(${param_idx})
+            AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = ${param_idx + 1}
             """
-            r = await fetch_one(query, *params)
+            r = await fetch_one(query, *params, ctx.allowed_scopes, ctx.project_id)
             short_count = r["cnt"] if r else 0
         
         if duration in ["all", "medium"]:
@@ -692,8 +669,10 @@ async def get_memory_stats(
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '7 days'
             AND ttl >= CURRENT_TIMESTAMP + INTERVAL '24 hours'
             {user_filter}
+            AND scope = ANY(${param_idx})
+            AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = ${param_idx + 1}
             """
-            r = await fetch_one(query, *params)
+            r = await fetch_one(query, *params, ctx.allowed_scopes, ctx.project_id)
             medium_count = r["cnt"] if r else 0
         
         if duration in ["all", "long"]:
@@ -707,8 +686,10 @@ async def get_memory_stats(
             WHERE packet_type LIKE 'memory_write_%'
             AND (ttl IS NULL OR ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
             {user_filter}
+            AND scope = ANY(${param_idx})
+            AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = ${param_idx + 1}
             """
-            r = await fetch_one(query, *params)
+            r = await fetch_one(query, *params, ctx.allowed_scopes, ctx.project_id)
             if r:
                 long_count = r["cnt"] if r else 0
                 unique_users = r["users"] if r else 0
@@ -739,6 +720,7 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
     Also deletes associated embeddings via CASCADE.
     """
     try:
+        ctx = require_governance_context("mcp_memory.delete_expired_memories")
         # Count expired packets
         count_query = """
         SELECT COUNT(*) as cnt
@@ -746,8 +728,10 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
         WHERE packet_type LIKE 'memory_write_%'
         AND ttl IS NOT NULL
         AND ttl < CURRENT_TIMESTAMP
+        AND scope = ANY($1)
+        AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = $2
         """
-        count_r = await fetch_one(count_query)
+        count_r = await fetch_one(count_query, ctx.allowed_scopes, ctx.project_id)
         expired_count = count_r["cnt"] if count_r else 0
         
         if not dry_run and expired_count > 0:
@@ -758,7 +742,11 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
                 WHERE packet_type LIKE 'memory_write_%'
                 AND ttl IS NOT NULL
                 AND ttl < CURRENT_TIMESTAMP
-                """
+                AND scope = ANY($1)
+                AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = $2
+                """,
+                ctx.allowed_scopes,
+                ctx.project_id,
             )
             logger.info(f"Deleted {expired_count} expired memories")
         
@@ -785,6 +773,7 @@ async def compound_similar_memories(
         return {"status": "disabled", "message": "Memory compounding is disabled"}
     
     try:
+        ctx = require_governance_context("mcp_memory.compound_similar_memories")
         # Get all long-term memories with embeddings for this user
         memories_query = """
         SELECT 
@@ -802,10 +791,14 @@ async def compound_similar_memories(
         AND (ps.ttl IS NULL OR ps.ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
         AND me.embedding_type = 'content'
         AND ps.envelope->'metadata'->>'user_id' = $1
+        AND ps.scope = ANY($2)
+        AND COALESCE(ps.envelope->'metadata'->>'project_id', 'l9') = $3
         ORDER BY ps.timestamp DESC
         LIMIT 1000
         """
-        memories = await fetch_all(memories_query, user_id)
+        memories = await fetch_all(
+            memories_query, user_id, ctx.allowed_scopes, ctx.project_id
+        )
         
         if len(memories) < 2:
             return {
@@ -874,19 +867,30 @@ async def compound_similar_memories(
                     access_count = $3,
                     tags = $4
                 WHERE packet_id = $5
+                AND scope = ANY($6)
+                AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = $7
                 """,
                 json.dumps(primary_envelope),
                 combined_importance,
                 combined_access,
                 list(merged_tags),
                 primary["packet_id"],
+                ctx.allowed_scopes,
+                ctx.project_id,
             )
             
             # Delete duplicate packets (embeddings deleted via CASCADE)
             duplicate_ids = [m["packet_id"] for m in duplicates]
             await execute(
-                "DELETE FROM packet_store WHERE packet_id = ANY($1::uuid[])",
+                """
+                DELETE FROM packet_store
+                WHERE packet_id = ANY($1::uuid[])
+                AND scope = ANY($2)
+                AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = $3
+                """,
                 duplicate_ids,
+                ctx.allowed_scopes,
+                ctx.project_id,
             )
             
             merged_count += len(duplicates)
@@ -920,6 +924,7 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
         return {"status": "disabled", "message": "Importance decay is disabled"}
     
     try:
+        ctx = require_governance_context("mcp_memory.apply_importance_decay")
         decay_factor = 1.0 - settings.DECAY_RATE_PER_DAY
         
         # Count affected packets
@@ -929,8 +934,10 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
         WHERE packet_type LIKE 'memory_write_%'
         AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
         AND importance_score > 0.01
+        AND scope = ANY($1)
+        AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = $2
         """
-        count_r = await fetch_one(count_query)
+        count_r = await fetch_one(count_query, ctx.allowed_scopes, ctx.project_id)
         affected = count_r["cnt"] if count_r else 0
         
         if not dry_run and affected > 0:
@@ -945,7 +952,11 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
                 WHERE packet_type LIKE 'memory_write_%'
                 AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
                 AND importance_score > 0.01
-                """
+                AND scope = ANY($1)
+                AND COALESCE(envelope->'metadata'->>'project_id', 'l9') = $2
+                """,
+                ctx.allowed_scopes,
+                ctx.project_id,
             )
             logger.info(f"Applied decay to {affected} memories")
         
@@ -976,13 +987,14 @@ async def cleanup_task():
     while True:
         try:
             await asyncio.sleep(settings.MEMORY_CLEANUP_INTERVAL_MINUTES * 60)
-            
-            # Delete expired
-            await delete_expired_memories(dry_run=False)
-            
-            # Apply decay
-            if settings.DECAY_ENABLED:
-                await apply_importance_decay(dry_run=False)
+
+            async with ensure_governance_context("mcp_memory.cleanup_task"):
+                # Delete expired
+                await delete_expired_memories(dry_run=False)
+
+                # Apply decay
+                if settings.DECAY_ENABLED:
+                    await apply_importance_decay(dry_run=False)
             
             logger.info("Cleanup task completed")
         except Exception as e:
@@ -1000,9 +1012,6 @@ async def get_context_injection(
     include_recent: bool = True,
     kinds: Optional[List[str]] = None,
     allowed_scopes: Optional[List[str]] = None,
-    caller_id: str = "unknown",
-    creator: str = "unknown",
-    source: str = "unknown",
 ) -> Dict[str, Any]:
     """
     Auto-retrieve relevant memories for context injection before a task.
@@ -1015,9 +1024,11 @@ async def get_context_injection(
                        L gets None (all scopes including l-private).
     """
     start_time = time.time()
+    ctx = require_governance_context("mcp_memory.get_context_injection")
     
     # Default scopes if not restricted
-    search_scopes = allowed_scopes if allowed_scopes else ["developer", "global", "l-private"]
+    search_scopes = allowed_scopes if allowed_scopes else list(ctx.allowed_scopes)
+    search_scopes = [s for s in search_scopes if s in ctx.allowed_scopes]
     
     try:
         # 1. Get semantically relevant memories
@@ -1045,11 +1056,15 @@ async def get_context_injection(
             FROM packet_store ps
             WHERE ps.packet_type LIKE 'memory_write_%'
             AND ps.envelope->'metadata'->>'user_id' = $1
+            AND ps.scope = ANY($2)
+            AND COALESCE(ps.envelope->'metadata'->>'project_id', 'l9') = $3
             AND ps.timestamp > NOW() - INTERVAL '24 hours'
             ORDER BY ps.timestamp DESC
             LIMIT 5
             """
-            recent_rows = await fetch_all(recent_query, user_id)
+            recent_rows = await fetch_all(
+                recent_query, user_id, search_scopes, ctx.project_id
+            )
             
             for row in recent_rows:
                 envelope = row["envelope"]
@@ -1090,9 +1105,6 @@ async def extract_session_learnings(
     key_decisions: Optional[List[str]] = None,
     errors_encountered: Optional[List[str]] = None,
     successes: Optional[List[str]] = None,
-    caller_id: str = "unknown",
-    creator: str = "unknown",
-    source: str = "unknown",
 ) -> Dict[str, Any]:
     """
     Extract and store learnings from a completed session.
@@ -1113,9 +1125,6 @@ async def extract_session_learnings(
             tags=["session:summary"],
             importance=0.8,
             metadata={"session_id": session_id, "type": "session_summary"},
-            caller_id=caller_id,
-            creator=creator,
-            source=source,
         )
         memory_ids.append(summary_result["packet_id"])
         kinds_created.append("context")
@@ -1132,9 +1141,6 @@ async def extract_session_learnings(
                     tags=["session:decision"],
                     importance=0.9,
                     metadata={"session_id": session_id, "type": "decision"},
-                    caller_id=caller_id,
-                    creator=creator,
-                    source=source,
                 )
                 memory_ids.append(dec_result["packet_id"])
                 if "decision" not in kinds_created:
@@ -1152,9 +1158,6 @@ async def extract_session_learnings(
                     tags=["session:error", "debug:fix"],
                     importance=0.95,
                     metadata={"session_id": session_id, "type": "error_fix"},
-                    caller_id=caller_id,
-                    creator=creator,
-                    source=source,
                 )
                 memory_ids.append(err_result["packet_id"])
                 if "error" not in kinds_created:
@@ -1172,9 +1175,6 @@ async def extract_session_learnings(
                     tags=["session:success"],
                     importance=0.85,
                     metadata={"session_id": session_id, "type": "success"},
-                    caller_id=caller_id,
-                    creator=creator,
-                    source=source,
                 )
                 memory_ids.append(suc_result["packet_id"])
                 if "success" not in kinds_created:
@@ -1204,9 +1204,11 @@ async def get_proactive_suggestions(
     Uses unified search to surface relevant past experiences, error fixes, preferences.
     """
     start_time = time.time()
+    ctx = require_governance_context("mcp_memory.get_proactive_suggestions")
     
     # Default scopes if not restricted
-    search_scopes = allowed_scopes if allowed_scopes else ["developer", "global", "l-private"]
+    search_scopes = allowed_scopes if allowed_scopes else list(ctx.allowed_scopes)
+    search_scopes = [s for s in search_scopes if s in ctx.allowed_scopes]
     
     try:
         suggestions = []
@@ -1285,6 +1287,7 @@ async def query_temporal(
     Answers 'what changed since X' or 'show timeline of Y'.
     """
     try:
+        ctx = require_governance_context("mcp_memory.query_temporal")
         # Parse datetime strings
         since_dt = datetime.fromisoformat(since) if since else datetime.utcnow() - timedelta(days=7)
         until_dt = datetime.fromisoformat(until) if until else datetime.utcnow()
@@ -1292,18 +1295,19 @@ async def query_temporal(
         # Build WHERE clause
         where_parts = [
             "ps.packet_type LIKE 'memory_write_%'",
-            "ps.envelope->>'metadata'->>'user_id' = $1",
+            "ps.envelope->'metadata'->>'user_id' = $1",
             "ps.timestamp >= $2",
             "ps.timestamp <= $3",
+            "ps.scope = ANY($4)",
+            "COALESCE(ps.envelope->'metadata'->>'project_id', 'l9') = $5",
         ]
-        params = [user_id, since_dt, until_dt]
-        param_idx = 4
+        params = [user_id, since_dt, until_dt, ctx.allowed_scopes, ctx.project_id]
+        param_idx = 6
         
         if kinds:
-            kind_conditions = []
-            for kind in kinds:
-                kind_conditions.append(f"ps.packet_type LIKE '%{kind}%'")
-            where_parts.append(f"({' OR '.join(kind_conditions)})")
+            where_parts.append(f"ps.packet_type LIKE ANY(${param_idx})")
+            params.append([f"%{kind}%" for kind in kinds])
+            param_idx += 1
         
         where_clause = " AND ".join(where_parts)
         
@@ -1405,12 +1409,9 @@ async def save_memory_with_confidence(
     scope: str = "developer",
     duration: str = "long",
     confidence: float = 1.0,
-    source: str = "cursor",
     related_memory_ids: Optional[List[Any]] = None,  # Can be UUIDs (str) or ints (legacy)
     tags: Optional[List[str]] = None,
     importance: float = 1.0,
-    caller_id: str = "unknown",
-    creator: str = "unknown",
 ) -> Dict[str, Any]:
     """
     Save memory with explicit confidence scoring and relationship linking.
@@ -1418,6 +1419,7 @@ async def save_memory_with_confidence(
     Uses unified save_memory_handler with confidence metadata.
     """
     try:
+        require_governance_context("mcp_memory.save_memory_with_confidence")
         # Add confidence to metadata
         metadata = {
             "confidence": confidence,
@@ -1446,9 +1448,6 @@ async def save_memory_with_confidence(
             tags=all_tags,
             importance=effective_importance,
             metadata=metadata,
-            caller_id=caller_id,
-            creator=creator,
-            source=source,
         )
         
         # Log relationships if provided
@@ -1465,4 +1464,3 @@ async def save_memory_with_confidence(
     except Exception as e:
         logger.exception("Error saving memory with confidence")
         raise HTTPException(status_code=500, detail=str(e))
-

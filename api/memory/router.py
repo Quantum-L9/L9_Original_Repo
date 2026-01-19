@@ -8,10 +8,11 @@ All packets are automatically ingested via canonical ingest_packet().
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
-from api.auth import verify_api_key
-from typing import Optional, List
+from api.auth import CallerIdentity, verify_api_key
+from typing import Optional, List, AsyncGenerator
 from uuid import UUID
 import structlog
+import os
 
 from memory.substrate_service import get_service
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
@@ -21,10 +22,45 @@ from memory.housekeeping import get_housekeeping_engine
 from orchestrators.memory.interface import MemoryRequest, MemoryOperation
 from orchestrators.memory.orchestrator import MemoryOrchestrator
 from memory.saga import SagaResult
+from memory.governance_gate import (
+    build_governance_context,
+    build_scope_project_filter,
+    governance_context,
+    require_governance_context,
+)
 
 logger = structlog.get_logger(__name__)
 
-router = APIRouter()
+async def memory_governance_context_dependency(
+    caller: CallerIdentity = Depends(verify_api_key),
+) -> AsyncGenerator[None, None]:
+    """
+    Establish a governance context for all /api/memory routes
+    based on the authenticated caller identity.
+    """
+    scope = os.getenv("L9_MEMORY_SCOPE", "developer")
+    if scope not in caller.allowed_scopes:
+        scope = (
+            "developer"
+            if "developer" in caller.allowed_scopes
+            else caller.allowed_scopes[0]
+        )
+    project_id = os.getenv("L9_PROJECT_ID", "l9")
+
+    ctx = build_governance_context(
+        caller_id=caller.caller_id,
+        role="end_user",
+        scope=scope,
+        project_id=project_id,
+        allowed_scopes=list(caller.allowed_scopes),
+        creator=caller.creator,
+        source=caller.source,
+    )
+    async with governance_context(ctx):
+        yield
+
+
+router = APIRouter(dependencies=[Depends(memory_governance_context_dependency)])
 
 
 # ============================================================================
@@ -158,6 +194,7 @@ async def get_stats(
 ):
     """Get memory system statistics."""
     try:
+        ctx = require_governance_context("memory.stats")
         service = await get_service()
         health = await service.health_check()
 
@@ -165,11 +202,31 @@ async def get_stats(
         repo = service._repository
 
         async with repo.acquire() as conn:
-            packet_count = await conn.fetchval("SELECT COUNT(*) FROM packet_store")
-            embedding_count = await conn.fetchval(
-                "SELECT COUNT(*) FROM semantic_memory"
+            filter_clause, params, _ = build_scope_project_filter(
+                ctx, param_idx=1, table_alias="packet_store"
             )
-            fact_count = await conn.fetchval("SELECT COUNT(*) FROM knowledge_facts")
+            packet_count = await conn.fetchval(
+                f"SELECT COUNT(*) FROM packet_store WHERE TRUE {filter_clause}",
+                *params,
+            )
+            embedding_count = await conn.fetchval(
+                f"""
+                SELECT COUNT(*)
+                FROM semantic_memory
+                INNER JOIN packet_store ON packet_store.packet_id = (semantic_memory.payload->>'packet_id')::uuid
+                WHERE TRUE {filter_clause}
+                """,
+                *params,
+            )
+            fact_count = await conn.fetchval(
+                f"""
+                SELECT COUNT(*)
+                FROM knowledge_facts
+                INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
+                WHERE TRUE {filter_clause}
+                """,
+                *params,
+            )
 
         return {
             "status": "operational",
