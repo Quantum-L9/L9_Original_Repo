@@ -34,6 +34,9 @@ def test_build_governance_context_blocks_cursor_private_scope():
             scope="developer",
             project_id="l9",
             allowed_scopes=["developer", "l-private"],
+            tenant_id="tenant-1",
+            org_id="org-1",
+            user_id="user-1",
         )
 
 
@@ -45,6 +48,9 @@ def test_build_governance_context_allows_l_private_scope():
         scope="l-private",
         project_id="l9",
         allowed_scopes=["developer", "l-private"],
+        tenant_id="tenant-1",
+        org_id="org-1",
+        user_id="user-1",
     )
     assert ctx.caller_id == "L"
     assert "l-private" in ctx.allowed_scopes
@@ -58,6 +64,9 @@ def test_enforce_packet_governance_rejects_client_metadata():
         scope="developer",
         project_id="l9",
         allowed_scopes=["developer"],
+        tenant_id="tenant-1",
+        org_id="org-1",
+        user_id="user-1",
     )
     packet = PacketEnvelopeIn(
         packet_type="memory.test",

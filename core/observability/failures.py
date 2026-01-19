@@ -152,7 +152,7 @@ class RecoveryExecutor:
 
             except Exception as exc:
                 logger.error(f"Recovery action failed: {exc}")
-                continue
+                raise
 
         return False
 
@@ -178,10 +178,34 @@ class RecoveryExecutor:
         failure: FailureSignal,
         action: RemediationAction,
     ) -> bool:
-        """Use fallback tool/model."""
-        fallback_target = action.parameters.get("fallback_tool")
-        logger.debug(f"Using fallback: {fallback_target}")
-        # In real implementation, call fallback tool
+        """Use fallback tool/model with explicit approval."""
+        approval_id = action.parameters.get("approval_id")
+        if not approval_id:
+            raise RuntimeError("Fallback requires explicit approval_id.")
+
+        approval_manager = action.parameters.get("approval_manager")
+        if approval_manager is None:
+            from core.governance.approval_manager import ApprovalManager
+
+            substrate_service = action.parameters.get("substrate_service")
+            if substrate_service is None:
+                raise RuntimeError(
+                    "Fallback requires substrate_service or approval_manager."
+                )
+            approval_manager = ApprovalManager(substrate_service)
+
+        decision = await approval_manager.check_approval(approval_id)
+        if decision is None or not decision.is_approved:
+            raise RuntimeError(f"Fallback approval not granted: {approval_id}")
+
+        fallback_executor = action.parameters.get("fallback_executor")
+        if fallback_executor is None:
+            raise RuntimeError("Fallback executor is required for gated execution.")
+
+        result = fallback_executor(failure, action)
+        if asyncio.iscoroutine(result):
+            await result
+
         return True
 
     @must_stay_async("callers use await")

@@ -404,13 +404,8 @@ try:
 except ImportError:
     _has_tool_audit_service = False
 
-# Optional: Event Queue (v3.1+ Stage 3)
-try:
-    from core.coordination.event_queue import EventQueue, init_event_driven_coordination
-
-    _has_event_queue = True
-except ImportError:
-    _has_event_queue = False
+# Required: Event Queue (v3.1+ Stage 3)
+from core.coordination.event_queue import EventQueue, init_event_driven_coordination
 
 # Optional: Virtual Context Manager (v3.1+ Stage 3)
 try:
@@ -1630,7 +1625,17 @@ async def lifespan(app: FastAPI):
         )
 
     # ========================================================================
-    # STAGE 3 MODULES: Tool Audit, Event Queue, Virtual Context, Evaluator
+    # Mandatory: Event Queue (Async agent coordination)
+    # ========================================================================
+    try:
+        event_queue = await init_event_driven_coordination(app.state)
+        logger.info("✓ EventQueue initialized (async coordination)")
+    except Exception as e:
+        logger.error("❌ EventQueue init failed: %s", e, exc_info=True)
+        raise RuntimeError("EventQueue initialization failed") from e
+
+    # ========================================================================
+    # STAGE 3 MODULES: Tool Audit, Virtual Context, Evaluator
     # ========================================================================
     if L9_STAGE3_MODULES:
         logger.info("╔════════════════════════════════════════╗")
@@ -1657,19 +1662,7 @@ async def lifespan(app: FastAPI):
             if not _has_tool_audit_service:
                 logger.debug("ToolAuditService module not available")
 
-        # 2. Event Queue (Async agent coordination)
-        if _has_event_queue:
-            try:
-                event_queue = await init_event_driven_coordination(app.state)
-                logger.info("✓ EventQueue initialized (async coordination)")
-            except Exception as e:
-                logger.error(f"❌ EventQueue init failed: {e}", exc_info=True)
-                app.state.event_queue = None
-        else:
-            app.state.event_queue = None
-            logger.debug("EventQueue module not available")
-
-        # 3. Virtual Context Manager (MemGPT-style tiered memory)
+        # 2. Virtual Context Manager (MemGPT-style tiered memory)
         if _has_virtual_context and substrate:
             try:
                 # Pass neo4j_driver for graph state consolidation (from single source of truth)

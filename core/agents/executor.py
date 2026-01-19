@@ -1323,14 +1323,35 @@ class AgentExecutorService:
                     governance_blocks=instance.governance_blocks,
                 )
         except ImportError:
-            # Governance validation not available - skip (non-fatal)
-            logger.debug(
-                "agent.executor.governance: validation module not available, skipping"
+            logger.error(
+                "agent.executor.governance.missing",
+                task_id=str(instance.task.id),
+            )
+            return ExecutionResult(
+                task_id=instance.task.id,
+                status="blocked",
+                error="Governance validation unavailable. Execution blocked.",
+                iterations=0,
+                duration_ms=int(
+                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                ),
+                governance_blocks=instance.governance_blocks,
             )
         except Exception as e:
-            # Governance check failed - log but continue (non-fatal)
-            logger.warning(
-                f"agent.executor.governance: validation error (non-fatal): {e}"
+            logger.error(
+                "agent.executor.governance.error",
+                task_id=str(instance.task.id),
+                error=str(e),
+            )
+            return ExecutionResult(
+                task_id=instance.task.id,
+                status="blocked",
+                error=f"Governance validation failed: {e}",
+                iterations=0,
+                duration_ms=int(
+                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                ),
+                governance_blocks=instance.governance_blocks,
             )
 
         max_iterations = min(
@@ -1377,8 +1398,20 @@ class AgentExecutorService:
                         tools=[t.tool_id for t in relevant_tools],
                     )
             except Exception as e:
-                logger.warning(
-                    f"Tool shortlisting failed, using all approved tools: {e}"
+                logger.error(
+                    "agent.executor.tools.shortlisting_failed",
+                    task_id=str(instance.task.id),
+                    error=str(e),
+                )
+                return ExecutionResult(
+                    task_id=instance.task.id,
+                    status="blocked",
+                    error=f"Tool shortlisting failed: {e}",
+                    iterations=0,
+                    duration_ms=int(
+                        (datetime.utcnow() - start_time).total_seconds() * 1000
+                    ),
+                    governance_blocks=instance.governance_blocks,
                 )
 
         # Transition to reasoning

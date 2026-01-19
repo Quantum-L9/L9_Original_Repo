@@ -461,23 +461,19 @@ class WorldModelRuntime:
             # Lazy import to avoid circular dependencies
             from world_model.seed_loader import SeedLoader
             from world_model.knowledge_ingestor import KnowledgeIngestor
-            from memory.substrate_service import MemorySubstrateService
-            from memory.substrate_repository import get_substrate_repository
 
             # Initialize seed loader if not already done
             if not self._seed_loader:
-                # Use existing substrate_service if available (has proper OpenAI embeddings)
-                # Otherwise create new one (will use stub embeddings - not ideal)
+                # Use existing substrate_service if available (must have embeddings)
+                # Otherwise require a configured substrate_service.
                 if self._substrate_service:
                     substrate = self._substrate_service
                     logger.debug("Using existing substrate_service with embeddings")
                 else:
-                    logger.warning(
-                        "No substrate_service provided to runtime - creating new one with stub embeddings. "
-                        "Use create_runtime_with_substrate() to pass proper substrate_service."
+                    raise RuntimeError(
+                        "No substrate_service provided to runtime. "
+                        "Seed loading requires a configured substrate_service with embeddings."
                     )
-                    repository = get_substrate_repository()
-                    substrate = MemorySubstrateService(repository=repository)
 
                 # Ensure ingestor is initialized
                 if not self._ingestor:

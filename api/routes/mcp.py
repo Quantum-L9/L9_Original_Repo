@@ -192,10 +192,10 @@ async def call_tool(request: Request, authorization: str = Header(None)):
                     tool_call, user_id, caller, substrate_service
                 )
         else:
-            # Governance not available - call without context (will fail on VPS)
-            logger.warning("Governance gate not available - MCP call may fail")
-            result = await handle_tool_call(
-                tool_call, user_id, caller, substrate_service
+            logger.error("Governance gate not available - MCP call blocked")
+            raise HTTPException(
+                status_code=503,
+                detail="Governance gate unavailable. MCP call blocked.",
             )
 
         return {"status": "success", "result": result, "caller": caller.caller_id}

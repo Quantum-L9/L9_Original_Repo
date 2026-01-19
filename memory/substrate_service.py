@@ -42,6 +42,7 @@ import structlog
 from datetime import datetime
 from typing import Any, Optional
 
+from config.rls_config import get_rls_config
 from core.schemas import (
     PacketEnvelopeIn,
     PacketWriteResult,
@@ -53,7 +54,6 @@ from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import (
     SemanticService,
     EmbeddingProvider,
-    StubEmbeddingProvider,
     create_embedding_provider,
 )
 from memory.substrate_dag import SubstrateDAG
@@ -111,14 +111,15 @@ class MemorySubstrateService:
 
         Args:
             repository: Database repository instance
-            embedding_provider: Embedding provider (defaults to stub if not provided)
+            embedding_provider: Embedding provider (required)
         """
         self._repository = repository
 
         # Initialize embedding provider
         if embedding_provider is None:
-            logger.warning("No embedding provider specified, using stub provider")
-            embedding_provider = StubEmbeddingProvider()
+            raise RuntimeError(
+                "Embedding provider is required for MemorySubstrateService."
+            )
         self._embedding_provider = embedding_provider
 
         # Initialize semantic service
@@ -428,12 +429,16 @@ class MemorySubstrateService:
         try:
             # GMP-75: Establish governance context for service-level searches
             # Multiple callers (l_tools, base_registry, kernel_loader) rely on this
+            rls_config = get_rls_config()
             system_ctx = build_governance_context(
                 caller_id="substrate_service",
                 role="system",
-                tenant_id="system",
-                org_id="l9",
-                project_ids=["*"],  # System-level access for internal operations
+                scope="global",
+                project_id="l9",
+                allowed_scopes=["developer", "global", "l-private"],
+                tenant_id=rls_config.tenant_uuid,
+                org_id=rls_config.org_uuid,
+                user_id=rls_config.user_uuid,
             )
 
             async with governance_context(system_ctx):
@@ -494,12 +499,16 @@ class MemorySubstrateService:
 
             # GMP-74: Establish governance context for internal polling operations
             # World Model Runtime calls this every 60s without external context
+            rls_config = get_rls_config()
             system_ctx = build_governance_context(
                 caller_id="world_model_runtime",
                 role=role or "system",
-                tenant_id=tenant_id or "system",
-                org_id=org_id or "l9",
-                project_ids=["*"],  # System-level access for internal polling
+                scope="global",
+                project_id="l9",
+                allowed_scopes=["developer", "global", "l-private"],
+                tenant_id=tenant_id or rls_config.tenant_uuid,
+                org_id=org_id or rls_config.org_uuid,
+                user_id=user_id or rls_config.user_uuid,
             )
 
             all_packets = []
@@ -1170,7 +1179,7 @@ async def create_substrate_service(
 
     Args:
         database_url: Postgres DSN
-        embedding_provider_type: "openai" or "stub"
+        embedding_provider_type: "openai"
         embedding_model: Model name for OpenAI
         openai_api_key: API key for OpenAI
         db_pool_size: Connection pool size

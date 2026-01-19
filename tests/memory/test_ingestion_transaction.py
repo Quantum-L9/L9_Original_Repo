@@ -26,6 +26,9 @@ def gov_ctx():
         scope="developer",
         project_id="l9",
         allowed_scopes=["developer"],
+        tenant_id="tenant-1",
+        org_id="org-1",
+        user_id="user-1",
     )
 
 
@@ -52,6 +55,8 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aexit__ = AsyncMock(
             return_value=None
         )
+        mock_repository.insert_packet = AsyncMock()
+        mock_repository.insert_memory_event = AsyncMock()
 
         pipeline = IngestionPipeline(repository=mock_repository)
 
@@ -87,6 +92,8 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aexit__ = AsyncMock(
             return_value=None
         )
+        mock_repository.insert_packet = AsyncMock()
+        mock_repository.insert_memory_event = AsyncMock()
 
         # Make insert_packet fail
         mock_repository.insert_packet = AsyncMock(side_effect=Exception("DB error"))
@@ -125,10 +132,15 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aexit__ = AsyncMock(
             return_value=None
         )
+        mock_repository.insert_packet = AsyncMock()
+        mock_repository.insert_memory_event = AsyncMock()
+        mock_repository.insert_semantic_embedding = AsyncMock()
 
         # Mock semantic service
         mock_semantic = AsyncMock()
-        mock_semantic.embed_and_store = AsyncMock(return_value=None)
+        mock_semantic.generate_embedding = AsyncMock(
+            return_value=([0.1, 0.2, 0.3], {"packet_id": "test"}, "agent")
+        )
 
         pipeline = IngestionPipeline(
             repository=mock_repository,
@@ -150,7 +162,8 @@ class TestTransactionalIngestion:
         mock_repository.transaction.assert_called_once()
 
         # Verify embedding was attempted (outside transaction)
-        mock_semantic.embed_and_store.assert_called()
+        mock_semantic.generate_embedding.assert_called()
+        mock_repository.insert_semantic_embedding.assert_called()
 
         # Verify result includes both core and best-effort writes
         assert "packet_store" in result.written_tables
@@ -172,10 +185,13 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aexit__ = AsyncMock(
             return_value=None
         )
+        mock_repository.insert_packet = AsyncMock()
+        mock_repository.insert_memory_event = AsyncMock()
+        mock_repository.insert_semantic_embedding = AsyncMock()
 
         # Mock semantic service that fails
         mock_semantic = AsyncMock()
-        mock_semantic.embed_and_store = AsyncMock(
+        mock_semantic.generate_embedding = AsyncMock(
             side_effect=Exception("Embedding failed")
         )
 
@@ -201,4 +217,4 @@ class TestTransactionalIngestion:
         assert result.status in ["ok", "partial"]  # Should be ok or partial, not error
 
         # Verify embedding was attempted but failed (non-blocking)
-        mock_semantic.embed_and_store.assert_called()
+        mock_semantic.generate_embedding.assert_called()

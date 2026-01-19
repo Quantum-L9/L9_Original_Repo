@@ -607,7 +607,7 @@ def create_embedding_provider(
     Factory function to create embedding provider.
 
     Args:
-        provider_type: "openai" or "stub"
+        provider_type: "openai"
         model: Model name for OpenAI
         dimensions: Vector dimensions
         api_key: API key for OpenAI
@@ -616,8 +616,7 @@ def create_embedding_provider(
         EmbeddingProvider instance
     """
     if provider_type == "stub":
-        logger.info("Using stub embedding provider")
-        return StubEmbeddingProvider(dimensions=dimensions)
+        raise RuntimeError("Stub embedding provider is not permitted in enforcement.")
     elif provider_type == "openai":
         logger.info(f"Using OpenAI embedding provider: {model}")
         return OpenAIEmbeddingProvider(
@@ -654,9 +653,7 @@ async def embed_text(
         if api_key:
             provider = OpenAIEmbeddingProvider(model=model, api_key=api_key)
         else:
-            # Default to stub if no API key
-            logger.warning("No API key provided, using stub embeddings")
-            provider = StubEmbeddingProvider()
+            raise RuntimeError("Embedding provider or API key is required.")
 
     return await provider.embed_text(text)
 

@@ -43,6 +43,7 @@ import structlog
 from typing import Any, List, Dict, Optional
 from uuid import UUID
 
+from config.rls_config import get_rls_config
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
 from core.decorators import must_stay_async
 from memory.substrate_service import MemorySubstrateService
@@ -119,12 +120,16 @@ class CursorMemoryGateway:
 
     def _build_cursor_governance_context(self):
         """Build governance context for Cursor operations."""
+        rls_config = get_rls_config()
         return build_governance_context(
             caller_id="cursor_gateway",
             role="developer",
-            tenant_id="cursor",
-            org_id="l9",
-            project_ids=["cursor"],
+            scope="developer",
+            project_id="cursor",
+            allowed_scopes=list(self.ALLOWED_SCOPES),
+            tenant_id=rls_config.tenant_uuid,
+            org_id=rls_config.org_uuid,
+            user_id=rls_config.user_uuid,
         )
 
     async def write_decision(

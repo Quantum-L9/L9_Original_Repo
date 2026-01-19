@@ -81,6 +81,10 @@ class MemoryGovernanceContext:
             raise RuntimeError("allowed_scopes cannot be empty")
         if self.scope not in self.allowed_scopes:
             raise RuntimeError("scope must be included in allowed_scopes")
+        if not self.tenant_id or not self.org_id or not self.user_id:
+            raise RuntimeError(
+                "tenant_id, org_id, and user_id are required for governance enforcement"
+            )
         if self.caller_id == "C" and "l-private" in self.allowed_scopes:
             raise RuntimeError("Cursor cannot access l-private scope")
 

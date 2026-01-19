@@ -219,6 +219,7 @@ class TestWritePacketWithRLS:
         from core.schemas import PacketEnvelopeIn
         from unittest.mock import AsyncMock, MagicMock
         from memory.governance_gate import build_governance_context, governance_context
+        from memory.substrate_semantic import EmbeddingProvider
 
         # Mock repository with transaction
         mock_repository = MagicMock()
@@ -240,10 +241,21 @@ class TestWritePacketWithRLS:
             status="ok",
         )
 
+        class DummyEmbeddingProvider(EmbeddingProvider):
+            async def embed_text(self, text: str) -> list[float]:
+                return [0.0, 0.0, 0.0]
+
+            async def embed_batch(self, texts: list[str]) -> list[list[float]]:
+                return [[0.0, 0.0, 0.0] for _ in texts]
+
+            @property
+            def dimensions(self) -> int:
+                return 3
+
         # Create service with mock repository (API v2.0)
         service = MemorySubstrateService(
             repository=mock_repository,
-            embedding_provider=None,  # Uses stub
+            embedding_provider=DummyEmbeddingProvider(),
         )
         service._dag = mock_dag
 

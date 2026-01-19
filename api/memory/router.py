@@ -57,6 +57,7 @@ from uuid import UUID
 import structlog
 import os
 
+from config.rls_config import get_rls_config
 from memory.substrate_service import get_service
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
 from memory.ingestion import ingest_packet
@@ -81,12 +82,16 @@ async def memory_governance_context_dependency(
     """Dependency that establishes governance context for memory routes."""
     scope = os.getenv("L9_MEMORY_SCOPE", "shared")
     project_id = os.getenv("L9_PROJECT_ID", "l9")
+    rls_config = get_rls_config()
     ctx = build_governance_context(
         caller_id="api",
         role="end_user",
         scope=scope,
         project_id=project_id,
         allowed_scopes=[scope],
+        tenant_id=rls_config.tenant_uuid,
+        org_id=rls_config.org_uuid,
+        user_id=rls_config.user_uuid,
     )
     async with governance_context(ctx):
         yield

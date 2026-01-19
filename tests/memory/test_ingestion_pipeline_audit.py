@@ -432,6 +432,9 @@ class TestTransactionAtomicity:
             scope="developer",
             project_id="l9",
             allowed_scopes=["developer"],
+            tenant_id="tenant-1",
+            org_id="org-1",
+            user_id="user-1",
         )
 
         async with governance_context(ctx):
@@ -753,6 +756,9 @@ class TestE2EIngestionFlow:
             scope="developer",
             project_id="l9",
             allowed_scopes=["developer"],
+            tenant_id="tenant-1",
+            org_id="org-1",
+            user_id="user-1",
         )
 
         async with governance_context(ctx):

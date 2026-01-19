@@ -187,6 +187,9 @@ class TestCursorReadsLMemories:
             scope="developer",
             allowed_scopes=["developer", "global"],
             project_id="l9",
+            tenant_id="tenant-1",
+            org_id="org-1",
+            user_id="user-1",
         )
 
         assert "l-private" not in ctx.allowed_scopes, (
@@ -281,6 +284,9 @@ class TestScopeIsolationQuery:
             scope="developer",
             allowed_scopes=["developer", "global"],
             project_id="l9",
+            tenant_id="tenant-1",
+            org_id="org-1",
+            user_id="user-1",
         )
 
         # Build filter using context
@@ -311,6 +317,9 @@ class TestScopeIsolationQuery:
             scope="developer",
             allowed_scopes=["developer", "global"],
             project_id="l9",
+            tenant_id="tenant-1",
+            org_id="org-1",
+            user_id="user-1",
         )
         assert cursor_ctx.caller_id == "C"
         assert "l-private" not in cursor_ctx.allowed_scopes
@@ -322,6 +331,9 @@ class TestScopeIsolationQuery:
             scope="l-private",
             allowed_scopes=["developer", "global", "l-private"],
             project_id="l9",
+            tenant_id="tenant-1",
+            org_id="org-1",
+            user_id="user-1",
         )
         assert l_ctx.caller_id == "L"
         assert "l-private" in l_ctx.allowed_scopes

@@ -9,3 +9,5 @@ Comprehensive test coverage for:
 - World model (nodes, graph integrity)
 - Performance + restart recovery
 """
+
+__all__ = ["test_embedding_enforcement"]

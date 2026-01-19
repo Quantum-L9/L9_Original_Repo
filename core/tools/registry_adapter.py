@@ -422,18 +422,16 @@ class ExecutorToolRegistry:
                 query=query[:50],
             )
         except ImportError:
-            logger.warning(
-                "tool_embeddings not available, falling back to all approved"
-            )
-            return self.get_approved_tools(agent_id, principal_id)
+            logger.error("tool_embeddings not available; semantic retrieval blocked")
+            raise RuntimeError("Tool embeddings service required for retrieval")
         except Exception as e:
-            logger.warning(f"Semantic tool search failed, using fallback: {e}")
-            return self.get_approved_tools(agent_id, principal_id)
+            logger.error(f"Semantic tool search failed: {e}")
+            raise RuntimeError(f"Semantic tool search failed: {e}") from e
 
         if not relevant_tool_names:
-            # No semantic results, fall back to all approved
-            logger.debug("No semantic matches, using all approved tools")
-            return self.get_approved_tools(agent_id, principal_id)
+            # No semantic results; return empty tool list (fail closed)
+            logger.debug("No semantic matches found; returning empty tool list")
+            return []
 
         # Step 2: Filter by governance (intersection of relevant + approved)
         bindings: list[ToolBinding] = []
@@ -925,11 +923,8 @@ class ExecutorToolRegistry:
                 kernel_state=kernel_state,
                 tool_id=tool_id,
             )
-            return ToolCallResult(
-                call_id=call_id,
-                tool_id=tool_id,
-                success=False,
-                error=f"Kernel set not active (state={kernel_state}). Execution denied.",
+            raise RuntimeError(
+                f"Kernel set not active (state={kernel_state}). Execution denied."
             )
 
         # GATE 2: Verify agent has kernels loaded
@@ -940,12 +935,7 @@ class ExecutorToolRegistry:
                 agent_id=agent_id,
                 tool_id=tool_id,
             )
-            return ToolCallResult(
-                call_id=call_id,
-                tool_id=tool_id,
-                success=False,
-                error="No kernels loaded. Execution denied.",
-            )
+            raise RuntimeError("No kernels loaded. Execution denied.")
 
         # GATE 3: Check behavioral constraints from kernels (if available)
         behavioral = getattr(agent, "_behavioral", {})
@@ -1021,13 +1011,15 @@ class ExecutorToolRegistry:
                     policy_id=eval_result.policy_id,
                 )
             except Exception as gov_err:
-                # Governance check failure is a soft failure - log but continue
-                logger.warning(
+                logger.error(
                     "guarded_execute.governance_check_error",
                     agent_id=agent_id,
                     tool_id=tool_id,
                     error=str(gov_err),
                 )
+                raise RuntimeError(
+                    f"Governance evaluation failed for {tool_id}: {gov_err}"
+                ) from gov_err
 
         # GATE 6: Check tool approval for high-risk tools
         try:
@@ -1058,15 +1050,24 @@ class ExecutorToolRegistry:
                             error=f"Tool {tool_id} requires approval. Request ID: {call_id}",
                         )
         except ImportError:
-            # ApprovalManager not available - skip check
-            pass
+            logger.error(
+                "guarded_execute.approval_dependency_missing",
+                agent_id=agent_id,
+                tool_id=tool_id,
+            )
+            raise RuntimeError(
+                "ApprovalManager unavailable for high-risk tool enforcement."
+            )
         except Exception as approval_err:
-            logger.warning(
+            logger.error(
                 "guarded_execute.approval_check_error",
                 agent_id=agent_id,
                 tool_id=tool_id,
                 error=str(approval_err),
             )
+            raise RuntimeError(
+                f"Approval check failed for {tool_id}: {approval_err}"
+            ) from approval_err
 
         # Log guarded execution start
         logger.info(

@@ -257,11 +257,12 @@ class IngestionPipeline:
                     if embedding_payload:
                         vector, payload, agent_id = embedding_payload
                         # Extract scope from envelope metadata for RLS
-                        scope = (
-                            (envelope.metadata or {}).get("db_scope")
-                            or (envelope.metadata or {}).get("scope")
-                            or "shared"
+                        metadata = (
+                            envelope.metadata.model_dump()
+                            if hasattr(envelope.metadata, "model_dump")
+                            else (envelope.metadata or {})
                         )
+                        scope = metadata.get("db_scope") or metadata.get("scope") or "shared"
                         await self._repository.insert_semantic_embedding(
                             vector=vector,
                             payload=payload,
