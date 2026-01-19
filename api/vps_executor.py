@@ -94,9 +94,13 @@ def run_shell(command: str, cwd: str = "/opt/l9") -> dict:
         )
 
     try:
+        import shlex
+
+        # Use shlex.split for safer command parsing (prevents shell injection)
+        cmd_args = shlex.split(command)
         completed = subprocess.run(
-            command,
-            shell=True,
+            cmd_args,
+            shell=False,
             cwd=cwd,
             text=True,
             capture_output=True,

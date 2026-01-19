@@ -266,11 +266,11 @@ async def execute_command(
         # No suggested command - forward to L-CTO as query
         if agent_executor is not None:
             try:
-                from core.agents.schemas import AgentTask, TaskKind
+                from core.agents.schemas import AgentTask, AgentType
 
                 task = AgentTask(
                     agent_id="l-cto",
-                    kind=TaskKind.CONVERSATION,
+                    agent_type=AgentType.ASSISTANT,
                     source_id="igor-command",
                     thread_identifier=f"nlp-{intent.id}",
                     payload={

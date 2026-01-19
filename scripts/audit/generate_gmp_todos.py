@@ -130,7 +130,8 @@ class GMPReport:
     def todo_hash(self) -> str:
         """Generate deterministic hash of fixes."""
         content = json.dumps([f.file + f.symbol for f in self.fixes], sort_keys=True)
-        return hashlib.md5(content.encode()).hexdigest()[:8]
+        # Use SHA256 for consistency (MD5 deprecated across codebase)
+        return hashlib.sha256(content.encode()).hexdigest()[:8]
 
     def to_gmp_report(self) -> str:
         """Generate canonical GMP Report format."""

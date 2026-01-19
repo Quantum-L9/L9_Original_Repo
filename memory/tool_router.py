@@ -93,7 +93,8 @@ class ToolEmbedding:
     def compute_hash(self) -> str:
         """Compute content hash for change detection."""
         content = f"{self.tool_name}:{self.description}:{self.category}"
-        return hashlib.md5(content.encode()).hexdigest()[:16]
+        # Use SHA256 instead of MD5 for better security
+        return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
 @dataclass

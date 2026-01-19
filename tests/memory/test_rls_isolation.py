@@ -240,10 +240,15 @@ class TestWritePacketWithRLS:
             status="ok",
         )
 
-        # Create service with mock repository (API v2.0)
+        # Create mock embedding provider (required since GMP-96: fail-closed enforcement)
+        mock_embedding_provider = MagicMock()
+        mock_embedding_provider.embed_text = AsyncMock(return_value=[0.1] * 1536)
+        mock_embedding_provider.embed_batch = AsyncMock(return_value=[[0.1] * 1536])
+
+        # Create service with mock repository and mock embedding provider
         service = MemorySubstrateService(
             repository=mock_repository,
-            embedding_provider=None,  # Uses stub
+            embedding_provider=mock_embedding_provider,
         )
         service._dag = mock_dag
 

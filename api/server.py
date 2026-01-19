@@ -156,9 +156,9 @@ try:
     from core.agents.schemas import (
         AgentConfig,
         AgentTask,
+        AgentType,
         DuplicateTaskResponse,
         ExecutionResult,
-        TaskKind,
         ToolBinding,
     )
 
@@ -1607,9 +1607,7 @@ async def lifespan(app: FastAPI):
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
         else:
-            logger.warning(
-                "⚠️ Memory tools not registered: tool_registry not available"
-            )
+            logger.warning("⚠️ Memory tools not registered: tool_registry not available")
     except Exception as e:
         logger.error(f"❌ Memory tool registration failed: {e}", exc_info=True)
 
@@ -2749,7 +2747,7 @@ async def lchat(
 
     task = AgentTask(
         agent_id="l-cto",
-        kind=TaskKind.CONVERSATION,
+        agent_type=AgentType.ASSISTANT,
         source_id="http",
         thread_identifier=thread_identifier,
         payload={

@@ -1325,14 +1325,37 @@ class AgentExecutorService:
                     governance_blocks=instance.governance_blocks,
                 )
         except ImportError:
-            # Governance validation not available - skip (non-fatal)
-            logger.debug(
-                "agent.executor.governance: validation module not available, skipping"
+            # Governance validation not available - BLOCK (fail-closed)
+            logger.error(
+                "agent.executor.governance.missing",
+                task_id=str(instance.task.id),
+            )
+            return ExecutionResult(
+                task_id=instance.task.id,
+                status="blocked",
+                error="Governance validation unavailable. Execution blocked.",
+                iterations=0,
+                duration_ms=int(
+                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                ),
+                governance_blocks=instance.governance_blocks,
             )
         except Exception as e:
-            # Governance check failed - log but continue (non-fatal)
-            logger.warning(
-                f"agent.executor.governance: validation error (non-fatal): {e}"
+            # Governance check failed - BLOCK (fail-closed)
+            logger.error(
+                "agent.executor.governance.error",
+                task_id=str(instance.task.id),
+                error=str(e),
+            )
+            return ExecutionResult(
+                task_id=instance.task.id,
+                status="blocked",
+                error=f"Governance validation failed: {e}",
+                iterations=0,
+                duration_ms=int(
+                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                ),
+                governance_blocks=instance.governance_blocks,
             )
 
         max_iterations = min(
@@ -1364,9 +1387,15 @@ class AgentExecutorService:
         # Instead of binding all 100+ tools, find the most relevant ones
         if user_message and hasattr(self._tool_registry, "get_relevant_tools"):
             try:
+                # principal_id may be in task context or payload
+                principal_id = (
+                    instance.task.context.get("principal_id")
+                    or instance.task.payload.get("principal_id")
+                    or instance.task.source_id
+                )
                 relevant_tools = await self._tool_registry.get_relevant_tools(
                     agent_id=instance.task.agent_id,
-                    principal_id=instance.task.principal_id,
+                    principal_id=principal_id,
                     query=user_message,
                     top_k=7,  # Slightly more than 5 to account for governance filtering
                 )
@@ -1379,8 +1408,21 @@ class AgentExecutorService:
                         tools=[t.tool_id for t in relevant_tools],
                     )
             except Exception as e:
-                logger.warning(
-                    f"Tool shortlisting failed, using all approved tools: {e}"
+                # Tool shortlisting failed - BLOCK (fail-closed)
+                logger.error(
+                    "agent.executor.tools.shortlisting_failed",
+                    task_id=str(instance.task.id),
+                    error=str(e),
+                )
+                return ExecutionResult(
+                    task_id=instance.task.id,
+                    status="blocked",
+                    error=f"Tool shortlisting failed: {e}",
+                    iterations=0,
+                    duration_ms=int(
+                        (datetime.utcnow() - start_time).total_seconds() * 1000
+                    ),
+                    governance_blocks=instance.governance_blocks,
                 )
 
         # Transition to reasoning

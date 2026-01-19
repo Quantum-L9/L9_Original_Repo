@@ -430,9 +430,9 @@ class ExecutorToolRegistry:
             ) from e
 
         if not relevant_tool_names:
-            # No semantic results, fall back to all approved
-            logger.debug("No semantic matches, using all approved tools")
-            return self.get_approved_tools(agent_id, principal_id)
+            # No semantic results - return empty list (fail-closed, no fallback to all tools)
+            logger.debug("No semantic matches found; returning empty tool list")
+            return []
 
         # Step 2: Filter by governance (intersection of relevant + approved)
         bindings: list[ToolBinding] = []

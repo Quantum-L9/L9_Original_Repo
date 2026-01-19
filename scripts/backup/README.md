@@ -1,14 +1,35 @@
 # L9 Memory Backup & Restore
 
-Automated backup system for L9 memories, embeddings, and graph data to S3.
+Automated backup system for L9 memories, embeddings, graph data, and server configs to S3.
+
+## Scripts
+
+| Script | Purpose | Runs As | Schedule |
+|--------|---------|---------|----------|
+| `backup_l9_memory.sh` | PostgreSQL + Neo4j + .env | admin | Every 12h (cron) |
+| `backup_server_config.sh` | Systemd + Caddy + AWS | sudo/root | Manual (after changes) |
+| `restore_l9_memory.sh` | Restore from S3 | admin | Manual |
+| `setup_s3_bucket.sh` | Create S3 bucket | admin | One-time |
 
 ## What Gets Backed Up
+
+### Automated (Every 12 Hours)
 
 | Component | Contents | Size Est. | Critical? |
 |-----------|----------|-----------|-----------|
 | **PostgreSQL** | packet_store, knowledge_facts, semantic_facts, pgvector embeddings | 50-500MB | ✅ YES |
 | **Neo4j** | Graph relationships, entity links, causal graph | 10-100MB | ⚠️ Important |
 | **Configs** | `.env`, `kernel_hashes.json` | <10KB | ⚠️ Important |
+
+### Manual (After System Changes)
+
+| Component | Contents | Location |
+|-----------|----------|----------|
+| **Crontab** | Scheduled jobs | `crontab -l` |
+| **Caddy** | Reverse proxy, HTTPS | `/etc/caddy/Caddyfile` |
+| **Systemd Services** | l9.service, l9-agent.service, l9-mcp.service | `/etc/systemd/system/` |
+| **Systemd Overrides** | twilio.conf, waba.conf, environment.conf | `/etc/systemd/system/l9.service.d/` |
+| **AWS Credentials** | S3 backup access | `~/.aws/` |
 
 ## What Does NOT Need Backup
 
@@ -119,9 +140,15 @@ s3://l9-backups/
 ├── neo4j/
 │   ├── neo4j_20260118_120000.tar.gz
 │   └── neo4j_20260118_000000.tar.gz
-└── config/
-    ├── config_20260118_120000.tar.gz
-    └── config_20260118_000000.tar.gz
+├── config/
+│   ├── config_20260118_120000.tar.gz      # .env, kernel_hashes
+│   └── config_20260118_000000.tar.gz
+└── server-config/
+    ├── system-configs-latest.tar.gz       # Caddy, systemd
+    ├── system-configs_20260119_165512.tar.gz
+    ├── crontab_admin.txt
+    ├── aws_credentials
+    └── aws_config
 ```
 
 ## Verification
@@ -155,21 +182,51 @@ docker exec l9-postgres psql -U l9_user -d l9_memory -c "
 
 ### Full Server Rebuild
 
-1. Provision new VPS
-2. Clone L9 repo: `git clone ...`
-3. Restore from S3:
+1. **Provision new VPS** (Ubuntu 22.04+, Docker installed)
+
+2. **Clone L9 repo:**
    ```bash
-   ./restore_l9_memory.sh latest
+   git clone https://github.com/yourusername/l9.git /opt/l9
+   cd /opt/l9
    ```
-4. Start services:
+
+3. **Restore server configs (Caddy, systemd, cron):**
+   ```bash
+   # Download from S3
+   aws s3 cp s3://l9-backups/server-config/system-configs-latest.tar.gz .
+   aws s3 cp s3://l9-backups/server-config/crontab_admin.txt .
+   aws s3 cp s3://l9-backups/server-config/aws_credentials ~/.aws/credentials
+   aws s3 cp s3://l9-backups/server-config/aws_config ~/.aws/config
+   
+   # Extract system configs
+   sudo tar -xzvf system-configs-latest.tar.gz -C /
+   
+   # Reload systemd
+   sudo systemctl daemon-reload
+   
+   # Restore crontab
+   crontab crontab_admin.txt
+   ```
+
+4. **Start containers:**
    ```bash
    docker compose up -d
+   ```
+
+5. **Restore memory data:**
+   ```bash
+   ./scripts/backup/restore_l9_memory.sh latest
+   ```
+
+6. **Start services:**
+   ```bash
+   sudo systemctl restart caddy l9 l9-agent l9-mcp
    ```
 
 ### Partial Data Loss
 
 ```bash
-# Restore only what's needed
+# Restore only PostgreSQL
 ./restore_l9_memory.sh latest --postgres-only
 ```
 
@@ -198,5 +255,6 @@ gzip -t FILE.sql.gz
 
 ## Related Scripts
 
-- `scripts/deployment/backup_database.sh` - Original PostgreSQL-only backup (daily)
-- `scripts/deployment/test_backup_restore.sh` - Backup/restore test harness
+- `backup_server_config.sh` - System configs backup (requires sudo)
+- ~~`scripts/deployment/backup_database.sh`~~ - DEPRECATED (moved to `_archived/`)
+- ~~`scripts/deployment/test_backup_restore.sh`~~ - DEPRECATED (moved to `_archived/`)

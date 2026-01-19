@@ -176,11 +176,11 @@ class CommandExecutor:
             )
 
         try:
-            from core.agents.schemas import AgentTask, TaskKind
+            from core.agents.schemas import AgentTask, AgentType
 
             task = AgentTask(
                 agent_id="l-cto",
-                kind=TaskKind.GMP_RUN,
+                agent_type=AgentType.EXECUTOR,
                 source_id="igor-command",
                 thread_identifier=f"gmp-{command.id}",
                 payload={
@@ -261,11 +261,11 @@ class CommandExecutor:
         # Fallback: Create analysis task for L-CTO
         if self._agent_executor is not None:
             try:
-                from core.agents.schemas import AgentTask, TaskKind
+                from core.agents.schemas import AgentTask, AgentType
 
                 task = AgentTask(
                     agent_id="l-cto",
-                    kind=TaskKind.CONVERSATION,
+                    agent_type=AgentType.ANALYST,
                     source_id="igor-command",
                     thread_identifier=f"analyze-{command.id}",
                     payload={
@@ -389,11 +389,11 @@ class CommandExecutor:
         # Create rollback task
         if self._agent_executor is not None:
             try:
-                from core.agents.schemas import AgentTask, TaskKind
+                from core.agents.schemas import AgentTask, AgentType
 
                 task = AgentTask(
                     agent_id="l-cto",
-                    kind=TaskKind.EXECUTION,
+                    agent_type=AgentType.EXECUTOR,
                     source_id="igor-command",
                     thread_identifier=f"rollback-{command.id}",
                     payload={
@@ -507,11 +507,11 @@ Natural language:
             )
 
         try:
-            from core.agents.schemas import AgentTask, TaskKind
+            from core.agents.schemas import AgentTask, AgentType
 
             task = AgentTask(
                 agent_id="l-cto",
-                kind=TaskKind.CONVERSATION,
+                agent_type=AgentType.ASSISTANT,
                 source_id="igor-command",
                 thread_identifier=f"query-{command.id}",
                 payload={

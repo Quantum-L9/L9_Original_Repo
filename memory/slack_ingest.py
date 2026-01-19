@@ -156,7 +156,7 @@ async def handle_slack_with_l_agent(
         # Import here to avoid circular imports
         from core.agents.schemas import (
             AgentTask,
-            TaskKind,
+            AgentType,
             ExecutionResult,
             DuplicateTaskResponse,
         )
@@ -170,7 +170,7 @@ async def handle_slack_with_l_agent(
         # Construct AgentTask for L-CTO with DAG-retrieved context
         task = AgentTask(
             agent_id="l-cto",
-            kind=TaskKind.CONVERSATION,
+            agent_type=AgentType.ASSISTANT,
             source_id="slack",
             thread_identifier=thread_uuid,
             payload={

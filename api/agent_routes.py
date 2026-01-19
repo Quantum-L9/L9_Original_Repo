@@ -193,21 +193,21 @@ async def execute_task(
 
     try:
         # Import here to avoid circular imports
-        from core.agents.schemas import AgentTask, TaskKind
+        from core.agents.schemas import AgentTask, AgentType
 
-        # Map string kind to enum
-        kind_map = {
-            "query": TaskKind.QUERY,
-            "command": TaskKind.COMMAND,
-            "research": TaskKind.RESEARCH,
-            "execution": TaskKind.EXECUTION,
-            "conversation": TaskKind.CONVERSATION,
+        # Map string kind to AgentType
+        type_map = {
+            "query": AgentType.ANALYST,
+            "command": AgentType.OPERATOR,
+            "research": AgentType.RESEARCHER,
+            "execution": AgentType.EXECUTOR,
+            "conversation": AgentType.ASSISTANT,
         }
-        task_kind = kind_map.get(body.kind.lower(), TaskKind.QUERY)
+        agent_type = type_map.get(body.kind.lower(), AgentType.ASSISTANT)
 
         # Create AgentTask
         task = AgentTask(
-            kind=task_kind,
+            agent_type=agent_type,
             agent_id=body.agent_id or "l9-standard-v1",
             source_id=body.source_id,
             thread_identifier=body.thread_id,

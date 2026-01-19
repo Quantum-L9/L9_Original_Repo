@@ -26,7 +26,36 @@
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
-**COMPLETED THIS SESSION (2026-01-18)**:
+**COMPLETED THIS SESSION (2026-01-18/19)**:
+- ✅ **Cursor Session Startup System** — Complete startup infrastructure for Cursor sessions:
+  - Created `/start-session` command (`.cursor-commands/commands/start-session.md`)
+  - Created CLI script `scripts/cursor-start-session` + `make cursor-start` target
+  - Renamed kernel: `l9.workflow_todo_kernel.v2.yaml` → `cursor_workflow_kernel.yaml` (v1.0.0)
+  - Moved kernel from `gmp_protocol/` to `agents/cursor/` (top-level, THE binding contract)
+  - Fixed kernel path in `session_startup.py` (was pointing to wrong location)
+  - Added 7 Cursor-specific files to startup (GMP contracts, docs, templates)
+  - Session startup now loads **20 files** in 37ms with kernel validation
+- ✅ **Startup File Cleanup** — Removed obsolete/aspirational files:
+  - Archived `probabilistic_governance_activated.md` to `current_work/DONE/` (referenced non-existent Bayesian system)
+  - Deleted `gmp-todo.schema.yaml` (superseded by `gmp-contract.yaml`)
+  - Deleted `run_setup_protocol.py` (pattern integrated into `session_startup.py`)
+  - Moved `production_speed_pack.md` → `agents/cursor/docs/PRODUCTION-SPEED-PACK.md`
+- ✅ **Lint Fixes** — Fixed 2 unused variable errors (F841):
+  - `.github/scripts/validate-readme-sections.py:69` — removed unused `found`
+  - `tests/test_code_facts_extraction.py:273` — removed unused `code_map_forbidden`
+
+**COMPLETED PREVIOUS SESSION (2026-01-18)**:
+- ✅ **S3 Backup System** — Full backup infrastructure for L9 memories:
+  - Created `scripts/backup/backup_l9_memory.sh` — PostgreSQL + Neo4j + config backup to S3
+  - Created `scripts/backup/restore_l9_memory.sh` — Restore from S3 with `--list`, `latest`, or timestamp
+  - Created `scripts/backup/setup_s3_bucket.sh` — One-time S3 bucket setup
+  - Created `scripts/backup/README.md` — Full documentation
+  - S3 bucket `l9-backups` created with 30-day lifecycle policy, versioning, public access blocked
+  - AWS CLI installed on Mac (`brew install awscli`) and VPS (user-space install)
+  - IAM user `L9` with `AmazonS3FullAccess` policy
+  - First backup successful: 12.4MB PostgreSQL (68 vectors), 2.3KB config (.env)
+  - Deprecated old scripts moved to `_archived/deprecated_backup_scripts/`
+  - **Remaining:** Set VPS cron for 12-hour automated backups
 - ✅ **DORA Block Mass Injection** — Injected DORA blocks into ALL Python and YAML files:
   - **1,158 files** now have complete DORA blocks (`__dora_meta__`, `__dora_footer__`, `__l9_trace__`)
   - Updated `dora-contract.yaml` to v2.1.0: removed declared/aspirational fields, keep only OBSERVABLE facts
@@ -208,7 +237,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Embedding Dimensions**: ALL systems aligned at **1536** (text-embedding-3-large truncated, text-embedding-3-small native)
 
 ---
-*Last updated: 2026-01-18 (DORA block mass injection into 1,158 files; contract v2.1.0; CI compliance script)*
+*Last updated: 2026-01-19 (Cursor Session Startup System; kernel rename; startup cleanup)*
 
 ## Next Steps (Current Session)
 1. **🚨 DEPLOY GMP-94 FIX** — Embedding dimension fix MUST be deployed for semantic search to work:
@@ -225,7 +254,8 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ~~13. **GMP-84: L-CTO Research Overlay Wiring**~~ ✅ DONE — `create_l_cto_research_agent()` factory added
 
 **Recent Sessions (7-day window):**
-- ✅ 2026-01-18: **DORA Block Mass Injection** — Injected DORA blocks into 1,158 files. Updated contract v2.1.0 (observable facts only). Created CI compliance script. Fixed 9 files with malformed business_value strings. Commits: b85233c6, d9fbfb26, 2a2489fe.
+- ✅ 2026-01-19: **Cursor Session Startup System** — Created `/start-session` command + CLI (`make cursor-start`). Renamed kernel → `cursor_workflow_kernel.yaml` (v1.0.0, `agents/cursor/`). Fixed kernel path. Added 7 Cursor files to startup. Cleaned up 4 obsolete files. Fixed 2 lint errors. **20 files loaded, 37ms, kernel validated.**
+- ✅ 2026-01-18: **S3 Backup + DORA Injection** — Created backup scripts (PostgreSQL + Neo4j → S3). Injected DORA blocks into 1,158 files. Contract v2.1.0, CI compliance script.
 - ✅ 2026-01-17: **GMP-94: Embedding Dimension Mismatch Fix** — Fixed critical semantic search failure. `mcp_memory/src/embeddings.py` was missing `dimensions=settings.OPENAI_EMBED_DIM` causing 3072-dim queries against 1536-dim vectors. Fixed `embed_text()` and `embed_texts()`. Cleaned up Cursor MCP config (removed broken `l9-memory` and `postgres` MCPs). Fixed 4 misleading 3072→1536 comments. **Canonical method:** `cursor_memory_client.py` only. **DEPLOYMENT REQUIRED.**
 - ✅ 2026-01-17: **GMP-FIX-01: Syntax Error Fix** — Fixed `from core.decorators import must_stay_async` syntax errors in 4 files (import was unindented inside try blocks). Files fixed: `memory/graph_client.py`, `memory/gap_detector.py`, `runtime/redis_client.py`, `agents/codegenagent/codegen_agent.py`. **Root cause:** Script added imports without checking indentation context. **Result:** pytest now runs, 27 GMP-88 resilience tests pass. Report: `reports/GMP_Report_GMP-FIX-01-Syntax-Errors.md`
 - ✅ 2026-01-16: **GMP-93: Remove slack_sdk Dependency** — Removed `slack_sdk` dependency entirely. Extended `api/slack_client.py` with `upload_file()` and `get_file_info()` async methods. Migrated 5 callers to async client. Deleted `services/slack_client.py` (312 lines). Removed dependency from `requirements.txt`. **Result:** 100% async httpx-based client, no blocking I/O. Report: `reports/GMP_Report_GMP-93.md`

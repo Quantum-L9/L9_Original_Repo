@@ -1,6 +1,6 @@
 # TODO
 
-> **Last Updated:** 2026-01-17 (Agent ID naming review added)
+> **Last Updated:** 2026-01-18 (S3 Backup System completed)
 
 ---
 
@@ -146,6 +146,19 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
   ```bash
   export PATH="$HOME/Library/Python/3.9/bin:$PATH"
   ```
+
+- [x] **S3 Backup System**: ✅ DONE (2026-01-18) — Full PostgreSQL + Config backup to S3
+  - Created `scripts/backup/backup_l9_memory.sh` (backup script)
+  - Created `scripts/backup/restore_l9_memory.sh` (restore script)
+  - Created `scripts/backup/setup_s3_bucket.sh` (S3 bucket setup)
+  - S3 bucket `l9-backups` created with 30-day lifecycle policy
+  - AWS CLI installed on Mac and VPS
+  - First backup uploaded: 12.4MB PostgreSQL + 2.3KB config
+  - Deprecated old scripts moved to `_archived/deprecated_backup_scripts/`
+
+- [x] **Set VPS backup cron** (12-hour interval): ✅ DONE (2026-01-19)
+  - Runs at 00:00 and 12:00 daily
+  - Logs to `/opt/l9/logs/l9-backup-cron.log`
 
 - [ ] **Test deployment script** locally: `./scripts/deploy_agent_executor.sh`
 - [ ] **Test server startup** to verify fail-loudly behavior (GMP-47 removed silent stubs)

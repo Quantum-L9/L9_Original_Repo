@@ -41,13 +41,13 @@ import pytest
 from core.agents.schemas import (
     AgentTask,
     AgentConfig,
+    AgentType,
     AIOSResult,
     DuplicateTaskResponse,
     ExecutionResult,
     ToolBinding,
     ToolCallRequest,
     ToolCallResult,
-    TaskKind,
 )
 from core.agents.executor import AgentExecutorService
 
@@ -324,7 +324,7 @@ def executor(
 def sample_task() -> AgentTask:
     """Create a sample task with known IDs for verification."""
     return AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="l9-standard-v1",
         source_id="test-principal",
         payload={"message": "Hello, agent!"},
@@ -728,7 +728,7 @@ async def test_executor_terminates_on_max_iterations(
     mock_tool_registry.set_approved_tools(approved_tools)
 
     task = AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="l9-standard-v1",
         source_id="test",
         payload={"message": "Run forever"},
@@ -823,7 +823,7 @@ async def test_invalid_agent_id_returns_error(
     - Error mentions the agent is not registered
     """
     task = AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="non-existent-agent",
         source_id="test",
         payload={"message": "Hello"},
@@ -873,7 +873,7 @@ async def test_validation_does_not_mutate_task(
     # Note: AgentTask requires agent_id, so we test by checking the error message
     # hints the user about the default
     task = AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="",  # Empty string triggers validation
         source_id="test",
         payload={"message": "Hello"},

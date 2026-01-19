@@ -80,6 +80,127 @@ jobs:
           ./ci/run_ci_gates.sh --all || true
 
   # ===========================================================================
+  # JOB 1A: CRYPTO-GUARD — Ban Weak Cryptography (MD5, SHA1)
+  # ===========================================================================
+  crypto-guard:
+    name: Crypto Guard
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for banned MD5 usage
+        run: |
+          echo "🔐 Checking for banned MD5 usage..."
+          
+          # Find MD5 in Python files (excluding .venv and tests)
+          FOUND=$(grep -r "hashlib\.md5" --include="*.py" . \
+            | grep -v ".venv" \
+            | grep -v "__pycache__" \
+            | grep -v "# MD5 required by protocol" \
+            || true)
+          
+          if [ -n "$FOUND" ]; then
+            echo "❌ BANNED: MD5 usage detected!"
+            echo ""
+            echo "$FOUND"
+            echo ""
+            echo "Use hashlib.sha256() instead."
+            echo "If MD5 is required by external protocol, add comment: # MD5 required by protocol"
+            exit 1
+          fi
+          
+          echo "✅ No banned MD5 usage found"
+
+      - name: Check for weak SHA1 (non-HMAC)
+        run: |
+          echo "🔐 Checking for weak SHA1 usage..."
+          
+          # Find SHA1 usage (excluding HMAC and protocol requirements)
+          FOUND=$(grep -r "hashlib\.sha1" --include="*.py" . \
+            | grep -v ".venv" \
+            | grep -v "__pycache__" \
+            | grep -v "hmac" \
+            | grep -v "# SHA1 required by protocol" \
+            || true)
+          
+          if [ -n "$FOUND" ]; then
+            echo "⚠️ WARNING: SHA1 usage detected (review required)"
+            echo ""
+            echo "$FOUND"
+            echo ""
+            echo "Consider using SHA256 unless required by external protocol."
+          fi
+          
+          echo "✅ SHA1 check complete"
+
+      - name: Check for deprecated TaskKind usage
+        run: |
+          echo "🚫 Checking for deprecated TaskKind usage..."
+          
+          # Check 1: Import of TaskKind from core.agents.schemas (DEPRECATED)
+          # NOT core.schemas.tasks.TaskKind which is for internal routing
+          IMPORTS=$(grep -rE "from core\.agents\.schemas import.*TaskKind" --include="*.py" . \
+            | grep -v ".venv" \
+            | grep -v "__pycache__" \
+            | grep -v "current_work/" \
+            | grep -v "# TaskKind: backward compat" \
+            || true)
+          
+          # Check 2: Usage of deprecated TaskKind enum values
+          # CONVERSATION, QUERY, EXECUTION, RESEARCH are ONLY in core.agents.schemas (deprecated)
+          # RESULT, ERROR, COMMAND are in core.schemas.tasks (NOT deprecated)
+          USAGE=$(grep -rE "TaskKind\.(CONVERSATION|QUERY|EXECUTION|RESEARCH)" --include="*.py" . \
+            | grep -v ".venv" \
+            | grep -v "__pycache__" \
+            | grep -v "core/agents/schemas.py" \
+            | grep -v "current_work/" \
+            | grep -v "# TaskKind: backward compat" \
+            || true)
+          
+          FAILED=0
+          
+          if [ -n "$IMPORTS" ]; then
+            echo "❌ DEPRECATED: TaskKind import from core.agents.schemas!"
+            echo ""
+            echo "$IMPORTS"
+            FAILED=1
+          fi
+          
+          if [ -n "$USAGE" ]; then
+            echo "❌ DEPRECATED: TaskKind enum values (CONVERSATION/QUERY/EXECUTION/RESEARCH)!"
+            echo ""
+            echo "$USAGE"
+            FAILED=1
+          fi
+          
+          if [ $FAILED -eq 1 ]; then
+            echo ""
+            echo "========================================="
+            echo "core.agents.schemas.TaskKind is DEPRECATED."
+            echo "Use AgentType instead:"
+            echo "  from core.agents.schemas import AgentType"
+            echo ""
+            echo "Migration mapping:"
+            echo "  TaskKind.CONVERSATION → AgentType.ASSISTANT"
+            echo "  TaskKind.QUERY        → AgentType.ANALYST"
+            echo "  TaskKind.EXECUTION    → AgentType.EXECUTOR"
+            echo "  TaskKind.RESEARCH     → AgentType.RESEARCHER"
+            echo "  TaskKind.COMMAND      → AgentType.OPERATOR"
+            echo ""
+            echo "Parameter change:"
+            echo "  kind=TaskKind.X → agent_type=AgentType.Y"
+            echo ""
+            echo "Note: core.schemas.tasks.TaskKind is NOT deprecated (internal routing)"
+            echo "      TaskKind.RESULT, TaskKind.ERROR, TaskKind.COMMAND from tasks.py are OK"
+            echo "Escape hatch: Add comment '# TaskKind: backward compat'"
+            exit 1
+          fi
+          
+          echo "✅ No deprecated TaskKind usage found"
+
+  # ===========================================================================
   # JOB 1B: DORA-CHECK — DORA Block Compliance
   # ===========================================================================
   dora-check:
@@ -337,7 +458,7 @@ jobs:
   ci-complete:
     name: CI Complete
     runs-on: ubuntu-latest
-    needs: [validate, dora-check, docker-check, test, docker-smoke, security]
+    needs: [validate, crypto-guard, dora-check, docker-check, test, docker-smoke, security]
     if: always()
     
     steps:
@@ -349,6 +470,7 @@ jobs:
           echo ""
           echo "Jobs:"
           echo "  ├─ Validate:     ${{ needs.validate.result }}"
+          echo "  ├─ Crypto Guard: ${{ needs.crypto-guard.result }}"
           echo "  ├─ DORA Check:   ${{ needs.dora-check.result }}"
           echo "  ├─ Docker Check: ${{ needs.docker-check.result }}"
           echo "  ├─ Test:         ${{ needs.test.result }}"
@@ -359,6 +481,11 @@ jobs:
           # Fail if critical jobs failed
           if [[ "${{ needs.validate.result }}" == "failure" ]]; then
             echo "❌ CI Gates failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.crypto-guard.result }}" == "failure" ]]; then
+            echo "❌ Crypto Guard failed (banned MD5 detected)"
             exit 1
           fi
           

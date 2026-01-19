@@ -66,7 +66,6 @@ def validate_readme_sections(subsystem: str) -> bool:
 
     # Check required sections
     required = {k for k, v in meta["sections"].items() if v.get("required", False)}
-    found = required & readme_sections
     missing = required - readme_sections
 
     if missing:

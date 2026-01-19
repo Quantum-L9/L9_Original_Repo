@@ -72,9 +72,13 @@ def execute_command(command: str) -> tuple[str, str]:
         status is "done" on success, "failed" on error
     """
     try:
+        import shlex
+
+        # Use shlex.split for safer command parsing (prevents shell injection)
+        cmd_args = shlex.split(command)
         result = subprocess.run(
-            command,
-            shell=True,
+            cmd_args,
+            shell=False,
             capture_output=True,
             text=True,
             timeout=300,  # 5 minute timeout

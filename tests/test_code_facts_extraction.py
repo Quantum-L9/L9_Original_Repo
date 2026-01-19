@@ -270,16 +270,13 @@ class TestCodeMapAndMetaConsistency:
             if subsystem not in meta_files:
                 continue
 
-            code_map_forbidden = set(
-                code_map["subsystems"][subsystem].get("ai_forbidden_patterns", [])
-            )
             meta_forbidden = set(
                 meta_files[subsystem]
                 .get("aicollaboration", {})
                 .get("forbiddenscopes", [])
             )
 
-            # They should at least be similar (exact match may vary)
+            # Meta files should define forbidden scopes
             assert len(meta_forbidden) > 0, f"{subsystem} meta has no forbidden scopes"
 
 

@@ -115,11 +115,18 @@ class MemorySubstrateService:
         """
         self._repository = repository
 
-        # Initialize embedding provider
+        # Initialize embedding provider (fail-closed: no stub fallback)
+        # GMP-96: Embedding provider is REQUIRED for production
         if embedding_provider is None:
-            raise RuntimeError("Embedding provider required; missing embedding context")
+            raise RuntimeError(
+                "Embedding provider required; missing embedding context. "
+                "Set OPENAI_API_KEY or provide explicit EmbeddingProvider."
+            )
         if isinstance(embedding_provider, StubEmbeddingProvider):
-            raise RuntimeError("Stub embedding provider is not allowed in enforcement mode")
+            raise RuntimeError(
+                "StubEmbeddingProvider is not allowed in enforcement mode. "
+                "Use create_embedding_provider() with valid OPENAI_API_KEY."
+            )
         self._embedding_provider = embedding_provider
 
         # Initialize semantic service
@@ -160,9 +167,7 @@ class MemorySubstrateService:
     def _require_rls_context(self, operation: str) -> Any:
         ctx = require_governance_context(operation)
         if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
-            raise RuntimeError(
-                f"RLS scope required for memory operation: {operation}"
-            )
+            raise RuntimeError(f"RLS scope required for memory operation: {operation}")
         return ctx
 
     # =========================================================================
