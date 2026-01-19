@@ -77,8 +77,36 @@ FAILED_AUTH_LIMIT = 5  # Max failed auth attempts before block
 FAILED_AUTH_BLOCK_SECONDS = 300  # Block for 5 minutes after too many failures
 
 
+def is_non_dev_environment(env: str) -> bool:
+    """Return True when env is not a development-like environment."""
+    normalized = (env or "").strip().lower()
+    return normalized not in {"dev", "development", "local", "test", "testing"}
+
+
+def should_fail_hardening_disabled(env: str, hardening_enabled: bool) -> bool:
+    """Decide if startup must fail when hardening is disabled in non-dev."""
+    return (not hardening_enabled) and is_non_dev_environment(env)
+
+
+@must_stay_async("callers use await")
+async def should_fail_hardening_disabled_async(
+    env: str, hardening_enabled: bool
+) -> bool:
+    """Async wrapper for hardening-disabled startup decision."""
+    return should_fail_hardening_disabled(env, hardening_enabled)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if await should_fail_hardening_disabled_async(
+        settings.MCP_ENV, settings.GOVERNANCE_HARDENING_ENABLED
+    ):
+        message = (
+            "Governance hardening disabled in non-dev environment. "
+            "Set GOVERNANCE_HARDENING_ENABLED=True or use MCP_ENV=development."
+        )
+        logger.critical(message, mcp_env=settings.MCP_ENV)
+        raise RuntimeError(message)
     logger.info("Initializing database...")
     await init_db()
     logger.info("✓ Database initialized")
@@ -369,24 +397,14 @@ def create_authenticated_memory_router() -> APIRouter:
     return authenticated_router
 
 
-if settings.GOVERNANCE_HARDENING_ENABLED:
-    # Governance mode: ALL memory routes require authentication
-    logger.info(
-        "Governance hardening ENABLED",
-        enforcement_mode=settings.GOVERNANCE_ENFORCEMENT_MODE,
-    )
-    auth_memory_router = create_authenticated_memory_router()
-    app.include_router(auth_memory_router, prefix="/memory", tags=["memory"])
-    app.include_router(auth_memory_router, prefix="/api/v1/memory", tags=["memory"])
-else:
-    # Legacy mode: Memory routes do not require authentication (DEPRECATED)
-    # This mode will be removed in a future release
-    logger.warning(
-        "Governance hardening DISABLED - memory routes are unauthenticated. "
-        "Set GOVERNANCE_HARDENING_ENABLED=True to enforce authentication."
-    )
-    app.include_router(memory.router, prefix="/memory", tags=["memory"])
-    app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
+logger.info(
+    "Governance hardening status",
+    enabled=settings.GOVERNANCE_HARDENING_ENABLED,
+    enforcement_mode=settings.GOVERNANCE_ENFORCEMENT_MODE,
+)
+auth_memory_router = create_authenticated_memory_router()
+app.include_router(auth_memory_router, prefix="/memory", tags=["memory"])
+app.include_router(auth_memory_router, prefix="/api/v1/memory", tags=["memory"])
 
 
 @app.exception_handler(HTTPException)
