@@ -14,6 +14,33 @@ NO NEW TABLES - uses only existing substrate tables:
 - agent_log
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Memory Substrate Adapter",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T13:21:46Z",
+    "layer": "operations",
+    "domain": "research_services",
+    "module_name": "memory_adapter",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "core.singleton_registry",
+            "services.research.__init__",
+            "services.research.graph_runtime",
+            "services.research.research_graph",
+            "tests.test_memory_adapter",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Optional
@@ -369,3 +396,62 @@ def init_memory_adapter(repository: SubstrateRepository) -> ResearchMemoryAdapte
     global _adapter
     _adapter = ResearchMemoryAdapter(repository)
     return _adapter
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-005",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.schemas",
+        "memory.substrate_models",
+        "memory.substrate_repository",
+    ],
+    "tags": [
+        "adapter",
+        "adapter-pattern",
+        "async",
+        "debugging",
+        "event-driven",
+        "logging",
+        "messaging",
+        "operations",
+        "research-services",
+        "tracing",
+    ],
+    "keywords": [
+        "adapter",
+        "checkpoint",
+        "envelope",
+        "event",
+        "factory",
+        "load",
+        "log",
+        "memory",
+    ],
+    "business_value": "Implements ResearchMemoryAdapter for memory adapter functionality",
+    "last_modified": "2026-01-14T13:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

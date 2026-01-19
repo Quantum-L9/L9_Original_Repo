@@ -10,6 +10,27 @@ Usage:
     psql -d l9 -f delete_trash.sql
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Generate SQL to Delete Trash Embeddings",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-10T17:48:00Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "generate_delete_sql",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import asyncio
@@ -39,26 +60,26 @@ ERROR_PATTERNS = [
 def is_trash(payload: dict) -> bool:
     """Check if payload contains trash content."""
     text = (
-        payload.get("_text") or
-        payload.get("text") or
-        payload.get("content") or
-        str(payload.get("payload", ""))
+        payload.get("_text")
+        or payload.get("text")
+        or payload.get("content")
+        or str(payload.get("payload", ""))
     )
-    
+
     if not isinstance(text, str):
         text = str(text)
-    
+
     text = text.strip()
-    
+
     # Check error patterns
     for pattern in ERROR_PATTERNS:
         if pattern in text:
             return True
-    
+
     # Very short
     if len(text) < 20:
         return True
-    
+
     return False
 
 
@@ -67,19 +88,19 @@ async def find_trash_ids() -> list:
     if not API_KEY:
         logger.error("L9_EXECUTOR_API_KEY not set")
         return []
-    
+
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
     }
-    
+
     trash_ids = []
     search_queries = [
         "Sorry, I encountered a temporary error",
         "Sorry, I encountered an error",
         "No response generated",
     ]
-    
+
     async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
         for query in search_queries:
             try:
@@ -92,20 +113,20 @@ async def find_trash_ids() -> list:
                         "min_score": 0.1,
                     },
                 )
-                
+
                 if response.status_code == 200:
                     result = response.json()
                     for hit in result.get("hits", []):
                         payload = hit.get("payload", {})
                         embedding_id = hit.get("embedding_id")
-                        
+
                         if embedding_id and is_trash(payload):
                             if embedding_id not in trash_ids:
                                 trash_ids.append(embedding_id)
-            
+
             except Exception as e:
                 logger.error(f"Search failed: {e}")
-    
+
     return trash_ids
 
 
@@ -117,25 +138,25 @@ async def main():
     print()
     print("BEGIN;")
     print()
-    
+
     trash_ids = await find_trash_ids()
-    
+
     if not trash_ids:
         print("-- No trash embeddings found")
         print("COMMIT;")
         return
-    
+
     print(f"-- Found {len(trash_ids)} trash embeddings to delete")
     print()
-    
+
     # Generate DELETE statement
     print("DELETE FROM semantic_memory")
     print("WHERE embedding_id IN (")
-    
+
     for i, eid in enumerate(trash_ids):
         comma = "," if i < len(trash_ids) - 1 else ""
         print(f"    '{eid}'{comma}")
-    
+
     print(");")
     print()
     print(f"-- Deletes {len(trash_ids)} embeddings")
@@ -145,3 +166,47 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "filesystem",
+        "http-client",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "operations",
+        "service",
+    ],
+    "keywords": ["delete", "embeddings", "find", "generate", "ids", "sql", "trash"],
+    "business_value": "Utility module for generate delete sql",
+    "last_modified": "2026-01-10T17:48:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

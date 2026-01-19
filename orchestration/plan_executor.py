@@ -31,6 +31,27 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Plan Executor",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "plan_executor",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["orchestration.__init__", "orchestration.unified_controller"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from dataclasses import dataclass, field
@@ -38,6 +59,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Optional
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 # Strategy Memory (optional - Phase 0)
 from memory.strategymemory import (
@@ -294,7 +316,7 @@ class PlanExecutor:
             task_id: Current task ID
             task_kind: Type of task (e.g., "research", "deploy", "code_review")
             goal_description: Natural language description of the goal
-            context_embedding: Optional pre-computed embedding (384-dim)
+            context_embedding: Optional pre-computed embedding (1536-dim)
             tags: Preferred strategy tags
             min_confidence: Minimum confidence threshold for match
 
@@ -648,6 +670,7 @@ class PlanExecutor:
             result = await result
         return result
 
+    @must_stay_async("callers use await")
     async def _dry_run(
         self,
         plan: Any,
@@ -680,6 +703,7 @@ class PlanExecutor:
     # Default Handlers
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _handle_code_write(
         self,
         step: Any,
@@ -765,6 +789,7 @@ class PlanExecutor:
                 "error": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def _handle_code_read(
         self,
         step: Any,
@@ -779,6 +804,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_code_modify(
         self,
         step: Any,
@@ -794,6 +820,7 @@ class PlanExecutor:
             "parameters": step.parameters,
         }
 
+    @must_stay_async("callers use await")
     async def _handle_file_create(
         self,
         step: Any,
@@ -808,6 +835,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_file_delete(
         self,
         step: Any,
@@ -822,6 +850,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_api_call(
         self,
         step: Any,
@@ -836,6 +865,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_reasoning(
         self,
         step: Any,
@@ -850,6 +880,7 @@ class PlanExecutor:
             "status": "simulated",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_validation(
         self,
         step: Any,
@@ -864,6 +895,7 @@ class PlanExecutor:
             "status": "simulated",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_simulation(
         self,
         step: Any,
@@ -1088,3 +1120,58 @@ class PlanExecutor:
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
         return int((datetime.utcnow() - start).total_seconds() * 1000)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-037",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas", "memory.strategymemory"],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "executor",
+        "filesystem",
+        "intelligence",
+        "logging",
+    ],
+    "keywords": [
+        "active",
+        "apply",
+        "cancel",
+        "client",
+        "dependency",
+        "duration",
+        "execute",
+        "execution",
+    ],
+    "business_value": "Provides plan executor components including ExecutionStatus, StepStatus, StepResult",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

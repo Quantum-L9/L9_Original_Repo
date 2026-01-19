@@ -7,9 +7,31 @@ Runtime visibility into which modules are wired and their status, backed by core
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Modules",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-09T01:42:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "modules",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /status"],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 router = APIRouter(prefix="/modules", tags=["modules"])
 
@@ -25,6 +47,7 @@ def _get_module_registry(request: Request):
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_modules_status(
     request: Request,
     _: bool = Depends(verify_api_key),
@@ -64,7 +87,9 @@ async def get_modules_status(
                 enabled=slack_validator is not None,
                 available=slack_validator is not None,
                 initialized=slack_validator is not None,
-                notes=None if slack_validator is not None else "Slack adapter not initialized",
+                notes=None
+                if slack_validator is not None
+                else "Slack adapter not initialized",
             )
         )
 
@@ -90,7 +115,9 @@ async def get_modules_status(
                 enabled=world_model_runtime is not None,
                 available=world_model_runtime is not None,
                 initialized=world_model_runtime is not None,
-                notes=None if world_model_runtime is not None else "World model runtime not initialized",
+                notes=None
+                if world_model_runtime is not None
+                else "World model runtime not initialized",
             )
         )
     except Exception:
@@ -98,3 +125,36 @@ async def get_modules_status(
     return registry.snapshot()
 
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.decorators", "core.moduleregistry"],
+    "tags": ["api", "api-gateway", "async", "auth", "endpoint", "operations", "router"],
+    "keywords": ["moduleregistry", "modules", "router", "status"],
+    "business_value": "Utility module for modules",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

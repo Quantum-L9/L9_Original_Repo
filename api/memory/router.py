@@ -1,14 +1,57 @@
 """
 L9 Memory API Router
-Version: 1.1.0
+Version: 1.2.0 (GMP-68: Governance Gate)
 
 Memory substrate API endpoints using MemorySubstrateService.
 All packets are automatically ingested via canonical ingest_packet().
 """
 
+# ============================================================================
+# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_meta__ = {
+    "component_id": "API-OPER-001",
+    "component_name": "Router",
+    "module_version": "1.2.0 (GMP-68: Governance Gate)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-18T01:57:26Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "router",
+    "type": "router",
+    "status": "active",
+    "purpose": "Provides router components including PacketRequest, PacketResponse, BatchRequest",
+    "integrates_with": {
+        "api_endpoints": [
+            "POST /test",
+            "POST /packet",
+            "POST /semantic/search",
+            "GET /stats",
+            "GET /packet/{packet_id}",
+            "GET /thread/{thread_id}",
+            "GET /lineage/{packet_id}",
+            "POST /hybrid/search",
+            "GET /facts",
+            "GET /insights",
+        ],
+        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "api.server",
+            "api.server_memory",
+            "tests.integration.test_memory_packet_golden_path",
+            "tests.memory.test_substrate_alignment",
+            "tests.smoke_test",
+            "tests.smoke_test_root",
+        ],
+    },
+}
+# ============================================================================
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
-from api.auth import CallerIdentity, verify_api_key
+from api.auth import verify_api_key
 from typing import Optional, List, AsyncGenerator
 from uuid import UUID
 import structlog
@@ -22,39 +65,28 @@ from memory.housekeeping import get_housekeeping_engine
 from orchestrators.memory.interface import MemoryRequest, MemoryOperation
 from orchestrators.memory.orchestrator import MemoryOrchestrator
 from memory.saga import SagaResult
+from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+from core.decorators import must_stay_async
 from memory.governance_gate import (
     build_governance_context,
-    build_scope_project_filter,
     governance_context,
-    require_governance_context,
 )
 
 logger = structlog.get_logger(__name__)
 
-async def memory_governance_context_dependency(
-    caller: CallerIdentity = Depends(verify_api_key),
-) -> AsyncGenerator[None, None]:
-    """
-    Establish a governance context for all /api/memory routes
-    based on the authenticated caller identity.
-    """
-    scope = os.getenv("L9_MEMORY_SCOPE", "developer")
-    if scope not in caller.allowed_scopes:
-        scope = (
-            "developer"
-            if "developer" in caller.allowed_scopes
-            else caller.allowed_scopes[0]
-        )
-    project_id = os.getenv("L9_PROJECT_ID", "l9")
 
+async def memory_governance_context_dependency(
+    _: bool = Depends(verify_api_key),
+) -> AsyncGenerator[None, None]:
+    """Dependency that establishes governance context for memory routes."""
+    scope = os.getenv("L9_MEMORY_SCOPE", "shared")
+    project_id = os.getenv("L9_PROJECT_ID", "l9")
     ctx = build_governance_context(
-        caller_id=caller.caller_id,
+        caller_id="api",
         role="end_user",
         scope=scope,
         project_id=project_id,
-        allowed_scopes=list(caller.allowed_scopes),
-        creator=caller.creator,
-        source=caller.source,
+        allowed_scopes=[scope],
     )
     async with governance_context(ctx):
         yield
@@ -62,10 +94,17 @@ async def memory_governance_context_dependency(
 
 router = APIRouter(dependencies=[Depends(memory_governance_context_dependency)])
 
+_batch_circuit_breaker = CircuitBreaker(
+    CircuitBreakerConfig(
+        failure_threshold=10,
+        window_seconds=60,
+        reset_timeout=30,
+        name="memory_batch",
+    )
+)
 
 # ============================================================================
 # Dependency: Get MemoryOrchestrator from app.state
-# ============================================================================
 
 
 def get_memory_orchestrator(request: Request) -> MemoryOrchestrator:
@@ -103,6 +142,7 @@ class PacketResponse(BaseModel):
 
 
 @router.post("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def memory_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -128,11 +168,14 @@ async def create_packet(
         thread_uuid = None
         if request.thread_id:
             from uuid import UUID as UUIDType
+
             try:
                 thread_uuid = UUIDType(request.thread_id)
             except ValueError:
-                raise HTTPException(status_code=400, detail=f"Invalid thread_id: {request.thread_id}")
-        
+                raise HTTPException(
+                    status_code=400, detail=f"Invalid thread_id: {request.thread_id}"
+                )
+
         # Convert request to PacketEnvelopeIn (v2.0 compatible)
         packet_in = PacketEnvelopeIn(
             packet_type=request.packet_type,
@@ -194,7 +237,6 @@ async def get_stats(
 ):
     """Get memory system statistics."""
     try:
-        ctx = require_governance_context("memory.stats")
         service = await get_service()
         health = await service.health_check()
 
@@ -202,31 +244,11 @@ async def get_stats(
         repo = service._repository
 
         async with repo.acquire() as conn:
-            filter_clause, params, _ = build_scope_project_filter(
-                ctx, param_idx=1, table_alias="packet_store"
-            )
-            packet_count = await conn.fetchval(
-                f"SELECT COUNT(*) FROM packet_store WHERE TRUE {filter_clause}",
-                *params,
-            )
+            packet_count = await conn.fetchval("SELECT COUNT(*) FROM packet_store")
             embedding_count = await conn.fetchval(
-                f"""
-                SELECT COUNT(*)
-                FROM semantic_memory
-                INNER JOIN packet_store ON packet_store.packet_id = (semantic_memory.payload->>'packet_id')::uuid
-                WHERE TRUE {filter_clause}
-                """,
-                *params,
+                "SELECT COUNT(*) FROM semantic_memory"
             )
-            fact_count = await conn.fetchval(
-                f"""
-                SELECT COUNT(*)
-                FROM knowledge_facts
-                INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
-                WHERE TRUE {filter_clause}
-                """,
-                *params,
-            )
+            fact_count = await conn.fetchval("SELECT COUNT(*) FROM knowledge_facts")
 
         return {
             "status": "operational",
@@ -386,7 +408,7 @@ async def get_facts(
     """Query knowledge facts."""
     try:
         service = await get_service()
-        
+
         # If source_packet provided, filter by it
         if source_packet:
             try:
@@ -513,7 +535,6 @@ async def health_check(
 
 # ============================================================================
 # Orchestrator-based Endpoints (Wire-Orchestrators-v1.0)
-# ============================================================================
 
 
 class BatchRequest(BaseModel):
@@ -550,6 +571,21 @@ async def batch_write(
 
     This endpoint processes packets in batches for efficient bulk ingestion.
     """
+    if _batch_circuit_breaker.is_open():
+        cb_stats = _batch_circuit_breaker.get_stats()
+        logger.warning(
+            "batch_circuit_breaker_open",
+            failures_in_window=cb_stats["failures_in_window"],
+        )
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Circuit breaker open: "
+                f"{cb_stats['failures_in_window']} failures in "
+                f"{cb_stats['window_seconds']}s"
+            ),
+        )
+
     try:
         logger.info(
             "Batch write request",
@@ -564,12 +600,15 @@ async def batch_write(
 
         result = await orchestrator.execute(mem_request)
 
+        _batch_circuit_breaker.record_success()
+
         return BatchResponse(
             success=result.success,
             processed_count=result.processed_count,
             errors=result.errors,
         )
     except Exception as e:
+        _batch_circuit_breaker.record_failure(str(e))
         logger.error(f"Batch write failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Batch write failed: {str(e)}")
 
@@ -605,12 +644,11 @@ async def compact_storage(
 
 # ============================================================================
 # v3.1 Endpoints: Reasoning Replay & Consolidation
-# ============================================================================
 
 
 class ReasoningReplayRequest(BaseModel):
     """Request model for reasoning replay."""
-    
+
     packet_id: str
     max_depth: Optional[int] = None
     format: str = "narrative"  # json, narrative, graph_viz, mermaid
@@ -618,7 +656,7 @@ class ReasoningReplayRequest(BaseModel):
 
 class ReasoningReplayResponse(BaseModel):
     """Response model for reasoning replay."""
-    
+
     chain_id: str
     start_packet_id: str
     depth: int
@@ -635,7 +673,7 @@ async def reasoning_replay(
 ):
     """
     Reconstruct and explain a decision chain (v3.1).
-    
+
     Per memory_spec_v3.0.yaml pipelines.reasoning_replay:
     - reconstruct_chain(packet_id) -> ReasoningChain
     - explain_decision(packet_id, format) -> str
@@ -643,21 +681,21 @@ async def reasoning_replay(
     try:
         service = await get_service()
         replay = service.get_reasoning_replay()
-        
+
         if replay is None:
             raise HTTPException(
                 status_code=503,
                 detail="Reasoning replay pipeline not available",
             )
-        
+
         packet_id = UUID(request.packet_id)
-        
+
         # Reconstruct chain
         chain = await replay.reconstruct_chain(packet_id, max_depth=request.max_depth)
-        
+
         # Explain decision
         explanation = await replay.explain_decision(packet_id, format=request.format)
-        
+
         return ReasoningReplayResponse(
             chain_id=str(chain.chain_id),
             start_packet_id=str(chain.start_packet_id),
@@ -672,12 +710,14 @@ async def reasoning_replay(
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logger.error(f"Reasoning replay failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Reasoning replay failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Reasoning replay failed: {str(e)}"
+        )
 
 
 class ConsolidationRequest(BaseModel):
     """Request model for consolidation."""
-    
+
     dry_run: bool = False
     batch_size: int = 1000
     sleep_between_batches_ms: int = 100
@@ -685,7 +725,7 @@ class ConsolidationRequest(BaseModel):
 
 class ConsolidationResponse(BaseModel):
     """Response model for consolidation."""
-    
+
     success: bool
     deduplication_count: int
     archived_count: int
@@ -704,7 +744,7 @@ async def run_consolidation(
 ):
     """
     Run memory consolidation pipeline (v3.1).
-    
+
     Per memory_spec_v3.0.yaml pipelines.consolidation:
     - deduplication, archival, summarization, ttl_expiration
     - Schedule: weekly_saturday_2am_utc (manual trigger via this endpoint)
@@ -712,21 +752,21 @@ async def run_consolidation(
     try:
         service = await get_service()
         consolidation = service.get_consolidation(dry_run=request.dry_run)
-        
+
         if consolidation is None:
             raise HTTPException(
                 status_code=503,
                 detail="Consolidation pipeline not available",
             )
-        
+
         # Run consolidation
         report = await consolidation.run_consolidation(
             batch_size=request.batch_size,
             sleep_between_batches_ms=request.sleep_between_batches_ms,
         )
-        
+
         report_dict = report.to_dict()
-        
+
         return ConsolidationResponse(
             success=len(report.errors) == 0,
             deduplication_count=report.deduplication_count,
@@ -746,12 +786,11 @@ async def run_consolidation(
 
 # ============================================================================
 # Saga Pattern Endpoints (GMP-57: Cross-DB Multi-Step Operations)
-# ============================================================================
 
 
 class FetchAndEnrichRequest(BaseModel):
     """Request model for fetch_and_enrich saga."""
-    
+
     query: str
     limit: int = 10
     min_similarity: float = 0.5
@@ -759,14 +798,14 @@ class FetchAndEnrichRequest(BaseModel):
 
 class EnrichEntitiesRequest(BaseModel):
     """Request model for entity enrichment saga."""
-    
+
     entity_ids: List[str]
     entity_type: str = "Entity"
 
 
 class CorrelateTimelineRequest(BaseModel):
     """Request model for timeline correlation saga."""
-    
+
     start_time: Optional[str] = None
     end_time: Optional[str] = None
     event_type: Optional[str] = None
@@ -775,7 +814,7 @@ class CorrelateTimelineRequest(BaseModel):
 
 class SagaResponse(BaseModel):
     """Response model for saga operations."""
-    
+
     saga_id: str
     saga_name: str
     status: str
@@ -812,13 +851,13 @@ async def saga_fetch_and_enrich(
 ):
     """
     Execute fetch_and_enrich saga (GMP-56/57).
-    
+
     Cross-DB operation that:
     1. Searches vectors in Postgres for semantically similar content
     2. Extracts entity IDs from results (UUIDs, GMPs, file paths)
     3. Enriches with Neo4j graph relationships (if available)
     4. Returns combined result
-    
+
     This reduces LLM reasoning steps by bundling related database
     operations into a single atomic workflow.
     """
@@ -846,7 +885,7 @@ async def saga_enrich_entities(
 ):
     """
     Execute entity enrichment saga (GMP-56/57).
-    
+
     For when you already have entity IDs and want graph context:
     1. Lookup entities by ID in Neo4j
     2. Discover relationships to neighboring entities
@@ -875,7 +914,7 @@ async def saga_correlate_timeline(
 ):
     """
     Execute timeline correlation saga (GMP-56/57).
-    
+
     For analyzing event sequences and causal chains:
     1. Fetch events in time range from Neo4j
     2. Trace causal chains (TRIGGERED relationships)
@@ -896,3 +935,193 @@ async def saga_correlate_timeline(
     except Exception as e:
         logger.error(f"Timeline correlation saga failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Saga failed: {str(e)}")
+
+
+# =============================================================================
+# Stage 5: Predictive Memory Warming (GMP-STAGE5)
+
+
+class WarmRequest(BaseModel):
+    """Request for memory warming."""
+
+    query: str
+    mentioned_entities: List[str] = []
+    max_gaps_to_warm: int = 10
+
+
+class WarmResponse(BaseModel):
+    """Response from memory warming."""
+
+    gaps_detected: int
+    gaps_addressed: int
+    entities_warmed: int
+    warming_latency_ms: float
+    cache_metrics: dict
+    error: Optional[str] = None
+
+
+@router.post("/warm", response_model=WarmResponse)
+async def warm_memory_for_query(
+    request: WarmRequest,
+    req: Request,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Predictive Memory Warming endpoint (Stage 5: GMP-STAGE5).
+
+    Proactively warms the memory cache for an upcoming query by:
+    1. Detecting knowledge gaps in mentioned entities
+    2. Fetching 1-degree neighbors from Neo4j graph
+    3. Caching warmed subgraphs in Redis/L1 cache
+
+    Use this endpoint before complex agent queries to reduce
+    latency by having relevant context pre-loaded.
+
+    Args:
+        query: The upcoming query text
+        mentioned_entities: List of entity IDs referenced in query
+        max_gaps_to_warm: Maximum number of gaps to address (default: 10)
+
+    Returns:
+        WarmResponse with gap detection stats and cache metrics
+    """
+    warming_service = getattr(req.app.state, "memory_warming_service", None)
+
+    if warming_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Memory Warming Service not available. Check L9_MEMORY_WARMING_ENABLED.",
+        )
+
+    try:
+        result = await warming_service.warm_for_query(
+            query=request.query,
+            mentioned_entities=request.mentioned_entities,
+            max_gaps_to_warm=request.max_gaps_to_warm,
+        )
+
+        return WarmResponse(
+            gaps_detected=result.get("gaps_detected", 0),
+            gaps_addressed=result.get("gaps_addressed", 0),
+            entities_warmed=result.get("entities_warmed", 0),
+            warming_latency_ms=result.get("warming_latency_ms", 0.0),
+            cache_metrics=result.get("cache_metrics", {}),
+            error=result.get("error"),
+        )
+
+    except Exception as e:
+        logger.error(f"Memory warming failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Memory warming failed: {str(e)}")
+
+
+@router.get("/warm/metrics")
+@must_stay_async("FastAPI/ASGI route handler")
+async def get_warming_metrics(
+    req: Request,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Get Memory Warming Service metrics.
+
+    Returns comprehensive metrics including:
+    - Cache hit/miss statistics
+    - Warming history size
+    - Entity graph size
+    - L1 cache size
+    """
+    warming_service = getattr(req.app.state, "memory_warming_service", None)
+
+    if warming_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Memory Warming Service not available. Check L9_MEMORY_WARMING_ENABLED.",
+        )
+
+    try:
+        metrics = warming_service.get_service_metrics()
+        return metrics
+    except Exception as e:
+        logger.error(f"Failed to get warming metrics: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {str(e)}")
+
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    # === IDENTITY ===
+    "component_id": "API-OPER-001",
+    # === GOVERNANCE ===
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "security_classification": "internal",
+    # === DEPENDENCIES ===
+    "dependencies": [
+        "api.auth",
+        "core.decorators",
+        "core.observability.circuit_breaker",
+        "core.schemas",
+        "memory.governance_gate",
+    ],
+    # === OPERATIONAL ===
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "realtime",
+    "retry_policy": "exponential",
+    "circuit_breaker_enabled": True,
+    "circuit_breaker_threshold": 5,
+    # === OBSERVABILITY ===
+    "monitoring_required": True,
+    "logging_level": "info",
+    "success_metrics": {
+        "latency_p95_ms": 50,
+        "throughput_ops_per_sec": 1000,
+        "availability_percent": 99.99,
+        "error_rate_percent": 0.01,
+    },
+    # === DISCOVERY ===
+    "tags": ["api-gateway", "router", "http", "operations", "rest", "api"],
+    "keywords": ["router"],
+    "business_value": "Provides router components including PacketRequest, PacketResponse, BatchRequest",
+    # === CHANGE TRACKING ===
+    "last_modified": "2026-01-18T01:57:26Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

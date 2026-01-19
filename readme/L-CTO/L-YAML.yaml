@@ -1,3 +1,17 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "L-Yaml"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-11T18:13:39Z"
+# updated_at: "2026-01-09T13:33:24Z"
+# layer: "operations"
+# domain: "readme"
+# file_name: "L-YAML"
+# type: "utility"
+# status: "active"
+# ============================================================================
 
 # File: /agents/L/persona.yaml
 name: "L"
@@ -263,3 +277,11 @@ fi
 echo "[restore_agent] starting uvicorn api.server:app on port ${PORT:-8000}"
 exec uvicorn api.server:app --host 0.0.0.0 --port "${PORT:-8000}"
 ```
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "database-config", "kernel", "model-config", "operations", "pipeline", "prompt"]
+# keywords: ["yaml"]
+# last_modified: "2026-01-09T13:33:24Z"
+# ============================================================================

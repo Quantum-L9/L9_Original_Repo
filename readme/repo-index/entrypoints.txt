@@ -48,10 +48,16 @@ api/vps_executor.py
   Routes (2):
     - GET /agent/health
     - POST /agent/exec
+ci/check_dependency_patterns.py
+  Type: Script
+  Has __main__ block: Yes
 ci/check_no_deprecated_services.py
   Type: Script
   Has __main__ block: Yes
 ci/check_schema_deprecation.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_substrate_api.py
   Type: Script
   Has __main__ block: Yes
 ci/check_syntax.py
@@ -72,34 +78,12 @@ ci/validate_codegen.py
 ci/validate_spec_v25.py
   Type: Script
   Has __main__ block: Yes
-current_work/wiring-audit-perplexity/validate_wiring_alignment.py
+core/gmp/meta_learning_engine.py
   Type: Script
   Has __main__ block: Yes
 dev/tools/global_state_audit.py
   Type: Script
   Has __main__ block: Yes
-docs/Slack-Debug-2/server.py
-  Type: FastAPI
-  Title: L9 Phase 2 Secure AI OS
-  Routes (14):
-    - GET /
-    - GET /health
-    - GET /health/startup
-    - POST /kernels/reload
-    - GET /health/neo4j
-    - POST /lchat
-    - POST /chat
-    - WEBSOCKET /ws/agent
-    - WEBSOCKET /lws
-    - ROUTER /os/*
-    ... and 4 more
-docs/Slack-Debug-2/verify_agent_executor.py
-  Type: Script
-  Has __main__ block: Yes
-docs/_archived/codegen_slack_adapter/Slack-Audit-Pack/slack-adapter-complete.py
-  Type: FastAPI
-  Routes (1):
-    - POST /events
 email_agent/oauth_server.py
   Type: Script
   Has __main__ block: Yes
@@ -119,11 +103,13 @@ mac_agent/websocket_client.py
 mcp_memory/src/main.py
   Type: FastAPI
   Title: L9 MCP Memory Server
-  Routes (6):
+  Routes (8):
     - GET /
     - GET /health
     - GET /mcp/tools
     - POST /mcp/call
+    - ROUTER /memory/*
+    - ROUTER /api/v1/memory/*
     - ROUTER /memory/*
     - ROUTER /api/v1/memory/*
 orchestrators/agent_execution/orchestrator.py
@@ -141,10 +127,16 @@ scripts/agents/run_bootstrap_l_graph.py
 scripts/agents/verify_agent_executor.py
   Type: Script
   Has __main__ block: Yes
+scripts/audit/audit_api_signatures.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/audit/categorize_dead_code.py
   Type: Script
   Has __main__ block: Yes
 scripts/audit/cleanup_audit_reports.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/ensure_logger_instantiated.py
   Type: Script
   Has __main__ block: Yes
 scripts/audit/find_dead_code.py
@@ -178,6 +170,9 @@ scripts/audit/verify_wiring_alignment.py
   Type: Script
   Has __main__ block: Yes
 scripts/batch/batch_generate_specs.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/gmp-validate-stage.py
   Type: Script
   Has __main__ block: Yes
 scripts/memory/audit_graphs.py
@@ -255,6 +250,9 @@ scripts/research/factory_extract.py
 scripts/research/send_perplexity_spec_request.py
   Type: Script
   Has __main__ block: Yes
+scripts/run_pattern.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/setup_gmail_accounts.py
   Type: Script
   Has __main__ block: Yes
@@ -271,6 +269,9 @@ services/symbolic_computation/health_check.py
   Type: Script
   Has __main__ block: Yes
 tools/export_repo_indexes.py
+  Type: Script
+  Has __main__ block: Yes
+wiring-audit-perplexity/validate_wiring_alignment.py
   Type: Script
   Has __main__ block: Yes
 world_model/seed_loader.py

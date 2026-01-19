@@ -5,11 +5,33 @@ Version: 1.0.0
 Engine for applying and rolling back system upgrades.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Apply Engine",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "apply_engine",
+    "type": "engine",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Dict, Any
 import asyncio
 
 from .interface import Upgrade
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -204,6 +226,7 @@ class ApplyEngine:
             return False
 
     # Stubs for actual implementations
+    @must_stay_async("callers use await")
     async def _read_file(self, path: str) -> str:
         logger.debug(f"Reading file: {path}")
         return ""
@@ -212,6 +235,7 @@ class ApplyEngine:
         logger.debug(f"Writing file: {path}")
         await asyncio.sleep(0.1)
 
+    @must_stay_async("callers use await")
     async def _read_config(self, key: str) -> Any:
         logger.debug(f"Reading config: {key}")
         return None
@@ -227,3 +251,48 @@ class ApplyEngine:
     async def _restart_service(self, service: str) -> None:
         logger.debug(f"Restarting service: {service}")
         await asyncio.sleep(1.0)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-021",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "async",
+        "debugging",
+        "engine",
+        "intelligence",
+        "logging",
+        "messaging",
+        "migration",
+        "orchestration",
+        "rest-api",
+    ],
+    "keywords": ["apply", "engine", "orchestrator", "rollback"],
+    "business_value": "Implements ApplyEngine for apply engine functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

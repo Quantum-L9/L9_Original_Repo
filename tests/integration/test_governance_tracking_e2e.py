@@ -14,7 +14,7 @@ Version: 1.0.0
 import pytest
 from uuid import uuid4
 
-from core.agents.schemas import AgentTask, AgentConfig, ExecutionResult, TaskKind
+from core.agents.schemas import AgentTask, AgentConfig, AgentType, ExecutionResult
 from core.agents.agent_instance import AgentInstance
 from core.agents.selfreflection import (
     TaskExecutionContext,
@@ -34,7 +34,7 @@ def task():
     """Create a test task."""
     return AgentTask(
         id=uuid4(),
-        kind=TaskKind.EXECUTION,
+        agent_type=AgentType.EXECUTOR,
         agent_id="test-agent-001",
         source_id="test-harness",
         payload={"message": "Execute operation with governance oversight"},
@@ -74,7 +74,7 @@ class TestAgentInstanceGovernanceTracking:
             block_type="authority_block",
             violation="Permission denied for elevated operation",
         )
-        
+
         assert len(instance.governance_blocks) == 1
         block = instance.governance_blocks[0]
         assert block["type"] == "authority_block"
@@ -89,7 +89,7 @@ class TestAgentInstanceGovernanceTracking:
             violation="Dangerous pattern detected",
             pattern="rm -rf",
         )
-        
+
         assert len(instance.governance_blocks) == 1
         block = instance.governance_blocks[0]
         assert block["type"] == "safety_block"
@@ -102,7 +102,7 @@ class TestAgentInstanceGovernanceTracking:
             tool_id="mac_agent_exec",
             metadata={"call_id": "test-call-id"},
         )
-        
+
         assert len(instance.governance_blocks) == 1
         block = instance.governance_blocks[0]
         assert block["type"] == "tool_approval_block"
@@ -114,7 +114,7 @@ class TestAgentInstanceGovernanceTracking:
         instance.add_governance_block(block_type="test_block")
         blocks = instance.governance_blocks
         blocks.append({"type": "fake"})
-        
+
         # Original should not be affected
         assert len(instance.governance_blocks) == 1
 
@@ -128,7 +128,7 @@ class TestAgentInstanceUserCorrectionTracking:
             correction="No, use soft-delete instead.",
             metadata={"context": "file operation"},
         )
-        
+
         assert len(instance.user_corrections) == 1
         corr = instance.user_corrections[0]
         assert corr["correction"] == "No, use soft-delete instead."
@@ -141,7 +141,7 @@ class TestAgentInstanceUserCorrectionTracking:
         instance.add_user_correction("First correction")
         instance.add_user_correction("Second correction")
         instance.add_user_correction("Third correction")
-        
+
         assert len(instance.user_corrections) == 3
 
     def test_user_corrections_copy_isolation(self, instance):
@@ -149,7 +149,7 @@ class TestAgentInstanceUserCorrectionTracking:
         instance.add_user_correction("Test correction")
         corrections = instance.user_corrections
         corrections.append({"correction": "fake"})
-        
+
         # Original should not be affected
         assert len(instance.user_corrections) == 1
 
@@ -166,7 +166,7 @@ class TestExecutionResultGovernanceWiring:
         """Test ExecutionResult carries governance blocks."""
         instance.add_governance_block(block_type="authority_block", violation="test")
         instance.add_governance_block(block_type="safety_block", violation="test")
-        
+
         result = ExecutionResult(
             task_id=task.id,
             status="blocked",
@@ -175,7 +175,7 @@ class TestExecutionResultGovernanceWiring:
             duration_ms=100,
             governance_blocks=instance.governance_blocks,
         )
-        
+
         assert result.governance_blocks is not None
         assert len(result.governance_blocks) == 2
 
@@ -183,7 +183,7 @@ class TestExecutionResultGovernanceWiring:
         """Test ExecutionResult carries user corrections."""
         instance.add_user_correction("Correction 1")
         instance.add_user_correction("Correction 2")
-        
+
         result = ExecutionResult(
             task_id=task.id,
             status="completed",
@@ -192,7 +192,7 @@ class TestExecutionResultGovernanceWiring:
             duration_ms=1000,
             user_corrections=instance.user_corrections,
         )
-        
+
         assert result.user_corrections is not None
         assert len(result.user_corrections) == 2
 
@@ -207,7 +207,7 @@ class TestExecutionResultGovernanceWiring:
             governance_blocks=None,
             user_corrections=None,
         )
-        
+
         assert result.governance_blocks is None
         assert result.user_corrections is None
 
@@ -239,10 +239,10 @@ class TestGovernanceBlockPatternDetection:
             ],
             user_corrections=[],
         )
-        
+
         pattern = GovernanceBlockPattern()
         gap = pattern.detect(context)
-        
+
         assert gap is not None
         assert gap.gap_type == "POLICY"
         assert gap.kernel_id == "safety"
@@ -266,10 +266,10 @@ class TestGovernanceBlockPatternDetection:
             ],
             user_corrections=[],
         )
-        
+
         pattern = GovernanceBlockPattern()
         gap = pattern.detect(context)
-        
+
         # Should not fire because task didn't succeed
         assert gap is None
 
@@ -291,10 +291,10 @@ class TestGovernanceBlockPatternDetection:
             ],
             user_corrections=[],
         )
-        
+
         pattern = GovernanceBlockPattern()
         gap = pattern.detect(context)
-        
+
         assert gap is None
 
     def test_governance_block_pattern_empty_blocks(self):
@@ -313,10 +313,10 @@ class TestGovernanceBlockPatternDetection:
             governance_blocks=[],
             user_corrections=[],
         )
-        
+
         pattern = GovernanceBlockPattern()
         gap = pattern.detect(context)
-        
+
         assert gap is None
 
 
@@ -342,10 +342,10 @@ class TestUserCorrectionPatternDetection:
                 "Actually, use Y approach",
             ],
         )
-        
+
         pattern = UserCorrectionPattern()
         gap = pattern.detect(context)
-        
+
         assert gap is not None
         assert gap.gap_type == "CONSTRAINT"
         assert gap.kernel_id == "behavioral"
@@ -368,7 +368,7 @@ class TestUserCorrectionPatternDetection:
             governance_blocks=[],
             user_corrections=["C1", "C2", "C3"],
         )
-        
+
         # 4+ corrections = HIGH
         context_high = TaskExecutionContext(
             task_id="test-456",
@@ -384,11 +384,11 @@ class TestUserCorrectionPatternDetection:
             governance_blocks=[],
             user_corrections=["C1", "C2", "C3", "C4"],
         )
-        
+
         pattern = UserCorrectionPattern()
         gap_medium = pattern.detect(context_medium)
         gap_high = pattern.detect(context_high)
-        
+
         assert gap_medium.severity == "MEDIUM"
         assert gap_high.severity == "HIGH"
 
@@ -408,10 +408,10 @@ class TestUserCorrectionPatternDetection:
             governance_blocks=[],
             user_corrections=["Single correction"],
         )
-        
+
         pattern = UserCorrectionPattern()
         gap = pattern.detect(context)
-        
+
         assert gap is None
 
     def test_user_correction_pattern_empty_corrections(self):
@@ -430,10 +430,10 @@ class TestUserCorrectionPatternDetection:
             governance_blocks=[],
             user_corrections=[],
         )
-        
+
         pattern = UserCorrectionPattern()
         gap = pattern.detect(context)
-        
+
         assert gap is None
 
 
@@ -467,11 +467,11 @@ class TestGovernanceTrackingEndToEnd:
             pattern="rm -rf",
             metadata={"reason": "Action denied due to safety policy"},
         )
-        
+
         # Phase 2: Track user corrections
         instance.add_user_correction("No, use soft-delete instead.")
         instance.add_user_correction("Query the database first.")
-        
+
         # Phase 3: Build ExecutionResult
         result = ExecutionResult(
             task_id=task.id,
@@ -485,16 +485,16 @@ class TestGovernanceTrackingEndToEnd:
             governance_blocks=instance.governance_blocks,
             user_corrections=instance.user_corrections,
         )
-        
+
         # Phase 4: Build TaskExecutionContext (same as _run_self_reflection)
         formatted_blocks = []
-        for block in (result.governance_blocks or []):
+        for block in result.governance_blocks or []:
             formatted_block = dict(block)
             if "metadata" in formatted_block and formatted_block["metadata"]:
                 if "reason" in formatted_block["metadata"]:
                     formatted_block["reason"] = formatted_block["metadata"]["reason"]
             formatted_blocks.append(formatted_block)
-        
+
         context = TaskExecutionContext(
             task_id=str(task.id),
             agent_id=task.agent_id,
@@ -512,17 +512,17 @@ class TestGovernanceTrackingEndToEnd:
             ],
             metadata={},
         )
-        
+
         # Phase 5: Run analysis
         reflection_result = await analyze_task_execution(context)
-        
+
         # Phase 6: Verify
         assert len(reflection_result.gaps_detected) >= 2
-        
+
         gap_types = {gap.gap_type for gap in reflection_result.gaps_detected}
         assert "POLICY" in gap_types, "GovernanceBlockPattern should have fired"
         assert "CONSTRAINT" in gap_types, "UserCorrectionPattern should have fired"
-        
+
         # Verify recommendations generated
         assert len(reflection_result.recommendations) >= 2
 
@@ -541,7 +541,7 @@ class TestGovernanceTrackingEndToEnd:
             governance_blocks=None,
             user_corrections=None,
         )
-        
+
         context = TaskExecutionContext(
             task_id=str(task.id),
             agent_id=task.agent_id,
@@ -557,12 +557,10 @@ class TestGovernanceTrackingEndToEnd:
             user_corrections=[],
             metadata={},
         )
-        
+
         reflection_result = await analyze_task_execution(context)
-        
+
         # Should have no POLICY or CONSTRAINT gaps
         gap_types = {gap.gap_type for gap in reflection_result.gaps_detected}
         assert "POLICY" not in gap_types
         assert "CONSTRAINT" not in gap_types
-
-

@@ -6,6 +6,27 @@ Orchestrates Mac Agent task execution from file-based queue.
 ONLY handles mac_task types - email tasks are handled separately.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Implementation",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-08T15:53:43Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "orchestrator",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Slack API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import time
@@ -54,20 +75,22 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
     def __init__(self):
         """Initialize agent execution orchestrator."""
         # Add parent directory to path to import services
-        parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        parent_dir = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
         if parent_dir not in sys.path:
             sys.path.insert(0, parent_dir)
 
         try:
-            from services.slack_client import post_result
+            from api.slack_client import post_result_async
             from mac_agent.executor import AutomationExecutor
 
-            self._post_result = post_result
+            self._post_result_async = post_result_async
             self._AutomationExecutor = AutomationExecutor
             logger.info("AgentExecutionOrchestrator initialized")
         except ImportError as e:
             logger.warning(f"Some dependencies not available: {e}")
-            self._post_result = None
+            self._post_result_async = None
             self._AutomationExecutor = None
 
     async def execute(self, request: AgentExecutionRequest) -> AgentExecutionResponse:
@@ -118,7 +141,9 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                         pyautogui.screenshot(str(desktop_screenshot))
                         result["screenshots"] = [str(desktop_screenshot)]
                         result["screenshot_path"] = str(desktop_screenshot)
-                        logger.info(f"Captured desktop screenshot: {desktop_screenshot}")
+                        logger.info(
+                            f"Captured desktop screenshot: {desktop_screenshot}"
+                        )
                     except Exception as e:
                         logger.error(f"Failed to capture desktop screenshot: {e}")
 
@@ -205,15 +230,17 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
 
                 response = await self.execute(request)
 
-                # Post result back to Slack
-                if self._post_result and response.result:
+                # Post result back to Slack (async)
+                if self._post_result_async and response.result:
                     try:
                         metadata = task.get("metadata", {})
                         user = metadata.get("user")
                         channel = metadata.get("channel", user)
 
                         if user or channel:
-                            self._post_result(channel or user, task, response.result)
+                            await self._post_result_async(
+                                channel or user, task, response.result
+                            )
                             logger.info(f"Posted result for task {task_id} to Slack")
                         else:
                             logger.warning(
@@ -273,7 +300,9 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     / f"desktop_crash_{int(time.time())}.png"
                                 )
                                 pyautogui.screenshot(str(desktop_screenshot))
-                                failure_result["screenshots"] = [str(desktop_screenshot)]
+                                failure_result["screenshots"] = [
+                                    str(desktop_screenshot)
+                                ]
                             except Exception:
                                 pass
 
@@ -296,7 +325,9 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                             )
                             with open(completed_file, "w") as f:
                                 json.dump(
-                                    {"task": task, "result": failure_result}, f, indent=2
+                                    {"task": task, "result": failure_result},
+                                    f,
+                                    indent=2,
                                 )
                         except Exception:
                             pass
@@ -321,3 +352,54 @@ if __name__ == "__main__":
         logger.info("Agent Execution Orchestrator stopped by user")
         sys.exit(0)
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-029",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.slack_client"],
+    "tags": [
+        "api",
+        "async",
+        "filesystem",
+        "intelligence",
+        "logging",
+        "orchestration",
+        "queue",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "execute",
+        "execution",
+        "implementation",
+        "orchestrator",
+        "poll",
+        "queue",
+    ],
+    "business_value": "Orchestrates Mac Agent task execution from file-based queue. ONLY handles mac_task types - email tasks are handled separately.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

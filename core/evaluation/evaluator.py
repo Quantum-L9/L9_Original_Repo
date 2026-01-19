@@ -4,7 +4,29 @@ Evaluation Framework
 Harvested from: L9-Implementation-Suite-Ready-to-Deploy.md
 Purpose: Continuous evaluation, LLM-as-judge scoring, CI/CD integration.
 """
+
 from __future__ import annotations
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Evaluator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "error_handling",
+    "module_name": "evaluator",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
 
 import statistics
 import time
@@ -16,6 +38,7 @@ import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -23,6 +46,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class EvaluationExample:
     """Single evaluation case"""
+
     input_text: str
     expected_output: Optional[str] = None
     expected_tools: Optional[List[str]] = None
@@ -33,6 +57,7 @@ class EvaluationExample:
 @dataclass
 class EvaluationSet:
     """Collection of evaluation examples"""
+
     name: str
     examples: List[EvaluationExample]
     description: str = ""
@@ -41,6 +66,7 @@ class EvaluationSet:
 @dataclass
 class EvaluationResult:
     """Result of evaluation run"""
+
     agent_id: str
     eval_set_name: str
     timestamp: str
@@ -54,15 +80,17 @@ class EvaluationResult:
     tool_accuracy: float
     llm_as_judge_score: float
     error_count: int = 0
-    
+
     @property
     def task_success_rate(self) -> float:
-        return self.examples_passed / self.examples_run if self.examples_run > 0 else 0.0
+        return (
+            self.examples_passed / self.examples_run if self.examples_run > 0 else 0.0
+        )
 
 
 class Evaluator:
     """Evaluation service for agent performance"""
-    
+
     def __init__(
         self,
         substrate_service: "MemorySubstrateService",
@@ -73,7 +101,7 @@ class Evaluator:
         self.llm = llm_service
         self.agent_service = agent_service
         self.eval_sets: Dict[str, EvaluationSet] = {}
-    
+
     def define_eval_set(
         self,
         name: str,
@@ -91,7 +119,7 @@ class Evaluator:
             name=name,
             examples=len(examples),
         )
-    
+
     async def run_eval(
         self,
         agent_id: str,
@@ -99,27 +127,27 @@ class Evaluator:
         version: str = "latest",
     ) -> EvaluationResult:
         """Run agent on eval set"""
-        
+
         if eval_set_name not in self.eval_sets:
             raise ValueError(f"Eval set not found: {eval_set_name}")
-        
+
         eval_set = self.eval_sets[eval_set_name]
-        
+
         latencies = []
         passed = 0
         errors = 0
         tool_accuracy_scores = []
         llm_judge_scores = []
-        
+
         logger.info(
             "Starting eval",
             agent_id=agent_id,
             eval_set=eval_set_name,
         )
-        
+
         for i, example in enumerate(eval_set.examples):
             start_time = time.time()
-            
+
             try:
                 # Execute agent
                 if self.agent_service:
@@ -130,10 +158,10 @@ class Evaluator:
                     )
                 else:
                     output = {"text": "Mock output", "tools_called": []}
-                
+
                 latency_ms = (time.time() - start_time) * 1000
                 latencies.append(latency_ms)
-                
+
                 # Evaluate tool selection
                 if example.expected_tools:
                     tools_used = output.get("tools_called", [])
@@ -142,25 +170,25 @@ class Evaluator:
                         example.expected_tools,
                     )
                     tool_accuracy_scores.append(tool_acc)
-                
+
                 # Simple scoring without LLM judge
                 judge_score = 0.8 if output.get("text") else 0.0
                 llm_judge_scores.append(judge_score)
-                
+
                 if judge_score > 0.7:
                     passed += 1
-                
+
                 if (i + 1) % 10 == 0:
                     logger.info(
                         "Eval progress",
                         completed=i + 1,
                         total=len(eval_set.examples),
                     )
-            
+
             except Exception as e:
                 errors += 1
                 logger.error("Eval example error", error=str(e))
-        
+
         # Compute percentiles
         if latencies:
             latencies_sorted = sorted(latencies)
@@ -168,7 +196,7 @@ class Evaluator:
             p95_latency = latencies_sorted[min(p95_idx, len(latencies_sorted) - 1)]
         else:
             p95_latency = 0.0
-        
+
         result = EvaluationResult(
             agent_id=agent_id,
             eval_set_name=eval_set_name,
@@ -180,39 +208,44 @@ class Evaluator:
             max_latency_ms=max(latencies) if latencies else 0,
             min_latency_ms=min(latencies) if latencies else 0,
             p95_latency_ms=p95_latency,
-            tool_accuracy=statistics.mean(tool_accuracy_scores) if tool_accuracy_scores else 1.0,
-            llm_as_judge_score=statistics.mean(llm_judge_scores) if llm_judge_scores else 0,
+            tool_accuracy=statistics.mean(tool_accuracy_scores)
+            if tool_accuracy_scores
+            else 1.0,
+            llm_as_judge_score=statistics.mean(llm_judge_scores)
+            if llm_judge_scores
+            else 0,
             error_count=errors,
         )
-        
+
         logger.info(
             "Eval complete",
             success_rate=f"{result.task_success_rate:.1%}",
         )
         return result
-    
+
     def _compute_tool_accuracy(
         self,
         tools_used: List[str],
         expected_tools: List[str],
     ) -> float:
         """Jaccard similarity: intersection / union"""
-        
+
         if not expected_tools:
             return 1.0 if not tools_used else 0.0
-        
+
         intersection = len(set(tools_used) & set(expected_tools))
         union = len(set(tools_used) | set(expected_tools))
-        
+
         return intersection / union if union > 0 else 0.0
-    
+
+    @must_stay_async("callers use await")
     async def compare_to_baseline(
         self,
         current: EvaluationResult,
         baseline_version: str = "latest",
     ) -> Dict[str, float]:
         """Compare current results to baseline"""
-        
+
         # For now, return empty delta (baseline not implemented)
         return {
             "task_success_rate_delta": 0.0,
@@ -223,6 +256,7 @@ class Evaluator:
 
 class RegressionError(Exception):
     """Raised when eval results regress beyond thresholds"""
+
     pass
 
 
@@ -233,30 +267,79 @@ async def ci_eval_gate(
     thresholds: Optional[Dict[str, float]] = None,
 ) -> None:
     """Block PRs that regress eval scores"""
-    
+
     if thresholds is None:
         thresholds = {
             "task_success_rate": -0.05,
             "latency_ms": 500,
             "tool_accuracy": -0.10,
         }
-    
+
     # Run current evaluation
     current = await evaluator.run_eval(agent_id, eval_set_name, version="current")
-    
+
     # Compare to baseline
     delta = await evaluator.compare_to_baseline(current)
-    
+
     # Check thresholds
     if delta.get("task_success_rate_delta", 0) < thresholds["task_success_rate"]:
         raise RegressionError(
             f"Task success regression: {delta['task_success_rate_delta']:.1%}"
         )
-    
+
     if delta.get("latency_delta_ms", 0) > thresholds["latency_ms"]:
-        raise RegressionError(
-            f"Latency regression: +{delta['latency_delta_ms']}ms"
-        )
-    
+        raise RegressionError(f"Latency regression: +{delta['latency_delta_ms']}ms")
+
     logger.info("✓ Eval passed. All deltas within thresholds.")
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-094",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "memory.substrate_service"],
+    "tags": [
+        "async",
+        "dataclass",
+        "error-handling",
+        "foundation",
+        "logging",
+        "mocking",
+        "testing",
+    ],
+    "keywords": [
+        "baseline",
+        "compare",
+        "define",
+        "eval",
+        "evaluation",
+        "evaluator",
+        "example",
+        "gate",
+    ],
+    "business_value": "Provides evaluator components including EvaluationExample, EvaluationSet, EvaluationResult",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

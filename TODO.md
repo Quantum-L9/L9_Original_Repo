@@ -1,10 +1,37 @@
 # TODO
 
-> **Last Updated:** 2026-01-13
+> **Last Updated:** 2026-01-18 (S3 Backup System completed)
 
 ---
 
 ## 🔴 High Priority
+
+### Agent/Tenant ID Naming Review
+
+**Status:** Review needed
+
+**Issue:** L9 has multiple identifiers for the same entities, causing confusion:
+
+| Identifier | What It Is | Canonical? |
+|------------|------------|------------|
+| `l-cto` | L's agent_id | ✅ PRIMARY |
+| `l9-standard-v1` | Alias for l-cto (config name) | Keep as alias |
+| `l9-kernel` | MCP memory source field | Different concept (source, not agent) |
+| `cursor-ide` | Cursor's agent_id | ✅ PRIMARY |
+| `cursor-agent` | Folder name for Cursor files | Should rename to `cursor-ide`? |
+
+**Questions to resolve:**
+1. Should `agents/cursor/` folder be renamed to `agents/cursor-ide/`? (consistency)
+2. Should `l9-kernel` MCP source be changed to `l-cto`? (reduce confusion)
+3. Should we deprecate `l9-standard-v1` eventually or keep as permanent alias?
+
+**Files using these identifiers:**
+- `core/agents/kernel_registry.py` — Aliases l-cto ↔ l9-standard-v1
+- `mcp_memory/src/main.py` — Uses `l9-kernel` as source
+- `agents/cursor/cursor_memory_kernel.py` — Uses `cursor-ide`
+- `runtime/kernel_loader.py` — Checks for multiple L aliases
+
+---
 
 ### UUID Standardization Refactor
 
@@ -115,6 +142,24 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 
 ## 📋 Immediate Next Steps
 
+- [x] **Fix PATH for git hooks**: ✅ DONE (2026-01-14) — Added to `~/.zshrc`:
+  ```bash
+  export PATH="$HOME/Library/Python/3.9/bin:$PATH"
+  ```
+
+- [x] **S3 Backup System**: ✅ DONE (2026-01-18) — Full PostgreSQL + Config backup to S3
+  - Created `scripts/backup/backup_l9_memory.sh` (backup script)
+  - Created `scripts/backup/restore_l9_memory.sh` (restore script)
+  - Created `scripts/backup/setup_s3_bucket.sh` (S3 bucket setup)
+  - S3 bucket `l9-backups` created with 30-day lifecycle policy
+  - AWS CLI installed on Mac and VPS
+  - First backup uploaded: 12.4MB PostgreSQL + 2.3KB config
+  - Deprecated old scripts moved to `_archived/deprecated_backup_scripts/`
+
+- [x] **Set VPS backup cron** (12-hour interval): ✅ DONE (2026-01-19)
+  - Runs at 00:00 and 12:00 daily
+  - Logs to `/opt/l9/logs/l9-backup-cron.log`
+
 - [ ] **Test deployment script** locally: `./scripts/deploy_agent_executor.sh`
 - [ ] **Test server startup** to verify fail-loudly behavior (GMP-47 removed silent stubs)
 - [ ] **Test Slack integration** after deployment to verify agent_executor responds
@@ -149,6 +194,132 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 
 ## 🟣 Deferred Work
 
+### Scaffolding / Future Features (from Dead Code Audit)
+
+**Status:** Scaffolding only — not dead code, just not yet exposed via API routes
+
+**Orchestrators (no API exposure yet):**
+| Feature | File Path | Purpose |
+|---------|-----------|---------|
+| MetaOrchestrator | `orchestrators/meta/orchestrator.py` | Blueprint evaluation (choosing between approaches) |
+| WorldModelOrchestrator | `orchestrators/world_model/orchestrator.py` | World model operations |
+| EvolutionOrchestrator | `orchestrators/evolution/orchestrator.py` | Evolutionary improvement cycles |
+
+**Adapter Services (WIP scaffolding):**
+| Feature | File Path | Purpose |
+|---------|-----------|---------|
+| Calendar Adapter | `api/adapters/calendar_adapter/` (4 files) | Calendar integration |
+| Email Adapter | `api/adapters/email_adapter/` (4 files) | Email integration |
+| Twilio Adapter | `api/adapters/twilio_adapter/` (4 files) | SMS/Voice integration |
+
+**TODO (when developing these):**
+- [ ] Create `/orchestrators/evolution` router for kernel evolution management (GMP-91 follow-up)
+  - Endpoints: `GET /evolution/status`, `POST /evolution/trigger`, `GET /evolution/history`
+  - Wire EvolutionOrchestrator in FastAPI lifespan
+- [ ] Create API routes for orchestrators (`api/routes/meta.py`, etc.)
+- [ ] Wire orchestrators in FastAPI lifespan (follow GMP-87 CursorExecutor pattern)
+- [ ] Complete adapter implementations (currently skeleton code)
+- [ ] Add adapter config to settings.py
+- [ ] Create adapter service tests
+
+**Reference:** GMP-87 dead code audit analysis
+
+---
+
+### CI/CD Enhancements (GMP-78 Review)
+
+**Status**: Deferred — Nice-to-have, not urgent
+
+**Source**: Frontier AI Lab patterns review (Pre-Commit-Hooks-1.md)
+
+| Enhancement | Description | Effort | Priority |
+|-------------|-------------|--------|----------|
+| **Claude PR Reviewer** | GitHub Action that uses Claude to review PRs | 2-4 hrs | 🟡 Medium |
+| **Performance Regression** | Track response times, flag >20% slowdowns | 4-8 hrs | 🟡 Medium |
+
+**Claude PR Reviewer Implementation:**
+```yaml
+# .github/workflows/pr_review.yml
+name: Claude PR Review
+on: [pull_request]
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Claude Code Review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 scripts/ci/claude_pr_reviewer.py \
+            --pr-number ${{ github.event.pull_request.number }}
+```
+
+**Performance Regression Implementation:**
+- Requires baseline metrics from Prometheus/Grafana first
+- Track: API latency p50/p95, memory query time, embedding generation time
+- Alert on >20% degradation
+
+**Prerequisites:**
+- [ ] Prometheus/Grafana stack fully operational
+- [ ] Baseline metrics collected for 1+ weeks
+- [ ] GitHub Actions configured for L9 repo
+
+---
+
+### Cross-DB Conflict Resolution Loop
+
+**Status**: Deferred — Future enhancement
+
+**Source**: `current_work/10-TODO's.md` analysis (2026-01-14)
+
+**Problem**: When both PostgreSQL and Neo4j return data for the same query, results may conflict (e.g., "Sum of Sales" in SQL vs "Count of Nodes" in Graph).
+
+**Solution**: Implement a "Reflector" step where the agent compares outputs from both databases and identifies discrepancies before answering.
+
+**Scope**:
+- [ ] Add discrepancy detector to Saga pattern (`memory/saga.py`)
+- [ ] Create `ConflictResolver` class that compares PG vs Neo4j results
+- [ ] Define conflict types: count mismatch, value drift, missing entity
+- [ ] Add resolution strategies: prefer PG, prefer Neo4j, merge, escalate
+- [ ] Emit PacketEnvelope with `kind=CONFLICT_DETECTED` for audit trail
+
+**Estimated Effort**: 4-6 hours
+
+**Priority**: 🟡 Medium — Useful for complex cross-DB queries
+
+---
+
+### Multi-Agent Specialization (DB-Specific Agents)
+
+**Status**: Deferred — Future enhancement
+
+**Source**: `current_work/10-TODO's.md` analysis (2026-01-14)
+
+**Problem**: Current agents see all tools (SQL + Cypher), causing "context dilution" and reducing accuracy.
+
+**Solution**: Split into specialized agents: **Postgres Analyst** (SQL only), **Neo4j Cartographer** (Cypher only), **Manager** (routing).
+
+**Benefits**:
+- Smaller context window per agent = higher accuracy
+- Each agent is expert in one DB type
+- Manager routes to appropriate specialist
+
+**Scope**:
+- [ ] Create `PostgresAnalystAgent` — SQL tools only
+- [ ] Create `Neo4jCartographerAgent` — Cypher tools only  
+- [ ] Create `DBManagerAgent` — routes queries to specialists
+- [ ] Update tool registry with agent-type filtering
+- [ ] Wire into existing orchestration layer
+
+**Estimated Effort**: 8-12 hours
+
+**Priority**: 🟡 Medium — Improves accuracy for DB-heavy workloads
+
+**Note**: Partially exists in `orchestration/` but not fully specialized per DB type.
+
+---
+
 ### Symbolic Computation Service (DISABLED)
 
 **Status**: DISABLED (2026-01-13) — Not actively used
@@ -171,24 +342,28 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 
 ### Frontier Memory Retrieval Architecture
 
-**Status**: 🚫 BLOCKED — Waiting on MCP memory testing & confirmation
+**Status**: 🟡 IN PROGRESS — Phase 1 (Database Schema) complete
 
-**Blocker**: Do NOT start until MCP memory is tested and confirmed working in production.
+**Completed (2026-01-15):**
+- ✅ **GMP-80-A3:** `semantic_facts` table (migration 0018)
+- ✅ **GMP-80-A4:** `episodic_events` + `episodic_semantic_links` tables (migration 0019)
+- ✅ Pydantic DTOs: `SemanticFactRow`, `EpisodicEventRow`, `EpisodicSemanticLinkRow`
+- ✅ Repository CRUD methods for both semantic and episodic operations
 
-**Scope**: Implement frontier-grade memory retrieval system based on elite AI lab patterns (Anthropic, OpenAI, DeepMind).
+**Remaining GMPs:**
+| GMP ID | Task | Effort | Status |
+|--------|------|--------|--------|
+| GMP-80-A2 | Create Phase 0-6 Cursor prompts | 3-4 days | ✅ Complete |
+| GMP-80-A5 | Implement Identity Tier | 2-3 days | ✅ Complete |
+| GMP-80-A6 | Strategy-based retrieval | 3-5 days | ✅ Complete |
+| GMP-80-A7 | Active memory management | 5-7 days | ✅ Complete |
 
-**Key Components**:
-- 4-tier hierarchical memory (Identity → Project → Session → Working)
-- Dual semantic + episodic memory streams
-- Graph-based retrieval with multi-factor ranking
-- Active memory management (system decides what to encode)
-- SQL migrations: `semantic_facts`, `episodic_events`, `episodic_semantic_links`
-- Python services: `SemanticMemoryService`, `EpisodicMemoryService`
-- Context engineering: hierarchical injection per task
+**🎉 GMP-80 SERIES COMPLETE — Frontier Memory Retrieval Architecture fully implemented.**
+
+**Next Step:** Apply migrations to VPS, then start GMP-80-A5 (Identity Tier)
 
 **Reference**: `current_work/MEMORY RETRIEVAL ARCHITECTURE.md`
-
-**Estimated Effort**: 3 phases (Week 1-2: Fix immediate issues, Week 3-8: Architecture upgrade, Week 9-16: Context engineering)
+**Report**: `reports/GMP_Report_GMP-80-A3A4-Semantic-Episodic-Schema.md`
 
 ---
 
@@ -341,6 +516,50 @@ ingest_packet() → IngestionPipeline.ingest()
 - Defer production features until needed
 
 **Reference**: `docs/__Notes/agent_persistence.py/` (8 GMP stage files + runbook)
+
+### Memory Files Packet (Advanced Memory Features)
+
+**Status**: Partially implemented (~30-40%)
+
+**Location**: `current_work/Memory Files/`
+
+**Overview**: 6 specification/research documents for advanced memory and AI system concepts.
+
+| File | Purpose | Status |
+|------|---------|--------|
+| `Data_Pipeline_Orchestration_v4.0.md` | ERP/Odoo data pipeline (Mack domain) | ❌ External to L9 |
+| `chunking-protocol.md` | Build orchestrator for chunked code gen | ❌ Prompt protocol only |
+| `DSL_Compiler_Description.md` | Governance rules MD→FOL JSON compiler | ❌ Not implemented |
+| `enforceable_recursive_extractor.prompt.md` | Schema-enforced preference/SOP extractor | ⚠️ Partial (extractors exist) |
+| `implement belief calibration in LLM driven agents.md` | Belief calibration with confidence tracking | ⚠️ Partial (fields exist) |
+| `inverse reinforcement learning (IRL).md` | Intent detection via IRL | ❌ Research only |
+
+**What's IMPLEMENTED:**
+- ✅ Confidence fields (`confidence_scores`, `KnowledgeFact.confidence`, etc.)
+- ✅ Semantic search with pgvector
+- ✅ Packet ingestion DAG with validation
+- ✅ TTL expiration in `ConsolidationPipeline`
+- ✅ Idempotency patterns in executor/adapters
+
+**What's STUB/PARTIAL:**
+- ⚠️ Deduplication (`consolidation.py` — marked "not fully implemented")
+- ⚠️ Archival (basic query exists, actual logic is TODO)
+- ⚠️ Summarization (structure only, marked TODO)
+
+**What's NOT IMPLEMENTED:**
+- [ ] DSL Compiler (Markdown → FOL JSON) for governance rules
+- [ ] Belief Calibration Loop (ECE/Brier tracking, confidence adjustment)
+- [ ] Multi-Agent Belief Consensus (BCCS-style weighted coordination)
+- [ ] Complete consolidation strategies (dedup, archival, summarization)
+
+**Next Steps (if prioritized):**
+1. Complete `ConsolidationPipeline` strategies (dedup, archival, summarization)
+2. Build belief calibration module with confidence tracking over time
+3. Create DSL compiler for governance rule enforcement (if needed)
+
+**Reference**: Analysis performed 2026-01-14
+
+---
 
 ### Emma/L9 Substrate Integration
 

@@ -13,6 +13,32 @@ All operations are async-safe and use logging (no print statements).
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Housekeeping Engine",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-13T15:36:11Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "housekeeping",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "api.memory.router",
+            "api.server",
+            "core.singleton_registry",
+            "memory.__init__",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime, timedelta
 from functools import lru_cache
@@ -419,6 +445,7 @@ class HousekeepingEngine:
 # Singleton / Factory
 # =============================================================================
 
+
 @lru_cache(maxsize=1)
 def get_housekeeping_engine() -> HousekeepingEngine:
     """Get or create the housekeeping engine singleton. CACHED."""
@@ -430,3 +457,58 @@ def init_housekeeping_engine(repository) -> HousekeepingEngine:
     engine = get_housekeeping_engine()
     engine.set_repository(repository)
     return engine
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-028",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "caching",
+        "debugging",
+        "engine",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "artifacts",
+        "cleanup",
+        "engine",
+        "evict",
+        "expired",
+        "full",
+        "housekeeping",
+        "memory",
+    ],
+    "business_value": "TTL eviction for expired packets Tag-based garbage collection Orphan packet cleanup (parentless, dangling references) Artifact orphan cleanup All operations are async-safe and use logging (no print st",
+    "last_modified": "2026-01-13T15:36:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

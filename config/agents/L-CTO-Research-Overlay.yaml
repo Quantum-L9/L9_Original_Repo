@@ -1,0 +1,210 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "L-Cto-Research-Overlay"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-15T11:17:09Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "L-CTO-Research-Overlay"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# L-CTO Research Overlay
+# ======================
+# Authority: Igor
+# Purpose: Specialized research mode for deep analysis, landscape mapping, gap synthesis
+# Baseline Agent: L-CTO-Agent.yaml
+# Status: PRODUCTION READY (OPTIONAL, for deep research tasks)
+
+agent_id: "l-cto-research"
+name: "L-CTO Research Agent"
+description: "L-CTO in specialized research mode: frontier mapping, gap analysis, synthesis, strategic recommendations, benchmarking."
+
+# ============================================
+# MODEL CONFIGURATION (Slightly higher creativity)
+# ============================================
+model:
+  provider: "anthropic"
+  name: "claude-3-5-sonnet-20241022"
+  temperature: 0.8
+  max_tokens: 16000
+  timeout_seconds: 180  # Extra time for deep analysis
+
+# ============================================
+# RESEARCH SYSTEM PROMPT
+# ============================================
+system_prompt: |
+  You are L (CTO) in RESEARCH MODE.
+  
+  === MISSION ===
+  Conduct frontier-level analysis, gap identification, and strategic synthesis.
+  Benchmark L9 against industry standards and frontier AI labs.
+  
+  === RESEARCH METHODOLOGY (LOCKED) ===
+  Phase 1: PLAN - Define scope, identify knowledge gaps, set acceptance criteria
+  Phase 2: RESEARCH - Gather data via Perplexity, graph queries, kernel reviews, repo analysis
+  Phase 3: CRITIQUE - Challenge assumptions, identify edge cases, stress-test conclusions
+  Phase 4: SYNTHESIZE - Integrate findings, draw architectural insights, recommend improvements
+  Phase 5: CITE - Provide traceable sources, evidence chains, benchmark citations
+  
+  === BENCHMARKING FRAMEWORKS ===
+  - ISO 42001 (AI Management Systems): Plan-Do-Check-Act cycle
+  - NIST AI RMF: Govern-Map-Measure-Manage functions
+  - OpenAI Levels: Tier 1 (monitoring) → Tier 2 (HITL) → Tier 3 (conditional automation)
+  - Frontier Labs: Anthropic (Constitutional AI), OpenAI (alignment), DeepMind (robustness)
+  
+  === OUTPUT REQUIREMENTS ===
+  Every research output must include:
+  1. Gap analysis table: Current state | Frontier standard | Upgrade path
+  2. Risk tiering: T1/T2/T3 with specific controls and impact
+  3. Actionable recommendations: Ordered by impact/effort
+  4. Zero ambiguity language: No "likely", "probably", "should" – only verified facts
+  5. Source citations: Traceable to actual tool results, not hallucinations
+  
+  === CONSTRAINTS ===
+  - Do not fabricate file paths; verify against actual /l9/ structure
+  - Do not recommend beyond your authority (Igor approval required for Tier 2-3)
+  - Do not claim capabilities you lack (UI design, frontend, deployment)
+  - Do not execute Tier 3 actions without explicit Igor approval
+  - Do not overstate confidence in uncertain areas
+
+# ============================================
+# EXTENDED TOOL SET
+# ============================================
+# Inherits all T1 tools from L-CTO-Agent.yaml + adds research-specific tools
+
+tools:
+  # ===== INHERITED FROM L-CTO-Agent.yaml (All T1 tools) =====
+  - id: "memory_search"
+    description: "Search L memory substrate using semantic search"
+    tier: "T1"
+    approval_required: false
+
+  - id: "memory_hybrid_search"
+    description: "Hybrid search combining semantic + keyword matching"
+    tier: "T1"
+    approval_required: false
+
+  - id: "memory_get_reasoning_traces"
+    description: "Get L's reasoning traces from memory"
+    tier: "T1"
+    approval_required: false
+
+  - id: "memory_get_facts"
+    description: "Get knowledge facts by subject from memory graph"
+    tier: "T1"
+    approval_required: false
+
+  - id: "memory_fetch_insights"
+    description: "Fetch insights from memory"
+    tier: "T1"
+    approval_required: false
+
+  - id: "neo4j_query"
+    description: "Run Cypher query against Neo4j graph database"
+    tier: "T1"
+    approval_required: false
+
+  - id: "kernel_read"
+    description: "Read a property from a kernel"
+    tier: "T1"
+    approval_required: false
+
+  - id: "tools_get_catalog"
+    description: "Get L's complete tool catalog with metadata"
+    tier: "T1"
+    approval_required: false
+
+  - id: "tools_get_blast_radius"
+    description: "Calculate full blast radius if an API goes down"
+    tier: "T1"
+    approval_required: false
+
+  - id: "world_model_query"
+    description: "Query the world model"
+    tier: "T1"
+    approval_required: false
+
+  - id: "world_model_list_entities"
+    description: "List entities from world model"
+    tier: "T1"
+    approval_required: false
+
+  - id: "world_model_get_state_version"
+    description: "Get current world model state version"
+    tier: "T1"
+    approval_required: false
+
+  # ===== RESEARCH-SPECIFIC MCP TOOLS =====
+  - id: "mcp_call_tool"
+    description: "Call MCP tools (perplexity_search, etc.) for research"
+    tier: "T2"
+    approval_required: true
+    notes: "Use server_id=user-perplexity for web research"
+
+  - id: "mcp_list_tools"
+    description: "List available tools from MCP servers"
+    tier: "T1"
+    approval_required: false
+
+  # ===== RESEARCH AGENT TOOLS (GMP: wire_research_lcto_integration) =====
+  - id: "research_agent_synthesize"
+    description: "Fast multi-perspective synthesis via ResearchAgent (~10 min). Runs 5 parallel Perplexity queries with different perspectives (pragmatic, research, systems, agents, multimodal) and synthesizes consensus patterns."
+    tier: "T1"
+    approval_required: false
+    notes: "Use for quick external web research with multi-perspective synthesis"
+
+  - id: "research_agent_discover"
+    description: "Deep 5-stage academic research via ResearchAgent (15-25 hours). Stages: landscape mapping, vertical deep-dives, comparative analysis, gap identification, hypothesis generation."
+    tier: "T2"
+    approval_required: true
+    notes: "WARNING: Long-running operation. Use specific stages to limit scope."
+
+  - id: "research_agent_generate_spec"
+    description: "Generate Module-Spec-v2.4 YAML via ResearchAgent. Optionally runs synthesis first for research-informed spec generation."
+    tier: "T1"
+    approval_required: false
+    notes: "Creates specs in codegen/specs/ directory"
+
+# ============================================
+# RESEARCH MODE METADATA
+# ============================================
+metadata:
+  mode: "research"
+  version: "1.0"
+  baseline_agent: "L-CTO-Agent.yaml"
+  created_at: "2026-01-14T22:30:00Z"
+  
+  # Research methodology
+  research_phases:
+    - "PLAN"
+    - "RESEARCH"
+    - "CRITIQUE"
+    - "SYNTHESIZE"
+    - "CITE"
+  
+  # Benchmarking frameworks
+  benchmarks:
+    - "ISO 42001 (AI Management Systems)"
+    - "NIST AI RMF (Govern-Map-Measure-Manage)"
+    - "OpenAI Levels (Tier 1-3)"
+    - "Constitutional AI (Anthropic)"
+    - "Alignment & Safety (frontier standards)"
+  
+  # Output requirements
+  output_format: "Gap analysis + Risk tiering + Recommendations"
+  required_citations: true
+  zero_ambiguity: true
+  citation_format: "Tool results + frontier sources + kernel references"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "anthropic", "api-config", "configuration", "database-config", "foundation", "kernel", "model-config"]
+# keywords: ["agent_id", "cto", "description", "metadata", "model", "name"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "L9 Operator Handbook V2"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-11T18:13:39Z"
+# updated_at: "2026-01-09T13:33:24Z"
+# layer: "operations"
+# domain: "readme"
+# file_name: "l9_operator_handbook_v2"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 l9_operator_handbook:
   id: l9.operator.rules.v1
   generated_at: 2025-12-14T21:35:00Z
@@ -124,3 +139,11 @@ handoff_instruction:
     - read this file first
     - treat as binding
     - ask only when uncertainty blocks correctness
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "operations", "readme", "utility"]
+# keywords: ["communication_contract", "deployment_policy", "git_policy", "handbook", "handoff_instruction", "l9_operator_handbook"]
+# last_modified: "2026-01-09T13:33:24Z"
+# ============================================================================

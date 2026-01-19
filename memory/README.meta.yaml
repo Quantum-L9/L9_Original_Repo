@@ -1,0 +1,53 @@
+location: memory/README.md
+type: subsystemreadme
+metadata:
+  subsystem: memory
+  modulepath: memory
+  owner: Igor
+  lastupdated: '2026-01-18T07:43:23.880035Z'
+  purpose: Documents the memory subsystem, contracts, and AI collaboration rules.
+sections:
+  overview:
+    required: true
+  responsibilities:
+    required: true
+  components:
+    required: true
+  datamodels:
+    required: true
+  lifecycle:
+    required: true
+  configuration:
+    required: false
+  apisurface:
+    required: true
+  observability:
+    required: false
+  testing:
+    required: false
+  airules:
+    required: true
+invariants:
+- All packet IDs are UUIDv4
+- All timestamps are UTC ISO-8601
+- PacketEnvelope is the canonical data structure for all memory writes
+- Embeddings are list[float] with dimension 1536 or 3072
+- Deduplication via dedup_key prevents duplicate ingestion
+aicollaboration:
+  allowedscopes:
+  - memory/retrieval.py
+  - memory/semantic_search.py
+  - memory/context_builder.py
+  - memory/insight_extraction.py
+  - memory/graph_memory.py
+  - tests/**
+  - docs/**
+  restrictedscopes: &id001
+  - memory/substrate_service.py
+  - memory/substrate_dag.py
+  - memory/__init__.py
+  forbiddenscopes: *id001
+  requiredprereading:
+  - README-L9_ARCHITECTURE.md
+  - docs/CURSOR-RUNBOOK.md
+  - memory/README.md

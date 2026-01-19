@@ -2,17 +2,49 @@
 L9 Runtime - Task Queue
 ========================
 
-Production task queue with Redis backend and in-memory fallback.
+Production task queue with Redis backend enforcement.
 
 Used by ws_bridge and orchestrators to enqueue work items
 that are processed by the unified controller.
 
 Version: 2.0.0 (Redis support)
 
-Note: Automatically uses Redis if available, falls back to in-memory.
+Note: Redis is mandatory; missing Redis blocks async execution.
 """
 
 from __future__ import annotations
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Task Queue",
+    "module_version": "2.0.0 (Redis support)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "task_queue",
+    "type": "dataclass",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": [],
+        "imported_by": [
+            "core.agents.executor",
+            "core.tools.base_registry",
+            "orchestrators.ws_bridge",
+            "runtime.__init__",
+            "runtime.git_tool",
+            "runtime.gmp_tool",
+            "runtime.gmp_worker",
+            "runtime.l_tools",
+            "runtime.long_plan_tool",
+            "runtime.websocket_orchestrator",
+        ],
+    },
+}
+# ============================================================================
 
 import asyncio
 import structlog
@@ -69,7 +101,7 @@ try:
     _has_redis_client = True
 except ImportError:
     _has_redis_client = False
-    logger.debug("Redis client not available - using in-memory queue only")
+    logger.debug("Redis client not available")
 
 
 @dataclass
@@ -133,10 +165,10 @@ class QueuedTask:
 
 class TaskQueue:
     """
-    Production task queue with Redis backend and in-memory fallback.
+    Production task queue with Redis backend enforcement.
 
     Tasks are ordered by priority (lower = higher priority).
-    Automatically uses Redis if available, otherwise falls back to in-memory.
+    Redis is mandatory; in-memory fallback is prohibited.
     """
 
     def __init__(self, queue_name: str = "l9:tasks", use_redis: bool = True) -> None:
@@ -148,25 +180,25 @@ class TaskQueue:
             use_redis: Whether to attempt Redis connection (default: True)
         """
         self._queue_name = queue_name
-        self._use_redis = use_redis and _has_redis_client
+        if not use_redis:
+            raise RuntimeError("TaskQueue requires Redis; in-memory mode is disabled")
+        if not _has_redis_client:
+            raise RuntimeError("TaskQueue requires Redis client; none available")
+
+        self._use_redis = True
         self._redis_client = None
         self._queue: deque[QueuedTask] = deque()
         self._lock = asyncio.Lock()
         self._handlers: Dict[str, Callable[..., Coroutine[Any, Any, Any]]] = {}
         self._redis_available = False
 
-        if self._use_redis:
-            # Try to connect to Redis (async, will be checked on first use)
-            logger.info(
-                f"TaskQueue initialized with Redis support (queue: {queue_name})"
-            )
-        else:
-            logger.info("TaskQueue initialized (in-memory only)")
+        # Try to connect to Redis (async, will be checked on first use)
+        logger.info(f"TaskQueue initialized with Redis support (queue: {queue_name})")
 
     async def _ensure_redis(self) -> bool:
         """Ensure Redis client is connected."""
         if not self._use_redis:
-            return False
+            raise RuntimeError("TaskQueue requires Redis; in-memory mode is disabled")
 
         if self._redis_client is None:
             self._redis_client = await get_redis_client()
@@ -177,9 +209,11 @@ class TaskQueue:
             if self._redis_available:
                 logger.info("TaskQueue: Redis backend active")
             else:
-                logger.info("TaskQueue: Redis unavailable, using in-memory fallback")
+                raise RuntimeError("TaskQueue: Redis unavailable; execution blocked")
 
-        return self._redis_available
+        if not self._redis_available:
+            raise RuntimeError("TaskQueue: Redis unavailable; execution blocked")
+        return True
 
     async def enqueue(
         self,
@@ -214,46 +248,25 @@ class TaskQueue:
             tags=tags or [],
         )
 
-        # Try Redis first
-        if await self._ensure_redis():
-            try:
-                task_id = await self._redis_client.enqueue_task(
-                    self._queue_name,
-                    task.to_dict(),
-                    priority=priority,
+        await self._ensure_redis()
+        try:
+            task_id = await self._redis_client.enqueue_task(
+                self._queue_name,
+                task.to_dict(),
+                priority=priority,
+            )
+            if task_id:
+                logger.debug(
+                    "Enqueued task %s to Redis: name=%s, priority=%d, handler=%s",
+                    task_id,
+                    name,
+                    priority,
+                    handler,
                 )
-                if task_id:
-                    logger.debug(
-                        "Enqueued task %s to Redis: name=%s, priority=%d, handler=%s",
-                        task_id,
-                        name,
-                        priority,
-                        handler,
-                    )
-                    return task_id
-            except Exception as e:
-                logger.warning(f"Redis enqueue failed, falling back to in-memory: {e}")
-
-        # Fallback to in-memory
-        async with self._lock:
-            # Insert in priority order
-            inserted = False
-            for i, existing in enumerate(self._queue):
-                if task.priority < existing.priority:
-                    self._queue.insert(i, task)
-                    inserted = True
-                    break
-            if not inserted:
-                self._queue.append(task)
-
-        logger.debug(
-            "Enqueued task %s (in-memory): name=%s, priority=%d, handler=%s",
-            task.task_id,
-            name,
-            priority,
-            handler,
-        )
-        return task.task_id
+                return task_id
+            raise RuntimeError("Redis enqueue returned no task_id")
+        except Exception as e:
+            raise RuntimeError(f"Redis enqueue failed: {e}") from e
 
     async def dequeue(self) -> Optional[QueuedTask]:
         """
@@ -262,56 +275,29 @@ class TaskQueue:
         Returns:
             QueuedTask or None if queue is empty
         """
-        # Try Redis first
-        if await self._ensure_redis():
-            try:
-                task_data = await self._redis_client.dequeue_task(self._queue_name)
-                if task_data:
-                    task = QueuedTask.from_dict(task_data)
-                    logger.debug(f"Dequeued task {task.task_id} from Redis")
-                    return task
-            except Exception as e:
-                logger.warning(f"Redis dequeue failed, falling back to in-memory: {e}")
-
-        # Fallback to in-memory
-        async with self._lock:
-            if not self._queue:
-                return None
-            return self._queue.popleft()
+        await self._ensure_redis()
+        try:
+            task_data = await self._redis_client.dequeue_task(self._queue_name)
+            if task_data:
+                task = QueuedTask.from_dict(task_data)
+                logger.debug(f"Dequeued task {task.task_id} from Redis")
+                return task
+            return None
+        except Exception as e:
+            raise RuntimeError(f"Redis dequeue failed: {e}") from e
 
     async def peek(self) -> Optional[QueuedTask]:
         """Return the next task without removing it."""
-        # Try Redis first
-        if await self._ensure_redis():
-            try:
-                # Redis doesn't have peek, so we'd need to implement it differently
-                # For now, fall back to in-memory peek
-                pass
-            except Exception:
-                pass
-
-        # Fallback to in-memory
-        async with self._lock:
-            if not self._queue:
-                return None
-            return self._queue[0]
+        await self._ensure_redis()
+        raise RuntimeError("TaskQueue.peek is not supported for Redis-backed queues")
 
     async def size(self) -> int:
         """Return current queue size."""
-        # Try Redis first
-        if await self._ensure_redis():
-            try:
-                redis_size = await self._redis_client.queue_size(self._queue_name)
-                # Also check in-memory queue
-                async with self._lock:
-                    in_memory_size = len(self._queue)
-                return redis_size + in_memory_size
-            except Exception:
-                pass
-
-        # Fallback to in-memory
-        async with self._lock:
-            return len(self._queue)
+        await self._ensure_redis()
+        try:
+            return await self._redis_client.queue_size(self._queue_name)
+        except Exception as e:
+            raise RuntimeError(f"Redis queue size failed: {e}") from e
 
     def register_handler(
         self,
@@ -392,3 +378,56 @@ async def enqueue_long_plan_tasks(
 
 
 __all__ = ["TaskQueue", "QueuedTask", "enqueue_long_plan_tasks"]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["runtime.redis_client"],
+    "tags": [
+        "async",
+        "cache",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "logging",
+        "operations",
+        "queue",
+        "runtime-operations",
+    ],
+    "keywords": [
+        "dequeue",
+        "dispatch",
+        "enqueue",
+        "handler",
+        "immediate",
+        "long",
+        "memory",
+        "one",
+    ],
+    "business_value": "Provides task queue components including QueuedTask, TaskQueue",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

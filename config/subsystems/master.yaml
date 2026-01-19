@@ -1,0 +1,34 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Master"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-16T00:01:21Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "master"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+subsystems:
+  code_mutation:
+    config_path: l9/subsystems/code_mutation/config.yaml
+    enabled: true
+    priority: high
+    max_parallel: 1
+
+orchestration:
+  execution_model: sequential
+  default_pattern: l9/patterns/architecture_pipeline_pattern_v1.yaml
+```
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["configuration", "foundation", "model-config", "pipeline", "utility"]
+# keywords: ["master"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

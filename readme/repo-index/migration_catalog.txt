@@ -21,6 +21,13 @@
 | `0013_mcp_audit_columns.sql` | ============================================================ |
 | `0014_multi_checkpoint_support.sql` | Migration: 0014_multi_checkpoint_support |
 | `0015_knowledge_facts_upsert_key.sql` | ============================================================ |
+| `0016_governance_scope_semantics.sql` | ============================================================ |
+| `0017_governance_project_id.sql` | ============================================================ |
+| `0018_semantic_facts.sql` | ============================================================ |
+| `0019_episodic_events.sql` | ============================================================ |
+| `0020_tool_embeddings.sql` | Migration: 0020_tool_embeddings.sql |
+| `0021_gmp_learning.sql` | Migration: 0021_gmp_learning.sql |
+| `0022_temporal_fact_validity.sql` | ============================================================ |
 
 ## Key Tables Created
 

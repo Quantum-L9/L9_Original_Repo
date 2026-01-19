@@ -1,69 +1,104 @@
 #!/usr/bin/env bash
 #
-# Pull latest code from GitHub to VPS
-# PRESERVES all VPS local changes (modified and untracked files)
+# L9 VPS Deploy Script (10X Edition)
+# 
+# PRINCIPLE: GitHub is SSOT. VPS must match GitHub exactly.
+# NO stashing, NO local changes preserved, NO merge conflicts.
+#
+# This script:
+# 1. Show current VPS state
+# 2. Fetch latest from GitHub
+# 3. Hard reset to origin/main (SSOT)
+# 4. Sync env variables (.env.example → .env)
+# 5. Rebuild Docker containers
+# 6. Prune unused Docker resources
+# 7. Health checks
 #
 
 set -euo pipefail
 
 cd /opt/l9
 
-echo "📥 Pulling latest from GitHub (preserving VPS changes)..."
+echo "╔═══════════════════════════════════════════════════════════════╗"
+echo "║  L9 VPS Deploy (10X Edition) - GitHub SSOT                    ║"
+echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
 
-# Show current commit
-echo "Current VPS commit:"
-git rev-parse --short HEAD
+# Step 1: Show current state
+echo "[1/7] Current VPS state:"
+echo "  Commit: $(git rev-parse --short HEAD)"
+echo "  Branch: $(git branch --show-current)"
 echo ""
 
-# Show what will be updated
-echo "Latest on GitHub:"
+# Step 2: Fetch latest from GitHub
+echo "[2/7] Fetching from GitHub..."
 git fetch origin main
-git log --oneline HEAD..origin/main | head -5
+BEHIND=$(git rev-list HEAD..origin/main --count)
+echo "  VPS is $BEHIND commit(s) behind origin/main"
 echo ""
 
-# Stash VPS changes to preserve them
-echo "💾 Stashing VPS local changes (modified files)..."
-git stash push -m "VPS local changes before pull" -- api/server_memory.py .dockerignore runtime/Dockerfile 2>/dev/null || {
-    echo "   (No modified files to stash)"
-}
+# Step 3: Hard reset to match GitHub EXACTLY
+echo "[3/7] Hard reset to origin/main (SSOT)..."
+git reset --hard origin/main
+echo "  ✅ VPS now matches GitHub exactly"
+echo "  New commit: $(git rev-parse --short HEAD)"
+echo ""
 
-# Pull latest (untracked files are NOT affected by git pull)
-echo "⬇️  Pulling from origin/main (fast-forward only)..."
-if git pull --ff-only origin main; then
-    echo "✅ Fast-forward pull successful!"
+# Step 4: Sync environment variables (.env.example → .env)
+echo "[4/7] Syncing environment variables..."
+if [ -f .env.example ]; then
+    # Add any NEW variables from .env.example to .env (preserves existing values)
+    while IFS='=' read -r key value; do
+        # Skip comments and empty lines
+        [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+        # If key doesn't exist in .env, add it
+        if ! grep -q "^${key}=" .env 2>/dev/null; then
+            echo "${key}=${value}" >> .env
+            echo "  + Added: $key"
+        fi
+    done < .env.example
+    echo "  ✅ Environment variables synced"
 else
-    echo "⚠️  Cannot fast-forward (VPS has local commits or diverged)"
-    echo "   Attempting regular pull with merge..."
-    if git pull origin main; then
-        echo "✅ Merge pull successful!"
-    else
-        echo "❌ Merge conflict detected!"
-        echo "   Resolving by keeping VPS version..."
-        # If there's a conflict, keep VPS version
-        git checkout --ours . 2>/dev/null || true
-        git add . 2>/dev/null || true
-        git commit -m "Merge: keeping VPS local changes" 2>/dev/null || true
-    fi
+    echo "  ⚠️  No .env.example found"
 fi
+echo ""
 
-# Restore stashed VPS changes
-if git stash list | grep -q "VPS local changes"; then
-    echo "🔄 Restoring VPS local changes..."
-    git stash pop 2>/dev/null || {
-        echo "   (Stash conflicts - you may need to resolve manually)"
-    }
-fi
+# Step 5: Rebuild and restart Docker containers
+echo "[5/7] Rebuilding ALL Docker containers..."
+docker compose build --no-cache
+docker compose up -d --force-recreate
+echo "  ✅ All containers rebuilt and restarted"
+echo ""
+
+# Step 6: Prune unused Docker resources (keeps disk lean)
+echo "[6/7] Pruning unused Docker resources..."
+docker system prune -a -f
+DISK_FREE=$(df -h / | tail -1 | awk '{print $4}')
+echo "  ✅ Docker pruned. Disk free: $DISK_FREE"
+echo ""
+
+# Step 7: Health checks
+echo "[7/7] Health checks (waiting 15s for startup)..."
+sleep 15
 
 echo ""
-echo "✅ Done! Latest code pulled from GitHub."
-echo ""
-echo "Current commit:"
-git rev-parse --short HEAD
-echo ""
-echo "📝 VPS local changes preserved:"
-echo "   - Modified files: kept your VPS versions"
-echo "   - Untracked files: untouched (api/config.py, runtime/entrypoint.sh, etc.)"
-echo ""
-echo "⚠️  If you see merge conflicts above, resolve them manually."
+echo "Container status:"
+docker ps --format "table {{.Names}}\t{{.Status}}" | grep l9- || echo "  ⚠️  No L9 containers running"
 
+echo ""
+echo "API Health:"
+curl -sf http://127.0.0.1:8000/health | jq -c . 2>/dev/null || echo "  ⚠️  API not responding"
+
+echo ""
+echo "MCP Memory Health:"
+curl -sf http://127.0.0.1:9002/health | jq -c . 2>/dev/null || echo "  ⚠️  MCP not responding"
+
+echo ""
+echo "╔═══════════════════════════════════════════════════════════════╗"
+echo "║  Deploy Complete                                              ║"
+echo "╚═══════════════════════════════════════════════════════════════╝"
+echo ""
+echo "VPS commit: $(git rev-parse --short HEAD)"
+echo "Disk free:  $DISK_FREE"
+echo ""
+echo "View logs:  docker compose logs -f l9-api"

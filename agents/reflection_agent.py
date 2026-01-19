@@ -13,6 +13,27 @@ Responsibilities:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Reflection Agent",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "reflection_agent",
+    "type": "agent",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["agents.__init__", "api.server", "core.tools.reflection_tools"],
+    },
+}
+# ============================================================================
+
 import json
 import structlog
 from typing import Any, Optional
@@ -342,3 +363,185 @@ Provide:
     def clear_lessons(self) -> None:
         """Clear lessons learned."""
         self._lessons_learned.clear()
+
+    # =========================================================================
+    # Tool-callable methods (for L-CTO integration)
+    # =========================================================================
+
+    async def reflection_agent_reflect(
+        self,
+        history: list[dict[str, Any]],
+        focus: str = "general",
+        goals: Optional[list[str]] = None,
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for reflection task.
+
+        Args:
+            history: List of execution events to reflect on
+            focus: Focus area (general, failures, patterns)
+            goals: Optional goals to evaluate against
+
+        Returns:
+            Reflection results with insights and lessons
+        """
+        task = {
+            "history": history,
+            "focus": focus,
+            "goals": goals or [],
+        }
+        response = await self.run(task)
+        if response.success and response.structured_output:
+            return response.structured_output
+        return {"error": response.content or "Reflection failed"}
+
+    async def reflection_agent_analyze_failure(
+        self,
+        failure_context: dict[str, Any],
+        error: str,
+        stack_trace: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for failure analysis.
+
+        Args:
+            failure_context: Context of the failure
+            error: Error message
+            stack_trace: Optional stack trace
+
+        Returns:
+            Root cause analysis and recovery strategies
+        """
+        return await self.analyze_failure(failure_context, error, stack_trace)
+
+    async def reflection_agent_compare_approaches(
+        self,
+        approach_a: dict[str, Any],
+        approach_b: dict[str, Any],
+        criteria: list[str],
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for approach comparison.
+
+        Args:
+            approach_a: First approach to compare
+            approach_b: Second approach to compare
+            criteria: List of comparison criteria
+
+        Returns:
+            Comparison with scores and recommendation
+        """
+        return await self.compare_approaches(approach_a, approach_b, criteria)
+
+    async def reflection_agent_extract_patterns(
+        self,
+        examples: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for pattern extraction.
+
+        Args:
+            examples: List of examples to analyze
+
+        Returns:
+            Extracted patterns, anti-patterns, and generalizations
+        """
+        return await self.extract_patterns(examples)
+
+    async def reflection_agent_generate_improvements(
+        self,
+        current_performance: dict[str, Any],
+        goals: list[str],
+    ) -> dict[str, Any]:
+        """
+        Tool-callable wrapper for improvement generation.
+
+        Args:
+            current_performance: Current performance metrics
+            goals: Improvement goals
+
+        Returns:
+            Gap analysis and improvement plan
+        """
+        return await self.generate_improvements(current_performance, goals)
+
+
+def create_reflection_agent(
+    agent_id: Optional[str] = None,
+    config: Optional[AgentConfig] = None,
+) -> ReflectionAgent:
+    """
+    Factory function to create a ReflectionAgent instance.
+
+    Args:
+        agent_id: Optional agent ID (defaults to reflection_agent)
+        config: Optional AgentConfig override
+
+    Returns:
+        Configured ReflectionAgent instance
+    """
+    return ReflectionAgent(
+        agent_id=agent_id or "reflection_agent",
+        config=config,
+    )
+
+
+__all__ = [
+    "ReflectionAgent",
+    "create_reflection_agent",
+    "SYSTEM_PROMPT",
+]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-002",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.base_agent"],
+    "tags": [
+        "agent",
+        "agent-execution",
+        "async",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+        "metrics",
+        "serialization",
+        "tracing",
+    ],
+    "keywords": [
+        "agent",
+        "analyze",
+        "approaches",
+        "clear",
+        "compare",
+        "create",
+        "extract",
+        "failure",
+    ],
+    "business_value": "Implements ReflectionAgent for reflection agent functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

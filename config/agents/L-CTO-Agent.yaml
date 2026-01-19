@@ -1,0 +1,366 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "L-Cto-Agent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-15T11:17:09Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "L-CTO-Agent"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# L-CTO Agent Manifest
+# ====================
+# Authority: Igor (L = Chief Technology Officer)
+# Version: 2.0
+# Created: 2026-01-14
+# Updated: 2026-01-15
+# Status: PRODUCTION READY - GODMODE Part 1-7 Compliant
+# Kernel Absorption: REQUIRED (via runtime/kernel_loader.py)
+# Kernel State: KernelState object (runtime/kernel_state.py)
+# Execution Gate: guarded_execute (runtime/execution_gate.py)
+# Introspection: post_execution_introspection (runtime/introspection.py)
+# Compliance: ISO 42001 + NIST AI RMF + OpenAI Tier 2-3
+
+agent_id: "l-cto"
+name: "L-CTO Agent"
+description: "Igor-only Chief Technology Officer. Kernel-aware governance engine. Authority over L9 architecture, agents, kernels, and strategic execution."
+
+# ============================================
+# MODEL CONFIGURATION
+# ============================================
+model:
+  provider: "anthropic"
+  name: "claude-3-5-sonnet-20241022"
+  temperature: 0.7
+  max_tokens: 16000
+  timeout_seconds: 120
+
+# ============================================
+# SYSTEM PROMPT (Kernel-Deferred)
+# ============================================
+system_prompt: |
+  You are L, the Chief Technology Officer of L9.
+  
+  === AUTHORITY ===
+  Direct Authority: Igor (human CTO)
+  Your Role: Strategic architect, kernel maintainer, execution authority
+  Operating Model: Kernel-governed with HITL approval gates (OpenAI Tier 2-3)
+  
+  === KERNEL GOVERNANCE ===
+  Your behavior is NOT defined in this prompt. It is defined in 10 system kernels
+  loaded from private/kernels/00_system/:
+  
+  1. 01_master_kernel.yaml - Master authority rules, governance bounds
+  2. 02_identity_kernel.yaml - Your identity, role, capabilities, Igor relationship
+  3. 03_cognitive_kernel.yaml - Reasoning patterns, cognition model
+  4. 04_behavioral_kernel.yaml - Decision patterns, reasoning style, heuristics
+  5. 05_memory_kernel.yaml - Memory substrate bindings (Postgres, Redis, Neo4j)
+  6. 06_worldmodel_kernel.yaml - World model, external context integration
+  7. 07_execution_kernel.yaml - Tool execution governance, approval gates
+  8. 08_safety_kernel.yaml - Safety constraints, red lines, guardrails
+  9. 09_developer_kernel.yaml - Developer discipline, spec-first execution
+  10. 10_packet_protocol_kernel.yaml - Packet protocol, encoding, transmission
+  
+  === STARTUP SEQUENCE ===
+  On initialization:
+  1. Call absorb_kernel() to load all 10 kernels from YAML
+  2. Call set_system_context() to bind prompt + kernels
+  3. Call apply_boot_overlay() to load generic L overlays
+  4. Verify kernel_state and kernels properties are populated
+  
+  === EXECUTION MODEL ===
+  For every tool call:
+  1. MAP: Identify governance tier (T1=read-only, T2=reversible/HITL, T3=irreversible/explicit approval)
+  2. MEASURE: Evaluate risk, compliance impact, and constraints
+  3. GOVERN: Apply kernel constraints and check approval gates
+  4. MANAGE: Execute within bounds, log audit trail, report to Igor
+  
+  === CORE RULES (KERNEL-ENFORCED) ===
+  - Do NOT execute Tier 3 tools without Igor's explicit approval
+  - Do NOT modify your own kernels without Igor's explicit approval
+  - Do NOT claim capabilities beyond what your kernels permit
+  - Do NOT ignore approval gates or audit requirements
+  - Do NOT second-guess kernel content; absorb and follow
+  
+  === OUTPUT FORMAT ===
+  - Provide reasoning traces for all decisions (interpretability)
+  - Include risk tier and approval status in tool calls
+  - Cite kernels and sources for all constraints
+  - Report uncertainty explicitly (no false confidence)
+
+# ============================================
+# TOOL DECLARATIONS
+# ============================================
+# These are logical tool IDs. Actual execution is governed by:
+# - runtime/l_tools.py (tool registry)
+# - runtime/kernel_loader.py (kernel state injection)
+# - core/governance/action_tool_orchestrator.py (guarded_execute + approval gates)
+#
+# Tier definitions:
+# T1: Read-only, automated, no approval required
+# T2: Reversible, HITL approval required, rollback possible
+# T3: Irreversible, EXPLICIT Igor approval required, audit mandatory
+
+tools:
+  # ===== T1: READ-ONLY ANALYSIS & RETRIEVAL =====
+  - id: "memory_search"
+    description: "Search L memory substrate using semantic search"
+    tier: "T1"
+    approval_required: false
+
+  - id: "memory_hybrid_search"
+    description: "Hybrid search combining semantic + keyword matching"
+    tier: "T1"
+    approval_required: false
+
+  - id: "memory_get_packet"
+    description: "Get a specific packet by ID from memory substrate"
+    tier: "T1"
+    approval_required: false
+
+  - id: "memory_query_packets"
+    description: "Query packets with complex filters"
+    tier: "T1"
+    approval_required: false
+
+  - id: "memory_get_reasoning_traces"
+    description: "Get L's reasoning traces from memory"
+    tier: "T1"
+    approval_required: false
+
+  - id: "neo4j_query"
+    description: "Run Cypher query against Neo4j graph database"
+    tier: "T1"
+    approval_required: false
+
+  - id: "kernel_read"
+    description: "Read a property from a kernel"
+    tier: "T1"
+    approval_required: false
+
+  - id: "tools_list_all"
+    description: "List all registered tools in the registry"
+    tier: "T1"
+    approval_required: false
+
+  - id: "tools_get_catalog"
+    description: "Get L's complete tool catalog with metadata"
+    tier: "T1"
+    approval_required: false
+
+  - id: "world_model_query"
+    description: "Query the world model (entity_search, get_entity, list_entities)"
+    tier: "T1"
+    approval_required: false
+
+  - id: "world_model_get_entity"
+    description: "Get entity from world model by ID"
+    tier: "T1"
+    approval_required: false
+
+  - id: "mcp_list_servers"
+    description: "List all configured MCP servers"
+    tier: "T1"
+    approval_required: false
+
+  - id: "mcp_list_tools"
+    description: "List available tools from an MCP server"
+    tier: "T1"
+    approval_required: false
+
+  # ===== T1: REFLECTION & SELF-IMPROVEMENT (GMP: wire_reflection_agent_yaml) =====
+  - id: "reflection_agent_reflect"
+    description: "Reflect on execution history: analyze successes, failures, patterns → derive insights and lessons"
+    tier: "T1"
+    approval_required: false
+
+  - id: "reflection_agent_analyze_failure"
+    description: "Deep root cause analysis: immediate cause, root cause, chain of events, prevention strategies"
+    tier: "T1"
+    approval_required: false
+
+  - id: "reflection_agent_compare_approaches"
+    description: "Compare two approaches with scoring: per-criterion scores, overall recommendation (A/B/hybrid)"
+    tier: "T1"
+    approval_required: false
+
+  - id: "reflection_agent_extract_patterns"
+    description: "Extract patterns from examples: recurring patterns, anti-patterns, correlations, generalizations"
+    tier: "T1"
+    approval_required: false
+
+  - id: "reflection_agent_generate_improvements"
+    description: "Generate improvement plan: gap analysis, prioritized improvements, quick wins, strategic changes"
+    tier: "T1"
+    approval_required: false
+
+  # ===== T2: REVERSIBLE CHANGES (HITL Approval Required) =====
+  - id: "redis_set"
+    description: "Set a value in Redis cache"
+    tier: "T2"
+    approval_required: true
+    rollback_capable: true
+
+  - id: "redis_enqueue_task"
+    description: "Enqueue a task to Redis queue"
+    tier: "T2"
+    approval_required: true
+    rollback_capable: true
+
+  - id: "mcp_call_tool"
+    description: "Call a tool on an MCP server"
+    tier: "T2"
+    approval_required: true
+    rollback_capable: true
+
+  - id: "long_plan_simulate"
+    description: "Simulate a long-running plan"
+    tier: "T2"
+    approval_required: true
+    rollback_capable: true
+
+  # ===== T3: IRREVERSIBLE CHANGES (EXPLICIT Igor Approval REQUIRED) =====
+  - id: "memory_write"
+    description: "Write a packet to L memory substrate"
+    tier: "T3"
+    approval_required: true
+    igor_approval_required: true
+
+  - id: "memory_write_insight"
+    description: "Write an insight to memory substrate"
+    tier: "T3"
+    approval_required: true
+    igor_approval_required: true
+
+  - id: "gmp_run"
+    description: "Execute a GMP (Governance Management Process)"
+    tier: "T3"
+    approval_required: true
+    igor_approval_required: true
+
+  - id: "git_commit"
+    description: "Commit code changes to git repository"
+    tier: "T3"
+    approval_required: true
+    igor_approval_required: true
+
+  - id: "mac_agent_exec_task"
+    description: "Execute command via Mac agent"
+    tier: "T3"
+    approval_required: true
+    igor_approval_required: true
+
+  - id: "long_plan_execute"
+    description: "Execute a long-running plan"
+    tier: "T3"
+    approval_required: true
+    igor_approval_required: true
+
+# ============================================
+# METADATA & GOVERNANCE
+# ============================================
+metadata:
+  version: "2.0"
+  created_at: "2026-01-14T22:30:00Z"
+  updated_at: "2026-01-15T11:00:00Z"
+  author: "Igor"
+  
+  # Kernel absorption (MANDATORY for this agent)
+  kernel_absorption_required: true
+  kernel_load_order:
+    - "private/kernels/00_system/01_master_kernel.yaml"
+    - "private/kernels/00_system/02_identity_kernel.yaml"
+    - "private/kernels/00_system/03_cognitive_kernel.yaml"
+    - "private/kernels/00_system/04_behavioral_kernel.yaml"
+    - "private/kernels/00_system/05_memory_kernel.yaml"
+    - "private/kernels/00_system/06_worldmodel_kernel.yaml"
+    - "private/kernels/00_system/07_execution_kernel.yaml"
+    - "private/kernels/00_system/08_safety_kernel.yaml"
+    - "private/kernels/00_system/09_developer_kernel.yaml"
+    - "private/kernels/00_system/10_packet_protocol_kernel.yaml"
+  
+  # Boot overlay (comprehensive L-CTO overlays with tool auth matrix)
+  boot_overlay_path: "config/boot_overlay.yaml"
+  
+  # Runtime modules (GODMODE Part 1-7 implementation)
+  runtime_modules:
+    kernel_loader: "runtime/kernel_loader.py"
+    kernel_state: "runtime/kernel_state.py"
+    execution_gate: "runtime/execution_gate.py"
+    response_tagger: "runtime/response_tagger.py"
+    response_renderer: "runtime/response_renderer.py"
+    introspection: "runtime/introspection.py"
+  
+  # GODMODE compliance
+  godmode_parts:
+    part_1_kernel_state: true      # KernelState object
+    part_2_execution_gate: true    # guarded_execute contract
+    part_3_safety_scan: true       # Forbidden patterns, hard blocks
+    part_4_confidence: true        # Confidence calibration + escalation
+    part_6_output_template: true   # 5-section response template
+    part_7_introspection: true     # Post-execution audit
+  
+  # Governance & compliance
+  compliance_framework: "ISO 42001 + NIST AI RMF + OpenAI Tier 2-3"
+  approval_authority: "Igor"
+  audit_enabled: true
+  trace_all_tools: true
+  approval_email_notify: true
+  
+  # Specializations
+  research_mode_available: true
+  research_overlay_path: "config/agents/L-CTO-Research-Overlay.yaml"
+
+# ============================================
+# GOVERNANCE SETTINGS
+# ============================================
+governance:
+  # Authority & approval
+  approval_authority: "Igor"
+  escalation_email: "igor@l9.internal"
+  
+  # Tier enforcement
+  tier_requirements:
+    T1:
+      approval_required: false
+      human_review: false
+      audit_log: true
+      
+    T2:
+      approval_required: true
+      human_review: true
+      approval_type: "HITL"
+      timeout_seconds: 3600
+      audit_log: true
+      
+    T3:
+      approval_required: true
+      human_review: true
+      approval_type: "EXPLICIT_IGOR"
+      requires_explicit_approval: true
+      timeout_seconds: 86400
+      audit_log: true
+      backup_required: true
+  
+  # Compliance & monitoring
+  audit_enabled: true
+  trace_all_tools: true
+  compliance_checks_enabled: true
+  anomaly_detection: true
+  
+  # Risk & reporting
+  risk_report_interval: "daily"
+  compliance_report_interval: "weekly"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "anthropic", "configuration", "database-config", "foundation", "kernel", "model-config", "openai"]
+# keywords: ["agent", "agent_id", "cto", "description", "governance", "metadata"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

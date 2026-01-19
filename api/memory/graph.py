@@ -6,6 +6,37 @@ REST API endpoints for Neo4j graph operations.
 Used by cursor_memory_client.py for graph-enhanced context.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Graph Router (Neo4j)",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-07T22:46:10Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "graph",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "GET /health",
+            "POST /entity",
+            "GET /entity/{entity_type}/{entity_id}",
+            "DELETE /entity/{entity_type}/{entity_id}",
+            "POST /relationship",
+            "GET /relationships/{entity_type}/{entity_id}",
+            "POST /query",
+            "GET /context/{domain}",
+            "GET /session-graph/{session_id}",
+        ],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": ["api.server", "mcp_memory.src.mcp_server"],
+    },
+}
+# ============================================================================
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 from api.auth import verify_api_key
@@ -26,6 +57,7 @@ async def get_neo4j():
     if _neo4j_client is None:
         try:
             from memory.graph_client import get_neo4j_client
+
             _neo4j_client = await get_neo4j_client()
         except ImportError:
             logger.warning("Neo4j client not available")
@@ -40,6 +72,7 @@ async def get_neo4j():
 
 class EntityRequest(BaseModel):
     """Request model for entity operations."""
+
     entity_type: str
     entity_id: str
     properties: dict = {}
@@ -47,6 +80,7 @@ class EntityRequest(BaseModel):
 
 class RelationshipRequest(BaseModel):
     """Request model for relationship operations."""
+
     from_type: str
     from_id: str
     to_type: str
@@ -57,12 +91,14 @@ class RelationshipRequest(BaseModel):
 
 class QueryRequest(BaseModel):
     """Request model for Cypher queries."""
+
     query: str
     parameters: Optional[dict] = None
 
 
 class GraphResponse(BaseModel):
     """Standard graph response."""
+
     success: bool
     data: Any = None
     error: Optional[str] = None
@@ -108,7 +144,7 @@ async def create_entity(
     client = await get_neo4j()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Neo4j not available")
-    
+
     try:
         result = await client.create_entity(
             entity_type=request.entity_type,
@@ -132,7 +168,7 @@ async def get_entity(
     client = await get_neo4j()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Neo4j not available")
-    
+
     try:
         result = await client.get_entity(entity_type, entity_id)
         if result is None:
@@ -154,7 +190,7 @@ async def delete_entity(
     client = await get_neo4j()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Neo4j not available")
-    
+
     try:
         result = await client.delete_entity(entity_type, entity_id)
         return GraphResponse(success=result)
@@ -178,7 +214,7 @@ async def create_relationship(
     client = await get_neo4j()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Neo4j not available")
-    
+
     try:
         result = await client.create_relationship(
             from_type=request.from_type,
@@ -207,7 +243,7 @@ async def get_relationships(
     client = await get_neo4j()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Neo4j not available")
-    
+
     try:
         result = await client.get_relationships(
             entity_type=entity_type,
@@ -236,7 +272,7 @@ async def run_query(
     client = await get_neo4j()
     if client is None or not client.is_available():
         raise HTTPException(status_code=503, detail="Neo4j not available")
-    
+
     try:
         result = await client.run_query(
             query=request.query,
@@ -262,7 +298,7 @@ async def get_domain_context(
 ):
     """
     Get graph context for a domain (memory, agents, tools, etc.).
-    
+
     Returns entities and relationships relevant to the domain.
     Used by cursor_memory_client.py for graph-enhanced context injection.
     """
@@ -275,7 +311,7 @@ async def get_domain_context(
             "relationships": [],
             "message": "Neo4j not available",
         }
-    
+
     try:
         # Query for domain-related entities
         query = """
@@ -285,7 +321,7 @@ async def get_domain_context(
         LIMIT $limit
         """
         entities = await client.run_query(query, {"domain": domain, "limit": limit})
-        
+
         # Query for relationships involving domain entities
         rel_query = """
         MATCH (a)-[r]->(b)
@@ -293,8 +329,10 @@ async def get_domain_context(
         RETURN type(r) as rel_type, a.id as from_id, b.id as to_id
         LIMIT $limit
         """
-        relationships = await client.run_query(rel_query, {"domain": domain, "limit": limit})
-        
+        relationships = await client.run_query(
+            rel_query, {"domain": domain, "limit": limit}
+        )
+
         return {
             "domain": domain,
             "available": True,
@@ -321,7 +359,7 @@ async def get_session_graph(
 ):
     """
     Get graph of entities related to a session.
-    
+
     Used for session-to-session persistence via graph relationships.
     """
     client = await get_neo4j()
@@ -332,7 +370,7 @@ async def get_session_graph(
             "nodes": [],
             "edges": [],
         }
-    
+
     try:
         # Find session and related entities
         query = """
@@ -341,7 +379,7 @@ async def get_session_graph(
         LIMIT 50
         """
         result = await client.run_query(query, {"session_id": session_id})
-        
+
         return {
             "session_id": session_id,
             "available": True,
@@ -354,3 +392,58 @@ async def get_session_graph(
             "available": False,
             "error": str(e),
         }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-011",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "memory.graph_client"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "graph-db",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+    ],
+    "keywords": [
+        "(neo4j)",
+        "create",
+        "delete",
+        "domain",
+        "entity",
+        "graph",
+        "health",
+        "memory",
+    ],
+    "business_value": "Provides graph components including EntityRequest, RelationshipRequest, QueryRequest",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

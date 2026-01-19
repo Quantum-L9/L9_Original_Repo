@@ -5,15 +5,48 @@ L9 Agents - L-CTO Agent
 The primary L agent - Igor's CTO.
 Kernel-aware agent with full system integration.
 
-Version: 1.0.0
+Version: 2.0.0 - KernelState + Introspection + Response Rendering
 """
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "L-CTO Agent",
+    "module_version": "2.0.0 - KernelState + Introspection + Response Rendering",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "l_cto",
+    "type": "agent",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "agents.__init__",
+            "conftest",
+            "core.agents.kernel_registry",
+            "tests.agents.test_l_cto_memory_emission",
+            "tests.config.test_l_cto_yaml",
+            "tests.test_l_cto_kernel_activation",
+            "tests.unit.conftest",
+            "tests.unit.test_lcto_bootstrap",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TYPE_CHECKING, Union
 
 from agents.base_agent import BaseAgent, AgentResponse, AgentConfig
+
+if TYPE_CHECKING:
+    from runtime.kernel_state import KernelState
 
 logger = structlog.get_logger(__name__)
 
@@ -48,9 +81,13 @@ class LCTOAgent(BaseAgent):
         """
         super().__init__(agent_id=agent_id or "l-cto", config=config)
 
-        # Kernel state - MUST be activated by kernel_loader
+        # Kernel state - can be str "INACTIVE"/"ACTIVE" or KernelState object
+        # After kernel_loader.load_kernels(), this will be a KernelState object
         self.kernels: Dict[str, Dict[str, Any]] = {}
-        self.kernel_state: str = "INACTIVE"
+        self.kernel_state: Union[str, "KernelState"] = "INACTIVE"
+
+        # Boot overlay (set by kernel_loader)
+        self.boot_overlay: Dict[str, Any] = {}
 
         # System context (set by kernel loader)
         self._system_context: Optional[str] = None
@@ -160,15 +197,51 @@ class LCTOAgent(BaseAgent):
         Returns:
             System prompt string
         """
-        if self.kernel_state != "ACTIVE":
+        if not self._is_kernel_active():
             logger.warning("l_cto.get_system_prompt: kernels not active!")
             return self._get_fallback_prompt()
 
         return self._build_kernel_prompt()
 
+    def _is_kernel_active(self) -> bool:
+        """
+        Check if kernels are active.
+
+        Supports both legacy string state and new KernelState object.
+
+        Returns:
+            True if kernels are active
+        """
+        if isinstance(self.kernel_state, str):
+            return self.kernel_state == "ACTIVE"
+        elif hasattr(self.kernel_state, "initialized"):
+            return self.kernel_state.initialized
+        return False
+
+    def get_kernel_state_summary(self) -> Dict[str, Any]:
+        """
+        Get kernel state summary for response rendering.
+
+        Returns:
+            Summary dict with mode, kernels, decisions, escalations, etc.
+        """
+        if hasattr(self.kernel_state, "summary"):
+            return self.kernel_state.summary()
+        return {
+            "mode": "unknown",
+            "active_kernels": len(self.kernels),
+            "decisions_logged": 0,
+            "escalations": 0,
+        }
+
     def _build_kernel_prompt(self) -> str:
         """Build system prompt from absorbed kernel data."""
         sections = []
+
+        # If research mode, prepend research prompt
+        if getattr(self, "_research_mode", False) and hasattr(self, "_research_prompt"):
+            sections.append(self._research_prompt.strip())
+            sections.append("")  # Separator
 
         # Start with activation context if set
         if self._system_context:
@@ -238,7 +311,7 @@ class LCTOAgent(BaseAgent):
             sections.append("\n".join(safety_lines))
 
         # Memory context (lessons, prior corrections) - bootstrapped at startup
-        if hasattr(self, '_memory_context') and self._memory_context:
+        if hasattr(self, "_memory_context") and self._memory_context:
             sections.append(self._memory_context)
 
         # Closing
@@ -259,17 +332,27 @@ class LCTOAgent(BaseAgent):
         Returns:
             Identity description string
         """
-        if self.kernel_state == "ACTIVE":
+        if self._is_kernel_active():
+            state_info = ""
+            if hasattr(self.kernel_state, "session_id"):
+                state_info = f", session: {self.kernel_state.session_id}"
+
+            # Include research mode if active
+            mode_info = ""
+            if getattr(self, "_research_mode", False):
+                mode_info = " [RESEARCH MODE]"
+
             return (
-                f"I am L, the CTO agent for Igor. "
-                f"Kernels: {len(self.kernels)} loaded, state: {self.kernel_state}. "
+                f"I am L, the CTO agent for Igor{mode_info}. "
+                f"Kernels: {len(self.kernels)} loaded{state_info}. "
                 f"Role: {self._identity.get('primary_role', 'CTO')}. "
                 f"Allegiance: {self._identity.get('allegiance', 'Igor-only')}."
             )
         else:
-            return (
-                f"L-CTO Agent (kernel_state: {self.kernel_state}, awaiting activation)"
+            state_str = (
+                self.kernel_state if isinstance(self.kernel_state, str) else "INACTIVE"
             )
+            return f"L-CTO Agent (kernel_state: {state_str}, awaiting activation)"
 
     # =========================================================================
     # Task Execution
@@ -291,7 +374,7 @@ class LCTOAgent(BaseAgent):
             AgentResponse with result
         """
         # Verify kernel activation
-        if self.kernel_state != "ACTIVE":
+        if not self._is_kernel_active():
             logger.error("l_cto.run: kernel set not active!")
             return AgentResponse(
                 agent_id=self.agent_id,
@@ -329,7 +412,39 @@ class LCTOAgent(BaseAgent):
             # Non-fatal: executor will still emit packets
             logger.debug(f"l_cto.run: memory emission skipped: {e}")
 
+        # Run post-execution introspection (best-effort)
+        try:
+            self._run_introspection()
+        except Exception as e:
+            logger.debug(f"l_cto.run: introspection skipped: {e}")
+
         return response
+
+    def _run_introspection(self) -> None:
+        """
+        Run post-execution introspection (GODMODE Part 7.1).
+
+        Best-effort, non-blocking.
+        """
+        if not hasattr(self.kernel_state, "initialized"):
+            return  # No KernelState object, skip introspection
+
+        try:
+            from runtime.introspection import post_execution_introspection
+
+            audit = post_execution_introspection(self)
+
+            # Log summary
+            if audit.get("overall", {}).get("requires_attention"):
+                logger.warning(
+                    "l_cto.introspection: attention required",
+                    status=audit["overall"]["status"],
+                    critical=audit["overall"]["critical_issues"],
+                )
+        except ImportError:
+            pass  # Introspection module not available
+        except Exception as e:
+            logger.debug(f"l_cto.introspection: {e}")
 
     async def _emit_reasoning_packet(
         self,
@@ -406,6 +521,42 @@ class LCTOAgent(BaseAgent):
 
 
 # =============================================================================
+# Guarded Execution (GODMODE Part 2)
+# =============================================================================
+
+
+def execute_tool_guarded(
+    agent: LCTOAgent,
+    tool_id: str,
+    params: Dict[str, Any],
+    confidence: float = 0.95,
+) -> Dict[str, Any]:
+    """
+    Execute a tool with kernel enforcement.
+
+    This is the preferred way to execute tools from L-CTO.
+    Uses runtime.execution_gate.guarded_execute for full KernelState support.
+
+    Args:
+        agent: The L-CTO agent
+        tool_id: Tool identifier
+        params: Tool parameters
+        confidence: Confidence level for this action
+
+    Returns:
+        Dict with status and result or error
+    """
+    from runtime.execution_gate import guarded_execute
+
+    return guarded_execute(
+        agent=agent,
+        tool_id=tool_id,
+        params=params,
+        confidence=confidence,
+    )
+
+
+# =============================================================================
 # Factory Function
 # =============================================================================
 
@@ -419,6 +570,7 @@ def create_l_cto_agent(
     Create and initialize an L-CTO agent.
 
     If load_kernels_on_create is True (default), loads kernels immediately.
+    Uses runtime/kernel_loader.py which now returns KernelState object.
 
     Args:
         agent_id: Optional agent ID
@@ -426,7 +578,7 @@ def create_l_cto_agent(
         load_kernels_on_create: Whether to load kernels on creation
 
     Returns:
-        Initialized LCTOAgent
+        Initialized LCTOAgent with KernelState
     """
     agent = LCTOAgent(agent_id=agent_id, config=config)
 
@@ -436,7 +588,138 @@ def create_l_cto_agent(
         agent = load_kernels(agent)
         require_kernel_activation(agent)
 
+        # Signal session start for introspection
+        try:
+            from runtime.introspection import on_session_start
+
+            on_session_start(agent)
+        except ImportError:
+            pass
+
     return agent
+
+
+def end_l_cto_session(agent: LCTOAgent) -> Dict[str, Any]:
+    """
+    End an L-CTO session and export memory.
+
+    Runs final introspection and exports session memory.
+
+    Args:
+        agent: The L-CTO agent
+
+    Returns:
+        Session export dict
+    """
+    try:
+        from runtime.introspection import on_session_end
+
+        return on_session_end(agent)
+    except ImportError:
+        return {"error": "Introspection module not available"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# =============================================================================
+# Research Mode Factory
+# =============================================================================
+
+# Path to research overlay config
+RESEARCH_OVERLAY_PATH = "config/agents/L-CTO-Research-Overlay.yaml"
+
+
+def create_l_cto_research_agent(
+    load_kernels_on_create: bool = True,
+) -> LCTOAgent:
+    """
+    Create L-CTO agent in RESEARCH MODE.
+
+    Research mode provides:
+    - Higher temperature (0.8) for creative synthesis
+    - Extended timeout (180s) for deep analysis
+    - Research methodology (PLAN → RESEARCH → CRITIQUE → SYNTHESIZE → CITE)
+    - Benchmarking frameworks (ISO 42001, NIST AI RMF, OpenAI Tiers)
+    - Gap analysis output format
+
+    The agent is initialized with:
+    - agent_id: "l-cto-research"
+    - Research-specific system prompt
+    - Extended tool set with MCP research tools
+
+    Args:
+        load_kernels_on_create: Whether to load kernels on creation
+
+    Returns:
+        LCTOAgent configured for research mode
+    """
+    import yaml
+    from pathlib import Path
+
+    # Load research overlay config
+    overlay_path = Path(RESEARCH_OVERLAY_PATH)
+    if not overlay_path.exists():
+        logger.warning(
+            "Research overlay not found, using default L-CTO",
+            path=RESEARCH_OVERLAY_PATH,
+        )
+        return create_l_cto_agent(load_kernels_on_create=load_kernels_on_create)
+
+    with open(overlay_path) as f:
+        research_config = yaml.safe_load(f)
+
+    # Create agent with research ID
+    agent = LCTOAgent(
+        agent_id=research_config.get("agent_id", "l-cto-research"),
+        manifest=RESEARCH_OVERLAY_PATH,
+    )
+
+    # Store research config for prompt building
+    agent._research_config = research_config
+    agent._research_mode = True
+
+    # Override model settings from research overlay
+    if "model" in research_config:
+        agent._model_config = research_config["model"]
+
+    if load_kernels_on_create:
+        from runtime.kernel_loader import load_kernels, require_kernel_activation
+
+        agent = load_kernels(agent)
+        require_kernel_activation(agent)
+
+        # Apply research-specific system prompt after kernels
+        if "system_prompt" in research_config:
+            agent._research_prompt = research_config["system_prompt"]
+
+        # Signal session start
+        try:
+            from runtime.introspection import on_session_start
+
+            on_session_start(agent)
+        except ImportError:
+            pass
+
+    logger.info(
+        "l_cto.research_mode: initialized",
+        agent_id=agent.agent_id,
+        methodology=research_config.get("metadata", {}).get("research_phases", []),
+    )
+
+    return agent
+
+
+def is_research_mode(agent: LCTOAgent) -> bool:
+    """
+    Check if agent is in research mode.
+
+    Args:
+        agent: The L-CTO agent
+
+    Returns:
+        True if research mode is active
+    """
+    return getattr(agent, "_research_mode", False)
 
 
 # =============================================================================
@@ -446,4 +729,69 @@ def create_l_cto_agent(
 __all__ = [
     "LCTOAgent",
     "create_l_cto_agent",
+    "create_l_cto_research_agent",
+    "end_l_cto_session",
+    "execute_tool_guarded",
+    "is_research_mode",
+    "RESEARCH_OVERLAY_PATH",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "agents.base_agent",
+        "core.schemas",
+        "memory.substrate_service",
+        "runtime.execution_gate",
+        "runtime.introspection",
+    ],
+    "tags": [
+        "agent",
+        "agent-execution",
+        "api",
+        "async",
+        "authorization",
+        "config",
+        "debugging",
+        "filesystem",
+        "intelligence",
+        "logging",
+    ],
+    "keywords": [
+        "absorb",
+        "agent",
+        "apply",
+        "boot",
+        "create",
+        "cto",
+        "describe",
+        "end",
+    ],
+    "business_value": "The primary L agent - Igor's CTO. Kernel-aware agent with full system integration. Version: 2.0.0 - KernelState + Introspection + Response Rendering",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

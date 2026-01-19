@@ -8,6 +8,27 @@ semantic_search API under the hood.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "SubstrateRetriever",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "substrate_retriever",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["core.retrievers.__init__"],
+    },
+}
+# ============================================================================
+
 from typing import Any, List, Optional
 
 from langchain_core.documents import Document
@@ -71,3 +92,38 @@ class SubstrateRetriever(BaseRetriever):
         import asyncio
 
         return asyncio.run(self._aget_relevant_documents(query))
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-012",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.substrate_service"],
+    "tags": ["async", "core", "foundation", "llm", "service"],
+    "keywords": ["memory", "retriever", "substrate", "substrateretriever"],
+    "business_value": "Implements SubstrateRetriever for substrate retriever functionality",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

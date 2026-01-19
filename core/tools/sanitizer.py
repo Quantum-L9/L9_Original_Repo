@@ -17,6 +17,30 @@ This module is intentionally conservative and fast:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Input Sanitizer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-09T01:42:58Z",
+    "updated_at": "2026-01-08T22:15:53Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "sanitizer",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.tools.registry_adapter",
+            "tests.unit.test_tool_input_sanitizer",
+        ],
+    },
+}
+# ============================================================================
+
 import json
 import re
 from dataclasses import dataclass
@@ -105,7 +129,11 @@ class ToolInputSanitizer:
                 reasons.append("all argument keys must be strings")
                 continue
 
-            if enforce_known_keys and key not in properties and key not in self._config.internal_context_keys:
+            if (
+                enforce_known_keys
+                and key not in properties
+                and key not in self._config.internal_context_keys
+            ):
                 reasons.append(f"unknown field: {key}")
                 continue
 
@@ -119,7 +147,9 @@ class ToolInputSanitizer:
                     continue
 
             expected = properties.get(key) if isinstance(properties, dict) else None
-            sanitized[key] = self._sanitize_value(key=key, value=value, expected=expected, reasons=reasons)
+            sanitized[key] = self._sanitize_value(
+                key=key, value=value, expected=expected, reasons=reasons
+            )
 
         if reasons:
             raise ToolInputSanitizationError(tool_id, reasons)
@@ -215,7 +245,9 @@ class ToolInputSanitizer:
 
         return value
 
-    def _enforce_resource_limits(self, tool_id: str, obj: Any, reasons: list[str]) -> None:
+    def _enforce_resource_limits(
+        self, tool_id: str, obj: Any, reasons: list[str]
+    ) -> None:
         # Depth + structural limits
         if self._exceeds_depth(obj, max_depth=self._config.max_depth):
             reasons.append(f"input nesting exceeds max_depth={self._config.max_depth}")
@@ -223,12 +255,16 @@ class ToolInputSanitizer:
 
         # List length limits (recursive)
         if self._exceeds_list_length(obj, max_len=self._config.max_list_length):
-            reasons.append(f"list length exceeds max_list_length={self._config.max_list_length}")
+            reasons.append(
+                f"list length exceeds max_list_length={self._config.max_list_length}"
+            )
             return
 
         # String length limits (recursive)
         if self._exceeds_string_length(obj, max_len=self._config.max_string_length):
-            reasons.append(f"string length exceeds max_string_length={self._config.max_string_length}")
+            reasons.append(
+                f"string length exceeds max_string_length={self._config.max_string_length}"
+            )
             return
 
         # Total payload size limit (json-serializable footprint)
@@ -239,7 +275,9 @@ class ToolInputSanitizer:
             return
 
         if len(raw.encode("utf-8")) > self._config.max_total_bytes:
-            reasons.append(f"payload exceeds max_total_bytes={self._config.max_total_bytes}")
+            reasons.append(
+                f"payload exceeds max_total_bytes={self._config.max_total_bytes}"
+            )
 
     @staticmethod
     def _exceeds_depth(obj: Any, max_depth: int) -> bool:
@@ -287,3 +325,51 @@ class ToolInputSanitizer:
         return any(p == ".." for p in parts)
 
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-014",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "dataclass",
+        "event-driven",
+        "foundation",
+        "serialization",
+        "tool-registry",
+    ],
+    "keywords": [
+        "arguments",
+        "enforce",
+        "lengths",
+        "limits",
+        "module",
+        "provides",
+        "resource",
+        "sanitization",
+    ],
+    "business_value": "If a tool provides a schema, we reject unknown keys by default. If a tool provides no schema (or an empty schema), we only enforce resource limits.",
+    "last_modified": "2026-01-08T22:15:53Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

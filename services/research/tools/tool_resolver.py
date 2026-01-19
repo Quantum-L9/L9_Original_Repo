@@ -6,6 +6,31 @@ Resolves which tools are available for a given agent/role.
 Enforces access control and rate limits.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Resolver",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "research_services",
+    "module_name": "tool_resolver",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.singleton_registry",
+            "services.research.tools.__init__",
+            "tests.test_tool_registry",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Optional
 
@@ -176,3 +201,56 @@ def get_tool_resolver() -> ToolResolver:
     if _resolver is None:
         _resolver = ToolResolver()
     return _resolver
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-009",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.tools.base_registry"],
+    "tags": [
+        "async",
+        "auth",
+        "authorization",
+        "debugging",
+        "logging",
+        "operations",
+        "research-services",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "authorize",
+        "can",
+        "execute",
+        "registry",
+        "resolve",
+        "resolver",
+        "tool",
+    ],
+    "business_value": "Implements ToolResolver for tool resolver functionality",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

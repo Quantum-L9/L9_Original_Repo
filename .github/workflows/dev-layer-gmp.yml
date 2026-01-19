@@ -1,0 +1,114 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Dev-Layer-Gmp"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-15T23:45:01Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "operations"
+# domain: ".github"
+# file_name: "dev-layer-gmp"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+name: Dev Layer GMP Governance Gate
+
+on:
+  pull_request:
+    paths:
+      - 'l9/dev_layer/**'
+      - '.github/workflows/dev-layer-gmp.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'l9/dev_layer/**'
+
+jobs:
+  dev-layer-gmp:
+    name: Dev Layer Governance & Determinism Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pytest pytest-cov pydantic
+      
+      - name: Compile artifacts with AM Engine
+        run: |
+          python -m dev_layer.am_engine.compile \
+            --input l9/dev_layer/artifacts/raw \
+            --output l9/dev_layer/artifacts/compiled \
+            --log-level INFO
+      
+      - name: Validate compilation is idempotent
+        run: |
+          # Run compilation again, should produce same outputs
+          python -m dev_layer.am_engine.compile \
+            --input l9/dev_layer/artifacts/raw \
+            --output l9/dev_layer/artifacts/compiled \
+            --log-level INFO
+      
+      - name: Run determinism tests
+        run: |
+          pytest l9/dev_layer/tests/test_determinism.py -v --tb=short
+      
+      - name: Run E2E integration tests
+        run: |
+          pytest l9/dev_layer/tests/test_e2e_diff_generation.py -v --tb=short
+      
+      - name: Generate coverage report
+        run: |
+          pytest l9/dev_layer/tests/ \
+            --cov=dev_layer \
+            --cov-report=term-missing \
+            --cov-report=xml
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: dev-layer
+          fail_ci_if_error: false
+      
+      - name: Verify governance law loads
+        run: |
+          python -c "
+          from dev_layer.am_engine.compile import load_canonical_yaml
+          from pathlib import Path
+          law = load_canonical_yaml(Path('l9/dev_layer/governance'))
+          print(f'✓ Loaded {len(law)} governance files')
+          "
+      
+      - name: Comment on PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Dev Layer GMP gate passed\n- AM Engine compilation: ✓\n- Determinism: ✓\n- E2E tests: ✓\n- Coverage: ✓'
+            })
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".github", "operations", "utility", "workflow"]
+# keywords: ["dev", "gmp", "jobs", "layer", "name"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

@@ -16,6 +16,38 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Base Agent",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "base_agent",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["episodic_memory", "working_memory"],
+        "imported_by": [
+            "agents.__init__",
+            "agents.architect_agent.architect_agent_a",
+            "agents.architect_agent.architect_agent_b",
+            "agents.coder_agent.coder_agent_a",
+            "agents.coder_agent.coder_agent_b",
+            "agents.l_cto",
+            "agents.qa_agent",
+            "agents.reflection_agent",
+            "tests.agents.test_architect_agents",
+            "tests.agents.test_base_agent",
+        ],
+    },
+}
+# ============================================================================
+
 import json
 import structlog
 from abc import ABC, abstractmethod
@@ -28,6 +60,7 @@ from uuid import UUID, uuid4
 from openai import AsyncOpenAI
 
 from core.resilience.retry import async_retry, AsyncRetryConfig
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -161,6 +194,7 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def run(
         self, task: dict[str, Any], context: Optional[dict[str, Any]] = None
     ) -> AgentResponse:
@@ -385,3 +419,57 @@ class BaseAgent(ABC):
                 "agent_id": self._agent_id,
                 "error": str(e),
             }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-003",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.resilience.retry"],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "dataclass",
+        "intelligence",
+        "llm",
+        "logging",
+        "messaging",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "agents",
+        "assistant",
+        "check",
+        "clear",
+        "format",
+        "health",
+        "history",
+    ],
+    "business_value": "LLM client management with retry logic Message handling Memory integration Standard interfaces Version: 2.0.0 Added retry logic with exponential backoff (uses AgentConfig.retry_count)",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

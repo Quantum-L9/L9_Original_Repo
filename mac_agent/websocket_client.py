@@ -24,6 +24,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "WebSocket Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "mac_integration",
+    "module_name": "websocket_client",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import json
 import logging
@@ -37,6 +58,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
 from uuid import uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -303,6 +325,7 @@ class TaskExecutor:
             }
 
     # Task type executors
+    @must_stay_async("callers use await")
     async def _execute_shell(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute shell command with security validation.
@@ -447,6 +470,7 @@ class TaskExecutor:
             logger.error(f"Browser execution error: {e}")
             return {"status": "error", "error": str(e), "logs": [], "screenshots": []}
 
+    @must_stay_async("callers use await")
     async def _execute_python(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute Python code in a sandboxed environment.
@@ -921,6 +945,7 @@ class MacAgentClient:
         else:
             logger.warning("[MacAgent] Unknown control action: %s", action)
 
+    @must_stay_async("callers use await")
     async def _handle_error(self, data: Dict[str, Any]) -> None:
         """Handle ERROR event from server."""
         payload = data.get("payload", {})
@@ -1035,3 +1060,57 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MAC-INTE-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "runtime.local_api"],
+    "tags": [
+        "api",
+        "async",
+        "client",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "executor",
+        "integration",
+        "logging",
+        "mac-integration",
+    ],
+    "keywords": [
+        "agent",
+        "agenthandshake",
+        "client",
+        "connect",
+        "connected",
+        "count",
+        "create",
+        "disconnect",
+    ],
+    "business_value": "Provides websocket client components including AgentConfig, EventType, TaskExecutor",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

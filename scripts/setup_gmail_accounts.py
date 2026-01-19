@@ -17,6 +17,27 @@ This script:
 Version: 1.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Setup Gmail Accounts",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "setup_gmail_accounts",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import shutil
 import sys
 from pathlib import Path
@@ -84,7 +105,9 @@ def setup_account(account_name: str) -> dict:
     else:
         status["errors"].append(f"Missing source: {source_secret}")
         print(f"  ! Missing {source_secret}")
-        print(f"    Expected: email_agent/private_auth/google_oauth_{account_name}.json")
+        print(
+            f"    Expected: email_agent/private_auth/google_oauth_{account_name}.json"
+        )
 
     # Check for tokens
     if config.tokens_file.exists():
@@ -145,7 +168,7 @@ def main():
     if all_ready:
         print("\n✅ All accounts are configured!")
         print("\nTest endpoints:")
-        print('  curl -X POST http://localhost:8000/email/igor/query \\')
+        print("  curl -X POST http://localhost:8000/email/igor/query \\")
         print('    -H "Authorization: Bearer $L9_EXECUTOR_API_KEY" \\')
         print('    -H "Content-Type: application/json" \\')
         print('    -d \'{"query": "is:unread", "max_results": 5}\'')
@@ -161,12 +184,14 @@ def main():
         if missing_secrets:
             print("\n2. Add missing OAuth client secrets:")
             for result in missing_secrets:
-                print(f"   - email_agent/private_auth/google_oauth_{result['account']}.json")
+                print(
+                    f"   - email_agent/private_auth/google_oauth_{result['account']}.json"
+                )
             print("\n   Get these from Google Cloud Console:")
             print("   https://console.cloud.google.com/apis/credentials")
 
         print("\n3. After OAuth, test endpoints:")
-        print('   curl -X POST http://localhost:8000/email/igor/query \\')
+        print("   curl -X POST http://localhost:8000/email/igor/query \\")
         print('     -H "Authorization: Bearer $L9_EXECUTOR_API_KEY" \\')
         print('     -H "Content-Type: application/json" \\')
         print('     -d \'{"query": "is:unread", "max_results": 5}\'')
@@ -174,3 +199,46 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "cli",
+        "filesystem",
+        "operations",
+        "scripts",
+        "security",
+        "testing",
+    ],
+    "keywords": ["account", "accounts", "gmail", "setup"],
+    "business_value": "1. Creates account directories (~/.l9/gmail/igor/, ~/.l9/gmail/l/) 2. Copies OAuth client secrets from gmail/ to account directories 3. Reports status and next steps Version: 1.0.0",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

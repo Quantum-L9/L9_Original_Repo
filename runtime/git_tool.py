@@ -12,6 +12,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Git Tool Implementation",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-25T18:55:20Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "git_tool",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Dict
 from uuid import uuid4
@@ -170,3 +191,57 @@ async def git_commit_tool(
 
 
 __all__ = ["git_commit_tool"]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.tools.tool_graph",
+        "runtime.memory_helpers",
+        "runtime.task_queue",
+    ],
+    "tags": [
+        "async",
+        "logging",
+        "messaging",
+        "operations",
+        "queue",
+        "runtime-operations",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "commit",
+        "git",
+        "implementation",
+        "pending",
+        "tasks",
+        "tool",
+    ],
+    "business_value": "This tool is called by agent L to request git commits. It only creates pending tasks - actual execution requires Igor's approval. Version: 1.0.0",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

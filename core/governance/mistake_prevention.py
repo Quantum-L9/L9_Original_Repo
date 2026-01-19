@@ -17,6 +17,30 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Mistake Prevention Engine",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "mistake_prevention",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "agents.cursor.scripts.cursor_check_mistakes",
+            "scripts.workspace.init_workspace",
+        ],
+    },
+}
+# ============================================================================
+
 import re
 import structlog
 from dataclasses import dataclass
@@ -29,18 +53,18 @@ logger = structlog.get_logger(__name__)
 
 class Severity(Enum):
     """Severity levels for mistake rules."""
-    
+
     CRITICAL = "critical"  # Blocks execution
-    HIGH = "high"          # Strong warning, may block
-    MEDIUM = "medium"      # Warning only
-    LOW = "low"            # Informational
+    HIGH = "high"  # Strong warning, may block
+    MEDIUM = "medium"  # Warning only
+    LOW = "low"  # Informational
 
 
 @dataclass
 class MistakeRule:
     """
     A mistake prevention rule.
-    
+
     Attributes:
         id: Unique rule identifier (e.g., "MP-001")
         name: Human-readable name
@@ -50,7 +74,7 @@ class MistakeRule:
         occurrences: Count of times this rule was triggered
         last_triggered: Timestamp of last trigger
     """
-    
+
     id: str
     name: str
     pattern: str
@@ -63,7 +87,7 @@ class MistakeRule:
 @dataclass
 class Violation:
     """A detected mistake violation."""
-    
+
     rule_id: str
     name: str
     severity: str
@@ -76,10 +100,10 @@ class Violation:
 class MistakePrevention:
     """
     Executable mistake prevention engine.
-    
+
     Enforces rules derived from repeated-mistakes.md patterns.
     CRITICAL violations are blocked; others emit warnings.
-    
+
     Usage:
         engine = MistakePrevention()
         allowed, violations = engine.enforce("some content to check")
@@ -87,11 +111,11 @@ class MistakePrevention:
             # Handle blocked execution
             pass
     """
-    
+
     def __init__(self) -> None:
         """Initialize with default L9 mistake rules."""
         self._rules: list[MistakeRule] = self._load_default_rules()
-    
+
     def _load_default_rules(self) -> list[MistakeRule]:
         """Load default mistake prevention rules from repeated-mistakes.md patterns."""
         return [
@@ -166,36 +190,36 @@ class MistakePrevention:
                 severity=Severity.HIGH,
             ),
         ]
-    
+
     @property
     def rules(self) -> list[MistakeRule]:
         """Get all loaded rules."""
         return self._rules
-    
+
     def add_rule(self, rule: MistakeRule) -> None:
         """Add a custom rule."""
         self._rules.append(rule)
         logger.info("mistake_prevention.rule_added", rule_id=rule.id, name=rule.name)
-    
+
     def check(self, content: str) -> list[Violation]:
         """
         Check content for mistake patterns.
-        
+
         Args:
             content: Text content to check
-            
+
         Returns:
             List of detected violations
         """
         violations: list[Violation] = []
-        
+
         for rule in self._rules:
             matches = re.findall(rule.pattern, content, re.IGNORECASE)
             if matches:
                 # Track occurrence
                 rule.occurrences += 1
                 rule.last_triggered = datetime.utcnow()
-                
+
                 # Create violation for each match
                 for match in matches[:3]:  # Limit to first 3 matches
                     violation = Violation(
@@ -207,23 +231,23 @@ class MistakePrevention:
                         match=match if isinstance(match, str) else str(match),
                     )
                     violations.append(violation)
-        
+
         return violations
-    
+
     def enforce(self, content: str) -> tuple[bool, list[Violation]]:
         """
         Enforce rules on content. Returns (allowed, violations).
-        
+
         CRITICAL violations will set allowed=False (blocking execution).
-        
+
         Args:
             content: Text content to check
-            
+
         Returns:
             Tuple of (allowed: bool, violations: list[Violation])
         """
         violations = self.check(content)
-        
+
         # Log all violations
         for v in violations:
             if v.blocked:
@@ -241,10 +265,10 @@ class MistakePrevention:
                     name=v.name,
                     match=v.match,
                 )
-        
+
         blocked = any(v.blocked for v in violations)
         return (not blocked, violations)
-    
+
     def get_stats(self) -> dict[str, Any]:
         """Get statistics about rule triggers."""
         return {
@@ -252,12 +276,16 @@ class MistakePrevention:
             "rules_triggered": sum(1 for r in self._rules if r.occurrences > 0),
             "total_occurrences": sum(r.occurrences for r in self._rules),
             "top_violations": sorted(
-                [(r.id, r.name, r.occurrences) for r in self._rules if r.occurrences > 0],
+                [
+                    (r.id, r.name, r.occurrences)
+                    for r in self._rules
+                    if r.occurrences > 0
+                ],
                 key=lambda x: x[2],
                 reverse=True,
             )[:5],
         }
-    
+
     def reset_stats(self) -> None:
         """Reset occurrence counters."""
         for rule in self._rules:
@@ -279,3 +307,54 @@ __all__ = [
     "create_mistake_prevention",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-092",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "data-models",
+        "dataclass",
+        "event-driven",
+        "foundation",
+        "logging",
+        "testing",
+    ],
+    "keywords": [
+        "analysis",
+        "check",
+        "create",
+        "detection",
+        "enforce",
+        "enforcement",
+        "engine",
+        "governance",
+    ],
+    "business_value": "Provides mistake prevention components including Severity, MistakeRule, Violation",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -10,6 +10,33 @@ Version: 1.2.0 (Enhanced with high-risk tool detection)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Approval Manager",
+    "module_version": "1.2.0 (Enhanced with high-risk tool detection)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-25T20:16:35Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "governance",
+    "module_name": "approvals",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Slack API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "api.routes.commands",
+            "core.agents.executor",
+            "core.tools.registry_adapter",
+            "tests.integration.test_closed_loop_learning",
+            "tests.integration.test_l_bootstrap",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -50,17 +77,17 @@ class ApprovalManager:
         self._substrate = substrate_service
         self._slack_client = slack_client
         self._notification_channel = notification_channel
-        
+
         # Cache of permanent approvals (tool_id -> True)
         self._permanent_approvals: Dict[str, bool] = {}
 
     def requires_approval(self, tool_id: str) -> bool:
         """
         Check if a tool requires Igor approval.
-        
+
         Args:
             tool_id: Tool identifier
-            
+
         Returns:
             True if tool requires approval
         """
@@ -80,24 +107,24 @@ class ApprovalManager:
     ) -> str:
         """
         Create an approval request for a high-risk operation.
-        
+
         Args:
             tool_id: Tool being requested
             task_id: Task requesting the tool
             agent_id: Agent making the request
             arguments: Tool arguments
             operation_summary: Human-readable summary
-            
+
         Returns:
             Request ID for tracking
         """
         from uuid import uuid4
-        
+
         request_id = str(uuid4())
-        
+
         if operation_summary is None:
             operation_summary = HIGH_RISK_TOOLS.get(tool_id, f"Execute {tool_id}")
-        
+
         # Store approval request
         await self._substrate.write_packet(
             packet_in=PacketEnvelopeIn(
@@ -114,21 +141,21 @@ class ApprovalManager:
                 },
             )
         )
-        
+
         # Send Slack notification if available
         if self._slack_client and self._notification_channel:
             try:
                 await self._notify_slack(request_id, tool_id, operation_summary)
             except Exception as e:
                 logger.warning(f"Failed to send Slack notification: {e}")
-        
+
         logger.info(
             "Approval request created",
             request_id=request_id,
             tool_id=tool_id,
             task_id=task_id,
         )
-        
+
         return request_id
 
     async def _notify_slack(
@@ -140,7 +167,7 @@ class ApprovalManager:
         """Send Slack notification for approval request"""
         if not self._slack_client:
             return
-        
+
         message = (
             f"🔐 *Approval Required*\n"
             f"• Tool: `{tool_id}`\n"
@@ -148,7 +175,7 @@ class ApprovalManager:
             f"• Request ID: `{request_id}`\n\n"
             f"Reply: `/approve {request_id}` or `/reject {request_id} [reason]`"
         )
-        
+
         await self._slack_client.post_message(
             channel=self._notification_channel,
             text=message,
@@ -157,48 +184,50 @@ class ApprovalManager:
     async def check_tool_approved(self, tool_id: str, task_id: str) -> bool:
         """
         Check if a tool execution is approved for a specific task.
-        
+
         Args:
             tool_id: Tool identifier
             task_id: Task identifier
-            
+
         Returns:
             True if approved (permanent or task-specific)
         """
         # Check permanent approvals first
         if tool_id in self._permanent_approvals:
             return True
-        
+
         # Check for approved request for this task
         results = await self._substrate.search_packets_by_type(
             packet_type="approval_record",
             limit=100,
         )
-        
+
         for result in results:
             payload = result.get("payload", {})
             if payload.get("task_id") == task_id:
                 return True
-        
+
         return False
 
-    async def grant_permanent_approval(self, tool_id: str, approved_by: str = "Igor") -> bool:
+    async def grant_permanent_approval(
+        self, tool_id: str, approved_by: str = "Igor"
+    ) -> bool:
         """
         Grant permanent approval for a tool (applies to all future calls).
-        
+
         Args:
             tool_id: Tool to approve permanently
             approved_by: Who granted approval (must be Igor)
-            
+
         Returns:
             True if granted
         """
         if approved_by != "Igor":
             logger.warning(f"Unauthorized permanent approval attempt by {approved_by}")
             return False
-        
+
         self._permanent_approvals[tool_id] = True
-        
+
         # Store permanently in memory
         await self._substrate.write_packet(
             packet_in=PacketEnvelopeIn(
@@ -210,7 +239,7 @@ class ApprovalManager:
                 },
             )
         )
-        
+
         logger.info(f"Permanent approval granted for tool {tool_id} by {approved_by}")
         return True
 
@@ -344,15 +373,13 @@ class ApprovalManager:
                 return True
         return False
 
-    async def get_test_results_summary(
-        self, task_id: str
-    ) -> Optional[Dict[str, Any]]:
+    async def get_test_results_summary(self, task_id: str) -> Optional[Dict[str, Any]]:
         """
         Get test results summary for a task to include in approval decision.
-        
+
         Args:
             task_id: Task identifier
-            
+
         Returns:
             Dict with test summary or None if no results
         """
@@ -361,7 +388,7 @@ class ApprovalManager:
                 packet_type="test_results",
                 limit=10,
             )
-            
+
             for result in results:
                 if result.get("payload", {}).get("parent_task_id") == task_id:
                     payload = result["payload"]
@@ -373,9 +400,9 @@ class ApprovalManager:
                         "recommendations": payload.get("recommendations", []),
                         "success": payload.get("success", False),
                     }
-            
+
             return None
-            
+
         except Exception as e:
             logger.warning(f"Failed to get test results for task {task_id}: {e}")
             return None
@@ -388,12 +415,12 @@ class ApprovalManager:
     ) -> str:
         """
         Format an approval request message including test results.
-        
+
         Args:
             task_id: Task identifier
             proposal_summary: Summary of the proposal
             test_summary: Test results summary from get_test_results_summary
-            
+
         Returns:
             Formatted approval request string
         """
@@ -401,30 +428,30 @@ class ApprovalManager:
             f"**APPROVAL REQUEST: {task_id[:8]}...**\n",
             f"**Proposal:** {proposal_summary}\n",
         ]
-        
+
         if test_summary:
             parts.append("\n**Test Results:**")
             parts.append(f"- Tests Generated: {test_summary['tests_generated']}")
             parts.append(f"- Tests Passed: {test_summary['tests_passed']}")
             parts.append(f"- Tests Failed: {test_summary['tests_failed']}")
-            
+
             if test_summary.get("coverage_percent") is not None:
                 parts.append(f"- Coverage: {test_summary['coverage_percent']}%")
-            
+
             if test_summary.get("recommendations"):
                 parts.append("\n**Recommendations:**")
                 for rec in test_summary["recommendations"][:3]:
                     parts.append(f"- {rec}")
-            
+
             if test_summary["tests_failed"] > 0:
                 parts.append("\n⚠️ **WARNING: Tests failed. Review before approving.**")
             elif test_summary["tests_generated"] == 0:
                 parts.append("\n⚠️ **WARNING: No tests generated for this proposal.**")
         else:
             parts.append("\n*No test results available for this proposal.*")
-        
+
         parts.append("\n\nReply with 'approve' or 'reject [reason]'")
-        
+
         return "\n".join(parts)
 
     async def _write_governance_pattern(
@@ -480,3 +507,57 @@ class ApprovalManager:
             )
         except Exception as e:
             logger.warning(f"Failed to write governance pattern: {e}")
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-085",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.governance_patterns"],
+    "tags": [
+        "async",
+        "auth",
+        "caching",
+        "foundation",
+        "governance",
+        "logging",
+        "messaging",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "approval",
+        "approve",
+        "approved",
+        "check",
+        "detection",
+        "format",
+        "governance",
+        "grant",
+    ],
+    "business_value": "Implements ApprovalManager for approvals functionality",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

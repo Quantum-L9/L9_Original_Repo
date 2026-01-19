@@ -18,20 +18,40 @@ Author: L9 Enterprise
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Audit Logging",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "tool_audit",
+    "type": "engine",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "tests.integration.test_tool_observability_integration",
+            "tests.memory.test_tool_audit",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID, uuid4
 
-from core.schemas import (
-    PacketConfidence,
-    PacketEnvelopeIn,
-    PacketMetadata,
-    PacketProvenance,
-)
+from core.schemas import PacketEnvelopeIn
 from memory.substrate_models import MemorySegment
 from telemetry.memory_metrics import record_tool_invocation
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -39,6 +59,7 @@ logger = structlog.get_logger(__name__)
 TOOL_AUDIT_TTL_HOURS = 24
 
 
+@must_stay_async("callers use await")
 async def log_tool_invocation(
     call_id: UUID,
     tool_id: str,
@@ -94,23 +115,24 @@ async def log_tool_invocation(
             payload["result_summary"] = result_summary[:200]
 
         # Create packet envelope
+        # Note: PacketEnvelopeIn expects metadata/provenance/confidence as dicts
         packet = PacketEnvelopeIn(
             packet_id=uuid4(),
             packet_type=MemorySegment.TOOL_AUDIT.value,
             payload=payload,
-            metadata=PacketMetadata(
-                schema_version="1.0.0",
-                agent=agent_id,
-                domain="tool_audit",
-            ),
-            provenance=PacketProvenance(
-                source="ExecutorToolRegistry",
-                tool=tool_id,
-            ),
-            confidence=PacketConfidence(
-                score=1.0,  # Tool audit is always high confidence
-                rationale="Direct tool invocation observation",
-            ),
+            metadata={
+                "schema_version": "1.0.0",
+                "agent": agent_id,
+                "domain": "tool_audit",
+            },
+            provenance={
+                "source": "ExecutorToolRegistry",
+                "tool": tool_id,
+            },
+            confidence={
+                "score": 1.0,  # Tool audit is always high confidence
+                "rationale": "Direct tool invocation observation",
+            },
             tags=[
                 f"tool:{tool_id}",
                 f"agent:{agent_id}",
@@ -123,15 +145,17 @@ async def log_tool_invocation(
         asyncio.create_task(_ingest_audit_packet(packet))
 
         # Also write to dedicated tool_audit_log Postgres table (fire-and-forget)
-        asyncio.create_task(_write_to_audit_table(
-            call_id=call_id,
-            tool_id=tool_id,
-            agent_id=agent_id,
-            status=status,
-            duration_ms=duration_ms,
-            error=error,
-            arguments=payload.get("arguments"),
-        ))
+        asyncio.create_task(
+            _write_to_audit_table(
+                call_id=call_id,
+                tool_id=tool_id,
+                agent_id=agent_id,
+                status=status,
+                duration_ms=duration_ms,
+                error=error,
+                arguments=payload.get("arguments"),
+            )
+        )
 
         # Record Prometheus metrics (real-time observability)
         record_tool_invocation(
@@ -284,3 +308,61 @@ __all__ = [
     "TOOL_AUDIT_TTL_HOURS",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "core.schemas",
+        "memory.ingestion",
+        "memory.substrate_models",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "audit-tool",
+        "auth",
+        "debugging",
+        "engine",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+    ],
+    "keywords": [
+        "audit",
+        "governance",
+        "invocation",
+        "log",
+        "logging",
+        "memory",
+        "module",
+        "substrate",
+    ],
+    "business_value": "Zero-impact on tool execution latency (fire-and-forget) Never failing the tool call itself Automatic 24-hour TTL for cleanup Full audit trail for governance Version: 1.0.0 Author: L9 Enterprise",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -5,6 +5,27 @@ Version: 1.0.0
 Research swarm orchestration endpoints for concurrent research agents.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Research",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-26T17:26:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "research",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /test", "GET /status", "POST /execute"],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 from api.auth import verify_api_key
@@ -15,6 +36,7 @@ from orchestrators.research_swarm.interface import (
     ResearchSwarmRequest,
 )
 from orchestrators.research_swarm.orchestrator import ResearchSwarmOrchestrator
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -76,6 +98,7 @@ class ResearchExecuteResponse(BaseModel):
 
 
 @router.get("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def research_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -85,6 +108,7 @@ async def research_test(
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def research_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -152,7 +176,55 @@ async def execute_research(
         )
 
 
-
-
-
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-015",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.decorators"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "router",
+    ],
+    "keywords": [
+        "execute",
+        "orchestrator",
+        "research",
+        "router",
+        "status",
+        "swarm",
+        "test",
+    ],
+    "business_value": "Provides research components including ResearchExecuteRequest, ResearchExecuteResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

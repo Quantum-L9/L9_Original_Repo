@@ -4,6 +4,27 @@ Comprehensive tests for symbolic computation module.
 Uses pytest for testing with >80% coverage requirement.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Test Symbolic Computation",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "symbolic_computation",
+    "module_name": "test_symbolic_computation",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import pytest
 
 from symbolic_computation.core import (
@@ -39,7 +60,7 @@ class TestExpressionEvaluator:
             expression="x + 1",
             variables=["x"],
             backend=BackendType.NUMPY,
-            values={"x": 2.0}
+            values={"x": 2.0},
         )
 
         result = await evaluator.evaluate(request)
@@ -55,7 +76,7 @@ class TestExpressionEvaluator:
             expression="sin(x) + cos(x)",
             variables=["x"],
             backend=BackendType.NUMPY,
-            values={"x": 0.0}
+            values={"x": 0.0},
         )
 
         result = await evaluator.evaluate(request)
@@ -70,7 +91,7 @@ class TestExpressionEvaluator:
             expression="x**2 + y**2",
             variables=["x", "y"],
             backend=BackendType.NUMPY,
-            values={"x": 3.0, "y": 4.0}
+            values={"x": 3.0, "y": 4.0},
         )
 
         result = await evaluator.evaluate(request)
@@ -85,7 +106,7 @@ class TestExpressionEvaluator:
             expression="invalid ** syntax",
             variables=["x"],
             backend=BackendType.NUMPY,
-            values={"x": 1.0}
+            values={"x": 1.0},
         )
 
         result = await evaluator.evaluate(request)
@@ -99,7 +120,7 @@ class TestExpressionEvaluator:
             expression="x * 2",
             variables=["x"],
             backend=BackendType.NUMPY,
-            values={"x": 5.0}
+            values={"x": 5.0},
         )
 
         result = evaluator.evaluate_sync(request)
@@ -113,7 +134,7 @@ class TestExpressionEvaluator:
             expression="x + 1",
             variables=["x"],
             backend=BackendType.NUMPY,
-            values={"x": 1.0}
+            values={"x": 1.0},
         )
 
         evaluator.evaluate_sync(request)
@@ -137,7 +158,7 @@ class TestCodeGenerator:
             expression="x**2 + y**2",
             variables=["x", "y"],
             language=CodeLanguage.C,
-            function_name="distance_squared"
+            function_name="distance_squared",
         )
 
         result = await codegen.generate(request)
@@ -152,7 +173,7 @@ class TestCodeGenerator:
             expression="sin(x)",
             variables=["x"],
             language=CodeLanguage.C,
-            function_name="sine_func"
+            function_name="sine_func",
         )
 
         result = codegen.generate_sync(request)
@@ -171,11 +192,7 @@ class TestSymbolicComputation:
     @pytest.mark.asyncio
     async def test_compute(self, engine):
         """Test compute method."""
-        result = await engine.compute(
-            "x**2 + 2*x + 1",
-            {"x": 3.0},
-            backend="numpy"
-        )
+        result = await engine.compute("x**2 + 2*x + 1", {"x": 3.0}, backend="numpy")
 
         assert result.success is True
         assert result.result == 16.0
@@ -184,10 +201,7 @@ class TestSymbolicComputation:
     async def test_generate_code(self, engine):
         """Test code generation."""
         result = await engine.generate_code(
-            "x + y",
-            ["x", "y"],
-            language="C",
-            function_name="add"
+            "x + y", ["x", "y"], language="C", function_name="add"
         )
 
         assert result.success is True
@@ -239,15 +253,13 @@ class TestModels:
             ComputationRequest(
                 expression="",  # Empty expression
                 variables=["x"],
-                values={"x": 1.0}
+                values={"x": 1.0},
             )
 
     def test_computation_request_valid(self):
         """Test valid ComputationRequest."""
         request = ComputationRequest(
-            expression="x + 1",
-            variables=["x"],
-            values={"x": 1.0}
+            expression="x + 1", variables=["x"], values={"x": 1.0}
         )
 
         assert request.expression == "x + 1"
@@ -264,10 +276,7 @@ class TestIntegration:
         engine = SymbolicComputation()
 
         # Compute
-        result = await engine.compute(
-            "sqrt(x**2 + y**2)",
-            {"x": 3.0, "y": 4.0}
-        )
+        result = await engine.compute("sqrt(x**2 + y**2)", {"x": 3.0, "y": 4.0})
 
         assert result.success is True
         assert abs(result.result - 5.0) < 1e-10
@@ -282,7 +291,7 @@ class TestIntegration:
             "a*x**2 + b*x + c",
             ["x", "a", "b", "c"],
             language="C",
-            function_name="quadratic"
+            function_name="quadratic",
         )
 
         assert result.success is True
@@ -299,9 +308,7 @@ class TestPerformance:
         evaluator = ExpressionEvaluator(cache_size=128)
 
         request = ComputationRequest(
-            expression="sin(x) + cos(x) + tan(x)",
-            variables=["x"],
-            values={"x": 1.0}
+            expression="sin(x) + cos(x) + tan(x)", variables=["x"], values={"x": 1.0}
         )
 
         # First evaluation
@@ -315,3 +322,57 @@ class TestPerformance:
         assert result1.success is True
         assert result2.success is True
         # Note: Caching happens at lambdify level, not evaluation
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-016",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "caching",
+        "messaging",
+        "metrics",
+        "operations",
+        "symbolic-computation",
+        "test",
+        "testing",
+        "validation",
+    ],
+    "keywords": [
+        "caching",
+        "check",
+        "codegen",
+        "collection",
+        "computation",
+        "compute",
+        "end",
+        "engine",
+    ],
+    "business_value": "Provides test symbolic computation components including TestExpressionEvaluator, TestCodeGenerator, TestSymbolicComputation",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

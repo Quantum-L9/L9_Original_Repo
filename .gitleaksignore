@@ -1,4 +1,5 @@
-# False positive: Default Neo4j password in config/code files
-FVmgaD1diPcz41zRbYLLP0UzyGvAi4E
-# Audit/index files with env references
-.audit_cache/*
+# Gitleaks fingerprints to ignore (specific false positives)
+# Add fingerprints from gitleaks output here
+# Format: commit:file:rule:line fingerprint
+
+# Note: Path-based ignores should go in .gitleaks.toml [allowlist] paths

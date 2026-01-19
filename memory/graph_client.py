@@ -15,11 +15,45 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Neo4j Graph Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "graph_client",
+    "type": "client",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [
+            "api.memory.graph",
+            "api.server",
+            "conftest",
+            "core.agents.bootstrap.orchestrator",
+            "core.agents.bootstrap.phase_0_validate",
+            "core.agents.bootstrap.phase_2_instantiate",
+            "core.agents.bootstrap.phase_3_bind_kernels",
+            "core.agents.bootstrap.phase_4_load_identity",
+            "core.agents.bootstrap.phase_5_bind_tools",
+            "core.agents.bootstrap.phase_6_wire_governance",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 import os
 from typing import Any, Optional
 
 logger = structlog.get_logger(__name__)
+
+from core.decorators import must_stay_async
 
 # Try to import Neo4j driver
 try:
@@ -65,7 +99,11 @@ class Neo4jClient:
             )
             return
 
-        self._uri = uri or os.getenv("NEO4J_URL") or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        self._uri = (
+            uri
+            or os.getenv("NEO4J_URL")
+            or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        )
         self._user = user or os.getenv("NEO4J_USER", "neo4j")
         self._password = password or os.getenv("NEO4J_PASSWORD")
         self._database = database
@@ -136,7 +174,7 @@ class Neo4jClient:
 
     def session(self, database: Optional[str] = None) -> AsyncSession:
         """Create a session (AsyncDriver-compatible interface).
-        
+
         This allows Neo4jClient to be used where an AsyncDriver is expected.
         """
         if not self._driver:
@@ -144,6 +182,7 @@ class Neo4jClient:
         db = database or self._database
         return self._driver.session(database=db)
 
+    @must_stay_async("callers use await")
     async def _get_session(self) -> Optional[AsyncSession]:
         """Get a session for database operations."""
         if not self.is_available():
@@ -555,7 +594,9 @@ class Neo4jClient:
                 """
                 result = await session.run(query, source=source, target=target)
                 records = await result.data()
-                logger.debug(f"Found path with {len(records)} segments from {source} to {target}")
+                logger.debug(
+                    f"Found path with {len(records)} segments from {source} to {target}"
+                )
                 return records
         except Exception as e:
             logger.error(f"Neo4j find_path failed: {e}")
@@ -862,7 +903,7 @@ async def get_neo4j_client() -> Optional[Neo4jClient]:
 
 
 async def close_neo4j_client() -> None:
-    """Close singleton Neo4j client."""
+    """Close singleton Neo4j client and reset singleton."""
     global _neo4j_client
     if _neo4j_client:
         await _neo4j_client.disconnect()
@@ -870,3 +911,57 @@ async def close_neo4j_client() -> None:
 
 
 __all__ = ["Neo4jClient", "get_neo4j_client", "close_neo4j_client"]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-029",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "async",
+        "auth",
+        "client",
+        "debugging",
+        "event-driven",
+        "graph-db",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "testing",
+    ],
+    "keywords": [
+        "attributes",
+        "available",
+        "client",
+        "close",
+        "connect",
+        "create",
+        "delete",
+        "disconnect",
+    ],
+    "business_value": "Entity graph storage and traversal Relationship management Event timeline queries Knowledge fact storage Version: 1.0.0",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

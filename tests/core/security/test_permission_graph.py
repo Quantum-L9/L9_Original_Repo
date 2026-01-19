@@ -49,8 +49,8 @@ async def test_permission_check():
         # Test permission check structure
         # Note: PermissionGraph methods are static
         assert PermissionGraph is not None
-        assert hasattr(PermissionGraph, "check_permission") or hasattr(
-            PermissionGraph, "_check_permission"
+        assert hasattr(PermissionGraph, "has_permission") or hasattr(
+            PermissionGraph, "check_permission"
         )
 
 

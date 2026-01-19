@@ -28,6 +28,27 @@ Usage:
   python scripts/audit/tier1/audit_infrastructure_health.py --dag
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Audit Infrastructure Health",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T19:43:29Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "audit_infrastructure_health",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Neo4j", "Redis"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import json
 import os
@@ -37,6 +58,7 @@ from pathlib import Path
 from enum import Enum
 import structlog
 import httpx
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -112,16 +134,20 @@ DEPENDENCY_DAG = {
 # DATA MODELS
 # =============================================================================
 
+
 class HealthStatus(str, Enum):
     """Health check result."""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
     UNKNOWN = "unknown"
 
+
 @dataclass
 class HealthCheck:
     """Single health check result."""
+
     service: str
     status: HealthStatus
     message: str
@@ -129,48 +155,60 @@ class HealthCheck:
     timestamp: str = ""
     details: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class ConfigValidation:
     """Config validation result."""
+
     variable: str
     status: bool
     expected_type: str
     actual_value: str
     error: Optional[str] = None
 
+
 @dataclass
 class DependencyCheck:
     """Dependency DAG verification."""
+
     service: str
     depends_on: List[str]
     all_available: bool
     missing_dependencies: List[str] = field(default_factory=list)
 
+
 @dataclass
 class StartupSequence:
     """Startup initialization order."""
+
     order: List[str]
     valid: bool
     errors: List[str] = field(default_factory=list)
 
+
 @dataclass
 class InfrastructureReport:
     """Complete infrastructure health report."""
+
     health_checks: List[HealthCheck] = field(default_factory=list)
     config_validations: List[ConfigValidation] = field(default_factory=list)
     dependency_checks: List[DependencyCheck] = field(default_factory=list)
     startup_sequence: Optional[StartupSequence] = None
     summary: Dict[str, Any] = field(default_factory=dict)
 
+
 # =============================================================================
 # HEALTH CHECK FRAMEWORK
 # =============================================================================
 
+
 class HealthProbe:
     """Abstract health probe."""
 
+    @must_stay_async("callers use await")
     async def check(self) -> HealthCheck:
         raise NotImplementedError
+
 
 class TCPHealthProbe(HealthProbe):
     """TCP connectivity health probe."""
@@ -187,8 +225,7 @@ class TCPHealthProbe(HealthProbe):
         start = time.time()
         try:
             reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(self.host, self.port),
-                timeout=self.timeout
+                asyncio.open_connection(self.host, self.port), timeout=self.timeout
             )
             writer.close()
             await writer.wait_closed()
@@ -220,6 +257,7 @@ class TCPHealthProbe(HealthProbe):
                 latency_ms=(time.time() - start) * 1000,
                 details={"host": self.host, "port": self.port, "error": str(e)},
             )
+
 
 class HTTPHealthProbe(HealthProbe):
     """HTTP health check probe."""
@@ -279,10 +317,13 @@ class HTTPHealthProbe(HealthProbe):
                 details={"error": str(e)},
             )
 
+
 class PythonModuleHealthProbe(HealthProbe):
     """Python module import + instantiation probe."""
 
-    def __init__(self, service_name: str, module: str, function: str, timeout: float = 5.0):
+    def __init__(
+        self, service_name: str, module: str, function: str, timeout: float = 5.0
+    ):
         self.service_name = service_name
         self.module = module
         self.function = function
@@ -295,6 +336,7 @@ class PythonModuleHealthProbe(HealthProbe):
         try:
             # Import module
             import importlib
+
             mod = importlib.import_module(self.module)
             func = getattr(mod, self.function)
 
@@ -329,9 +371,11 @@ class PythonModuleHealthProbe(HealthProbe):
                 details={"module": self.module, "error": str(e)[:200]},
             )
 
+
 # =============================================================================
 # CONFIGURATION VALIDATION
 # =============================================================================
+
 
 def validate_config() -> List[ConfigValidation]:
     """Validate environment configuration."""
@@ -345,42 +389,52 @@ def validate_config() -> List[ConfigValidation]:
             if expected_type == "bool":
                 valid = value.lower() in ["true", "false", "1", "0"]
                 if not valid:
-                    results.append(ConfigValidation(
-                        variable=var_name,
-                        status=False,
-                        expected_type=expected_type,
-                        actual_value=value,
-                        error=f"Expected bool, got '{value}'",
-                    ))
+                    results.append(
+                        ConfigValidation(
+                            variable=var_name,
+                            status=False,
+                            expected_type=expected_type,
+                            actual_value=value,
+                            error=f"Expected bool, got '{value}'",
+                        )
+                    )
                 else:
-                    results.append(ConfigValidation(
+                    results.append(
+                        ConfigValidation(
+                            variable=var_name,
+                            status=True,
+                            expected_type=expected_type,
+                            actual_value=value,
+                        )
+                    )
+            elif expected_type == "int":
+                int(value)  # Will raise if not valid
+                results.append(
+                    ConfigValidation(
                         variable=var_name,
                         status=True,
                         expected_type=expected_type,
                         actual_value=value,
-                    ))
-            elif expected_type == "int":
-                int(value)  # Will raise if not valid
-                results.append(ConfigValidation(
+                    )
+                )
+        except ValueError as e:
+            results.append(
+                ConfigValidation(
                     variable=var_name,
-                    status=True,
+                    status=False,
                     expected_type=expected_type,
                     actual_value=value,
-                ))
-        except ValueError as e:
-            results.append(ConfigValidation(
-                variable=var_name,
-                status=False,
-                expected_type=expected_type,
-                actual_value=value,
-                error=str(e),
-            ))
+                    error=str(e),
+                )
+            )
 
     return results
+
 
 # =============================================================================
 # DEPENDENCY DAG
 # =============================================================================
+
 
 def verify_dependency_dag() -> List[DependencyCheck]:
     """Verify dependency graph and startup order."""
@@ -390,14 +444,17 @@ def verify_dependency_dag() -> List[DependencyCheck]:
         missing = [d for d in dependencies if d not in SERVICES]
         available = not missing
 
-        results.append(DependencyCheck(
-            service=service,
-            depends_on=dependencies,
-            all_available=available,
-            missing_dependencies=missing,
-        ))
+        results.append(
+            DependencyCheck(
+                service=service,
+                depends_on=dependencies,
+                all_available=available,
+                missing_dependencies=missing,
+            )
+        )
 
     return results
+
 
 def compute_startup_order(dependency_checks: List[DependencyCheck]) -> StartupSequence:
     """Compute valid startup order using topological sort."""
@@ -438,9 +495,11 @@ def compute_startup_order(dependency_checks: List[DependencyCheck]) -> StartupSe
         errors=errors,
     )
 
+
 # =============================================================================
 # HEALTH CHECK ORCHESTRATION
 # =============================================================================
+
 
 async def run_all_health_checks() -> List[HealthCheck]:
     """Run all health checks concurrently."""
@@ -449,41 +508,51 @@ async def run_all_health_checks() -> List[HealthCheck]:
     # Create probes for each service
     for service_name, config in SERVICES.items():
         if config["type"] == "postgresql":
-            probes.append(TCPHealthProbe(
-                service_name=service_name,
-                host=config["host"],
-                port=config["port"],
-                timeout=config["timeout"],
-            ))
+            probes.append(
+                TCPHealthProbe(
+                    service_name=service_name,
+                    host=config["host"],
+                    port=config["port"],
+                    timeout=config["timeout"],
+                )
+            )
         elif config["type"] == "redis":
-            probes.append(TCPHealthProbe(
-                service_name=service_name,
-                host=config["host"],
-                port=config["port"],
-                timeout=config["timeout"],
-            ))
+            probes.append(
+                TCPHealthProbe(
+                    service_name=service_name,
+                    host=config["host"],
+                    port=config["port"],
+                    timeout=config["timeout"],
+                )
+            )
         elif config["type"] == "http":
-            probes.append(HTTPHealthProbe(
-                service_name=service_name,
-                base_url=config["url"],
-                endpoints=config["endpoints"],
-                timeout=config["timeout"],
-            ))
+            probes.append(
+                HTTPHealthProbe(
+                    service_name=service_name,
+                    base_url=config["url"],
+                    endpoints=config["endpoints"],
+                    timeout=config["timeout"],
+                )
+            )
         elif config["type"] == "python":
-            probes.append(PythonModuleHealthProbe(
-                service_name=service_name,
-                module=config["module"],
-                function=config["function"],
-                timeout=config["timeout"],
-            ))
+            probes.append(
+                PythonModuleHealthProbe(
+                    service_name=service_name,
+                    module=config["module"],
+                    function=config["function"],
+                    timeout=config["timeout"],
+                )
+            )
         elif config["type"] == "neo4j":
             # For neo4j, use TCP probe on bolt port
-            probes.append(TCPHealthProbe(
-                service_name=service_name,
-                host=config["host"].replace("bolt://", "").split(":")[0],
-                port=int(config["host"].split(":")[-1]),
-                timeout=config["timeout"],
-            ))
+            probes.append(
+                TCPHealthProbe(
+                    service_name=service_name,
+                    host=config["host"].replace("bolt://", "").split(":")[0],
+                    port=int(config["host"].split(":")[-1]),
+                    timeout=config["timeout"],
+                )
+            )
 
     # Run all probes concurrently
     results = await asyncio.gather(
@@ -495,20 +564,24 @@ async def run_all_health_checks() -> List[HealthCheck]:
     checks = []
     for result in results:
         if isinstance(result, Exception):
-            checks.append(HealthCheck(
-                service="unknown",
-                status=HealthStatus.UNKNOWN,
-                message=f"Probe error: {str(result)}",
-                latency_ms=0.0,
-            ))
+            checks.append(
+                HealthCheck(
+                    service="unknown",
+                    status=HealthStatus.UNKNOWN,
+                    message=f"Probe error: {str(result)}",
+                    latency_ms=0.0,
+                )
+            )
         else:
             checks.append(result)
 
     return checks
 
+
 # =============================================================================
 # REPORT GENERATION
 # =============================================================================
+
 
 def generate_report(
     health_checks: List[HealthCheck],
@@ -524,16 +597,22 @@ def generate_report(
         startup_sequence=startup_sequence,
         summary={
             "total_services": len(SERVICES),
-            "healthy_services": sum(1 for c in health_checks if c.status == HealthStatus.HEALTHY),
-            "unhealthy_services": sum(1 for c in health_checks if c.status == HealthStatus.UNHEALTHY),
+            "healthy_services": sum(
+                1 for c in health_checks if c.status == HealthStatus.HEALTHY
+            ),
+            "unhealthy_services": sum(
+                1 for c in health_checks if c.status == HealthStatus.UNHEALTHY
+            ),
             "config_errors": sum(1 for c in config_validations if not c.status),
             "startup_valid": startup_sequence.valid,
-        }
+        },
     )
+
 
 # =============================================================================
 # MAIN
 # =============================================================================
+
 
 async def main():
     """Run infrastructure health audit."""
@@ -541,7 +620,9 @@ async def main():
 
     parser = argparse.ArgumentParser(description="L9 Infrastructure Health Audit v2.0")
     parser.add_argument("--health-only", action="store_true", help="Only health checks")
-    parser.add_argument("--failure-simulation", action="store_true", help="Simulate failures")
+    parser.add_argument(
+        "--failure-simulation", action="store_true", help="Simulate failures"
+    )
     parser.add_argument("--dag", action="store_true", help="Show DAG only")
     parser.add_argument("--json", action="store_true", help="JSON output")
 
@@ -561,7 +642,9 @@ async def main():
         logger.info("=" * 70)
         for check in health_checks:
             status_icon = "✅" if check.status == HealthStatus.HEALTHY else "❌"
-            logger.info(f"{status_icon} {check.service:30} {check.status.value:12} {check.latency_ms:6.1f}ms")
+            logger.info(
+                f"{status_icon} {check.service:30} {check.status.value:12} {check.latency_ms:6.1f}ms"
+            )
             if check.message:
                 logger.info(f"   └─ {check.message}")
 
@@ -611,5 +694,60 @@ async def main():
     logger.info("✅ AUDIT COMPLETE")
     logger.info("=" * 70)
 
+
 if __name__ == "__main__":
     asyncio.run(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-019",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "async",
+        "cli",
+        "data-models",
+        "dataclass",
+        "filesystem",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+        "queue",
+    ],
+    "keywords": [
+        "all",
+        "audit",
+        "check",
+        "checks",
+        "compute",
+        "dag",
+        "dependency",
+        "generate",
+    ],
+    "business_value": "Provides audit infrastructure health components including HealthStatus, HealthCheck, ConfigValidation",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

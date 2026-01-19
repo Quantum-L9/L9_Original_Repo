@@ -1,10 +1,30 @@
 # L9 Memory Substrate — Architecture Documentation
 
 > **Version:** 1.1.0  
-> **Status:** Production Ready  
+> **Status:** NOT Production Ready  
 > **Last Updated:** 2025-12-27  
 > **Component ID:** MEM-SUB-001  
 > **Governance Level:** Core Infrastructure
+
+
+unified MCP‑memory system that now runs through l9-api, not separate systems.
+​
+
+How the pieces fit
+MCP routes in l9-api
+/mcp/call in api/server.py is the HTTP entrypoint for MCP memory tools, mounted on the main FastAPI app and sharing its infra (auth, logging, etc.).
+​
+
+MCP DB pool
+mcp_init_db() from mcpmemory.src.db is wired into the l9-api lifespan so the asyncpg pool for the MCP memory database is initialized once at startup and reused by MCP tool calls.
+​
+
+MCP → substrate_service
+The MCP handler on /mcp/call builds an MCPToolCall, then passes the main substrate_service into handle_tool_call(), which lets Tier‑1 (full Substrate DAG pipeline with Neo4j, embeddings, enrichment) handle writes instead of dropping straight to direct DB fallback.
+​
+
+
+
 
 ## Overview
 

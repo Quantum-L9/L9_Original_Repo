@@ -1,4 +1,28 @@
-"""Memory CRUD, search, compounding, and decay routes."""
+"""Memory CRUD, search, compounding, and decay routes.
+
+NOTE: Legacy routes disabled (GMP-68). Use memory_unified.py instead.
+"""
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Memory",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "api_gateway",
+    "module_name": "memory",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["POST /save", "POST /search", "GET /stats"],
+        "datasources": [],
+        "memory_layers": ["working_memory", "semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
 
 import structlog
 import time
@@ -20,16 +44,30 @@ from src.models import (
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
+
+
 def _legacy_memory_disabled() -> None:
-    raise HTTPException(status_code=410, detail="Legacy memory routes disabled")
+    """Dependency that disables legacy memory routes."""
+    raise HTTPException(
+        status_code=410, detail="Legacy memory routes disabled. Use /unified/* routes."
+    )
 
 
-router = APIRouter(dependencies=[Depends(_legacy_memory_disabled)], deprecated=True)
+router = APIRouter(dependencies=[Depends(_legacy_memory_disabled)])
 
 
 @router.post("/save", response_model=MemoryResponse)
 async def save_memory(req: SaveMemoryRequest) -> MemoryResponse:
-    raise HTTPException(status_code=410, detail="Legacy memory routes disabled")
+    return await save_memory_handler(
+        user_id=req.user_id,
+        content=req.content,
+        kind=req.kind,
+        scope=req.scope,
+        duration=req.duration,
+        tags=req.tags,
+        importance=req.importance,
+        metadata=req.metadata,
+    )
 
 
 async def save_memory_handler(
@@ -47,9 +85,9 @@ async def save_memory_handler(
     source: str = "unknown",
 ) -> Dict[str, Any]:
     """Save memory with caller-enforced governance.
-    
+
     See: mcp_memory/memory-setup-instructions.md for governance spec.
-    
+
     Args:
         caller_id: "L" or "C" (from API key)
         creator: "L-CTO" or "Cursor-IDE" (server-enforced)
@@ -59,13 +97,13 @@ async def save_memory_handler(
         embedding_list = await embed_text(content)
         # Convert embedding list to pgvector string format: '[1.0, 2.0, ...]'
         embedding = f"[{','.join(str(x) for x in embedding_list)}]"
-        
+
         # Enforce governance metadata (never trust client-provided values)
         governed_metadata = metadata.copy() if metadata else {}
         governed_metadata["creator"] = creator  # Enforced
-        governed_metadata["source"] = source    # Enforced
+        governed_metadata["source"] = source  # Enforced
         governed_metadata["caller"] = caller_id
-        
+
         if duration == "short":
             table = "memory.short_term"
             expires_at = datetime.utcnow() + timedelta(
@@ -122,13 +160,15 @@ async def save_memory_handler(
             result["id"],
             user_id,
             "success",
-            json.dumps({
-                "duration": duration,
-                "kind": kind,
-                "caller": caller_id,
-                "creator": creator,
-                "source": source,
-            }),
+            json.dumps(
+                {
+                    "duration": duration,
+                    "kind": kind,
+                    "caller": caller_id,
+                    "creator": creator,
+                    "source": source,
+                }
+            ),
         )
         return result
     except Exception as e:
@@ -138,7 +178,16 @@ async def save_memory_handler(
 
 @router.post("/search", response_model=SearchMemoryResponse)
 async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
-    raise HTTPException(status_code=410, detail="Legacy memory routes disabled")
+    return await search_memory_handler(
+        user_id=req.user_id,
+        query=req.query,
+        scopes=req.scopes,
+        kinds=req.kinds,
+        top_k=req.top_k,
+        threshold=req.threshold,
+        duration=req.duration,
+        track_access=req.track_access,
+    )
 
 
 async def search_memory_handler(
@@ -149,6 +198,7 @@ async def search_memory_handler(
     top_k: int = 5,
     threshold: float = 0.7,
     duration: str = "all",
+    track_access: bool = False,
 ) -> Dict[str, Any]:
     try:
         embed_start = time.time()
@@ -200,7 +250,7 @@ async def search_memory_handler(
             """
             rows = await fetch_all(query_sql, *params)
 
-            if dur == "long" and rows:
+            if track_access and dur == "long" and rows:
                 await execute(
                     "UPDATE memory.long_term SET last_accessed_at = CURRENT_TIMESTAMP, access_count = access_count + 1 WHERE id = ANY($1::bigint[]);",
                     [r["id"] for r in rows],
@@ -235,7 +285,50 @@ async def search_memory_handler(
 async def get_memory_stats(
     user_id: Optional[str] = Query(None), duration: str = Query("all")
 ) -> MemoryStatsResponse:
-    raise HTTPException(status_code=410, detail="Legacy memory routes disabled")
+    try:
+        short_count = medium_count = long_count = unique_users = 0
+        avg_importance = 0.0
+
+        if duration in ["all", "short"]:
+            if user_id:
+                q = "SELECT COUNT(*) as cnt FROM memory.short_term WHERE expires_at > CURRENT_TIMESTAMP AND user_id = $1"
+                r = await fetch_one(q, user_id)
+            else:
+                q = "SELECT COUNT(*) as cnt FROM memory.short_term WHERE expires_at > CURRENT_TIMESTAMP"
+                r = await fetch_one(q)
+            short_count = r["cnt"] if r else 0
+
+        if duration in ["all", "medium"]:
+            if user_id:
+                q = "SELECT COUNT(*) as cnt FROM memory.medium_term WHERE expires_at > CURRENT_TIMESTAMP AND user_id = $1"
+                r = await fetch_one(q, user_id)
+            else:
+                q = "SELECT COUNT(*) as cnt FROM memory.medium_term WHERE expires_at > CURRENT_TIMESTAMP"
+                r = await fetch_one(q)
+            medium_count = r["cnt"] if r else 0
+
+        if duration in ["all", "long"]:
+            if user_id:
+                q = "SELECT COUNT(*) as cnt, COUNT(DISTINCT user_id) as users, AVG(importance) as avg_imp FROM memory.long_term WHERE user_id = $1"
+                r = await fetch_one(q, user_id)
+            else:
+                q = "SELECT COUNT(*) as cnt, COUNT(DISTINCT user_id) as users, AVG(importance) as avg_imp FROM memory.long_term"
+                r = await fetch_one(q)
+            if r:
+                long_count, unique_users = r["cnt"], r["users"]
+                avg_importance = float(r["avg_imp"]) if r["avg_imp"] else 0.0
+
+        return MemoryStatsResponse(
+            short_term_count=short_count,
+            medium_term_count=medium_count,
+            long_term_count=long_count,
+            total_count=short_count + medium_count + long_count,
+            unique_users=unique_users,
+            avg_importance=avg_importance,
+        )
+    except Exception as e:
+        logger.exception("Error getting stats")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
@@ -415,17 +508,19 @@ async def get_context_injection(
     """
     Auto-retrieve relevant memories for context injection before a task.
     This is the key leverage point - automatically surface relevant context.
-    
+
     Args:
         allowed_scopes: If provided, restricts search to these scopes only.
                        Cursor gets ["user", "project", "global"] (no l-private).
                        L gets None (all scopes including l-private).
     """
     start_time = time.time()
-    
+
     # Default scopes if not restricted
-    search_scopes = allowed_scopes if allowed_scopes else ["user", "project", "global", "l-private"]
-    
+    search_scopes = (
+        allowed_scopes if allowed_scopes else ["user", "project", "global", "l-private"]
+    )
+
     try:
         # 1. Get semantically relevant memories for the task
         relevant_result = await search_memory_handler(
@@ -438,7 +533,7 @@ async def get_context_injection(
             duration="long",  # Focus on long-term memories
         )
         relevant_memories = relevant_result.get("results", [])
-        
+
         # 2. Get recent context (last 24h) if requested
         recent_memories = []
         if include_recent:
@@ -451,7 +546,7 @@ async def get_context_injection(
             LIMIT 5;
             """
             recent_memories = await fetch_all(recent_query, user_id)
-            
+
             # Also check medium-term for very recent context
             medium_query = """
             SELECT id, user_id, kind, content, importance, created_at
@@ -463,22 +558,24 @@ async def get_context_injection(
             """
             medium_recent = await fetch_all(medium_query, user_id)
             recent_memories.extend(medium_recent)
-        
+
         retrieval_time_ms = (time.time() - start_time) * 1000
-        
+
         # Audit the context injection
         await execute(
             "INSERT INTO memory.audit_log (operation, user_id, status, details) VALUES ($1, $2, $3, $4)",
             "CONTEXT_INJECTION",
             user_id,
             "success",
-            json.dumps({
-                "task": task_description[:100],
-                "relevant_count": len(relevant_memories),
-                "recent_count": len(recent_memories),
-            }),
+            json.dumps(
+                {
+                    "task": task_description[:100],
+                    "relevant_count": len(relevant_memories),
+                    "recent_count": len(recent_memories),
+                }
+            ),
         )
-        
+
         return {
             "memories": relevant_memories,
             "recent_context": recent_memories,
@@ -505,7 +602,7 @@ async def extract_session_learnings(
     try:
         memory_ids = []
         kinds_created = []
-        
+
         # 1. Store the session summary as context
         summary_result = await save_memory_handler(
             user_id=user_id,
@@ -519,7 +616,7 @@ async def extract_session_learnings(
         )
         memory_ids.append(summary_result["id"])
         kinds_created.append("context")
-        
+
         # 2. Store key decisions
         if key_decisions:
             for decision in key_decisions:
@@ -536,7 +633,7 @@ async def extract_session_learnings(
                 memory_ids.append(dec_result["id"])
                 if "decision" not in kinds_created:
                     kinds_created.append("decision")
-        
+
         # 3. Store error/fix pairs (critical for proactive recall)
         if errors_encountered:
             for error in errors_encountered:
@@ -553,7 +650,7 @@ async def extract_session_learnings(
                 memory_ids.append(err_result["id"])
                 if "error" not in kinds_created:
                     kinds_created.append("error")
-        
+
         # 4. Store successes (what worked well)
         if successes:
             for success in successes:
@@ -570,20 +667,22 @@ async def extract_session_learnings(
                 memory_ids.append(suc_result["id"])
                 if "success" not in kinds_created:
                     kinds_created.append("success")
-        
+
         # Audit
         await execute(
             "INSERT INTO memory.audit_log (operation, user_id, status, details) VALUES ($1, $2, $3, $4)",
             "EXTRACT_LEARNINGS",
             user_id,
             "success",
-            json.dumps({
-                "session_id": session_id,
-                "learnings_stored": len(memory_ids),
-                "kinds": kinds_created,
-            }),
+            json.dumps(
+                {
+                    "session_id": session_id,
+                    "learnings_stored": len(memory_ids),
+                    "kinds": kinds_created,
+                }
+            ),
         )
-        
+
         return {
             "learnings_stored": len(memory_ids),
             "memory_ids": memory_ids,
@@ -605,22 +704,24 @@ async def get_proactive_suggestions(
     """
     Get proactive memory suggestions based on current context.
     Surfaces relevant past experiences, error fixes, and preferences.
-    
+
     Args:
         allowed_scopes: If provided, restricts search to these scopes only.
                        Cursor gets ["user", "project", "global"] (no l-private).
                        L gets None (all scopes including l-private).
     """
     start_time = time.time()
-    
+
     # Default scopes if not restricted
-    search_scopes = allowed_scopes if allowed_scopes else ["user", "project", "global", "l-private"]
-    
+    search_scopes = (
+        allowed_scopes if allowed_scopes else ["user", "project", "global", "l-private"]
+    )
+
     try:
         suggestions = []
         error_fix_pairs = []
         relevant_preferences = []
-        
+
         # 1. Get semantically similar memories
         search_result = await search_memory_handler(
             user_id=user_id,
@@ -632,7 +733,7 @@ async def get_proactive_suggestions(
             duration="long",
         )
         suggestions = search_result.get("results", [])[:top_k]
-        
+
         # 2. Get relevant error/fix pairs
         if include_error_fixes:
             # Filter scopes for error search (respect allowed_scopes)
@@ -647,13 +748,15 @@ async def get_proactive_suggestions(
                 duration="long",
             )
             for mem in error_search.get("results", []):
-                error_fix_pairs.append({
-                    "error": mem.get("content", ""),
-                    "fix": "See memory content",
-                    "confidence": mem.get("similarity", 0.0),
-                    "memory_id": mem.get("id"),
-                })
-        
+                error_fix_pairs.append(
+                    {
+                        "error": mem.get("content", ""),
+                        "fix": "See memory content",
+                        "confidence": mem.get("similarity", 0.0),
+                        "memory_id": mem.get("id"),
+                    }
+                )
+
         # 3. Get relevant preferences
         if include_preferences:
             # Filter scopes for preference search (respect allowed_scopes)
@@ -668,23 +771,25 @@ async def get_proactive_suggestions(
                 duration="long",
             )
             relevant_preferences = pref_search.get("results", [])
-        
+
         recall_time_ms = (time.time() - start_time) * 1000
-        
+
         # Audit
         await execute(
             "INSERT INTO memory.audit_log (operation, user_id, status, details) VALUES ($1, $2, $3, $4)",
             "PROACTIVE_RECALL",
             user_id,
             "success",
-            json.dumps({
-                "context": current_context[:100],
-                "suggestions_count": len(suggestions),
-                "error_fixes_count": len(error_fix_pairs),
-                "preferences_count": len(relevant_preferences),
-            }),
+            json.dumps(
+                {
+                    "context": current_context[:100],
+                    "suggestions_count": len(suggestions),
+                    "error_fixes_count": len(error_fix_pairs),
+                    "preferences_count": len(relevant_preferences),
+                }
+            ),
         )
-        
+
         return {
             "suggestions": suggestions,
             "error_fix_pairs": error_fix_pairs,
@@ -709,21 +814,27 @@ async def query_temporal(
     """
     try:
         # Parse datetime strings
-        since_dt = datetime.fromisoformat(since) if since else datetime.utcnow() - timedelta(days=7)
+        since_dt = (
+            datetime.fromisoformat(since)
+            if since
+            else datetime.utcnow() - timedelta(days=7)
+        )
         until_dt = datetime.fromisoformat(until) if until else datetime.utcnow()
-        
+
         # Build WHERE clause
         where_parts = ["user_id = $1", "created_at >= $2", "created_at <= $3"]
         params = [user_id, since_dt, until_dt]
         param_idx = 4
-        
+
         if kinds:
-            kind_placeholders = ", ".join([f"${i}" for i in range(param_idx, param_idx + len(kinds))])
+            kind_placeholders = ", ".join(
+                [f"${i}" for i in range(param_idx, param_idx + len(kinds))]
+            )
             where_parts.append(f"kind IN ({kind_placeholders})")
             params.extend(kinds)
-        
+
         where_clause = " AND ".join(where_parts)
-        
+
         if operation == "changes":
             # Get all memories created or updated in the period
             query = f"""
@@ -733,11 +844,13 @@ async def query_temporal(
             ORDER BY created_at DESC;
             """
             memories = await fetch_all(query, *params)
-            
+
             # Count created vs updated
-            created_count = sum(1 for m in memories if m.get("created_at") == m.get("updated_at"))
+            created_count = sum(
+                1 for m in memories if m.get("created_at") == m.get("updated_at")
+            )
             updated_count = len(memories) - created_count
-            
+
         elif operation == "timeline":
             # Get timeline of memory creation
             query = f"""
@@ -749,7 +862,7 @@ async def query_temporal(
             memories = await fetch_all(query, *params)
             created_count = len(memories)
             updated_count = 0
-            
+
         else:  # diff
             # Get memories with differences (updated != created)
             query = f"""
@@ -761,7 +874,7 @@ async def query_temporal(
             memories = await fetch_all(query, *params)
             created_count = 0
             updated_count = len(memories)
-        
+
         # Check audit log for deletes
         delete_query = """
         SELECT COUNT(*) as cnt FROM memory.audit_log
@@ -770,7 +883,7 @@ async def query_temporal(
         """
         delete_result = await fetch_one(delete_query, user_id, since_dt, until_dt)
         deleted_count = delete_result["cnt"] if delete_result else 0
-        
+
         return {
             "memories": memories,
             "created_count": created_count,
@@ -801,7 +914,7 @@ async def save_memory_with_confidence(
 ) -> Dict[str, Any]:
     """
     Save a memory with explicit confidence scoring and relationship linking.
-    
+
     See: mcp_memory/memory-setup-instructions.md for governance spec.
     source and creator are enforced server-side based on caller identity.
     """
@@ -812,10 +925,10 @@ async def save_memory_with_confidence(
             "source": source,  # Enforced from caller identity
             "related_memory_ids": related_memory_ids or [],
         }
-        
+
         # Scale importance by confidence (lower confidence = lower effective importance)
         effective_importance = importance * confidence
-        
+
         # Add confidence tag
         all_tags = list(tags or [])
         if confidence >= 0.9:
@@ -824,7 +937,7 @@ async def save_memory_with_confidence(
             all_tags.append("confidence:medium")
         else:
             all_tags.append("confidence:low")
-        
+
         # Save using existing handler with governance fields
         result = await save_memory_handler(
             user_id=user_id,
@@ -839,7 +952,7 @@ async def save_memory_with_confidence(
             creator=creator,
             source=source,
         )
-        
+
         # If there are related memories, log the relationship
         if related_memory_ids:
             for related_id in related_memory_ids:
@@ -852,8 +965,63 @@ async def save_memory_with_confidence(
                     "success",
                     json.dumps({"related_to": related_id, "relationship": "related"}),
                 )
-        
+
         return result
     except Exception as e:
         logger.exception("Error saving memory with confidence")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MCP-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "debugging",
+        "endpoint",
+        "integration",
+        "logging",
+        "messaging",
+        "rest-api",
+        "router",
+    ],
+    "keywords": [
+        "apply",
+        "cleanup",
+        "compound",
+        "confidence",
+        "decay",
+        "delete",
+        "expired",
+        "extract",
+    ],
+    "business_value": "Utility module for memory",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

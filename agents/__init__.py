@@ -32,7 +32,12 @@ from agents.coder_agent.coder_agent_a import CoderAgentA
 from agents.coder_agent.coder_agent_b import CoderAgentB
 from agents.qa_agent import QAAgent
 from agents.reflection_agent import ReflectionAgent
-from agents.l_cto import LCTOAgent, create_l_cto_agent
+from agents.l_cto import (
+    LCTOAgent,
+    create_l_cto_agent,
+    create_l_cto_research_agent,
+    is_research_mode,
+)
 from agents.research_agent import ResearchAgent
 
 __all__ = [
@@ -45,6 +50,8 @@ __all__ = [
     # L-CTO (Primary)
     "LCTOAgent",
     "create_l_cto_agent",
+    "create_l_cto_research_agent",
+    "is_research_mode",
     # Architects
     "ArchitectAgentA",
     "ArchitectAgentB",

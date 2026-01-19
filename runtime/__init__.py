@@ -71,6 +71,21 @@ from runtime.dora import (
     get_empty_dora_block_python,
 )
 
+# Kernel State (GODMODE Part 1.1 + 7.2)
+from runtime import kernel_state as kernel_state
+from runtime.kernel_state import KernelState, create_kernel_state
+
+# Execution Gate (GODMODE Part 2)
+from runtime import execution_gate as execution_gate
+from runtime.execution_gate import (
+    guarded_execute as guarded_execute_v2,
+    should_escalate_on_confidence,
+    escalate_to_igor,
+    select_mode_based_on_confidence,
+    DEFAULT_TOOL_AUTHORIZATION,
+    FORBIDDEN_PATTERNS,
+)
+
 __all__ = [
     # Task Queue
     "TaskQueue",
@@ -117,4 +132,16 @@ __all__ = [
     "update_dora_block_in_file",
     "emit_executor_trace",
     "get_empty_dora_block_python",
+    # Kernel State (GODMODE Part 1.1 + 7.2)
+    "kernel_state",
+    "KernelState",
+    "create_kernel_state",
+    # Execution Gate (GODMODE Part 2)
+    "execution_gate",
+    "guarded_execute_v2",
+    "should_escalate_on_confidence",
+    "escalate_to_igor",
+    "select_mode_based_on_confidence",
+    "DEFAULT_TOOL_AUTHORIZATION",
+    "FORBIDDEN_PATTERNS",
 ]

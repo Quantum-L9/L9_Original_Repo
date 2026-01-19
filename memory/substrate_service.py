@@ -6,6 +6,38 @@ Orchestrating service that coordinates repository, semantic, and graph layers.
 Provides a unified interface for substrate operations.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service Layer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "substrate_service",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_executor",
+            "agents.cursor.integrations.cursor_gateway",
+            "agents.l_cto",
+            "api.memory.router",
+            "api.routes.mcp",
+            "api.server",
+            "core.agents.bootstrap.orchestrator",
+            "core.agents.bootstrap.phase_0_validate",
+            "core.agents.bootstrap.phase_2_instantiate",
+            "core.agents.bootstrap.phase_3_bind_kernels",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Optional
@@ -39,14 +71,21 @@ from memory.saga_patterns import (
     SagaPatterns,
 )
 from memory.audit_utils import prepare_packet_for_ingest
-from memory.governance_gate import enforce_packet_governance, require_governance_context
+from memory.governance_gate import (
+    ensure_governance_context,
+    enforce_packet_governance,
+    governance_context,
+    require_governance_context,
+)
 from telemetry.memory_metrics import (
     record_memory_write,
     record_memory_search,
     set_memory_substrate_health,
     record_memory_quarantine,
+    record_memory_ingest,
 )
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -76,10 +115,18 @@ class MemorySubstrateService:
         """
         self._repository = repository
 
-        # Initialize embedding provider
+        # Initialize embedding provider (fail-closed: no stub fallback)
+        # GMP-96: Embedding provider is REQUIRED for production
         if embedding_provider is None:
-            logger.warning("No embedding provider specified, using stub provider")
-            embedding_provider = StubEmbeddingProvider()
+            raise RuntimeError(
+                "Embedding provider required; missing embedding context. "
+                "Set OPENAI_API_KEY or provide explicit EmbeddingProvider."
+            )
+        if isinstance(embedding_provider, StubEmbeddingProvider):
+            raise RuntimeError(
+                "StubEmbeddingProvider is not allowed in enforcement mode. "
+                "Use create_embedding_provider() with valid OPENAI_API_KEY."
+            )
         self._embedding_provider = embedding_provider
 
         # Initialize semantic service
@@ -110,12 +157,18 @@ class MemorySubstrateService:
         self._consolidation: Optional[ConsolidationPipeline] = None
         self._agent_persistence: Optional[AgentPersistenceService] = None
         self._retention_engine: Optional[RetentionEngine] = None
-        
+
         # Initialize saga pattern (lazy initialization)
         self._saga_executor: Optional[SagaExecutor] = None
         self._saga_patterns: Optional[SagaPatterns] = None
 
         logger.info("MemorySubstrateService initialized")
+
+    def _require_rls_context(self, operation: str) -> Any:
+        ctx = require_governance_context(operation)
+        if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+            raise RuntimeError(f"RLS scope required for memory operation: {operation}")
+        return ctx
 
     # =========================================================================
     # RLS Session Scope
@@ -202,7 +255,8 @@ class MemorySubstrateService:
         Returns:
             PacketWriteResult with status and written tables
         """
-        ctx = require_governance_context("write_packet")
+        # GMP-70: Governance enforcement (fail-closed)
+        ctx = self._require_rls_context("write_packet")
         if tenant_id and tenant_id != ctx.tenant_id:
             raise RuntimeError("tenant_id must be derived server-side")
         if org_id and org_id != ctx.org_id:
@@ -211,7 +265,6 @@ class MemorySubstrateService:
             raise RuntimeError("user_id must be derived server-side")
         if role != "end_user" and role != ctx.role:
             raise RuntimeError("role must be derived server-side")
-
         packet_in = enforce_packet_governance(packet_in, ctx)
 
         logger.info(f"Processing packet: type={packet_in.packet_type}")
@@ -232,7 +285,11 @@ class MemorySubstrateService:
         try:
             PacketValidator.validate(packet_in, strict=False)
         except PacketValidationError as e:
-            logger.error("packet_validation_failed", error=str(e), packet_type=packet_in.packet_type)
+            logger.error(
+                "packet_validation_failed",
+                error=str(e),
+                packet_type=packet_in.packet_type,
+            )
             return PacketWriteResult(
                 status="error",
                 packet_id=packet_in.packet_id or None,
@@ -260,43 +317,16 @@ class MemorySubstrateService:
                 error_message=f"Circuit breaker open: {cb_stats['failures_in_window']} failures in {cb_stats['window_seconds']}s",
             )
 
-        # Run through DAG with RLS scope if provided
-        # Use transaction with RLS scope to ensure all operations use same connection
+        # GMP-81: Always use RLS from governance context (no conditional branching)
+        # RLS UUIDs are populated from rls_config.py via governance_gate._fallback_context()
         result: PacketWriteResult
-        if ctx.tenant_id and ctx.org_id and ctx.user_id:
-            # Use transaction with RLS scope - all DAG operations will use same connection
-            async with self._repository.transaction(
-                tenant_id=ctx.tenant_id,
-                org_id=ctx.org_id,
-                user_id=ctx.user_id,
-                role=ctx.role,
-            ):
-                # Run DAG within transaction - repository methods will use RLS-scoped connection
-                try:
-                    result = await self._dag.run(envelope)
-                    # Record success for non-error results
-                    if result.status == "ok":
-                        self._circuit_breaker.record_success()
-                    else:
-                        # DAG returned error status
-                        self._circuit_breaker.record_failure(
-                            result.error_message or "DAG returned error status"
-                        )
-                except Exception as dag_error:
-                    # DAG threw exception - record failure and re-raise
-                    self._circuit_breaker.record_failure(str(dag_error))
-                    logger.error(
-                        "memory_substrate_dag_exception",
-                        packet_id=str(envelope.packet_id),
-                        error=str(dag_error),
-                        circuit_state=self._circuit_breaker.get_state(),
-                    )
-                    raise
-        else:
-            logger.warning(
-                "RLS scope not provided for write_packet - queries may be restricted"
-            )
-            # Run through DAG without RLS scope (normal flow)
+        async with self._repository.transaction(
+            tenant_id=ctx.tenant_id,
+            org_id=ctx.org_id,
+            user_id=ctx.user_id,
+            role=ctx.role,
+        ):
+            # Run DAG within transaction - repository methods will use RLS-scoped connection
             try:
                 result = await self._dag.run(envelope)
                 # Record success for non-error results
@@ -323,21 +353,7 @@ class MemorySubstrateService:
             segment=packet_in.packet_type or "unknown",
             status=result.status,
         )
-
-        if result.status == "ok" and packet_in.packet_type != "audit_memory_write":
-            from core.compliance.audit_log import AuditLogger
-
-            audit_logger = AuditLogger(self)
-            logged = await audit_logger.log_memory_write(
-                agent_id=(packet_in.metadata or {}).get("agent", "unknown"),
-                segment=packet_in.packet_type or "unknown",
-                content_type=packet_in.packet_type or "unknown",
-                size_bytes=len(str(packet_in.payload or "")),
-                packet_type=packet_in.packet_type,
-                thread_id=str(packet_in.thread_id) if packet_in.thread_id else None,
-            )
-            if not logged:
-                raise RuntimeError("Memory write audit logging failed")
+        record_memory_ingest(status=result.status)
 
         logger.info(
             f"Packet {envelope.packet_id} processed: "
@@ -358,15 +374,21 @@ class MemorySubstrateService:
         """
         from uuid import UUID
 
+        ctx = self._require_rls_context("get_packet")
         try:
-            require_governance_context("get_packet")
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
             row = await self._repository.get_packet(UUID(packet_id))
             if row:
                 return row.envelope
             return None
         except Exception as e:
             logger.error(f"Error retrieving packet {packet_id}: {e}")
-            return None
+            raise
 
     async def search_packets_by_thread(
         self,
@@ -387,8 +409,14 @@ class MemorySubstrateService:
         """
         from uuid import UUID
 
+        ctx = self._require_rls_context("search_packets_by_thread")
         try:
-            require_governance_context("search_packets_by_thread")
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
             rows = await self._repository.search_packets_by_thread(
                 thread_id=UUID(thread_id),
                 packet_type=packet_type,
@@ -406,7 +434,7 @@ class MemorySubstrateService:
             return results
         except Exception as e:
             logger.error(f"Error searching packets by thread {thread_id}: {e}")
-            return []
+            raise
 
     async def search_packets_by_type(
         self,
@@ -426,12 +454,18 @@ class MemorySubstrateService:
             List of packet envelopes as dicts
         """
         try:
-            require_governance_context("search_packets_by_type")
-            rows = await self._repository.search_packets_by_type(
-                packet_type=packet_type,
-                agent_id=agent_id,
-                limit=limit,
-            )
+            async with ensure_governance_context("search_packets_by_type") as ctx:
+                await self.set_session_scope(
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
+                    ctx.role,
+                )
+                rows = await self._repository.search_packets_by_type(
+                    packet_type=packet_type,
+                    agent_id=agent_id,
+                    limit=limit,
+                )
             results = [row.envelope for row in rows]
 
             # Record Prometheus metrics for search
@@ -444,7 +478,7 @@ class MemorySubstrateService:
             return results
         except Exception as e:
             logger.error(f"Error searching packets by type {packet_type}: {e}")
-            return []
+            raise
 
     async def query_packets(
         self,
@@ -478,36 +512,43 @@ class MemorySubstrateService:
             Dict with 'packets' list and metadata
         """
         try:
-            ctx = require_governance_context("query_packets")
-            # Set RLS scope if provided
-            if ctx.tenant_id and ctx.org_id and ctx.user_id:
-                await self.set_session_scope(
-                    ctx.tenant_id, ctx.org_id, ctx.user_id, ctx.role
-                )
+            ctx = self._require_rls_context("query_packets")
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
 
             all_packets = []
 
-            if packet_types:
-                # Fetch each type and combine
-                for ptype in packet_types:
-                    rows = await self._repository.search_packets_by_type(
-                        packet_type=ptype,
-                        agent_id=agent_id,
-                        limit=limit,
-                        since=since,
-                    )
-                    all_packets.extend([row.envelope for row in rows])
-            else:
-                # No type filter - get recent packets
-                # Use a common packet type as fallback
-                for ptype in ["insight", "reflection", "ir_graph", "execution_plan"]:
-                    rows = await self._repository.search_packets_by_type(
-                        packet_type=ptype,
-                        agent_id=agent_id,
-                        limit=limit // 4,  # Split limit across types
-                        since=since,
-                    )
-                    all_packets.extend([row.envelope for row in rows])
+            async with governance_context(ctx):
+                if packet_types:
+                    # Fetch each type and combine
+                    for ptype in packet_types:
+                        rows = await self._repository.search_packets_by_type(
+                            packet_type=ptype,
+                            agent_id=agent_id,
+                            limit=limit,
+                            since=since,
+                        )
+                        all_packets.extend([row.envelope for row in rows])
+                else:
+                    # No type filter - get recent packets
+                    # Use a common packet type as fallback
+                    for ptype in [
+                        "insight",
+                        "reflection",
+                        "ir_graph",
+                        "execution_plan",
+                    ]:
+                        rows = await self._repository.search_packets_by_type(
+                            packet_type=ptype,
+                            agent_id=agent_id,
+                            limit=limit // 4,  # Split limit across types
+                            since=since,
+                        )
+                        all_packets.extend([row.envelope for row in rows])
 
             # Sort by timestamp descending and limit
             all_packets.sort(
@@ -539,7 +580,7 @@ class MemorySubstrateService:
                 )
             except ImportError:
                 pass
-            return {"packets": [], "count": 0, "error": str(e)}
+            raise
 
     # =========================================================================
     # Semantic Search Operations
@@ -557,8 +598,10 @@ class MemorySubstrateService:
         Returns:
             SemanticSearchResult with hits
         """
-        require_governance_context("semantic_search")
-        logger.info(f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}")
+        self._require_rls_context("semantic_search")
+        logger.info(
+            f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}"
+        )
 
         # Get more results to allow filtering by min_score
         hits = await self._semantic_service.search(
@@ -569,9 +612,9 @@ class MemorySubstrateService:
 
         # Filter by min_score threshold
         filtered_hits = [h for h in hits if h.get("score", 0.0) >= request.min_score]
-        
+
         # Limit to top_k after filtering
-        filtered_hits = filtered_hits[:request.top_k]
+        filtered_hits = filtered_hits[: request.top_k]
 
         # Record Prometheus metrics for semantic search
         record_memory_search(
@@ -606,6 +649,7 @@ class MemorySubstrateService:
         Returns:
             embedding_id
         """
+        self._require_rls_context("embed_text")
         return await self._semantic_service.embed_and_store(
             text=text,
             payload=payload,
@@ -633,7 +677,6 @@ class MemorySubstrateService:
         Returns:
             List of memory events as dicts
         """
-        require_governance_context("get_memory_events")
         rows = await self._repository.get_memory_events(
             agent_id=agent_id,
             event_type=event_type,
@@ -664,7 +707,6 @@ class MemorySubstrateService:
         """
         from uuid import UUID
 
-        require_governance_context("get_reasoning_traces")
         pid = UUID(packet_id) if packet_id else None
 
         rows = await self._repository.get_reasoning_traces(
@@ -688,7 +730,6 @@ class MemorySubstrateService:
         Returns:
             Checkpoint state as dict or None
         """
-        require_governance_context("get_checkpoint")
         row = await self._repository.get_checkpoint(agent_id)
         if row:
             return row.model_dump(mode="json")
@@ -713,7 +754,6 @@ class MemorySubstrateService:
         Returns:
             Status dict with counts
         """
-        require_governance_context("write_insights")
         facts_written = 0
 
         for insight in insights:
@@ -758,14 +798,11 @@ class MemorySubstrateService:
         Returns:
             Status dict with update results
         """
-        ctx = require_governance_context("trigger_world_model_update")
         logger.info(f"World model update triggered with {len(insights)} insights")
 
         # Set RLS scope for world model operations
-        if ctx.tenant_id and ctx.org_id and ctx.user_id:
-            await self.set_session_scope(
-                ctx.tenant_id, ctx.org_id, ctx.user_id, ctx.role
-            )
+        if tenant_id and org_id and user_id:
+            await self.set_session_scope(tenant_id, org_id, user_id, role)
 
         # Filter to insights that should trigger updates
         triggering = [i for i in insights if i.get("trigger_world_model", False)]
@@ -829,7 +866,6 @@ class MemorySubstrateService:
         Returns:
             List of facts as dicts
         """
-        require_governance_context("get_facts_by_subject")
         rows = await self._repository.get_facts_by_subject(
             subject=subject or "",
             predicate=predicate,
@@ -875,17 +911,17 @@ class MemorySubstrateService:
     def get_query_classifier(self) -> QueryClassifier:
         """
         Get query classifier instance (lazy initialization).
-        
+
         Returns:
             QueryClassifier instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._query_classifier is not None:
             logger.debug("query_classifier already loaded")
             return self._query_classifier
-        
+
         logger.info("Initializing query_classifier...")
         self._query_classifier = get_query_classifier()
         logger.info("query_classifier loaded successfully")
@@ -894,17 +930,17 @@ class MemorySubstrateService:
     def get_reasoning_replay(self) -> ReasoningReplayPipeline:
         """
         Get reasoning replay pipeline instance (lazy initialization).
-        
+
         Returns:
             ReasoningReplayPipeline instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._reasoning_replay is not None:
             logger.debug("reasoning_replay already loaded")
             return self._reasoning_replay
-        
+
         logger.info("Initializing reasoning_replay...")
         self._reasoning_replay = ReasoningReplayPipeline(repository=self._repository)
         logger.info("reasoning_replay loaded successfully")
@@ -913,20 +949,20 @@ class MemorySubstrateService:
     def get_consolidation(self, dry_run: bool = False) -> ConsolidationPipeline:
         """
         Get consolidation pipeline instance (lazy initialization).
-        
+
         Args:
             dry_run: If True, consolidation runs in dry-run mode
-            
+
         Returns:
             ConsolidationPipeline instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._consolidation is not None:
             logger.debug("consolidation already loaded")
             return self._consolidation
-        
+
         logger.info("Initializing consolidation...", dry_run=dry_run)
         self._consolidation = ConsolidationPipeline(
             repository=self._repository,
@@ -938,17 +974,17 @@ class MemorySubstrateService:
     def get_agent_persistence(self) -> AgentPersistenceService:
         """
         Get agent persistence service instance (lazy initialization).
-        
+
         Returns:
             AgentPersistenceService instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._agent_persistence is not None:
             logger.debug("agent_persistence already loaded")
             return self._agent_persistence
-        
+
         logger.info("Initializing agent_persistence...")
         self._agent_persistence = AgentPersistenceService(
             service=self,
@@ -960,21 +996,21 @@ class MemorySubstrateService:
     def get_retention_engine(self) -> RetentionEngine:
         """
         Get retention engine instance (lazy initialization).
-        
+
         The retention engine is wired with:
         - persistence: From get_agent_persistence()
         - repository: Direct reference to _repository
-        
+
         Returns:
             RetentionEngine instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._retention_engine is not None:
             logger.debug("retention_engine already loaded")
             return self._retention_engine
-        
+
         logger.info("Initializing retention_engine...")
         persistence = self.get_agent_persistence()
         self._retention_engine = RetentionEngine(
@@ -988,36 +1024,38 @@ class MemorySubstrateService:
     # Saga Pattern (GMP-56/57: Cross-DB Multi-Step Operations)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_saga_executor(self) -> SagaExecutor:
         """
         Get saga executor instance (lazy initialization).
-        
+
         The executor is wired with:
         - postgres_pool: From repository
         - semantic_service: For vector search steps
         - neo4j_client: From graph_client (if available)
-        
+
         Returns:
             SagaExecutor instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._saga_executor is not None:
             logger.debug("saga_executor already loaded")
             return self._saga_executor
-        
+
         logger.info("Initializing saga_executor...")
-        
+
         # Get Neo4j client if available (optional dependency)
         neo4j_client = None
         try:
             from memory.graph_client import get_graph_client
+
             neo4j_client = get_graph_client()
             logger.debug("Neo4j client available for saga")
         except Exception as e:
             logger.debug(f"Neo4j client not available for saga: {e}")
-        
+
         self._saga_executor = SagaExecutor(
             postgres_pool=self._repository._pool,
             neo4j_client=neo4j_client,
@@ -1029,22 +1067,22 @@ class MemorySubstrateService:
     async def get_saga_patterns(self) -> SagaPatterns:
         """
         Get saga patterns instance (lazy initialization).
-        
+
         Provides high-level API for pre-built sagas:
         - fetch_and_enrich: Vector search → Entity extraction → Graph enrichment
         - enrich_entities: Entity lookup → Relationship discovery
         - correlate_timeline: Event timeline → Causal chain analysis
-        
+
         Returns:
             SagaPatterns instance
-            
+
         Raises:
             Exception: If initialization fails (LOUD failure)
         """
         if self._saga_patterns is not None:
             logger.debug("saga_patterns already loaded")
             return self._saga_patterns
-        
+
         logger.info("Initializing saga_patterns...")
         executor = await self.get_saga_executor()
         self._saga_patterns = SagaPatterns(executor)
@@ -1059,18 +1097,18 @@ class MemorySubstrateService:
     ) -> SagaResult:
         """
         Execute fetch_and_enrich saga: Vector search → Entity extraction → Graph enrichment.
-        
+
         This is the canonical cross-DB search pattern that:
         1. Searches vectors in Postgres for semantically similar content
         2. Extracts entity IDs from results (UUIDs, GMPs, file paths)
         3. Enriches with Neo4j graph relationships (if available)
         4. Returns combined result
-        
+
         Args:
             query: Search query
             limit: Max vector results
             min_similarity: Minimum similarity threshold
-            
+
         Returns:
             SagaResult with combined vector + graph data
         """
@@ -1088,13 +1126,13 @@ class MemorySubstrateService:
     ) -> SagaResult:
         """
         Execute entity enrichment saga: Entity lookup → Relationship discovery.
-        
+
         For when you already have entity IDs and want graph context.
-        
+
         Args:
             entity_ids: List of entity IDs to enrich
             entity_type: Node label type (e.g., "User", "Agent", "GMP")
-            
+
         Returns:
             SagaResult with entity data and relationships
         """
@@ -1113,15 +1151,15 @@ class MemorySubstrateService:
     ) -> SagaResult:
         """
         Execute timeline correlation saga: Event timeline → Causal chain analysis.
-        
+
         For analyzing event sequences and causal chains in Neo4j.
-        
+
         Args:
             start_time: ISO timestamp start
             end_time: ISO timestamp end
             event_type: Filter by event type
             limit: Max events
-            
+
         Returns:
             SagaResult with events and causal chains
         """
@@ -1254,6 +1292,7 @@ async def create_substrate_service(
 _service: Optional[MemorySubstrateService] = None
 
 
+@must_stay_async("callers use await")
 async def get_service() -> MemorySubstrateService:
     """Get service singleton (must be initialized first)."""
     if _service is None:
@@ -1277,3 +1316,88 @@ async def close_service() -> None:
     if _service:
         await _service._repository.disconnect()
         _service = None
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    # === IDENTITY ===
+    "component_id": "MEM-LEAR-001",
+    # === GOVERNANCE ===
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "security_classification": "internal",
+    # === DEPENDENCIES ===
+    "dependencies": [
+        "core.decorators",
+        "core.error_tracking",
+        "core.observability.circuit_breaker",
+        "core.schemas",
+        "memory.agent_persistence",
+    ],
+    # === OPERATIONAL ===
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "batch",
+    "retry_policy": "exponential",
+    "circuit_breaker_enabled": True,
+    "circuit_breaker_threshold": 5,
+    # === OBSERVABILITY ===
+    "monitoring_required": True,
+    "logging_level": "info",
+    "success_metrics": {
+        "latency_p95_ms": 500,
+        "throughput_ops_per_sec": 100,
+        "availability_percent": 99.9,
+        "error_rate_percent": 0.1,
+    },
+    # === DISCOVERY ===
+    "tags": [
+        "api",
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "metrics",
+        "monitoring",
+    ],
+    "keywords": [
+        "agent",
+        "check",
+        "checkpoint",
+        "classifier",
+        "close",
+        "consolidation",
+        "correlate",
+        "create",
+    ],
+    "business_value": "Orchestrating service that coordinates repository, semantic, and graph layers.",
+    # === CHANGE TRACKING ===
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

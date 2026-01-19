@@ -83,6 +83,37 @@ Version: 2.1.0 (Governance Integration + Architecture Docs)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Registry Adapter (ExecutorToolRegistry)",
+    "module_version": "2.1.0 (Governance Integration + Architecture Docs)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "registry_adapter",
+    "type": "adapter",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "Perplexity API", "Redis"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "api.server",
+            "api.tools.router",
+            "core.agents.bootstrap.phase_5_bind_tools",
+            "core.tools.__init__",
+            "orchestrators.action_tool.orchestrator",
+            "orchestrators.action_tool.validator",
+            "tests.integration.test_tool_observability_integration",
+            "tests.unit.test_guarded_execution",
+            "tests.unit.test_registry_adapter_sanitization",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 import time
@@ -93,6 +124,7 @@ from core.agents.schemas import (
     ToolBinding,
     ToolCallResult,
 )
+
 # GMP-45: Tool argument sanitization gate
 from core.tools.sanitizer import ToolInputSanitizer, ToolInputSanitizationError
 # NOTE: DEFAULT_L_CAPABILITIES is DEPRECATED - we now auto-discover from ToolDefinition.agent_id
@@ -101,6 +133,7 @@ from core.tools.sanitizer import ToolInputSanitizer, ToolInputSanitizationError
 
 if TYPE_CHECKING:
     from core.governance.engine import GovernanceEngineService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -119,26 +152,26 @@ _TOOL_AGENT_IDS: dict[str, str] = {}
 def _tool_belongs_to_agent(tool_name: str, agent_id: str) -> bool:
     """
     Check if a tool belongs to an agent via auto-discovery.
-    
+
     Args:
         tool_name: Name of the tool
         agent_id: Agent identifier (e.g., "L", "l-cto")
-        
+
     Returns:
         True if tool's ToolDefinition.agent_id matches (or tool is unknown)
     """
     # Normalize agent aliases
     l_aliases = ("L", "l-cto", "l9-standard-v1")
-    
+
     registered_agent = _TOOL_AGENT_IDS.get(tool_name)
     if registered_agent is None:
         # Tool not in registry - allow (it may be a system tool)
         return True
-    
+
     # Check if both agent_id and registered_agent are L aliases
     if agent_id in l_aliases and registered_agent in l_aliases:
         return True
-    
+
     # Exact match
     return registered_agent == agent_id
 
@@ -151,6 +184,7 @@ def _tool_belongs_to_agent(tool_name: str, agent_id: str) -> bool:
 class ToolExecutor(Protocol):
     """Protocol for tool executors."""
 
+    @must_stay_async("callers use await")
     async def execute(self, **kwargs) -> Any:
         """Execute the tool with arguments."""
         ...
@@ -220,13 +254,16 @@ class ExecutorToolRegistry:
         if base_registry is None:
             try:
                 from core.tools.base_registry import get_tool_registry
-
-                self._registry = get_tool_registry()
-            except ImportError:
-                logger.warning("Could not import tool_registry, using empty registry")
-                self._registry = None
+            except ImportError as exc:
+                raise RuntimeError(
+                    "Tool registry import failed; tool dispatch blocked"
+                ) from exc
+            self._registry = get_tool_registry()
         else:
             self._registry = base_registry
+
+        if self._registry is None:
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
 
         self._governance_enabled = governance_enabled
         self._governance_engine = governance_engine
@@ -270,7 +307,7 @@ class ExecutorToolRegistry:
             List of approved ToolBinding objects
         """
         if self._registry is None:
-            return []
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
 
         bindings: list[ToolBinding] = []
 
@@ -343,6 +380,118 @@ class ExecutorToolRegistry:
 
         return bindings
 
+    async def get_relevant_tools(
+        self,
+        agent_id: str,
+        principal_id: str,
+        query: str,
+        top_k: int = 5,
+    ) -> list[ToolBinding]:
+        """
+        Get tools relevant to query (semantic filtered + governance approved).
+
+        GMP-78: Semantic Tool Retrieval
+
+        Combines:
+        1. Semantic search to find top_k relevant tools via embeddings
+        2. Governance filter to ensure agent has permission
+
+        Args:
+            agent_id: Agent identifier
+            principal_id: Principal requesting tools
+            query: User query or task description for semantic matching
+            top_k: Maximum number of tools to return
+
+        Returns:
+            List of ToolBinding objects for relevant + approved tools
+        """
+        if self._registry is None:
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
+
+        # Step 1: Get semantically relevant tools via embeddings
+        relevant_tool_names: set[str] = set()
+        try:
+            from core.tools.tool_embeddings import find_relevant_tools
+
+            results = await find_relevant_tools(
+                query=query,
+                top_k=top_k * 2,  # Fetch more to account for governance filtering
+            )
+            relevant_tool_names = {r.tool_name for r in results}
+
+            logger.debug(
+                "Semantic search found %d relevant tools for query",
+                len(relevant_tool_names),
+                query=query[:50],
+            )
+        except Exception as e:
+            raise RuntimeError(
+                f"Semantic tool retrieval unavailable; tool binding blocked: {e}"
+            ) from e
+
+        if not relevant_tool_names:
+            # No semantic results - return empty list (fail-closed, no fallback to all tools)
+            logger.debug("No semantic matches found; returning empty tool list")
+            return []
+
+        # Step 2: Filter by governance (intersection of relevant + approved)
+        bindings: list[ToolBinding] = []
+
+        for tool_meta in self._registry.list_enabled():
+            # Skip if not semantically relevant
+            if tool_meta.id not in relevant_tool_names:
+                continue
+
+            # GMP-44: Auto-discover tool capabilities
+            if not _tool_belongs_to_agent(tool_meta.id, agent_id):
+                continue
+
+            # Governance engine check
+            if self._governance_engine:
+                allowed = self._governance_engine.is_allowed(
+                    subject=agent_id,
+                    action="tool.execute",
+                    resource=tool_meta.id,
+                    context={"principal_id": principal_id},
+                )
+                if not allowed:
+                    continue
+            elif self._governance_enabled:
+                if tool_meta.id in SIDE_EFFECT_TOOLS:
+                    if not self._is_approved(agent_id, tool_meta.id):
+                        continue
+                if tool_meta.id in HIGH_RISK_TOOLS:
+                    continue
+
+            # Convert to ToolBinding
+            if hasattr(self._registry, "get_tool_schema"):
+                schema = self._registry.get_tool_schema(tool_meta.id)
+            else:
+                schema = self._get_tool_schema(tool_meta.id)
+
+            binding = ToolBinding(
+                tool_id=tool_meta.id,
+                display_name=tool_meta.name,
+                description=tool_meta.description,
+                input_schema=schema,
+                enabled=True,
+            )
+            bindings.append(binding)
+
+        # Cap at top_k
+        bindings = bindings[:top_k]
+
+        logger.info(
+            "agent.registry.tools.shortlisted",
+            agent_id=agent_id,
+            query=query[:50],
+            semantic_matches=len(relevant_tool_names),
+            approved_matches=len(bindings),
+            tools=[b.tool_id for b in bindings],
+        )
+
+        return bindings
+
     async def dispatch_tool_call(
         self,
         tool_id: str,
@@ -377,6 +526,8 @@ class ExecutorToolRegistry:
             tool_audit_module = importlib.import_module("memory.tool_audit")
             log_tool_invocation = tool_audit_module.log_tool_invocation
         except Exception:
+
+            @must_stay_async("callers use await")
             async def log_tool_invocation(**kwargs):  # type: ignore[no-redef]
                 return None
 
@@ -766,7 +917,13 @@ class ExecutorToolRegistry:
 
         # GATE 1: Verify kernel activation
         kernel_state = getattr(agent, "kernel_state", None)
-        if kernel_state != "ACTIVE":
+        kernel_active = False
+        if isinstance(kernel_state, str):
+            kernel_active = kernel_state == "ACTIVE"
+        elif hasattr(kernel_state, "initialized"):
+            kernel_active = bool(kernel_state.initialized)
+
+        if not kernel_active:
             logger.error(
                 "guarded_execute.kernel_not_active",
                 agent_id=agent_id,
@@ -869,12 +1026,17 @@ class ExecutorToolRegistry:
                     policy_id=eval_result.policy_id,
                 )
             except Exception as gov_err:
-                # Governance check failure is a soft failure - log but continue
-                logger.warning(
+                logger.error(
                     "guarded_execute.governance_check_error",
                     agent_id=agent_id,
                     tool_id=tool_id,
                     error=str(gov_err),
+                )
+                return ToolCallResult(
+                    call_id=call_id,
+                    tool_id=tool_id,
+                    success=False,
+                    error=f"Governance check failed: {gov_err}",
                 )
 
         # GATE 6: Check tool approval for high-risk tools
@@ -905,9 +1067,13 @@ class ExecutorToolRegistry:
                             success=False,
                             error=f"Tool {tool_id} requires approval. Request ID: {call_id}",
                         )
-        except ImportError:
-            # ApprovalManager not available - skip check
-            pass
+        except ImportError as approval_import_error:
+            return ToolCallResult(
+                call_id=call_id,
+                tool_id=tool_id,
+                success=False,
+                error=f"Approval enforcement unavailable: {approval_import_error}",
+            )
         except Exception as approval_err:
             logger.warning(
                 "guarded_execute.approval_check_error",
@@ -940,6 +1106,7 @@ class ExecutorToolRegistry:
             # Import lazily to avoid test path shadowing issue
             # (tests/memory shadows memory module in pytest)
             import importlib
+
             tool_audit_module = importlib.import_module("memory.tool_audit")
             log_tool_invocation = tool_audit_module.log_tool_invocation
             ToolAuditEntry = tool_audit_module.ToolAuditEntry
@@ -951,7 +1118,9 @@ class ExecutorToolRegistry:
                     "arguments": arguments,
                     "principal_id": principal_id,
                     "kernel_version": kernel_version,
-                    "kernel_hash": next(iter(kernel_hashes.values()), "unknown") if kernel_hashes else "unknown",
+                    "kernel_hash": next(iter(kernel_hashes.values()), "unknown")
+                    if kernel_hashes
+                    else "unknown",
                     "kernel_count": len(kernels),
                 },
                 output_data={
@@ -1090,7 +1259,10 @@ class ExecutorToolRegistry:
             "memory_get_packet": {
                 "type": "object",
                 "properties": {
-                    "packet_id": {"type": "string", "description": "UUID of packet to retrieve"},
+                    "packet_id": {
+                        "type": "string",
+                        "description": "UUID of packet to retrieve",
+                    },
                 },
                 "required": ["packet_id"],
             },
@@ -1098,56 +1270,105 @@ class ExecutorToolRegistry:
                 "type": "object",
                 "properties": {
                     "filters": {"type": "object", "description": "Filter criteria"},
-                    "limit": {"type": "integer", "description": "Max results", "default": 50},
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max results",
+                        "default": 50,
+                    },
                 },
                 "required": ["filters"],
             },
             "memory_search_by_thread": {
                 "type": "object",
                 "properties": {
-                    "thread_id": {"type": "string", "description": "Thread/conversation ID"},
-                    "limit": {"type": "integer", "description": "Max results", "default": 50},
+                    "thread_id": {
+                        "type": "string",
+                        "description": "Thread/conversation ID",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max results",
+                        "default": 50,
+                    },
                 },
                 "required": ["thread_id"],
             },
             "memory_search_by_type": {
                 "type": "object",
                 "properties": {
-                    "packet_type": {"type": "string", "description": "Packet kind (REASONING, TOOL_CALL, etc.)"},
-                    "limit": {"type": "integer", "description": "Max results", "default": 50},
+                    "packet_type": {
+                        "type": "string",
+                        "description": "Packet kind (REASONING, TOOL_CALL, etc.)",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max results",
+                        "default": 50,
+                    },
                 },
                 "required": ["packet_type"],
             },
             "memory_get_events": {
                 "type": "object",
                 "properties": {
-                    "event_type": {"type": "string", "description": "Optional event type filter"},
-                    "limit": {"type": "integer", "description": "Max results", "default": 50},
+                    "event_type": {
+                        "type": "string",
+                        "description": "Optional event type filter",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max results",
+                        "default": 50,
+                    },
                 },
                 "required": [],
             },
             "memory_get_reasoning_traces": {
                 "type": "object",
                 "properties": {
-                    "task_id": {"type": "string", "description": "Optional task ID filter"},
-                    "limit": {"type": "integer", "description": "Max traces", "default": 20},
+                    "task_id": {
+                        "type": "string",
+                        "description": "Optional task ID filter",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max traces",
+                        "default": 20,
+                    },
                 },
                 "required": [],
             },
             "memory_get_facts": {
                 "type": "object",
                 "properties": {
-                    "subject": {"type": "string", "description": "Subject to query facts about"},
-                    "limit": {"type": "integer", "description": "Max facts", "default": 20},
+                    "subject": {
+                        "type": "string",
+                        "description": "Subject to query facts about",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max facts",
+                        "default": 20,
+                    },
                 },
                 "required": ["subject"],
             },
             "memory_write_insight": {
                 "type": "object",
                 "properties": {
-                    "insight": {"type": "string", "description": "Insight text to store"},
-                    "category": {"type": "string", "description": "Category (governance, project, session)"},
-                    "confidence": {"type": "number", "description": "Confidence 0-1", "default": 0.8},
+                    "insight": {
+                        "type": "string",
+                        "description": "Insight text to store",
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Category (governance, project, session)",
+                    },
+                    "confidence": {
+                        "type": "number",
+                        "description": "Confidence 0-1",
+                        "default": 0.8,
+                    },
                 },
                 "required": ["insight", "category"],
             },
@@ -1163,7 +1384,11 @@ class ExecutorToolRegistry:
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "Search query"},
-                    "top_k": {"type": "integer", "description": "Max results", "default": 10},
+                    "top_k": {
+                        "type": "integer",
+                        "description": "Max results",
+                        "default": 10,
+                    },
                     "filters": {"type": "object", "description": "Optional filters"},
                 },
                 "required": ["query"],
@@ -1172,8 +1397,16 @@ class ExecutorToolRegistry:
                 "type": "object",
                 "properties": {
                     "packet_id": {"type": "string", "description": "Packet UUID"},
-                    "direction": {"type": "string", "description": "ancestors or descendants", "default": "ancestors"},
-                    "max_depth": {"type": "integer", "description": "Max traversal depth", "default": 5},
+                    "direction": {
+                        "type": "string",
+                        "description": "ancestors or descendants",
+                        "default": "ancestors",
+                    },
+                    "max_depth": {
+                        "type": "integer",
+                        "description": "Max traversal depth",
+                        "default": 5,
+                    },
                 },
                 "required": ["packet_id"],
             },
@@ -1181,7 +1414,11 @@ class ExecutorToolRegistry:
                 "type": "object",
                 "properties": {
                     "thread_id": {"type": "string", "description": "Thread ID"},
-                    "limit": {"type": "integer", "description": "Max packets", "default": 100},
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max packets",
+                        "default": 100,
+                    },
                 },
                 "required": ["thread_id"],
             },
@@ -1190,16 +1427,30 @@ class ExecutorToolRegistry:
                 "properties": {
                     "subject": {"type": "string", "description": "Subject filter"},
                     "predicate": {"type": "string", "description": "Predicate filter"},
-                    "limit": {"type": "integer", "description": "Max facts", "default": 50},
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max facts",
+                        "default": 50,
+                    },
                 },
                 "required": [],
             },
             "memory_fetch_insights": {
                 "type": "object",
                 "properties": {
-                    "packet_id": {"type": "string", "description": "Source packet filter"},
-                    "insight_type": {"type": "string", "description": "Insight type filter"},
-                    "limit": {"type": "integer", "description": "Max insights", "default": 50},
+                    "packet_id": {
+                        "type": "string",
+                        "description": "Source packet filter",
+                    },
+                    "insight_type": {
+                        "type": "string",
+                        "description": "Insight type filter",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max insights",
+                        "default": 50,
+                    },
                 },
                 "required": [],
             },
@@ -1409,7 +1660,9 @@ class ExecutorToolRegistry:
             # Redis State Management (GMP-31 Batch 3)
             "redis_delete": {
                 "type": "object",
-                "properties": {"key": {"type": "string", "description": "Key to delete"}},
+                "properties": {
+                    "key": {"type": "string", "description": "Key to delete"}
+                },
                 "required": ["key"],
             },
             "redis_enqueue_task": {
@@ -1417,18 +1670,26 @@ class ExecutorToolRegistry:
                 "properties": {
                     "queue_name": {"type": "string", "description": "Queue name"},
                     "task_data": {"type": "object", "description": "Task payload"},
-                    "priority": {"type": "integer", "description": "Priority", "default": 0},
+                    "priority": {
+                        "type": "integer",
+                        "description": "Priority",
+                        "default": 0,
+                    },
                 },
                 "required": ["queue_name", "task_data"],
             },
             "redis_dequeue_task": {
                 "type": "object",
-                "properties": {"queue_name": {"type": "string", "description": "Queue name"}},
+                "properties": {
+                    "queue_name": {"type": "string", "description": "Queue name"}
+                },
                 "required": ["queue_name"],
             },
             "redis_queue_size": {
                 "type": "object",
-                "properties": {"queue_name": {"type": "string", "description": "Queue name"}},
+                "properties": {
+                    "queue_name": {"type": "string", "description": "Queue name"}
+                },
                 "required": ["queue_name"],
             },
             "redis_get_task_context": {
@@ -1441,7 +1702,11 @@ class ExecutorToolRegistry:
                 "properties": {
                     "task_id": {"type": "string", "description": "Task ID"},
                     "context": {"type": "object", "description": "Context data"},
-                    "ttl_seconds": {"type": "integer", "description": "TTL", "default": 3600},
+                    "ttl_seconds": {
+                        "type": "integer",
+                        "description": "TTL",
+                        "default": 3600,
+                    },
                 },
                 "required": ["task_id", "context"],
             },
@@ -1468,42 +1733,71 @@ class ExecutorToolRegistry:
             },
             "tools_get_by_type": {
                 "type": "object",
-                "properties": {"tool_type": {"type": "string", "description": "Tool type"}},
+                "properties": {
+                    "tool_type": {"type": "string", "description": "Tool type"}
+                },
                 "required": ["tool_type"],
             },
             "tools_get_for_role": {
                 "type": "object",
-                "properties": {"role": {"type": "string", "description": "Role identifier"}},
+                "properties": {
+                    "role": {"type": "string", "description": "Role identifier"}
+                },
                 "required": ["role"],
             },
             # World Model Operations (GMP-31 Batch 5)
             "world_model_get_entity": {
                 "type": "object",
-                "properties": {"entity_id": {"type": "string", "description": "Entity ID"}},
+                "properties": {
+                    "entity_id": {"type": "string", "description": "Entity ID"}
+                },
                 "required": ["entity_id"],
             },
             "world_model_list_entities": {
                 "type": "object",
                 "properties": {
-                    "entity_type": {"type": "string", "description": "Entity type filter"},
-                    "min_confidence": {"type": "number", "description": "Min confidence"},
-                    "limit": {"type": "integer", "description": "Max entities", "default": 50},
+                    "entity_type": {
+                        "type": "string",
+                        "description": "Entity type filter",
+                    },
+                    "min_confidence": {
+                        "type": "number",
+                        "description": "Min confidence",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max entities",
+                        "default": 50,
+                    },
                 },
                 "required": [],
             },
             "world_model_snapshot": {
                 "type": "object",
-                "properties": {"description": {"type": "string", "description": "Snapshot description"}},
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Snapshot description",
+                    }
+                },
                 "required": [],
             },
             "world_model_list_snapshots": {
                 "type": "object",
-                "properties": {"limit": {"type": "integer", "description": "Max snapshots", "default": 20}},
+                "properties": {
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max snapshots",
+                        "default": 20,
+                    }
+                },
                 "required": [],
             },
             "world_model_send_insights": {
                 "type": "object",
-                "properties": {"insights": {"type": "array", "description": "List of insights"}},
+                "properties": {
+                    "insights": {"type": "array", "description": "List of insights"}
+                },
                 "required": ["insights"],
             },
             "world_model_get_state_version": {
@@ -1746,20 +2040,29 @@ __all__ = [
 def _get_l_tool_schema_for_registry(tool_name: str):
     """
     Get ToolSchema object for an L-CTO tool.
-    
+
     Returns a ToolSchema compatible with the base registry.
     Uses the same schema definitions as _get_tool_schema().
     """
     from core.tools.base_registry import ToolSchema
-    
+
     # L-CTO tool schemas (same as _get_tool_schema but returns ToolSchema)
     schemas = {
         "memory_search": ToolSchema(
             type="object",
             properties={
-                "query": {"type": "string", "description": "Natural language search query"},
-                "segment": {"type": "string", "description": "Memory segment: 'all', 'governance', 'project', 'session'"},
-                "limit": {"type": "integer", "description": "Maximum results to return (1-100)"},
+                "query": {
+                    "type": "string",
+                    "description": "Natural language search query",
+                },
+                "segment": {
+                    "type": "string",
+                    "description": "Memory segment: 'all', 'governance', 'project', 'session'",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Maximum results to return (1-100)",
+                },
             },
             required=["query"],
         ),
@@ -1774,7 +2077,9 @@ def _get_l_tool_schema_for_registry(tool_name: str):
         # Memory Substrate Direct Access (GMP-31 Batch 1)
         "memory_get_packet": ToolSchema(
             type="object",
-            properties={"packet_id": {"type": "string", "description": "UUID of packet"}},
+            properties={
+                "packet_id": {"type": "string", "description": "UUID of packet"}
+            },
             required=["packet_id"],
         ),
         "memory_query_packets": ToolSchema(
@@ -1853,7 +2158,10 @@ def _get_l_tool_schema_for_registry(tool_name: str):
             type="object",
             properties={
                 "packet_id": {"type": "string", "description": "Packet UUID"},
-                "direction": {"type": "string", "description": "ancestors or descendants"},
+                "direction": {
+                    "type": "string",
+                    "description": "ancestors or descendants",
+                },
                 "max_depth": {"type": "integer", "description": "Max depth"},
             },
             required=["packet_id"],
@@ -1901,15 +2209,25 @@ def _get_l_tool_schema_for_registry(tool_name: str):
             type="object",
             properties={
                 "message": {"type": "string", "description": "Commit message"},
-                "files": {"type": "array", "items": {"type": "string"}, "description": "Files to commit"},
+                "files": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Files to commit",
+                },
             },
             required=["message"],
         ),
         "mac_agent_exec_task": ToolSchema(
             type="object",
             properties={
-                "command": {"type": "string", "description": "Shell command to execute"},
-                "timeout": {"type": "integer", "description": "Timeout in seconds (5-300)"},
+                "command": {
+                    "type": "string",
+                    "description": "Shell command to execute",
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Timeout in seconds (5-300)",
+                },
             },
             required=["command"],
         ),
@@ -1921,15 +2239,24 @@ def _get_l_tool_schema_for_registry(tool_name: str):
         "mcp_list_tools": ToolSchema(
             type="object",
             properties={
-                "server_id": {"type": "string", "description": "MCP server: 'github', 'notion', 'filesystem', etc."},
+                "server_id": {
+                    "type": "string",
+                    "description": "MCP server: 'github', 'notion', 'filesystem', etc.",
+                },
             },
             required=["server_id"],
         ),
         "mcp_call_tool": ToolSchema(
             type="object",
             properties={
-                "server_id": {"type": "string", "description": "MCP server: 'github', 'notion', 'filesystem', etc."},
-                "tool_name": {"type": "string", "description": "Tool name (e.g., 'create_issue', 'search')"},
+                "server_id": {
+                    "type": "string",
+                    "description": "MCP server: 'github', 'notion', 'filesystem', etc.",
+                },
+                "tool_name": {
+                    "type": "string",
+                    "description": "Tool name (e.g., 'create_issue', 'search')",
+                },
                 "arguments": {"type": "object", "description": "Tool arguments"},
             },
             required=["server_id", "tool_name"],
@@ -1974,7 +2301,10 @@ def _get_l_tool_schema_for_registry(tool_name: str):
         "neo4j_query": ToolSchema(
             type="object",
             properties={
-                "cypher": {"type": "string", "description": "Cypher query to run against Neo4j"},
+                "cypher": {
+                    "type": "string",
+                    "description": "Cypher query to run against Neo4j",
+                },
                 "params": {"type": "object", "description": "Query parameters"},
             },
             required=["cypher"],
@@ -1991,14 +2321,20 @@ def _get_l_tool_schema_for_registry(tool_name: str):
             properties={
                 "key": {"type": "string", "description": "Redis key"},
                 "value": {"type": "string", "description": "Value to store"},
-                "ttl_seconds": {"type": "integer", "description": "Optional TTL in seconds"},
+                "ttl_seconds": {
+                    "type": "integer",
+                    "description": "Optional TTL in seconds",
+                },
             },
             required=["key", "value"],
         ),
         "redis_keys": ToolSchema(
             type="object",
             properties={
-                "pattern": {"type": "string", "description": "Key pattern (e.g., 'agent:*')"},
+                "pattern": {
+                    "type": "string",
+                    "description": "Key pattern (e.g., 'agent:*')",
+                },
             },
             required=[],
         ),
@@ -2081,7 +2417,9 @@ def _get_l_tool_schema_for_registry(tool_name: str):
         ),
         "world_model_snapshot": ToolSchema(
             type="object",
-            properties={"description": {"type": "string", "description": "Description"}},
+            properties={
+                "description": {"type": "string", "description": "Description"}
+            },
             required=[],
         ),
         "world_model_list_snapshots": ToolSchema(
@@ -2102,23 +2440,38 @@ def _get_l_tool_schema_for_registry(tool_name: str):
         "symbolic_compute": ToolSchema(
             type="object",
             properties={
-                "expression": {"type": "string", "description": "Symbolic mathematical expression"},
-                "variables": {"type": "object", "description": "Variable substitutions"},
+                "expression": {
+                    "type": "string",
+                    "description": "Symbolic mathematical expression",
+                },
+                "variables": {
+                    "type": "object",
+                    "description": "Variable substitutions",
+                },
             },
             required=["expression"],
         ),
         "symbolic_codegen": ToolSchema(
             type="object",
             properties={
-                "expression": {"type": "string", "description": "Symbolic expression to compile"},
-                "language": {"type": "string", "description": "Target language: 'python', 'c', 'fortran'"},
+                "expression": {
+                    "type": "string",
+                    "description": "Symbolic expression to compile",
+                },
+                "language": {
+                    "type": "string",
+                    "description": "Target language: 'python', 'c', 'fortran'",
+                },
             },
             required=["expression"],
         ),
         "symbolic_optimize": ToolSchema(
             type="object",
             properties={
-                "expression": {"type": "string", "description": "Symbolic expression to optimize"},
+                "expression": {
+                    "type": "string",
+                    "description": "Symbolic expression to optimize",
+                },
             },
             required=["expression"],
         ),
@@ -2126,7 +2479,10 @@ def _get_l_tool_schema_for_registry(tool_name: str):
             type="object",
             properties={
                 "graph_data": {"type": "object", "description": "IR graph data"},
-                "scenario_params": {"type": "object", "description": "Scenario configuration"},
+                "scenario_params": {
+                    "type": "object",
+                    "description": "Scenario configuration",
+                },
                 "mode": {"type": "string", "description": "Simulation mode"},
             },
             required=["graph_data"],
@@ -2135,7 +2491,10 @@ def _get_l_tool_schema_for_registry(tool_name: str):
         "mcp_start_server": ToolSchema(
             type="object",
             properties={
-                "server_id": {"type": "string", "description": "MCP server ID to start"},
+                "server_id": {
+                    "type": "string",
+                    "description": "MCP server ID to start",
+                },
             },
             required=["server_id"],
         ),
@@ -2208,7 +2567,10 @@ def _get_l_tool_schema_for_registry(tool_name: str):
         "tools_get_api_dependents": ToolSchema(
             type="object",
             properties={
-                "api_name": {"type": "string", "description": "API name (e.g., GitHub, OpenAI)"},
+                "api_name": {
+                    "type": "string",
+                    "description": "API name (e.g., GitHub, OpenAI)",
+                },
             },
             required=["api_name"],
         ),
@@ -2240,7 +2602,10 @@ def _get_l_tool_schema_for_registry(tool_name: str):
         "world_model_restore": ToolSchema(
             type="object",
             properties={
-                "snapshot_id": {"type": "string", "description": "Snapshot ID to restore"},
+                "snapshot_id": {
+                    "type": "string",
+                    "description": "Snapshot ID to restore",
+                },
             },
             required=["snapshot_id"],
         ),
@@ -2251,8 +2616,144 @@ def _get_l_tool_schema_for_registry(tool_name: str):
             },
             required=[],
         ),
+        # Research Agent Tools (GMP: wire_research_lcto_integration)
+        "research_agent_synthesize": ToolSchema(
+            type="object",
+            properties={
+                "topic": {
+                    "type": "string",
+                    "description": "Research topic to synthesize (required)",
+                },
+                "context": {
+                    "type": "object",
+                    "description": "Optional additional context as key-value pairs",
+                },
+            },
+            required=["topic"],
+        ),
+        "research_agent_discover": ToolSchema(
+            type="object",
+            properties={
+                "topic": {
+                    "type": "string",
+                    "description": "Research topic (required)",
+                },
+                "domain": {
+                    "type": "string",
+                    "description": "Research domain (default: general)",
+                },
+                "stages": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Stages to run: landscape, deep_dive, comparative, gaps, hypotheses",
+                },
+            },
+            required=["topic"],
+        ),
+        "research_agent_generate_spec": ToolSchema(
+            type="object",
+            properties={
+                "topic": {
+                    "type": "string",
+                    "description": "Module topic (required)",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Module description",
+                },
+                "run_synthesis_first": {
+                    "type": "boolean",
+                    "description": "Run synthesis before spec generation (default: true)",
+                },
+            },
+            required=["topic"],
+        ),
+        # Reflection Agent Tools (GMP: wire_reflection_agent_yaml)
+        "reflection_agent_reflect": ToolSchema(
+            type="object",
+            properties={
+                "history": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "description": "Execution history to reflect on (required)",
+                },
+                "focus": {
+                    "type": "string",
+                    "description": "Focus area: general, failures, patterns (default: general)",
+                },
+                "goals": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Goals to evaluate against",
+                },
+            },
+            required=["history"],
+        ),
+        "reflection_agent_analyze_failure": ToolSchema(
+            type="object",
+            properties={
+                "failure_context": {
+                    "type": "object",
+                    "description": "Context of the failure (required)",
+                },
+                "error": {
+                    "type": "string",
+                    "description": "Error message (required)",
+                },
+                "stack_trace": {
+                    "type": "string",
+                    "description": "Optional stack trace",
+                },
+            },
+            required=["failure_context", "error"],
+        ),
+        "reflection_agent_compare_approaches": ToolSchema(
+            type="object",
+            properties={
+                "approach_a": {
+                    "type": "object",
+                    "description": "First approach to compare (required)",
+                },
+                "approach_b": {
+                    "type": "object",
+                    "description": "Second approach to compare (required)",
+                },
+                "criteria": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Comparison criteria (required)",
+                },
+            },
+            required=["approach_a", "approach_b", "criteria"],
+        ),
+        "reflection_agent_extract_patterns": ToolSchema(
+            type="object",
+            properties={
+                "examples": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "description": "Examples to analyze (required, min 2)",
+                },
+            },
+            required=["examples"],
+        ),
+        "reflection_agent_generate_improvements": ToolSchema(
+            type="object",
+            properties={
+                "current_performance": {
+                    "type": "object",
+                    "description": "Current performance metrics (required)",
+                },
+                "goals": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Improvement goals (required)",
+                },
+            },
+            required=["current_performance", "goals"],
+        ),
     }
-    
+
     return schemas.get(tool_name)
 
 
@@ -3107,7 +3608,7 @@ async def register_l_tools() -> int:
             if executor_func:
                 # Get input schema for LLM function calling
                 tool_schema = _get_l_tool_schema_for_registry(tool_def.name)
-                
+
                 metadata = ToolMetadata(
                     id=tool_def.name,
                     name=tool_def.name,
@@ -3142,3 +3643,64 @@ async def register_l_tools() -> int:
     )
 
     return registered_count
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-021",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.agents.schemas",
+        "core.decorators",
+        "core.governance.approvals",
+        "core.governance.engine",
+        "core.governance.schemas",
+    ],
+    "tags": [
+        "adapter",
+        "api",
+        "async",
+        "audit-tool",
+        "authorization",
+        "batch-processing",
+        "cache",
+        "caching",
+        "debugging",
+        "event-driven",
+    ],
+    "keywords": [
+        "(executortoolregistry)",
+        "adapter",
+        "agent",
+        "approval",
+        "approve",
+        "approved",
+        "architecture",
+        "audit",
+    ],
+    "business_value": "This module implements the primary tool dispatch mechanism for L9. Tools are registered and executed through ExecutorToolRegistry, which integrates with Neo4j for governance and Postgres for data. ARC",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

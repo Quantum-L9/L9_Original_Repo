@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""
+Cursor Session Startup CLI
+==========================
+
+Run from anywhere:
+    cursor-start-session
+    
+Or from project root:
+    ./scripts/cursor-start-session
+    make start-session
+"""
+
+import sys
+from pathlib import Path
+
+# Find L9 root (script is in scripts/)
+SCRIPT_DIR = Path(__file__).parent.resolve()
+L9_ROOT = SCRIPT_DIR.parent
+
+# Add paths
+sys.path.insert(0, str(L9_ROOT / ".cursor-commands" / "startup"))
+
+from session_startup import create_session_startup
+
+
+def main():
+    print("=" * 60)
+    print("🚀 CURSOR SESSION STARTUP")
+    print("=" * 60)
+    
+    startup = create_session_startup(L9_ROOT)
+    result = startup.execute()
+    
+    # Status banner
+    status_icon = {"READY": "✅", "DEGRADED": "⚠️", "BLOCKED": "❌"}.get(result.status, "?")
+    print(f"\nStatus: {status_icon} {result.status}")
+    print(f"Files Loaded: {result.files_loaded.__len__()}")
+    print(f"Kernel Ready: {result.kernels_ready}")
+    print(f"Duration: {result.duration_ms}ms")
+    
+    # Errors
+    if result.errors:
+        print("\n🔴 ERRORS:")
+        for e in result.errors:
+            print(f"  - {e}")
+    
+    # Warnings
+    if result.warnings:
+        print("\n🟡 WARNINGS:")
+        for w in result.warnings[:5]:
+            print(f"  - {w}")
+        if len(result.warnings) > 5:
+            print(f"  ... and {len(result.warnings) - 5} more")
+    
+    # Key files reminder
+    if result.status == "READY":
+        print("\n📋 KEY FILES TO CHECK:")
+        print("  1. workflow_state.md — current phase, next steps")
+        print("  2. .cursor-commands/learning/failures/repeated-mistakes.md")
+        print("  3. agents/cursor/cursor_workflow_kernel.yaml — binding contract")
+    
+    print("\n" + "=" * 60)
+    
+    # Exit code based on status
+    return 0 if result.status == "READY" else (1 if result.status == "DEGRADED" else 2)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

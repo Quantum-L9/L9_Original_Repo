@@ -1,5 +1,7 @@
 agents/ - 
+agents/architect_agent/ - 
 agents/codegenagent/ - 
+agents/coder_agent/ - 
 agents/cursor/ - 
 agents/cursor/extractors/ - No module docstring
 agents/cursor/integrations/ - No module docstring
@@ -20,6 +22,10 @@ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_
 codegen/code-gen-files/jinja2-templates/ - 
 codegen/compiler/ - 
 codegen/compiler/emitters/ - 
+codegen/dev_layer/ - 
+codegen/dev_layer/am_engine/ - 
+codegen/dev_layer/modules/ - 
+codegen/dev_layer/runtime/ - 
 codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/ - 
 codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/ - No module docstring
 collaborative_cells/ - 
@@ -34,10 +40,13 @@ core/commands/ -
 core/compliance/ - 
 core/coordination/ - 
 core/evaluation/ - 
+core/gmp/ - 
 core/governance/ - 
+core/graph/query/ - 
 core/integration/ - 
 core/kernel_wiring/ - 
 core/kernels/ - 
+core/memory/ - 
 core/observability/ - 
 core/packet_envelope/ - 
 core/resilience/ - 
@@ -45,6 +54,7 @@ core/retrievers/ - L9 Core Retrievers
 core/schemas/ - 
 core/schemas/tests/ - L9 Core Schemas Test Suite.
 core/security/ - 
+core/symbolic_computation/ - 
 core/testing/ - 
 core/tools/ - 
 core/worldmodel/ - 
@@ -72,6 +82,7 @@ orchestrators/agent_execution/ -
 orchestrators/evolution/ - 
 orchestrators/memory/ - 
 orchestrators/meta/ - 
+orchestrators/pattern/ - 
 orchestrators/reasoning/ - 
 orchestrators/research_swarm/ - 
 orchestrators/world_model/ - 
@@ -91,18 +102,23 @@ services/symbolic_computation/tools/ -
 simulation/ - 
 telemetry/ - L9 Telemetry module.
 tests/ - 
+tests/agents/ - Agent tests for L9.
+tests/agents/codegenagent/ - 
 tests/api/ - 
 tests/clients/ - 
 tests/codegen/ - Tests for CodeGenAgent and IR Engine code generation.
 tests/collaborative_cells/ - 
-tests/core/agents/ - Tests for core.agents module.
 tests/core/aios/ - 
+tests/core/bootstrap/ - Tests for core.agents module.
 tests/core/governance/ - Tests for governance engine.
 tests/core/observability/ - Tests for core.observability module.
+tests/core/schemas/ - Tests for core schemas.
 tests/core/security/ - 
 tests/core/tools/ - 
 tests/docker/ - Docker smoke tests for L9 stack validation.
 tests/email_agent/ - 
+tests/gmp/ - No module docstring
+tests/integration/ - Integration tests for L9.
 tests/ir_engine/ - 
 tests/kernel/ - Kernel Tests
 tests/mac_agent/ - 
@@ -111,11 +127,14 @@ tests/mocks/ -
 tests/orchestrators/ - 
 tests/os/ - 
 tests/performance/ - Performance Tests
+tests/runtime/ - Runtime tests for L9.
+tests/scripts/ - Script tests for L9.
 tests/simulation/ - 
 tests/telemetry/ - 
+tests/unit/ - Unit tests for L9.
 tests/upgrades/ - 
 tests/world_model/ - World Model Tests
 tools/ - 
-upgrades/ - 
+workers/ - 
 world_model/ - 
 world_model/nodes/ - 

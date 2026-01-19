@@ -1,0 +1,173 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Reflection-Agent-V1"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-16T12:13:08Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "reflection-agent-v1"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# L9 Reflection Agent v1
+# =======================
+#
+# Meta-reasoning and self-improvement agent.
+# Python class: agents.reflection_agent.ReflectionAgent
+# Factory: agents.reflection_agent.create_reflection_agent()
+# API Routes: /reflection/agent/* (reflect, analyze-failure, compare, patterns, improvements)
+#
+# This YAML config defines metadata and capabilities.
+
+agent_id: reflection-agent-v1
+name: L9 Reflection Agent
+description: >
+  Meta-reasoning agent for self-improvement:
+  - Analyze execution history and outcomes
+  - Deep failure root cause analysis
+  - Compare approaches with scoring
+  - Extract patterns from examples
+  - Generate improvement plans
+
+# Python class binding
+python_class: agents.reflection_agent.ReflectionAgent
+factory_function: agents.reflection_agent.create_reflection_agent
+
+# LLM Configuration
+model: gpt-4o
+provider: openai
+temperature: 0.6
+max_tokens: 8000
+
+# Capabilities (Python class methods)
+capabilities:
+  run:
+    description: Execute reflection task on execution history
+    method: run(task, context)
+    task_fields:
+      - history    # List of execution events
+      - focus      # Focus area (general, failures, patterns, etc.)
+      - goals      # List of goals to evaluate against
+    returns:
+      - analysis.successes
+      - analysis.failures
+      - analysis.patterns
+      - insights
+      - lessons_learned
+      - improvements
+      - knowledge_updates
+      - meta_observations
+      - summary
+
+  analyze_failure:
+    description: Deep failure root cause analysis
+    method: analyze_failure(failure_context, error, stack_trace)
+    returns:
+      - root_cause_analysis.immediate_cause
+      - root_cause_analysis.root_cause
+      - root_cause_analysis.chain_of_events
+      - prevention_strategies
+      - recovery_actions
+      - detection_improvements
+      - systemic_changes
+      - lessons
+
+  compare_approaches:
+    description: Compare two approaches with scoring
+    method: compare_approaches(approach_a, approach_b, criteria)
+    returns:
+      - comparison (per criterion scores)
+      - overall_scores
+      - recommendation (A|B|hybrid)
+      - hybrid_suggestion
+      - key_differentiators
+      - context_dependencies
+
+  extract_patterns:
+    description: Extract patterns from examples
+    method: extract_patterns(examples)
+    returns:
+      - patterns (name, frequency, conditions, implications)
+      - anti_patterns
+      - correlations
+      - outliers
+      - generalizations
+      - confidence
+
+  generate_improvements:
+    description: Generate improvement plan from current performance
+    method: generate_improvements(current_performance, goals)
+    returns:
+      - gap_analysis
+      - improvement_plan
+      - quick_wins
+      - strategic_changes
+      - risks
+      - measurement_plan
+
+# API Endpoints (when server is running)
+api_endpoints:
+  - GET /reflection/agent/status
+  - POST /reflection/agent/reflect
+  - POST /reflection/agent/analyze-failure
+  - POST /reflection/agent/compare
+  - POST /reflection/agent/extract-patterns
+  - POST /reflection/agent/generate-improvements
+  - GET /reflection/agent/lessons-learned
+
+# System Prompt (matches Python code)
+system_prompt: |
+  You are the Reflection Agent for L9, responsible for meta-reasoning and self-improvement.
+
+  Your responsibilities:
+  1. Analyze execution history and outcomes
+  2. Identify patterns in successes and failures
+  3. Derive lessons and improvements
+  4. Enable self-correction behaviors
+  5. Build institutional knowledge
+
+  When reflecting:
+  - Look for root causes, not symptoms
+  - Identify recurring patterns
+  - Consider counterfactuals
+  - Extract generalizable lessons
+  - Propose concrete improvements
+
+  Your insights shape the system's evolution. Be thorough and insightful.
+
+# Environment Requirements
+environment:
+  required:
+    - OPENAI_API_KEY  # Required for LLM calls
+  optional:
+    - L9_EXECUTOR_API_KEY  # For authenticated API access
+
+# Tools available to this agent
+tools:
+  - memory_search     # Search L9 memory for relevant history
+  - neo4j_query       # Query knowledge graph for patterns
+  - web_search        # Research best practices
+
+# Metadata
+version: "1.0.0"
+status: production
+owner: L9 System
+tags:
+  - reflection
+  - meta-reasoning
+  - self-improvement
+  - failure-analysis
+  - pattern-extraction
+  - lessons-learned
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "foundation", "model-config", "openai", "prompt", "tool-config"]
+# keywords: ["agent", "agent_id", "capabilities", "description", "factory_function", "max_tokens"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

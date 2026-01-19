@@ -1,3 +1,24 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Server Memory",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "server_memory",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /", "GET /health", "POST /chat"],
+        "datasources": ["HTTP API", "Neo4j", "OpenAI API", "Slack API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["tests.test_imports"],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 from fastapi import FastAPI, HTTPException, Depends, Header
@@ -116,6 +137,13 @@ async def chat(
 # Mount memory router with prefix
 app.include_router(memory_router, prefix="/memory")
 
+# === Initialize default app state values ===
+# These may be overwritten by integration initializers below
+app.state.substrate_service = None  # Memory substrate (optional for basic Slack)
+app.state.rate_limiter = None  # Rate limiter (optional)
+app.state.permission_graph = None  # Permission graph (optional)
+app.state.neo4j_client = None  # Neo4j client (optional)
+
 # === Integration Routers (gated by toggle flags) ===
 
 # Slack Events API
@@ -132,16 +160,42 @@ if settings.slack_app_enabled:
             "Set SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET. "
             "Slack routes will NOT be mounted."
         )
+        app.state.slack_validator = None
+        app.state.slack_client = None
     else:
         try:
+            # Initialize Slack adapter components (required for route dependencies)
+            import httpx
+            from api.slack_adapter import SlackRequestValidator
+            from api.slack_client import SlackAPIClient
+
+            validator = SlackRequestValidator(slack_signing_secret)
+            http_client = httpx.AsyncClient()
+            slack_client = SlackAPIClient(
+                bot_token=slack_bot_token,
+                http_client=http_client,
+            )
+
+            # Store in app state for route dependencies
+            app.state.slack_validator = validator
+            app.state.slack_client = slack_client
+            app.state.aios_base_url = os.getenv(
+                "AIOS_BASE_URL", "http://localhost:8000"
+            )
+            app.state.http_client = http_client
+
             # Use new Slack router (v2.0+) from api/routes/slack.py
             # Legacy webhook_slack.py archived to _archived/legacy_slack/
             from api.routes.slack import router as slack_router
 
             app.include_router(slack_router)
-            logger.info("Slack router mounted successfully (v2.0+)")
+            logger.info(
+                "Slack router mounted successfully (v2.0+) with validator initialized"
+            )
         except Exception as e:
             logger.error(f"WARNING: Failed to load Slack router: {e}")
+            app.state.slack_validator = None
+            app.state.slack_client = None
 
 # Mac Agent API
 if settings.mac_agent_enabled:
@@ -203,3 +257,54 @@ logger.info(
 # === DEBUG: Print all mounted routes at startup ===
 for route in app.routes:
     logger.info(f"ROUTE: {route.path}")
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-005",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "api.auth",
+        "api.db",
+        "api.memory.router",
+        "api.routes.slack",
+        "api.slack_adapter",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "authorization",
+        "debugging",
+        "endpoint",
+        "event-driven",
+        "http-client",
+        "llm",
+    ],
+    "keywords": ["chat", "health", "memory", "root", "server"],
+    "business_value": "Provides server memory components including ChatRequest, ChatResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

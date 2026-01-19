@@ -18,6 +18,27 @@ Requirements:
     - Email agent router must be importable
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Smoke Email",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:23:43Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "tests",
+    "module_name": "smoke_email",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Gmail API", "PostgreSQL"],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 import sys
@@ -425,3 +446,57 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TES-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "client",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "messaging",
+        "mocking",
+        "operations",
+        "test",
+    ],
+    "keywords": [
+        "action",
+        "all",
+        "clear",
+        "client",
+        "draft",
+        "email",
+        "fail",
+        "failing",
+    ],
+    "business_value": "1. Mocks the GmailClient to avoid real API calls 2. Calls email endpoints 3. Verifies memory ingestion was called with correct trace_id python tests/smoke_email.py Memory system must be importable (no",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

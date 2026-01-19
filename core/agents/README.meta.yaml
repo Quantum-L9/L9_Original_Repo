@@ -1,0 +1,54 @@
+location: core/agents/README.md
+type: subsystemreadme
+metadata:
+  subsystem: agents
+  modulepath: core/agents
+  owner: Igor
+  lastupdated: '2026-01-18T07:43:23.878362Z'
+  purpose: Documents the agents subsystem, contracts, and AI collaboration rules.
+sections:
+  overview:
+    required: true
+  responsibilities:
+    required: true
+  components:
+    required: true
+  datamodels:
+    required: true
+  lifecycle:
+    required: true
+  configuration:
+    required: false
+  apisurface:
+    required: true
+  observability:
+    required: false
+  testing:
+    required: false
+  airules:
+    required: true
+invariants:
+- Agent IDs are UUIDv4
+- All agent tasks emit PacketEnvelope to memory substrate
+- Kernel stack loaded via KernelLoader before execution
+- Tool access mediated by RegistryAdapter with capability checks
+- High-risk tools require Igor approval before dispatch
+aicollaboration:
+  allowedscopes:
+  - core/agents/adaptive_prompting.py
+  - core/agents/agent_instance.py
+  - core/agents/prompt_builder.py
+  - core/agents/selfreflection.py
+  - core/agents/bootstrap/**
+  - core/agents/graph_state/**
+  - tests/**
+  - docs/**
+  restrictedscopes: &id001
+  - core/agents/executor.py
+  - core/agents/registry.py
+  - core/agents/__init__.py
+  forbiddenscopes: *id001
+  requiredprereading:
+  - README-L9_ARCHITECTURE.md
+  - docs/CURSOR-RUNBOOK.md
+  - core/agents/README.md

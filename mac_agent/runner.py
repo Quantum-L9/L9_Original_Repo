@@ -4,6 +4,27 @@ Mac Agent Runner V2
 Polls L9 for Mac automation tasks and executes them using Playwright.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Runner",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "mac_integration",
+    "module_name": "runner",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Slack API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import time
@@ -51,9 +72,13 @@ def execute_command(command: str) -> tuple[str, str]:
         status is "done" on success, "failed" on error
     """
     try:
+        import shlex
+
+        # Use shlex.split for safer command parsing (prevents shell injection)
+        cmd_args = shlex.split(command)
         result = subprocess.run(
-            command,
-            shell=True,
+            cmd_args,
+            shell=False,
             capture_output=True,
             text=True,
             timeout=300,  # 5 minute timeout
@@ -138,8 +163,11 @@ async def poll_and_execute():
     if parent_dir not in sys.path:
         sys.path.insert(0, parent_dir)
 
-    from orchestrators.agent_execution.task_queue import get_next_task, mark_task_completed
-    from services.slack_client import post_result
+    from orchestrators.agent_execution.task_queue import (
+        get_next_task,
+        mark_task_completed,
+    )
+    from api.slack_client import post_result_async
     from mac_agent.executor import AutomationExecutor
 
     # Import pyautogui for desktop screenshots on failure
@@ -235,7 +263,7 @@ async def poll_and_execute():
                     except Exception as e:
                         logger.error(f"Failed to capture desktop screenshot: {e}")
 
-            # Post result back to Slack
+            # Post result back to Slack (async)
             try:
                 metadata = task.get("metadata", {})
                 user = metadata.get("user")
@@ -244,7 +272,7 @@ async def poll_and_execute():
                 )  # Fallback to user if no channel
 
                 if user or channel:
-                    post_result(channel or user, task, result)
+                    await post_result_async(channel or user, task, result)
                     logger.info(f"Posted result for task {task_id} to Slack")
                 else:
                     logger.warning(
@@ -346,3 +374,48 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MAC-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.slack_client"],
+    "tags": [
+        "api",
+        "async",
+        "filesystem",
+        "integration",
+        "logging",
+        "mac-integration",
+        "messaging",
+        "queue",
+        "serialization",
+        "service",
+    ],
+    "keywords": ["command", "execute", "format", "poll", "runner", "steps"],
+    "business_value": "Utility module for runner",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

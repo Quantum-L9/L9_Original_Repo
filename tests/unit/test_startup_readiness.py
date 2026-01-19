@@ -11,7 +11,12 @@ Verifies:
 import pytest
 from pathlib import Path
 
-from core.governance.session_startup import SessionStartup, StartupResult
+# Always use core.governance.session_startup which has check_kernel_readiness()
+# Note: .cursor-commands/startup/session_startup.py has check_cursor_workflow_kernel() instead
+from core.governance.session_startup import (
+    SessionStartup,
+    StartupResult,
+)
 
 
 # Default workspace root for tests
@@ -321,4 +326,3 @@ class TestStartupErrorHandling:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

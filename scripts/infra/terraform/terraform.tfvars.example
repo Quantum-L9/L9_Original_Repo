@@ -1,0 +1,27 @@
+# =============================================================================
+# L9 Terraform Variables
+# 
+# Copy this to terraform.tfvars and edit:
+#   cp terraform.tfvars.example terraform.tfvars
+# =============================================================================
+
+# Server name (appears in cloud provider dashboard)
+server_name = "l9-vps"
+
+# Server size
+# Hetzner: cx11 (1 vCPU, 2GB), cx21 (2 vCPU, 4GB), cx31 (4 vCPU, 8GB)
+# DigitalOcean: s-1vcpu-1gb, s-2vcpu-4gb, s-4vcpu-8gb
+# AWS: t3.micro, t3.small, t3.medium
+server_type = "cx21"
+
+# Region
+# Hetzner: nbg1 (Nuremberg), fsn1 (Falkenstein), hel1 (Helsinki), ash (US)
+# DigitalOcean: nyc1, nyc3, sfo3, ams3, lon1, fra1
+# AWS: us-east-1, us-west-2, eu-west-1
+region = "nbg1"
+
+# SSH key name (as registered in cloud provider)
+ssh_key_name = "your-ssh-key-name"
+
+# Domain (optional, for DNS records)
+domain = "l9.yourdomain.com"

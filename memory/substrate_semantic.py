@@ -6,11 +6,38 @@ Embedding generation and vector search helpers.
 Provides a pluggable embedding provider interface.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Semantic Layer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "substrate_semantic",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "memory.__init__",
+            "memory.substrate_service",
+            "tests.memory.test_substrate_semantic",
+            "tests.test_memory_substrate_basic",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import random
 import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -19,6 +46,7 @@ class EmbeddingProvider(ABC):
     """Abstract base class for embedding providers."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         """
         Generate embedding for text.
@@ -32,6 +60,7 @@ class EmbeddingProvider(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """
         Generate embeddings for multiple texts.
@@ -90,14 +119,14 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
     async def _with_retries(self, coro_func, *, operation: str):
         """
         Execute async function with exponential backoff retry logic.
-        
+
         Args:
             coro_func: Async function to execute (called each attempt)
             operation: Name of operation for logging
-            
+
         Returns:
             Result from successful coro_func() call
-            
+
         Raises:
             RuntimeError: If all retries exhausted
         """
@@ -120,7 +149,9 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                     delay=round(delay + jitter, 3),
                 )
                 await asyncio.sleep(delay + jitter)
-        raise RuntimeError(f"Embedding request failed after {self._max_retries} retries: {last_error}") from last_error
+        raise RuntimeError(
+            f"Embedding request failed after {self._max_retries} retries: {last_error}"
+        ) from last_error
 
     async def embed_text(self, text: str) -> list[float]:
         """Generate embedding using OpenAI API with retry logic."""
@@ -167,6 +198,7 @@ class StubEmbeddingProvider(EmbeddingProvider):
     def __init__(self, dimensions: int = 1536):
         self._dimensions = dimensions
 
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         """Generate stub embedding from text hash."""
         import hashlib
@@ -221,6 +253,7 @@ class SemanticService:
         text: str,
         payload: dict[str, Any],
         agent_id: Optional[str] = None,
+        scope: str = "shared",  # RLS scope for row-level security
     ) -> str:
         """
         Generate embedding for text and store in semantic_memory.
@@ -229,6 +262,7 @@ class SemanticService:
             text: Text to embed
             payload: Metadata payload to store with embedding
             agent_id: Optional agent identifier
+            scope: RLS scope ('developer', 'global', 'shared', 'l-private')
 
         Returns:
             embedding_id as string
@@ -245,15 +279,35 @@ class SemanticService:
             "_model": getattr(self._provider, "_model", "unknown"),
         }
 
-        # Store in database
+        # Store in database with explicit scope for RLS
         embedding_id = await self._repository.insert_semantic_embedding(
             vector=vector,
             payload=enriched_payload,
             agent_id=agent_id,
+            scope=scope,
         )
 
-        logger.debug(f"Stored embedding {embedding_id}")
+        logger.debug(f"Stored embedding {embedding_id} with scope={scope}")
         return str(embedding_id)
+
+    async def generate_embedding(
+        self,
+        text: str,
+        payload: dict[str, Any],
+        agent_id: Optional[str] = None,
+    ) -> tuple[list[float], dict[str, Any], Optional[str]]:
+        """
+        Generate an embedding and return vector + enriched payload.
+
+        This is useful for transactional write paths where insertion is deferred.
+        """
+        vector = await self._provider.embed_text(text)
+        enriched_payload = {
+            **payload,
+            "_text": text,
+            "_model": getattr(self._provider, "_model", "unknown"),
+        }
+        return vector, enriched_payload, agent_id
 
     async def search(
         self,
@@ -484,6 +538,7 @@ class SemanticService:
         logger.debug(f"Hybrid search found {len(results)} results for: {query[:50]}...")
         return results
 
+    @must_stay_async("callers use await")
     async def rerank_by_relevance(
         self,
         hits: list[dict[str, Any]],
@@ -561,8 +616,7 @@ def create_embedding_provider(
         EmbeddingProvider instance
     """
     if provider_type == "stub":
-        logger.info("Using stub embedding provider")
-        return StubEmbeddingProvider(dimensions=dimensions)
+        raise RuntimeError("Stub embedding provider is not allowed in enforcement mode")
     elif provider_type == "openai":
         logger.info(f"Using OpenAI embedding provider: {model}")
         return OpenAIEmbeddingProvider(
@@ -599,8 +653,61 @@ async def embed_text(
         if api_key:
             provider = OpenAIEmbeddingProvider(model=model, api_key=api_key)
         else:
-            # Default to stub if no API key
-            logger.warning("No API key provided, using stub embeddings")
-            provider = StubEmbeddingProvider()
+            raise RuntimeError("Embedding provider required; missing API key")
 
     return await provider.embed_text(text)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-026",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "debugging",
+        "learning",
+        "llm",
+        "logging",
+        "memory-substrate",
+        "security",
+        "service",
+    ],
+    "keywords": [
+        "batch",
+        "create",
+        "dimensions",
+        "embed",
+        "embedding",
+        "embeddings",
+        "generate",
+        "hit",
+    ],
+    "business_value": "Provides a pluggable embedding provider interface.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

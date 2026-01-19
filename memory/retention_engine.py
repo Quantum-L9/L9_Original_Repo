@@ -14,6 +14,27 @@ Responsibilities:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Retention Engine",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-14T15:33:14Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "retention_engine",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["memory.__init__", "memory.substrate_service"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from dataclasses import dataclass, field
@@ -23,6 +44,7 @@ from typing import Any, Optional, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from memory.agent_persistence import AgentPersistenceService
     from memory.substrate_repository import SubstrateRepository
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -31,18 +53,19 @@ logger = structlog.get_logger(__name__)
 class RetentionPolicy:
     """
     Defines retention rules for checkpoints.
-    
+
     Attributes:
         keep_last_n: Always keep the N most recent checkpoints
         keep_hourly_for_hours: Keep hourly checkpoints for this many hours
         keep_daily_for_days: Keep daily checkpoints for this many days
         keep_weekly_for_weeks: Keep weekly checkpoints for this many weeks
     """
+
     keep_last_n: int = 10
     keep_hourly_for_hours: int = 24
     keep_daily_for_days: int = 7
     keep_weekly_for_weeks: int = 4
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for logging/storage."""
         return {
@@ -56,6 +79,7 @@ class RetentionPolicy:
 @dataclass
 class RetentionResult:
     """Result of a retention cleanup operation."""
+
     agent_id: str
     checkpoints_before: int
     checkpoints_deleted: int
@@ -63,7 +87,7 @@ class RetentionResult:
     policy_applied: RetentionPolicy
     executed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     error: Optional[str] = None
-    
+
     @property
     def success(self) -> bool:
         """Whether the retention operation succeeded."""
@@ -73,11 +97,11 @@ class RetentionResult:
 class RetentionEngine:
     """
     Checkpoint retention and cleanup engine.
-    
+
     Manages automatic cleanup of old checkpoints based on configurable
     retention policies. Supports scheduled execution and manual triggers.
     """
-    
+
     def __init__(
         self,
         persistence: Optional[AgentPersistenceService] = None,
@@ -86,7 +110,7 @@ class RetentionEngine:
     ):
         """
         Initialize retention engine.
-        
+
         Args:
             persistence: AgentPersistenceService for checkpoint operations
             repository: SubstrateRepository for direct DB access
@@ -97,39 +121,39 @@ class RetentionEngine:
         self._policy = policy or RetentionPolicy()
         self._scheduler_task: Optional[asyncio.Task] = None
         self._running = False
-        
+
         logger.info(
             "RetentionEngine initialized",
             policy=self._policy.to_dict(),
         )
-    
+
     def set_persistence(self, persistence: AgentPersistenceService) -> None:
         """Set or update persistence service reference."""
         self._persistence = persistence
-    
+
     def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update repository reference."""
         self._repository = repository
-    
+
     def set_policy(self, policy: RetentionPolicy) -> None:
         """Update retention policy."""
         self._policy = policy
         logger.info("Retention policy updated", policy=policy.to_dict())
-    
+
     async def run_cleanup(self, agent_id: str) -> RetentionResult:
         """
         Run retention cleanup for a specific agent.
-        
+
         Deletes checkpoints that exceed the retention policy limits.
-        
+
         Args:
             agent_id: Agent identifier to clean up
-            
+
         Returns:
             RetentionResult with cleanup statistics
         """
         logger.debug("Starting retention cleanup", agent_id=agent_id)
-        
+
         if self._persistence is None:
             return RetentionResult(
                 agent_id=agent_id,
@@ -139,7 +163,7 @@ class RetentionEngine:
                 policy_applied=self._policy,
                 error="Persistence service not available",
             )
-        
+
         try:
             # Get current checkpoint count
             checkpoints = await self._persistence.list_checkpoints(
@@ -147,15 +171,15 @@ class RetentionEngine:
                 limit=1000,  # High limit to count all
             )
             checkpoints_before = len(checkpoints)
-            
+
             # Apply retention policy
             deleted_count = await self._persistence.delete_old_checkpoints(
                 agent_id=agent_id,
                 keep_last=self._policy.keep_last_n,
             )
-            
+
             checkpoints_after = checkpoints_before - deleted_count
-            
+
             result = RetentionResult(
                 agent_id=agent_id,
                 checkpoints_before=checkpoints_before,
@@ -163,7 +187,7 @@ class RetentionEngine:
                 checkpoints_after=checkpoints_after,
                 policy_applied=self._policy,
             )
-            
+
             logger.info(
                 "Retention cleanup completed",
                 agent_id=agent_id,
@@ -171,9 +195,9 @@ class RetentionEngine:
                 deleted=deleted_count,
                 after=checkpoints_after,
             )
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(
                 "Retention cleanup failed",
@@ -189,14 +213,14 @@ class RetentionEngine:
                 policy_applied=self._policy,
                 error=str(e),
             )
-    
+
     async def run_cleanup_all(self, agent_ids: List[str]) -> List[RetentionResult]:
         """
         Run retention cleanup for multiple agents.
-        
+
         Args:
             agent_ids: List of agent identifiers to clean up
-            
+
         Returns:
             List of RetentionResult for each agent
         """
@@ -205,32 +229,31 @@ class RetentionEngine:
             result = await self.run_cleanup(agent_id)
             results.append(result)
         return results
-    
+
+    @must_stay_async("callers use await")
     async def start_scheduler(self, interval_hours: int = 24) -> None:
         """
         Start the background retention scheduler.
-        
+
         Args:
             interval_hours: Hours between cleanup runs (default: 24)
         """
         if self._running:
             logger.warning("Retention scheduler already running")
             return
-        
+
         self._running = True
-        self._scheduler_task = asyncio.create_task(
-            self._scheduler_loop(interval_hours)
-        )
+        self._scheduler_task = asyncio.create_task(self._scheduler_loop(interval_hours))
         logger.info(
             "Retention scheduler started",
             interval_hours=interval_hours,
         )
-    
+
     async def stop_scheduler(self) -> None:
         """Stop the background retention scheduler."""
         if not self._running:
             return
-        
+
         self._running = False
         if self._scheduler_task:
             self._scheduler_task.cancel()
@@ -239,37 +262,38 @@ class RetentionEngine:
             except asyncio.CancelledError:
                 pass
             self._scheduler_task = None
-        
+
         logger.info("Retention scheduler stopped")
-    
+
     async def _scheduler_loop(self, interval_hours: int) -> None:
         """Internal scheduler loop."""
         while self._running:
             try:
                 # Sleep first, then run (avoid immediate run on startup)
                 await asyncio.sleep(interval_hours * 3600)
-                
+
                 if not self._running:
                     break
-                
+
                 # Get all unique agent IDs from repository
                 # For now, use a default list - in production, query from DB
-                default_agents = ["l9-standard-v1", "l-cto", "cursor-agent"]
-                
+                # Canonical agent IDs: l-cto (L's primary), cursor-ide (Cursor's primary)
+                default_agents = ["l-cto", "cursor-ide"]
+
                 logger.info(
                     "Scheduled retention cleanup starting",
                     agent_count=len(default_agents),
                 )
-                
+
                 results = await self.run_cleanup_all(default_agents)
-                
+
                 total_deleted = sum(r.checkpoints_deleted for r in results)
                 logger.info(
                     "Scheduled retention cleanup completed",
                     agents_processed=len(results),
                     total_deleted=total_deleted,
                 )
-                
+
             except asyncio.CancelledError:
                 break
             except Exception as e:
@@ -291,3 +315,61 @@ __all__ = [
     "RetentionPolicy",
     "RetentionResult",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-027",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "memory.agent_persistence",
+        "memory.substrate_repository",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "audit-tool",
+        "dataclass",
+        "debugging",
+        "engine",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "scheduling",
+    ],
+    "keywords": [
+        "all",
+        "audit",
+        "cleanup",
+        "engine",
+        "memory",
+        "persistence",
+        "policies",
+        "policy",
+    ],
+    "business_value": "Implements memory_spec_v3.0.yaml retention policies.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

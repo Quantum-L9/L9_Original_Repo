@@ -4,6 +4,27 @@ Prometheus exporter for Five-Tier Observability metrics.
 Exposes observability metrics to Prometheus for Grafana visualization.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Prometheus Exporter",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-12T15:32:48Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "prometheus_exporter",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.singleton_registry"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Optional, Dict, Any
 
@@ -12,6 +33,7 @@ logger = structlog.get_logger(__name__)
 # Try to import prometheus_client
 try:
     from prometheus_client import Counter, Histogram, Gauge, Summary
+
     PROMETHEUS_AVAILABLE = True
 except ImportError:
     PROMETHEUS_AVAILABLE = False
@@ -219,7 +241,9 @@ class ObservabilityPrometheusExporter:
 
         try:
             self.agent_success_rate.labels(agent_name=agent_name).set(success_rate)
-            self.agent_tool_efficiency.labels(agent_name=agent_name).set(tool_efficiency)
+            self.agent_tool_efficiency.labels(agent_name=agent_name).set(
+                tool_efficiency
+            )
             self.agent_cost_usd.labels(agent_name=agent_name).set(cost_usd)
         except Exception as e:
             logger.warning(f"Failed to update agent KPI: {e}")
@@ -239,9 +263,13 @@ class ObservabilityPrometheusExporter:
         try:
             self.llm_calls_total.labels(model=model, status=status).inc()
             if prompt_tokens > 0:
-                self.llm_tokens_total.labels(model=model, type="prompt").inc(prompt_tokens)
+                self.llm_tokens_total.labels(model=model, type="prompt").inc(
+                    prompt_tokens
+                )
             if completion_tokens > 0:
-                self.llm_tokens_total.labels(model=model, type="completion").inc(completion_tokens)
+                self.llm_tokens_total.labels(model=model, type="completion").inc(
+                    completion_tokens
+                )
             if cost_usd > 0:
                 self.llm_cost_usd.labels(model=model).inc(cost_usd)
         except Exception as e:
@@ -286,6 +314,60 @@ def initialize_exporter() -> Optional[ObservabilityPrometheusExporter]:
         logger.info("Observability Prometheus exporter initialized")
     else:
         _exporter = None
-        logger.debug("Prometheus exporter not available (prometheus_client not installed)")
+        logger.debug(
+            "Prometheus exporter not available (prometheus_client not installed)"
+        )
     return _exporter
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-055",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "core",
+        "debugging",
+        "exporter",
+        "foundation",
+        "logging",
+        "metrics",
+        "utility",
+    ],
+    "keywords": [
+        "agent",
+        "assembly",
+        "exporter",
+        "failure",
+        "initialize",
+        "kpi",
+        "llm",
+        "metrics",
+    ],
+    "business_value": "Implements ObservabilityPrometheusExporter for prometheus exporter functionality",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

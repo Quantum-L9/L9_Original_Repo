@@ -10,7 +10,7 @@ Parses GMP report markdown files and creates graph nodes/relationships:
 
 Usage:
     python scripts/load_gmp_reports_to_graph.py
-    
+
 Or from API startup:
     from scripts.load_gmp_reports_to_graph import load_gmp_reports
     await load_gmp_reports(neo4j_driver)
@@ -18,6 +18,27 @@ Or from API startup:
 Author: L9 System
 Created: 2026-01-06
 """
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Load Gmp Reports To Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T19:43:29Z",
+    "updated_at": "2026-01-09T01:57:28Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "load_gmp_reports_to_graph",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
 
 import asyncio
 import os
@@ -38,7 +59,7 @@ REPORTS_DIR = Path(__file__).parent.parent / "reports"
 
 def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
     """Parse a GMP report markdown file and extract metadata.
-    
+
     Returns dict with:
     - id: GMP ID (e.g., "GMP-34")
     - name: Task name
@@ -54,12 +75,12 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
     except Exception as e:
         logger.warning("failed_to_read_report", file=str(file_path), error=str(e))
         return None
-    
+
     result = {
         "source_file": str(file_path.name),
         "files_modified": [],
     }
-    
+
     # Extract GMP ID from various formats
     # Format 1: **GMP ID:** GMP-34
     # Format 2: GMP ID: GMP-34
@@ -75,7 +96,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
         if match:
             result["id"] = match.group(1).upper()
             break
-    
+
     if "id" not in result:
         # Try to extract from filename
         filename_match = re.search(r"(GMP-[\w-]+)", file_path.stem, re.IGNORECASE)
@@ -83,7 +104,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
             result["id"] = filename_match.group(1).upper()
         else:
             result["id"] = f"GMP-{file_path.stem[:20]}"
-    
+
     # Extract name/title
     title_patterns = [
         r"\*\*Task:\*\*\s*(.+?)(?:\n|$)",
@@ -96,17 +117,19 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
         if match:
             result["name"] = match.group(1).strip().replace("*", "")[:100]
             break
-    
+
     if "name" not in result:
-        result["name"] = file_path.stem.replace("Report_", "").replace("GMP_Report_", "")
-    
+        result["name"] = file_path.stem.replace("Report_", "").replace(
+            "GMP_Report_", ""
+        )
+
     # Extract tier
     tier_match = re.search(r"\*\*Tier:\*\*\s*(\w+)", content, re.IGNORECASE)
     if tier_match:
         result["tier"] = tier_match.group(1).upper()
     else:
         result["tier"] = "RUNTIME"  # Default
-    
+
     # Extract status
     if "✅ COMPLETE" in content or "Status:** ✅" in content:
         result["status"] = "COMPLETE"
@@ -116,7 +139,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
         result["status"] = "FAILED"
     else:
         result["status"] = "COMPLETE"  # Assume complete if report exists
-    
+
     # Extract date
     date_patterns = [
         r"\*\*Executed:\*\*\s*([\d-]+\s*[\d:]*)",
@@ -128,19 +151,19 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
         if match:
             result["executed"] = match.group(1).strip()[:20]
             break
-    
+
     if "executed" not in result:
         # Use file modification time
         mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
         result["executed"] = mtime.strftime("%Y-%m-%d")
-    
+
     # Extract risk level
     risk_match = re.search(r"\*\*Risk Level:\*\*\s*(\w+)", content, re.IGNORECASE)
     if risk_match:
         result["risk_level"] = risk_match.group(1).capitalize()
     else:
         result["risk_level"] = "Medium"
-    
+
     # Extract files modified
     # Look for file paths in various formats
     file_patterns = [
@@ -149,7 +172,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
         r"File:\s*`?(/[/\w._-]+\.py)`?",  # File: /path/to/file.py
         r"\*\*\[T\d+\]\*\* File:\s*`?([/\w._-]+)`?",  # [T1] File: path
     ]
-    
+
     files_found = set()
     for pattern in file_patterns:
         for match in re.finditer(pattern, content):
@@ -160,9 +183,9 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
                 if "/L9/" in file_path_str:
                     file_path_str = file_path_str.split("/L9/")[1]
             files_found.add(file_path_str)
-    
+
     result["files_modified"] = list(files_found)[:20]  # Limit to 20 files
-    
+
     # Extract summary (first paragraph after executive summary or description)
     summary_patterns = [
         r"## Executive Summary\s*\n+(.+?)(?:\n\n|---)",
@@ -178,20 +201,20 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
             summary = re.sub(r"\n+", " ", summary)
             result["summary"] = summary[:300]
             break
-    
+
     if "summary" not in result:
         result["summary"] = result["name"]
-    
+
     return result
 
 
 async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
     """Create GMP nodes in Neo4j.
-    
+
     Returns dict with creation statistics.
     """
     stats = {"gmps": 0, "files": 0, "modified_rels": 0}
-    
+
     async with driver.session() as session:
         for report in reports:
             # Create GMP node
@@ -217,11 +240,11 @@ async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
                     "risk_level": report["risk_level"],
                     "summary": report.get("summary", ""),
                     "source_file": report["source_file"],
-                }
+                },
             )
             if await result.single():
                 stats["gmps"] += 1
-            
+
             # Create File nodes and MODIFIED relationships
             for file_path in report.get("files_modified", []):
                 result = await session.run(
@@ -238,18 +261,18 @@ async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
                         "path": file_path,
                         "name": Path(file_path).name,
                         "gmp_id": report["id"],
-                    }
+                    },
                 )
                 if await result.single():
                     stats["files"] += 1
                     stats["modified_rels"] += 1
-    
+
     return stats
 
 
 async def create_gmp_schema(driver: "AsyncDriver") -> int:
     """Create GMP-related constraints and indexes.
-    
+
     Returns number of constraints created.
     """
     constraints = [
@@ -258,7 +281,7 @@ async def create_gmp_schema(driver: "AsyncDriver") -> int:
         "CREATE INDEX gmp_status IF NOT EXISTS FOR (g:GMP) ON (g.status)",
         "CREATE INDEX gmp_tier IF NOT EXISTS FOR (g:GMP) ON (g.tier)",
     ]
-    
+
     created = 0
     async with driver.session() as session:
         for constraint in constraints:
@@ -267,38 +290,42 @@ async def create_gmp_schema(driver: "AsyncDriver") -> int:
                 created += 1
             except Exception as e:
                 if "already exists" not in str(e).lower():
-                    logger.warning("constraint_failed", constraint=constraint[:50], error=str(e))
-    
+                    logger.warning(
+                        "constraint_failed", constraint=constraint[:50], error=str(e)
+                    )
+
     return created
 
 
 async def load_gmp_reports(driver: "AsyncDriver") -> dict:
     """Load all GMP reports from reports/ directory into Neo4j.
-    
+
     Returns dict with statistics.
     """
     logger.info("load_gmp_reports_start", reports_dir=str(REPORTS_DIR))
-    
+
     # Find all GMP report files
-    report_files = list(REPORTS_DIR.glob("*GMP*.md")) + list(REPORTS_DIR.glob("Report_*.md"))
+    report_files = list(REPORTS_DIR.glob("*GMP*.md")) + list(
+        REPORTS_DIR.glob("Report_*.md")
+    )
     report_files = list(set(report_files))  # Remove duplicates
-    
+
     logger.info("found_report_files", count=len(report_files))
-    
+
     # Parse all reports
     reports = []
     for file_path in report_files:
         parsed = parse_gmp_report(file_path)
         if parsed:
             reports.append(parsed)
-    
+
     logger.info("parsed_reports", count=len(reports))
-    
+
     try:
         # Create schema
         constraints = await create_gmp_schema(driver)
         logger.info("gmp_schema_created", constraints=constraints)
-        
+
         # Create nodes
         stats = await create_gmp_nodes(driver, reports)
         logger.info(
@@ -307,14 +334,14 @@ async def load_gmp_reports(driver: "AsyncDriver") -> dict:
             files=stats["files"],
             modified_rels=stats["modified_rels"],
         )
-        
+
         return {
             "success": True,
             "reports_found": len(report_files),
             "reports_parsed": len(reports),
             **stats,
         }
-        
+
     except Exception as e:
         logger.error("load_gmp_reports_failed", error=str(e))
         return {"success": False, "error": str(e)}
@@ -323,18 +350,18 @@ async def load_gmp_reports(driver: "AsyncDriver") -> dict:
 async def main():
     """CLI entrypoint for standalone execution."""
     from neo4j import AsyncGraphDatabase, basic_auth
-    
+
     uri = os.getenv("NEO4J_URL") or os.getenv("NEO4J_URI", "bolt://localhost:7687")
     user = os.getenv("NEO4J_USER", "neo4j")
     password = os.getenv("NEO4J_PASSWORD", "")
-    
+
     if not password:
         logger.info("ERROR: NEO4J_PASSWORD environment variable required")
         return
-    
+
     logger.info(f"Connecting to Neo4j at {uri}...")
     driver = AsyncGraphDatabase.driver(uri, auth=basic_auth(user, password))
-    
+
     try:
         result = await load_gmp_reports(driver)
         logger.info("GMP Reports Load Complete:")
@@ -350,3 +377,55 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "filesystem",
+        "graph-db",
+        "logging",
+        "memory-substrate",
+        "operations",
+        "service",
+    ],
+    "keywords": [
+        "create",
+        "gmp",
+        "graph",
+        "load",
+        "nodes",
+        "parse",
+        "report",
+        "reports",
+    ],
+    "business_value": "Utility module for load gmp reports to graph",
+    "last_modified": "2026-01-09T01:57:28Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

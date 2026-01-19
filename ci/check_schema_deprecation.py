@@ -27,6 +27,27 @@ Exit codes:
     2 = Error (script failure)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Check Schema Deprecation",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "ci",
+    "module_name": "check_schema_deprecation",
+    "type": "cli",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import structlog
 import re
@@ -95,8 +116,8 @@ EXCLUDE_PATTERNS = [
 # Sunset dates
 DEPRECATION_DATE = datetime(2026, 1, 5)
 SUNSET_WARNING_DATE = datetime(2026, 2, 20)  # Day 45
-WRITE_BLOCK_DATE = datetime(2026, 3, 22)     # Day 75
-READ_BLOCK_DATE = datetime(2026, 4, 5)       # Day 90
+WRITE_BLOCK_DATE = datetime(2026, 3, 22)  # Day 75
+READ_BLOCK_DATE = datetime(2026, 4, 5)  # Day 90
 
 
 # =============================================================================
@@ -106,6 +127,7 @@ READ_BLOCK_DATE = datetime(2026, 4, 5)       # Day 90
 
 class Violation(NamedTuple):
     """A single deprecated import violation."""
+
     file: Path
     line_number: int
     line_content: str
@@ -120,14 +142,14 @@ class Violation(NamedTuple):
 def get_current_phase() -> int:
     """
     Determine current enforcement phase based on date.
-    
+
     Phase 1: Warnings only (deprecation announced)
     Phase 2: Errors in new files (sunset warning)
     Phase 3: Errors for all writes
     Phase 4: Complete block (migration required)
     """
     now = datetime.now()
-    
+
     if now >= READ_BLOCK_DATE:
         return 4
     elif now >= WRITE_BLOCK_DATE:
@@ -172,25 +194,27 @@ def find_python_files() -> list[Path]:
 def scan_file(file_path: Path) -> list[Violation]:
     """Scan a single file for deprecated imports."""
     violations = []
-    
+
     try:
         content = file_path.read_text(encoding="utf-8")
     except Exception:
         return violations
-    
+
     lines = content.split("\n")
-    
+
     for line_num, line in enumerate(lines, start=1):
         for pattern in DEPRECATED_PATTERNS:
             if re.search(pattern, line):
-                violations.append(Violation(
-                    file=file_path,
-                    line_number=line_num,
-                    line_content=line.strip(),
-                    pattern_matched=pattern,
-                ))
+                violations.append(
+                    Violation(
+                        file=file_path,
+                        line_number=line_num,
+                        line_content=line.strip(),
+                        pattern_matched=pattern,
+                    )
+                )
                 break  # Only report once per line
-    
+
     return violations
 
 
@@ -204,7 +228,7 @@ def print_violation(v: Violation, show_hint: bool = False) -> None:
     rel_path = v.file.relative_to(PROJECT_ROOT)
     logger.info(f"  {rel_path}:{v.line_number}")
     logger.info(f"    {v.line_content}")
-    
+
     if show_hint:
         logger.info(f"    💡 Replace with: {CANONICAL_IMPORT}")
     logger.info("")
@@ -226,20 +250,24 @@ def print_summary(
     logger.info(f"Files scanned: {len(find_python_files())}")
     logger.info(f"Violations found: {len(violations)}")
     logger.info("")
-    
+
     if violations:
         logger.info("Deprecated PacketEnvelope imports found:")
         logger.info("-" * 40)
         logger.info("")
-        
+
         for v in violations:
             print_violation(v, show_hints)
-        
+
         logger.info("-" * 40)
         logger.info("")
         logger.info("Migration required:")
-        logger.info("  ❌ Old: from memory.substrate_models import PacketEnvelope  # REMOVED in GMP-74")
-        logger.info("  ❌ Old: from core.schemas.packet_envelope import PacketEnvelope  # Use v2")
+        logger.info(
+            "  ❌ Old: from memory.substrate_models import PacketEnvelope  # REMOVED in GMP-74"
+        )
+        logger.info(
+            "  ❌ Old: from core.schemas.packet_envelope import PacketEnvelope  # Use v2"
+        )
         logger.info(f"  ✅ New: {CANONICAL_IMPORT}")
         logger.info("")
         logger.info("Note: memory.substrate_models is NOT deprecated for:")
@@ -285,20 +313,20 @@ def main() -> int:
         action="store_true",
         help="Only output on failure",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Determine phase
     phase = args.phase if args.phase else get_current_phase()
-    
+
     # Scan files
     violations = []
     for file_path in find_python_files():
         violations.extend(scan_file(file_path))
-    
+
     # Determine pass/fail
     should_fail = False
-    
+
     if args.strict:
         # Strict mode: any violation is a failure
         should_fail = len(violations) > 0
@@ -314,11 +342,11 @@ def main() -> int:
         else:
             # Phase 1: Warnings only
             should_fail = False
-    
+
     # Output
     if not args.quiet or violations:
         print_summary(violations, phase, args.strict, args.fix_hint)
-    
+
     if should_fail:
         logger.error("❌ CI GATE FAILED: Deprecated schema imports must be migrated")
         logger.info("")
@@ -327,7 +355,9 @@ def main() -> int:
         return 1
     elif violations:
         logger.warning("⚠️  WARNINGS: Deprecated imports found (not blocking yet)")
-        logger.error(f"   These will become errors on {WRITE_BLOCK_DATE.strftime('%Y-%m-%d')}")
+        logger.error(
+            f"   These will become errors on {WRITE_BLOCK_DATE.strftime('%Y-%m-%d')}"
+        )
         logger.info("")
         return 0
     else:
@@ -339,3 +369,54 @@ def main() -> int:
 if __name__ == "__main__":
     sys.exit(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CI-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "caching",
+        "ci",
+        "cli",
+        "filesystem",
+        "logging",
+        "migration",
+        "operations",
+        "testing",
+    ],
+    "keywords": [
+        "check",
+        "current",
+        "deprecation",
+        "description",
+        "exclude",
+        "files",
+        "find",
+        "phase",
+    ],
+    "business_value": "1. Imports of PacketEnvelope from memory.substrate_models (will error - class removed) 2. Imports from core.schemas.packet_envelope (old v1 location, use v2) python ci/check_schema_deprecation.py [--s",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

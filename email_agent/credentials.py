@@ -8,6 +8,31 @@ Supports multi-account mode (igor, l) with backward compatibility.
 Version: 2.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Credentials",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "integration",
+    "domain": "email_integration",
+    "module_name": "credentials",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "email_agent.__init__",
+            "email_agent.gmail_client",
+            "email_agent.oauth_server",
+        ],
+    },
+}
+# ============================================================================
+
 import json
 import structlog
 from typing import Optional, Dict, Any
@@ -246,3 +271,56 @@ def load_tokens(account: Optional[str] = None) -> Optional[Credentials]:
     except Exception as e:
         logger.error(f"Failed to load tokens: {e}")
         return None
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "EMA-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "email-integration",
+        "integration",
+        "logging",
+        "security",
+        "serialization",
+        "utility",
+    ],
+    "keywords": [
+        "client",
+        "create",
+        "credentials",
+        "exchange",
+        "flow",
+        "gmail",
+        "handler",
+        "load",
+    ],
+    "business_value": "Handles OAuth2 flow for Gmail API authentication. Supports multi-account mode (igor, l) with backward compatibility. Version: 2.0.0",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

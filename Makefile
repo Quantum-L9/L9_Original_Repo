@@ -15,8 +15,8 @@
 
 # Configuration
 VPS_HOST := 157.180.73.53
-VPS_USER := root
-VPS_PATH := /root/L9
+VPS_USER := admin
+VPS_PATH := /opt/l9
 COMPOSE_PROJECT := l9
 
 # Colors
@@ -62,6 +62,9 @@ help:
 	@echo "  make ci-spec SPEC=x.yaml                        Validate spec v2.5"
 	@echo "  make ci-code SPEC=x.yaml FILES='a.py'           Validate code"
 	@echo "  make ci-all-specs                               Validate ALL specs"
+	@echo ""
+	@echo "$(YELLOW)Cursor:$(NC)"
+	@echo "  make cursor-start  Run Cursor session startup"
 	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
 	@echo "  make clean         Clean Python cache and build artifacts"
@@ -148,7 +151,7 @@ docker-clean:
 
 deploy: env-check ci-all-specs smoke
 	@echo "$(GREEN)Deploying to VPS...$(NC)"
-	@./scripts/deploy_to_vps.sh
+	@./scripts/10x_deploy.sh
 
 deploy-dry:
 	@echo "$(YELLOW)Dry run - showing what would be deployed...$(NC)"
@@ -202,4 +205,11 @@ clean:
 env-check:
 	@echo "$(GREEN)Checking environment variables...$(NC)"
 	@./scripts/check_env.sh
+
+# =============================================================================
+# Cursor
+# =============================================================================
+
+cursor-start:
+	@./scripts/cursor-start-session
 

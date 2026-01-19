@@ -1,0 +1,328 @@
+"""
+GMP Learning API Routes
+=======================
+
+Endpoints for GMP v2.0 meta-learning system.
+
+Endpoints:
+- GET /api/gmp/autonomy-level - Current autonomy level
+- GET /api/gmp/graduation-status - Can graduate to next level?
+- GET /api/gmp/heuristics - Active learned heuristics
+- GET /api/gmp/analytics - Execution pattern analytics
+- POST /api/gmp/log-execution - Log a GMP execution (internal)
+"""
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Gmp Learning",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T12:13:08Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "gmp_learning",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "GET /autonomy-level",
+            "GET /graduation-status",
+            "POST /graduate",
+            "GET /heuristics",
+            "GET /analytics",
+            "POST /log-execution",
+            "POST /generate-heuristics",
+        ],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
+from typing import Optional, List, Dict, Any
+from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel
+import structlog
+
+from agents.cursor.gmp_meta_learning import (
+    GMPMetaLearningEngine,
+    AutonomyController,
+    GMPExecutionResult,
+)
+
+logger = structlog.get_logger(__name__)
+router = APIRouter()
+
+
+# Response models
+class AutonomyLevelResponse(BaseModel):
+    current_level: str
+    description: str
+    capabilities: List[str]
+
+
+class GraduationStatusResponse(BaseModel):
+    can_graduate: bool
+    reason: str
+    current_level: str
+    next_level: Optional[str]
+
+
+class HeuristicsResponse(BaseModel):
+    count: int
+    heuristics: List[Dict[str, Any]]
+
+
+class AnalyticsResponse(BaseModel):
+    total_executions: int
+    avg_execution_time: float
+    avg_confidence: float
+    error_rate: float
+    pass_rate: float
+    by_task_type: Dict[str, Any]
+
+
+# Dependency to get engine
+def get_gmp_engine() -> GMPMetaLearningEngine:
+    from api.server import gmp_learning_engine
+
+    if gmp_learning_engine is None:
+        raise HTTPException(
+            status_code=503,
+            detail="GMP Learning Engine not initialized. Set L9_GMP_LEARNING_ENABLED=true",
+        )
+    return gmp_learning_engine
+
+
+# Level descriptions
+LEVEL_INFO = {
+    "L2": {
+        "description": "Constrained Execution",
+        "capabilities": ["locked_todo_plans", "static_audit", "no_learning"],
+    },
+    "L3": {
+        "description": "Adaptive Execution",
+        "capabilities": ["adaptive_todos", "failure_recovery", "pattern_matching"],
+    },
+    "L4": {
+        "description": "Meta-Strategic Execution",
+        "capabilities": [
+            "architectural_reasoning",
+            "optimization_suggestions",
+            "cross_gmp_analysis",
+        ],
+    },
+    "L5": {
+        "description": "Fully Autonomous",
+        "capabilities": ["autonomous_goal", "self_healing", "proactive_improvements"],
+    },
+}
+
+
+@router.get("/autonomy-level", response_model=AutonomyLevelResponse)
+async def get_autonomy_level(
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+):
+    """Get current GMP autonomy level."""
+    controller = AutonomyController(engine)
+    level = await controller.get_current_autonomy_level()
+
+    info = LEVEL_INFO.get(level.value, LEVEL_INFO["L2"])
+
+    return AutonomyLevelResponse(
+        current_level=level.value,
+        description=info["description"],
+        capabilities=info["capabilities"],
+    )
+
+
+@router.get("/graduation-status", response_model=GraduationStatusResponse)
+async def get_graduation_status(
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+):
+    """Check if system can graduate to next autonomy level."""
+    controller = AutonomyController(engine)
+
+    current = await controller.get_current_autonomy_level()
+    can_graduate, reason = await controller.can_graduate_to_next_level()
+
+    next_level_map = {"L2": "L3", "L3": "L4", "L4": "L5", "L5": None}
+
+    return GraduationStatusResponse(
+        can_graduate=can_graduate,
+        reason=reason,
+        current_level=current.value,
+        next_level=next_level_map.get(current.value),
+    )
+
+
+@router.post("/graduate", response_model=GraduationStatusResponse)
+async def graduate_to_next_level(
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+):
+    """Attempt to graduate to the next autonomy level."""
+    controller = AutonomyController(engine)
+
+    success, message = await controller.graduate_to_next_level()
+    current = await controller.get_current_autonomy_level()
+
+    next_level_map = {"L2": "L3", "L3": "L4", "L4": "L5", "L5": None}
+
+    return GraduationStatusResponse(
+        can_graduate=success,
+        reason=message,
+        current_level=current.value,
+        next_level=next_level_map.get(current.value),
+    )
+
+
+@router.get("/heuristics", response_model=HeuristicsResponse)
+async def get_heuristics(
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+):
+    """Get all active learned heuristics."""
+    heuristics = await engine.get_active_heuristics()
+
+    return HeuristicsResponse(
+        count=len(heuristics),
+        heuristics=[
+            {
+                "heuristic_id": h.heuristic_id,
+                "pattern": h.pattern_text,
+                "condition": h.condition,
+                "recommendation": h.recommendation,
+                "confidence": h.confidence,
+                "impact": h.impact_estimate,
+                "supporting_gmps": len(h.supporting_gmp_ids),
+            }
+            for h in heuristics
+        ],
+    )
+
+
+@router.get("/analytics", response_model=AnalyticsResponse)
+async def get_analytics(
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+):
+    """Get GMP execution analytics for past 30 days."""
+    stats = await engine.analyze_execution_patterns()
+
+    if stats.get("total_executions", 0) == 0:
+        return AnalyticsResponse(
+            total_executions=0,
+            avg_execution_time=0.0,
+            avg_confidence=0.0,
+            error_rate=0.0,
+            pass_rate=0.0,
+            by_task_type={},
+        )
+
+    return AnalyticsResponse(
+        total_executions=stats["total_executions"],
+        avg_execution_time=stats["avg_execution_time"],
+        avg_confidence=stats["avg_confidence"],
+        error_rate=stats["error_rate"],
+        pass_rate=stats["pass_rate"],
+        by_task_type=stats.get("by_task_type", {}),
+    )
+
+
+@router.post("/log-execution")
+async def log_execution(
+    result: GMPExecutionResult,
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+):
+    """Log a GMP execution result (internal use)."""
+    success = await engine.log_execution(result)
+
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to log execution")
+
+    # Update autonomy metrics
+    metrics = await engine.update_autonomy_metrics(result)
+
+    return {
+        "logged": True,
+        "gmp_id": result.gmp_id,
+        "autonomy_metrics": {
+            "current_level": metrics.current_level.value,
+            "perfect_executions": metrics.perfect_executions_l2,
+            "l2_to_l3_ready": metrics.l2_to_l3_ready,
+        },
+    }
+
+
+@router.post("/generate-heuristics")
+async def trigger_heuristic_generation(
+    engine: GMPMetaLearningEngine = Depends(get_gmp_engine),
+):
+    """Manually trigger heuristic generation from execution history."""
+    heuristics = await engine.generate_heuristics()
+
+    return {
+        "generated": len(heuristics),
+        "heuristics": [
+            {
+                "pattern": h.pattern_text,
+                "confidence": h.confidence,
+            }
+            for h in heuristics
+        ],
+    }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-018",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.cursor.gmp_meta_learning", "api.server"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "endpoint",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+        "pydantic",
+        "router",
+    ],
+    "keywords": [
+        "analytics",
+        "autonomy",
+        "endpoints",
+        "engine",
+        "execution",
+        "generation",
+        "gmp",
+        "graduate",
+    ],
+    "business_value": "Provides gmp learning components including AutonomyLevelResponse, GraduationStatusResponse, HeuristicsResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

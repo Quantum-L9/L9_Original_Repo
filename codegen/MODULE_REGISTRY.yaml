@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Module Registry"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2025-12-20T15:08:40Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "MODULE_REGISTRY"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # L9 MODULE REGISTRY — Source of Truth for Module Identity + Tier
 # ============================================================================
 # 
@@ -60,6 +75,15 @@ modules:
     tier: 2
     scope: "Perplexity API client with best practices codified"
     status: complete
+  
+  - module_id: symbolic_codegen
+    tier: 2
+    scope: "SymPy-based symbolic code synthesis and verification pipeline"
+    kernel: symbolic.codegen.kernel.v2
+    status: complete
+    paths:
+      - codegen/symbolic/
+      - core/symbolic_computation/
   
   # ─────────────────────────────────────────────────────────────────────────
   # TIER 3: Routes (depends on Tier 0-2)
@@ -126,3 +150,10 @@ modules:
     scope: "FastAPI application entry point"
     status: existing
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "configuration", "foundation", "kernel", "pipeline", "tool-config"]
+# keywords: ["module", "modules", "registry"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

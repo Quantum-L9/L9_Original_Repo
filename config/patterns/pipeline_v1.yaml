@@ -1,0 +1,128 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Pipeline V1"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-16T00:01:21Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "pipeline_v1"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+spec_kind: l9_architecture_pattern
+version: 1
+revision: "2026-01-16"
+
+name: Universal Architecture Pipeline
+description: >
+  Reusable 9-node pattern for designing, reviewing, implementing, and validating
+  any L9 subsystem (code mutations, tools, auth, memory retrieval, etc.).
+  
+  Data-driven: The same orchestrator logic handles all subsystems.
+  Config-driven: Subsystem-specific behavior is in config files.
+
+# ===== UNIVERSAL NODES (Same for all subsystems) =====
+nodes:
+  
+  - id: N1
+    uid: node.requirements_elicitation.v1
+    name: RequirementsElicitation
+    kind: reasoning
+    role: ArchitectAgent
+    description: >
+      Extract structured requirements from user prompts.
+      Subsystem-agnostic: works for any domain.
+    
+    input_contract:
+      - name: user_prompts
+        type: list[str]
+        required: true
+      - name: subsystem_metadata
+        type: dict
+        required: true
+    
+    output_contract:
+      packet_type: requirements_document
+      schema:
+        type: object
+        properties:
+          goals: {type: array}
+          constraints: {type: array}
+          risks: {type: array}
+        required: [goals, constraints, risks]
+    
+    memory_segment: segment.generation_artifacts
+    
+    next: [N2]
+  
+  - id: N2
+    uid: node.pipeline_architecture_draft.v1
+    name: PipelineArchitectureDraft
+    kind: reasoning
+    role: ArchitectAgent
+    
+    input_contract:
+      - name: requirements_document
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: pipeline_draft
+      schema:
+        type: object
+        properties:
+          stages: {type: array}
+          risk_model: {type: object}
+          memory_model: {type: object}
+        required: [stages, risk_model, memory_model]
+    
+    memory_segment: segment.generation_artifacts
+    
+    next: [N3]
+  
+  # ... N3 through N9 follow same pattern ...
+  # (See l9_enhanced_pipeline_v3.yaml for full spec)
+
+# ===== VALIDATION & GOVERNANCE =====
+phase_0_mandatory:
+  description: >
+    ALL subsystems must include these artifacts in Phase 0.
+    Non-negotiable for production readiness.
+  
+  items:
+    - mutation_tracking_system
+    - comprehensive_test_suite
+    - instantiation_verification
+    - guardrails
+    - ci_cd_workflows
+
+# ===== TERMINATION CONDITIONS =====
+l_improvement_loop_config:
+  yield_threshold_pct: 10.0
+  max_iterations: 5
+  improvement_dimensions: 10
+
+# ===== METRICS & OBSERVABILITY =====
+observability:
+  emit_metrics:
+    - node_latency_ms (all nodes)
+    - node_success_rate (all nodes)
+    - improvement_yield_pct (L loop only)
+    - test_coverage_pct (N7 only)
+    - mutation_success_rate (N8 only)
+  
+  tracing:
+    format: opentelemetry
+    required_fields: [trace_id, span_id, node_id, duration_ms, status]
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "configuration", "foundation", "model-config", "pipeline", "prompt", "schema", "tool-config"]
+# keywords: ["description", "l_improvement_loop_config", "name", "nodes", "observability", "phase_0_mandatory"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

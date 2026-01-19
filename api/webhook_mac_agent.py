@@ -2,6 +2,31 @@
 Mac Agent API endpoints for polling and reporting task results.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Webhook Mac Agent",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "webhook_mac_agent",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "GET /tasks/next",
+            "POST /tasks/{task_id}/result",
+            "GET /tasks",
+        ],
+        "datasources": ["HTTP API", "Slack API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server", "api.server_memory"],
+    },
+}
+# ============================================================================
+
 import structlog
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -70,13 +95,13 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
     Submit the result of a Mac task execution (file-based system).
     If source is "slack" and channel is set, posts result back to Slack.
     Ingests result to memory for audit trail.
-    
+
     Note: task_id is now a UUID string (file-based system), not an integer.
     """
-    
+
     # Mark task as completed (file-based system)
     mark_task_completed(task_id)
-    
+
     # For backward compatibility, try to get task from legacy in-memory system
     # This is for legacy API compatibility only
     task = None
@@ -125,36 +150,47 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
     channel = task.channel if task else None
     if channel:
         try:
-            from services.slack_client import slack_post
+            import httpx
+            import os
+            from api.slack_client import SlackAPIClient
 
-            status_emoji = "✅" if payload.status == "done" else "❌"
-
-            # Build message with enhanced V2 info
-            message_parts = [
-                f"{status_emoji} Mac task {task_id} finished with status `{payload.status}`"
-            ]
-
-            if payload.logs:
-                # Include last few logs
-                recent_logs = (
-                    payload.logs[-5:] if len(payload.logs) > 5 else payload.logs
+            # Create async client for this call
+            slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
+            if slack_bot_token:
+                http_client = httpx.AsyncClient()
+                slack_client = SlackAPIClient(
+                    bot_token=slack_bot_token, http_client=http_client
                 )
-                message_parts.append("\nRecent logs:")
-                for log in recent_logs:
-                    message_parts.append(f"  • {log}")
 
-            message_parts.append(
-                f"\n```\n{payload.result[:500]}{'...' if len(payload.result) > 500 else ''}\n```"
-            )
+                status_emoji = "✅" if payload.status == "done" else "❌"
 
-            if payload.screenshot_path:
-                message_parts.append(f"\n📸 Screenshot: {payload.screenshot_path}")
+                # Build message with enhanced V2 info
+                message_parts = [
+                    f"{status_emoji} Mac task {task_id} finished with status `{payload.status}`"
+                ]
 
-            message = "\n".join(message_parts)
-            slack_post(task.channel, message)
-            logger.info(
-                f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
-            )
+                if payload.logs:
+                    # Include last few logs
+                    recent_logs = (
+                        payload.logs[-5:] if len(payload.logs) > 5 else payload.logs
+                    )
+                    message_parts.append("\nRecent logs:")
+                    for log in recent_logs:
+                        message_parts.append(f"  • {log}")
+
+                message_parts.append(
+                    f"\n```\n{payload.result[:500]}{'...' if len(payload.result) > 500 else ''}\n```"
+                )
+
+                if payload.screenshot_path:
+                    message_parts.append(f"\n📸 Screenshot: {payload.screenshot_path}")
+
+                message = "\n".join(message_parts)
+                await slack_client.post_message(channel=task.channel, text=message)
+                await http_client.aclose()
+                logger.info(
+                    f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
+                )
         except Exception as e:
             logger.error(f"[MAC-AGENT] Failed to post result to Slack: {e}")
             # Don't fail the request if Slack posting fails
@@ -169,3 +205,49 @@ def list_mac_tasks():
     """
     tasks = list_tasks()
     return {"tasks": tasks}
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.slack_client", "core.schemas", "memory.ingestion"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "debugging",
+        "endpoint",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+    ],
+    "keywords": ["agent", "mac", "submit", "task", "tasks", "webhook"],
+    "business_value": "Implements TaskResultRequest for webhook mac agent functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,0 +1,72 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Code Mutation"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-16T00:01:21Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "code_mutation"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+subsystem_config_v1:
+  metadata:
+    name: code_mutation
+    domain: agentic_code_generation
+    criticality: high
+    agents_involved: [ArchitectAgent, CoderAgent, QAAgent, GitWorker]
+  
+  goals:
+    - "Generate production-ready code deterministically"
+    - "Enforce 80%+ test coverage before deployment"
+    - "Track all mutations for audit and RCA"
+    - "Enable 24/7 autonomous operation"
+  
+  constraints:
+    - "No code mutation without approval gate"
+    - "All tests must pass before merge"
+  
+  pipeline:
+    stages:
+      - {name: "Requirements", description: "Extract goals, constraints, risks"}
+      - {name: "Architecture", description: "Design pipeline stages"}
+      - {name: "Frontier Review", description: "Compare against best practices"}
+      - {name: "TODO Plan", description: "Deterministic implementation plan"}
+      - {name: "Architect Approval", description: "Initial architect review"}
+      - {name: "L Improvement Loop", description: "CTO recursive optimization"}
+      - {name: "ME Approval", description: "Final human gate"}
+      - {name: "Implementation", description: "Code generation"}
+      - {name: "Test Validation", description: "Gap analysis, execution"}
+      - {name: "Mutation & Tracking", description: "Apply to repo, track in CMTS"}
+      - {name: "Final Validation", description: "Confirm PR ready for merge"}
+  
+  approval_model:
+    levels:
+      - {name: "auto_qa", criteria: ["test_coverage_pct >= 80", "no_guardrail_violations"], sla_minutes: 0}
+      - {name: "auto_architect", criteria: ["test_coverage_pct >= 80", "risk_score <= 25"], sla_minutes: 5}
+      - {name: "manual_human", criteria: ["risk_score > 25"], sla_minutes: 60}
+  
+  memory_model:
+    segments:
+      - {name: "generation_artifacts", writes: ["N1", "N2", "N3", "N4", "N6"]}
+      - {name: "code_mutations", writes: ["N8"]}
+      - {name: "verification_artifacts", writes: ["N7"]}
+      - {name: "approval_artifacts", writes: ["N5", "N5_L_IMPROVEMENT_LOOP", "N5_ME_APPROVAL"]}
+  
+  risk_model:
+    assessment_dimensions: [probability, impact, mitigation_count]
+    high_risk_triggers:
+      - "Database schema change"
+      - "Authentication/authorization boundary change"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "configuration", "database-config", "foundation", "model-config", "pipeline", "schema", "utility"]
+# keywords: ["code", "mutation", "subsystem_config_v1"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

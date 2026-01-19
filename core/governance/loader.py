@@ -15,6 +15,31 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Policy Loader",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "error_handling",
+    "module_name": "loader",
+    "type": "exception",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "api.server",
+            "core.governance.engine",
+            "tests.core.governance.test_engine",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from pathlib import Path
 from typing import Any
@@ -320,3 +345,57 @@ __all__ = [
     "InvalidPolicyError",
     "load_policies_from_directory",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-091",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.governance.schemas"],
+    "tags": [
+        "api",
+        "config",
+        "debugging",
+        "error-handling",
+        "exception",
+        "filesystem",
+        "foundation",
+        "loader",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "action",
+        "clear",
+        "count",
+        "directory",
+        "files",
+        "governance",
+        "invalid",
+        "load",
+    ],
+    "business_value": "Reads all YAML files from a directory Parses them into Policy objects Validates policy structure Fails on any invalid policy (fail-closed) Version: 1.0.0",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

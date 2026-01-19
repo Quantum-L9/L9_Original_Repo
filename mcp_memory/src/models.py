@@ -2,6 +2,27 @@
 Request/response models.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Models",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "data_models",
+    "module_name": "models",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": ["working_memory", "semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -37,6 +58,7 @@ class SearchMemoryRequest(BaseModel):
     top_k: Optional[int] = 5
     threshold: Optional[float] = 0.7
     duration: Optional[str] = "all"
+    track_access: Optional[bool] = False
 
 
 class SearchMemoryResponse(BaseModel):
@@ -69,6 +91,7 @@ class CompoundResult(BaseModel):
 
 class ContextInjectionRequest(BaseModel):
     """Request for auto context injection before a task."""
+
     task_description: str
     user_id: str
     top_k: Optional[int] = 5
@@ -78,6 +101,7 @@ class ContextInjectionRequest(BaseModel):
 
 class ContextInjectionResponse(BaseModel):
     """Context memories to inject into system prompt."""
+
     memories: List[MemoryResponse]
     recent_context: List[MemoryResponse]
     total_injected: int
@@ -86,6 +110,7 @@ class ContextInjectionResponse(BaseModel):
 
 class SessionLearningRequest(BaseModel):
     """Request to extract learnings from a session."""
+
     user_id: str
     session_id: str
     session_summary: str  # What happened this session
@@ -96,6 +121,7 @@ class SessionLearningRequest(BaseModel):
 
 class SessionLearningResponse(BaseModel):
     """Learnings extracted and stored from session."""
+
     learnings_stored: int
     memory_ids: List[int]
     kinds_created: List[str]
@@ -103,6 +129,7 @@ class SessionLearningResponse(BaseModel):
 
 class ProactiveRecallRequest(BaseModel):
     """Request for proactive memory suggestions based on patterns."""
+
     current_context: str  # What user is currently working on
     user_id: str
     include_error_fixes: Optional[bool] = True
@@ -112,6 +139,7 @@ class ProactiveRecallRequest(BaseModel):
 
 class ProactiveRecallResponse(BaseModel):
     """Proactive suggestions surfaced from memory."""
+
     suggestions: List[MemoryResponse]
     error_fix_pairs: List[Dict[str, Any]]  # {error: str, fix: str, confidence: float}
     relevant_preferences: List[MemoryResponse]
@@ -120,6 +148,7 @@ class ProactiveRecallResponse(BaseModel):
 
 class TemporalQueryRequest(BaseModel):
     """Request for temporal memory queries."""
+
     user_id: str
     since: Optional[datetime] = None  # What changed since this time
     until: Optional[datetime] = None
@@ -129,6 +158,7 @@ class TemporalQueryRequest(BaseModel):
 
 class TemporalQueryResponse(BaseModel):
     """Temporal query results showing memory evolution."""
+
     memories: List[MemoryResponse]
     created_count: int
     updated_count: int
@@ -139,6 +169,7 @@ class TemporalQueryResponse(BaseModel):
 
 class SaveMemoryWithConfidenceRequest(BaseModel):
     """Save memory with explicit confidence scoring."""
+
     content: str
     kind: str
     scope: str = "user"
@@ -163,6 +194,7 @@ class SaveMemoryWithConfidenceRequest(BaseModel):
 
 class SaveMemoryArgs(BaseModel):
     """Validation model for save_memory tool arguments."""
+
     content: str
     kind: str  # Enum: preference, fact, context, error, success
     scope: str = "developer"  # Enum: developer, l-private, global
@@ -179,6 +211,7 @@ class SaveMemoryArgs(BaseModel):
 
 class SearchMemoryArgs(BaseModel):
     """Validation model for search_memory tool arguments."""
+
     query: str
     user_id: Optional[str] = None  # Injected server-side from caller identity
     scopes: Optional[List[str]] = None  # Enum: developer, l-private, global
@@ -193,6 +226,7 @@ class SearchMemoryArgs(BaseModel):
 
 class GetMemoryStatsArgs(BaseModel):
     """Validation model for get_memory_stats tool arguments."""
+
     user_id: Optional[str] = None
     duration: Optional[str] = "all"  # Enum: short, medium, long, all
 
@@ -202,6 +236,7 @@ class GetMemoryStatsArgs(BaseModel):
 
 class DeleteExpiredMemoriesArgs(BaseModel):
     """Validation model for delete_expired_memories tool arguments."""
+
     dry_run: Optional[bool] = True
 
     class Config:
@@ -210,6 +245,7 @@ class DeleteExpiredMemoriesArgs(BaseModel):
 
 class CompoundMemoriesArgs(BaseModel):
     """Validation model for compound_memories tool arguments."""
+
     user_id: Optional[str] = None  # Injected server-side from caller identity
     threshold: Optional[float] = 0.92
 
@@ -219,6 +255,7 @@ class CompoundMemoriesArgs(BaseModel):
 
 class ApplyDecayArgs(BaseModel):
     """Validation model for apply_decay tool arguments."""
+
     dry_run: Optional[bool] = True
 
     class Config:
@@ -227,6 +264,7 @@ class ApplyDecayArgs(BaseModel):
 
 class GetContextArgs(BaseModel):
     """Validation model for get_context tool arguments."""
+
     task_description: str
     user_id: Optional[str] = None  # Injected server-side from caller identity
     top_k: Optional[int] = 5
@@ -239,6 +277,7 @@ class GetContextArgs(BaseModel):
 
 class ExtractSessionLearningsArgs(BaseModel):
     """Validation model for extract_session_learnings tool arguments."""
+
     user_id: Optional[str] = None  # Injected server-side from caller identity
     session_id: str
     session_summary: str
@@ -252,6 +291,7 @@ class ExtractSessionLearningsArgs(BaseModel):
 
 class GetProactiveSuggestionsArgs(BaseModel):
     """Validation model for get_proactive_suggestions tool arguments."""
+
     current_context: str
     user_id: Optional[str] = None  # Injected server-side from caller identity
     include_error_fixes: Optional[bool] = True
@@ -264,6 +304,7 @@ class GetProactiveSuggestionsArgs(BaseModel):
 
 class QueryTemporalArgs(BaseModel):
     """Validation model for query_temporal tool arguments."""
+
     user_id: Optional[str] = None  # Injected server-side from caller identity
     since: Optional[str] = None  # ISO datetime string
     until: Optional[str] = None  # ISO datetime string
@@ -276,6 +317,7 @@ class QueryTemporalArgs(BaseModel):
 
 class SaveMemoryWithConfidenceArgs(BaseModel):
     """Validation model for save_memory_with_confidence tool arguments."""
+
     content: str
     kind: str  # Enum: preference, fact, context, error, success, learning, decision
     scope: str = "developer"  # Enum: developer, l-private, global
@@ -290,3 +332,123 @@ class SaveMemoryWithConfidenceArgs(BaseModel):
 
     class Config:
         extra = "forbid"
+
+
+# =============================================================================
+# Graph (Neo4j) MCP Tool Argument Validation Models
+# =============================================================================
+
+
+class GraphQueryArgs(BaseModel):
+    """Validation model for graph_query tool arguments."""
+
+    query: str  # Cypher query string
+    parameters: Optional[Dict[str, Any]] = None  # Query parameters
+
+    class Config:
+        extra = "forbid"
+
+
+class GraphGetEntityArgs(BaseModel):
+    """Validation model for graph_get_entity tool arguments."""
+
+    entity_type: str  # Node label (Agent, Session, Memory, etc.)
+    entity_id: str  # Entity identifier
+
+    class Config:
+        extra = "forbid"
+
+
+class GraphGetContextArgs(BaseModel):
+    """Validation model for graph_get_context tool arguments."""
+
+    domain: str  # Domain name (memory, agents, tools, etc.)
+    limit: Optional[int] = 10  # Max results
+
+    class Config:
+        extra = "forbid"
+
+
+# =============================================================================
+# Cache (Redis) MCP Tool Argument Validation Models
+# =============================================================================
+
+
+class CacheGetArgs(BaseModel):
+    """Validation model for cache_get tool arguments."""
+
+    key: str  # Cache key
+
+    class Config:
+        extra = "forbid"
+
+
+class CacheSetArgs(BaseModel):
+    """Validation model for cache_set tool arguments."""
+
+    key: str  # Cache key
+    value: Any  # Value to store (will be JSON serialized)
+    ttl: Optional[int] = None  # TTL in seconds
+
+    class Config:
+        extra = "forbid"
+
+
+class CacheGetSessionContextArgs(BaseModel):
+    """Validation model for cache_get_session_context tool arguments."""
+
+    session_id: Optional[str] = None  # Session ID (defaults to daily session)
+
+    class Config:
+        extra = "forbid"
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MCP-INTE-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "caching",
+        "data-models",
+        "integration",
+        "pydantic",
+        "schema",
+        "validation",
+    ],
+    "keywords": [
+        "apply",
+        "cache",
+        "compound",
+        "confidence",
+        "decay",
+        "delete",
+        "entity",
+        "expired",
+    ],
+    "business_value": "Provides models components including SaveMemoryRequest, MemoryResponse, SearchMemoryRequest",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

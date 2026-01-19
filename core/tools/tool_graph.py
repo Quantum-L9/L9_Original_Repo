@@ -18,6 +18,38 @@ Changes v1.1.0:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Dependency Graph",
+    "module_version": "1.1.0 (UKG Phase 2 - Unified Knowledge Graph)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "tool_graph",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL", "Redis"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "api.server",
+            "core.agents.executor",
+            "core.tools.__init__",
+            "core.tools.registry_adapter",
+            "core.tools.tool_embeddings",
+            "orchestration.long_plan_graph",
+            "runtime.git_tool",
+            "runtime.gmp_tool",
+            "runtime.l_tools",
+            "runtime.mcp_tool",
+        ],
+    },
+}
+# ============================================================================
+
 import re
 import structlog
 import os
@@ -53,6 +85,8 @@ class ToolDefinition:
     scope: str = "internal"  # "internal" | "external" | "requires_igor_approval"
     risk_level: str = "low"  # "low" | "medium" | "high"
     requires_igor_approval: bool = False
+    # GMP-78: Negative constraints for tool selection guidance
+    negative_constraints: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         """Validate tool name matches OpenAI function calling pattern."""
@@ -72,11 +106,11 @@ class ToolGraph:
         (Tool)-[:USES]->(API)
         (Tool)-[:DEPENDS_ON]->(Tool)
         (Agent)-[:CAN_EXECUTE]->(Tool)
-    
+
     Note: CAN_EXECUTE is the unified relationship type (v1.1.0+).
     Legacy HAS_TOOL queries still work but are deprecated.
     """
-    
+
     # Unified relationship type (v1.1.0 - UKG Phase 1)
     AGENT_TOOL_REL = "CAN_EXECUTE"
     # Legacy alias (deprecated, will be removed in v2.0)
@@ -96,35 +130,32 @@ class ToolGraph:
     async def ensure_agent_exists(agent_id: str) -> bool:
         """
         Ensure agent node exists in Neo4j (UKG Phase 2).
-        
+
         Uses shared ENSURE_AGENT_QUERY from graph_state.schema.
         This prevents duplicate Agent nodes when Tool Graph and Graph State
         both reference the same agent.
-        
+
         Args:
             agent_id: Agent identifier (e.g., "L")
-            
+
         Returns:
             True if agent exists or was created
         """
         neo4j = await ToolGraph._get_neo4j()
         if not neo4j:
             return False
-            
+
         try:
             # Import the shared query from graph_state schema
             from core.agents.graph_state.schema import ENSURE_AGENT_QUERY
-            
-            result = await neo4j.run_query(
-                ENSURE_AGENT_QUERY,
-                {"agent_id": agent_id}
-            )
-            
+
+            result = await neo4j.run_query(ENSURE_AGENT_QUERY, {"agent_id": agent_id})
+
             if result:
                 logger.debug(f"Agent {agent_id} ensured in graph")
                 return True
             return False
-            
+
         except ImportError:
             # Fallback: create agent directly if graph_state not available
             await neo4j.create_entity(
@@ -164,7 +195,7 @@ class ToolGraph:
             logger.warning(
                 f"Neo4j unavailable - tool graph disabled for '{tool.name}'. "
                 "Governance queries (blast radius, dependencies) unavailable.",
-                extra={"alert": "neo4j_unavailable", "tool_name": tool.name}
+                extra={"alert": "neo4j_unavailable", "tool_name": tool.name},
             )
             return False
 
@@ -738,7 +769,7 @@ L_INTERNAL_TOOLS = [
     ),
     ToolDefinition(
         name="memory_search",
-        description="Search L9 memory with embeddings",
+        description="Search L9 memory with embeddings. Use for structured data retrieval, aggregations, keyword search, and text similarity. Best for: totals, averages, counts, tabular reports, finding specific facts.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -746,6 +777,11 @@ L_INTERNAL_TOOLS = [
         external_apis=["PostgreSQL", "OpenAI"],
         internal_dependencies=["memory_read"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for relationship traversal or path finding - use neo4j_query instead",
+            "Do not use for multi-hop queries like 'friends of friends' - use graph tools",
+            "Do not use for influence analysis or community detection - use Neo4j",
+        ],
     ),
     ToolDefinition(
         name="memory_write",
@@ -1131,7 +1167,7 @@ L_INTERNAL_TOOLS = [
     # Neo4j Graph Database Tools
     ToolDefinition(
         name="neo4j_query",
-        description="Run Cypher queries against Neo4j graph (tool deps, events, knowledge)",
+        description="Run Cypher queries against Neo4j graph for relationship traversal, path finding, and influence analysis. Use for: tool dependencies, event chains, knowledge connections, multi-hop queries, 'friends of friends', community detection.",
         category="knowledge",
         scope="internal",
         is_destructive=False,
@@ -1139,6 +1175,12 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         external_apis=["Neo4j"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for aggregations (SUM, AVG, COUNT) - use memory_search instead",
+            "Do not use for text similarity or semantic search - use memory_search with embeddings",
+            "Do not use for simple key-value lookups - use memory_get_packet",
+            "Do not use for tabular reports - use Postgres-backed tools",
+        ],
     ),
     # Redis Cache Tools
     ToolDefinition(
@@ -1409,7 +1451,7 @@ L_INTERNAL_TOOLS = [
     ),
     ToolDefinition(
         name="hybrid_rag_search",
-        description="Hybrid RAG search: vector similarity + graph enrichment",
+        description="Hybrid RAG search combining vector similarity (Postgres/pgvector) + graph enrichment (Neo4j). Use when you need BOTH semantic matching AND relationship context. Best for: questions spanning facts and connections, enriched search results with related entities.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -1417,11 +1459,16 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         external_apis=["PostgreSQL", "Neo4j", "OpenAI"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for simple text search - use memory_search (lighter weight)",
+            "Do not use for pure graph traversal - use neo4j_query (faster)",
+            "Only use when you explicitly need both paradigms combined",
+        ],
     ),
-    # Cross-DB Saga Pattern (GMP-56)
+    # Cross-DB Saga Pattern (GMP-56 + GMP-88)
     ToolDefinition(
         name="saga_fetch_and_enrich",
-        description="Cross-DB saga: vector search → entity extraction → graph enrichment → combined result",
+        description="Cross-DB saga: vector search (Postgres) → entity extraction → graph enrichment (Neo4j) → combined result. Use when you need BOTH semantic search results AND their relationship context. Best for: 'find similar items and show how they connect'.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -1429,10 +1476,15 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         external_apis=["PostgreSQL", "Neo4j", "OpenAI"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for simple text search - use memory_search instead (faster)",
+            "Do not use for pure graph traversal - use saga_enrich_entities (no vector step)",
+            "Do not use if you only need counts or aggregations",
+        ],
     ),
     ToolDefinition(
         name="saga_enrich_entities",
-        description="Cross-DB saga: lookup entities → enrich with graph relationships",
+        description="Cross-DB saga: lookup entities by ID → enrich with graph relationships up to depth 3. Use when you ALREADY HAVE entity IDs and need their relationship context from Neo4j. Best for: 'show me how these entities connect'.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -1440,21 +1492,31 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         external_apis=["Neo4j"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use if you need to FIND entities first - use saga_fetch_and_enrich",
+            "Do not use for simple single-entity lookup - use neo4j_query directly",
+            "Do not use if depth > 3 - will be capped for performance",
+        ],
     ),
     ToolDefinition(
         name="saga_timeline_correlation",
-        description="Cross-DB saga: fetch events → trace causal chains → correlate timeline",
+        description="Cross-DB saga: fetch events for entity (Postgres) → trace causal chains (Neo4j) → correlate timeline. Use for temporal analysis: 'what happened to X over the last 24h and what caused it'.",
         category="memory",
         scope="internal",
         is_destructive=False,
         requires_confirmation=False,
         risk_level="low",
-        external_apis=["Neo4j"],
+        external_apis=["PostgreSQL", "Neo4j"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use for non-temporal queries - use saga_fetch_and_enrich",
+            "Do not use for future predictions - this traces past causality only",
+            "Time range capped at 168 hours (1 week) for performance",
+        ],
     ),
     ToolDefinition(
         name="saga_execute_custom",
-        description="Execute a custom saga with user-defined steps",
+        description="Execute a custom saga with user-defined steps. Each step calls a saga tool and passes results forward. Use for complex multi-step workflows not covered by specific saga tools. Maximum 5 steps.",
         category="memory",
         scope="internal",
         is_destructive=False,
@@ -1462,6 +1524,12 @@ L_INTERNAL_TOOLS = [
         risk_level="medium",
         external_apis=["PostgreSQL", "Neo4j"],
         agent_id="L",
+        negative_constraints=[
+            "Do not use if a specific saga tool exists - prefer saga_fetch_and_enrich, saga_enrich_entities, or saga_timeline_correlation",
+            "Only saga_* and tool_router_find tools allowed in steps",
+            "Maximum 5 steps per custom saga",
+            "Do not use for simple single-tool calls",
+        ],
     ),
     # Semantic Tool Router (GMP-57)
     ToolDefinition(
@@ -1530,6 +1598,96 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
+    # Research Agent Integration (GMP: wire_research_lcto_integration)
+    ToolDefinition(
+        name="research_agent_synthesize",
+        description="Fast multi-perspective synthesis via ResearchAgent (~10 min). Runs 5 parallel Perplexity queries with different perspectives (pragmatic, research, systems, agents, multimodal) and synthesizes consensus patterns.",
+        category="research",
+        scope="external",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Perplexity"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="research_agent_discover",
+        description="Deep 5-stage academic research via ResearchAgent (15-25 hours). Stages: landscape mapping, vertical deep-dives, comparative analysis, gap identification, hypothesis generation. WARNING: Long-running operation.",
+        category="research",
+        scope="external",
+        is_destructive=False,
+        requires_confirmation=True,  # Long-running, expensive
+        risk_level="medium",
+        external_apis=["Perplexity"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="research_agent_generate_spec",
+        description="Generate Module-Spec-v2.4 YAML via ResearchAgent. Optionally runs synthesis first for research-informed spec generation.",
+        category="research",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Perplexity"],
+        agent_id="L",
+    ),
+    # Reflection Agent Integration (GMP: wire_reflection_agent_yaml)
+    ToolDefinition(
+        name="reflection_agent_reflect",
+        description="Execute reflection on execution history via ReflectionAgent. Analyzes successes, failures, patterns to derive insights, lessons learned, and improvement proposals.",
+        category="reflection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["OpenAI"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="reflection_agent_analyze_failure",
+        description="Deep failure root cause analysis via ReflectionAgent. Identifies immediate cause, root cause, chain of events, prevention strategies, recovery actions, and systemic changes.",
+        category="reflection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["OpenAI"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="reflection_agent_compare_approaches",
+        description="Compare two approaches with scoring via ReflectionAgent. Evaluates against criteria, provides overall scores, recommendation (A/B/hybrid), and reasoning.",
+        category="reflection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["OpenAI"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="reflection_agent_extract_patterns",
+        description="Extract patterns from examples via ReflectionAgent. Identifies recurring patterns, anti-patterns, correlations, outliers, and generalizable rules.",
+        category="reflection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["OpenAI"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="reflection_agent_generate_improvements",
+        description="Generate improvement plan from current performance via ReflectionAgent. Performs gap analysis, prioritizes improvements, identifies quick wins and strategic changes.",
+        category="reflection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["OpenAI"],
+        agent_id="L",
+    ),
 ]
 
 
@@ -1564,3 +1722,57 @@ __all__ = [
     "L_INTERNAL_TOOLS",
     "register_l_tools",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-018",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.graph_state.schema", "memory.graph_client"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "cache",
+        "caching",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "graph-db",
+        "logging",
+    ],
+    "keywords": [
+        "agent",
+        "all",
+        "api",
+        "blast",
+        "catalog",
+        "circular",
+        "create",
+        "definition",
+    ],
+    "business_value": "Provides tool graph components including ToolDefinition, ToolGraph",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -32,6 +32,9 @@ from core.schemas.packet_envelope_v2 import (
     SemanticSearchRequest,
     SemanticHit,
     SemanticSearchResult,
+    # Schema Version Constants
+    SCHEMA_VERSION,
+    SUPPORTED_VERSIONS,
 )
 
 # Security Schemas
@@ -117,6 +120,9 @@ __all__ = [
     "SemanticSearchRequest",
     "SemanticHit",
     "SemanticSearchResult",
+    # Schema Version Constants
+    "SCHEMA_VERSION",
+    "SUPPORTED_VERSIONS",
     # Research Factory Models
     "ResearchJobSpec",
     "Query",

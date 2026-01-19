@@ -10,6 +10,32 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Prompt Builder",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-14T15:22:35Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "prompt_builder",
+    "type": "factory",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "api.llm",
+            "core.agents.graph_state.graph_hydrator",
+            "core.agents.registry",
+            "tests.integration.test_kernel_agent_activation_integration",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from functools import lru_cache
 from typing import Any, Dict
@@ -17,6 +43,7 @@ from typing import Any, Dict
 from runtime.kernel_loader import load_kernel_stack, KernelStack
 
 logger = structlog.get_logger(__name__)
+
 
 # Cache the kernel stack (load once)
 @lru_cache(maxsize=1)
@@ -131,7 +158,9 @@ def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
         # Use engine definitions if available, otherwise defaults
         think_step = engines.get("think", "parse request, choose concrete next step")
         act_step = engines.get("act", "execute or generate action")
-        reflect_step = engines.get("reflect", "log internally, do not output long reasoning")
+        reflect_step = engines.get(
+            "reflect", "log internally, do not output long reasoning"
+        )
         lines.append(f"1) THINK: {think_step}")
         lines.append(f"2) ACT: {act_step}")
         lines.append(f"3) REFLECT: {reflect_step}")
@@ -166,7 +195,9 @@ def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
     if task_sizing:
         small = task_sizing.get("small", "execute immediately")
         medium = task_sizing.get("medium", "one-line plan, then execute")
-        large = task_sizing.get("large", "outline 2-4 steps max, then execute next step")
+        large = task_sizing.get(
+            "large", "outline 2-4 steps max, then execute next step"
+        )
         lines.append(f"- Small tasks: {small}")
         lines.append(f"- Medium tasks: {medium}")
         lines.append(f"- Large tasks: {large}")
@@ -217,8 +248,12 @@ def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
                 lines.append(f"- {guard_rule['rule']}")
     else:
         # Default safety rules
-        lines.append("- Never change files unless project_id and file_path are unambiguous")
-        lines.append("- Never change system configs or delete data without confirmation")
+        lines.append(
+            "- Never change files unless project_id and file_path are unambiguous"
+        )
+        lines.append(
+            "- Never change system configs or delete data without confirmation"
+        )
         lines.append("- Destructive actions require explicit confirmation")
 
     # Add explicit constraints if defined
@@ -327,3 +362,56 @@ __all__ = [
     "build_system_prompt_from_kernels",
     "get_fallback_prompt",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["runtime.kernel_loader"],
+    "tags": [
+        "api",
+        "auth",
+        "authorization",
+        "caching",
+        "core",
+        "factory",
+        "foundation",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "behavioral",
+        "build",
+        "builder",
+        "cognitive",
+        "execution",
+        "fallback",
+        "identity",
+        "kernel",
+    ],
+    "business_value": "Utility module for prompt builder",
+    "last_modified": "2026-01-14T15:22:35Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

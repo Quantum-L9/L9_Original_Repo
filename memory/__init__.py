@@ -31,6 +31,13 @@ from memory.substrate_models import (
 #   from memory.substrate_dag import SubstrateDAG, ...
 #   from memory.substrate_service import MemorySubstrateService, ...
 #   from memory.substrate_semantic import SemanticService, ...
+#   from memory.graph_client import get_neo4j_client, ...
+#   from memory.identity_tier import IdentityTierService, ...
+#   from memory.context_builder import HierarchicalContextBuilder, ...
+
+# Expose graph_client for lazy import compatibility
+# (required for pytest to resolve `from memory.graph_client import ...`)
+from memory import graph_client as graph_client  # noqa: F401
 
 # from memory.substrate_repository import (
 #     SubstrateRepository,
@@ -187,6 +194,80 @@ from memory.retention_engine import (
     RetentionResult,
 )
 
+# Checkpoint Validator (GMP-PERSIST: Integrity validation)
+from memory.checkpoint_validator import (
+    CheckpointValidator,
+    SchemaVersion,
+)
+
+# Checkpoint Metrics (GMP-PERSIST: Prometheus observability)
+from memory.checkpoint_metrics import (
+    CheckpointMetrics,
+    get_metrics as get_checkpoint_metrics,
+    PROMETHEUS_AVAILABLE as CHECKPOINT_PROMETHEUS_AVAILABLE,
+)
+
+# Cross-Substrate Alignment (GMP-78)
+from memory.substrate_alignment import (
+    AlignmentReport,
+    SubstrateAlignmentChecker,
+)
+
+# Governance Gate (GMP-68)
+from memory.governance_gate import (
+    MemoryGovernanceContext,
+    build_governance_context,
+    governance_context,
+    require_governance_context,
+    ensure_governance_context,
+    enforce_packet_governance,
+    build_scope_project_filter,
+)
+
+# Consolidation Pipeline (GMP-85 + Stage 2)
+from memory.consolidation import (
+    ConsolidationPipeline,
+    ConsolidationReport,
+)
+
+# Hierarchical Summarizer (Stage 2: SUPER-PROMPT)
+from memory.hierarchical_summarizer import (
+    HierarchicalSummarizer,
+    SummaryTier,
+    SummaryConfig,
+    SummaryResult,
+)
+
+# Neural Decay Scheduler (Stage 2: SUPER-PROMPT)
+from memory.neural_decay_scheduler import (
+    NeuralDecayScheduler,
+    DecayConfig,
+    DecayResult,
+)
+
+# Active Memory Encoding (GMP-80-A7)
+from memory.active_encoder import (
+    ActiveMemoryEncoder,
+    TaskOutcome,
+    EncodingResult,
+    LearningExtractor,
+    ExtractedLearning,
+    get_active_encoder,
+    init_active_encoder,
+)
+
+# Importance Manager (GMP-80-A7)
+from memory.importance_manager import (
+    ImportanceManager,
+    ImportanceConfig,
+    ImportanceUpdate,
+    get_importance_manager,
+    init_importance_manager,
+)
+
+# Task Completion Hook (GMP-80-A7)
+from memory.ingestion import on_task_completion
+
 # Conversational Graph Memory (GMP-58)
 from memory.graph_memory import (
     ConversationGraphMemory,
@@ -198,6 +279,29 @@ from memory.graph_memory import (
     get_graph_memory,
     store_message,
     query_history,
+)
+
+# Stage 5: Predictive Memory Warming (GMP-STAGE5)
+from memory.warming_models import (
+    GapSeverity,
+    KnowledgeGap,
+    AttentionConfig,
+    SubgraphEntry,
+    CacheMetrics,
+    ReasoningPhase,
+    ActionProposal,
+    ThinkingOutput,
+    MemoryContext,
+    PredictiveCacheConfig,
+)
+
+from memory.gap_detector import GapDetector
+
+from memory.predictive_cache import PredictiveCache
+
+from memory.warming_service import (
+    MemoryWarmingService,
+    create_warming_service,
 )
 
 __all__ = [
@@ -298,6 +402,66 @@ __all__ = [
     "RetentionEngine",
     "RetentionPolicy",
     "RetentionResult",
+    # Cross-Substrate Alignment (GMP-78)
+    "AlignmentReport",
+    "SubstrateAlignmentChecker",
+    # Checkpoint Validator + Metrics (GMP-PERSIST)
+    "CheckpointValidator",
+    "SchemaVersion",
+    "CheckpointMetrics",
+    "get_checkpoint_metrics",
+    "CHECKPOINT_PROMETHEUS_AVAILABLE",
+    # Governance Gate (GMP-68)
+    "MemoryGovernanceContext",
+    "build_governance_context",
+    "governance_context",
+    "require_governance_context",
+    "ensure_governance_context",
+    "enforce_packet_governance",
+    "build_scope_project_filter",
+    # Consolidation Pipeline (GMP-85 + Stage 2)
+    "ConsolidationPipeline",
+    "ConsolidationReport",
+    # Hierarchical Summarizer (Stage 2)
+    "HierarchicalSummarizer",
+    "SummaryTier",
+    "SummaryConfig",
+    "SummaryResult",
+    # Neural Decay Scheduler (Stage 2)
+    "NeuralDecayScheduler",
+    "DecayConfig",
+    "DecayResult",
+    # Active Memory Encoding (GMP-80-A7)
+    "ActiveMemoryEncoder",
+    "TaskOutcome",
+    "EncodingResult",
+    "LearningExtractor",
+    "ExtractedLearning",
+    "get_active_encoder",
+    "init_active_encoder",
+    # Importance Manager (GMP-80-A7)
+    "ImportanceManager",
+    "ImportanceConfig",
+    "ImportanceUpdate",
+    "get_importance_manager",
+    "init_importance_manager",
+    # Task Completion Hook (GMP-80-A7)
+    "on_task_completion",
+    # Stage 5: Predictive Memory Warming (GMP-STAGE5)
+    "GapSeverity",
+    "KnowledgeGap",
+    "AttentionConfig",
+    "SubgraphEntry",
+    "CacheMetrics",
+    "ReasoningPhase",
+    "ActionProposal",
+    "ThinkingOutput",
+    "MemoryContext",
+    "PredictiveCacheConfig",
+    "GapDetector",
+    "PredictiveCache",
+    "MemoryWarmingService",
+    "create_warming_service",
     # NOTE: These are available via direct import to avoid circular deps:
     # from memory.substrate_repository import SubstrateRepository, ...
     # from memory.substrate_dag import SubstrateDAG, ...

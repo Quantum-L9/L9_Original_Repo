@@ -4,13 +4,34 @@ Span exporters for sending telemetry to various backends.
 Includes console, file, substrate, and extensible composite exporter.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Exporters",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "exporters",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["tests.core.observability.test_observability_integration"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import List, Any
 from abc import ABC, abstractmethod
 
-logger = structlog.get_logger(__name__)
-
+from core.schemas import PacketEnvelopeIn
 from .models import Span
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -28,10 +49,12 @@ class AsyncSpanExporter(ABC):
     """Base class for async span exporters."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def export_async(self, spans: List[Span]) -> None:
         """Asynchronously export spans."""
         pass
 
+    @must_stay_async("callers use await")
     async def flush(self) -> None:
         """Flush any pending spans."""
         pass
@@ -91,18 +114,23 @@ class SubstrateExporter(AsyncSpanExporter):
             return
 
         try:
-            # Store telemetry in substrate with appropriate key
+            # Store telemetry in substrate via write_packet (canonical API)
             for span in self._batch:
-                key = f"traces/{span.trace_id}/{span.span_id}"
-                await self.substrate.write(
-                    key=key,
-                    value=span.model_dump(),
+                packet_in = PacketEnvelopeIn(
+                    packet_type="telemetry_span",
+                    payload={
+                        "trace_id": span.trace_id,
+                        "span_id": span.span_id,
+                        "span_data": span.model_dump(),
+                    },
                     metadata={
                         "span_name": span.name,
                         "duration_ms": span.duration_ms,
                         "status": span.status.value,
                     },
+                    tags=["telemetry", "span", span.name],
                 )
+                await self.substrate.write_packet(packet_in)
             logger.debug(f"Flushed {len(self._batch)} spans to substrate")
             self._batch.clear()
         except Exception as exc:
@@ -145,3 +173,58 @@ class CompositeExporter:
                     await exporter.flush()
                 except Exception as exc:
                     logger.error(f"Flush failed in {type(exporter).__name__}: {exc}")
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-064",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas"],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "core",
+        "debugging",
+        "exporter",
+        "foundation",
+        "logging",
+        "service",
+        "tracing",
+    ],
+    "keywords": [
+        "async",
+        "composite",
+        "console",
+        "export",
+        "exporter",
+        "exporters",
+        "flush",
+        "span",
+    ],
+    "business_value": "Provides exporters components including SpanExporter, AsyncSpanExporter, ConsoleExporter",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

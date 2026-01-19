@@ -4,7 +4,29 @@ Phase 4: Load Identity Persona
 Harvested from: L9-Agent-Bootstrap-Architecture.md
 Purpose: Parse identity.yaml, hydrate agent's self-awareness (designation, role, mission, constraints).
 """
+
 from __future__ import annotations
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Phase 4 Load Identity",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "phase_4_load_identity",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["tests.core.bootstrap.test_bootstrap_phases"],
+    },
+}
+# ============================================================================
 
 from typing import TYPE_CHECKING, Optional
 from pathlib import Path
@@ -12,8 +34,6 @@ from datetime import datetime
 
 import yaml
 import structlog
-
-from memory.graph_client import get_neo4j_client
 
 if TYPE_CHECKING:
     from .phase_2_instantiate import BootstrapInstanceData
@@ -32,10 +52,12 @@ async def load_identity_persona(
     """
     # Default identity path based on agent_id
     if identity_yaml_path is None:
-        identity_yaml_path = f"private/agents/identity/{instance.agent_id}_identity.yaml"
-    
+        identity_yaml_path = (
+            f"private/agents/identity/{instance.agent_id}_identity.yaml"
+        )
+
     identity_path = Path(identity_yaml_path)
-    
+
     # Try fallback paths
     if not identity_path.exists():
         fallback_paths = [
@@ -47,7 +69,7 @@ async def load_identity_persona(
             if fallback.exists():
                 identity_path = fallback
                 break
-    
+
     if not identity_path.exists():
         logger.warning(
             "Identity YAML not found, using defaults",
@@ -59,11 +81,11 @@ async def load_identity_persona(
         instance.role = "Agent"
         instance.mission = "Execute tasks"
         return
-    
+
     try:
-        with open(identity_path, 'r') as f:
+        with open(identity_path, "r") as f:
             identity_data = yaml.safe_load(f)
-        
+
         # Create identity memory chunk
         identity_chunk = {
             "designation": identity_data.get("designation", instance.agent_id),
@@ -74,18 +96,18 @@ async def load_identity_persona(
             "authority_level": identity_data.get("authority", ""),
             "allegiance": identity_data.get("allegiance", ""),
         }
-        
+
         # Update instance with identity
         instance.designation = identity_chunk["designation"]
         instance.role = identity_chunk["role"]
         instance.mission = identity_chunk["mission"]
         instance.authority = identity_chunk["authority_level"]
-        
+
         # Write to memory substrate if available
-        if hasattr(substrate_service, 'write_packet'):
+        if hasattr(substrate_service, "write_packet"):
             try:
                 from core.schemas import PacketEnvelopeIn
-                
+
                 packet = PacketEnvelopeIn(
                     packet_type="memory_write",
                     payload={
@@ -105,40 +127,90 @@ async def load_identity_persona(
                 await substrate_service.write_packet(packet)
             except ImportError:
                 logger.debug("PacketEnvelopeIn not available, skipping memory write")
-        
+
         logger.info(
             "Loaded identity",
             agent_id=instance.agent_id,
             designation=identity_chunk["designation"],
             role=identity_chunk["role"],
         )
-        
-        # Update Neo4j if available
+
+        # Update Neo4j if available (lazy import to avoid test collection issues)
+        from memory.graph_client import get_neo4j_client
+
         neo4j_client = await get_neo4j_client()
         if neo4j_client:
             try:
                 async with neo4j_client.session() as session:
-                    await session.run("""
+                    await session.run(
+                        """
                         MATCH (a:Agent {instance_id: $instance_id})
                         SET a.designation = $designation,
                             a.role = $role,
                             a.mission = $mission,
                             a.authority = $authority,
                             a.identity_loaded_at = $loaded_at
-                    """, {
-                        "instance_id": instance.instance_id,
-                        "designation": identity_chunk["designation"],
-                        "role": identity_chunk["role"],
-                        "mission": identity_chunk["mission"],
-                        "authority": identity_chunk["authority_level"],
-                        "loaded_at": datetime.utcnow().isoformat(),
-                    })
+                    """,
+                        {
+                            "instance_id": instance.instance_id,
+                            "designation": identity_chunk["designation"],
+                            "role": identity_chunk["role"],
+                            "mission": identity_chunk["mission"],
+                            "authority": identity_chunk["authority_level"],
+                            "loaded_at": datetime.utcnow().isoformat(),
+                        },
+                    )
             except Exception as e:
                 logger.warning("Failed to update identity in Neo4j", error=str(e))
-    
+
     except Exception as e:
         logger.error("Failed to load identity", error=str(e))
         # Set minimal identity on failure
         instance.designation = instance.agent_id
         instance.role = "Agent"
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.graph_client", "memory.substrate_service"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "auth",
+        "config",
+        "debugging",
+        "filesystem",
+        "foundation",
+        "logging",
+        "service",
+    ],
+    "keywords": ["agent", "identity", "load", "persona", "phase"],
+    "business_value": "Utility module for phase 4 load identity",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

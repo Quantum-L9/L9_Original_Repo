@@ -45,12 +45,34 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Unified Controller",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "unified_controller",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["orchestration.__init__"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -495,6 +517,7 @@ class UnifiedController:
     # Pipeline Phases
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _phase_routing(
         self,
         text: str,
@@ -656,6 +679,7 @@ class UnifiedController:
 
         self._record_phase_time("simulate", phase_start)
 
+    @must_stay_async("callers use await")
     async def _phase_plan(
         self,
         result: ControllerResult,
@@ -1202,3 +1226,63 @@ async def broadcast_task(
     logger.info("Broadcast task to %d agents: type=%s", count, task_type)
 
     return count
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-035",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "core.schemas",
+        "core.schemas.ws_event_stream",
+        "runtime.websocket_orchestrator",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "agent",
+        "broadcast",
+        "client",
+        "compile",
+        "controller",
+        "dispatch",
+        "engine",
+        "execute",
+    ],
+    "business_value": "IR Engine (semantic compiler, validator, generator, planner) World Model Runtime Simulation Engine (via SimulationRouter) Memory Substrate (PacketEnvelope API) Collaborative cells (architect/coder/rev",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -15,6 +15,38 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Redis Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "redis_client",
+    "type": "client",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": [],
+        "imported_by": [
+            "api.e2e_slack_audit",
+            "api.memory.cache",
+            "api.server",
+            "ci.check_dependency_patterns",
+            "core.agents.bootstrap.phase_2_instantiate",
+            "core.agents.executor",
+            "core.singleton_registry",
+            "mcp_memory.tests.test_all_layers",
+            "memory.graph_search_cache",
+            "memory.predictive_cache",
+        ],
+    },
+}
+# ============================================================================
+
 import json
 import structlog
 import os
@@ -27,6 +59,8 @@ logger = structlog.get_logger(__name__)
 # Cursor uses: CURSOR_TENANT_ID = 'cursor-ide' (agents/cursor/cursor_memory_kernel.py)
 # This prevents session state cross-contamination when Igor talks to both simultaneously
 DEFAULT_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
+
+from core.decorators import must_stay_async
 
 # Try to import Redis
 try:
@@ -132,11 +166,11 @@ class RedisClient:
     def _prefixed_key(self, key: str, tenant_id: Optional[str] = None) -> str:
         """
         Create a tenant-prefixed key for multi-tenant isolation.
-        
+
         Args:
             key: Original key (e.g., "tasks", "session:123")
             tenant_id: Tenant ID (default: DEFAULT_TENANT_ID)
-            
+
         Returns:
             Prefixed key (e.g., "l9-shared:tasks", "l9-shared:session:123")
         """
@@ -390,7 +424,7 @@ class RedisClient:
     async def get(self, key: str, raw: bool = False) -> Optional[str]:
         """
         Get value by key.
-        
+
         Args:
             key: Key to get
             raw: If True, use key as-is (no tenant prefix)
@@ -410,7 +444,7 @@ class RedisClient:
     ) -> bool:
         """
         Set key-value with optional TTL.
-        
+
         Args:
             key: Key to set
             value: Value to set
@@ -434,7 +468,7 @@ class RedisClient:
     async def delete(self, key: str, raw: bool = False) -> bool:
         """
         Delete key.
-        
+
         Args:
             key: Key to delete
             raw: If True, use key as-is (no tenant prefix)
@@ -450,10 +484,11 @@ class RedisClient:
             logger.error(f"Redis delete failed: {e}")
             return False
 
+    @must_stay_async("callers use await")
     async def keys(self, pattern: str, raw: bool = False) -> list[str]:
         """
         Get keys matching pattern.
-        
+
         Args:
             pattern: Pattern to match
             raw: If True, use pattern as-is (no tenant prefix)
@@ -501,3 +536,57 @@ async def close_redis_client() -> None:
 
 
 __all__ = ["RedisClient", "get_redis_client", "close_redis_client"]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-008",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "async",
+        "cache",
+        "caching",
+        "client",
+        "debugging",
+        "event-driven",
+        "logging",
+        "operations",
+        "queue",
+        "runtime-operations",
+    ],
+    "keywords": [
+        "available",
+        "backend",
+        "client",
+        "close",
+        "connect",
+        "decrement",
+        "delete",
+        "dequeue",
+    ],
+    "business_value": "Redis connection management Task queue backend Rate limiting backend Session state storage Version: 1.0.0",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

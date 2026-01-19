@@ -18,6 +18,32 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Engine Service",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "governance",
+    "module_name": "engine",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "api.server",
+            "core.tools.registry_adapter",
+            "scripts.workspace.init_workspace",
+            "tests.core.governance.test_engine",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 import os
 from datetime import datetime
@@ -30,6 +56,7 @@ from core.governance.schemas import (
     EvaluationResult,
 )
 from core.governance.loader import PolicyLoader, PolicyLoadError, InvalidPolicyError
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -42,6 +69,7 @@ logger = structlog.get_logger(__name__)
 class SubstrateProtocol(Protocol):
     """Protocol for memory substrate (optional dependency)."""
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet_in: Any) -> Any:
         """Write a packet to substrate."""
         ...
@@ -402,3 +430,62 @@ __all__ = [
     "GovernanceEngineService",
     "create_governance_engine",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-089",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "core.governance.loader",
+        "core.governance.schemas",
+        "core.schemas",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "config",
+        "debugging",
+        "engine",
+        "foundation",
+        "governance",
+        "logging",
+        "service",
+        "tracing",
+    ],
+    "keywords": [
+        "action",
+        "allowed",
+        "count",
+        "create",
+        "default",
+        "deny",
+        "effect",
+        "engine",
+    ],
+    "business_value": "Loads policies from YAML manifests on initialization Evaluates requests against policies (first-match-wins) Enforces deny-by-default for unmatched requests Emits evaluation traces to memory substrate",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

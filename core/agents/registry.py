@@ -15,6 +15,31 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_meta__ = {
+    "component_id": "COR-FOUN-001",
+    "component_name": "Agent Registry",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-18T02:10:54Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "registry",
+    "type": "service",
+    "status": "active",
+    "purpose": "Provides agent registration, discovery, and configuration management.",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
+        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import structlog
 import os
 from pathlib import Path
@@ -23,6 +48,7 @@ from typing import Any, Optional
 import yaml
 
 from core.agents.schemas import AgentConfig, ToolBinding
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -51,7 +77,6 @@ def _get_kernel_system_prompt() -> Optional[str]:
 
 DEFAULT_CONFIG_DIR = "config/agents"
 DEFAULT_AGENT_ID = "l9-standard-v1"
-
 
 # =============================================================================
 # Agent Registry
@@ -206,6 +231,7 @@ class AgentRegistry:
             logger.error("Failed to parse agent config from %s: %s", source, e)
             return None
 
+    @must_stay_async("callers use await")
     async def load_from_directory(self, config_dir: str | Path) -> int:
         """
         Load agent configurations from a directory.
@@ -328,9 +354,9 @@ class AgentRegistry:
     def ensure_test_agent(self) -> AgentConfig:
         """
         Ensure a test agent exists for recursive self-testing.
-        
+
         The test agent generates and runs tests for high-risk proposals.
-        
+
         Returns:
             Test AgentConfig
         """
@@ -338,7 +364,7 @@ class AgentRegistry:
         config = self.get_agent_config(test_agent_id)
         if config:
             return config
-        
+
         # Create test agent
         test_config = AgentConfig(
             agent_id=test_agent_id,
@@ -376,7 +402,7 @@ Always return test results in this structure:
             tools=[],  # Test agent has limited tools
             metadata={"display_name": "L9 Test Agent", "role": "testing"},
         )
-        
+
         self.register_agent(test_config)
         logger.info("Registered test agent: %s", test_agent_id)
         return test_config
@@ -499,3 +525,81 @@ __all__ = [
     "DEFAULT_CONFIG_DIR",
     "DEFAULT_AGENT_ID",
 ]
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    # === IDENTITY ===
+    "component_id": "COR-FOUN-001",
+    # === GOVERNANCE ===
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "security_classification": "internal",
+    # === DEPENDENCIES ===
+    "dependencies": [
+        "core.agents.schemas",
+        "core.decorators",
+        "core.kernels.prompt_builder",
+    ],
+    # === OPERATIONAL ===
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "batch",
+    "retry_policy": "exponential",
+    "circuit_breaker_enabled": True,
+    "circuit_breaker_threshold": 5,
+    # === OBSERVABILITY ===
+    "monitoring_required": True,
+    "logging_level": "info",
+    "success_metrics": {
+        "latency_p95_ms": 500,
+        "throughput_ops_per_sec": 100,
+        "availability_percent": 99.9,
+        "error_rate_percent": 0.1,
+    },
+    # === DISCOVERY ===
+    "tags": [
+        "agent-execution",
+        "async",
+        "cache",
+        "foundation",
+        "graph-db",
+        "logging",
+        "service",
+    ],
+    "keywords": ["agent", "agents", "all", "config", "configs", "create"],
+    "business_value": "Provides agent registration, discovery, and configuration management.",
+    # === CHANGE TRACKING ===
+    "last_modified": "2026-01-18T02:10:54Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

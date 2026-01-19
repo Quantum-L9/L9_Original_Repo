@@ -21,6 +21,27 @@ Wiring Invariant:
     3. Listed in readme/repo-index/file_metrics.txt
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Verify Wiring Alignment",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "verify_wiring_alignment",
+    "type": "dataclass",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import re
 import json
 import argparse
@@ -37,12 +58,12 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 # Patterns to extract path references from docs/scripts
 # These must be PRECISE to avoid false positives
 PATH_PATTERNS = [
-    r'api/memory/[\w]+\.py',           # api/memory/router.py etc
-    r'api/routes/[\w]+\.py',           # api/routes/*.py (likely stale)
-    r'mcp_memory/src/[\w/]+\.py',      # MCP memory routes
-    r'agents/cursor/[\w/]+\.py',       # Cursor integration
-    r'memory/substrate_[\w]+\.py',     # Memory substrate files
-    r'core/governance/[\w]+\.py',      # Governance modules
+    r"api/memory/[\w]+\.py",  # api/memory/router.py etc
+    r"api/routes/[\w]+\.py",  # api/routes/*.py (likely stale)
+    r"mcp_memory/src/[\w/]+\.py",  # MCP memory routes
+    r"agents/cursor/[\w/]+\.py",  # Cursor integration
+    r"memory/substrate_[\w]+\.py",  # Memory substrate files
+    r"core/governance/[\w]+\.py",  # Governance modules
 ]
 
 # Directories to scan for path references
@@ -64,18 +85,18 @@ SKIP_DIRS = {
     ".venv",
     "venv",
     ".cursor",
-    "current_work",      # Planning/work-in-progress files
-    "reports",           # Historical reports
-    "VPS-Repo-Files",    # VPS snapshots
+    "current_work",  # Planning/work-in-progress files
+    "reports",  # Historical reports
+    "VPS-Repo-Files",  # VPS snapshots
 }
 
 # Files to exclude from broken path reporting (they document moves or plans, not current state)
 EXCLUDE_FILES = {
     "architecture_decisions.md",  # Documents intentional moves
-    "gap-analysis-memory.md",     # Contains Doc-Code Alignment Table with old paths
-    "TODO.md",                    # Contains planned/future file references
-    "workflow_state.md",          # Contains historical references
-    "ROADMAP.md",                 # Contains planned features
+    "gap-analysis-memory.md",  # Contains Doc-Code Alignment Table with old paths
+    "TODO.md",  # Contains planned/future file references
+    "workflow_state.md",  # Contains historical references
+    "ROADMAP.md",  # Contains planned features
 }
 
 # Known canonical files from file_metrics.txt (these MUST exist)
@@ -91,7 +112,7 @@ CANONICAL_FILES = {
     "agents/cursor/integrations/cursor_executor.py",
     "memory/substrate_service.py",
     "memory/substrate_repository.py",
-    "memory/substrate_graph.py",
+    "memory/substrate_dag.py",
     "core/governance/approval_manager.py",
     "core/governance/engine.py",
 }
@@ -103,6 +124,7 @@ DEPRECATED_PATHS = {
     "scripts/cursor_check_mistakes.py": "agents/cursor/scripts/cursor_check_mistakes.py",
     "memory/extractor/cursor_action_extractor.py": "agents/cursor/extractors/cursor_action_extractor.py",
     "core/governance/cursor_memory_kernel.py": "agents/cursor/cursor_memory_kernel.py",
+    "memory/substrate_graph.py": "memory/substrate_dag.py",
 }
 
 
@@ -110,9 +132,11 @@ DEPRECATED_PATHS = {
 # DATA MODELS
 # =============================================================================
 
+
 @dataclass
 class PathReference:
     """A path reference found in a file."""
+
     path: str
     source_file: str
     line_number: int
@@ -124,12 +148,13 @@ class PathReference:
 @dataclass
 class VerificationResult:
     """Result of wiring alignment verification."""
+
     verified_paths: List[str]
     broken_docs: List[Dict]
     deprecated_refs: List[Dict]
     missing_canonical: List[str]
     total_scanned: int
-    
+
     @property
     def is_green(self) -> bool:
         return len(self.broken_docs) == 0 and len(self.deprecated_refs) == 0
@@ -138,6 +163,7 @@ class VerificationResult:
 # =============================================================================
 # CORE FUNCTIONS
 # =============================================================================
+
 
 def should_skip(filepath: Path) -> bool:
     """Check if a file should be skipped."""
@@ -152,13 +178,13 @@ def should_skip(filepath: Path) -> bool:
 def extract_paths_from_file(filepath: Path) -> List[PathReference]:
     """Extract all path references from a file."""
     try:
-        content = filepath.read_text(errors='ignore')
+        content = filepath.read_text(errors="ignore")
     except (IOError, OSError):
         return []
-    
+
     references = []
-    lines = content.split('\n')
-    
+    lines = content.split("\n")
+
     for line_num, line in enumerate(lines, 1):
         for pattern in PATH_PATTERNS:
             matches = re.findall(pattern, line)
@@ -166,20 +192,22 @@ def extract_paths_from_file(filepath: Path) -> List[PathReference]:
                 # Check if path exists
                 full_path = REPO_ROOT / match
                 exists = full_path.exists()
-                
+
                 # Check if deprecated
                 is_deprecated = match in DEPRECATED_PATHS
                 canonical = DEPRECATED_PATHS.get(match, "")
-                
-                references.append(PathReference(
-                    path=match,
-                    source_file=str(filepath.relative_to(REPO_ROOT)),
-                    line_number=line_num,
-                    exists=exists,
-                    is_deprecated=is_deprecated,
-                    canonical_replacement=canonical,
-                ))
-    
+
+                references.append(
+                    PathReference(
+                        path=match,
+                        source_file=str(filepath.relative_to(REPO_ROOT)),
+                        line_number=line_num,
+                        exists=exists,
+                        is_deprecated=is_deprecated,
+                        canonical_replacement=canonical,
+                    )
+                )
+
     return references
 
 
@@ -196,42 +224,48 @@ def scan_repository() -> VerificationResult:
     """Scan repository for wiring alignment issues."""
     all_references: List[PathReference] = []
     files_scanned = 0
-    
+
     # Scan all matching files
     for glob_pattern in SCAN_GLOBS:
         for filepath in REPO_ROOT.glob(glob_pattern):
             if should_skip(filepath):
                 continue
-            
+
             refs = extract_paths_from_file(filepath)
             all_references.extend(refs)
             files_scanned += 1
-    
+
     # Categorize results
     verified_paths: Set[str] = set()
     broken_docs: List[Dict] = []
     deprecated_refs: List[Dict] = []
-    
+
     for ref in all_references:
-        if ref.exists and not ref.is_deprecated:
+        if ref.is_deprecated:
+            # Deprecated paths (whether they exist or not) should be updated
+            deprecated_refs.append(
+                {
+                    "path": ref.path,
+                    "source": ref.source_file,
+                    "line": ref.line_number,
+                    "replacement": ref.canonical_replacement,
+                }
+            )
+        elif ref.exists:
             verified_paths.add(ref.path)
-        elif not ref.exists:
-            broken_docs.append({
-                "path": ref.path,
-                "source": ref.source_file,
-                "line": ref.line_number,
-            })
-        elif ref.is_deprecated:
-            deprecated_refs.append({
-                "path": ref.path,
-                "source": ref.source_file,
-                "line": ref.line_number,
-                "replacement": ref.canonical_replacement,
-            })
-    
+        else:
+            # File doesn't exist and isn't a known deprecated path
+            broken_docs.append(
+                {
+                    "path": ref.path,
+                    "source": ref.source_file,
+                    "line": ref.line_number,
+                }
+            )
+
     # Check canonical files
     missing_canonical = verify_canonical_files()
-    
+
     return VerificationResult(
         verified_paths=sorted(verified_paths),
         broken_docs=broken_docs,
@@ -245,20 +279,21 @@ def scan_repository() -> VerificationResult:
 # OUTPUT FORMATTING
 # =============================================================================
 
+
 def print_summary(result: VerificationResult, verbose: bool = False) -> None:
     """Print verification summary."""
     print("=" * 70)
     print("L9 WIRING ALIGNMENT VERIFICATION")
     print("=" * 70)
     print()
-    
+
     # Status
     status = "✅ GREEN" if result.is_green else "❌ VIOLATIONS FOUND"
     print(f"Status: {status}")
     print(f"Files scanned: {result.total_scanned}")
     print(f"Paths verified: {len(result.verified_paths)}")
     print()
-    
+
     # Broken docs
     if result.broken_docs:
         print("-" * 70)
@@ -270,7 +305,7 @@ def print_summary(result: VerificationResult, verbose: bool = False) -> None:
         if len(result.broken_docs) > 20:
             print(f"  ... and {len(result.broken_docs) - 20} more")
         print()
-    
+
     # Deprecated refs
     if result.deprecated_refs:
         print("-" * 70)
@@ -282,7 +317,7 @@ def print_summary(result: VerificationResult, verbose: bool = False) -> None:
         if len(result.deprecated_refs) > 20:
             print(f"  ... and {len(result.deprecated_refs) - 20} more")
         print()
-    
+
     # Missing canonical
     if result.missing_canonical:
         print("-" * 70)
@@ -291,7 +326,7 @@ def print_summary(result: VerificationResult, verbose: bool = False) -> None:
         for path in result.missing_canonical:
             print(f"  ❌ {path}")
         print()
-    
+
     # Verified paths (verbose)
     if verbose and result.verified_paths:
         print("-" * 70)
@@ -302,7 +337,7 @@ def print_summary(result: VerificationResult, verbose: bool = False) -> None:
         if len(result.verified_paths) > 50:
             print(f"  ... and {len(result.verified_paths) - 50} more")
         print()
-    
+
     print("=" * 70)
 
 
@@ -323,11 +358,10 @@ def print_json(result: VerificationResult) -> None:
 # CLI
 # =============================================================================
 
+
 def main() -> int:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="L9 Wiring Alignment Verifier"
-    )
+    parser = argparse.ArgumentParser(description="L9 Wiring Alignment Verifier")
     parser.add_argument(
         "--json",
         action="store_true",
@@ -338,21 +372,75 @@ def main() -> int:
         action="store_true",
         help="Show verified paths",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Run verification
     result = scan_repository()
-    
+
     # Output
     if args.json:
         print_json(result)
     else:
         print_summary(result, verbose=args.verbose)
-    
+
     # Return code
     return 0 if result.is_green else 1
 
 
 if __name__ == "__main__":
     exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-008",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "caching",
+        "cli",
+        "dataclass",
+        "filesystem",
+        "metrics",
+        "operations",
+        "scripts",
+        "serialization",
+        "testing",
+    ],
+    "keywords": [
+        "alignment",
+        "canonical",
+        "extract",
+        "files",
+        "green",
+        "json",
+        "paths",
+        "print",
+    ],
+    "business_value": "Provides verify wiring alignment components including PathReference, VerificationResult",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

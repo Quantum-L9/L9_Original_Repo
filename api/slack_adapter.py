@@ -13,6 +13,37 @@ Slack Signature Verification:
   - Format: v0=<hash>
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Slack Adapter",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "operations",
+    "domain": "error_handling",
+    "module_name": "slack_adapter",
+    "type": "exception",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "api.e2e_slack_audit",
+            "api.routes.slack",
+            "api.server",
+            "api.server_memory",
+            "memory.slack_ingest",
+            "tests.api.test_e2e_slack_audit",
+            "tests.api.test_slack_adapter",
+            "tests.integration.test_slack_dispatch_integration",
+            "tests.test_slack_adapter",
+        ],
+    },
+}
+# ============================================================================
+
 import hashlib
 import hmac
 import time
@@ -293,3 +324,58 @@ class SlackRequestNormalizer:
         }
 
         return normalized
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-007",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "error-handling",
+        "event-driven",
+        "exception",
+        "logging",
+        "messaging",
+        "operations",
+        "security",
+        "validation",
+        "webhooks",
+    ],
+    "keywords": [
+        "adapter",
+        "callback",
+        "command",
+        "event",
+        "header",
+        "hmac",
+        "inbound",
+        "module",
+    ],
+    "business_value": "This module provides core Slack webhook validation and request normalization. All inbound Slack events are validated via HMAC-SHA256 before processing.",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

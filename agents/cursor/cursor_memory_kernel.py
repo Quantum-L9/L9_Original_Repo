@@ -11,6 +11,27 @@ Config: .cursor/cursor-memory/l9.workflow_todo_kernel.v2.yaml
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Session Memory & TODO Tracking",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "cursor_memory_kernel",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL", "Redis"],
+        "memory_layers": [],
+        "imported_by": ["agents.cursor.__init__", "core.singleton_registry"],
+    },
+}
+# ============================================================================
+
 import os
 import subprocess
 import json
@@ -38,7 +59,7 @@ DB_USER = "postgres"
 # Neo4j
 DOCKER_NEO4J = "l9-neo4j"
 NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "FVmgaD1diPcz41zRbYLLP0UzyGvAi4E"  # TODO: Move to env
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
 
 # Redis
 DOCKER_REDIS = "l9-redis"
@@ -63,9 +84,11 @@ CURSOR_TENANT_ID = os.getenv("CURSOR_TENANT_ID", "cursor-ide")
 # Data Models
 # =============================================================================
 
+
 @dataclass
 class Lesson:
     """A lesson loaded from memory."""
+
     title: str
     severity: str
     content: str
@@ -74,6 +97,7 @@ class Lesson:
 @dataclass
 class TodoItem:
     """A tracked TODO item."""
+
     id: str
     content: str
     status: str  # pending, in_progress, completed, cancelled
@@ -83,6 +107,7 @@ class TodoItem:
 @dataclass
 class SessionState:
     """Current session state from memory."""
+
     kernel_id: str
     session_id: str
     lessons: list[Lesson] = field(default_factory=list)
@@ -103,7 +128,7 @@ RLS_ORG_ID = os.getenv("RLS_ORG_ID", "quantumai")
 def _get_rls_prefix() -> str:
     """
     Generate RLS session variable SET commands.
-    
+
     This ensures Docker Postgres mirrors VPS RLS behavior:
     - app.tenant_id: Top-level tenant isolation
     - app.org_id: Organization isolation
@@ -121,7 +146,7 @@ def _get_rls_prefix() -> str:
 def _run_psql(sql: str, with_rls: bool = True) -> Optional[str]:
     """
     Execute SQL via docker exec and return result.
-    
+
     Args:
         sql: SQL query to execute
         with_rls: If True, set RLS session variables first (default: True)
@@ -132,11 +157,20 @@ def _run_psql(sql: str, with_rls: bool = True) -> Optional[str]:
             full_sql = _get_rls_prefix() + sql
         else:
             full_sql = sql
-            
+
         cmd = [
-            "docker", "exec", DOCKER_POSTGRES,
-            "psql", "-U", DB_USER, "-d", DATABASE,
-            "-t", "-A", "-c", full_sql
+            "docker",
+            "exec",
+            DOCKER_POSTGRES,
+            "psql",
+            "-U",
+            DB_USER,
+            "-d",
+            DATABASE,
+            "-t",
+            "-A",
+            "-c",
+            full_sql,
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
         if result.returncode == 0:
@@ -152,13 +186,20 @@ def _run_psql(sql: str, with_rls: bool = True) -> Optional[str]:
 # Neo4j Operations (with tenant isolation)
 # =============================================================================
 
+
 def _run_cypher(query: str, tenant_id: str = CURSOR_TENANT_ID) -> Optional[str]:
     """Execute Cypher query via docker exec with tenant filtering."""
     try:
         cmd = [
-            "docker", "exec", DOCKER_NEO4J,
-            "cypher-shell", "-u", NEO4J_USER, "-p", NEO4J_PASSWORD,
-            query
+            "docker",
+            "exec",
+            DOCKER_NEO4J,
+            "cypher-shell",
+            "-u",
+            NEO4J_USER,
+            "-p",
+            NEO4J_PASSWORD,
+            query,
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
         if result.returncode == 0:
@@ -173,18 +214,18 @@ def _run_cypher(query: str, tenant_id: str = CURSOR_TENANT_ID) -> Optional[str]:
 def neo4j_query(query: str, tenant_id: str = CURSOR_TENANT_ID) -> list[dict]:
     """
     Execute Neo4j query with automatic tenant filtering.
-    
+
     NOTE: Cursor typically does NOT use Neo4j. The tool graph is L's domain.
     These functions exist for completeness but are rarely called.
     If used, they would query Cursor's OWN tenant space (cursor-ide),
     completely separate from L's tool graph (l-cto).
-    
+
     Injects tenant_id filter into WHERE clause.
     """
     # Inject tenant filter if not already present
     if "tenant_id" not in query.lower():
         logger.warning("neo4j_query.no_tenant_filter", query=query[:50])
-    
+
     result = _run_cypher(query)
     if result:
         # Parse simple output (not full JSON)
@@ -200,7 +241,9 @@ def neo4j_query(query: str, tenant_id: str = CURSOR_TENANT_ID) -> list[dict]:
     return []
 
 
-def neo4j_get_agent_tools(agent_id: str, tenant_id: str = CURSOR_TENANT_ID) -> list[str]:
+def neo4j_get_agent_tools(
+    agent_id: str, tenant_id: str = CURSOR_TENANT_ID
+) -> list[str]:
     """Get tools used by an agent (tenant-isolated)."""
     query = f"""
     MATCH (a:Agent {{agent_id: '{agent_id}', tenant_id: '{tenant_id}'}})-[:USES]->(t:Tool)
@@ -224,6 +267,7 @@ def neo4j_get_graph_stats(tenant_id: str = CURSOR_TENANT_ID) -> dict:
 # =============================================================================
 # Redis Operations (with tenant key prefixing)
 # =============================================================================
+
 
 def _run_redis(cmd_parts: list[str]) -> Optional[str]:
     """Execute Redis command via docker exec."""
@@ -252,7 +296,9 @@ def redis_get(key: str, tenant_id: str = CURSOR_TENANT_ID) -> Optional[str]:
     return _run_redis(["GET", prefixed_key])
 
 
-def redis_set(key: str, value: str, tenant_id: str = CURSOR_TENANT_ID, ttl: int = None) -> bool:
+def redis_set(
+    key: str, value: str, tenant_id: str = CURSOR_TENANT_ID, ttl: int = None
+) -> bool:
     """Set value in Redis (tenant-isolated)."""
     prefixed_key = redis_key(key, tenant_id)
     cmd = ["SET", prefixed_key, value]
@@ -262,7 +308,9 @@ def redis_set(key: str, value: str, tenant_id: str = CURSOR_TENANT_ID, ttl: int 
     return result == "OK"
 
 
-def redis_hset(key: str, field: str, value: str, tenant_id: str = CURSOR_TENANT_ID) -> bool:
+def redis_hset(
+    key: str, field: str, value: str, tenant_id: str = CURSOR_TENANT_ID
+) -> bool:
     """Set hash field in Redis (tenant-isolated)."""
     prefixed_key = redis_key(key, tenant_id)
     result = _run_redis(["HSET", prefixed_key, field, value])
@@ -300,11 +348,11 @@ def _run_psql_json(sql: str) -> list[dict]:
 def load_lessons() -> list[Lesson]:
     """
     Load LESSON packets from memory - CURSOR SCOPE ONLY.
-    
+
     Scope Separation:
     - Cursor loads: agent = 'cursor-ide' OR no agent (legacy shared lessons)
     - L loads: agent = 'l9-standard-v1', 'l-cto', 'L' (see runtime/kernel_loader.py)
-    
+
     This prevents L from loading Cursor's lessons and vice versa.
     """
     sql = """
@@ -342,8 +390,8 @@ def load_todos(session_id: str) -> list[TodoItem]:
         LIMIT 1
     """
     rows = _run_psql_json(sql)
-    if rows and rows[0] and rows[0].get('todos'):
-        todos_raw = rows[0]['todos']
+    if rows and rows[0] and rows[0].get("todos"):
+        todos_raw = rows[0]["todos"]
         if isinstance(todos_raw, str):
             todos_raw = json.loads(todos_raw)
         return [TodoItem(**t) for t in todos_raw]
@@ -357,17 +405,18 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
         "session_id": session_id,
         "activated_by": "cursor-ide",
         "activated_at": datetime.utcnow().isoformat(),
-        "behaviors_enabled": ["todo_tracker", "confidence_logic", "execution_style", "memory_ops"]
+        "behaviors_enabled": [
+            "todo_tracker",
+            "confidence_logic",
+            "execution_style",
+            "memory_ops",
+        ],
     }
     envelope = {
         "payload": payload,
-        "metadata": {
-            "agent": "cursor-ide",
-            "domain": "l9",
-            "schema_version": "1.0.0"
-        }
+        "metadata": {"agent": "cursor-ide", "domain": "l9", "schema_version": "1.0.0"},
     }
-    
+
     sql = f"""
         INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp, scope, importance_score)
         VALUES (gen_random_uuid(), 'KERNEL_ACTIVATION', '{json.dumps(envelope)}'::jsonb, NOW(), 'shared', 1.0)
@@ -376,23 +425,21 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
     return result is not None
 
 
-def write_lesson(title: str, content: str, severity: str = "INFO", tags: list[str] = None) -> bool:
+def write_lesson(
+    title: str, content: str, severity: str = "INFO", tags: list[str] = None
+) -> bool:
     """Write a new lesson to memory."""
     payload = {
         "title": title,
         "content": content,
         "severity": severity,
-        "tags": tags or []
+        "tags": tags or [],
     }
     envelope = {
         "payload": payload,
-        "metadata": {
-            "agent": "cursor-ide",
-            "domain": "l9",
-            "schema_version": "1.0.0"
-        }
+        "metadata": {"agent": "cursor-ide", "domain": "l9", "schema_version": "1.0.0"},
     }
-    
+
     sql = f"""
         INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp, scope, importance_score)
         VALUES (gen_random_uuid(), 'LESSON', '{json.dumps(envelope)}'::jsonb, NOW(), 'shared', 0.9)
@@ -405,8 +452,16 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
     """Write/update session TODOs."""
     payload = {
         "session_id": session_id,
-        "todos": [{"id": t.id, "content": t.content, "status": t.status, "milestone": t.milestone} for t in todos],
-        "updated_at": datetime.utcnow().isoformat()
+        "todos": [
+            {
+                "id": t.id,
+                "content": t.content,
+                "status": t.status,
+                "milestone": t.milestone,
+            }
+            for t in todos
+        ],
+        "updated_at": datetime.utcnow().isoformat(),
     }
     envelope = {
         "payload": payload,
@@ -414,10 +469,10 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
             "agent": "cursor-ide",
             "domain": "l9",
             "schema_version": "1.0.0",
-            "kernel": "l9.workflow_todo_kernel.v2"
-        }
+            "kernel": "l9.workflow_todo_kernel.v2",
+        },
     }
-    
+
     sql = f"""
         INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp, scope, importance_score)
         VALUES (gen_random_uuid(), 'SESSION_TODO', '{json.dumps(envelope)}'::jsonb, NOW(), 'shared', 0.9)
@@ -430,41 +485,46 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
 # Kernel Class
 # =============================================================================
 
+
 class CursorMemoryKernel:
     """
     Cursor Memory Kernel - manages session memory and behaviors.
-    
+
     Implements l9.workflow_todo_kernel.v2.yaml behaviors:
     - Session-start lesson loading
     - TODO tracking with memory persistence
     - Confidence logic thresholds
     - Execution style preferences
     """
-    
+
     def __init__(self, config_path: Path = KERNEL_CONFIG_PATH):
         self.config_path = config_path
         self.config: dict = {}
         self.session_state: Optional[SessionState] = None
         self.kernel_id = "l9.workflow_todo_kernel.v2"
         self._load_config()
-    
+
     def _load_config(self) -> None:
         """Load kernel YAML configuration."""
         try:
             if self.config_path.exists():
                 self.config = yaml.safe_load(self.config_path.read_text())
-                logger.info("cursor_memory_kernel.config_loaded", path=str(self.config_path))
+                logger.info(
+                    "cursor_memory_kernel.config_loaded", path=str(self.config_path)
+                )
             else:
-                logger.warning("cursor_memory_kernel.config_not_found", path=str(self.config_path))
+                logger.warning(
+                    "cursor_memory_kernel.config_not_found", path=str(self.config_path)
+                )
                 self.config = {}
         except Exception as e:
             logger.error("cursor_memory_kernel.config_load_failed", error=str(e))
             self.config = {}
-    
+
     def activate(self, session_id: str = None) -> SessionState:
         """
         Activate kernel for a session.
-        
+
         1. Generate session ID if not provided
         2. Write activation packet
         3. Load lessons from memory
@@ -473,17 +533,17 @@ class CursorMemoryKernel:
         """
         if session_id is None:
             session_id = f"cursor-session-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}"
-        
+
         # Write activation
         write_kernel_activation(session_id, self.kernel_id)
-        
+
         # Load lessons
         lessons = load_lessons()
         logger.info("cursor_memory_kernel.lessons_loaded", count=len(lessons))
-        
+
         # Load TODOs
         todos = load_todos(session_id)
-        
+
         # Create session state
         self.session_state = SessionState(
             kernel_id=self.kernel_id,
@@ -491,97 +551,103 @@ class CursorMemoryKernel:
             lessons=lessons,
             todos=todos,
             prompt_count=0,
-            activated_at=datetime.utcnow()
+            activated_at=datetime.utcnow(),
         )
-        
+
         logger.info(
             "cursor_memory_kernel.activated",
             session_id=session_id,
             lessons=len(lessons),
-            todos=len(todos)
+            todos=len(todos),
         )
-        
+
         return self.session_state
-    
+
     def get_lessons_summary(self) -> str:
         """Get formatted lessons summary for context injection."""
         if not self.session_state:
             return "No session active"
-        
+
         lines = [f"## Loaded Lessons ({len(self.session_state.lessons)} total)\n"]
-        
+
         for lesson in self.session_state.lessons:
             severity_icon = {
                 "ULTRA-CRITICAL": "🔴",
-                "CRITICAL": "🔴", 
+                "CRITICAL": "🔴",
                 "HIGH": "🟠",
-                "INFO": "🟢"
+                "INFO": "🟢",
             }.get(lesson.severity, "⚪")
-            lines.append(f"- {severity_icon} **{lesson.title}**: {lesson.content[:80]}...")
-        
+            lines.append(
+                f"- {severity_icon} **{lesson.title}**: {lesson.content[:80]}..."
+            )
+
         return "\n".join(lines)
-    
+
     def add_todo(self, content: str, milestone: str = None) -> TodoItem:
         """Add a TODO item."""
         if not self.session_state:
             raise RuntimeError("Kernel not activated")
-        
+
         todo = TodoItem(
             id=str(len(self.session_state.todos) + 1),
             content=content,
             status="pending",
-            milestone=milestone
+            milestone=milestone,
         )
         self.session_state.todos.append(todo)
-        
+
         # Persist to memory
         write_session_todos(self.session_state.session_id, self.session_state.todos)
-        
+
         return todo
-    
+
     def complete_todo(self, todo_id: str) -> bool:
         """Mark a TODO as completed."""
         if not self.session_state:
             return False
-        
+
         for todo in self.session_state.todos:
             if todo.id == todo_id:
                 todo.status = "completed"
-                write_session_todos(self.session_state.session_id, self.session_state.todos)
+                write_session_todos(
+                    self.session_state.session_id, self.session_state.todos
+                )
                 return True
         return False
-    
+
     def should_display_todos(self) -> bool:
         """Check if TODOs should be displayed based on prompt count."""
         if not self.session_state:
             return False
-        
-        display_interval = self.config.get("todo_tracker", {}).get("display_every_n_prompts", 3)
+
+        display_interval = self.config.get("todo_tracker", {}).get(
+            "display_every_n_prompts", 3
+        )
         return self.session_state.prompt_count % display_interval == 0
-    
+
     def increment_prompt_count(self) -> int:
         """Increment prompt count and return new value."""
         if self.session_state:
             self.session_state.prompt_count += 1
         return self.session_state.prompt_count if self.session_state else 0
-    
+
     def get_confidence_behavior(self, confidence: float) -> dict:
         """
         Get behavior based on confidence level.
-        
+
         Returns dict with:
         - ask_questions: bool
         - max_questions: int
         - execute: bool
         """
         logic = self.config.get("confidence_logic", {}).get("behavior", {})
-        
+
         if confidence >= 0.80:
             return {
                 "ask_questions": False,
                 "max_questions": 0,
                 "execute": True,
-                "band": "high"
+                "band": "high",
             }
         elif confidence >= 0.50:
             return {
@@ -589,7 +655,7 @@ class CursorMemoryKernel:
                 "max_questions": 1,
                 "execute": False,
                 "question_style": "high-leverage_multiple_choice",
-                "band": "medium"
+                "band": "medium",
             }
         else:
             return {
@@ -598,16 +664,23 @@ class CursorMemoryKernel:
                 "execute": False,
                 "question_style": "multi_pass_all_at_once",
                 "include_suggestions": True,
-                "band": "low"
+                "band": "low",
             }
-    
+
     def get_execution_style(self) -> dict:
         """Get execution style preferences."""
-        return self.config.get("execution_style", {
-            "voice": {"tone": "direct", "verbosity": "minimal", "no_sycophancy": True},
-            "structure": {"bullets": True, "deliverables_first": True}
-        })
-    
+        return self.config.get(
+            "execution_style",
+            {
+                "voice": {
+                    "tone": "direct",
+                    "verbosity": "minimal",
+                    "no_sycophancy": True,
+                },
+                "structure": {"bullets": True, "deliverables_first": True},
+            },
+        )
+
     def learn(self, title: str, content: str, severity: str = "INFO") -> bool:
         """Store a new lesson in memory."""
         return write_lesson(title, content, severity)
@@ -623,7 +696,7 @@ _kernel_instance: Optional[CursorMemoryKernel] = None
 def create_cursor_memory_kernel() -> CursorMemoryKernel:
     """
     Factory function for cursor memory kernel.
-    
+
     Called by setup-new-workspace.yaml during session startup.
     Returns singleton instance.
     """
@@ -650,23 +723,23 @@ def get_active_kernel() -> Optional[CursorMemoryKernel]:
 
 if __name__ == "__main__":
     import sys
-    
+
     kernel = create_cursor_memory_kernel()
-    
+
     if len(sys.argv) > 1:
         cmd = sys.argv[1]
-        
+
         if cmd == "activate":
             session_id = sys.argv[2] if len(sys.argv) > 2 else None
             state = kernel.activate(session_id)
             logger.info(f"✅ Kernel activated: {state.session_id}")
             logger.info(f"   Lessons: {len(state.lessons)}")
             logger.info(f"   TODOs: {len(state.todos)}")
-        
+
         elif cmd == "lessons":
             state = kernel.activate()
             logger.info(kernel.get_lessons_summary())
-        
+
         elif cmd == "learn":
             title = sys.argv[2]
             content = sys.argv[3]
@@ -675,10 +748,12 @@ if __name__ == "__main__":
                 logger.info(f"✅ Lesson saved: {title}")
             else:
                 logger.info("❌ Failed to save lesson")
-        
+
         else:
             logger.info(f"Unknown command: {cmd}")
-            logger.info("Usage: python cursor_memory_kernel.py [activate|lessons|learn]")
+            logger.info(
+                "Usage: python cursor_memory_kernel.py [activate|lessons|learn]"
+            )
     else:
         # Default: activate and show summary
         state = kernel.activate()
@@ -686,3 +761,56 @@ if __name__ == "__main__":
         logger.info(f"Lessons: {len(state.lessons)}")
         logger.info(f"TODOs: {len(state.todos)}")
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-020",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "agent-execution",
+        "authorization",
+        "cache",
+        "config",
+        "dataclass",
+        "event-driven",
+        "filesystem",
+        "intelligence",
+        "logging",
+        "security",
+    ],
+    "keywords": [
+        "activate",
+        "activation",
+        "active",
+        "agent",
+        "behavior",
+        "complete",
+        "confidence",
+        "count",
+    ],
+    "business_value": "Provides session-start memory loading, TODO tracking, and confidence logic. Factory: create_cursor_memory_kernel() Config: .cursor/cursor-memory/l9.workflow_todo_kernel.v2.yaml",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

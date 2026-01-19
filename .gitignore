@@ -35,8 +35,7 @@ neo4j/data/
 
 # --- Editor / Agent tooling (Mac-local only, symlinks to Dropbox) ---
 .cursor-commands/
-.cursor/commands
-.cursor/rules
+.cursor/
 .dora/
 
 # --- Igor's working files (local only) ---
@@ -44,6 +43,9 @@ neo4j/data/
 
 # --- Development agents (not ready for production) ---
 agents/codegenagent/
+
+# --- Perplexity Research Results (ephemeral, reviewed weekly) ---
+agents/cursor/perplexity_research_results/
 
 # --- Documentation (local only) ---
 /docs/
@@ -84,6 +86,9 @@ _l9_GHOST_REPO-DON'T USE/
 Module Production/
 igor/
 
+# --- Working files (local only) ---
+current_work/
+
 # Local Docker overrides (machine-specific)
 # docker-compose.yml is now TRACKED (VPS production config with full observability)
 docker-compose.override.yml
@@ -120,3 +125,4 @@ codegen/
 tests/agents/codegenagent/
 tests/codegen/email_agent/private_auth/
 email_agent/private_auth/
+reports/
