@@ -69,3 +69,12 @@ try:
     import codegen.symbolic  # noqa: F401
 except ImportError:
     pass  # Will be handled as test failure where needed
+
+# Pre-import auto-registry modules for pytest
+# (fixes ModuleNotFoundError in PR#17 auto-wiring tests)
+try:
+    import core.auto_registry  # noqa: F401
+    import collaborative_cells.cell_registry  # noqa: F401
+    import core.schemas.upcaster_registry  # noqa: F401
+except ImportError:
+    pass  # Will be handled as test failure where needed

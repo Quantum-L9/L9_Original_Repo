@@ -15,7 +15,7 @@ __dora_meta__ = {
     "module_version": "1.0.0",
     "created_by": "L9 Auto-Wiring Team",
     "created_at": "2026-01-18T00:00:00Z",
-    "updated_at": "2026-01-18T00:00:00Z",
+    "updated_at": "2026-01-19T00:00:00Z",
     "layer": "collaborative",
     "domain": "multi_agent",
     "module_name": "cell_registry",
@@ -27,6 +27,11 @@ __dora_meta__ = {
         "memory_layers": [],
         "imported_by": ["collaborative_cells.__init__"],
     },
+}
+__l9_trace__ = {
+    "gmp_id": "GMP-95",
+    "pr_id": "PR-17",
+    "last_modified_by": "cursor",
 }
 # ============================================================================
 

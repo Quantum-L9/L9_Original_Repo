@@ -6,7 +6,6 @@ import pytest
 from collaborative_cells.cell_registry import (
     cell_registry,
     register_cell,
-    discover_cells,
     get_all_cells,
     get_cells_by_category,
 )
@@ -20,29 +19,49 @@ def clear_registries():
     cell_registry.clear()
 
 
-@register_cell(category="test")
-class MyTestCell:
-    def execute(self):
-        pass
-
-    def get_config(self):
-        pass
-
-
 def test_register_cell_decorator():
     """Test that @register_cell decorator registers a cell."""
-    discover_cells(package="tests.collaborative_cells")
+
+    # Register a test cell inside the test (not at module level)
+    @register_cell(category="test")
+    class TestCell:
+        def execute(self):
+            pass
+
+        def get_config(self):
+            pass
+
     cells = get_all_cells()
 
-    assert "MyTestCell" in cells
-    assert cells["MyTestCell"] == MyTestCell
+    assert "TestCell" in cells
+    assert cells["TestCell"] == TestCell
 
 
 def test_get_cells_by_category():
     """Test filtering cells by category."""
-    discover_cells(package="tests.collaborative_cells")
-    test_cells = get_cells_by_category("test")
-    assert "MyTestCell" in test_cells
+
+    # Register cells in different categories
+    @register_cell(category="design")
+    class DesignCell:
+        def execute(self):
+            pass
+
+        def get_config(self):
+            pass
+
+    @register_cell(category="review")
+    class ReviewCell:
+        def execute(self):
+            pass
+
+        def get_config(self):
+            pass
+
+    design_cells = get_cells_by_category("design")
+    assert "DesignCell" in design_cells
+
+    review_cells = get_cells_by_category("review")
+    assert "ReviewCell" in review_cells
 
     general_cells = get_cells_by_category("general")
     assert not general_cells

@@ -19,7 +19,7 @@ __dora_meta__ = {
     "module_version": "1.0.0",
     "created_by": "L9 Auto-Wiring Team",
     "created_at": "2026-01-18T00:00:00Z",
-    "updated_at": "2026-01-18T00:00:00Z",
+    "updated_at": "2026-01-19T00:00:00Z",
     "layer": "core",
     "domain": "schemas",
     "module_name": "upcaster_registry",
@@ -31,6 +31,11 @@ __dora_meta__ = {
         "memory_layers": [],
         "imported_by": ["core.schemas.schema_registry"],
     },
+}
+__l9_trace__ = {
+    "gmp_id": "GMP-95",
+    "pr_id": "PR-17",
+    "last_modified_by": "cursor",
 }
 # ============================================================================
 

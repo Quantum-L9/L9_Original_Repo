@@ -26,7 +26,7 @@ __dora_meta__ = {
     "module_version": "1.0.0",
     "created_by": "L9 Auto-Wiring Team",
     "created_at": "2026-01-18T00:00:00Z",
-    "updated_at": "2026-01-18T00:00:00Z",
+    "updated_at": "2026-01-19T00:00:00Z",
     "layer": "foundation",
     "domain": "core",
     "module_name": "auto_registry",
@@ -38,6 +38,11 @@ __dora_meta__ = {
         "memory_layers": [],
         "imported_by": [],
     },
+}
+__l9_trace__ = {
+    "gmp_id": "GMP-95",
+    "pr_id": "PR-17",
+    "last_modified_by": "cursor",
 }
 # ============================================================================
 
@@ -155,12 +160,6 @@ class AutoRegistry(Generic[T]):
         self._metadata.clear()
         self._factories.clear()
         logger.info("registry.cleared", registry_name=self.name)
-
-        logger.info(
-            "registry.initialized",
-            registry_name=self.name,
-            allow_duplicates=self._allow_duplicates,
-        )
 
     def register(
         self,
