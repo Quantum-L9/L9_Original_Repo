@@ -83,13 +83,48 @@ class ExecutorState(str, Enum):
 
 
 class TaskKind(str, Enum):
-    """Kind of agent task."""
+    """Kind of agent task.
+
+    DEPRECATED: Use AgentType instead for new code.
+    Maintained for backward compatibility only.
+    """
 
     QUERY = "query"
     COMMAND = "command"
     RESEARCH = "research"
     EXECUTION = "execution"
     CONVERSATION = "conversation"
+
+
+class AgentType(str, Enum):
+    """
+    Enterprise agent classification for multi-agent routing.
+
+    Each type maps to specific capabilities, security levels, and tool access.
+    Used for:
+    - Task routing decisions
+    - Capability matching
+    - Security policy enforcement
+    - Billing/metering by agent type
+
+    Replaces deprecated TaskKind enum.
+    """
+
+    # Core L9 agent types
+    ASSISTANT = "assistant"  # Conversational, user-facing (replaces CONVERSATION)
+    EXECUTOR = "executor"  # Code/tool execution (replaces EXECUTION)
+    ANALYST = "analyst"  # Data analysis, queries (replaces QUERY)
+    RESEARCHER = "researcher"  # Deep investigation (replaces RESEARCH)
+    OPERATOR = "operator"  # System operations (replaces COMMAND)
+
+    # Multi-agent ecosystem types (future)
+    COORDINATOR = "coordinator"  # Orchestrates other agents
+    SPECIALIST = "specialist"  # Domain-specific expert
+    SUPERVISOR = "supervisor"  # Reviews/approves other agents' work
+
+    # External agent types
+    EXTERNAL = "external"  # Third-party agent integration
+    WORKER = "worker"  # Mac agent, remote executors
 
 
 # =============================================================================
@@ -139,6 +174,29 @@ class AgentTask(BaseModel):
     )
     max_iterations: int = Field(
         default=10, ge=1, le=100, description="Max reasoning iterations"
+    )
+
+    # === FUTURE-PROOF FIELDS (enterprise multi-agent architecture) ===
+    agent_type: AgentType = Field(
+        default=AgentType.ASSISTANT,
+        description="Enterprise agent classification for routing and policy enforcement",
+    )
+    target_domain: str = Field(
+        default="l9", description="Target domainOS: 'l9', 'l10', 'external', 'sandbox'"
+    )
+    priority: int = Field(
+        default=5,
+        ge=1,
+        le=10,
+        description="Task urgency: 1=critical/blocking, 5=normal, 10=background/batch",
+    )
+    delegation_chain: List[str] = Field(
+        default_factory=list,
+        description="Agent IDs that have handled this task (audit trail for multi-agent)",
+    )
+    capability_requirements: List[str] = Field(
+        default_factory=list,
+        description="Required capabilities: 'shell_access', 'neo4j', 'memory_write', 'external_api'",
     )
 
     model_config = {"extra": "forbid"}
@@ -420,6 +478,7 @@ __all__ = [
     # Enums
     "ExecutorState",
     "TaskKind",
+    "AgentType",
     "AIOSResultType",
     # Models
     "AgentTask",

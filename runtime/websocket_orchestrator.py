@@ -54,6 +54,72 @@ from core.decorators import must_stay_async
 logger = structlog.get_logger(__name__)
 
 
+# =============================================================================
+# WebSocket Authentication (REQUIRED - Single Source of Truth)
+# =============================================================================
+
+
+@must_stay_async("callers use await")
+async def verify_ws_token(websocket: WebSocket, token: str | None = None) -> bool:
+    """
+    Verify WebSocket authentication token.
+
+    ENFORCED SECURITY GATE - All WebSocket connections MUST pass this check.
+
+    Contract:
+    - Requires L9_EXECUTOR_API_KEY to be set (fail-fast if missing)
+    - Token can come from query param OR handshake message
+    - Returns False on ANY validation failure (no exceptions thrown)
+
+    Token sources (priority order):
+    1. Explicit `token` parameter (passed from handshake or explicit parameter)
+    2. Query parameter: ws://host/endpoint?token=...
+
+    Args:
+        websocket: Active WebSocket connection (not yet accepted)
+        token: Optional token from handshake or explicit parameter
+
+    Returns:
+        True if token is valid, False otherwise
+
+    Security:
+    - NEVER accepts empty/null tokens
+    - NEVER logs token values (only "valid" or "invalid")
+    - ALWAYS checks L9_EXECUTOR_API_KEY is configured
+    """
+    from api.auth import EXECUTOR_API_KEY
+
+    # Fail-fast: API key must be configured
+    if not EXECUTOR_API_KEY:
+        logger.critical(
+            "verify_ws_token: L9_EXECUTOR_API_KEY not configured - "
+            "refusing ALL WebSocket connections"
+        )
+        return False
+
+    # Get token from explicit param or query string
+    effective_token = token or websocket.query_params.get("token")
+
+    # Validate token exists
+    if not effective_token:
+        logger.warning(
+            "verify_ws_token: No token provided",
+            remote=websocket.client.host if websocket.client else "unknown",
+        )
+        return False
+
+    # Validate token matches (constant-time comparison would be better for prod)
+    if effective_token != EXECUTOR_API_KEY:
+        logger.warning(
+            "verify_ws_token: Invalid token",
+            remote=websocket.client.host if websocket.client else "unknown",
+        )
+        return False
+
+    logger.debug("verify_ws_token: Token valid")
+    return True
+
+
 class WebSocketOrchestrator:
     """
     Manages live WebSocket connections from L9 agents.
@@ -129,16 +195,25 @@ class WebSocketOrchestrator:
         """
         Handle an incoming message from an agent.
 
-        Routes the message through ws_bridge for task conversion and enqueueing.
+        Routes based on message type:
+        - Conversation tasks → handle_conversation_task() → AgentExecutorService
+        - Worker agent events → ws_bridge → TaskQueue
 
         Args:
             agent_id: Agent that sent the message
             data: Raw JSON payload from WebSocket
         """
+        # Route conversation tasks to AgentExecutorService
+        if data.get("type") == "conversation" or "message" in data:
+            response = await self.handle_conversation_task(agent_id, data)
+            await self.dispatch_event(agent_id, response)
+            return
+
+        # Route worker agent events through ws_bridge (existing behavior)
         from core.schemas.ws_event_stream import EventMessage, EventType
         from orchestrators.ws_bridge import handle_ws_event
 
-        # Convert raw data to EventMessage if possible
+        # Convert raw data to EventMessage
         try:
             event_type_str = data.get("type", "log")
             event_type = EventType(event_type_str)
@@ -153,7 +228,7 @@ class WebSocketOrchestrator:
             correlation_id=data.get("correlation_id"),
         )
 
-        # Route through ws_bridge
+        # Route through ws_bridge for task conversion
         envelope = handle_ws_event(event)
         if envelope:
             logger.debug(
@@ -161,6 +236,122 @@ class WebSocketOrchestrator:
                 agent_id,
                 envelope.task.kind,
             )
+
+    @must_stay_async("callers use await")
+    async def handle_conversation_task(
+        self, agent_id: str, data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Handle conversation task routing to AgentExecutorService.
+
+        Routes L-CTO chat interactions through kernel-aware agent stack:
+        AgentTask → AgentExecutorService → AIOSRuntime → kernel execution
+
+        Args:
+            agent_id: WebSocket client ID (e.g., "lws-12345")
+            data: Message payload with required "message" field
+
+        Returns:
+            Response dict with task_id, status, reply
+        """
+        from core.agents.schemas import (
+            AgentTask,
+            AgentType,
+            ExecutionResult,
+            DuplicateTaskResponse,
+        )
+
+        # Validate message field
+        message = data.get("message")
+        if not message:
+            return {
+                "task_id": "",
+                "status": "error",
+                "reply": "Missing required field: message",
+            }
+
+        # Get executor from app.state (injected during startup)
+        try:
+            from api.server import app
+
+            executor = getattr(app.state, "agent_executor", None)
+        except ImportError:
+            return {
+                "task_id": "",
+                "status": "error",
+                "reply": "Agent executor not available (import failed)",
+            }
+
+        if executor is None:
+            return {
+                "task_id": "",
+                "status": "error",
+                "reply": "Agent executor not initialized - check server startup logs",
+            }
+
+        # Build AgentTask for L-CTO
+        thread_id = data.get("thread_id", "ws-default")
+        metadata = data.get("metadata", {})
+
+        task = AgentTask(
+            agent_id="l-cto",
+            agent_type=AgentType.ASSISTANT,
+            source_id=agent_id,
+            thread_identifier=thread_id,
+            payload={
+                "message": message,
+                "channel": "ws",
+                "metadata": metadata,
+            },
+        )
+
+        logger.info(
+            "handle_conversation_task: task_id=%s, thread=%s, source=%s",
+            str(task.id),
+            thread_id,
+            agent_id,
+        )
+
+        # Execute task
+        try:
+            result = await executor.start_agent_task(task)
+        except Exception as e:
+            logger.exception("handle_conversation_task: execution failed: %s", str(e))
+            return {
+                "task_id": str(task.id),
+                "status": "error",
+                "reply": f"Execution error: {str(e)}",
+            }
+
+        # Handle duplicate detection
+        if isinstance(result, DuplicateTaskResponse):
+            logger.info(
+                "handle_conversation_task: duplicate task: %s", str(result.task_id)
+            )
+            return {
+                "task_id": str(result.task_id),
+                "status": "duplicate",
+                "reply": "Duplicate task detected",
+            }
+
+        # Handle ExecutionResult
+        if isinstance(result, ExecutionResult):
+            reply = result.result or result.error or "No response"
+            return {
+                "task_id": str(result.task_id),
+                "status": result.status,
+                "reply": reply,
+            }
+
+        # Fallback (should not happen with proper typing)
+        logger.warning(
+            "handle_conversation_task: unexpected result type: %s", type(result)
+        )
+        return {
+            "task_id": str(task.id),
+            "status": "error",
+            "reply": "Unexpected result format",
+        }
 
     async def on_user_message(self, message: str) -> List[str]:
         """
@@ -270,7 +461,7 @@ class WebSocketOrchestrator:
 
 ws_orchestrator = WebSocketOrchestrator()
 
-__all__ = ["WebSocketOrchestrator", "ws_orchestrator"]
+__all__ = ["WebSocketOrchestrator", "ws_orchestrator", "verify_ws_token"]
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

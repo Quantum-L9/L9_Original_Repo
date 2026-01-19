@@ -103,17 +103,9 @@ class IntegrationSettings(BaseSettings):
     )
 
     # Feature flags for legacy route migration
-    l9_enable_legacy_chat: bool = Field(
-        default=False,
-        alias="L9_ENABLE_LEGACY_CHAT",
-        description="Enable legacy /chat route (direct OpenAI). Set False to disable.",
-    )
-
-    l9_enable_legacy_slack_router: bool = Field(
-        default=False,
-        alias="L9_ENABLE_LEGACY_SLACK_ROUTER",
-        description="Enable legacy Slack routing. Set False to use AgentTask routing.",
-    )
+    # REMOVED: l9_enable_legacy_chat - legacy /chat endpoint deleted
+    # REMOVED: l9_enable_legacy_slack_router - legacy Slack router deleted
+    # All routing now uses AgentExecutorService via unified orchestrator
 
     # Feature flags for L9 runtime modules
     l9_new_agent_init: bool = Field(

@@ -903,9 +903,11 @@ async def lifespan(app: FastAPI):
                         logger.critical(
                             "❌ Session Startup FAILED: status=%s, errors=%s",
                             startup_result.status,
-                            startup_result.errors[:3]
-                            if startup_result.errors
-                            else "none",
+                            (
+                                startup_result.errors[:3]
+                                if startup_result.errors
+                                else "none"
+                            ),
                         )
                         # In production, this should be fatal
                         # For dev, we continue with degraded mode
@@ -1190,37 +1192,29 @@ async def lifespan(app: FastAPI):
 
     integration_settings = get_integration_settings()
 
-    # Check if legacy Slack router is disabled (new routing enabled)
-    legacy_slack_enabled = getattr(
-        integration_settings, "l9_enable_legacy_slack_router", False
-    )
+    # Modern Slack routing uses AgentExecutorService (legacy router removed)
+    agent_executor = getattr(app.state, "agent_executor", None)
 
-    if not legacy_slack_enabled:
-        # New Slack routing is enabled - agent_executor is REQUIRED
-        agent_executor = getattr(app.state, "agent_executor", None)
-
-        if agent_executor is None:
-            logger.critical(
-                "╔═══════════════════════════════════════════════════════════════╗\n"
-                "║  CRITICAL: Agent Executor Initialization Failed              ║\n"
-                "║                                                               ║\n"
-                "║  The new Slack routing (L9_ENABLE_LEGACY_SLACK_ROUTER=False) ║\n"
-                "║  requires AgentExecutorService to be initialized.            ║\n"
-                "║                                                               ║\n"
-                "║  Options:                                                     ║\n"
-                "║  1. Fix agent_executor initialization (check logs above)     ║\n"
-                "║  2. Set L9_ENABLE_LEGACY_SLACK_ROUTER=true in .env           ║\n"
-                "║  3. Install missing dependencies: pip install -r requirements.txt ║\n"
-                "╚═══════════════════════════════════════════════════════════════╝"
-            )
-            raise RuntimeError(
-                "Agent Executor required for new Slack routing but failed to initialize. "
-                "Set L9_ENABLE_LEGACY_SLACK_ROUTER=true or fix initialization."
-            )
-        else:
-            logger.info(
-                "✓ Health Check PASSED: Agent Executor is available for Slack routing"
-            )
+    if agent_executor is None:
+        logger.critical(
+            "╔═══════════════════════════════════════════════════════════════╗\n"
+            "║  CRITICAL: Agent Executor Initialization Failed              ║\n"
+            "║                                                               ║\n"
+            "║  Slack routing requires AgentExecutorService to be initialized. ║\n"
+            "║                                                               ║\n"
+            "║  Options:                                                     ║\n"
+            "║  1. Fix agent_executor initialization (check logs above)     ║\n"
+            "║  2. Install missing dependencies: pip install -r requirements.txt ║\n"
+            "╚═══════════════════════════════════════════════════════════════╝"
+        )
+        raise RuntimeError(
+            "Agent Executor required for Slack routing but failed to initialize. "
+            "Fix initialization or check dependencies."
+        )
+    else:
+        logger.info(
+            "✓ Health Check PASSED: Agent Executor is available for Slack routing"
+        )
 
     # Initialize Slack adapter (if enabled)
     if _has_slack:
@@ -1506,9 +1500,11 @@ async def lifespan(app: FastAPI):
                 logger.info(
                     "✓ L-CTO Agent Bootstrap complete",
                     instance_id=l_instance.instance_id[:12],
-                    signature=l_instance.initialization_signature[:16]
-                    if l_instance.initialization_signature
-                    else "none",
+                    signature=(
+                        l_instance.initialization_signature[:16]
+                        if l_instance.initialization_signature
+                        else "none"
+                    ),
                 )
             else:
                 logger.warning("Bootstrap skipped: substrate_service not available")
@@ -1611,7 +1607,9 @@ async def lifespan(app: FastAPI):
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
         else:
-            logger.warning("⚠️ Memory tools not registered: tool_registry not available")
+            logger.warning(
+                "⚠️ Memory tools not registered: tool_registry not available"
+            )
     except Exception as e:
         logger.error(f"❌ Memory tool registration failed: {e}", exc_info=True)
 
@@ -1676,9 +1674,11 @@ async def lifespan(app: FastAPI):
                 neo4j_for_vcm = getattr(app.state, "neo4j_client", None)
                 virtual_context = VirtualContextManager(
                     substrate_service=substrate,
-                    neo4j_driver=neo4j_for_vcm.driver
-                    if (neo4j_for_vcm and neo4j_for_vcm.is_available())
-                    else None,
+                    neo4j_driver=(
+                        neo4j_for_vcm.driver
+                        if (neo4j_for_vcm and neo4j_for_vcm.is_available())
+                        else None
+                    ),
                     main_context_size=4096,
                     working_memory_size=8192,
                 )
@@ -2806,75 +2806,12 @@ if OPENAI_API_KEY:
 else:
     chat_client = None
 
-# Legacy /chat route - gated by L9_ENABLE_LEGACY_CHAT flag
-if settings.l9_enable_legacy_chat:
-
-    @app.post("/chat", response_model=ChatResponse)
-    async def chat(
-        payload: ChatRequest,
-        authorization: str = Header(None),
-        _: bool = Depends(verify_api_key),
-    ):
-        """
-        Basic LLM chat endpoint using OpenAI.
-        Ingests both request and response to memory for audit trail.
-
-        LEGACY: This route calls OpenAI directly. Use POST /lchat for
-        kernel-aware agent execution via AgentExecutorService.
-        """
-        if not chat_client:
-            raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
-
-        from memory.ingestion import ingest_packet
-        from core.schemas import PacketEnvelopeIn
-
-        try:
-            messages = []
-            if payload.system_prompt:
-                messages.append({"role": "system", "content": payload.system_prompt})
-            else:
-                messages.append(
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are L, an infrastructure-focused assistant connected to an L9 "
-                            "backend and memory system. Be concise, precise, and avoid destructive "
-                            "actions. When appropriate, suggest using tools like the CTO agent."
-                        ),
-                    }
-                )
-            messages.append({"role": "user", "content": payload.message})
-
-            completion = chat_client.chat.completions.create(
-                model="gpt-4.1-mini",
-                messages=messages,
-            )
-            reply = completion.choices[0].message.content
-
-            # Ingest chat interaction to memory (audit trail)
-            try:
-                packet_in = PacketEnvelopeIn(
-                    packet_type="chat_interaction",
-                    payload={
-                        "user_message": payload.message,
-                        "system_prompt": payload.system_prompt,
-                        "assistant_reply": reply,
-                        "model": "gpt-4.1-mini",
-                    },
-                    metadata={"agent": "chat_api", "source": "server"},
-                )
-                await ingest_packet(packet_in)
-            except Exception as mem_err:
-                # Log but don't fail the request if memory ingestion fails
-                logger.warning(f"Failed to ingest chat to memory: {mem_err}")
-
-            return ChatResponse(reply=reply)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Chat backend error: {e}")
-
-    logger.info("Legacy /chat route registered (L9_ENABLE_LEGACY_CHAT=true)")
-else:
-    logger.info("Legacy /chat route DISABLED (L9_ENABLE_LEGACY_CHAT=false)")
+# =============================================================================
+# Legacy /chat endpoint REMOVED
+# =============================================================================
+# REMOVED: Legacy /chat endpoint has been deleted.
+# Use POST /lchat for kernel-aware agent execution via AgentExecutorService.
+# See api/agent_routes.py for the modern implementation.
 
 # --- Routers ---
 # OS health + metrics + routing
@@ -3070,48 +3007,14 @@ async def on_shutdown():
 from core.schemas.event_stream import AgentHandshake
 
 # Import the shared singleton orchestrator instance
-from runtime.websocket_orchestrator import ws_orchestrator
-
+from runtime.websocket_orchestrator import ws_orchestrator, verify_ws_token
 
 # =============================================================================
 # WebSocket Authentication Helper
 # =============================================================================
-
-
-@must_stay_async("callers use await")
-async def verify_websocket_auth(
-    websocket: WebSocket, token: Optional[str] = None
-) -> bool:
-    """
-    Verify WebSocket authentication token.
-
-    Token can be provided via:
-    1. Query parameter: ?token=...
-    2. Function parameter (from handshake message)
-
-    Args:
-        websocket: WebSocket connection
-        token: Optional token from handshake message
-
-    Returns:
-        True if token is valid, False otherwise
-    """
-    from api.auth import EXECUTOR_API_KEY
-
-    if not EXECUTOR_API_KEY:
-        logger.warning("WebSocket auth: L9_EXECUTOR_API_KEY not configured")
-        return False
-
-    # Token can come from query params or function parameter
-    if not token:
-        query_token = websocket.query_params.get("token")
-        if query_token:
-            token = query_token
-
-    if not token or token != EXECUTOR_API_KEY:
-        return False
-
-    return True
+# REMOVED: verify_websocket_auth() has been replaced by verify_ws_token()
+# from runtime.websocket_orchestrator for unified authentication.
+# See runtime/websocket_orchestrator.py for the canonical implementation.
 
 
 @app.websocket("/ws/agent")
@@ -3148,9 +3051,9 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
                 "payload": {"running_tasks": 0}
             }))
     """
-    # Validate auth BEFORE accept
+    # Validate auth BEFORE accept (enforced security gate)
     token = websocket.query_params.get("token")
-    if not await verify_websocket_auth(websocket, token):
+    if not await verify_ws_token(websocket, token):
         await websocket.close(code=1008, reason="Unauthorized")
         return
 
@@ -3164,7 +3067,7 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
 
         # Verify token in handshake message too (if provided)
         if handshake.auth_token:
-            if not await verify_websocket_auth(websocket, handshake.auth_token):
+            if not await verify_ws_token(websocket, handshake.auth_token):
                 await websocket.close(code=1008, reason="Invalid auth token")
                 return
             # Use handshake token if query param wasn't provided
@@ -3232,12 +3135,12 @@ async def l_ws(websocket: WebSocket) -> None:
     """
     WebSocket entrypoint for L-CTO agent interactions.
 
-    Routes messages through the kernel-aware agent stack:
-    AgentTask -> AgentExecutorService -> AIOSRuntime
+    Routes messages through kernel-aware agent stack via ws_orchestrator:
+    WebSocket → ws_orchestrator.handle_conversation_task() → AgentExecutorService → AIOSRuntime
 
     Protocol:
     1) Client connects with auth token (query param: ?token=...).
-    2) Server validates auth BEFORE accepting connection.
+    2) Server validates auth BEFORE accepting connection (enforced gate).
     3) Client sends JSON frames with:
        - message: str (required)
        - thread_id: str (optional, for conversation grouping)
@@ -3259,42 +3162,25 @@ async def l_ws(websocket: WebSocket) -> None:
                 "thread_id": "my-session-123"
             }))
             response = json.loads(await ws.recv())
-            logger.info(response["reply"])
+            print(response["reply"])
     """
-    # Validate auth BEFORE accept
+    # Validate auth BEFORE accept (enforced security gate)
     token = websocket.query_params.get("token")
-    if not await verify_websocket_auth(websocket, token):
+    if not await verify_ws_token(websocket, token):
         await websocket.close(code=1008, reason="Unauthorized")
         return
 
     await websocket.accept()
 
-    # Check if agent executor is available
-    if not _has_agent_executor:
-        await websocket.send_json(
-            {
-                "task_id": "",
-                "status": "error",
-                "reply": "Agent executor not available. L-CTO agent stack not initialized.",
-            }
-        )
-        await websocket.close(code=1011, reason="Agent executor unavailable")
-        return
-
-    agent_executor = getattr(app.state, "agent_executor", None)
-    if agent_executor is None:
-        await websocket.send_json(
-            {
-                "task_id": "",
-                "status": "error",
-                "reply": "Agent executor not initialized. Check server startup logs.",
-            }
-        )
-        await websocket.close(code=1011, reason="Agent executor not initialized")
-        return
+    # Register as conversation client with orchestrator
+    # Use unique client ID based on websocket object ID
+    client_id = f"lws-{id(websocket)}"
+    await ws_orchestrator.register(
+        client_id, websocket, metadata={"type": "conversation", "endpoint": "/lws"}
+    )
 
     try:
-        # Message loop
+        # Message loop - orchestrator handles routing
         while True:
             try:
                 data = await websocket.receive_json()
@@ -3302,91 +3188,17 @@ async def l_ws(websocket: WebSocket) -> None:
                 logger.warning("lws: failed to receive JSON: %s", str(recv_err))
                 break
 
-            # Extract fields from frame
-            message = data.get("message")
-            if not message:
-                await websocket.send_json(
-                    {
-                        "task_id": "",
-                        "status": "error",
-                        "reply": "Missing required field: message",
-                    }
-                )
-                continue
-
-            thread_id = data.get("thread_id") or "ws-default"
-            metadata = data.get("metadata", {})
-
-            # Build AgentTask for L-CTO
-            try:
-                task = AgentTask(
-                    agent_id="l-cto",
-                    kind=TaskKind.CONVERSATION,
-                    source_id="ws",
-                    thread_identifier=thread_id,
-                    payload={
-                        "message": message,
-                        "channel": "ws",
-                        "metadata": metadata,
-                    },
-                )
-
-                logger.info(
-                    "lws: task_id=%s, thread=%s",
-                    str(task.id),
-                    thread_id,
-                )
-
-                # Execute task via AgentExecutorService
-                result = await agent_executor.start_agent_task(task)
-
-                # Handle duplicate detection
-                if isinstance(result, DuplicateTaskResponse):
-                    await websocket.send_json(
-                        {
-                            "task_id": str(result.task_id),
-                            "status": "duplicate",
-                            "reply": "Duplicate task",
-                        }
-                    )
-                    continue
-
-                # Handle ExecutionResult
-                if isinstance(result, ExecutionResult):
-                    reply = result.result or result.error or "No response"
-                    await websocket.send_json(
-                        {
-                            "task_id": str(result.task_id),
-                            "status": result.status,
-                            "reply": reply,
-                        }
-                    )
-                    continue
-
-                # Fallback (should not happen)
-                logger.warning("lws: unexpected result type: %s", type(result))
-                await websocket.send_json(
-                    {
-                        "task_id": str(task.id),
-                        "status": "error",
-                        "reply": "Unexpected result format",
-                    }
-                )
-
-            except Exception as exec_err:
-                logger.exception("lws: execution error: %s", str(exec_err))
-                await websocket.send_json(
-                    {
-                        "task_id": "",
-                        "status": "error",
-                        "reply": f"Execution error: {str(exec_err)}",
-                    }
-                )
+            # Tag as conversation type and route through orchestrator
+            data["type"] = "conversation"
+            await ws_orchestrator.handle_incoming(client_id, data)
 
     except WebSocketDisconnect:
-        logger.debug("lws: client disconnected")
+        logger.debug("lws: client disconnected: %s", client_id)
     except Exception as exc:
         logger.error("lws: unexpected error: %s", str(exc), exc_info=True)
+    finally:
+        # Cleanup connection
+        await ws_orchestrator.unregister(client_id)
 
 
 # ============================================================================
