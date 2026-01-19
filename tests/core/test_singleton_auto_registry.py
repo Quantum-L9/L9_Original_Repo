@@ -7,7 +7,6 @@ from core.singleton_auto_registry import (
     singleton_service_registry,
     register_singleton,
     register_singleton_closer,
-    discover_singleton_services,
     get_all_singleton_services,
     get_singleton_services_by_category,
     wire_singletons_to_registry,
@@ -30,7 +29,6 @@ def test_register_singleton_decorator():
     def get_my_test_service():
         return "test_service_instance"
 
-    discover_singleton_services(package="tests.core")
     services = get_all_singleton_services()
 
     assert "my_test_service" in services
@@ -52,7 +50,6 @@ def test_register_singleton_with_closer():
     def close_another_service():
         return "closed"
 
-    discover_singleton_services(package="tests.core")
     services = get_all_singleton_services()
 
     assert "another_service" in services
@@ -71,8 +68,6 @@ def test_wire_singletons_to_main_registry():
     @register_singleton(category="memory", dependencies=["core_service"])
     def get_memory_service():
         return "memory_instance"
-
-    discover_singleton_services(package="tests.core")
 
     main_registry = SingletonRegistry()
     wired_count = wire_singletons_to_registry(main_registry)
@@ -102,8 +97,6 @@ def test_get_services_by_category():
     @register_singleton(category="cat1")
     def get_service3():
         pass
-
-    discover_singleton_services(package="tests.core")
 
     cat1_services = get_singleton_services_by_category("cat1")
     assert len(cat1_services) == 2

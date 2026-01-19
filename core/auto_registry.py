@@ -149,18 +149,18 @@ class AutoRegistry(Generic[T]):
         self._metadata: Dict[str, Dict[str, Any]] = {}
         self._factories: Dict[str, Callable[[], T]] = {}
 
+        logger.info(
+            "registry.initialized",
+            registry_name=self.name,
+            allow_duplicates=self._allow_duplicates,
+        )
+
     def clear(self) -> None:
         """Clear all registered components, factories, and metadata."""
         self._components.clear()
         self._metadata.clear()
         self._factories.clear()
         logger.info("registry.cleared", registry_name=self.name)
-
-        logger.info(
-            "registry.initialized",
-            registry_name=self.name,
-            allow_duplicates=self._allow_duplicates,
-        )
 
     def register(
         self,
