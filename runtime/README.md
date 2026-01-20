@@ -13,7 +13,8 @@ The `runtime` module provides the execution environment for the L9 platform, inc
 
 ## Key Components
 
-- **`kernel_loader_ultimate.py`** - **ONLY** kernel loader (with integrity checks)
+- **`kernel_loader.py`** - Kernel loader with integrity verification and fail-closed behavior
+- **`kernel_state.py`** - Kernel state management and tracking
 - **`task_queue.py`** - Async task queue with priority support
 - **`background_tasks.py`** - Background task management
 - **`execution_gate.py`** - Kernel governance gate for execution
@@ -22,20 +23,18 @@ The `runtime` module provides the execution environment for the L9 platform, inc
 
 ## Critical Rules
 
-⚠️ **NEVER use `kernel_loader.py` - ONLY use `kernel_loader_ultimate.py`**
-
-The ultimate loader has:
+⚠️ **Kernel Loading:** Always use `kernel_loader.py` which provides:
 - Integrity verification
-- Tamper detection
 - Fail-closed behavior
 - Audit logging
+- YAML kernel parsing
 
 ## Usage
 
 ### Loading the Kernel
 
 ```python
-from runtime.kernel_loader_ultimate import load_kernel
+from runtime.kernel_loader import load_kernel
 
 kernel = await load_kernel()
 ```

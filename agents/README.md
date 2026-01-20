@@ -71,13 +71,19 @@ All agent actions are subject to kernel governance:
 ### Registering an Agent
 
 ```python
-from agents.agent_registry import AgentRegistry
+from agents.agent_registry import register_agent
 
-# Register agent class
-AgentRegistry.register("my_agent", MyAgent)
+# Register agent class using decorator
+@register_agent(name="my_agent", role="custom", category="implementation")
+class MyAgent(BaseAgent):
+    pass
 
-# Instantiate agent
-agent = AgentRegistry.get("my_agent", kernel=kernel)
+# Or get all registered agents
+from agents.agent_registry import get_all_agents
+
+agents = get_all_agents()
+my_agent_cls = agents.get("my_agent")
+agent = my_agent_cls(kernel)
 ```
 
 ### Executing Agent Tasks
@@ -116,8 +122,11 @@ result = await agent.execute(task)
 
 3. **Register the Agent**
    ```python
-   from agents.agent_registry import AgentRegistry
-   AgentRegistry.register("new_agent", NewAgent)
+   from agents.agent_registry import register_agent
+   
+   @register_agent(name="new_agent", role="custom")
+   class NewAgent(BaseAgent):
+       pass
    ```
 
 4. **Add Tests**
@@ -176,8 +185,9 @@ Agent configuration is managed through:
 **Agent not found in registry:**
 ```python
 # Ensure agent is registered
-from agents.agent_registry import AgentRegistry
-print(AgentRegistry.list_agents())
+from agents.agent_registry import agent_registry, get_all_agents
+print(agent_registry.list_ids())  # List all registered agent IDs
+print(get_all_agents())  # Get dict of all agents
 ```
 
 **Kernel governance errors:**
