@@ -33,6 +33,12 @@ try:
 except ImportError:
     pass  # Will be reported as test failure
 
+# Pre-import api.routes.registry for pytest router registry tests
+try:
+    import api.routes.registry  # noqa: F401
+except ImportError:
+    pass  # Will be handled as test failure where needed
+
 # Pre-import memory.graph_client to ensure it's available for lazy imports
 # in core.agents.bootstrap phases (fixes pytest import resolution)
 try:
