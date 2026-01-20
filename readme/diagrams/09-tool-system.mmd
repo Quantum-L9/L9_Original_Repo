@@ -1,0 +1,132 @@
+%% L9 Tool System Architecture
+%% Subsystem: Tool Discovery, Routing & Execution
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Tool Request"
+        AGENT[Agent Request]
+        QUERY["Tool Query<br/>I need to..."]
+        PARAMS[Parameters]
+    end
+
+    subgraph "Tool Registry"
+        REGISTRY[ToolRegistry<br/>tool_registry.py]
+        CATALOG[Tool Catalog]
+        METADATA[Tool Metadata]
+        SCHEMA[Tool Schema]
+    end
+
+    subgraph "Tool Router"
+        ROUTER[ToolRouter<br/>tool_router.py]
+        SEMANTIC[Semantic Matching]
+        RANKING[Relevance Ranking]
+        SELECTOR[Tool Selector]
+    end
+
+    subgraph "Tool Embeddings"
+        EMBEDDINGS[ToolEmbeddings<br/>tool_embeddings.py]
+        EMBED_GEN[Embedding Generator]
+        VECTOR_STORE[Vector Store]
+        SIMILARITY[Similarity Search]
+    end
+
+    subgraph "Tool Execution"
+        EXECUTOR[Tool Executor]
+        VALIDATOR[Input Validator]
+        INVOKER[Tool Invoker]
+        RESULT[Result Handler]
+    end
+
+    subgraph "Governance Gate"
+        GATE[Tool Governance Gate]
+        POLICY[Policy Check]
+        AUDIT[Audit Logger]
+        RATE_LIMIT[Rate Limiter]
+    end
+
+    subgraph "Tool Implementations"
+        BUILTIN[Built-in Tools]
+        CUSTOM[Custom Tools]
+        MCP[MCP Tools]
+        EXTERNAL[External APIs]
+    end
+
+    subgraph "Tool Definition"
+        DEF[Tool Definition]
+        NAME[Tool Name]
+        DESC[Description]
+        PARAMS_DEF[Parameters Schema]
+        IMPL[Implementation]
+    end
+
+    subgraph "Caching Layer"
+        RESULT_CACHE[(Result Cache)]
+        EMBED_CACHE[(Embedding Cache)]
+        ROUTE_CACHE[(Routing Cache)]
+    end
+
+    %% Request Flow
+    AGENT --> QUERY
+    QUERY --> ROUTER
+    PARAMS --> ROUTER
+
+    %% Tool Registry
+    ROUTER --> REGISTRY
+    REGISTRY --> CATALOG
+    REGISTRY --> METADATA
+    REGISTRY --> SCHEMA
+
+    %% Semantic Routing
+    ROUTER --> SEMANTIC
+    SEMANTIC --> EMBEDDINGS
+    EMBEDDINGS --> EMBED_GEN
+    EMBED_GEN --> VECTOR_STORE
+    VECTOR_STORE --> SIMILARITY
+
+    %% Tool Selection
+    SIMILARITY --> RANKING
+    RANKING --> SELECTOR
+    SELECTOR -.selected tool.-> EXECUTOR
+
+    %% Execution Flow
+    EXECUTOR --> VALIDATOR
+    VALIDATOR -.✓ valid.-> GATE
+    GATE --> POLICY
+    POLICY -.✓ allowed.-> INVOKER
+    INVOKER --> RESULT
+
+    %% Tool Types
+    INVOKER --> BUILTIN
+    INVOKER --> CUSTOM
+    INVOKER --> MCP
+    INVOKER --> EXTERNAL
+
+    %% Tool Definition
+    CATALOG --> DEF
+    DEF --> NAME
+    DEF --> DESC
+    DEF --> PARAMS_DEF
+    DEF --> IMPL
+
+    %% Governance
+    POLICY --> AUDIT
+    POLICY --> RATE_LIMIT
+    AUDIT -.logs.-> RESULT
+
+    %% Caching
+    RESULT -.caches.-> RESULT_CACHE
+    EMBED_GEN -.caches.-> EMBED_CACHE
+    SELECTOR -.caches.-> ROUTE_CACHE
+
+    RESULT_CACHE -.cache hit.-> RESULT
+    EMBED_CACHE -.cache hit.-> SIMILARITY
+    ROUTE_CACHE -.cache hit.-> SELECTOR
+
+    %% Result Return
+    RESULT --> AGENT
+
+    style ROUTER fill:#4ecdc4
+    style EMBEDDINGS fill:#ffe66d
+    style EXECUTOR fill:#95e1d3
+    style GATE fill:#ff6b6b
+    style REGISTRY fill:#a8e6cf

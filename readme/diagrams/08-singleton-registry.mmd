@@ -1,0 +1,124 @@
+%% L9 Singleton Registry Architecture
+%% Subsystem: Dependency Injection & Service Management
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Service Consumers"
+        AGENT[Agents]
+        API[API Handlers]
+        ORCHESTRATOR[Orchestrators]
+        TOOL[Tools]
+    end
+
+    subgraph "Singleton Registry"
+        REGISTRY[SingletonRegistry<br/>singleton_registry.py]
+        LAZY[Lazy Initialization]
+        CACHE[Instance Cache]
+        LIFECYCLE[Lifecycle Manager]
+    end
+
+    subgraph "Auto Registry"
+        AUTO[AutoRegistry<br/>auto_registry.py]
+        DISCOVER[Service Discovery]
+        REGISTER[Auto Registration]
+        WIRE[Dependency Wiring]
+    end
+
+    subgraph "Core Services"
+        MEMORY[Memory Engine]
+        WORLD[World Model Engine]
+        WS_ORCH[WebSocket Orchestrator]
+        CURSOR[Cursor Memory Kernel]
+    end
+
+    subgraph "Registry Operations"
+        GET["get_service()"]
+        CREATE["create_instance()"]
+        CLOSE["close_service()"]
+        RESET["reset_registry()"]
+    end
+
+    subgraph "Initialization"
+        INIT[Service Initializer]
+        CONFIG[Config Loader]
+        DEPS[Dependency Resolver]
+        VALIDATE[Validation]
+    end
+
+    subgraph "Service Lifecycle"
+        STARTUP[Startup Hook]
+        READY[Ready State]
+        SHUTDOWN[Shutdown Hook]
+        CLEANUP[Cleanup]
+    end
+
+    subgraph "State Storage"
+        INSTANCES[(Active Instances)]
+        METADATA[(Service Metadata)]
+        LOCKS[(Async Locks)]
+    end
+
+    %% Consumer Requests
+    AGENT --> REGISTRY
+    API --> REGISTRY
+    ORCHESTRATOR --> REGISTRY
+    TOOL --> REGISTRY
+
+    %% Registry Operations
+    REGISTRY --> GET
+    REGISTRY --> CREATE
+    REGISTRY --> CLOSE
+    REGISTRY --> RESET
+
+    %% Auto Registry
+    REGISTRY --> AUTO
+    AUTO --> DISCOVER
+    DISCOVER --> REGISTER
+    REGISTER --> WIRE
+
+    %% Service Access
+    GET -.cached.-> CACHE
+    GET -.not cached.-> LAZY
+    LAZY --> CREATE
+
+    %% Service Creation
+    CREATE --> INIT
+    INIT --> CONFIG
+    CONFIG --> DEPS
+    DEPS --> VALIDATE
+
+    %% Service Types
+    VALIDATE -.✓ valid.-> MEMORY
+    VALIDATE -.✓ valid.-> WORLD
+    VALIDATE -.✓ valid.-> WS_ORCH
+    VALIDATE -.✓ valid.-> CURSOR
+
+    %% Lifecycle Management
+    MEMORY --> STARTUP
+    WORLD --> STARTUP
+    WS_ORCH --> STARTUP
+    CURSOR --> STARTUP
+
+    STARTUP --> READY
+    READY --> LIFECYCLE
+
+    %% Shutdown Flow
+    CLOSE --> SHUTDOWN
+    SHUTDOWN --> CLEANUP
+    CLEANUP --> INSTANCES
+
+    %% State Management
+    CREATE -.stores.-> INSTANCES
+    LIFECYCLE -.updates.-> METADATA
+    GET -.acquires.-> LOCKS
+
+    %% Cache Management
+    READY -.caches.-> CACHE
+    RESET -.clears.-> CACHE
+    RESET -.clears.-> INSTANCES
+
+    style REGISTRY fill:#4ecdc4
+    style AUTO fill:#ffe66d
+    style LAZY fill:#95e1d3
+    style LIFECYCLE fill:#a8e6cf
+    style CACHE fill:#ff6b6b

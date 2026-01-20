@@ -1,0 +1,120 @@
+%% L9 Orchestration Architecture
+%% Subsystem: Multi-Agent Coordination
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Workflow Input"
+        TASK[Complex Task]
+        WORKFLOW[Workflow Spec]
+        CONSTRAINTS[Constraints]
+    end
+
+    subgraph "Unified Controller"
+        CONTROLLER[UnifiedController<br/>unified_controller.py]
+        DECOMPOSER[Task Decomposer]
+        PLANNER[Plan Generator]
+        VALIDATOR[Plan Validator]
+    end
+
+    subgraph "Plan Executor"
+        EXECUTOR[PlanExecutor<br/>plan_executor.py]
+        STEP_EXEC[Step Executor]
+        PARALLEL[Parallel Executor]
+        SEQUENTIAL[Sequential Executor]
+    end
+
+    subgraph "Agent Coordinator"
+        COORDINATOR[AgentCoordinator<br/>agent_coordinator.py]
+        SELECTOR[Agent Selector]
+        DISPATCHER[Task Dispatcher]
+        MONITOR[Execution Monitor]
+    end
+
+    subgraph "Agent Pool"
+        LCTO[L-CTO Agent]
+        RESEARCH[Research Agent]
+        CODER[Coder Cell]
+        REVIEWER[Reviewer Cell]
+        CUSTOM[Custom Agents...]
+    end
+
+    subgraph "Execution Control"
+        RETRY[Retry Handler]
+        TIMEOUT[Timeout Manager]
+        CIRCUIT[Circuit Breaker]
+        FALLBACK[Fallback Handler]
+    end
+
+    subgraph "Result Aggregation"
+        AGGREGATOR[Result Aggregator]
+        MERGER[Result Merger]
+        VALIDATOR_RES[Result Validator]
+        FORMATTER[Output Formatter]
+    end
+
+    subgraph "State Management"
+        WORKFLOW_STATE[(Workflow State)]
+        STEP_STATE[(Step State)]
+        AGENT_STATE[(Agent State)]
+    end
+
+    %% Input Flow
+    TASK --> CONTROLLER
+    WORKFLOW --> CONTROLLER
+    CONSTRAINTS --> CONTROLLER
+
+    %% Controller Processing
+    CONTROLLER --> DECOMPOSER
+    DECOMPOSER --> PLANNER
+    PLANNER --> VALIDATOR
+
+    %% Plan Execution
+    VALIDATOR -.✓ valid plan.-> EXECUTOR
+    EXECUTOR --> STEP_EXEC
+    STEP_EXEC --> PARALLEL
+    STEP_EXEC --> SEQUENTIAL
+
+    %% Agent Coordination
+    PARALLEL --> COORDINATOR
+    SEQUENTIAL --> COORDINATOR
+    COORDINATOR --> SELECTOR
+    SELECTOR --> DISPATCHER
+    DISPATCHER --> MONITOR
+
+    %% Agent Dispatch
+    DISPATCHER --> LCTO
+    DISPATCHER --> RESEARCH
+    DISPATCHER --> CODER
+    DISPATCHER --> REVIEWER
+    DISPATCHER --> CUSTOM
+
+    %% Execution Control
+    MONITOR --> RETRY
+    MONITOR --> TIMEOUT
+    MONITOR --> CIRCUIT
+    CIRCUIT -.✗ failure.-> FALLBACK
+
+    %% Result Flow
+    LCTO --> AGGREGATOR
+    RESEARCH --> AGGREGATOR
+    CODER --> AGGREGATOR
+    REVIEWER --> AGGREGATOR
+    CUSTOM --> AGGREGATOR
+
+    AGGREGATOR --> MERGER
+    MERGER --> VALIDATOR_RES
+    VALIDATOR_RES --> FORMATTER
+
+    %% State Management
+    CONTROLLER -.updates.-> WORKFLOW_STATE
+    STEP_EXEC -.updates.-> STEP_STATE
+    MONITOR -.updates.-> AGENT_STATE
+
+    %% Final Output
+    FORMATTER --> TASK
+
+    style CONTROLLER fill:#4ecdc4
+    style EXECUTOR fill:#ffe66d
+    style COORDINATOR fill:#95e1d3
+    style AGGREGATOR fill:#a8e6cf
+    style CIRCUIT fill:#ff6b6b

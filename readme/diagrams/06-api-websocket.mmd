@@ -1,0 +1,129 @@
+%% L9 API & WebSocket Architecture
+%% Subsystem: HTTP & Real-time Communication
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Client Layer"
+        WEB[Web UI]
+        CLI[CLI Client]
+        EXTERNAL[External Services]
+    end
+
+    subgraph "FastAPI Server"
+        SERVER[FastAPI Server<br/>server.py]
+        MIDDLEWARE[Middleware Stack]
+        CORS[CORS Handler]
+        RATE[Rate Limiter]
+    end
+
+    subgraph "Authentication"
+        AUTH[Auth Middleware]
+        API_KEY[API Key Validation]
+        JWT[JWT Validation]
+        SESSION[Session Manager]
+    end
+
+    subgraph "REST Endpoints"
+        ROUTES[Route Registry<br/>routes/]
+        AGENT_EP["/agent/*"]
+        MEMORY_EP["/memory/*"]
+        TOOL_EP["/tools/*"]
+        HEALTH_EP["/health"]
+    end
+
+    subgraph "WebSocket Handler"
+        WS_HANDLER[WebSocketHandler<br/>websocket_handler.py]
+        WS_AUTH[WS Authentication]
+        WS_ROUTER[Message Router]
+        WS_BROADCAST[Broadcast Manager]
+    end
+
+    subgraph "Request Processing"
+        VALIDATOR[Request Validator]
+        SERIALIZER[Response Serializer]
+        ERROR[Error Handler]
+    end
+
+    subgraph "Backend Integration"
+        KERNEL[Kernel Interface]
+        AGENT_EXEC[Agent Executor]
+        MEMORY_SVC[Memory Service]
+        TOOL_SVC[Tool Service]
+    end
+
+    subgraph "WebSocket Connections"
+        CONN_POOL[Connection Pool]
+        ACTIVE_CONN[Active Connections]
+        HEARTBEAT[Heartbeat Monitor]
+    end
+
+    subgraph "Response Layer"
+        CACHE[Response Cache]
+        COMPRESS[Compression]
+        STREAM[Streaming Handler]
+    end
+
+    %% Client to Server
+    WEB --> SERVER
+    CLI --> SERVER
+    EXTERNAL --> SERVER
+
+    %% Server Processing
+    SERVER --> MIDDLEWARE
+    MIDDLEWARE --> CORS
+    MIDDLEWARE --> RATE
+    MIDDLEWARE --> AUTH
+
+    %% Authentication
+    AUTH --> API_KEY
+    AUTH --> JWT
+    AUTH --> SESSION
+
+    %% REST Flow
+    AUTH -.✓ authenticated.-> ROUTES
+    ROUTES --> AGENT_EP
+    ROUTES --> MEMORY_EP
+    ROUTES --> TOOL_EP
+    ROUTES --> HEALTH_EP
+
+    %% Request Processing
+    AGENT_EP --> VALIDATOR
+    MEMORY_EP --> VALIDATOR
+    TOOL_EP --> VALIDATOR
+    VALIDATOR --> SERIALIZER
+
+    %% Backend Integration
+    SERIALIZER --> KERNEL
+    KERNEL --> AGENT_EXEC
+    KERNEL --> MEMORY_SVC
+    KERNEL --> TOOL_SVC
+
+    %% WebSocket Flow
+    SERVER --> WS_HANDLER
+    WS_HANDLER --> WS_AUTH
+    WS_AUTH -.✓ authenticated.-> WS_ROUTER
+    WS_ROUTER --> WS_BROADCAST
+
+    %% Connection Management
+    WS_HANDLER --> CONN_POOL
+    CONN_POOL --> ACTIVE_CONN
+    CONN_POOL --> HEARTBEAT
+
+    %% Response Handling
+    AGENT_EXEC --> CACHE
+    MEMORY_SVC --> CACHE
+    TOOL_SVC --> CACHE
+    CACHE --> COMPRESS
+    COMPRESS --> STREAM
+    STREAM --> SERVER
+
+    %% Error Handling
+    VALIDATOR -.✗ invalid.-> ERROR
+    SERIALIZER -.✗ error.-> ERROR
+    ERROR --> SERVER
+
+    style SERVER fill:#4ecdc4
+    style AUTH fill:#ff6b6b
+    style WS_HANDLER fill:#ffe66d
+    style KERNEL fill:#95e1d3
+    style CACHE fill:#a8e6cf

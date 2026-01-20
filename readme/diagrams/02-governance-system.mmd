@@ -1,0 +1,95 @@
+%% L9 Governance System Architecture
+%% Subsystem: Policy Enforcement & Security
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Request Layer"
+        AGENT[Agent Request]
+        API[API Call]
+        TOOL[Tool Invocation]
+    end
+
+    subgraph "Execution Gate"
+        GATE[ExecutionGate<br/>execution_gate.py]
+        PRE[Pre-execution Check]
+        POST[Post-execution Check]
+    end
+
+    subgraph "Policy Registry"
+        REGISTRY[PolicyRegistry<br/>policy_registry.py]
+        CRED[CredentialsPolicy]
+        SCOPE[MemoryScopePolicy]
+        RESOURCE[ResourceLimitPolicy]
+        CUSTOM[Custom Policies...]
+    end
+
+    subgraph "Policy Enforcement"
+        ENFORCE[Policy Enforcer]
+        VALIDATE[Validator]
+        AUDIT[Audit Logger]
+    end
+
+    subgraph "Policy Storage"
+        CONFIG[(config/policies/<br/>*.yaml)]
+        RUNTIME[(Runtime State)]
+    end
+
+    subgraph "Audit Trail"
+        LOGS[(Audit Logs)]
+        METRICS[(Metrics)]
+        VIOLATIONS[(Violations)]
+    end
+
+    subgraph "Fail-Closed Behavior"
+        BLOCK[Block Execution]
+        ALERT[Alert System]
+        FALLBACK[Fallback Handler]
+    end
+
+    %% Request Flow
+    AGENT --> GATE
+    API --> GATE
+    TOOL --> GATE
+
+    %% Gate Processing
+    GATE --> PRE
+    PRE --> REGISTRY
+    REGISTRY --> CRED
+    REGISTRY --> SCOPE
+    REGISTRY --> RESOURCE
+    REGISTRY --> CUSTOM
+
+    %% Policy Enforcement
+    CRED --> ENFORCE
+    SCOPE --> ENFORCE
+    RESOURCE --> ENFORCE
+    CUSTOM --> ENFORCE
+    
+    ENFORCE --> VALIDATE
+    VALIDATE --> AUDIT
+
+    %% Audit Trail
+    AUDIT --> LOGS
+    AUDIT --> METRICS
+    AUDIT --> VIOLATIONS
+
+    %% Policy Configuration
+    CONFIG -.loads.-> REGISTRY
+    RUNTIME -.updates.-> REGISTRY
+
+    %% Success Path
+    VALIDATE -.✓ allowed.-> POST
+    POST -.✓ execute.-> AGENT
+
+    %% Fail-Closed Path
+    VALIDATE -.✗ denied.-> BLOCK
+    BLOCK --> ALERT
+    BLOCK --> FALLBACK
+    ALERT --> VIOLATIONS
+
+    style GATE fill:#ff6b6b
+    style REGISTRY fill:#4ecdc4
+    style ENFORCE fill:#ffe66d
+    style AUDIT fill:#95e1d3
+    style BLOCK fill:#ff6b6b
+    style LOGS fill:#a8e6cf

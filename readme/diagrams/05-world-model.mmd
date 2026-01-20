@@ -1,0 +1,119 @@
+%% L9 World Model Architecture
+%% Subsystem: Knowledge Graph & Entity Tracking
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Knowledge Sources"
+        AGENT[Agent Observations]
+        API[External APIs]
+        USER[User Input]
+        DOCS[Document Ingestion]
+    end
+
+    subgraph "Knowledge Ingestor"
+        INGESTOR[KnowledgeIngestor<br/>knowledge_ingestor.py]
+        PARSER[Content Parser]
+        EXTRACTOR[Entity Extractor]
+        VALIDATOR[Fact Validator]
+    end
+
+    subgraph "Entity Processing"
+        TRACKER[EntityTracker<br/>entity_tracker.py]
+        RESOLVER[Entity Resolution]
+        LINKER[Entity Linking]
+        DEDUP[Deduplication<br/>SHA256]
+    end
+
+    subgraph "World Model Engine"
+        ENGINE[WorldModelEngine<br/>world_model_engine.py]
+        QUERY[Query Engine]
+        UPDATE[Update Engine]
+        TEMPORAL[Temporal Manager]
+    end
+
+    subgraph "Fact Store"
+        FACT_STORE[FactStore<br/>fact_store.py]
+        TRIPLE[Triple Store<br/>Subject-Predicate-Object]
+        CONTEXT[Context Manager]
+        VERSION[Version Control]
+    end
+
+    subgraph "Graph Database"
+        NEO4J[(Neo4j/Aura<br/>Knowledge Graph)]
+        NODES[Entity Nodes]
+        EDGES[Relationship Edges]
+        PROPS[Properties]
+    end
+
+    subgraph "Query Interface"
+        CYPHER[Cypher Queries]
+        SEMANTIC[Semantic Search]
+        GRAPH_TRAV[Graph Traversal]
+        PATTERN[Pattern Matching]
+    end
+
+    subgraph "Temporal State"
+        TIME_INDEX[Temporal Index]
+        HISTORY[Fact History]
+        SNAPSHOTS[State Snapshots]
+    end
+
+    %% Ingestion Flow
+    AGENT --> INGESTOR
+    API --> INGESTOR
+    USER --> INGESTOR
+    DOCS --> INGESTOR
+
+    %% Processing Flow
+    INGESTOR --> PARSER
+    PARSER --> EXTRACTOR
+    EXTRACTOR --> VALIDATOR
+
+    %% Entity Processing
+    VALIDATOR --> TRACKER
+    TRACKER --> RESOLVER
+    RESOLVER --> LINKER
+    LINKER --> DEDUP
+
+    %% World Model Flow
+    DEDUP --> ENGINE
+    ENGINE --> QUERY
+    ENGINE --> UPDATE
+    ENGINE --> TEMPORAL
+
+    %% Fact Storage
+    UPDATE --> FACT_STORE
+    FACT_STORE --> TRIPLE
+    FACT_STORE --> CONTEXT
+    FACT_STORE --> VERSION
+
+    %% Graph Database
+    TRIPLE --> NEO4J
+    NEO4J --> NODES
+    NEO4J --> EDGES
+    NEO4J --> PROPS
+
+    %% Query Flow
+    QUERY --> CYPHER
+    QUERY --> SEMANTIC
+    QUERY --> GRAPH_TRAV
+    QUERY --> PATTERN
+
+    CYPHER --> NEO4J
+    SEMANTIC --> NEO4J
+    GRAPH_TRAV --> NEO4J
+    PATTERN --> NEO4J
+
+    %% Temporal Management
+    TEMPORAL --> TIME_INDEX
+    TEMPORAL --> HISTORY
+    TEMPORAL --> SNAPSHOTS
+
+    TIME_INDEX -.indexes.-> NEO4J
+    HISTORY -.stores.-> NEO4J
+
+    style INGESTOR fill:#4ecdc4
+    style ENGINE fill:#ffe66d
+    style FACT_STORE fill:#95e1d3
+    style NEO4J fill:#a8e6cf
+    style DEDUP fill:#ff6b6b

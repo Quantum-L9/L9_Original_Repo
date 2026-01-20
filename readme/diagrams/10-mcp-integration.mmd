@@ -1,0 +1,139 @@
+%% L9 MCP Integration Architecture
+%% Subsystem: Model Context Protocol Server Management
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "MCP Request"
+        AGENT[Agent/Service]
+        REQUEST[MCP Request]
+        CONTEXT[Context Data]
+    end
+
+    subgraph "MCP Server Registry"
+        REGISTRY[MCPServerRegistry<br/>mcp_server_registry.py]
+        CONFIG[Server Config]
+        DISCOVERY[Server Discovery]
+        LIFECYCLE[Server Lifecycle]
+    end
+
+    subgraph "MCP Configuration"
+        YAML[mcp_servers.yaml]
+        SERVER_DEF[Server Definitions]
+        ENDPOINTS[Endpoint Config]
+        AUTH_CONFIG[Auth Config]
+    end
+
+    subgraph "MCP Memory Integration"
+        MCP_MEM[mcp_memory/]
+        ROUTES[MCP Routes]
+        HANDLER[Request Handler]
+        VALIDATOR[Request Validator]
+    end
+
+    subgraph "Active MCP Servers"
+        FIREFLIES[Fireflies MCP<br/>Meeting Transcription]
+        SUPABASE[Supabase MCP<br/>Backend Services]
+        NOTION[Notion MCP<br/>Document Management]
+        VERCEL[Vercel MCP<br/>Deployment]
+        FIRECRAWL[Firecrawl MCP<br/>Web Scraping]
+        AIRTABLE[Airtable MCP<br/>Database]
+    end
+
+    subgraph "MCP Protocol"
+        PROTOCOL[MCP Protocol Handler]
+        SERIALIZE[Serialization]
+        DESERIALIZE[Deserialization]
+        TRANSPORT[Transport Layer]
+    end
+
+    subgraph "Governance Integration"
+        GOV_GATE[Governance Gate]
+        POLICY[MCP Policy]
+        AUDIT[Audit Logger]
+        RATE_LIMIT[Rate Limiter]
+    end
+
+    subgraph "Connection Management"
+        CONN_POOL[Connection Pool]
+        HEALTH[Health Monitor]
+        RETRY[Retry Handler]
+        CIRCUIT[Circuit Breaker]
+    end
+
+    subgraph "Response Handling"
+        RESPONSE[Response Handler]
+        TRANSFORM[Data Transform]
+        CACHE[Response Cache]
+        ERROR[Error Handler]
+    end
+
+    %% Request Flow
+    AGENT --> REQUEST
+    REQUEST --> REGISTRY
+    CONTEXT --> REGISTRY
+
+    %% Registry Operations
+    REGISTRY --> CONFIG
+    CONFIG -.loads.-> YAML
+    YAML --> SERVER_DEF
+    YAML --> ENDPOINTS
+    YAML --> AUTH_CONFIG
+
+    %% Server Discovery
+    REGISTRY --> DISCOVERY
+    DISCOVERY --> LIFECYCLE
+
+    %% MCP Memory Integration
+    REQUEST --> MCP_MEM
+    MCP_MEM --> ROUTES
+    ROUTES --> HANDLER
+    HANDLER --> VALIDATOR
+
+    %% Server Selection
+    VALIDATOR -.✓ valid.-> FIREFLIES
+    VALIDATOR -.✓ valid.-> SUPABASE
+    VALIDATOR -.✓ valid.-> NOTION
+    VALIDATOR -.✓ valid.-> VERCEL
+    VALIDATOR -.✓ valid.-> FIRECRAWL
+    VALIDATOR -.✓ valid.-> AIRTABLE
+
+    %% Protocol Handling
+    FIREFLIES --> PROTOCOL
+    SUPABASE --> PROTOCOL
+    NOTION --> PROTOCOL
+    VERCEL --> PROTOCOL
+    FIRECRAWL --> PROTOCOL
+    AIRTABLE --> PROTOCOL
+
+    PROTOCOL --> SERIALIZE
+    PROTOCOL --> DESERIALIZE
+    PROTOCOL --> TRANSPORT
+
+    %% Governance
+    TRANSPORT --> GOV_GATE
+    GOV_GATE --> POLICY
+    POLICY --> AUDIT
+    POLICY --> RATE_LIMIT
+
+    %% Connection Management
+    TRANSPORT --> CONN_POOL
+    CONN_POOL --> HEALTH
+    HEALTH --> RETRY
+    RETRY -.✗ failure.-> CIRCUIT
+
+    %% Response Flow
+    GOV_GATE -.✓ allowed.-> RESPONSE
+    RESPONSE --> TRANSFORM
+    TRANSFORM --> CACHE
+    CACHE --> AGENT
+
+    %% Error Handling
+    CIRCUIT -.✗ open.-> ERROR
+    VALIDATOR -.✗ invalid.-> ERROR
+    ERROR --> AGENT
+
+    style REGISTRY fill:#4ecdc4
+    style MCP_MEM fill:#ffe66d
+    style PROTOCOL fill:#95e1d3
+    style GOV_GATE fill:#ff6b6b
+    style CONN_POOL fill:#a8e6cf
