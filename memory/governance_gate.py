@@ -50,11 +50,112 @@ __dora_meta__ = {
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, AsyncGenerator, Optional, Sequence
 import os
 
+import structlog
+import yaml
+
 from config.rls_config import get_rls_config
 from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
+
+
+# =============================================================================
+# Policy-Based Scope Access (loaded from config/policies/memory_scope.yaml)
+# =============================================================================
+
+_SCOPE_ACCESS_MATRIX: dict[str, dict[str, Any]] = {}
+
+
+def _load_memory_scope_policies() -> dict[str, dict[str, Any]]:
+    """Load scope access matrix from memory_scope.yaml policy file.
+
+    Returns cached matrix if already loaded. Falls back to hardcoded
+    defaults if file not found (for backward compatibility).
+    """
+    global _SCOPE_ACCESS_MATRIX
+
+    if _SCOPE_ACCESS_MATRIX:
+        return _SCOPE_ACCESS_MATRIX
+
+    policy_path = (
+        Path(__file__).parent.parent / "config" / "policies" / "memory_scope.yaml"
+    )
+
+    if policy_path.exists():
+        try:
+            with open(policy_path) as f:
+                data = yaml.safe_load(f)
+                _SCOPE_ACCESS_MATRIX = data.get("scope_access_matrix", {})
+                logger.debug(
+                    "memory_scope_policies.loaded",
+                    path=str(policy_path),
+                    callers=list(_SCOPE_ACCESS_MATRIX.keys()),
+                )
+        except Exception as e:
+            logger.warning(
+                "memory_scope_policies.load_failed",
+                path=str(policy_path),
+                error=str(e),
+            )
+
+    # Fallback to hardcoded defaults if not loaded
+    if not _SCOPE_ACCESS_MATRIX:
+        _SCOPE_ACCESS_MATRIX = {
+            "L": {"allowed_scopes": ["developer", "global", "l-private"]},
+            "C": {
+                "allowed_scopes": ["developer", "global"],
+                "denied_scopes": ["l-private"],
+            },
+            "default": {
+                "allowed_scopes": ["developer", "global"],
+                "denied_scopes": ["l-private"],
+            },
+        }
+        logger.debug("memory_scope_policies.using_fallback")
+
+    return _SCOPE_ACCESS_MATRIX
+
+
+def is_scope_allowed_for_caller(caller_id: str, scope: str) -> bool:
+    """Check if a caller is allowed to access a scope (policy-based).
+
+    Args:
+        caller_id: The caller identifier (e.g., "L", "C")
+        scope: The memory scope to check (e.g., "l-private")
+
+    Returns:
+        True if allowed, False if denied
+    """
+    matrix = _load_memory_scope_policies()
+    caller_config = matrix.get(caller_id, matrix.get("default", {}))
+
+    denied_scopes = caller_config.get("denied_scopes", [])
+    if scope in denied_scopes:
+        return False
+
+    allowed_scopes = caller_config.get("allowed_scopes", [])
+    return scope in allowed_scopes or not allowed_scopes  # Empty = allow all
+
+
+def validate_caller_scope_access(caller_id: str, allowed_scopes: Sequence[str]) -> None:
+    """Validate that caller's allowed_scopes don't include denied scopes.
+
+    Raises:
+        RuntimeError: If caller has a denied scope in their allowed_scopes
+    """
+    matrix = _load_memory_scope_policies()
+    caller_config = matrix.get(caller_id, matrix.get("default", {}))
+    denied_scopes = set(caller_config.get("denied_scopes", []))
+
+    for scope in allowed_scopes:
+        if scope in denied_scopes:
+            raise RuntimeError(
+                f"Caller '{caller_id}' cannot access '{scope}' scope (policy: memory_scope.yaml)"
+            )
 
 
 @dataclass(frozen=True)
@@ -81,8 +182,8 @@ class MemoryGovernanceContext:
             raise RuntimeError("allowed_scopes cannot be empty")
         if self.scope not in self.allowed_scopes:
             raise RuntimeError("scope must be included in allowed_scopes")
-        if self.caller_id == "C" and "l-private" in self.allowed_scopes:
-            raise RuntimeError("Cursor cannot access l-private scope")
+        # GMP-103: Policy-based scope validation (replaces hardcoded check)
+        validate_caller_scope_access(self.caller_id, self.allowed_scopes)
 
 
 _governance_context: ContextVar[Optional[MemoryGovernanceContext]] = ContextVar(

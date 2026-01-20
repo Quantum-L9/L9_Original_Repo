@@ -36,6 +36,16 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/mcp",
+    tags=["mcp"],
+    display_name="MCP Memory",
+)
+
 # Try to import MCP components
 _has_mcp = False
 _verify_api_key_dep = None

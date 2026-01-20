@@ -35,6 +35,18 @@ from core.decorators import must_stay_async
 
 router = APIRouter(prefix="/modules", tags=["modules"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/modules"
+    tags=["modules"],
+    module_id="modules",
+    display_name="Module Registry",
+    dependencies=["module_registry"],
+)
+
 
 def _get_module_registry(request: Request):
     registry = getattr(request.app.state, "module_registry", None)

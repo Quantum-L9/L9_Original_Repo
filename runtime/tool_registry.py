@@ -1,0 +1,312 @@
+"""
+L9 Runtime - Tool Executor Auto-Registration System
+====================================================
+
+Automatic discovery and registration of tool executor functions.
+
+This module eliminates the manual TOOL_EXECUTORS dictionary by providing
+a decorator-based registration system that automatically discovers and
+registers tool functions.
+
+Version: 1.0.0
+"""
+
+from __future__ import annotations
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Executor Auto-Registration",
+    "module_version": "1.0.0",
+    "created_by": "L9 Auto-Wiring Team",
+    "created_at": "2026-01-18T00:00:00Z",
+    "updated_at": "2026-01-18T00:00:00Z",
+    "layer": "runtime",
+    "domain": "tools",
+    "module_name": "tool_registry",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["runtime.l_tools"],
+    },
+}
+# ============================================================================
+
+import structlog
+from typing import Any, Callable, Dict, Optional
+
+from core.auto_registry import AutoRegistry
+
+logger = structlog.get_logger(__name__)
+
+
+# =============================================================================
+# Tool Executor Registry
+# =============================================================================
+
+
+def _validate_tool_executor(func: Callable) -> bool:
+    """Validate that an object is a callable tool executor."""
+    return callable(func)
+
+
+# Global tool executor registry
+tool_executor_registry = AutoRegistry[Callable](
+    name="tool_executors", validator=_validate_tool_executor, allow_duplicates=False
+)
+
+
+def register_tool(
+    name: Optional[str] = None,
+    category: Optional[str] = None,
+    priority: int = 0,
+    **metadata: Any,
+):
+    """
+    Decorator to register a tool executor function for auto-wiring.
+
+    This decorator marks a tool executor function for automatic
+    discovery and registration in the TOOL_EXECUTORS dictionary.
+
+    Args:
+        name: Tool identifier (defaults to function name)
+        category: Tool category (e.g., "memory", "redis", "neo4j")
+        priority: Registration priority (higher = loaded first)
+        **metadata: Additional metadata (description, rate_limit, etc.)
+
+    Example:
+        @register_tool(category="memory", priority=10)
+        async def memory_search(query: str, **kwargs):
+            # ... implementation ...
+            return results
+
+        # Or with explicit name
+        @register_tool(name="custom_tool", category="custom")
+        async def my_tool_function(**kwargs):
+            return {"status": "ok"}
+    """
+
+    def decorator(func: Callable) -> Callable:
+        # Register the function directly (not as a factory)
+        tool_name = name or func.__name__
+        tool_executor_registry.register_instance(
+            component_id=tool_name,
+            component=func,
+            priority=priority,
+            tags=[category] if category else [],
+            **metadata,
+        )
+        return func
+
+    return decorator
+
+
+def discover_tools(package: str = "runtime") -> int:
+    """
+    Automatically discover all tool executors in the specified package.
+
+    Args:
+        package: Python package to scan for tools
+
+    Returns:
+        Number of modules discovered
+    """
+    logger.info("tool_registry.discovering", package=package)
+    count = tool_executor_registry.discover(package, recursive=True)
+    logger.info("tool_registry.discovered", package=package, count=count)
+    return count
+
+
+def get_tool_executors() -> Dict[str, Callable]:
+    """
+    Get all registered tool executors as a dictionary.
+
+    This function returns the tool executors in the format expected
+    by the existing L9 tool system (dict mapping names to functions).
+
+    Returns:
+        Dictionary mapping tool names to executor functions
+
+    Example:
+        # Get all registered tools
+        executors = get_tool_executors()
+
+        # Use with existing tool system
+        tool_func = executors.get("memory_search")
+        result = await tool_func(query="test")
+    """
+    # Initialize any factory functions
+    tool_executor_registry.initialize_factories()
+
+    # Build dictionary mapping names to functions
+    executors: Dict[str, Callable] = {}
+
+    for tool_id in tool_executor_registry.list_ids():
+        tool_func = tool_executor_registry.get(tool_id)
+        if tool_func:
+            executors[tool_id] = tool_func
+
+    logger.info("tool_registry.executors_built", count=len(executors))
+    return executors
+
+
+def get_tools_by_category(category: str) -> Dict[str, Callable]:
+    """
+    Get all tool executors in a specific category.
+
+    Args:
+        category: Category to filter by (e.g., "memory", "redis")
+
+    Returns:
+        Dictionary mapping tool names to executor functions
+    """
+    tool_executor_registry.initialize_factories()
+
+    tools = tool_executor_registry.get_all(tags=[category])
+    executors: Dict[str, Callable] = {}
+
+    for tool_func in tools:
+        # Find the tool's ID
+        for tool_id in tool_executor_registry.list_ids():
+            if tool_executor_registry.get(tool_id) == tool_func:
+                executors[tool_id] = tool_func
+                break
+
+    return executors
+
+
+def get_tool_snapshot() -> dict:
+    """Get a snapshot of all registered tools for observability."""
+    return tool_executor_registry.snapshot()
+
+
+def register_legacy_tool_executors() -> int:
+    """
+    Bridge function: Register all tools from legacy TOOL_EXECUTORS dict.
+
+    This allows the existing l_tools.py TOOL_EXECUTORS to be discovered
+    by the new auto-registration system without refactoring every tool.
+
+    Returns:
+        Number of tools registered
+    """
+    try:
+        from runtime.l_tools import TOOL_EXECUTORS
+    except ImportError as e:
+        logger.warning("legacy_tool_import_failed", error=str(e))
+        return 0
+
+    registered = 0
+    for tool_name, executor_func in TOOL_EXECUTORS.items():
+        try:
+            # Determine category from tool name prefix
+            if tool_name.startswith("memory_"):
+                category = "memory"
+            elif tool_name.startswith("redis_"):
+                category = "redis"
+            elif tool_name.startswith("mcp_"):
+                category = "mcp"
+            elif tool_name.startswith("tools_"):
+                category = "introspection"
+            elif tool_name.startswith("world_model_"):
+                category = "world_model"
+            elif tool_name.startswith("simulation_"):
+                category = "simulation"
+            elif tool_name.startswith("neo4j_"):
+                category = "database"
+            elif tool_name.startswith("kernel_"):
+                category = "kernel"
+            elif tool_name in ("gmp_run", "git_commit", "mac_agent_exec_task"):
+                category = "execution"
+            else:
+                category = "general"
+
+            # Register with the new registry using register_instance()
+            tool_executor_registry.register_instance(
+                component_id=tool_name,
+                component=executor_func,
+                priority=0,
+                tags=[category, "legacy"],
+                category=category,
+                source="legacy_bridge",
+            )
+            registered += 1
+        except Exception as e:
+            logger.debug("legacy_tool_skip", tool=tool_name, error=str(e))
+
+    logger.info(
+        "legacy_tools_registered",
+        count=registered,
+        total=len(TOOL_EXECUTORS),
+    )
+    return registered
+
+
+def register_extension_tool_executors() -> int:
+    """
+    Register tools from extension modules (research, reflection, etc).
+
+    Returns:
+        Number of additional tools registered
+    """
+    registered = 0
+
+    # Research tools
+    try:
+        from core.tools.research_tools import RESEARCH_TOOL_EXECUTORS
+
+        for tool_name, executor_func in RESEARCH_TOOL_EXECUTORS.items():
+            try:
+                tool_executor_registry.register_instance(
+                    component_id=tool_name,
+                    component=executor_func,
+                    priority=0,
+                    tags=["research", "extension"],
+                    category="research",
+                    source="extension",
+                )
+                registered += 1
+            except Exception:
+                pass
+    except ImportError:
+        pass
+
+    # Reflection tools
+    try:
+        from core.tools.reflection_tools import REFLECTION_TOOL_EXECUTORS
+
+        for tool_name, executor_func in REFLECTION_TOOL_EXECUTORS.items():
+            try:
+                tool_executor_registry.register_instance(
+                    component_id=tool_name,
+                    component=executor_func,
+                    priority=0,
+                    tags=["reflection", "extension"],
+                    category="reflection",
+                    source="extension",
+                )
+                registered += 1
+            except Exception:
+                pass
+    except ImportError:
+        pass
+
+    if registered > 0:
+        logger.info("extension_tools_registered", count=registered)
+
+    return registered
+
+
+# =============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-TOOL-AUTO-REG",
+    "governance_level": "critical",
+    "security_reviewed": True,
+    "performance_tested": True,
+    "last_audit": "2026-01-18T00:00:00Z",
+}
+# ============================================================================

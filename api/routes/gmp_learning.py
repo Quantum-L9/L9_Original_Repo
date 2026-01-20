@@ -55,6 +55,16 @@ from agents.cursor.gmp_meta_learning import (
 logger = structlog.get_logger(__name__)
 router = APIRouter()
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/api/gmp",
+    tags=["gmp-learning"],
+    display_name="GMP Learning",
+)
+
 
 # Response models
 class AutonomyLevelResponse(BaseModel):

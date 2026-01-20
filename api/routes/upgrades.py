@@ -56,6 +56,16 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/upgrades", tags=["upgrades"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/api/v1",  # Router has /upgrades, server adds /api/v1
+    tags=["upgrades"],
+    display_name="PacketEnvelope Upgrades",
+)
+
 
 @lru_cache(maxsize=1)
 def get_upgrade_engine() -> PacketEnvelopeUpgradeEngine:

@@ -133,6 +133,10 @@ class SubsystemFacts:
     constants: List[Tuple[str, str, str]] = field(
         default_factory=list
     )  # (name, value, file)
+    # Phase 1 enhancements
+    exports: List[str] = field(default_factory=list)  # __all__ contents
+    dora_meta: Dict[str, Any] = field(default_factory=dict)  # __dora_meta__ contents
+    has_existing_readme: bool = False  # Warning flag
 
     @property
     def total_lines(self) -> int:
@@ -397,15 +401,38 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                 # Extract module-level constants
                 if isinstance(node, ast.Assign):
                     for target in node.targets:
-                        if isinstance(target, ast.Name) and target.id.isupper():
-                            value = "..."
-                            if isinstance(node.value, ast.Constant):
-                                value = repr(node.value.value)[:50]
-                            elif isinstance(node.value, ast.Dict):
-                                value = "{...}"
-                            elif isinstance(node.value, ast.List):
-                                value = "[...]"
-                            facts.constants.append((target.id, value, rel_path))
+                        if isinstance(target, ast.Name):
+                            # Extract __all__ exports
+                            if target.id == "__all__" and isinstance(
+                                node.value, ast.List
+                            ):
+                                for elt in node.value.elts:
+                                    if isinstance(elt, ast.Constant):
+                                        facts.exports.append(elt.value)
+
+                            # Extract __dora_meta__ governance metadata
+                            elif target.id == "__dora_meta__" and isinstance(
+                                node.value, ast.Dict
+                            ):
+                                for key, val in zip(node.value.keys, node.value.values):
+                                    if isinstance(key, ast.Constant) and isinstance(
+                                        val, ast.Constant
+                                    ):
+                                        facts.dora_meta[key.value] = val.value
+                                    elif isinstance(key, ast.Constant):
+                                        # Complex value, just note it exists
+                                        facts.dora_meta[key.value] = "..."
+
+                            # Extract UPPERCASE constants
+                            elif target.id.isupper():
+                                value = "..."
+                                if isinstance(node.value, ast.Constant):
+                                    value = repr(node.value.value)[:50]
+                                elif isinstance(node.value, ast.Dict):
+                                    value = "{...}"
+                                elif isinstance(node.value, ast.List):
+                                    value = "[...]"
+                                facts.constants.append((target.id, value, rel_path))
 
         except Exception as e:
             print(f"WARNING: Could not parse {py_file}: {e}", file=sys.stderr)
@@ -466,6 +493,12 @@ You are generating a **gold-standard README** for the `{path}` module in L9 Secu
 
 ### Constants
 {constants_section}
+
+### Public API (`__all__` exports)
+{exports_section}
+
+### DORA Governance Metadata
+{dora_section}
 
 ---
 
@@ -595,7 +628,11 @@ def format_route_info(route: RouteInfo) -> str:
 
 
 def generate_superprompt(
-    facts: SubsystemFacts, title: str, config: Optional[Dict] = None
+    facts: SubsystemFacts,
+    title: str,
+    config: Optional[Dict] = None,
+    max_classes: int = 15,
+    max_functions: int = 15,
 ) -> str:
     """Generate the superprompt with embedded facts."""
 
@@ -604,12 +641,16 @@ def generate_superprompt(
     if len(facts.files) > 30:
         file_list += f"\n... and {len(facts.files) - 30} more files"
 
-    # Classes section
-    classes_section = "\n\n".join(format_class_info(c) for c in facts.classes[:15])
+    # Classes section (use configurable limit)
+    classes_section = "\n\n".join(
+        format_class_info(c) for c in facts.classes[:max_classes]
+    )
     if not classes_section:
         classes_section = "*No classes found*"
-    if len(facts.classes) > 15:
-        classes_section += f"\n\n*... and {len(facts.classes) - 15} more classes*"
+    if len(facts.classes) > max_classes:
+        classes_section += (
+            f"\n\n*... and {len(facts.classes) - max_classes} more classes*"
+        )
 
     # Models section (Pydantic/dataclass)
     models_section = "\n\n".join(
@@ -623,14 +664,16 @@ def generate_superprompt(
     if not routes_section:
         routes_section = "*No API routes found*"
 
-    # Functions section
+    # Functions section (use configurable limit)
     functions_section = "\n\n".join(
-        format_function_info(f) for f in facts.functions[:15]
+        format_function_info(f) for f in facts.functions[:max_functions]
     )
     if not functions_section:
         functions_section = "*No top-level functions found*"
-    if len(facts.functions) > 15:
-        functions_section += f"\n\n*... and {len(facts.functions) - 15} more functions*"
+    if len(facts.functions) > max_functions:
+        functions_section += (
+            f"\n\n*... and {len(facts.functions) - max_functions} more functions*"
+        )
 
     # Imports section
     imports_section = "\n".join(facts.imports[:30])
@@ -643,6 +686,26 @@ def generate_superprompt(
     )
     if not constants_section:
         constants_section = "*No module-level constants found*"
+
+    # Exports section (__all__)
+    if facts.exports:
+        exports_section = "```python\n__all__ = [\n"
+        exports_section += "\n".join(f'    "{e}",' for e in facts.exports[:20])
+        exports_section += "\n]\n```"
+        if len(facts.exports) > 20:
+            exports_section += f"\n*... and {len(facts.exports) - 20} more exports*"
+    else:
+        exports_section = "*No `__all__` defined (module exports all public names)*"
+
+    # DORA metadata section
+    if facts.dora_meta:
+        dora_lines = ["```yaml"]
+        for key, val in list(facts.dora_meta.items())[:10]:
+            dora_lines.append(f"{key}: {val}")
+        dora_lines.append("```")
+        dora_section = "\n".join(dora_lines)
+    else:
+        dora_section = "*No `__dora_meta__` governance metadata found*"
 
     return SUPERPROMPT_TEMPLATE.format(
         title=title,
@@ -659,6 +722,8 @@ def generate_superprompt(
         functions_section=functions_section,
         imports_section=imports_section,
         constants_section=constants_section,
+        exports_section=exports_section,
+        dora_section=dora_section,
     )
 
 
@@ -687,6 +752,25 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Show extraction stats"
     )
+    # Phase 1 enhancements: configurable limits
+    parser.add_argument(
+        "--max-classes",
+        type=int,
+        default=15,
+        help="Max classes to include in superprompt (default: 15)",
+    )
+    parser.add_argument(
+        "--max-functions",
+        type=int,
+        default=15,
+        help="Max functions to include in superprompt (default: 15)",
+    )
+    parser.add_argument(
+        "--template",
+        choices=["module", "agent", "api", "service", "kernel"],
+        default="module",
+        help="README template type (default: module) [STUB for Phase 2]",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).parent.parent
@@ -713,10 +797,29 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
         print(f"ERROR: Path not found: {full_path}", file=sys.stderr)
         return 1
 
+    # Phase 1: Check if README.md already exists at target
+    existing_readme = full_path / "README.md"
+    if existing_readme.exists():
+        readme_lines = len(existing_readme.read_text().splitlines())
+        print(
+            f"⚠️  WARNING: README.md already exists at {path}/README.md ({readme_lines} lines)",
+            file=sys.stderr,
+        )
+        print(
+            "   Generated README will REPLACE existing content. Git has history.",
+            file=sys.stderr,
+        )
+        if readme_lines > 100:
+            print(
+                f"   ⚠️  CAUTION: Existing README is substantial ({readme_lines} lines). Review before replacing.",
+                file=sys.stderr,
+            )
+
     print(f"🔍 Extracting facts from {path}...", file=sys.stderr)
 
     # Extract facts
     facts = extract_subsystem_facts(repo_root, path)
+    facts.has_existing_readme = existing_readme.exists()
 
     if args.verbose:
         print(f"   Files: {len(facts.files)}", file=sys.stderr)
@@ -725,9 +828,22 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
         print(f"   Pydantic Models: {len(facts.pydantic_models)}", file=sys.stderr)
         print(f"   Routes: {len(facts.routes)}", file=sys.stderr)
         print(f"   Imports: {len(facts.imports)}", file=sys.stderr)
+        # Phase 1 enhancements
+        print(f"   Exports (__all__): {len(facts.exports)}", file=sys.stderr)
+        print(f"   DORA Meta: {'✅' if facts.dora_meta else '❌'}", file=sys.stderr)
+        print(
+            f"   Limits: max_classes={args.max_classes}, max_functions={args.max_functions}",
+            file=sys.stderr,
+        )
 
-    # Generate superprompt
-    superprompt = generate_superprompt(facts, title, config)
+    # Generate superprompt (with configurable limits)
+    superprompt = generate_superprompt(
+        facts,
+        title,
+        config,
+        max_classes=args.max_classes,
+        max_functions=args.max_functions,
+    )
 
     # Output
     if args.output:

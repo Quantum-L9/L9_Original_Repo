@@ -43,6 +43,19 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
+# ============================================================================
+# AUTO-REGISTRATION: Register router for auto-wiring (Phase 2 Auto-Wiring)
+# ============================================================================
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/reasoning",
+    tags=["reasoning"],
+    display_name="Reasoning Orchestrator",
+    dependencies=["reasoning_orchestrator"],  # Validates app.state
+)
+
 
 # ============================================================================
 # Dependency: Get ReasoningOrchestrator from app.state

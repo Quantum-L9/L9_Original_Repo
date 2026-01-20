@@ -55,10 +55,10 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Annotated, Any, List, Optional
 from uuid import UUID, uuid4, uuid5, NAMESPACE_DNS
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, conlist
 
 # =============================================================================
 # Constants
@@ -177,27 +177,42 @@ class AgentTask(BaseModel):
     )
 
     # === FUTURE-PROOF FIELDS (enterprise multi-agent architecture) ===
+    # Using Pydantic v2 Annotated pattern for richer validation metadata
     agent_type: AgentType = Field(
         default=AgentType.ASSISTANT,
-        description="Enterprise agent classification for routing and policy enforcement",
+        description="FUTURE-PROOF: Enterprise agent classification for routing and policy enforcement",
     )
-    target_domain: str = Field(
-        default="l9", description="Target domainOS: 'l9', 'l10', 'external', 'sandbox'"
-    )
-    priority: int = Field(
-        default=5,
-        ge=1,
-        le=10,
-        description="Task urgency: 1=critical/blocking, 5=normal, 10=background/batch",
-    )
-    delegation_chain: List[str] = Field(
-        default_factory=list,
-        description="Agent IDs that have handled this task (audit trail for multi-agent)",
-    )
-    capability_requirements: List[str] = Field(
-        default_factory=list,
-        description="Required capabilities: 'shell_access', 'neo4j', 'memory_write', 'external_api'",
-    )
+    target_domain: Annotated[
+        str,
+        Field(
+            default="l9",
+            pattern=r"^(l9|l10|external|sandbox)$",
+            description="FUTURE-PROOF: Target domainOS - validated against known domains",
+        ),
+    ]
+    priority: Annotated[
+        int,
+        Field(
+            default=5,
+            ge=1,
+            le=10,
+            description="FUTURE-PROOF: Task urgency (1=critical/blocking, 5=normal, 10=background/batch)",
+        ),
+    ]
+    delegation_chain: Annotated[
+        conlist(str, max_length=50),
+        Field(
+            default_factory=list,
+            description="FUTURE-PROOF: Agent IDs that have handled this task (audit trail, max 50 hops)",
+        ),
+    ]
+    capability_requirements: Annotated[
+        conlist(str, max_length=20),
+        Field(
+            default_factory=list,
+            description="FUTURE-PROOF: Required capabilities ('shell_access', 'neo4j', 'memory_write', 'external_api')",
+        ),
+    ]
 
     model_config = {"extra": "forbid"}
 

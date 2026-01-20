@@ -52,6 +52,17 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/commands", tags=["commands"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/commands"
+    tags=["commands"],
+    module_id="commands",
+    display_name="Igor Commands",
+)
+
 
 # =============================================================================
 # Request/Response Models

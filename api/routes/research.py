@@ -42,6 +42,17 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/research/swarm",
+    tags=["research-swarm"],
+    display_name="Research Swarm",
+    dependencies=["research_swarm_orchestrator"],
+)
+
 
 # ============================================================================
 # Dependency: Get ResearchSwarmOrchestrator from app.state

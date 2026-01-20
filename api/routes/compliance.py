@@ -43,6 +43,16 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(tags=["compliance"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/compliance",
+    tags=["compliance"],
+    display_name="Compliance Reporting",
+)
+
 
 # =============================================================================
 # Response Models

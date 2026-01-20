@@ -54,6 +54,17 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/factory", tags=["research-factory"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/factory"
+    tags=["research-factory"],
+    module_id="factory",
+    display_name="Research Factory",
+)
+
 
 # =============================================================================
 # Request/Response Models

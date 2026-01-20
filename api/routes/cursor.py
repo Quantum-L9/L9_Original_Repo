@@ -41,6 +41,17 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(tags=["cursor"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/cursor",
+    tags=["cursor"],
+    display_name="Cursor Executor",
+    dependencies=["cursor_executor"],
+)
+
 
 # =============================================================================
 # Dependency: Get CursorExecutor from app.state

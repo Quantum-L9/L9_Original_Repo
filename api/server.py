@@ -80,6 +80,43 @@ import api.agent_routes as agent_routes
 
 from core.decorators import must_stay_async
 
+# Singleton Auto-Registration (Phase 2 Auto-Wiring)
+from core.singleton_auto_registry import (
+    discover_singleton_services,
+    wire_singletons_to_registry,
+)
+from core.singleton_registry import get_singleton_registry
+
+# Event Type Auto-Registration (Phase 2 Auto-Wiring)
+from core.event_type_registry import (
+    register_core_event_types,
+    get_all_event_types,
+)
+
+# Router Auto-Registration (Phase 2 Auto-Wiring)
+from api.routes.registry import (
+    router_registry,
+    discover_routers,
+)
+
+# Background Task Registry (Auto-Wiring)
+from runtime.background_tasks import BackgroundTaskRegistry  # noqa: F401
+
+# Tool Executor Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
+from runtime.tool_registry import (  # noqa: F401
+    tool_executor_registry,
+    get_tool_executors,
+    get_tool_snapshot,
+)
+
+# MCP Server Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
+from runtime.mcp_server_registry import (  # noqa: F401
+    mcp_server_registry,
+    load_mcp_servers_from_yaml,
+    get_all_mcp_servers,
+    get_mcp_server_snapshot,
+)
+
 # Telemetry / Prometheus metrics
 try:
     from telemetry.memory_metrics import init_metrics, PROMETHEUS_AVAILABLE
@@ -561,6 +598,250 @@ async def lifespan(app: FastAPI):
         app.state.module_registry = None
         logger.critical("FATAL: ModuleRegistry init failed: %s", str(e), exc_info=True)
         raise RuntimeError(f"ModuleRegistry init failed: {e}") from e
+
+    # ------------------------------------------------------------------------
+    # Singleton Auto-Registration (Phase 2 Auto-Wiring)
+    # Discover and wire @register_singleton decorated services
+    # ------------------------------------------------------------------------
+    try:
+        # Discover singletons in packages that may have @register_singleton decorators
+        discovered_count = 0
+        for package in ["runtime", "memory", "config", "services.research", "agents"]:
+            try:
+                count = discover_singleton_services(package)
+                discovered_count += count
+            except Exception as pkg_err:
+                logger.debug(f"Singleton discovery skipped for {package}: {pkg_err}")
+
+        # Wire discovered singletons to the main registry
+        registry = get_singleton_registry()
+        wired_count = wire_singletons_to_registry(registry)
+
+        if wired_count > 0:
+            logger.info(
+                "Singleton auto-registration complete",
+                discovered_modules=discovered_count,
+                wired_singletons=wired_count,
+            )
+        else:
+            logger.info(
+                "No @register_singleton services found — using legacy registration only"
+            )
+    except Exception as e:
+        # Non-fatal: fall back to legacy _register_core_singletons()
+        logger.warning(f"Singleton auto-registration failed (using legacy): {e}")
+
+    # ------------------------------------------------------------------------
+    # Event Type Auto-Registration (Phase 2 Auto-Wiring)
+    # Register core event types for backward compatibility + dynamic extension
+    # ------------------------------------------------------------------------
+    try:
+        register_core_event_types()
+        event_types = get_all_event_types()
+        logger.info(
+            "Event type auto-registration complete",
+            registered_types=len(event_types),
+            categories=list({et.category for et in event_types.values()}),
+        )
+    except Exception as e:
+        # Non-fatal: event types can still be registered dynamically later
+        logger.warning(f"Event type auto-registration failed: {e}")
+
+    # ------------------------------------------------------------------------
+    # Background Task Registry (Auto-Wiring)
+    # Centralized management of all periodic background tasks
+    # ------------------------------------------------------------------------
+    bg_tasks = BackgroundTaskRegistry()
+    app.state.background_tasks = bg_tasks
+    logger.info("BackgroundTaskRegistry initialized")
+
+    # ------------------------------------------------------------------------
+    # Tool Executor Auto-Registration (GMP-95 Auto-Wiring)
+    # Register all tools: legacy TOOL_EXECUTORS + extension modules + @register_tool
+    # ------------------------------------------------------------------------
+    try:
+        from runtime.tool_registry import (
+            discover_tools,
+            register_legacy_tool_executors,
+            register_extension_tool_executors,
+            get_tool_snapshot,
+        )
+
+        # 1. Register legacy TOOL_EXECUTORS (bridge to existing tools)
+        legacy_count = register_legacy_tool_executors()
+
+        # 2. Register extension tools (research, reflection)
+        extension_count = register_extension_tool_executors()
+
+        # 3. Discover any new @register_tool decorated functions
+        for package in ["runtime", "core.tools"]:
+            try:
+                discover_tools(package)
+            except Exception as pkg_err:
+                logger.debug(f"Tool discovery skipped for {package}: {pkg_err}")
+
+        snapshot = get_tool_snapshot()
+        logger.info(
+            "Tool executor auto-registration complete",
+            legacy_tools=legacy_count,
+            extension_tools=extension_count,
+            total_tools=snapshot["component_count"],
+        )
+    except Exception as e:
+        # Non-fatal: tools can still be accessed via legacy TOOL_EXECUTORS directly
+        logger.warning(f"Tool executor auto-registration failed: {e}")
+
+    # ------------------------------------------------------------------------
+    # MCP Server Auto-Registration (GMP-95 Auto-Wiring)
+    # Load MCP server configs from config/mcp_servers.yaml
+    # ------------------------------------------------------------------------
+    try:
+        from runtime.mcp_server_registry import (
+            load_mcp_servers_from_yaml,
+            get_all_mcp_servers,
+        )
+        from pathlib import Path
+
+        mcp_config_path = Path(__file__).parent.parent / "config" / "mcp_servers.yaml"
+        if mcp_config_path.exists():
+            loaded_count = load_mcp_servers_from_yaml(mcp_config_path)
+            servers = get_all_mcp_servers()
+            enabled_count = sum(1 for s in servers.values() if s.enabled)
+            logger.info(
+                "MCP server auto-registration complete",
+                servers_loaded=loaded_count,
+                servers_enabled=enabled_count,
+            )
+        else:
+            logger.debug("No MCP server config found at config/mcp_servers.yaml")
+    except Exception as e:
+        # Non-fatal: MCP servers can still be configured manually
+        logger.warning(f"MCP server auto-registration failed: {e}")
+
+    # ------------------------------------------------------------------------
+    # Agent Auto-Registration (GMP-95 Auto-Wiring)
+    # Register all agents: legacy exports + @register_agent decorated
+    # ------------------------------------------------------------------------
+    try:
+        from agents.agent_registry import (
+            register_legacy_agents,
+            discover_agents,
+            get_agent_snapshot,
+        )
+
+        # 1. Register legacy agent classes
+        legacy_agent_count = register_legacy_agents()
+
+        # 2. Discover any new @register_agent decorated classes
+        discover_agents("agents")
+
+        snapshot = get_agent_snapshot()
+        logger.info(
+            "Agent auto-registration complete",
+            legacy_agents=legacy_agent_count,
+            total_agents=snapshot["component_count"],
+        )
+    except Exception as e:
+        logger.warning(f"Agent auto-registration failed: {e}")
+
+    # ------------------------------------------------------------------------
+    # Orchestrator Auto-Registration (GMP-95 Auto-Wiring)
+    # Register all orchestrators: legacy exports + @register_orchestrator decorated
+    # ------------------------------------------------------------------------
+    try:
+        from orchestrators.orchestrator_registry import (
+            register_legacy_orchestrators,
+            discover_orchestrators,
+            get_orchestrator_snapshot,
+        )
+
+        # 1. Register legacy orchestrator classes
+        legacy_orch_count = register_legacy_orchestrators()
+
+        # 2. Discover any new @register_orchestrator decorated classes
+        discover_orchestrators("orchestrators")
+
+        snapshot = get_orchestrator_snapshot()
+        logger.info(
+            "Orchestrator auto-registration complete",
+            legacy_orchestrators=legacy_orch_count,
+            total_orchestrators=snapshot["component_count"],
+        )
+    except Exception as e:
+        logger.warning(f"Orchestrator auto-registration failed: {e}")
+
+    # ------------------------------------------------------------------------
+    # Collaborative Cell Auto-Registration (GMP-95 Auto-Wiring)
+    # Register all cells: legacy exports + @register_cell decorated
+    # ------------------------------------------------------------------------
+    try:
+        from collaborative_cells.cell_registry import (
+            register_legacy_cells,
+            discover_cells,
+            get_cell_snapshot,
+        )
+
+        # 1. Register legacy cell classes
+        legacy_cell_count = register_legacy_cells()
+
+        # 2. Discover any new @register_cell decorated classes
+        discover_cells("collaborative_cells")
+
+        snapshot = get_cell_snapshot()
+        logger.info(
+            "Cell auto-registration complete",
+            legacy_cells=legacy_cell_count,
+            total_cells=snapshot["component_count"],
+        )
+    except Exception as e:
+        logger.warning(f"Cell auto-registration failed: {e}")
+
+    # ------------------------------------------------------------------------
+    # Policy Source Auto-Registration (GMP-95 Auto-Wiring)
+    # Register default policy directories
+    # ------------------------------------------------------------------------
+    try:
+        from core.governance.policy_registry import (
+            register_default_policy_sources,
+            get_policy_source_snapshot,
+        )
+
+        # Register default policy directories
+        policy_source_count = register_default_policy_sources()
+
+        snapshot = get_policy_source_snapshot()
+        logger.info(
+            "Policy source auto-registration complete",
+            policy_sources=policy_source_count,
+            total_sources=snapshot["component_count"],
+        )
+    except Exception as e:
+        logger.warning(f"Policy source auto-registration failed: {e}")
+
+    # ------------------------------------------------------------------------
+    # Router Auto-Registration (Phase 2 Auto-Wiring)
+    # Discover and wire @router_registry.register() decorated routers
+    # NOTE: This runs ALONGSIDE legacy manual registrations during migration
+    # ------------------------------------------------------------------------
+    try:
+        # Discover routers in api/routes/ that use router_registry.register()
+        discovered_modules = discover_routers()
+
+        # Wire discovered routers to app (after yield, before legacy registrations)
+        # For now, just log discovery - actual wiring happens after app is created
+        if len(router_registry) > 0:
+            logger.info(
+                "Router auto-registration discovered",
+                modules_scanned=discovered_modules,
+                routers_registered=len(router_registry),
+            )
+        else:
+            logger.info(
+                "No @router_registry.register() routers found — using legacy registration only"
+            )
+    except Exception as e:
+        # Non-fatal: fall back to legacy manual router registration
+        logger.warning(f"Router auto-discovery failed (using legacy): {e}")
 
     # Get database URL
     database_url = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
@@ -1726,6 +2007,8 @@ async def lifespan(app: FastAPI):
 
         try:
             from core.memory.virtual_context import MemoryConsolidationService
+            from memory.neural_decay_scheduler import NeuralDecayScheduler
+            from memory.hierarchical_summarizer import HierarchicalSummarizer
 
             substrate = getattr(app.state, "substrate_service", None) or getattr(
                 app.state, "memory_service", None
@@ -1739,61 +2022,84 @@ async def lifespan(app: FastAPI):
                 )
                 app.state.consolidation_service = consolidation_service
 
-                # Schedule background cleanup every 24 hours
+                # Stage 2: Initialize Neural Decay Scheduler
+                repository = getattr(substrate, "_repository", None) or getattr(
+                    substrate, "repository", None
+                )
+                neural_decay_scheduler = NeuralDecayScheduler(
+                    repository=repository,
+                    dry_run=False,
+                )
+                app.state.neural_decay_scheduler = neural_decay_scheduler
+                logger.info("✓ NeuralDecayScheduler initialized")
+
+                # Stage 2: Initialize Hierarchical Summarizer
+                hierarchical_summarizer = HierarchicalSummarizer(
+                    repository=repository,
+                    llm_client=llm_service,
+                    dry_run=False,
+                )
+                app.state.hierarchical_summarizer = hierarchical_summarizer
+                logger.info("✓ HierarchicalSummarizer initialized")
+
+                # Schedule background cleanup via BackgroundTaskRegistry
                 # NOTE: This loop is for MemoryConsolidationService (different from ConsolidationPipeline).
-                # ConsolidationPipeline (v3.1) should be scheduled separately per memory_spec_v3.0.yaml:
-                # schedule: weekly_saturday_2am_utc (see orchestrators/memory/housekeeping.py run_consolidation())
-                async def run_consolidation_loop():
-                    """Background task for periodic memory consolidation"""
-                    consolidation_interval = (
-                        settings.l9_consolidation_interval_hours * 3600
-                    )
-                    logger.info(
-                        f"Memory consolidation scheduled every {consolidation_interval // 3600} hours"
-                    )
+                # ConsolidationPipeline (v3.1) scheduled weekly_saturday_2am_utc (see orchestrators/memory/housekeeping.py)
+                async def run_consolidation():
+                    """Single consolidation pass (called periodically by BackgroundTaskRegistry)"""
+                    logger.info("Running scheduled memory consolidation...")
 
-                    while True:
+                    # Consolidate for L (primary agent)
+                    if hasattr(consolidation_service, "consolidate"):
+                        metrics = (
+                            consolidation_service.get_metrics()
+                            if hasattr(consolidation_service, "get_metrics")
+                            else {}
+                        )
+                        logger.info(f"Consolidation metrics: {metrics}")
+
+                    # UKG Phase 5: Consolidate graph state (if method exists)
+                    if hasattr(consolidation_service, "consolidate_graph_state"):
                         try:
-                            await asyncio.sleep(consolidation_interval)
-                            logger.info("Running scheduled memory consolidation...")
-                            # Consolidate for L (primary agent)
-                            if hasattr(consolidation_service, "consolidate"):
-                                metrics = (
-                                    consolidation_service.get_metrics()
-                                    if hasattr(consolidation_service, "get_metrics")
-                                    else {}
-                                )
-                                logger.info(f"Consolidation metrics: {metrics}")
-
-                            # UKG Phase 5: Consolidate graph state (if method exists)
-                            if hasattr(
-                                consolidation_service, "consolidate_graph_state"
-                            ):
-                                try:
-                                    graph_result = await consolidation_service.consolidate_graph_state(
-                                        "L"
-                                    )
-                                    logger.info(
-                                        f"Graph state consolidation: {graph_result.get('status', 'UNKNOWN')}"
-                                    )
-                                except Exception as e:
-                                    logger.warning(
-                                        f"Graph state consolidation failed: {e}"
-                                    )
-                        except asyncio.CancelledError:
-                            logger.info("Consolidation loop cancelled")
-                            break
-                        except Exception as e:
-                            logger.error(
-                                f"Consolidation loop error: {e}", exc_info=True
+                            graph_result = (
+                                await consolidation_service.consolidate_graph_state("L")
                             )
+                            logger.info(
+                                f"Graph state consolidation: {graph_result.get('status', 'UNKNOWN')}"
+                            )
+                        except Exception as e:
+                            logger.warning(f"Graph state consolidation failed: {e}")
 
-                # Start background consolidation task
-                app.state.consolidation_task = asyncio.create_task(
-                    run_consolidation_loop()
+                    # Stage 2: Neural Decay Pass
+                    try:
+                        decay_result = await neural_decay_scheduler.run_decay_pass()
+                        logger.info(
+                            f"Neural decay pass: processed={decay_result.packets_processed}, "
+                            f"updated={decay_result.packets_updated}, pruned={decay_result.packets_pruned}"
+                        )
+                    except Exception as e:
+                        logger.warning(f"Neural decay pass failed: {e}")
+
+                    # Stage 2: Hierarchical Summarization Cascade
+                    try:
+                        summary_results = await hierarchical_summarizer.run_cascade()
+                        for tier, summaries in summary_results.items():
+                            logger.info(
+                                f"Summarization {tier.value}: {len(summaries)} summaries created"
+                            )
+                    except Exception as e:
+                        logger.warning(f"Hierarchical summarization failed: {e}")
+
+                # Register with BackgroundTaskRegistry
+                consolidation_interval = settings.l9_consolidation_interval_hours * 3600
+                bg_tasks.register(
+                    name="memory_consolidation",
+                    coro=run_consolidation,
+                    interval_seconds=consolidation_interval,
+                    enabled_flag=None,  # Already checked by outer condition
                 )
                 logger.info(
-                    "✓ MemoryConsolidationService initialized (24h cleanup cycle)"
+                    f"✓ MemoryConsolidationService initialized ({settings.l9_consolidation_interval_hours}h cycle)"
                 )
             else:
                 logger.warning(
@@ -2064,25 +2370,20 @@ async def lifespan(app: FastAPI):
                 },
             )
 
-            # Start background task to update Prometheus metrics periodically
+            # Register observability metrics update with BackgroundTaskRegistry
             async def update_observability_metrics():
-                """Periodically update Prometheus metrics from observability spans."""
-                update_interval = 30  # Update every 30 seconds
-                while True:
-                    try:
-                        await asyncio.sleep(update_interval)
-                        if observability:
-                            # Compute and update SRE metrics
-                            metrics = await observability.compute_metrics()
-                            # Update agent KPIs
-                            await observability.update_agent_kpis()
-                    except asyncio.CancelledError:
-                        break
-                    except Exception as e:
-                        logger.debug(f"Observability metrics update failed: {e}")
+                """Single observability metrics update pass"""
+                if observability:
+                    await observability.compute_metrics()
+                    await observability.update_agent_kpis()
 
-            asyncio.create_task(update_observability_metrics())
-            logger.info("Observability metrics update task started (30s interval)")
+            bg_tasks.register(
+                name="observability_metrics",
+                coro=update_observability_metrics,
+                interval_seconds=30,
+                run_immediately=False,
+            )
+            logger.info("Observability metrics task registered (30s interval)")
         except Exception as e:
             logger.error(f"Observability init failed: {e}", exc_info=True)
             app.state.observability_service = None
@@ -2161,6 +2462,14 @@ async def lifespan(app: FastAPI):
     # SHUTDOWN: Clean up memory service and Slack adapter
     # ========================================================================
     logger.info("Shutting down L9 API server...")
+
+    # Shutdown all background tasks first (graceful)
+    if hasattr(app.state, "background_tasks") and app.state.background_tasks:
+        try:
+            cancelled = await app.state.background_tasks.shutdown_all()
+            logger.info(f"Background tasks shutdown complete ({cancelled} cancelled)")
+        except Exception as e:
+            logger.warning(f"Error shutting down background tasks: {e}")
 
     # Shutdown Five-Tier Observability (flush spans)
     if hasattr(app.state, "observability_service") and app.state.observability_service:
@@ -2812,6 +3121,17 @@ else:
 # See api/agent_routes.py for the modern implementation.
 
 # --- Routers ---
+
+# Phase 2 Auto-Wiring: Wire auto-registered routers first
+# Routers using @router_registry.register() are wired automatically
+try:
+    auto_wired_count = router_registry.wire_all(app)
+    if auto_wired_count > 0:
+        logger.info(f"Auto-wired {auto_wired_count} routers via router_registry")
+except Exception as e:
+    logger.warning(f"Router auto-wiring failed: {e}")
+
+# Legacy manual router registrations (will be migrated to auto-registration)
 # OS health + metrics + routing
 app.include_router(os_routes.router, prefix="/os")
 
@@ -2819,9 +3139,7 @@ app.include_router(os_routes.router, prefix="/os")
 app.include_router(agent_routes.router, prefix="/agent")
 
 # Modules status router (GMP-45)
-if _has_modules_router:
-    app.include_router(modules_router)
-    logger.info("Modules router registered at /modules")
+# NOTE: Now auto-wired via router_registry — see api/routes/modules.py
 
 # Persistent memory router
 app.include_router(memory_router, prefix="/api/v1/memory")
@@ -2842,8 +3160,7 @@ if _has_worldmodel_query:
     logger.info("World Model Query router registered at /worldmodel")
 
 # Slack adapter router (v2.0+)
-if _has_slack:
-    app.include_router(slack_router)
+# NOTE: Now auto-wired via router_registry — see api/routes/slack.py
 
 # Quantum Research Factory router (v2.1+)
 if _has_research:
@@ -2854,9 +3171,7 @@ if _has_factory:
     app.include_router(factory_router)
 
 # Igor Command Interface router (v2.7+ / GMP-11)
-if _has_commands:
-    app.include_router(commands_router)
-    logger.info("Igor Command Interface registered at /commands")
+# NOTE: Now auto-wired via router_registry — see api/routes/commands.py
 
 # Tools router (v2.8+ / Wire Orchestrators)
 if _has_tools_router:
@@ -2864,33 +3179,21 @@ if _has_tools_router:
     logger.info("Tools router registered at /tools")
 
 # Reasoning router (Stage 2.6 Phase 2)
-if _has_reasoning:
-    app.include_router(reasoning_router, prefix="/reasoning")
-    logger.info("Reasoning router registered at /reasoning")
+# NOTE: Now auto-wired via router_registry — see api/routes/reasoning.py
+# Legacy manual registration removed (GMP Auto-Wiring Phase 2)
 
 # Pattern router (Agent Pattern System v4.0+)
-if _has_pattern:
-    app.include_router(pattern_router, prefix="/pattern")
-    logger.info("Pattern router registered at /pattern")
+# NOTE: Now auto-wired via router_registry — see api/routes/pattern.py
+# Legacy manual registration removed (GMP Auto-Wiring Phase 2)
 
 # GMP Learning router (GMP v2.0 Meta-Learning)
-try:
-    from api.routes.gmp_learning import router as gmp_learning_router
-
-    app.include_router(gmp_learning_router, prefix="/api/gmp", tags=["gmp-learning"])
-    logger.info("GMP Learning router registered at /api/gmp")
-except ImportError as e:
-    logger.debug(f"GMP Learning router not available: {e}")
+# NOTE: Now auto-wired via router_registry — see api/routes/gmp_learning.py
 
 # ResearchSwarm router (Stage 2.6 Phase 3)
-if _has_research_swarm:
-    app.include_router(research_swarm_router, prefix="/research/swarm")
-    logger.info("ResearchSwarm router registered at /research/swarm")
+# NOTE: Now auto-wired via router_registry — see api/routes/research.py
 
 # ResearchAgent router (Perplexity-based unified research-to-code)
-if _has_research_agent:
-    app.include_router(research_agent_router, prefix="/research/agent")
-    logger.info("ResearchAgent router registered at /research/agent")
+# NOTE: Now auto-wired via router_registry — see api/routes/research_agent.py
 
 # ReflectionAgent router (Meta-reasoning and self-improvement)
 if _has_reflection_agent:
@@ -2898,18 +3201,10 @@ if _has_reflection_agent:
     logger.info("ReflectionAgent router registered at /reflection/agent")
 
 # Cursor Executor router (GMP-48)
-if _has_cursor_executor:
-    app.include_router(cursor_router, prefix="/cursor")
-    logger.info("Cursor Executor router registered at /cursor")
+# NOTE: Now auto-wired via router_registry — see api/routes/cursor.py
 
 # Compliance router (GMP-21)
-try:
-    from api.routes.compliance import router as compliance_router
-
-    app.include_router(compliance_router)
-    logger.info("Compliance router registered at /compliance")
-except ImportError:
-    logger.debug("Compliance router not available")
+# NOTE: Now auto-wired via router_registry — see api/routes/compliance.py
 
 # Simulation router (GMP-24)
 try:
@@ -2926,9 +3221,7 @@ if _has_symbolic:
     logger.info("Symbolic Computation router registered at /symbolic")
 
 # Observability Router (GMP-91)
-if _has_observability_router:
-    app.include_router(observability_router, prefix="/observability")
-    logger.info("Observability router registered at /observability")
+# NOTE: Now auto-wired via router_registry — see api/routes/observability.py
 
 # Slack Webhook Adapter (v2.6+) - NOT USED (using slack_router v2.0+ instead)
 # Legacy webhook router - NOT USED (using slack_router v2.0+ instead)
@@ -2966,13 +3259,7 @@ except Exception as e:
     logger.warning(f"Failed to load PacketEnvelope upgrades router: {e}")
 
 # MCP Memory Router (MCP Protocol endpoints)
-try:
-    from api.routes.mcp import router as mcp_router
-
-    app.include_router(mcp_router)
-    logger.info("MCP memory router registered at /mcp/*")
-except Exception as e:
-    logger.warning(f"Failed to load MCP router: {e}")
+# NOTE: Now auto-wired via router_registry — see api/routes/mcp.py
 
 # Prometheus metrics endpoint
 if _has_prometheus:

@@ -23,6 +23,7 @@ __dora_meta__ = {
 
 import structlog
 import time
+from dataclasses import dataclass
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
@@ -219,19 +220,32 @@ def get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
+@dataclass(frozen=True)
 class CallerIdentity:
-    """Caller identity determined from API key.
+    """Caller identity determined from API key (MCP Memory Server).
+
+    NOTE: This is separate from api/auth.py CallerIdentity which handles
+    main L9 API auth. The two serve different purposes:
+    - This class: MCP Memory Server auth (includes user_id for memory ops)
+    - api/auth.py: Main L9 API auth (includes allowed_scopes for routes)
 
     See: mcp_memory/memory-setup-instructions.md for governance spec.
     - L: L-CTO kernel (full read/write/delete for shared userid)
     - C: Cursor IDE (read all, write/delete own memories only)
     """
 
-    def __init__(self, caller_id: str, user_id: str):
-        self.caller_id = caller_id  # "L" or "C"
-        self.user_id = user_id  # Shared userid
-        self.is_l = caller_id == "L"
-        self.is_c = caller_id == "C"
+    caller_id: str  # "L" or "C"
+    user_id: str  # Shared userid (L_CTO_USER_ID)
+
+    @property
+    def is_l(self) -> bool:
+        """True if caller is L-CTO."""
+        return self.caller_id == "L"
+
+    @property
+    def is_c(self) -> bool:
+        """True if caller is Cursor."""
+        return self.caller_id == "C"
 
     @property
     def creator(self) -> str:

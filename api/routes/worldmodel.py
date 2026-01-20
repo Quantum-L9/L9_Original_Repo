@@ -47,6 +47,18 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/worldmodel", tags=["worldmodel"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/worldmodel"
+    tags=["worldmodel"],
+    module_id="worldmodel",
+    display_name="World Model Query",
+    dependencies=["world_model_service"],
+)
+
 
 def get_world_model_service(request: Request) -> Any:
     """Get WorldModelService from app.state."""

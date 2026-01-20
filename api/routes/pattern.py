@@ -44,6 +44,19 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
+# ============================================================================
+# AUTO-REGISTRATION: Register router for auto-wiring (Phase 2 Auto-Wiring)
+# ============================================================================
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/pattern",
+    tags=["pattern"],
+    display_name="Pattern Orchestrator",
+    dependencies=["pattern_orchestrator"],  # Validates app.state
+)
+
 
 # ============================================================================
 # Request/Response Models

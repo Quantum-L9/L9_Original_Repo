@@ -59,6 +59,17 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter()
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/reflection/agent",
+    tags=["reflection"],
+    display_name="Reflection Agent",
+    dependencies=["reflection_agent"],
+)
+
 
 # ============================================================================
 # Dependency: Get ReflectionAgent from app.state

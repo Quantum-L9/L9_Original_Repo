@@ -65,6 +65,7 @@ variable "region" {
 variable "ssh_key_name" {
   description = "Name of SSH key in cloud provider"
   type        = string
+  default     = "Hetzner-L9"
 }
 
 variable "domain" {

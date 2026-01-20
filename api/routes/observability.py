@@ -42,6 +42,16 @@ from core.decorators import must_stay_async
 
 router = APIRouter(tags=["observability"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/observability",
+    tags=["observability"],
+    display_name="Observability SRE",
+)
+
 
 # ============================================================================
 # Response Models

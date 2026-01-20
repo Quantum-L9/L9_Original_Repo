@@ -1,0 +1,133 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Memory Scope Policies"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-19T20:00:00Z"
+# updated_at: "2026-01-19T20:00:00Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "memory_scope"
+# type: "policy"
+# status: "active"
+# ============================================================================
+
+# L9 Governance - Memory Scope Access Policies
+# =============================================
+# Declarative policies controlling which callers can access which memory scopes.
+#
+# Memory Scopes:
+#   - developer: Development/debugging data (all authenticated callers)
+#   - global: Shared cross-project data (all authenticated callers)
+#   - l-private: L-CTO private data (L only, never Cursor)
+#
+# Callers:
+#   - L: L-CTO kernel (full access including l-private)
+#   - C: Cursor IDE (developer + global only)
+#
+# GMP-103: Unifies hardcoded checks from MemoryGovernanceContext.__post_init__
+# into declarative policy format.
+
+# -----------------------------------------------------------------------------
+# SCOPE ACCESS MATRIX (loaded at module import time for sync validation)
+# -----------------------------------------------------------------------------
+# This matrix is read by memory/governance_gate.py to validate scope access.
+# Format: caller_id -> list of allowed scopes
+
+scope_access_matrix:
+  # L-CTO: Full access to all scopes
+  L:
+    allowed_scopes:
+      - developer
+      - global
+      - l-private
+    description: "L-CTO kernel has full access to all memory scopes"
+
+  # Cursor IDE: Restricted access (no l-private)
+  C:
+    allowed_scopes:
+      - developer
+      - global
+    denied_scopes:
+      - l-private
+    description: "Cursor IDE cannot access l-private scope"
+
+  # Default: Same as Cursor (deny l-private)
+  default:
+    allowed_scopes:
+      - developer
+      - global
+    denied_scopes:
+      - l-private
+    description: "Unknown callers default to Cursor-level access"
+
+# -----------------------------------------------------------------------------
+# ASYNC POLICY ENGINE POLICIES (for future integration)
+# -----------------------------------------------------------------------------
+# These policies follow the standard L9 governance policy schema for
+# integration with GovernanceEngineService (async evaluation).
+
+policies:
+  # Allow all authenticated callers to access developer scope
+  - id: "allow-developer-scope"
+    name: "Allow Developer Scope Access"
+    description: "Permits all authenticated callers to read/write developer-scoped memories."
+    effect: "allow"
+    priority: 100
+    subjects: ["L", "C", "agent:*", "*"]
+    actions: ["memory.read", "memory.write", "memory.delete"]
+    resources: ["scope:developer"]
+    enabled: true
+
+  # Allow all authenticated callers to access global scope
+  - id: "allow-global-scope"
+    name: "Allow Global Scope Access"
+    description: "Permits all authenticated callers to read/write global-scoped memories."
+    effect: "allow"
+    priority: 100
+    subjects: ["L", "C", "agent:*", "*"]
+    actions: ["memory.read", "memory.write", "memory.delete"]
+    resources: ["scope:global"]
+    enabled: true
+
+  # Allow ONLY L-CTO to access l-private scope
+  - id: "allow-l-private-scope-l-cto"
+    name: "Allow L-Private Scope for L-CTO"
+    description: "Permits only L-CTO to access l-private scoped memories."
+    effect: "allow"
+    priority: 200
+    subjects: ["L", "l-cto", "agent:l-cto:*"]
+    actions: ["memory.read", "memory.write", "memory.delete"]
+    resources: ["scope:l-private"]
+    enabled: true
+
+  # Explicit deny for Cursor accessing l-private (higher priority = matches first)
+  - id: "deny-l-private-scope-cursor"
+    name: "Deny L-Private Scope for Cursor"
+    description: "Explicitly denies Cursor from accessing l-private memories."
+    effect: "deny"
+    priority: 250
+    subjects: ["C", "cursor", "cursor-ide"]
+    actions: ["memory.read", "memory.write", "memory.delete"]
+    resources: ["scope:l-private"]
+    enabled: true
+
+  # Default deny for unknown callers accessing l-private
+  - id: "deny-l-private-scope-default"
+    name: "Deny L-Private Scope by Default"
+    description: "Denies l-private access to any caller not explicitly allowed."
+    effect: "deny"
+    priority: 50
+    subjects: ["*"]
+    actions: ["memory.read", "memory.write", "memory.delete"]
+    resources: ["scope:l-private"]
+    enabled: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["configuration", "foundation", "policy", "memory", "security"]
+# keywords: ["memory", "scope", "policies", "governance", "access-control"]
+# last_modified: "2026-01-19T20:00:00Z"
+# ============================================================================

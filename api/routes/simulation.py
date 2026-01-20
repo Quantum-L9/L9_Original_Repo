@@ -54,6 +54,17 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/simulation", tags=["simulation"])
 
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/simulation"
+    tags=["simulation"],
+    module_id="simulation",
+    display_name="Simulation Engine",
+)
+
 
 # =============================================================================
 # Request/Response Models
