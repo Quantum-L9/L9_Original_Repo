@@ -53,7 +53,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, Union, runtime_checkable
 
 from core.kernels.schemas import (
     KernelActivationResult,
@@ -357,13 +357,13 @@ class KernelAwareAgent(Protocol):
 
 
 # Type aliases for common use cases
-KernelProtocols = (
-    KernelValidator
-    | KernelDiscovery
-    | IntegrityVerifier
-    | KernelActivator
-    | KernelStateManager
-)
+KernelProtocols = Union[
+    KernelValidator,
+    KernelDiscovery,
+    IntegrityVerifier,
+    KernelActivator,
+    KernelStateManager,
+]
 
 
 __all__ = [
