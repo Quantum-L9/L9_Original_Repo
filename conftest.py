@@ -39,6 +39,12 @@ try:
 except ImportError:
     pass  # Will be handled as test failure where needed
 
+# Pre-import clients.memory_client for pytest research integration tests
+try:
+    import clients.memory_client  # noqa: F401
+except ImportError:
+    pass  # Will be handled as test failure where needed
+
 # Pre-import memory.graph_client to ensure it's available for lazy imports
 # in core.agents.bootstrap phases (fixes pytest import resolution)
 try:
