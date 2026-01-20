@@ -1,0 +1,130 @@
+%% L9 Agentic Intelligence Platform - System Architecture
+%% Generated: 2026-01-18
+%% Format: Mermaid
+
+graph TB
+    subgraph "User Layer"
+        UI[Web UI / API Clients]
+        CLI[CLI Tools]
+    end
+
+    subgraph "API Layer"
+        API[FastAPI Server<br/>api/server.py]
+        WS[WebSocket Handler]
+        REST[REST Endpoints]
+    end
+
+    subgraph "Agent Layer"
+        LCTO[L-CTO Agent]
+        RESEARCH[Research Agent]
+        EMAIL[Email Agent]
+        MAC[Mac Agent]
+        CUSTOM[Custom Agents...]
+    end
+
+    subgraph "Orchestration Layer"
+        UNIFIED[Unified Controller]
+        PLAN[Plan Executor]
+        COORD[Agent Coordinator]
+    end
+
+    subgraph "Runtime Layer"
+        KERNEL[Kernel Loader<br/>kernel_loader_ultimate.py]
+        QUEUE[Task Queue]
+        BG[Background Tasks]
+        GATE[Execution Gate]
+    end
+
+    subgraph "Core Infrastructure"
+        SINGLETON[Singleton Registry]
+        GOV[Governance System]
+        SCHEMA[Schema Management]
+        EVAL[Evaluation Framework]
+    end
+
+    subgraph "Collaborative Cells"
+        ARCH[Architect Cell]
+        CODER[Coder Cell]
+        REVIEW[Reviewer Cell]
+        REFLECT[Reflection Cell]
+    end
+
+    subgraph "Data Layer"
+        MEMORY[(Memory Substrate<br/>PostgreSQL + pgvector)]
+        WORLD[(World Model<br/>Knowledge Graph)]
+        CACHE[(Redis Cache)]
+    end
+
+    subgraph "External Services"
+        LLM[LLM APIs<br/>OpenAI, Anthropic]
+        MCP[MCP Servers]
+        TOOLS[External Tools]
+    end
+
+    %% User to API
+    UI --> API
+    CLI --> API
+
+    %% API to Runtime
+    API --> REST
+    API --> WS
+    REST --> KERNEL
+    WS --> KERNEL
+
+    %% Runtime to Orchestration
+    KERNEL --> QUEUE
+    QUEUE --> UNIFIED
+    UNIFIED --> PLAN
+    PLAN --> COORD
+
+    %% Orchestration to Agents
+    COORD --> LCTO
+    COORD --> RESEARCH
+    COORD --> EMAIL
+    COORD --> MAC
+    COORD --> CUSTOM
+
+    %% Agents to Cells
+    LCTO -.-> ARCH
+    LCTO -.-> CODER
+    LCTO -.-> REVIEW
+    LCTO -.-> REFLECT
+
+    %% Runtime to Core
+    KERNEL --> SINGLETON
+    KERNEL --> GOV
+    GATE --> GOV
+
+    %% Core to Data
+    SINGLETON --> MEMORY
+    SINGLETON --> WORLD
+    SINGLETON --> CACHE
+
+    %% Agents to Data
+    LCTO --> MEMORY
+    RESEARCH --> MEMORY
+    LCTO --> WORLD
+
+    %% Agents to External
+    LCTO --> LLM
+    RESEARCH --> LLM
+    LCTO --> MCP
+    LCTO --> TOOLS
+
+    %% Governance
+    GOV -.->|enforces| LCTO
+    GOV -.->|enforces| RESEARCH
+    GOV -.->|enforces| MEMORY
+    GOV -.->|enforces| WORLD
+
+    %% Background Tasks
+    BG --> QUEUE
+    BG --> MEMORY
+
+    style KERNEL fill:#ff6b6b
+    style GOV fill:#ff6b6b
+    style SINGLETON fill:#4ecdc4
+    style MEMORY fill:#95e1d3
+    style WORLD fill:#95e1d3
+    style LCTO fill:#ffe66d
+    style API fill:#a8e6cf
