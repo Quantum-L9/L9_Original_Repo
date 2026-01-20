@@ -70,6 +70,16 @@ from orchestration.plan_executor import (
     StepResult,
 )
 
+# Input Segmenter (Harvested from tokenizer - multi-part directive support)
+from orchestration.input_segmenter import (
+    InputSegmenter,
+    SegmenterConfig,
+    SegmentResult,
+    get_segmenter,
+    segment_input,
+    segment_to_tasks,
+)
+
 # WebSocket Task Router (Phase 2.5)
 from orchestration.ws_task_router import (
     route_event_to_task,
@@ -121,6 +131,13 @@ __all__ = [
     "ExecutionResult",
     "ExecutionStatus",
     "StepResult",
+    # Input Segmenter (multi-part directive support)
+    "InputSegmenter",
+    "SegmenterConfig",
+    "SegmentResult",
+    "get_segmenter",
+    "segment_input",
+    "segment_to_tasks",
     # WebSocket Task Router (Phase 2.5)
     "route_event_to_task",
     "RouterConfig",

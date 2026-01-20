@@ -9,11 +9,23 @@ programmatic preflight checks and mandatory file loading.
 Key capabilities:
 - Runs preflight checks (symlinks, config, directories)
 - Loads mandatory startup files
+- Loads Architecture Decision Records (ADRs) per ADR-0003
 - Verifies kernel readiness (two-phase activation)
 - Returns structured status (not just instructions)
 - Tracks loaded components for debugging
 
-Version: 2.0.0
+ARCHITECTURE NOTES
+==================
+Per ADR-0003 (Documentation Standards), all AI agents MUST read ADRs at startup.
+This module loads readme/adr/*.md files and makes them available for governance
+verification and code review guidance.
+
+REFERENCES
+==========
+- ADR-0003: Documentation Standards (readme/adr/0003-documentation-standards.md)
+- ADR-0002: Circular Import Prevention (readme/adr/0002-circular-import-prevention.md)
+
+Version: 2.1.0
 GMP: kernel_boot_frontier_phase1
 """
 
@@ -22,15 +34,19 @@ from __future__ import annotations
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Session Startup Protocol",
-    "module_version": "2.0.0",
+    "module_version": "2.1.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-02T15:15:57Z",
-    "updated_at": "2026-01-07T23:04:26Z",
+    "updated_at": "2026-01-20T12:00:00Z",
     "layer": "foundation",
     "domain": "governance",
     "module_name": "session_startup",
     "type": "dataclass",
     "status": "active",
+    "architecture_patterns": [
+        "ADR loading at startup (ADR-0003)",
+    ],
+    "pep_compliance": ["PEP 563"],
     "integrates_with": {
         "api_endpoints": [],
         "datasources": [],
@@ -94,6 +110,28 @@ class KernelReadinessResult:
 
 
 @dataclass
+class ADRLoadResult:
+    """
+    Result of loading Architecture Decision Records.
+
+    Per ADR-0003, all AI agents MUST read ADRs at startup before code operations.
+    This dataclass tracks which ADRs were loaded and their status.
+    """
+
+    adrs_loaded: list[str]  # List of ADR filenames loaded
+    adr_count: int  # Total count of ADRs found
+    adr_index: Dict[str, Dict[str, Any]] = field(
+        default_factory=dict
+    )  # ADR number -> metadata
+    errors: list[str] = field(default_factory=list)
+
+    @property
+    def success(self) -> bool:
+        """Whether all ADRs loaded successfully."""
+        return len(self.errors) == 0 and self.adr_count > 0
+
+
+@dataclass
 class StartupResult:
     """Complete startup protocol result."""
 
@@ -109,6 +147,10 @@ class StartupResult:
     kernels_ready: bool = False
     kernel_state: str = "NOT_CHECKED"
     kernel_hash_snapshot: Dict[str, str] = field(default_factory=dict)
+    # ADR loading (new in v2.1.0, per ADR-0003)
+    adrs_loaded: list[str] = field(default_factory=list)
+    adr_count: int = 0
+    adr_index: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
 
 class SessionStartup:
@@ -453,6 +495,101 @@ class SessionStartup:
 
         return result
 
+    def load_adrs(self) -> ADRLoadResult:
+        """
+        Load Architecture Decision Records from readme/adr/.
+
+        Per ADR-0003 (Documentation Standards), all AI agents MUST read ADRs
+        at session startup before performing any code operations. This method
+        loads and indexes all ADR files for governance verification.
+
+        Returns:
+            ADRLoadResult with loaded ADRs and their metadata
+        """
+        errors: list[str] = []
+        adrs_loaded: list[str] = []
+        adr_index: Dict[str, Dict[str, Any]] = {}
+
+        adr_dir = self.root / "readme" / "adr"
+
+        if not adr_dir.exists():
+            errors.append(f"ADR directory not found: {adr_dir}")
+            return ADRLoadResult(
+                adrs_loaded=[],
+                adr_count=0,
+                adr_index={},
+                errors=errors,
+            )
+
+        # Load all ADR files
+        adr_files = sorted(adr_dir.glob("*.md"))
+
+        for adr_file in adr_files:
+            try:
+                content = adr_file.read_text(encoding="utf-8")
+                filename = adr_file.name
+
+                # Extract ADR number from filename (e.g., "0002" from "0002-circular-import.md")
+                adr_number = (
+                    filename.split("-")[0]
+                    if "-" in filename
+                    else filename.replace(".md", "")
+                )
+
+                # Extract status from content (look for "## Status" section)
+                status = "Unknown"
+                title = filename
+                for line in content.split("\n"):
+                    if line.startswith("# ADR"):
+                        title = line.replace("# ", "").strip()
+                    elif "Accepted" in line:
+                        status = "Accepted"
+                        break
+                    elif "Deprecated" in line:
+                        status = "Deprecated"
+                        break
+                    elif "Superseded" in line:
+                        status = "Superseded"
+                        break
+
+                adr_index[adr_number] = {
+                    "filename": filename,
+                    "title": title,
+                    "status": status,
+                    "path": str(adr_file.relative_to(self.root)),
+                    "size_bytes": len(content),
+                }
+
+                adrs_loaded.append(filename)
+
+                logger.debug(
+                    "session_startup.adr_loaded",
+                    adr_number=adr_number,
+                    title=title,
+                    status=status,
+                )
+
+            except Exception as e:
+                errors.append(f"Failed to load ADR {adr_file.name}: {e}")
+
+        if len(adr_files) == 0:
+            self._warnings.append("No ADR files found in readme/adr/")
+
+        logger.info(
+            "session_startup.adrs_loaded",
+            adr_count=len(adrs_loaded),
+            accepted_count=len(
+                [a for a in adr_index.values() if a["status"] == "Accepted"]
+            ),
+        )
+
+        return ADRLoadResult(
+            adrs_loaded=adrs_loaded,
+            adr_count=len(adrs_loaded),
+            adr_index=adr_index,
+            errors=errors,
+        )
+
     def execute(self) -> StartupResult:
         """
         Execute full startup protocol.
@@ -460,7 +597,8 @@ class SessionStartup:
         Includes:
         1. Preflight checks (workspace, symlinks, directories)
         2. Mandatory file loading
-        3. Kernel readiness verification (if check_kernels=True)
+        3. ADR loading (per ADR-0003) - REQUIRED for AI agents
+        4. Kernel readiness verification (if check_kernels=True)
 
         Returns:
             StartupResult with complete status
@@ -499,6 +637,17 @@ class SessionStartup:
         # Load mandatory files
         file_results = self.load_mandatory_files()
 
+        # Load ADRs (v2.1.0 - per ADR-0003)
+        # AI agents MUST read all ADRs before code operations
+        adr_result = self.load_adrs()
+        adrs_loaded = adr_result.adrs_loaded
+        adr_count = adr_result.adr_count
+        adr_index = adr_result.adr_index
+
+        # Add ADR errors/warnings
+        for err in adr_result.errors:
+            self._warnings.append(f"ADR: {err}")
+
         # Check kernel readiness (v2.0)
         kernels_ready = False
         kernel_state = "NOT_CHECKED"
@@ -533,6 +682,7 @@ class SessionStartup:
             status=status,
             files_loaded=len(file_results["loaded"]),
             files_failed=len(file_results["failed"]),
+            adrs_loaded=adr_count,
             kernels_ready=kernels_ready,
             kernel_state=kernel_state,
             duration_ms=duration_ms,
@@ -549,6 +699,9 @@ class SessionStartup:
             kernels_ready=kernels_ready,
             kernel_state=kernel_state,
             kernel_hash_snapshot=kernel_hash_snapshot,
+            adrs_loaded=adrs_loaded,
+            adr_count=adr_count,
+            adr_index=adr_index,
         )
 
     def _calc_duration_ms(self, start_time: datetime) -> int:
@@ -577,6 +730,7 @@ __all__ = [
     "PreflightResult",
     "StartupResult",
     "KernelReadinessResult",
+    "ADRLoadResult",
     "create_session_startup",
 ]
 

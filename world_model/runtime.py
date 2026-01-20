@@ -77,6 +77,7 @@ if TYPE_CHECKING:
     from world_model.causal_mapper import CausalMapper
     from world_model.reflection_memory import ReflectionMemory
     from world_model.seed_loader import SeedLoader
+    from world_model.service import WorldModelService
     from simulation.simulation_engine import SimulationEngine
     from memory.substrate_service import MemorySubstrateService
 from core.decorators import must_stay_async
@@ -405,13 +406,32 @@ class WorldModelRuntime:
         # Substrate service (passed in to avoid creating duplicate with stub embeddings)
         self._substrate_service: Optional["MemorySubstrateService"] = substrate_service
 
+        # World Model Service for DB-backed entity persistence (wired via set_world_model_service)
+        self._world_model_service: Optional["WorldModelService"] = None
+
         if isinstance(self._packet_source, MemorySubstratePacketSource):
             self._packet_source.tenant_id = self._config.tenant_id
             self._packet_source.org_id = self._config.org_id
             self._packet_source.user_id = self._config.user_id
             self._packet_source.role = self._config.role
 
-        logger.info("WorldModelRuntime initialized (v2.0.0)")
+        logger.info("WorldModelRuntime initialized (v2.1.0 with DB sync)")
+
+    def set_world_model_service(self, service: "WorldModelService") -> None:
+        """
+        Set WorldModelService for DB-backed entity persistence.
+
+        When set, entities ingested via update_from_packets() are
+        automatically synced to PostgreSQL after in-memory ingestion.
+
+        Args:
+            service: WorldModelService instance
+        """
+        self._world_model_service = service
+        # Wire to ingestor if already initialized
+        if self._ingestor:
+            self._ingestor.set_world_model_service(service)
+        logger.info("WorldModelService attached to runtime for DB sync")
 
     # ==========================================================================
     # Seed Library Loading
@@ -482,6 +502,11 @@ class WorldModelRuntime:
                 # Ensure ingestor is initialized
                 if not self._ingestor:
                     self._ingestor = KnowledgeIngestor(state=self._state)
+                    # Wire DB sync if service available
+                    if self._world_model_service:
+                        self._ingestor.set_world_model_service(
+                            self._world_model_service
+                        )
 
                 self._seed_loader = SeedLoader(
                     substrate=substrate,
@@ -846,6 +871,11 @@ class WorldModelRuntime:
                     from world_model.knowledge_ingestor import KnowledgeIngestor
 
                     self._ingestor = KnowledgeIngestor(state=self._state)
+                    # Wire DB sync if service available
+                    if self._world_model_service:
+                        self._ingestor.set_world_model_service(
+                            self._world_model_service
+                        )
 
                 # Process via ingestor
                 from world_model.knowledge_ingestor import SourceType
@@ -861,6 +891,17 @@ class WorldModelRuntime:
                     source_type=source_type,
                     source_id=packet.get("packet_id", str(uuid4())),
                 )
+
+                # Sync entities to DB if service available (GMP-WIRE: Pipeline unification)
+                if self._world_model_service:
+                    sync_result = await self._ingestor.sync_to_db(
+                        tenant_id=self._config.tenant_id,
+                        org_id=self._config.org_id,
+                        user_id=self._config.user_id,
+                        role=self._config.role,
+                    )
+                    if sync_result.get("errors"):
+                        logger.warning(f"DB sync partial: {sync_result['errors']}")
 
                 affected_entities = [
                     f"entity_{i}" for i in range(result.entities_added)

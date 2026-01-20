@@ -1,0 +1,145 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "High Risk Tools Policy"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-19T21:00:00Z"
+# updated_at: "2026-01-19T21:00:00Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "high_risk_tools"
+# type: "policy"
+# status: "active"
+# ============================================================================
+
+# L9 Governance - High Risk Tools Policy
+# =======================================
+# Single source of truth for tool risk classification.
+#
+# GMP-104: Consolidates 7 duplicate HIGH_RISK_TOOLS definitions into one policy.
+#
+# This file is loaded by core/governance/tool_risk_policy.py and provides:
+# - high_risk: Tools that require approval before execution
+# - igor_approval_required: Subset that specifically requires Igor's approval
+# - safe: Tools that can execute without any approval
+#
+# Previously scattered across:
+# - orchestrators/action_tool/validator.py
+# - core/tools/registry_adapter.py
+# - core/governance/approvals.py
+# - core/governance/approval_manager.py
+# - core/compliance/audit_reporter.py
+# - scripts/memory/bootstrap_neo4j_schema.py
+# - ci/check_tool_wiring.py
+
+tool_risk_classification:
+  # ==========================================================================
+  # HIGH RISK TOOLS
+  # ==========================================================================
+  # These tools can modify system state, files, or external resources.
+  # Require explicit approval before execution.
+  #
+  # NOTE: Only includes tools that EXIST in the codebase.
+  # Placeholder/aspirational tools removed (database_write, database_migrate).
+  high_risk:
+    - tool_id: shell_exec
+      description: "Execute shell commands"
+      risk_level: critical
+      
+    - tool_id: file_write
+      description: "Write files to filesystem"
+      risk_level: high
+      
+    - tool_id: file_delete
+      description: "Delete files from filesystem"
+      risk_level: critical
+      
+    - tool_id: git_commit
+      description: "Commit changes to git repository"
+      risk_level: high
+      
+    - tool_id: git_push
+      description: "Push changes to remote repository"
+      risk_level: critical
+      
+    - tool_id: gmp_run
+      description: "Execute GMP protocol (code changes)"
+      risk_level: critical
+      
+    - tool_id: gmprun
+      description: "Execute GMP protocol (legacy name)"
+      risk_level: critical
+      
+    - tool_id: mac_agent_exec
+      description: "Execute commands on Mac agent"
+      risk_level: critical
+      
+    - tool_id: mac_agent_exec_task
+      description: "Execute task on Mac agent"
+      risk_level: critical
+      
+    - tool_id: deploy
+      description: "Deploy to production environment"
+      risk_level: critical
+      
+    - tool_id: github_create_pull_request
+      description: "Create GitHub pull request"
+      risk_level: high
+      
+    - tool_id: github_merge_pull_request
+      description: "Merge GitHub pull request"
+      risk_level: critical
+      
+    - tool_id: vercel_trigger_deploy
+      description: "Trigger Vercel deployment"
+      risk_level: critical
+
+  # ==========================================================================
+  # IGOR APPROVAL REQUIRED
+  # ==========================================================================
+  # Subset of high-risk tools that MUST have Igor's explicit approval.
+  # Other high-risk tools may use automated approval workflows.
+  igor_approval_required:
+    - gmp_run
+    - gmprun
+    - git_push
+    - deploy
+    - mac_agent_exec
+    - mac_agent_exec_task
+    - github_merge_pull_request
+    - vercel_trigger_deploy
+
+  # ==========================================================================
+  # SAFE TOOLS
+  # ==========================================================================
+  # Read-only tools that can execute without approval.
+  safe:
+    - file_read
+    - search
+    - list_directory
+    - get_status
+    - health_check
+    - memory_search
+    - memory_read
+    - perplexity_search
+    - web_search
+
+  # ==========================================================================
+  # SIDE EFFECT TOOLS
+  # ==========================================================================
+  # Tools that have external side effects but aren't necessarily high-risk.
+  # May require governance review but not Igor approval.
+  side_effect:
+    - http_request
+    - api_call
+    - send_email
+    - slack_message
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["configuration", "foundation", "policy", "security", "tools"]
+# keywords: ["high-risk", "tools", "approval", "governance", "igor"]
+# last_modified: "2026-01-19T21:00:00Z"
+# ============================================================================

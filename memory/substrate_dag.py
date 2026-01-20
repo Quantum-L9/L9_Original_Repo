@@ -129,7 +129,9 @@ def _should_skip_embedding(text: str) -> bool:
 # =============================================================================
 
 
-def _get_config_dependency(config: RunnableConfig, key: str, default=None):
+def _get_config_dependency(
+    config: RunnableConfig, key: str, default: Any = None
+) -> Any:
     """
     Safely extract a configurable dependency from RunnableConfig.
 

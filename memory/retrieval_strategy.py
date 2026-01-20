@@ -45,8 +45,12 @@ import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
+    from memory.identity_tier import IdentityTierService
 
 logger = structlog.get_logger(__name__)
 
@@ -319,8 +323,8 @@ class StrategyBasedRetriever:
 
     def __init__(
         self,
-        repository=None,
-        identity_service=None,
+        repository: Optional["SubstrateRepository"] = None,
+        identity_service: Optional["IdentityTierService"] = None,
         strategy_determiner: Optional[StrategyDeterminer] = None,
     ):
         """
@@ -336,11 +340,11 @@ class StrategyBasedRetriever:
         self._strategy_determiner = strategy_determiner or StrategyDeterminer()
         logger.info("StrategyBasedRetriever initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_identity_service(self, service) -> None:
+    def set_identity_service(self, service: "IdentityTierService") -> None:
         """Set or update the identity service reference."""
         self._identity_service = service
 

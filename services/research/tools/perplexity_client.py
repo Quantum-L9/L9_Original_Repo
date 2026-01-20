@@ -48,6 +48,7 @@ import httpx
 
 from core.resilience.retry import async_retry, AsyncRetryConfig
 from core.decorators import must_stay_async
+from core.governance.rate_limit_policy import rate_limit
 
 log = structlog.get_logger(__name__)
 
@@ -193,15 +194,21 @@ class PerplexityClient:
         if self._client:
             await self._client.aclose()
 
+    @rate_limit("llm.perplexity")
     async def search(self, request: PerplexityRequest) -> PerplexityResponse:
         """
         Execute search with best practices enforced.
+
+        Rate limited to 20 requests/minute per config/policies/rate_limits.yaml.
 
         Args:
             request: Validated PerplexityRequest
 
         Returns:
             PerplexityResponse with results
+
+        Raises:
+            RateLimitExceeded: If rate limit is exceeded
         """
         # Validate request
         issues = request.validate()

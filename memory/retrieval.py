@@ -22,7 +22,7 @@ Changelog:
 """
 
 from __future__ import annotations
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -56,8 +56,12 @@ import math
 import structlog
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
+    from memory.substrate_semantic import SemanticService
 
 from core.schemas import SemanticHit, SemanticSearchResult
 from memory.substrate_models import KnowledgeFactRow, PacketStoreRow
@@ -185,11 +189,11 @@ class RetrievalPipeline:
         self._semantic_service = semantic_service
         logger.info("RetrievalPipeline initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_semantic_service(self, service) -> None:
+    def set_semantic_service(self, service: "SemanticService") -> None:
         """Set or update the semantic service reference."""
         self._semantic_service = service
 
@@ -1279,7 +1283,10 @@ def get_retrieval_pipeline() -> RetrievalPipeline:
     return RetrievalPipeline()
 
 
-def init_retrieval_pipeline(repository, semantic_service=None) -> RetrievalPipeline:
+def init_retrieval_pipeline(
+    repository: "SubstrateRepository",
+    semantic_service: Optional["SemanticService"] = None,
+) -> RetrievalPipeline:
     """Initialize the retrieval pipeline with dependencies."""
     pipeline = get_retrieval_pipeline()
     pipeline.set_repository(repository)

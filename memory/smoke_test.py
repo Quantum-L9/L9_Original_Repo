@@ -132,7 +132,7 @@ async def smoke_test() -> dict[str, any]:
     return results
 
 
-async def main():
+async def main() -> None:
     """Main entrypoint for smoke test."""
     results = await smoke_test()
 

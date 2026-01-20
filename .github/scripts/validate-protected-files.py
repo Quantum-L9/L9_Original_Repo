@@ -33,38 +33,23 @@ __dora_meta__ = {
 
 import sys
 import subprocess
+from pathlib import Path
 from typing import Set
 
-PROTECTED_BY_LCTO = {
-    "runtime/websocket_orchestrator.py",
-    "runtime/kernel_loader.py",
-    "docker-compose.yml",
-    "runtime/redis_client.py",
-    "core/agents/executor.py",
-}
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-# Subsystem-specific protected files
-SUBSYSTEM_PROTECTED = {
-    "agents": {
-        "core/agents/executor.py",
-        "core/agents/registry.py",
-        "core/agents/__init__.py",
-    },
-    "memory": {
-        "memory/substrate_service.py",
-        "memory/substrate_dag.py",
-        "memory/__init__.py",
-    },
-    "tools": {
-        "core/tools/registry_adapter.py",
-        "core/tools/tool_graph.py",
-        "core/tools/__init__.py",
-    },
-}
-
-ALL_PROTECTED = PROTECTED_BY_LCTO | set(
-    f for files in SUBSYSTEM_PROTECTED.values() for f in files
+# GMP-104: Load protected files from config/policies/protected_files.yaml
+from core.governance.protected_files_policy import (  # noqa: E402
+    get_lcto_controlled_files,
+    get_subsystem_protected_files,
+    get_all_protected_files,
 )
+
+PROTECTED_BY_LCTO = get_lcto_controlled_files()
+SUBSYSTEM_PROTECTED = get_subsystem_protected_files()
+ALL_PROTECTED = get_all_protected_files()
 
 
 def get_changed_files() -> Set[str]:

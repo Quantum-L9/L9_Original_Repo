@@ -61,6 +61,7 @@ from openai import AsyncOpenAI
 
 from core.resilience.retry import async_retry, AsyncRetryConfig
 from core.decorators import must_stay_async
+from core.governance.rate_limit_policy import rate_limit
 
 logger = structlog.get_logger(__name__)
 
@@ -214,6 +215,7 @@ class BaseAgent(ABC):
     # LLM Interaction
     # ==========================================================================
 
+    @rate_limit("llm.openai")
     async def call_llm(
         self,
         messages: list[AgentMessage],
@@ -224,6 +226,7 @@ class BaseAgent(ABC):
         Call the LLM with messages and automatic retry on transient failures.
 
         Uses retry logic with exponential backoff (configured via AgentConfig.retry_count).
+        Rate limited to 60 requests/minute per config/policies/rate_limits.yaml.
 
         Args:
             messages: List of messages
@@ -232,6 +235,9 @@ class BaseAgent(ABC):
 
         Returns:
             AgentResponse
+
+        Raises:
+            RateLimitExceeded: If rate limit is exceeded
         """
         client = self._ensure_client()
         start_time = datetime.utcnow()

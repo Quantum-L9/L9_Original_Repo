@@ -70,9 +70,12 @@ import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, List
 from uuid import UUID, uuid4
 from core.decorators import must_stay_async
+
+# Input segmenter for multi-part directive support (harvested from tokenizer)
+from orchestration.input_segmenter import SegmentResult, get_segmenter
 
 logger = structlog.get_logger(__name__)
 
@@ -292,6 +295,7 @@ class UnifiedController:
         # External services
         self._memory_client: Optional[Any] = None
         self._world_model: Optional[Any] = None
+        self._strategy_memory: Optional[Any] = None
 
         logger.info(f"UnifiedController initialized in {self._config.mode.value} mode")
 
@@ -411,6 +415,20 @@ class UnifiedController:
 
         logger.info("World model attached to UnifiedController")
 
+    def set_strategy_memory(self, strategy_memory: Any) -> None:
+        """
+        Set the Strategy Memory service for plan reuse.
+
+        Args:
+            strategy_memory: IStrategyMemoryService implementation
+        """
+        self._strategy_memory = strategy_memory
+
+        if self._plan_executor:
+            self._plan_executor.set_strategy_memory(strategy_memory)
+
+        logger.info("Strategy Memory attached to UnifiedController")
+
     # =========================================================================
     # Main Entry Point
     # =========================================================================
@@ -512,6 +530,105 @@ class UnifiedController:
         )
 
         return result
+
+    # =========================================================================
+    # Multi-Part Request Handling (Harvested from tokenizer pipeline)
+    # =========================================================================
+
+    async def handle_multi_request(
+        self,
+        text: str,
+        context: Optional[dict[str, Any]] = None,
+    ) -> List[ControllerResult]:
+        """
+        Handle a multi-part request by segmenting and processing each part.
+
+        This method uses the InputSegmenter (harvested from tokenizer) to break
+        compound directives into atomic tasks. For example:
+
+            "Deploy RIL, test ToT, sync Supabase then generate plan v3"
+
+        Becomes 4 separate requests processed sequentially.
+
+        Args:
+            text: Natural language task description (may contain multiple directives)
+            context: Optional execution context
+
+        Returns:
+            List of ControllerResult, one per segment
+        """
+        segmenter = get_segmenter()
+        segment_result = segmenter.segment(text, context)
+
+        # If only one segment, use regular handler
+        if segment_result.segment_count <= 1:
+            result = await self.handle_request(text, context)
+            return [result]
+
+        logger.info(
+            f"Processing multi-part request: {segment_result.segment_count} segments",
+            segments=segment_result.segments,
+        )
+
+        results: List[ControllerResult] = []
+        base_context = context or {}
+
+        for i, segment in enumerate(segment_result.segments):
+            # Add sequence metadata to context
+            segment_context = {
+                **base_context,
+                "segment_index": i,
+                "total_segments": segment_result.segment_count,
+                "from_multi_part": True,
+                "original_input": segment_result.raw_input,
+            }
+
+            logger.info(
+                f"Processing segment {i + 1}/{segment_result.segment_count}: {segment}"
+            )
+
+            result = await self.handle_request(segment, segment_context)
+            results.append(result)
+
+            # If one segment fails critically, we may want to stop
+            # For now, continue processing all segments
+            if not result.success:
+                logger.warning(
+                    f"Segment {i + 1} failed, continuing with remaining segments",
+                    segment=segment,
+                    errors=result.errors,
+                )
+
+        logger.info(
+            f"Multi-part request complete: {len(results)} results, "
+            f"{sum(1 for r in results if r.success)} successful"
+        )
+
+        return results
+
+    def segment_input(self, text: str) -> SegmentResult:
+        """
+        Segment input without processing (for inspection/preview).
+
+        Args:
+            text: Input text to segment
+
+        Returns:
+            SegmentResult with segments and metadata
+        """
+        return get_segmenter().segment(text)
+
+    def is_multi_part(self, text: str) -> bool:
+        """
+        Quick check if input contains multiple directives.
+
+        Args:
+            text: Input text to check
+
+        Returns:
+            True if input would be segmented into multiple parts
+        """
+        return get_segmenter().is_multi_part(text)
 
     # =========================================================================
     # Pipeline Phases

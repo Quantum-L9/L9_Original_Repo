@@ -61,7 +61,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import httpx
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import structlog
 from time import time as current_time
 
@@ -70,6 +70,9 @@ from api.slack_client import SlackAPIClient, SlackClientError
 from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
 from config.settings import settings
+
+# Input segmenter for multi-part directive support (harvested from tokenizer)
+from orchestration.input_segmenter import get_segmenter
 
 # Optional telemetry - gracefully degrade if module not available
 try:
@@ -862,15 +865,71 @@ async def handle_slack_events(
                     "thread_context": thread_context,
                     "semantic_hits": semantic_hits,
                 }
-                reply, status = await handle_slack_with_l_agent(
-                    app=app,
-                    text=text,
-                    thread_uuid=str(thread_uuid),
-                    team_id=team_id,
-                    channel_id=channel_id,
-                    user_id=user_id,
-                    context=dag_context,
-                )
+
+                # === Multi-Part Directive Support (harvested from tokenizer) ===
+                # Segment input to handle compound directives like:
+                # "Deploy RIL, test ToT, sync Supabase"
+                segmenter = get_segmenter()
+                segment_result = segmenter.segment(text)
+
+                if segment_result.segment_count > 1:
+                    # Multi-part: process each segment
+                    logger.info(
+                        "slack_multi_part_directive",
+                        segment_count=segment_result.segment_count,
+                        segments=segment_result.segments,
+                    )
+
+                    replies: List[Tuple[str, str]] = []
+                    for i, segment in enumerate(segment_result.segments):
+                        segment_reply, segment_status = await handle_slack_with_l_agent(
+                            app=app,
+                            text=segment,
+                            thread_uuid=str(thread_uuid),
+                            team_id=team_id,
+                            channel_id=channel_id,
+                            user_id=user_id,
+                            context={
+                                **dag_context,
+                                "segment_index": i,
+                                "total_segments": segment_result.segment_count,
+                                "from_multi_part": True,
+                            },
+                        )
+                        replies.append((segment_reply, segment_status))
+
+                    # Combine replies for multi-part response
+                    successful = [r for r, s in replies if s == "completed"]
+                    failed = [
+                        r for r, s in replies if s not in ("completed", "duplicate")
+                    ]
+
+                    if failed:
+                        reply = f"Processed {len(successful)}/{len(replies)} tasks:\n\n"
+                        for i, (r, s) in enumerate(replies):
+                            status_icon = "✅" if s == "completed" else "⚠️"
+                            reply += f"{status_icon} **{segment_result.segments[i]}**: {r}\n\n"
+                        status = "partial"
+                    else:
+                        reply = (
+                            "\n\n---\n\n".join(successful)
+                            if len(successful) > 1
+                            else successful[0]
+                            if successful
+                            else "All tasks processed."
+                        )
+                        status = "completed"
+                else:
+                    # Single task: standard handling
+                    reply, status = await handle_slack_with_l_agent(
+                        app=app,
+                        text=text,
+                        thread_uuid=str(thread_uuid),
+                        team_id=team_id,
+                        channel_id=channel_id,
+                        user_id=user_id,
+                        context=dag_context,
+                    )
 
                 # Post reply to Slack
                 if status in ("completed", "duplicate"):

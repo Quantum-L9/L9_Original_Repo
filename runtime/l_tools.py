@@ -2677,8 +2677,26 @@ TOOL_EXECUTORS: dict[str, Any] = {
     # World Model Advanced (GMP-32 Batch 10)
     "world_model_restore": world_model_restore,
     "world_model_list_updates": world_model_list_updates,
+    # Cross-DB Saga Tools (from base_registry.py)
+    # Lazy-loaded to avoid circular imports
+    "saga_fetch_and_enrich": lambda **kwargs: _get_saga_tool("saga_fetch_and_enrich")(
+        **kwargs
+    ),
+    "saga_enrich_entities": lambda **kwargs: _get_saga_tool("saga_enrich_entities")(
+        **kwargs
+    ),
+    "saga_timeline_correlation": lambda **kwargs: _get_saga_tool(
+        "saga_timeline_correlation"
+    )(**kwargs),
+    "saga_execute_custom": lambda **kwargs: _get_saga_tool("saga_execute_custom")(
+        **kwargs
+    ),
+    "tool_router_find": lambda **kwargs: _get_saga_tool("tool_router_find")(**kwargs),
     # Research Agent Tools (GMP: wire_research_lcto_integration)
     # Lazy-loaded to avoid circular imports
+    "run_research_query": lambda **kwargs: _get_research_tool("run_research_query")(
+        **kwargs
+    ),  # PRIMARY: Full LangGraph research pipeline
     "research_agent_synthesize": lambda **kwargs: _get_research_tool(
         "research_agent_synthesize"
     )(**kwargs),
@@ -2727,11 +2745,53 @@ def _get_research_tool(tool_name: str):
                 return {"error": "Research tools not available", "status": "error"}
 
             _research_tools = {
+                "run_research_query": _missing,
                 "research_agent_synthesize": _missing,
                 "research_agent_discover": _missing,
                 "research_agent_generate_spec": _missing,
             }
     return _research_tools.get(tool_name)
+
+
+# Lazy loader for saga/cross-DB tools
+_saga_tools = None
+
+
+def _get_saga_tool(tool_name: str):
+    """Lazy import saga tools to avoid circular dependency."""
+    global _saga_tools
+    if _saga_tools is None:
+        try:
+            from core.tools.base_registry import (
+                saga_fetch_and_enrich,
+                saga_enrich_entities,
+                saga_timeline_correlation,
+                saga_execute_custom,
+                tool_router_find,
+            )
+
+            _saga_tools = {
+                "saga_fetch_and_enrich": saga_fetch_and_enrich,
+                "saga_enrich_entities": saga_enrich_entities,
+                "saga_timeline_correlation": saga_timeline_correlation,
+                "saga_execute_custom": saga_execute_custom,
+                "tool_router_find": tool_router_find,
+            }
+        except ImportError as e:
+            logger.warning(f"Saga tools not available: {e}")
+
+            @must_stay_async("callers use await")
+            async def _missing(**kwargs):
+                return {"error": "Saga tools not available", "status": "error"}
+
+            _saga_tools = {
+                "saga_fetch_and_enrich": _missing,
+                "saga_enrich_entities": _missing,
+                "saga_timeline_correlation": _missing,
+                "saga_execute_custom": _missing,
+                "tool_router_find": _missing,
+            }
+    return _saga_tools.get(tool_name)
 
 
 # Lazy loader for reflection tools

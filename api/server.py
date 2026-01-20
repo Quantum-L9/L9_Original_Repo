@@ -1912,9 +1912,7 @@ async def lifespan(app: FastAPI):
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
         else:
-            logger.warning(
-                "⚠️ Memory tools not registered: tool_registry not available"
-            )
+            logger.warning("⚠️ Memory tools not registered: tool_registry not available")
     except Exception as e:
         logger.error(f"❌ Memory tool registration failed: {e}", exc_info=True)
 
@@ -2211,8 +2209,12 @@ async def lifespan(app: FastAPI):
                 # Initialize ResearchGraphPersistence for research findings
                 if _has_research_graph_persistence:
                     try:
-                        research_graph_persistence = init_graph_persistence(neo4j_client)
-                        app.state.research_graph_persistence = research_graph_persistence
+                        research_graph_persistence = init_graph_persistence(
+                            neo4j_client
+                        )
+                        app.state.research_graph_persistence = (
+                            research_graph_persistence
+                        )
                         logger.info("✓ ResearchGraphPersistence initialized")
                     except Exception as e:
                         logger.warning(f"ResearchGraphPersistence init failed: {e}")
@@ -3018,6 +3020,38 @@ async def services_health():
                 "available": getattr(app.state, "observability_service", None)
                 is not None,
             },
+        },
+    }
+
+
+# Checkpoint Health Check (GMP-105 Batch 2: Pool Monitoring)
+@app.get("/health/checkpoint")
+async def checkpoint_health():
+    """
+    Checkpoint system health check.
+    Returns pool statistics and checkpoint system status.
+
+    Pool stats are updated by L9RetryablePostgresSaver when available.
+    """
+    from memory.checkpoint_metrics import get_pool_stats_dict, PROMETHEUS_AVAILABLE
+
+    pool_stats = get_pool_stats_dict()
+
+    # Try to get live stats from checkpoint saver if available
+    checkpoint_saver = getattr(app.state, "checkpoint_saver", None)
+    live_stats = None
+    if checkpoint_saver and hasattr(checkpoint_saver, "get_pool_stats"):
+        try:
+            live_stats = checkpoint_saver.get_pool_stats()
+        except Exception:
+            pass
+
+    return {
+        "status": "ok",
+        "checkpoint_system": {
+            "prometheus_available": PROMETHEUS_AVAILABLE,
+            "pool_stats": live_stats or pool_stats,
+            "saver_available": checkpoint_saver is not None,
         },
     }
 

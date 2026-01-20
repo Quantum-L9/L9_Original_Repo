@@ -34,6 +34,15 @@ from services.research.graph_runtime import (
     shutdown_runtime,
 )
 from services.research.research_api import router as research_router
+from services.research.graph_persistence import (
+    ResearchGraphPersistence,
+    ResearchFinding,
+    FindingType,
+    GraphPersistenceConfig,
+    create_graph_persistence,
+    get_graph_persistence,
+    init_graph_persistence,
+)
 
 __all__ = [
     # State
@@ -55,6 +64,14 @@ __all__ = [
     "shutdown_runtime",
     # API
     "research_router",
+    # Graph Persistence
+    "ResearchGraphPersistence",
+    "ResearchFinding",
+    "FindingType",
+    "GraphPersistenceConfig",
+    "create_graph_persistence",
+    "get_graph_persistence",
+    "init_graph_persistence",
 ]
 
 __version__ = "1.0.0"

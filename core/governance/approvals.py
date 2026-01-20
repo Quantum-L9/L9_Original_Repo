@@ -1,11 +1,24 @@
 """
-L9 Core Governance - Approval Manager
-======================================
+L9 Core Governance - Approval Manager (Persistent)
+===================================================
 
 Manages approval of high-risk tasks that require Igor's explicit approval.
 Now includes governance pattern creation for closed-loop learning.
 
-Version: 1.2.0 (Enhanced with high-risk tool detection)
+ARCHITECTURE NOTE (GMP-104):
+    This module provides PERSISTENT approval management via memory substrate.
+    All approval decisions are stored as packets and queryable across sessions.
+
+    For SESSION-BASED approval management (in-memory with checkpoints),
+    see: core/governance/approval_manager.py
+
+    Key differences:
+    - This module: is_approved() queries memory substrate packets
+    - approval_manager.py: uses in-memory _pending/_decisions dicts
+
+    Both are valid — choose based on persistence requirements.
+
+Version: 1.2.1 (GMP-104: Architecture documentation)
 """
 
 from __future__ import annotations
@@ -50,16 +63,10 @@ from memory.governance_patterns import (
 
 logger = structlog.get_logger(__name__)
 
-# Tools that always require Igor approval before execution
-HIGH_RISK_TOOLS = {
-    "gmp_run": "Execute GMP protocol (code changes)",
-    "git_commit": "Commit changes to git repository",
-    "git_push": "Push changes to remote repository",
-    "file_delete": "Delete files from filesystem",
-    "database_write": "Write to production database",
-    "deploy": "Deploy to production environment",
-    "mac_agent_exec": "Execute commands on Mac agent",
-}
+# GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
+from core.governance.tool_risk_policy import get_high_risk_tools_with_descriptions  # noqa: E402
+
+HIGH_RISK_TOOLS = get_high_risk_tools_with_descriptions()
 
 
 class ApprovalManager:

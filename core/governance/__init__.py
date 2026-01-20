@@ -4,21 +4,34 @@ L9 Governance Layer
 Approval gates, permission management, and execution guards.
 Python governance modules provide EXECUTABLE enforcement.
 """
+
 from __future__ import annotations
 
-from .approval_manager import ApprovalManager, ApprovalStatus, ApprovalRequest, ApprovalDecision
+from .approval_manager import (
+    ApprovalManager,
+    ApprovalStatus,
+    ApprovalRequest,
+    ApprovalDecision,
+)
 from .mistake_prevention import MistakePrevention, create_mistake_prevention
 from .quick_fixes import QuickFixEngine, create_quick_fix_engine
+
 # Session startup moved to .cursor-commands/startup/
 # Import with fallback for backward compatibility
 try:
-    from ..cursor_commands.startup.session_startup import SessionStartup, create_session_startup
+    from ..cursor_commands.startup.session_startup import (
+        SessionStartup,
+        create_session_startup,
+    )
 except ImportError:
     # Fallback: try absolute import
     try:
         import sys
         from pathlib import Path
-        startup_path = Path(__file__).parent.parent.parent / ".cursor-commands" / "startup"
+
+        startup_path = (
+            Path(__file__).parent.parent.parent / ".cursor-commands" / "startup"
+        )
         if startup_path.exists():
             sys.path.insert(0, str(startup_path.parent))
             from startup.session_startup import SessionStartup, create_session_startup
@@ -28,6 +41,31 @@ except ImportError:
         # Final fallback: try old location
         from .session_startup import SessionStartup, create_session_startup
 from .credentials_policy import CredentialsPolicy, create_credentials_policy
+from .cmts import (
+    CMTSService,
+    MutationRecord,
+    MutationStatus,
+    MutationQuery,
+    get_cmts_service,
+)
+from .subsystem_detector import (
+    detect_subsystem,
+    get_subsystem_policy,
+    get_subsystem_context,
+    requires_human_approval,
+)
+from .policy_generator import PolicyGenerator, PolicySpec, ScopeAccessSpec
+from .rate_limit_policy import (
+    RateLimitPolicy,
+    RateLimitConfig,
+    RateLimitResult,
+    RateLimitDep,
+    rate_limit,
+    rate_limit_context,
+    check_rate_limit,
+    get_rate_limit_policy,
+    RateLimitExceeded,
+)
 
 __all__ = [
     # Approval management
@@ -44,4 +82,29 @@ __all__ = [
     "create_session_startup",
     "CredentialsPolicy",
     "create_credentials_policy",
+    # Code Mutation Tracking System
+    "CMTSService",
+    "MutationRecord",
+    "MutationStatus",
+    "MutationQuery",
+    "get_cmts_service",
+    # Subsystem Detection
+    "detect_subsystem",
+    "get_subsystem_policy",
+    "get_subsystem_context",
+    "requires_human_approval",
+    # Policy Generator
+    "PolicyGenerator",
+    "PolicySpec",
+    "ScopeAccessSpec",
+    # Unified Rate Limit Policy
+    "RateLimitPolicy",
+    "RateLimitConfig",
+    "RateLimitResult",
+    "RateLimitDep",
+    "rate_limit",
+    "rate_limit_context",
+    "check_rate_limit",
+    "get_rate_limit_policy",
+    "RateLimitExceeded",
 ]

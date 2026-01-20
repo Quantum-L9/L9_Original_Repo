@@ -38,7 +38,7 @@ __dora_meta__ = {
 import time
 import structlog
 from contextlib import contextmanager
-from typing import Generator, Optional
+from typing import Generator
 
 try:
     from prometheus_client import Counter, Histogram, Gauge, REGISTRY
@@ -158,6 +158,22 @@ ACTIVE_CHECKPOINTS = Gauge(
     "l9_active_checkpoints",
     "Number of active checkpoints per agent",
     ["agent_id"],
+)
+
+# Connection Pool Gauges (GMP-105 Batch 2)
+CHECKPOINT_POOL_SIZE = Gauge(
+    "l9_checkpoint_pool_size",
+    "Total connections in checkpoint database pool",
+)
+
+CHECKPOINT_POOL_AVAILABLE = Gauge(
+    "l9_checkpoint_pool_available",
+    "Available connections in checkpoint database pool",
+)
+
+CHECKPOINT_POOL_WAITING = Gauge(
+    "l9_checkpoint_pool_requests_waiting",
+    "Requests waiting for checkpoint database pool connection",
 )
 
 
@@ -335,6 +351,62 @@ class CheckpointMetrics:
 
 
 # =============================================================================
+# Pool Stats Helper (GMP-105 Batch 2)
+# =============================================================================
+
+
+def record_pool_stats(
+    pool_size: int = -1,
+    pool_available: int = -1,
+    requests_waiting: int = -1,
+) -> None:
+    """
+    Record checkpoint connection pool statistics.
+
+    Updates Prometheus gauges for pool monitoring.
+    Called periodically or on-demand to update pool health metrics.
+
+    Args:
+        pool_size: Total connections in pool (-1 if unknown)
+        pool_available: Available connections (-1 if unknown)
+        requests_waiting: Requests waiting for connection (-1 if unknown)
+    """
+    if pool_size >= 0:
+        CHECKPOINT_POOL_SIZE.set(pool_size)
+    if pool_available >= 0:
+        CHECKPOINT_POOL_AVAILABLE.set(pool_available)
+    if requests_waiting >= 0:
+        CHECKPOINT_POOL_WAITING.set(requests_waiting)
+
+    logger.debug(
+        "checkpoint.pool.stats.updated",
+        pool_size=pool_size,
+        pool_available=pool_available,
+        requests_waiting=requests_waiting,
+    )
+
+
+def get_pool_stats_dict() -> dict:
+    """
+    Get current pool stats as a dictionary.
+
+    Returns dict with pool_size, pool_available, requests_waiting.
+    Values are -1 if metrics not yet recorded.
+
+    Returns:
+        Dict with pool statistics
+    """
+    # Note: Prometheus Gauge doesn't have a native "get" method,
+    # so we return placeholder indicating "check Prometheus endpoint"
+    return {
+        "pool_size": "check /metrics",
+        "pool_available": "check /metrics",
+        "requests_waiting": "check /metrics",
+        "prometheus_available": PROMETHEUS_AVAILABLE,
+    }
+
+
+# =============================================================================
 # Module-level helper
 # =============================================================================
 
@@ -359,6 +431,8 @@ def get_metrics(agent_id: str) -> CheckpointMetrics:
 __all__ = [
     "CheckpointMetrics",
     "get_metrics",
+    "record_pool_stats",
+    "get_pool_stats_dict",
     "CHECKPOINT_CREATE_LATENCY",
     "CHECKPOINT_RESTORE_LATENCY",
     "CHECKPOINT_VALIDATE_LATENCY",
@@ -369,6 +443,9 @@ __all__ = [
     "CHECKPOINT_CORRUPTION_DETECTED",
     "CHECKPOINT_SIZE_BYTES",
     "ACTIVE_CHECKPOINTS",
+    "CHECKPOINT_POOL_SIZE",
+    "CHECKPOINT_POOL_AVAILABLE",
+    "CHECKPOINT_POOL_WAITING",
     "PROMETHEUS_AVAILABLE",
 ]
 

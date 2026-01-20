@@ -1,0 +1,205 @@
+# ============================================================================
+# PHASE 0 SCOPE SCHEMA v1.0.0
+# ============================================================================
+# Purpose: JSON Schema for validating Phase 0 scope YAML files
+# Usage: Used by /gmp command when --scope-file is provided
+# Harvested from: CLI 1.md + CLI 2.md (Perplexity friction-reduction patterns)
+# Created: 2026-01-19
+# ============================================================================
+
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: "l9://config/gmp/phase0-scope-schema.yaml"
+title: "L9 Phase 0 Scope Definition"
+description: "Machine-parseable scope definition for GMP Phase 0 TODO plans"
+
+type: object
+required:
+  - phase_metadata
+  - scope_items
+  - non_goals
+
+properties:
+  # ===========================================================================
+  # PHASE METADATA (Required)
+  # ===========================================================================
+  phase_metadata:
+    type: object
+    description: "Identifies the GMP phase and ownership"
+    required:
+      - gmp_id
+      - feature_name
+    properties:
+      gmp_id:
+        type: string
+        pattern: "^GMP-[0-9]+$"
+        description: "GMP identifier (e.g., GMP-102)"
+        examples: ["GMP-102", "GMP-45"]
+      
+      feature_name:
+        type: string
+        minLength: 3
+        maxLength: 100
+        description: "Descriptive name for the feature/task"
+        examples: ["registry-refactor", "add-rate-limiting"]
+      
+      risk_tier:
+        type: string
+        enum: ["KERNEL", "RUNTIME", "INFRA", "UX"]
+        default: "RUNTIME"
+        description: "L9 tier classification per 86-module-tier-mapping.mdc"
+      
+      owner:
+        type: string
+        default: "L=CTO"
+        description: "Responsible party (L=CTO, Igor, etc.)"
+      
+      created_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp when scope was locked"
+
+  # ===========================================================================
+  # SCOPE ITEMS (Required)
+  # ===========================================================================
+  scope_items:
+    type: array
+    description: "List of TODO items to be implemented"
+    minItems: 1
+    items:
+      type: object
+      required:
+        - id
+        - file
+        - action
+        - description
+      properties:
+        id:
+          type: string
+          pattern: "^T[0-9]+$"
+          description: "TODO identifier (T1, T2, etc.)"
+        
+        file:
+          type: string
+          description: "Relative path to target file"
+          examples: ["core/tools/registry.py", "api/server.py"]
+        
+        lines:
+          type: string
+          pattern: "^([0-9]+(-[0-9]+)?|NEW)$"
+          description: "Line range (e.g., '44-52') or 'NEW' for new files"
+        
+        action:
+          type: string
+          enum: ["Insert", "Replace", "Delete", "Wrap", "Create"]
+          description: "Operation type"
+        
+        target:
+          type: string
+          description: "Function/class/section being modified"
+        
+        description:
+          type: string
+          minLength: 10
+          description: "Clear description of the change"
+        
+        dependencies:
+          type: array
+          items:
+            type: string
+            pattern: "^T[0-9]+$"
+          description: "List of TODO IDs this depends on"
+
+  # ===========================================================================
+  # NON-GOALS (Required)
+  # ===========================================================================
+  non_goals:
+    type: array
+    description: "Explicit list of what is OUT OF SCOPE"
+    minItems: 1
+    items:
+      type: string
+      minLength: 10
+    examples:
+      - "No changes to websocket_orchestrator.py"
+      - "No database migrations in this GMP"
+
+  # ===========================================================================
+  # TARGET DIRECTORIES (Optional)
+  # ===========================================================================
+  target_directories:
+    type: array
+    description: "Directories where changes are allowed"
+    items:
+      type: string
+    examples:
+      - "core/tools/"
+      - "tests/core/tools/"
+
+  # ===========================================================================
+  # PROTECTED FILES (Optional - defaults from 90-protected-core.mdc)
+  # ===========================================================================
+  protected_files:
+    type: array
+    description: "Files that CANNOT be modified (inherits from L9 defaults)"
+    items:
+      type: string
+    default:
+      - "runtime/websocket_orchestrator.py"
+      - "core/kernels/kernel_loader.py"
+      - "core/agents/executor.py"
+      - "memory/substrate_service.py"
+      - "memory/substrate_dag.py"
+      - "memory/ingestion.py"
+      - "docker-compose.yml"
+      - "kernels/**/*.yaml"
+      - "config/agents/*.yaml"
+      - "core/singleton_registry.py"
+      - "api/auth.py"
+
+  # ===========================================================================
+  # VALIDATION REQUIREMENTS (Optional)
+  # ===========================================================================
+  validation:
+    type: object
+    description: "Required validation gates"
+    properties:
+      py_compile:
+        type: boolean
+        default: true
+      ruff_check:
+        type: boolean
+        default: true
+      ruff_format:
+        type: boolean
+        default: true
+      pytest:
+        type: boolean
+        default: false
+        description: "Run pytest (set to true if tests modified)"
+      test_paths:
+        type: array
+        items:
+          type: string
+        description: "Specific test files to run"
+
+  # ===========================================================================
+  # NEXT STEPS (Optional - for Phase 6 report)
+  # ===========================================================================
+  next_steps:
+    type: array
+    description: "Execution checklist for Phases 1-6"
+    items:
+      type: string
+    examples:
+      - "Generate Pydantic models"
+      - "Add unit tests"
+      - "Run CI gates"
+
+# =============================================================================
+# VALIDATION RULES
+# =============================================================================
+
+additionalProperties: false
+
+# Custom validation: scope_items files must not be in protected_files
+# (Enforced by GMP executor, not JSON Schema)

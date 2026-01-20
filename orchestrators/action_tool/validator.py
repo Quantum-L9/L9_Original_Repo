@@ -33,33 +33,16 @@ from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
-# High-risk tools that require explicit approval
-HIGH_RISK_TOOLS: Set[str] = {
-    "shell_exec",
-    "file_write",
-    "file_delete",
-    "database_write",
-    "git_commit",
-    "git_push",
-    "gmp_run",
-}
+# GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
+from core.governance.tool_risk_policy import (  # noqa: E402
+    get_high_risk_tools,
+    get_igor_approval_tools,
+    get_safe_tools,
+)
 
-# Tools that require Igor's approval
-IGOR_APPROVAL_REQUIRED: Set[str] = {
-    "git_push",
-    "gmp_run",
-    "deploy",
-    "database_migrate",
-}
-
-# Safe tools that can execute without approval
-SAFE_TOOLS: Set[str] = {
-    "file_read",
-    "search",
-    "list_directory",
-    "get_status",
-    "health_check",
-}
+HIGH_RISK_TOOLS: Set[str] = get_high_risk_tools()
+IGOR_APPROVAL_REQUIRED: Set[str] = get_igor_approval_tools()
+SAFE_TOOLS: Set[str] = get_safe_tools()
 
 
 class ValidationResult:

@@ -52,6 +52,8 @@ import structlog
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.governance.tool_risk_policy import get_high_risk_tools  # noqa: E402
+
 logger = structlog.get_logger(__name__)
 
 
@@ -130,7 +132,8 @@ def check_tool_wiring() -> tuple[bool, list[str]]:
 
     logger.info("\n🔍 Check 3: High-risk tools have approval requirements")
 
-    HIGH_RISK_TOOLS = {"gmp_run", "git_commit", "mac_agent_exec_task"}
+    # GMP-104: Loaded from config/policies/high_risk_tools.yaml
+    HIGH_RISK_TOOLS = get_high_risk_tools()
 
     # Check ToolDefinitions in registry_adapter.py for requires_igor_approval
     registry_adapter_path = PROJECT_ROOT / "core" / "tools" / "registry_adapter.py"

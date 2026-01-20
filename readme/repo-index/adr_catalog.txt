@@ -1,0 +1,90 @@
+# L9 Architecture Decision Record (ADR) Catalog
+# Generated: 2026-01-20
+# 
+# MANDATORY: AI agents MUST read all ADRs at session startup (per ADR-0003)
+# Use: SessionStartup.load_adrs() or read readme/adr/*.md directly
+#
+# Format: ADR_NUMBER | STATUS | TITLE | PATH
+# ============================================================================
+
+0001 | Accepted | Sandboxed Path Resolution for Research Factory | readme/adr/0001-path-safety.md
+0002 | Accepted | Circular Import Prevention via TYPE_CHECKING Pattern | readme/adr/0002-circular-import-prevention.md
+0003 | Accepted | Documentation Standards for AI-Readable Codebase | readme/adr/0003-documentation-standards.md
+0004 | Accepted | Singleton Auto-Registry Pattern | readme/adr/0004-singleton-auto-registry.md
+0005 | Accepted | RLS Shared Tenant Model | readme/adr/0005-rls-shared-tenant-model.md
+0006 | Accepted | PacketEnvelope Audit Trail | readme/adr/0006-packet-envelope-audit-trail.md
+0007 | Accepted | 7-Phase Bootstrap Ceremony | readme/adr/0007-seven-phase-bootstrap.md
+0008 | Accepted | Feature Flag Gating Pattern | readme/adr/0008-feature-flag-gating.md
+0009 | Accepted | Circuit Breaker Resilience | readme/adr/0009-circuit-breaker-resilience.md
+0010 | Accepted | must_stay_async Decorator | readme/adr/0010-must-stay-async-decorator.md
+0011 | Accepted | Lazy Initialization Pattern | readme/adr/0011-lazy-initialization-pattern.md
+0012 | Accepted | Memory DAG Pipeline | readme/adr/0012-memory-dag-pipeline.md
+0013 | Accepted | Governance Authority Hierarchy | readme/adr/0013-governance-authority-hierarchy.md
+
+# ============================================================================
+# KEY PATTERNS FROM ADRs (AI QUICK REFERENCE)
+# ============================================================================
+
+# ADR-0002: TYPE_CHECKING Pattern
+# - Use `if TYPE_CHECKING:` for imports only needed for type hints
+# - Use `from __future__ import annotations` for deferred evaluation
+# - Pass instances at runtime via dependency injection
+# - DO NOT flag as "circular import" or "unused import"
+
+# ADR-0003: Documentation Standards
+# - Module docstring at top of file (Method A)
+# - Inline comment at critical code (Method B)
+# - Type hints with Annotated where possible (Method C)
+# - ADR document for architectural decisions (Method D)
+# - DORA metadata block for machine parsing (Method E)
+
+# ADR-0004: Singleton Auto-Registry
+# - Use @register_singleton decorator for new services
+# - Include @register_singleton_closer for cleanup
+# - DO NOT add manual registration to singleton_registry.py
+# - DO NOT remove @register_singleton decorators (they're not "unused")
+
+# ADR-0005: RLS Shared Tenant Model
+# - L and Cursor share SAME tenant_id/org_id/user_id
+# - Isolation via scope field (developer, l-private, global)
+# - DO NOT create separate tenants for L and C
+
+# ADR-0006: PacketEnvelope Audit Trail
+# - ALL operations emit PacketEnvelope
+# - Packets flow through SubstrateDAG
+# - DO NOT use print() or logger.info() instead of packets
+
+# ADR-0007: 7-Phase Bootstrap
+# - Phases execute 0→7 in order
+# - All 10 kernels required
+# - DO NOT skip or reorder phases
+
+# ADR-0008: Feature Flag Gating
+# - All features gated by env vars in config/settings.py
+# - Use settings.FLAG_NAME not os.getenv()
+# - DO NOT hardcode feature availability
+
+# ADR-0009: Circuit Breaker Resilience
+# - External I/O wrapped in CircuitBreaker
+# - Open circuit returns fast failure
+# - DO NOT retry when circuit is open
+
+# ADR-0010: must_stay_async Decorator
+# - Marks functions that MUST remain async
+# - DO NOT remove async from @must_stay_async functions
+# - DO NOT flag as "unnecessary async"
+
+# ADR-0011: Lazy Initialization
+# - Singletons via get_*() methods
+# - First call creates, subsequent calls return cached
+# - DO NOT call constructors directly
+
+# ADR-0012: Memory DAG Pipeline
+# - All packets through SubstrateDAG
+# - Nodes: intake → reasoning → write → embed → insights → wm → checkpoint
+# - DO NOT bypass DAG for "fast" writes
+
+# ADR-0013: Governance Authority Hierarchy
+# - Igor > L > Research Agents > Mac Agent
+# - High-risk tools require Igor approval
+# - DO NOT auto-approve high-risk tools

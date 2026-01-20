@@ -40,6 +40,8 @@ from uuid import UUID, uuid4
 
 import structlog
 
+from core.governance.tool_risk_policy import get_high_risk_tools
+
 logger = structlog.get_logger(__name__)
 
 
@@ -106,8 +108,8 @@ class ComplianceReporter:
     with violation detection.
     """
 
-    # High-risk tools that require approval
-    HIGH_RISK_TOOLS = {"gmprun", "git_commit", "git_push", "shell_exec"}
+    # GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
+    HIGH_RISK_TOOLS = get_high_risk_tools()
 
     def __init__(self, substrate_service: Optional[Any] = None):
         """

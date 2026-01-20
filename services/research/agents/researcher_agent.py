@@ -68,10 +68,15 @@ class ResearcherAgent(BaseAgent):
         """Initialize researcher agent."""
         super().__init__(agent_id=agent_id)
         self._tool_registry = None
+        self._graph_persistence = None
 
     def set_tool_registry(self, registry: Any) -> None:
         """Set the tool registry for tool execution."""
         self._tool_registry = registry
+
+    def set_graph_persistence(self, persistence: Any) -> None:
+        """Set the graph persistence service for persisting findings to Neo4j."""
+        self._graph_persistence = persistence
 
     async def run(
         self,
@@ -145,6 +150,21 @@ class ResearcherAgent(BaseAgent):
                 "tools_used": tools,
             },
         )
+
+        # Persist finding to Neo4j graph if persistence is configured
+        if self._graph_persistence:
+            try:
+                await self._graph_persistence.persist_evidence_as_findings(
+                    evidence_list=[evidence],
+                    source_query=query,
+                    source_agent=self.agent_id,
+                )
+            except Exception as e:
+                # Don't fail the research if persistence fails
+                logger.warning(
+                    f"Failed to persist finding to graph: {e}",
+                    agent_id=self.agent_id,
+                )
 
         logger.info(
             f"Researcher gathered evidence with confidence {evidence['confidence']}"

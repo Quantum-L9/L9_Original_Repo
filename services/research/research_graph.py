@@ -52,6 +52,7 @@ from services.research.agents import PlannerAgent, ResearcherAgent, CriticAgent
 from services.research.memory_adapter import get_memory_adapter
 from services.research.tools import get_tool_registry
 from services.research.insight_extractor import InsightExtractorAgent
+from services.research.graph_persistence import get_graph_persistence
 
 # Memory client for substrate writes
 from clients.memory_client import get_memory_client, PacketWriteResult
@@ -124,6 +125,11 @@ async def research_node(state: ResearchGraphState) -> ResearchGraphState:
         # Set tool registry
         registry = get_tool_registry()
         researcher.set_tool_registry(registry)
+
+        # Set graph persistence for Neo4j finding storage
+        graph_persistence = get_graph_persistence()
+        if graph_persistence:
+            researcher.set_graph_persistence(graph_persistence)
 
         plan = state.get("plan", [])
         evidence: list[Evidence] = list(state.get("evidence", []))

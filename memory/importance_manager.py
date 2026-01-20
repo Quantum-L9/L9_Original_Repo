@@ -41,8 +41,11 @@ import math
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -140,7 +143,7 @@ class ImportanceManager:
 
     def __init__(
         self,
-        repository=None,
+        repository: Optional["SubstrateRepository"] = None,
         config: Optional[ImportanceConfig] = None,
     ):
         """
@@ -154,7 +157,7 @@ class ImportanceManager:
         self._config = config or DEFAULT_CONFIG
         logger.info("ImportanceManager initialized", config=str(self._config))
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update repository reference."""
         self._repository = repository
 

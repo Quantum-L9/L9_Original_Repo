@@ -37,18 +37,29 @@ from orchestrators.pattern.cell_adapter import (
     create_cell_adapter,
     create_direct_agent,
 )
+from orchestrators.pattern.master_orchestrator import (
+    MasterOrchestrator,
+    MasterExecutionResult,
+    create_master_orchestrator,
+)
 
 __all__ = [
+    # Single-subsystem orchestration
     "PatternOrchestrator",
     "PatternConfig",
     "SubsystemConfig",
     "NodeDefinition",
     "PipelineResult",
     "NodeResult",
+    # Agent adapters
     "CellAgentAdapter",
     "DirectLLMAgent",
     "create_cell_adapter",
     "create_direct_agent",
+    # Multi-subsystem orchestration
+    "MasterOrchestrator",
+    "MasterExecutionResult",
+    "create_master_orchestrator",
 ]
 
 __version__ = "1.0.0"

@@ -87,7 +87,12 @@ class CellAgentAdapter:
         "QAAgent": "collaborative_cells.reviewer_cell.ReviewerCell",
         "ReviewerAgent": "collaborative_cells.reviewer_cell.ReviewerCell",
         "ReflectionAgent": "collaborative_cells.reflection_cell.ReflectionCell",
+        # Pipeline-specific roles
+        "CTOAgent": "collaborative_cells.reflection_cell.ReflectionCell",  # L improvement loop
     }
+
+    # Roles that require special handling (not cell-based)
+    SPECIAL_ROLES: set[str] = {"HumanGate", "GitWorker"}
 
     def __init__(
         self,
@@ -158,6 +163,10 @@ class CellAgentAdapter:
             trace_id=context.get("trace_id"),
         )
 
+        # Handle special roles that don't use cells
+        if role in self.SPECIAL_ROLES:
+            return await self._handle_special_role(role, prompt, input_data, context)
+
         # Get or create cell for role
         cell = self._get_cell_for_role(role)
 
@@ -206,6 +215,88 @@ class CellAgentAdapter:
                 trace_id=context.get("trace_id"),
             )
             raise
+
+    async def _handle_special_role(
+        self,
+        role: str,
+        prompt: str,
+        input_data: dict[str, Any],
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        """
+        Handle special roles that don't use the cell consensus loop.
+
+        Args:
+            role: Special role name
+            prompt: Prompt template
+            input_data: Input data
+            context: Execution context
+
+        Returns:
+            Role-specific output
+        """
+        if role == "HumanGate":
+            # Human approval gate - return pending status for human review
+            logger.info(
+                "HumanGate invoked - awaiting human approval",
+                trace_id=context.get("trace_id"),
+            )
+            return {
+                "approved": False,
+                "approver": "PENDING_HUMAN_REVIEW",
+                "approval_timestamp": "",
+                "status": "pending",
+                "message": "Awaiting human approval. Review the improvement analysis and TODO plan.",
+                "decision_points": input_data.get("decision_points", []),
+                "_requires_human_action": True,
+            }
+
+        elif role == "GitWorker":
+            # Git operations - prepare commands but don't execute
+            logger.info(
+                "GitWorker invoked - preparing git operations",
+                trace_id=context.get("trace_id"),
+            )
+            impl_artifacts = input_data.get("implementation_artifacts", {})
+            test_validation = input_data.get("test_validation", {})
+
+            # Generate branch name and commit message
+            subsystem = context.get("subsystem", "unknown")
+            trace_id = context.get("trace_id", "unknown")[:8]
+
+            return {
+                "commit_sha": "PENDING_EXECUTION",
+                "branch_name": f"feature/{subsystem}-{trace_id}",
+                "pr_url": "PENDING_PR_CREATION",
+                "pr_number": 0,
+                "guardrails_passed": test_validation.get("validation_status") == "pass",
+                "guardrail_results": [
+                    {
+                        "check": "test_coverage",
+                        "passed": test_validation.get("coverage_pct", 0) >= 80,
+                        "details": f"Coverage: {test_validation.get('coverage_pct', 0)}%",
+                    },
+                    {
+                        "check": "tests_passing",
+                        "passed": test_validation.get("tests_failed", 1) == 0,
+                        "details": f"Passed: {test_validation.get('tests_passed', 0)}, Failed: {test_validation.get('tests_failed', 0)}",
+                    },
+                ],
+                "cmts_tracking_id": f"CMTS-{trace_id}",
+                "cmts_record": {
+                    "start_timestamp": "",
+                    "end_timestamp": "",
+                    "files_changed": impl_artifacts.get("files_created", [])
+                    + impl_artifacts.get("files_modified", []),
+                    "status": "pending",
+                    "error_message": None,
+                },
+                "mutation_notes": "Git operations prepared. Execute via git tool or manual review.",
+                "_requires_git_execution": True,
+            }
+
+        else:
+            raise ValueError(f"Unknown special role: {role}")
 
     def _get_cell_for_role(self, role: str) -> BaseCell:
         """
@@ -374,6 +465,24 @@ class DirectLLMAgent:
         "ReviewerAgent": (
             "You are a code reviewer. Provide constructive feedback on code quality. "
             "Always respond with valid JSON matching the expected schema."
+        ),
+        "CTOAgent": (
+            "You are L, the CTO of L9. Analyze plans across 10 improvement dimensions: "
+            "risk profile, test coverage, memory governance, observability, guardrails, "
+            "scalability, approval rigor, instantiation verification, mutation tracking, "
+            "and documentation. Calculate yield percentage for each improvement. "
+            "If total yield >= 10%, recommend more iterations. If < 10%, approve. "
+            "Always respond with valid JSON matching the expected schema."
+        ),
+        "GitWorker": (
+            "You are a git operations agent. Generate git commands and PR descriptions. "
+            "Never execute commands directly - output the plan for execution. "
+            "Always respond with valid JSON matching the expected schema."
+        ),
+        "HumanGate": (
+            "You are an approval summarizer. Prepare a human-readable summary "
+            "of the proposed changes for human review. Include key decision points, "
+            "risks, and recommendations. Always respond with valid JSON."
         ),
     }
 

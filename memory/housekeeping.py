@@ -12,7 +12,7 @@ All operations are async-safe and use logging (no print statements).
 """
 
 from __future__ import annotations
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -43,7 +43,10 @@ __dora_meta__ = {
 import structlog
 from datetime import datetime, timedelta
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -56,7 +59,7 @@ class HousekeepingEngine:
     and unreferenced memory artifacts.
     """
 
-    def __init__(self, repository=None):
+    def __init__(self, repository: Optional["SubstrateRepository"] = None):
         """
         Initialize housekeeping engine.
 
@@ -73,7 +76,7 @@ class HousekeepingEngine:
         }
         logger.info("HousekeepingEngine initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -446,7 +449,7 @@ def get_housekeeping_engine() -> HousekeepingEngine:
     return HousekeepingEngine()
 
 
-def init_housekeeping_engine(repository) -> HousekeepingEngine:
+def init_housekeeping_engine(repository: "SubstrateRepository") -> HousekeepingEngine:
     """Initialize the housekeeping engine with a repository."""
     engine = get_housekeeping_engine()
     engine.set_repository(repository)
