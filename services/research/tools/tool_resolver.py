@@ -32,6 +32,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import structlog
+from core.singleton_auto_registry import register_singleton
 from typing import Any, Optional
 
 from core.tools.base_registry import (
@@ -195,6 +196,9 @@ class ToolResolver:
 _resolver: Optional[ToolResolver] = None
 
 
+@register_singleton(
+    name="tool_resolver", lifecycle="lazy", description="Research service tool resolver"
+)
 def get_tool_resolver() -> ToolResolver:
     """Get or create tool resolver singleton."""
     global _resolver

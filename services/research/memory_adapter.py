@@ -42,6 +42,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import structlog
+from core.singleton_auto_registry import register_singleton
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
@@ -126,16 +127,18 @@ class ResearchMemoryAdapter:
             provenance=PacketProvenance(
                 source="research_factory",
                 tool=None,
-                parent_packet=UUID(state["packet_id"])
-                if state.get("packet_id")
-                else None,
+                parent_packet=(
+                    UUID(state["packet_id"]) if state.get("packet_id") else None
+                ),
             ),
-            confidence=PacketConfidence(
-                score=state.get("critic_score", 0.0),
-                rationale=state.get("critic_feedback", ""),
-            )
-            if state.get("critic_score")
-            else None,
+            confidence=(
+                PacketConfidence(
+                    score=state.get("critic_score", 0.0),
+                    rationale=state.get("critic_feedback", ""),
+                )
+                if state.get("critic_score")
+                else None
+            ),
         )
 
         return envelope
@@ -383,6 +386,11 @@ class ResearchMemoryAdapter:
 _adapter: Optional[ResearchMemoryAdapter] = None
 
 
+@register_singleton(
+    name="research_memory_adapter",
+    lifecycle="lazy",
+    description="Research service memory adapter",
+)
 def get_memory_adapter() -> ResearchMemoryAdapter:
     """Get or create memory adapter singleton."""
     global _adapter

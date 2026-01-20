@@ -517,11 +517,23 @@ def get_singleton_registry() -> SingletonRegistry:
     global _registry
     if _registry is None:
         _registry = SingletonRegistry()
-        _register_core_singletons(_registry)
+        # Singletons now auto-register via @register_singleton decorator
+        # _register_core_singletons(_registry)  # DEPRECATED
     return _registry
 
 
-def _register_core_singletons(registry: SingletonRegistry) -> None:
+def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
+    """
+    DEPRECATED: This function is no longer used.
+    All singletons now use @register_singleton decorator for auto-registration.
+
+    This function is kept for reference only and will be removed in a future version.
+    """
+    logger.warning(
+        "_register_core_singletons is deprecated. "
+        "All singletons now use @register_singleton decorator."
+    )
+    return  # Early return - function does nothing
     """
     Register ALL L9 singletons across the entire codebase.
 

@@ -628,8 +628,8 @@ async def lifespan(app: FastAPI):
                 "No @register_singleton services found — using legacy registration only"
             )
     except Exception as e:
-        # Non-fatal: fall back to legacy _register_core_singletons()
-        logger.warning(f"Singleton auto-registration failed (using legacy): {e}")
+        # Non-fatal: system will continue with manually registered singletons
+        logger.warning(f"Singleton auto-registration failed: {e}")
 
     # ------------------------------------------------------------------------
     # Event Type Auto-Registration (Phase 2 Auto-Wiring)
@@ -1888,7 +1888,9 @@ async def lifespan(app: FastAPI):
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
         else:
-            logger.warning("⚠️ Memory tools not registered: tool_registry not available")
+            logger.warning(
+                "⚠️ Memory tools not registered: tool_registry not available"
+            )
     except Exception as e:
         logger.error(f"❌ Memory tool registration failed: {e}", exc_info=True)
 

@@ -14,6 +14,7 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -886,6 +887,11 @@ class Neo4jClient:
 _neo4j_client: Optional[Neo4jClient] = None
 
 
+@register_singleton(
+    name="neo4j_client",
+    lifecycle="startup",
+    description="Neo4j graph database client for knowledge graph operations",
+)
 async def get_neo4j_client() -> Optional[Neo4jClient]:
     """
     Get or create singleton Neo4j client.
@@ -902,6 +908,7 @@ async def get_neo4j_client() -> Optional[Neo4jClient]:
     return _neo4j_client if _neo4j_client.is_available() else None
 
 
+@register_singleton_closer("neo4j_client")
 async def close_neo4j_client() -> None:
     """Close singleton Neo4j client and reset singleton."""
     global _neo4j_client

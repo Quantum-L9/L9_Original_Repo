@@ -27,6 +27,7 @@ Version: 1.2.0 (async interface)
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -749,6 +750,11 @@ class WorldModelEngine:
 _engine: Optional[WorldModelEngine] = None
 
 
+@register_singleton(
+    name="world_model_engine",
+    lifecycle="lazy",
+    description="World model reasoning engine",
+)
 def get_world_model_engine() -> WorldModelEngine:
     """
     Get or create singleton WorldModelEngine.

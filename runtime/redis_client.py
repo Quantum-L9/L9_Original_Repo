@@ -61,6 +61,7 @@ logger = structlog.get_logger(__name__)
 DEFAULT_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
 
 from core.decorators import must_stay_async
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # Try to import Redis
 try:
@@ -511,6 +512,11 @@ class RedisClient:
 _redis_client: Optional[RedisClient] = None
 
 
+@register_singleton(
+    name="redis_client",
+    lifecycle="startup",
+    description="Redis cache/queue client for task queue and rate limiting",
+)
 async def get_redis_client() -> Optional[RedisClient]:
     """
     Get or create singleton Redis client.
@@ -527,6 +533,7 @@ async def get_redis_client() -> Optional[RedisClient]:
     return _redis_client if _redis_client.is_available() else None
 
 
+@register_singleton_closer("redis_client")
 async def close_redis_client() -> None:
     """Close singleton Redis client."""
     global _redis_client

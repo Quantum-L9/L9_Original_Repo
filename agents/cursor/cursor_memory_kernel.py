@@ -42,6 +42,7 @@ from typing import Optional
 import yaml
 
 import structlog
+from core.singleton_auto_registry import register_singleton
 
 logger = structlog.get_logger(__name__)
 
@@ -712,6 +713,11 @@ def activate_session(session_id: str = None) -> SessionState:
     return kernel.activate(session_id)
 
 
+@register_singleton(
+    name="cursor_memory_kernel",
+    lifecycle="lazy",
+    description="Cursor IDE memory kernel",
+)
 def get_active_kernel() -> Optional[CursorMemoryKernel]:
     """Get the active kernel instance."""
     return _kernel_instance

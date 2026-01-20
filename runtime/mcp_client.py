@@ -13,6 +13,7 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -673,6 +674,11 @@ class MCPClient:
 
 
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="mcp_client",
+    lifecycle="lazy",
+    description="MCP (Model Context Protocol) client for tool execution",
+)
 def get_mcp_client() -> MCPClient:
     """Get or create the global MCP client instance. CACHED."""
     return MCPClient()

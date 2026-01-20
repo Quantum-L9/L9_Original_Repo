@@ -15,6 +15,7 @@ All operations are async-safe with proper logging.
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -410,9 +411,9 @@ class IngestionPipeline:
                 "packet_type": envelope.packet_type,
                 "source_id": envelope.source_id,
                 "thread_id": str(envelope.thread_id) if envelope.thread_id else None,
-                "timestamp": envelope.timestamp.isoformat()
-                if envelope.timestamp
-                else None,
+                "timestamp": (
+                    envelope.timestamp.isoformat() if envelope.timestamp else None
+                ),
             }
 
             checkpoint_id = await self._agent_persistence.create_checkpoint(
@@ -744,6 +745,11 @@ class IngestionPipeline:
 
 
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="ingestion_pipeline",
+    lifecycle="lazy",
+    description="Memory ingestion pipeline for packet processing and DAG construction",
+)
 def get_ingestion_pipeline() -> IngestionPipeline:
     """Get or create the ingestion pipeline singleton. CACHED."""
     return IngestionPipeline()

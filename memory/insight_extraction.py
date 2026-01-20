@@ -13,6 +13,7 @@ All operations are async-safe with proper logging.
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -473,6 +474,11 @@ class InsightExtractionPipeline:
 
 
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="insight_extraction_pipeline",
+    lifecycle="lazy",
+    description="Memory insight extraction pipeline for pattern detection",
+)
 def get_insight_pipeline() -> InsightExtractionPipeline:
     """Get or create the insight extraction pipeline singleton. CACHED."""
     return InsightExtractionPipeline()
