@@ -51,6 +51,15 @@ import structlog
 from tenacity import retry, stop_after_attempt, wait_exponential
 from core.decorators import must_stay_async
 
+# Import production Perplexity client
+from services.research.tools.perplexity_client import (
+    PerplexityClient as ProductionPerplexityClient,
+    PerplexityRequest,
+    PerplexityModel,
+    SearchContextSize,
+    get_perplexity_client,
+)
+
 # ============================================================================
 # Configuration
 # ============================================================================
@@ -233,12 +242,19 @@ Provide: Fusion architectures, cross-modal patterns, modality-specific benchmark
 
 
 # ============================================================================
-# Perplexity Client
+# Perplexity Client (Compatibility Wrapper)
 # ============================================================================
 
 
 class PerplexityClient:
-    """Client for Perplexity API with retry logic."""
+    """
+    Compatibility wrapper around the production PerplexityClient.
+    
+    Provides the legacy .query() and .deep_research() interface
+    while delegating to services.research.tools.perplexity_client.
+    
+    This eliminates code duplication while maintaining backward compatibility.
+    """
 
     def __init__(self, api_key: str | None = None):
         self.api_key = api_key or os.getenv("PERPLEXITY_API_KEY")
@@ -247,11 +263,15 @@ class PerplexityClient:
                 "PERPLEXITY_API_KEY not set. "
                 "Set via environment variable or constructor."
             )
-        self.log = logger.bind(client="perplexity")
+        self._client: ProductionPerplexityClient | None = None
+        self.log = logger.bind(client="perplexity_compat")
 
-    @retry(
-        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10)
-    )
+    async def _get_client(self) -> ProductionPerplexityClient:
+        """Get or create the production client."""
+        if self._client is None:
+            self._client = ProductionPerplexityClient(self.api_key)
+        return self._client
+
     async def query(
         self,
         prompt: str,
@@ -260,40 +280,61 @@ class PerplexityClient:
         max_tokens: int = 5000,
         timeout: float = 180.0,
     ) -> str:
-        """Submit prompt to Perplexity API."""
+        """
+        Submit prompt to Perplexity API.
+        
+        Delegates to production client's search() method.
+        """
         self.log.info("querying_perplexity", model=model, prompt_len=len(prompt))
-
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            response = await client.post(
-                PERPLEXITY_API_URL,
-                json={
-                    "model": model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": temperature,
-                    "max_tokens": max_tokens,
-                },
-                headers={"Authorization": f"Bearer {self.api_key}"},
-            )
-            response.raise_for_status()
-            data = response.json()
-            content = data["choices"][0]["message"]["content"]
-
-            self.log.info("perplexity_response", response_len=len(content))
-            return content
+        
+        client = await self._get_client()
+        
+        # Map model string to enum
+        model_enum = PerplexityModel.SONAR_PRO  # default
+        if "deep" in model.lower():
+            model_enum = PerplexityModel.SONAR_DEEP_RESEARCH
+        elif "reasoning" in model.lower():
+            model_enum = PerplexityModel.SONAR_REASONING_PRO
+        elif "sonar" in model.lower() and "pro" not in model.lower():
+            model_enum = PerplexityModel.SONAR
+        
+        request = PerplexityRequest(
+            query=prompt,
+            model=model_enum,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        
+        response = await client.search(request)
+        
+        if not response.success:
+            self.log.error("perplexity_error", error=response.error)
+            raise RuntimeError(f"Perplexity API error: {response.error}")
+        
+        self.log.info("perplexity_response", response_len=len(response.content))
+        return response.content
 
     async def deep_research(
         self,
         prompt: str,
         timeout: float = 600.0,
     ) -> str:
-        """Execute deep research query with longer timeout."""
-        return await self.query(
-            prompt,
-            model=PERPLEXITY_MODEL_DEEP,
-            temperature=0.8,
-            max_tokens=8000,
-            timeout=timeout,
-        )
+        """
+        Execute deep research query with longer timeout.
+        
+        Delegates to production client's deep_research() method.
+        """
+        self.log.info("deep_research_start", prompt_len=len(prompt))
+        
+        client = await self._get_client()
+        response = await client.deep_research(prompt)
+        
+        if not response.success:
+            self.log.error("deep_research_error", error=response.error)
+            raise RuntimeError(f"Deep research error: {response.error}")
+        
+        self.log.info("deep_research_complete", response_len=len(response.content))
+        return response.content
 
 
 # ============================================================================

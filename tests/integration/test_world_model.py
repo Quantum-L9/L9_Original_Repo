@@ -180,7 +180,13 @@ class TestInsightEmitter:
 
 
 class TestWorldModelService:
-    """Test world model service initialization and queries."""
+    """
+    Test world model service initialization and queries.
+    
+    NOTE: Uses core.worldmodel.service.WorldModelService (in-memory, deprecated).
+    This tests the L9-specific schema population, not the production database-backed
+    service at world_model/service.py.
+    """
 
     @pytest.mark.asyncio
     async def test_service_initialization(self):
