@@ -50,6 +50,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, Tuple, TYPE_CHECKING
@@ -57,7 +58,7 @@ import yaml
 import structlog
 
 if TYPE_CHECKING:
-    from runtime.kernel_state import KernelState
+    pass
 
 logger = structlog.get_logger(__name__)
 
@@ -72,6 +73,13 @@ KERNEL_EXTENSIONS = (".yaml", ".yml")
 # =============================================================================
 # Kernel Load Order (explicit sequence)
 # =============================================================================
+
+# NOTE: Kernel configuration is now externalized to config/kernel_discovery.yaml
+# These hard-coded values are maintained for backward compatibility only
+# and will be removed on 2026-02-03.
+#
+# To use externalized config, set L9_USE_KERNEL_CONFIG=true (default)
+# To use hard-coded config, set L9_USE_KERNEL_CONFIG=false
 
 KERNEL_ORDER = [
     "private/kernels/00_system/01_master_kernel.yaml",
@@ -97,6 +105,44 @@ REQUIRED_KERNELS = {
 
 # Minimum kernel count for valid operation
 MINIMUM_KERNEL_COUNT = 4
+
+# =============================================================================
+# Externalized Configuration Loading
+# =============================================================================
+
+try:
+    from runtime.kernel_config_loader import (
+        load_kernel_config,
+    )
+
+    _USE_KERNEL_CONFIG = os.getenv("L9_USE_KERNEL_CONFIG", "true").lower() == "true"
+
+    if _USE_KERNEL_CONFIG:
+        # Load configuration from config/kernel_discovery.yaml
+        _kernel_config = load_kernel_config()
+        KERNEL_ORDER = _kernel_config["kernel_order"]
+        REQUIRED_KERNELS = _kernel_config["required_kernels"]
+        MINIMUM_KERNEL_COUNT = _kernel_config["minimum_kernel_count"]
+        logger.info(
+            "kernel_loader.config_loaded",
+            action="loaded_externalized_config",
+            kernel_count=len(KERNEL_ORDER),
+            source="config/kernel_discovery.yaml",
+        )
+    else:
+        logger.warning(
+            "kernel_loader.config_fallback",
+            action="using_hardcoded_config",
+            message="L9_USE_KERNEL_CONFIG=false, using hard-coded KERNEL_ORDER",
+        )
+except Exception as e:
+    logger.warning(
+        "kernel_loader.config_load_failed",
+        action="config_load_failed",
+        error=str(e),
+        message="Falling back to hard-coded KERNEL_ORDER",
+    )
+    # Keep using hard-coded values above
 
 
 # =============================================================================
@@ -252,7 +298,7 @@ def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
         RuntimeError: If kernel loading fails
     """
     # Import KernelState (lazy to avoid circular imports)
-    from runtime.kernel_state import KernelState, create_kernel_state
+    from runtime.kernel_state import create_kernel_state
 
     if base_path is None:
         # Default to repo root (runtime/ is one level down from root)
