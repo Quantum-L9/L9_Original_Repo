@@ -1,8 +1,8 @@
 # L9 Secure AI OS
 
-> **Version:** 2.2.0  
+> **Version:** 2.3.0  
 > **Status:** Production Ready (VPS Deployed)  
-> **Updated:** 2026-01-11
+> **Updated:** 2026-01-20
 
 ---
 
@@ -121,7 +121,7 @@ L9/
 │   └── symbolic_computation/ # SymPy computation service
 ├── private/                  # Protected kernel files
 │   └── kernels/00_system/    # 10 production kernels (01-10)
-├── migrations/               # SQL migrations (0001-0009)
+├── migrations/               # SQL migrations (0001-0024)
 ├── tests/                    # 119 test files
 │   ├── integration/          # 17 integration tests
 │   ├── unit/                 # Component tests by module
@@ -138,9 +138,45 @@ L9/
 
 ---
 
-## Architecture Decisions
+## Architecture Decision Records (ADRs)
 
-See [architecture_decisions.md](architecture_decisions.md) for documented architecture decisions.
+**MANDATORY FOR AI AGENTS**: Read ALL ADRs before code operations.
+
+| Key | Value |
+|-----|-------|
+| Location | `readme/adr/` |
+| Index | [`readme/adr/README.md`](readme/adr/README.md) |
+| Count | 35 ADRs (34 Accepted, 1 Proposed) |
+| Bootstrap | ADR-0035 |
+
+### AI Bootstrap Protocol
+
+```
+BEFORE ANY CODE OPERATION:
+1. Read this README → Find ADR section ✓
+2. Read readme/adr/README.md → Get ADR index
+3. Scan ADRs with Status: Accepted
+4. Apply constraints during analysis/generation
+```
+
+### Critical ADRs (Must-Know)
+
+| ADR | Constraint | Violation = |
+|-----|------------|-------------|
+| 0006 | All operations emit PacketEnvelope | Silent operations |
+| 0012 | Packets flow through DAG pipeline | Bypass = audit gap |
+| 0012 | Validation in `intake_node` only | Duplicate validation |
+| 0002 | TYPE_CHECKING for circular imports | Import errors |
+| 0003 | Module docstring + DORA metadata | Missing docs |
+
+### Key Files for AI
+
+| What | Where |
+|------|-------|
+| PacketEnvelope schema | `core/schemas/packet_envelope_v2.py` |
+| Packet validation | `memory/validators/packet_validator.py` |
+| DAG pipeline | `memory/substrate_dag.py` |
+| Canonical ingestion | `memory/ingestion.py` → `ingest_packet()` |
 
 ---
 
@@ -263,24 +299,24 @@ docker compose logs -f l9-api
 
 ## Migrations
 
-Apply in order (0001-0009):
+Apply in order (0001-0024). See `migrations/README.md` for details.
 
 ```bash
-# Core memory substrate
-psql $DATABASE_URL -f migrations/0001_init_memory_substrate.sql
-psql $DATABASE_URL -f migrations/0002_enhance_packet_store.sql
-psql $DATABASE_URL -f migrations/0003_init_tasks.sql
+# Apply all migrations
+for f in migrations/0*.sql; do psql $DATABASE_URL -f $f; done
 
-# World model
-psql $DATABASE_URL -f migrations/0004_init_world_model_entities.sql
-psql $DATABASE_URL -f migrations/0005_init_knowledge_facts.sql
-psql $DATABASE_URL -f migrations/0006_init_world_model_updates.sql
-psql $DATABASE_URL -f migrations/0007_init_world_model_snapshots.sql
-
-# 10X upgrade + effectiveness tracking
-psql $DATABASE_URL -f migrations/0008_memory_substrate_10x.sql
-psql $DATABASE_URL -f migrations/0009_feedback_and_effectiveness.sql
+# Or use the tracked migrations system
+python scripts/apply_migrations.py
 ```
+
+| Range | Purpose |
+|-------|---------|
+| 0001-0003 | Core memory substrate |
+| 0004-0007 | World model entities |
+| 0008-0009 | 10X upgrade + effectiveness |
+| 0010-0015 | Tool audit, checkpoints, governance |
+| 0016-0022 | Governance scope, semantic facts, temporal |
+| 0023-0024 | Strategy memory (Neo4j), CMTS |
 
 ---
 
@@ -394,6 +430,7 @@ See [reports/](reports/) for detailed execution reports.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.3.0 | 2026-01-20 | ADR Bootstrap Protocol (ADR-0035), Validation enforcement docs, README AI compatibility |
 | 2.2.0 | 2026-01-11 | Cursor+LangGraph integration (GMP-48), Five-Tier Observability, Stub Elimination (GMP-47), CircuitBreaker (GMP-32/33), Tool improvements (GMP-44/45/46) |
 | 2.1.0 | 2026-01-01 | 4 HIGH GMPs (16,18,19,21), Emma Substrate 10X, Igor commands, 54 tests |
 | 2.0.0 | 2025-12-31 | Research Factory, SymPy integration, CodeGenAgent specs |

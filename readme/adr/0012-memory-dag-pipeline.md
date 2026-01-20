@@ -75,15 +75,36 @@ PacketWriteResult(status, packet_id, written_tables)
 4. Each node logs start/end with timing
 5. Written tables tracked in result
 
+## Validation Enforcement
+
+Packet validation occurs in `intake_node` via `PacketValidator.validate()`.
+
+**Canonical Validation Location:**
+- File: `memory/substrate_dag.py` → `intake_node()`
+- Validator: `memory/validators/packet_validator.py` → `PacketValidator`
+- Schema: `core/schemas/packet_envelope_v2.py` → `PacketEnvelopeIn`
+
+**DO NOT duplicate validation elsewhere:**
+- Extractors do NOT validate packets (they may not emit packets at all)
+- API routes do NOT validate packets (they pass to ingestion)
+- Services do NOT validate packets (they call `ingest_packet()`)
+
+**Single Pipeline Principle:**
+All packets flow through `ingest_packet()` → `SubstrateDAG.run()` → `intake_node` validates.
+This ensures single enforcement point, no duplicate paths, consistent audit trail.
+
 ## AI Guidance
 **DO:**
 - Add new processing as a new node
 - Maintain node execution order
 - Return proper result from each node
 - Log node execution metrics
+- Use `ingest_packet()` for ALL packet writes
 
 **DO NOT:**
 - Bypass DAG for "fast" writes
 - Skip nodes for "simple" packets
 - Modify node order without analysis
 - Catch exceptions silently in nodes
+- Duplicate validation outside `intake_node`
+- Create parallel validation pipelines

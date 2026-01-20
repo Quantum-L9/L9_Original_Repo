@@ -1,6 +1,8 @@
 .github/workflows/ci.yml
 .github/workflows/dev-layer-gmp.yml
+.github/workflows/docs-code-sync.yml
 .github/workflows/terminology-guard.yml
+.gitleaks.toml
 .mypy_cache/3.12/PIL/ExifTags.data.json
 .mypy_cache/3.12/PIL/ExifTags.meta.json
 .mypy_cache/3.12/PIL/GimpGradientFile.data.json
@@ -2351,8 +2353,157 @@
 .mypy_cache/3.12/zoneinfo/_tzpath.meta.json
 .mypy_cache/3.12/zstandard/__init__.data.json
 .mypy_cache/3.12/zstandard/__init__.meta.json
+.mypy_cache/3.9/@plugins_snapshot.json
+.mypy_cache/3.9/_ast.data.json
+.mypy_cache/3.9/_ast.meta.json
+.mypy_cache/3.9/_codecs.data.json
+.mypy_cache/3.9/_codecs.meta.json
+.mypy_cache/3.9/_collections_abc.data.json
+.mypy_cache/3.9/_collections_abc.meta.json
+.mypy_cache/3.9/_contextvars.data.json
+.mypy_cache/3.9/_contextvars.meta.json
+.mypy_cache/3.9/_frozen_importlib.data.json
+.mypy_cache/3.9/_frozen_importlib.meta.json
+.mypy_cache/3.9/_frozen_importlib_external.data.json
+.mypy_cache/3.9/_frozen_importlib_external.meta.json
+.mypy_cache/3.9/_io.data.json
+.mypy_cache/3.9/_io.meta.json
+.mypy_cache/3.9/_sitebuiltins.data.json
+.mypy_cache/3.9/_sitebuiltins.meta.json
+.mypy_cache/3.9/_thread.data.json
+.mypy_cache/3.9/_thread.meta.json
+.mypy_cache/3.9/_typeshed/__init__.data.json
+.mypy_cache/3.9/_typeshed/__init__.meta.json
+.mypy_cache/3.9/_typeshed/importlib.data.json
+.mypy_cache/3.9/_typeshed/importlib.meta.json
+.mypy_cache/3.9/abc.data.json
+.mypy_cache/3.9/abc.meta.json
+.mypy_cache/3.9/ast.data.json
+.mypy_cache/3.9/ast.meta.json
+.mypy_cache/3.9/builtins.data.json
+.mypy_cache/3.9/builtins.meta.json
+.mypy_cache/3.9/codecs.data.json
+.mypy_cache/3.9/codecs.meta.json
+.mypy_cache/3.9/collections/__init__.data.json
+.mypy_cache/3.9/collections/__init__.meta.json
+.mypy_cache/3.9/collections/abc.data.json
+.mypy_cache/3.9/collections/abc.meta.json
+.mypy_cache/3.9/contextlib.data.json
+.mypy_cache/3.9/contextlib.meta.json
+.mypy_cache/3.9/contextvars.data.json
+.mypy_cache/3.9/contextvars.meta.json
+.mypy_cache/3.9/dataclasses.data.json
+.mypy_cache/3.9/dataclasses.meta.json
+.mypy_cache/3.9/datetime.data.json
+.mypy_cache/3.9/datetime.meta.json
+.mypy_cache/3.9/email/__init__.data.json
+.mypy_cache/3.9/email/__init__.meta.json
+.mypy_cache/3.9/email/_policybase.data.json
+.mypy_cache/3.9/email/_policybase.meta.json
+.mypy_cache/3.9/email/charset.data.json
+.mypy_cache/3.9/email/charset.meta.json
+.mypy_cache/3.9/email/contentmanager.data.json
+.mypy_cache/3.9/email/contentmanager.meta.json
+.mypy_cache/3.9/email/errors.data.json
+.mypy_cache/3.9/email/errors.meta.json
+.mypy_cache/3.9/email/header.data.json
+.mypy_cache/3.9/email/header.meta.json
+.mypy_cache/3.9/email/message.data.json
+.mypy_cache/3.9/email/message.meta.json
+.mypy_cache/3.9/email/policy.data.json
+.mypy_cache/3.9/email/policy.meta.json
+.mypy_cache/3.9/enum.data.json
+.mypy_cache/3.9/enum.meta.json
+.mypy_cache/3.9/genericpath.data.json
+.mypy_cache/3.9/genericpath.meta.json
+.mypy_cache/3.9/importlib/__init__.data.json
+.mypy_cache/3.9/importlib/__init__.meta.json
+.mypy_cache/3.9/importlib/_bootstrap.data.json
+.mypy_cache/3.9/importlib/_bootstrap.meta.json
+.mypy_cache/3.9/importlib/_bootstrap_external.data.json
+.mypy_cache/3.9/importlib/_bootstrap_external.meta.json
+.mypy_cache/3.9/importlib/abc.data.json
+.mypy_cache/3.9/importlib/abc.meta.json
+.mypy_cache/3.9/importlib/machinery.data.json
+.mypy_cache/3.9/importlib/machinery.meta.json
+.mypy_cache/3.9/importlib/metadata/__init__.data.json
+.mypy_cache/3.9/importlib/metadata/__init__.meta.json
+.mypy_cache/3.9/io.data.json
+.mypy_cache/3.9/io.meta.json
+.mypy_cache/3.9/json/__init__.data.json
+.mypy_cache/3.9/json/__init__.meta.json
+.mypy_cache/3.9/json/decoder.data.json
+.mypy_cache/3.9/json/decoder.meta.json
+.mypy_cache/3.9/json/encoder.data.json
+.mypy_cache/3.9/json/encoder.meta.json
+.mypy_cache/3.9/logging/__init__.data.json
+.mypy_cache/3.9/logging/__init__.meta.json
+.mypy_cache/3.9/os/__init__.data.json
+.mypy_cache/3.9/os/__init__.meta.json
+.mypy_cache/3.9/os/path.data.json
+.mypy_cache/3.9/os/path.meta.json
+.mypy_cache/3.9/pathlib/__init__.data.json
+.mypy_cache/3.9/pathlib/__init__.meta.json
+.mypy_cache/3.9/posixpath.data.json
+.mypy_cache/3.9/posixpath.meta.json
+.mypy_cache/3.9/re.data.json
+.mypy_cache/3.9/re.meta.json
+.mypy_cache/3.9/resource.data.json
+.mypy_cache/3.9/resource.meta.json
+.mypy_cache/3.9/signal.data.json
+.mypy_cache/3.9/signal.meta.json
+.mypy_cache/3.9/src/__init__.data.json
+.mypy_cache/3.9/src/__init__.meta.json
+.mypy_cache/3.9/src/main.data.json
+.mypy_cache/3.9/src/main.meta.json
+.mypy_cache/3.9/sre_compile.data.json
+.mypy_cache/3.9/sre_compile.meta.json
+.mypy_cache/3.9/sre_constants.data.json
+.mypy_cache/3.9/sre_constants.meta.json
+.mypy_cache/3.9/sre_parse.data.json
+.mypy_cache/3.9/sre_parse.meta.json
+.mypy_cache/3.9/string/__init__.data.json
+.mypy_cache/3.9/string/__init__.meta.json
+.mypy_cache/3.9/subprocess.data.json
+.mypy_cache/3.9/subprocess.meta.json
+.mypy_cache/3.9/sys/__init__.data.json
+.mypy_cache/3.9/sys/__init__.meta.json
+.mypy_cache/3.9/test_example.data.json
+.mypy_cache/3.9/test_example.meta.json
+.mypy_cache/3.9/threading.data.json
+.mypy_cache/3.9/threading.meta.json
+.mypy_cache/3.9/time.data.json
+.mypy_cache/3.9/time.meta.json
+.mypy_cache/3.9/tokenizer/__init__.data.json
+.mypy_cache/3.9/tokenizer/__init__.meta.json
+.mypy_cache/3.9/tokenizer/assembler.data.json
+.mypy_cache/3.9/tokenizer/assembler.meta.json
+.mypy_cache/3.9/tokenizer/classifier.data.json
+.mypy_cache/3.9/tokenizer/classifier.meta.json
+.mypy_cache/3.9/tokenizer/task.data.json
+.mypy_cache/3.9/tokenizer/task.meta.json
+.mypy_cache/3.9/tokenizer/tokenizer.data.json
+.mypy_cache/3.9/tokenizer/tokenizer.meta.json
+.mypy_cache/3.9/tokenizer/validator.data.json
+.mypy_cache/3.9/tokenizer/validator.meta.json
+.mypy_cache/3.9/types.data.json
+.mypy_cache/3.9/types.meta.json
+.mypy_cache/3.9/typing.data.json
+.mypy_cache/3.9/typing.meta.json
+.mypy_cache/3.9/typing_extensions.data.json
+.mypy_cache/3.9/typing_extensions.meta.json
+.mypy_cache/3.9/uuid.data.json
+.mypy_cache/3.9/uuid.meta.json
 .sec/semgrep.yaml
 .suite6-config.json
+VPS-Repo-Files/docker/docker-Dockerfile
+VPS-Repo-Files/runtime/*runtime-Dockerfile
+VPS-Repo-Files/runtime/runtime-docker-compose.yml
+agents/codegenagent/GMP - Manifest Synthesizer 2.yaml
+agents/codegenagent/GMP - Manifest Synthesizer.yaml
+agents/codegenagent/L9_v4.1_GodMode_Prompt.yaml.yaml
+agents/codegenagent/Spec - ReflexiveAutonomy (Manifest Synthesizer).yaml
+agents/codegenagent/Spec - ReflexiveAutonomy.yaml
 agents/codegenagent/codegen+codegenAgent_specs/.github_workflows_l9_ci.yaml
 agents/codegenagent/codegen+codegenAgent_specs/agents_cli_cursor_cli_launcher.yaml
 agents/codegenagent/codegen+codegenAgent_specs/agents_codegen_agent.yaml
@@ -2458,18 +2609,21 @@ agents/codegenagent/patches/patches-done/runtime_kernel_hot_patch.yaml
 agents/codegenagent/patches/patches-done/runtime_patch_AutoLinter_Injector.yaml
 agents/codegenagent/patches/patches-done/runtime_perplexity_Construct_Enhancer_From_PPX.yaml
 agents/codegenagent/patches/patches-done/ui_patch_audit_viewer.yaml
-agents/cursor/l9.workflow_todo_kernel.v2.yaml
-api/adapters/calendar_adapter/Module-Spec-v2.6-calendar_adapter.yaml
-api/adapters/email_adapter/Module-Spec-v2.6-email_adapter.yaml
-api/adapters/twilio_adapter/Module-Spec-v2.6-twilio_adapter.yaml
-codegen/C-GMP Suite/canonical/L9_Canonical_v4.1_Unified.yaml
-codegen/C-GMP Suite/canonical/L9_GodMode_Prompt_v4.1.yaml
-codegen/C-GMP Suite/canonical/L9_Manifest_GodMode_v4.1.yaml
-codegen/C-GMP Suite/canonical/L9_v4.1_GodMode_Prompt.yaml
-codegen/C-GMP Suite/canonical/L9_v4.1_Manifest_GodMode.yaml
+agents/cursor/cursor_workflow_kernel.yaml
+agents/cursor/gmp_protocol/gmp-contract.yaml
+agents/cursor/gmp_protocol/gmp-report-contract.yaml
+agents/cursor/gmp_protocol/phase0-scope-template.yaml
+api/README.meta.yaml
 codegen/Emma - Perplexity Super Prompt System/SPEC_graph_decay_confidence_provenance_v20251229_205131.yaml
 codegen/Emma - Perplexity Super Prompt System/SPEC_workflow_similarity_approval_inheritance_v20251229_205131.yaml
 codegen/MODULE_REGISTRY.yaml
+codegen/Perplexity-Search-Pack/Canonical Template - Ingestion Engine.yaml
+codegen/Perplexity-Search-Pack/Canonical Template - Memory.yaml
+codegen/Perplexity-Search-Pack/Canonical Template - Persistent Memory Engine.yaml
+codegen/Perplexity-Search-Pack/Canonical Template - module spec.yaml
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_gmp_spec.yaml
+codegen/Symbolic CodeGen/Supplemental Files/sympy_extraction_glue.yaml
+codegen/Symbolic CodeGen/Supplemental Files/sympy_schema_v6.yaml
 codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/Manus-System-Prompt-v1.0.yaml
 codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/Module-Spec-v2.0.yaml
 codegen/code-gen-files/Module Production/Module Pipeline/_Module Canonical Trio/Manus/Module-Spec-v2.1.yaml
@@ -2567,6 +2721,11 @@ codegen/codegenAgent Spec/Spec-codegen+codegenAgent/worldmodel_tool_metadata_ref
 codegen/dev_layer/governance/core.yaml
 codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge_extraction_glue.yaml
 codegen/extractions/domain_tensor_bridge_v6_20260102/manifests/domain_tensor_bridge_v6_manifest.json
+codegen/meta-yaml/meta.codegen.schema.yaml
+codegen/meta-yaml/meta.dependency.integration (1).yaml
+codegen/meta-yaml/meta.dependency.integration.yaml
+codegen/meta-yaml/meta.extraction.sequence.yaml
+codegen/meta-yaml/meta.validation.checklist.yaml
 codegen/process/meta.codegen.schema.yaml
 codegen/process/meta.dependency.integration.yaml
 codegen/process/meta.extraction.sequence.yaml
@@ -2574,12 +2733,10 @@ codegen/process/meta.validation.checklist.yaml
 codegen/process/spec.symbolic_computation_service_extraction.yaml
 codegen/process/symbolic_codegen_kernel_v2.yaml
 codegen/process/sympy_extraction_glue.yaml
-codegen/readme_as_code/readme-meta-yaml-spec.yaml
 codegen/schemas/Module-Prompt-CURSOR-v2.0.yaml
 codegen/schemas/Module-Spec-v2.4.yaml
 codegen/schemas/config_loader_schema.yaml
 codegen/schemas/domain_adapter.yaml
-codegen/schemas/dora-contract.yaml
 codegen/schemas/glue_layer.yaml
 codegen/schemas/orchestrator.yaml
 codegen/schemas/preference_extractor_schema.yaml
@@ -2595,49 +2752,72 @@ codegen/schemas/sympy_schema_v6.yaml
 codegen/specs/anomaly_response_monitor_20260116_001347.yaml
 codegen/specs/unknown_20260116_001402.yaml
 codegen/specs/violation_tracker_service_20260116_001412.yaml
+codegen/templates/README.template.meta.yaml
+codegen/templates/dora.meta.yaml
 config/agents/L-CTO-Agent.yaml
 config/agents/L-CTO-Research-Overlay.yaml
 config/agents/l9-standard-v1.yaml
+config/agents/reflection-agent-v1.yaml
 config/agents/research-agent-v1.yaml
 config/boot_overlay.yaml
+config/gmp/phase0-scope-schema.yaml
+config/mcp_servers.yaml
 config/patterns/pipeline_v1.yaml
 config/policies/defaults.yaml
+config/policies/high_risk_tools.yaml
+config/policies/memory_scope.yaml
+config/policies/protected_files.yaml
+config/policies/rate_limits.yaml
+config/policies/tool_approval_generated.yaml
 config/policies/tool_usage.yaml
+config/schemas/adr_schema.yaml
 config/settings.yaml
+config/subsystems/auth.yaml
 config/subsystems/code_mutation.yaml
 config/subsystems/master.yaml
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_gmp_spec.yaml
-current_work/Symbolic CodeGen/Supplemental Files/sympy_extraction_glue.yaml
-current_work/Symbolic CodeGen/Supplemental Files/sympy_schema_v6.yaml
-current_work/meta-yaml-2/meta.codegen.schema.yaml
-current_work/meta-yaml-2/meta.dependency.integration (1).yaml
-current_work/meta-yaml-2/meta.dependency.integration.yaml
-current_work/meta-yaml-2/meta.extraction.sequence.yaml
-current_work/meta-yaml-2/meta.validation.checklist.yaml
+config/subsystems/memory_retrieval.yaml
+config/subsystems/tools.yaml
+core/agents/README.meta.yaml
+core/tools/README.meta.yaml
+current_work/DONE/AUTOWIRING/mcp_servers.yaml
+current_work/DONE/AUTOWIRING/pyproject.toml
+current_work/Neural-Symbolic Orchestration/Dockerfile.orchestrator
+current_work/Neural-Symbolic Orchestration/docker-compose.yml
+current_work/Neural-Symbolic Orchestration/k8s_configmap_secrets.yaml
+current_work/Neural-Symbolic Orchestration/k8s_monitoring_prometheus_rules.yaml
+current_work/Neural-Symbolic Orchestration/k8s_namespace.yaml
+current_work/Neural-Symbolic Orchestration/k8s_neo4j_statefulset.yaml
+current_work/Neural-Symbolic Orchestration/k8s_network_policy.yaml
+current_work/Neural-Symbolic Orchestration/k8s_orchestrator_deployment.yaml
+current_work/Neural-Symbolic Orchestration/k8s_redis_statefulset.yaml
 docker-compose-README.md
 docker-compose.local.dev.yml
 docker-compose.override.yml.example
 docker-compose.yml
 docker/prometheus.yml
+docs/CODE-MAP.yaml
+dora_complete_injection_report.json
+dora_validation_report.json
 email_agent/private_auth/google_oauth_L.json
 email_agent/private_auth/google_oauth_igor.json
 grafana/provisioning/dashboards/dashboards.yml
 grafana/provisioning/dashboards/l9-five-tier-observability.json
 grafana/provisioning/dashboards/l9-tool-observability.json
 grafana/provisioning/datasources/prometheus.yml
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_governance_policy.yaml
-igor/01-09-2025/tokenizer/core/tokenizer/tokenizer_rules.json
-igor/VPS-Repo-Files/docker/docker-Dockerfile
-igor/VPS-Repo-Files/runtime/*runtime-Dockerfile
-igor/VPS-Repo-Files/runtime/runtime-docker-compose.yml
-igor/audit-tools/Current Config/07_execution_kernel.yaml
-igor/audit-tools/Current Config/10_packet_protocol_kernel.yaml
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_governance_policy.yaml
+igor/DONE!/audit-tools/Current Config/07_execution_kernel.yaml
+igor/DONE!/audit-tools/Current Config/10_packet_protocol_kernel.yaml
+igor/DONE!/tokenizer/core/tokenizer/tokenizer_rules.json
+igor/Repo-As-Agent/contract_hypergraph_engine.yaml
+igor/Repo-As-Agent/saial_ledger_spec.yaml
+igor/Repo-As-Agent/uplift_emergent_meta_and_contract_refiner.yaml
 igor/l-cto-Setup/l-cto-yaml-files/INITIALIZATION_KERNEL_UNIFIED.yaml
 igor/l-cto-Setup/l-cto-yaml-files/L-CTO.yaml
 igor/l-cto-Setup/l-cto-yaml-files/L9 AGENT MANIFEST — L-CTO v1.0.yaml
 igor/l-cto-Setup/l-cto-yaml-files/personality_kernel.yaml
 mac_agent/config.yaml
 mcp_memory/Dockerfile
+memory/README.meta.yaml
 memory/memory_spec_v3.0.yaml
 openapi.json
 private/kernels/00_system/01_master_kernel.yaml
@@ -2672,32 +2852,46 @@ pyproject.toml
 pytest.ini
 readme/L-CTO/L-YAML.yaml
 readme/L-CTO/l9_operator_handbook_v2.yaml
-reports/GMP Reports/audit_infrastructure_health.json
-reports/GMP Reports/audit_run_audit_run_20260106_185009_61c6ec09.json
-reports/GMP Reports/audit_run_audit_run_20260106_185743_d10c38c1.json
-reports/GMP Reports/audit_run_audit_run_20260106_192337_4c29281f.json
-reports/GMP Reports/audit_run_audit_run_20260106_193241_0c979f9c.json
-reports/GMP Reports/audit_run_audit_run_20260106_195658_cf97d356.json
-reports/GMP Reports/audit_run_audit_run_20260106_195956_316d174c.json
-reports/GMP Reports/audit_run_audit_run_20260106_200021_4401ad50.json
-reports/GMP Reports/audit_run_audit_run_20260106_203324_ce365722.json
-reports/GMP Reports/audit_run_audit_run_20260106_221652_9a004d6c.json
 reports/_archived/wiring_audit.json
-reports/audit_run_audit_run_20260115_122815_b2ed6e14.json
-reports/audit_run_audit_run_20260115_123146_56efcab5.json
-reports/audit_run_audit_run_20260115_123156_4cf4278c.json
-reports/audit_run_audit_run_20260115_123203_558af252.json
-reports/audit_run_audit_run_20260115_124406_386b5a08.json
-reports/audit_run_audit_run_20260115_124417_cd1ed116.json
-reports/audit_run_audit_run_20260115_125914_12db6630.json
-reports/dead_code_audit_20260113_200227.json
-reports/dead_code_gmp_todos.yaml
-reports/dead_code_resolved.json
-reports/phase1_check.json
-reports/phase2_check_routers.json
-reports/phase2_final.json
-reports/post_cleanup_audit.json
-reports/test_dead_code.json
+reports/audit_runs/audit_infrastructure_health.json
+reports/audit_runs/audit_run_audit_run_20260106_185009_61c6ec09.json
+reports/audit_runs/audit_run_audit_run_20260106_185743_d10c38c1.json
+reports/audit_runs/audit_run_audit_run_20260106_192337_4c29281f.json
+reports/audit_runs/audit_run_audit_run_20260106_193241_0c979f9c.json
+reports/audit_runs/audit_run_audit_run_20260106_195658_cf97d356.json
+reports/audit_runs/audit_run_audit_run_20260106_195956_316d174c.json
+reports/audit_runs/audit_run_audit_run_20260106_200021_4401ad50.json
+reports/audit_runs/audit_run_audit_run_20260106_203324_ce365722.json
+reports/audit_runs/audit_run_audit_run_20260106_221652_9a004d6c.json
+reports/audit_runs/audit_run_audit_run_20260115_122815_b2ed6e14.json
+reports/audit_runs/audit_run_audit_run_20260115_123146_56efcab5.json
+reports/audit_runs/audit_run_audit_run_20260115_123156_4cf4278c.json
+reports/audit_runs/audit_run_audit_run_20260115_123203_558af252.json
+reports/audit_runs/audit_run_audit_run_20260115_124406_386b5a08.json
+reports/audit_runs/audit_run_audit_run_20260115_124417_cd1ed116.json
+reports/audit_runs/audit_run_audit_run_20260115_125914_12db6630.json
+reports/audit_runs/dead_code_audit_20260113_200227.json
+reports/audit_runs/dead_code_audit_20260117_163146.json
+reports/audit_runs/dead_code_audit_20260117_163628.json
+reports/audit_runs/dead_code_audit_20260117_163648.json
+reports/audit_runs/dead_code_audit_20260117_164952.json
+reports/audit_runs/dead_code_audit_20260117_165233.json
+reports/audit_runs/dead_code_audit_20260117_165539.json
+reports/audit_runs/dead_code_audit_20260117_170839.json
+reports/audit_runs/dead_code_audit_20260117_171352.json
+reports/audit_runs/dead_code_audit_20260117_171440.json
+reports/audit_runs/dead_code_audit_20260117_171608.json
+reports/audit_runs/dead_code_audit_20260117_172131.json
+reports/audit_runs/dead_code_audit_20260117_172228.json
+reports/audit_runs/dead_code_audit_20260117_172540.json
+reports/audit_runs/dead_code_resolved.json
+reports/audit_runs/dead_code_risk_matrix.json
+reports/audit_runs/phase1_check.json
+reports/audit_runs/phase2_check_routers.json
+reports/audit_runs/phase2_final.json
+reports/audit_runs/post_cleanup_audit.json
+reports/audit_runs/test_dead_code.json
+reports/dead-code-audit/dead_code_gmp_todos.yaml
 runtime/Dockerfile
 scripts/audit/audit.yaml
 scripts/reports/audit_infrastructure_health.json

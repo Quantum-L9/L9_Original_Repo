@@ -1385,6 +1385,19 @@ async def lifespan(app: FastAPI):
                 world_model_service = get_world_model_service()
                 app.state.world_model_service = world_model_service
                 logger.info("WorldModelService initialized")
+
+                # Wire WorldModelService to WorldModelRuntime for DB sync (GMP-WIRE)
+                # This connects the in-memory World Model to PostgreSQL persistence
+                if (
+                    hasattr(app.state, "world_model_runtime")
+                    and app.state.world_model_runtime
+                ):
+                    app.state.world_model_runtime.set_world_model_service(
+                        world_model_service
+                    )
+                    logger.info(
+                        "WorldModelService wired to WorldModelRuntime for DB sync"
+                    )
             except ImportError:
                 logger.debug("WorldModelService not available")
                 app.state.world_model_service = None

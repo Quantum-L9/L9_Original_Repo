@@ -1,3 +1,4 @@
+_archived/symbolic_computation/ - 
 agents/ - 
 agents/architect_agent/ - 
 agents/codegenagent/ - 
@@ -6,10 +7,8 @@ agents/cursor/ -
 agents/cursor/extractors/ - No module docstring
 agents/cursor/integrations/ - No module docstring
 agents/cursor/scripts/ - No module docstring
+agents/research_agent/ - 
 api/ - 
-api/adapters/calendar_adapter/ - No module docstring
-api/adapters/email_adapter/ - No module docstring
-api/adapters/twilio_adapter/ - No module docstring
 api/memory/ - Memory API module.
 api/routes/ - API routes package.
 api/tools/ - 
@@ -30,7 +29,9 @@ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/ -
 codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/ - No module docstring
 collaborative_cells/ - 
 config/ - L9 Configuration Module.
+config/schemas/ - 
 core/ - 
+core/abstractions/ - 
 core/agents/ - 
 core/agents/bootstrap/ - 
 core/agents/graph_state/ - 
@@ -39,8 +40,8 @@ core/boundary/ -
 core/commands/ - 
 core/compliance/ - 
 core/coordination/ - 
+core/di/ - 
 core/evaluation/ - 
-core/gmp/ - 
 core/governance/ - 
 core/graph/query/ - 
 core/integration/ - 
@@ -51,19 +52,20 @@ core/observability/ -
 core/packet_envelope/ - 
 core/resilience/ - 
 core/retrievers/ - L9 Core Retrievers
+core/runtimes/ - 
 core/schemas/ - 
 core/schemas/tests/ - L9 Core Schemas Test Suite.
 core/security/ - 
-core/symbolic_computation/ - 
 core/testing/ - 
 core/tools/ - 
 core/worldmodel/ - 
+current_work/DONE/AUTOWIRING/ - 
 dev/ - No module docstring
 dev/tools/ - No module docstring
 email_agent/ - L9 Email Agent - Gmail API integration.
 graph_adapter/ - L9 LangGraph Integration - PacketNodeAdapter for memory-logg
-igor/01-09-2025/tokenizer/core/tokenizer/ - 
-igor/01-09-2025/tokenizer/core/tokenizer/tests/ - 
+igor/DONE!/tokenizer/core/tokenizer/ - 
+igor/DONE!/tokenizer/core/tokenizer/tests/ - 
 ir_engine/ - 
 mac_agent/ - L9 Mac Agent package.
 mac_agent/helpers/ - Mac Agent helper utilities.
@@ -105,6 +107,7 @@ tests/ -
 tests/agents/ - Agent tests for L9.
 tests/agents/codegenagent/ - 
 tests/api/ - 
+tests/api/routes/ - No module docstring
 tests/clients/ - 
 tests/codegen/ - Tests for CodeGenAgent and IR Engine code generation.
 tests/collaborative_cells/ - 
@@ -115,9 +118,9 @@ tests/core/observability/ - Tests for core.observability module.
 tests/core/schemas/ - Tests for core schemas.
 tests/core/security/ - 
 tests/core/tools/ - 
+tests/cursor/ - No module docstring
 tests/docker/ - Docker smoke tests for L9 stack validation.
 tests/email_agent/ - 
-tests/gmp/ - No module docstring
 tests/integration/ - Integration tests for L9.
 tests/ir_engine/ - 
 tests/kernel/ - Kernel Tests
@@ -129,9 +132,11 @@ tests/os/ -
 tests/performance/ - Performance Tests
 tests/runtime/ - Runtime tests for L9.
 tests/scripts/ - Script tests for L9.
+tests/services/research/ - Tests for research services.
 tests/simulation/ - 
 tests/telemetry/ - 
 tests/unit/ - Unit tests for L9.
+tests/unit/di/ - No module docstring
 tests/upgrades/ - 
 tests/world_model/ - World Model Tests
 tools/ - 

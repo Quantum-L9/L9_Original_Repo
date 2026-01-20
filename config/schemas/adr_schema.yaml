@@ -1,0 +1,233 @@
+# ADR Schema v1.0 — Canonical Format for AI-Readable Architecture Decision Records
+# Location: config/schemas/adr_schema.yaml
+# Referenced by: readme/adr/README.md, core/governance/session_startup.py
+# 
+# PURPOSE: Define the mandatory structure for all L9 ADRs to ensure:
+#   1. Consistent format across all ADRs
+#   2. Copy-paste ready code templates for AI agents
+#   3. Machine-parseable structure for tooling
+#   4. Minimal research needed before Phase 0
+
+schema_version: "1.0"
+schema_name: "L9 ADR Schema"
+description: "Canonical format for Architecture Decision Records optimized for AI consumption"
+
+# =============================================================================
+# REQUIRED SECTIONS (All ADRs MUST have these)
+# =============================================================================
+required_sections:
+  - name: "Status"
+    description: "Current state of the ADR"
+    allowed_values:
+      - Accepted     # Active, must be followed
+      - Proposed     # Under review
+      - Deprecated   # Superseded, don't use
+      - Superseded   # Replaced by another ADR
+    format: "Single line after ## Status"
+
+  - name: "Pattern"
+    description: "One-line summary of the architectural pattern"
+    format: "1-2 sentences maximum, action-oriented"
+    example: "Use `Depends()` for all shared resources; define deps in `api/dependencies.py`."
+
+  - name: "Files"
+    description: "List of files that implement or are affected by this pattern"
+    format: "Bullet list with paths relative to repo root"
+    example: |
+      - `core/resilience/protocols.py` - Protocol definition
+      - `memory/substrate_service.py` - Primary implementation
+
+  - name: "Rules"
+    description: "Numbered list of invariants that must be maintained"
+    format: "1. MUST/MUST NOT statements"
+    example: |
+      1. ALL database operations MUST use transaction()
+      2. NEVER use raw connection outside transaction
+
+  - name: "AI Guidance"
+    description: "Explicit DO/DO NOT instructions for AI agents"
+    format: |
+      **DO:**
+      - Action 1
+      - Action 2
+      
+      **DO NOT:**
+      - Anti-pattern 1
+      - Anti-pattern 2
+
+# =============================================================================
+# COPY-PASTE TEMPLATES (Required for code patterns)
+# =============================================================================
+template_sections:
+  - name: "Import Block"
+    when: "Pattern involves specific imports"
+    description: "Exact imports needed to use the pattern"
+    format: |
+      ```python
+      from module import Class, function
+      ```
+
+  - name: "Minimal Implementation"
+    when: "Pattern involves code structure"
+    description: "Complete working example ready to copy-paste-modify"
+    format: |
+      ```python
+      # Full working example with all required imports
+      class Example:
+          def __init__(self):
+              ...
+      ```
+
+  - name: "Usage Example"
+    when: "Pattern has runtime usage"
+    description: "How to call/use the pattern in practice"
+    format: |
+      ```python
+      # Usage
+      result = await example.method()
+      ```
+
+  - name: "Anti-Pattern Example"
+    when: "Common mistakes exist"
+    description: "What NOT to do, with explanation"
+    format: |
+      ```python
+      # ❌ WRONG — Explanation of why this is wrong
+      bad_example()
+      
+      # ✅ CORRECT — The right way
+      good_example()
+      ```
+
+# =============================================================================
+# OPTIONAL SECTIONS (Include when relevant)
+# =============================================================================
+optional_sections:
+  - name: "Context"
+    when: "Historical context helps understanding"
+    description: "Why this decision was made"
+
+  - name: "Schema"
+    when: "Pattern involves data structures"
+    description: "Full schema definition"
+
+  - name: "Configuration"
+    when: "Pattern has configurable values"
+    description: "Config options with defaults"
+
+  - name: "Related ADRs"
+    when: "Pattern builds on other ADRs"
+    description: "Links to related ADRs"
+
+  - name: "Migration"
+    when: "Pattern replaces old approach"
+    description: "How to migrate from old to new"
+
+# =============================================================================
+# MARKDOWN TEMPLATE
+# =============================================================================
+markdown_template: |
+  # ADR {NUMBER}: {TITLE}
+
+  ## Status
+  {Accepted|Proposed|Deprecated|Superseded}
+
+  ## Pattern
+  {One-line description of the pattern}
+
+  ## Files
+  - `path/to/file.py` - Description
+  - `path/to/other.py` - Description
+
+  ## Import Block
+  ```python
+  from package import Module, Class, function
+  ```
+
+  ## Minimal Implementation
+  ```python
+  # Complete working example
+  from package import Base
+
+  class MyImplementation(Base):
+      def __init__(self, dependency: Dependency):
+          self._dependency = dependency
+      
+      async def method(self) -> Result:
+          return await self._dependency.call()
+  ```
+
+  ## Usage Example
+  ```python
+  # How to use in practice
+  impl = MyImplementation(dependency=get_dependency())
+  result = await impl.method()
+  ```
+
+  ## Anti-Pattern Example
+  ```python
+  # ❌ WRONG — {Explanation}
+  bad_approach()
+  
+  # ✅ CORRECT — {Explanation}
+  good_approach()
+  ```
+
+  ## Rules
+  1. {MUST statement}
+  2. {MUST NOT statement}
+  3. {Additional rule}
+
+  ## AI Guidance
+  **DO:**
+  - {Action to take}
+  - {Another action}
+
+  **DO NOT:**
+  - {Anti-pattern to avoid}
+  - {Another anti-pattern}
+
+  ## Related ADRs
+  - [ADR-{N}: {Title}]({filename}.md) - {Relationship}
+
+# =============================================================================
+# VALIDATION RULES
+# =============================================================================
+validation:
+  - rule: "Status must be one of allowed values"
+    check: "status in ['Accepted', 'Proposed', 'Deprecated', 'Superseded']"
+  
+  - rule: "Pattern must be 1-2 sentences"
+    check: "len(pattern) < 300 characters"
+  
+  - rule: "Files section must list at least one file"
+    check: "len(files) >= 1"
+  
+  - rule: "Rules section must have numbered items"
+    check: "all rules start with digit + '.'"
+  
+  - rule: "AI Guidance must have DO and DO NOT"
+    check: "'**DO:**' in content and '**DO NOT:**' in content"
+  
+  - rule: "Code patterns must have Import Block"
+    check: "if 'import' in pattern: has_import_block"
+
+# =============================================================================
+# AI CONSUMPTION NOTES
+# =============================================================================
+ai_notes:
+  priority_sections:
+    - "Import Block"      # Copy first
+    - "Minimal Implementation"  # Copy second
+    - "Rules"             # Check constraints
+    - "AI Guidance"       # Final validation
+  
+  skip_in_quick_scan:
+    - "Context"           # Only for deep understanding
+    - "Migration"         # Only when migrating
+  
+  search_keywords:
+    - "MUST"              # Hard requirements
+    - "MUST NOT"          # Hard prohibitions
+    - "DO NOT"            # AI-specific prohibitions
+    - "❌ WRONG"          # Anti-patterns
