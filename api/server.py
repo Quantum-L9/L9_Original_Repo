@@ -288,7 +288,7 @@ except ImportError:
 # Optional: ResearchAgent (Perplexity-based unified research-to-code agent)
 try:
     from api.routes.research_agent import router as research_agent_router
-    from agents.research_agent import ResearchAgent, create_research_agent
+    from agents.research_agent_impl import ResearchAgent, create_research_agent
 
     _has_research_agent = True
 except ImportError as e:
@@ -409,10 +409,17 @@ try:
         AgentSelfModifyTool,
         create_self_modify_tool,
     )
+    from services.research.graph_persistence import (
+        ResearchGraphPersistence,
+        create_graph_persistence,
+        init_graph_persistence,
+    )
 
     _has_graph_agent_state = True
+    _has_research_graph_persistence = True
 except ImportError:
     _has_graph_agent_state = False
+    _has_research_graph_persistence = False
 
 # Optional: Five-Tier Observability (v3.3+ GMP-OBS-DEPLOY)
 L9_OBSERVABILITY = settings.l9_observability
@@ -1669,15 +1676,32 @@ async def lifespan(app: FastAPI):
                 logger.info("GMP worker started")
             except Exception as e:
                 logger.warning(f"Failed to start GMP worker: {e}")
+
+            # Initialize Strategy Memory Service (GMP-102: Phase 0-1)
+            try:
+                from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
+
+                strategy_memory = Neo4jStrategyMemoryService(
+                    neo4j_client=neo4j,
+                    semantic_service=None,  # Phase 0: no embedding-based retrieval yet
+                )
+                app.state.strategy_memory = strategy_memory
+                logger.info("Strategy Memory service initialized (Neo4j-backed)")
+            except Exception as e:
+                app.state.strategy_memory = None
+                logger.warning(f"Failed to initialize Strategy Memory: {e}")
         else:
             # Neo4j not available or not healthy
             app.state.neo4j_client = None
+            app.state.strategy_memory = None
             logger.info("Neo4j not available - graph features disabled")
     except ImportError:
         app.state.neo4j_client = None
+        app.state.strategy_memory = None
         logger.debug("Neo4j client not available")
     except Exception as e:
         app.state.neo4j_client = None
+        app.state.strategy_memory = None
         logger.warning(f"Failed to initialize Neo4j: {e}")
 
     # Initialize Redis client (optional, graceful if unavailable)
@@ -2183,6 +2207,16 @@ async def lifespan(app: FastAPI):
                 )
                 app.state.agent_self_modify_tool = self_modify_tool
                 logger.info("✓ AgentSelfModifyTool initialized")
+
+                # Initialize ResearchGraphPersistence for research findings
+                if _has_research_graph_persistence:
+                    try:
+                        research_graph_persistence = init_graph_persistence(neo4j_client)
+                        app.state.research_graph_persistence = research_graph_persistence
+                        logger.info("✓ ResearchGraphPersistence initialized")
+                    except Exception as e:
+                        logger.warning(f"ResearchGraphPersistence init failed: {e}")
+                        app.state.research_graph_persistence = None
 
                 # Check if L exists in graph, bootstrap if not
                 if await agent_graph_loader.exists("L"):
@@ -2947,6 +2981,10 @@ async def neo4j_health():
                 "agent_graph_loader": getattr(app.state, "agent_graph_loader", None)
                 is not None,
                 "graph_hydrator": getattr(app.state, "graph_hydrator", None)
+                is not None,
+                "agent_self_modify_tool": getattr(
+                    app.state, "agent_self_modify_tool", None
+                )
                 is not None,
             }
         return {"status": "unhealthy", "message": "Query returned no results"}
