@@ -19,7 +19,6 @@ from unittest.mock import MagicMock, AsyncMock
 from uuid import uuid4
 
 
-
 class TestExecutorFailClosed:
     """Tests for AgentExecutorService fail-closed behavior."""
 
@@ -30,9 +29,7 @@ class TestExecutorFailClosed:
 
         # Create executor with mock substrate that fails
         mock_substrate = MagicMock()
-        mock_substrate.write_packet = AsyncMock(
-            side_effect=Exception("Substrate unavailable")
-        )
+        mock_substrate.write_packet = AsyncMock(side_effect=Exception("Substrate unavailable"))
 
         executor = AgentExecutorService(
             aios_runtime=MagicMock(),

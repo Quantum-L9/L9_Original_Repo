@@ -108,11 +108,7 @@ def test_load_invalid_yaml_kernel():
         assert ks is not None
     except (ValueError, TypeError, Exception) as e:
         # Expected behavior: invalid YAML should raise appropriate error
-        assert (
-            "yaml" in str(e).lower()
-            or "parse" in str(e).lower()
-            or "invalid" in str(e).lower()
-        )
+        assert "yaml" in str(e).lower() or "parse" in str(e).lower() or "invalid" in str(e).lower()
 
 
 def test_packet_protocol_validation_matches_runtime_order():

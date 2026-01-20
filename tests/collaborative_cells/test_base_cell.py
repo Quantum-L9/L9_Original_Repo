@@ -20,9 +20,7 @@ if str(project_root) not in sys.path:
 try:
     from collaborative_cells.base_cell import BaseCell, CellConfig, ConsensusStrategy
 except ImportError as e:
-    pytest.skip(
-        f"Could not import collaborative_cells.base_cell: {e}", allow_module_level=True
-    )
+    pytest.skip(f"Could not import collaborative_cells.base_cell: {e}", allow_module_level=True)
 
 
 # =============================================================================

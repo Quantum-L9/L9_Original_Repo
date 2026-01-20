@@ -28,7 +28,6 @@ from core.agents.graph_state.agent_graph_loader import (
     AgentTool,
 )
 
-
 # =============================================================================
 # Test Helpers
 # =============================================================================
@@ -51,9 +50,7 @@ def make_mock_graph_state(
         authority_level="AGENT",
         status=status,
         responsibilities=[
-            AgentResponsibility(
-                title=r.get("title", ""), description=r.get("description", "")
-            )
+            AgentResponsibility(title=r.get("title", ""), description=r.get("description", ""))
             for r in (responsibilities or [])
         ],
         directives=[
@@ -243,9 +240,7 @@ async def test_consolidate_graph_state_default_agent():
     mock_loader.load = AsyncMock(return_value=mock_graph_state)
 
     with patch("core.agents.graph_state.AgentGraphLoader", return_value=mock_loader):
-        result = (
-            await service.consolidate_graph_state()
-        )  # No agent_id - uses default "L"
+        result = await service.consolidate_graph_state()  # No agent_id - uses default "L"
 
     # Should use default "L"
     mock_loader.load.assert_called_once_with("L")

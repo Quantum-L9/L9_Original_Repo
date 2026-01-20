@@ -18,7 +18,6 @@ from core.governance.session_startup import (
     StartupResult,
 )
 
-
 # Default workspace root for tests
 TEST_WORKSPACE_ROOT = Path("/Users/ib-mac/Projects/L9")
 

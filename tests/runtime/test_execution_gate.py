@@ -85,9 +85,7 @@ class TestGuardedExecuteContract:
         assert result["escalation"] == "SAFETY_KERNEL"
 
         # Should have logged escalation
-        assert any(
-            e["category"] == "UNAUTHORIZED_TOOL" for e in agent.kernel_state.escalations
-        )
+        assert any(e["category"] == "UNAUTHORIZED_TOOL" for e in agent.kernel_state.escalations)
 
 
 class TestSafetyScanning:
@@ -204,9 +202,7 @@ class TestToolAuthorization:
 
         custom_auth = {"memory_search": {"class": "RESTRICTED", "blocked": True}}
 
-        agent = self._create_mock_agent(
-            boot_overlay={"tool_authorization_matrix": custom_auth}
-        )
+        agent = self._create_mock_agent(boot_overlay={"tool_authorization_matrix": custom_auth})
 
         result = _get_tool_authorization(agent, "memory_search")
 

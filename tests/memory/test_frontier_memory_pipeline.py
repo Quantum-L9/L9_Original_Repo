@@ -14,7 +14,6 @@ import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-
 # =============================================================================
 # GMP-80-A5: Identity Tier Tests
 # =============================================================================
@@ -297,9 +296,7 @@ class TestQueryClassifierStrategy:
         from memory.query_classifier import get_query_classifier
 
         classifier = get_query_classifier()
-        strategy, reason = classifier.determine_retrieval_strategy(
-            "What happened last week?"
-        )
+        strategy, reason = classifier.determine_retrieval_strategy("What happened last week?")
 
         assert strategy == "temporal_recall"
 

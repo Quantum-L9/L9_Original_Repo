@@ -18,7 +18,6 @@ from runtime.mcp_server_registry import (
     get_mcp_server_snapshot,
 )
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -96,9 +95,7 @@ def test_register_multiple_servers(clean_registry):
         server_id="github", command=["npx", "-y", "@modelcontextprotocol/server-github"]
     )
 
-    register_mcp_server(
-        server_id="custom", command=["python", "-m", "custom_mcp_server"]
-    )
+    register_mcp_server(server_id="custom", command=["python", "-m", "custom_mcp_server"])
 
     servers = get_all_mcp_servers()
     assert len(servers) == 3

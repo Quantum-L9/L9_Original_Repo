@@ -220,8 +220,12 @@ class TestObservabilityResilience:
 
         call_id = uuid4()
 
-        with patch("memory.tool_audit.asyncio.create_task") as mock_create_task, \
-             patch("memory.tool_audit.record_tool_invocation", side_effect=Exception("Metrics error")):
+        with (
+            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.record_tool_invocation", side_effect=Exception("Metrics error")
+            ),
+        ):
             # Should not raise despite metrics failure
             await log_tool_invocation(
                 call_id=call_id,
@@ -336,8 +340,10 @@ class TestPacketStructure:
             task.cancel = MagicMock()
             return task
 
-        with patch("memory.tool_audit.asyncio.create_task", side_effect=capture_create_task), \
-             patch("memory.tool_audit.record_tool_invocation"):
+        with (
+            patch("memory.tool_audit.asyncio.create_task", side_effect=capture_create_task),
+            patch("memory.tool_audit.record_tool_invocation"),
+        ):
             await log_tool_invocation(
                 call_id=call_id,
                 tool_id="structure_test",
@@ -383,6 +389,3 @@ class TestConfidenceScore:
         # Confidence should always be 1.0
         # This is verified in log_tool_invocation where confidence=PacketConfidence(score=1.0, ...)
         pass
-
-
-

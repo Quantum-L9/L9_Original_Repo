@@ -80,9 +80,7 @@ class MockGmailClient:
         """Mock draft_email - returns fake draft ID."""
         return "draft_123"
 
-    def send_email(
-        self, to: str, subject: str, body: str, attachments=None
-    ) -> Dict[str, Any]:
+    def send_email(self, to: str, subject: str, body: str, attachments=None) -> Dict[str, Any]:
         """Mock send_email - returns fake result."""
         return {"message_id": "sent_123", "thread_id": "thread_123"}
 
@@ -148,9 +146,9 @@ async def test_email_query_ingestion():
 
                 # Verify ingestion calls
                 action_calls = tracker.find_by_action("email.query")
-                assert len(action_calls) == 2, (
-                    f"Expected 2 ingestion calls, got {len(action_calls)}"
-                )
+                assert (
+                    len(action_calls) == 2
+                ), f"Expected 2 ingestion calls, got {len(action_calls)}"
 
                 # Verify pre and post phases
                 phases = [c["payload"]["phase"] for c in action_calls]
@@ -159,9 +157,7 @@ async def test_email_query_ingestion():
 
                 # Verify trace_id consistency
                 trace_calls = tracker.find_by_trace_id(trace_id)
-                assert len(trace_calls) == 2, (
-                    "Trace ID not consistent across ingestions"
-                )
+                assert len(trace_calls) == 2, "Trace ID not consistent across ingestions"
 
                 return True, ""
 
@@ -194,9 +190,7 @@ async def test_email_get_ingestion():
                 assert "pre" in phases and "post" in phases
 
                 # Verify message_id is in payload
-                pre_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "pre"
-                )
+                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
                 assert pre_call["payload"]["message_id"] == "msg_test_123"
 
                 return True, ""
@@ -232,15 +226,9 @@ async def test_email_draft_ingestion():
                 assert len(action_calls) == 2
 
                 # Verify sensitive content is NOT in payload (only length)
-                pre_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "pre"
-                )
-                assert "body" not in pre_call["payload"], (
-                    "Body content should not be ingested"
-                )
-                assert "body_length" in pre_call["payload"], (
-                    "Body length should be ingested"
-                )
+                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
+                assert "body" not in pre_call["payload"], "Body content should not be ingested"
+                assert "body_length" in pre_call["payload"], "Body length should be ingested"
 
                 return True, ""
 
@@ -273,9 +261,7 @@ async def test_email_send_ingestion():
                 action_calls = tracker.find_by_action("email.send")
                 assert len(action_calls) == 2
 
-                post_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "post"
-                )
+                post_call = next(c for c in action_calls if c["payload"]["phase"] == "post")
                 assert post_call["payload"]["status"] == "success"
                 assert post_call["payload"]["send_mode"] == "direct"
 
@@ -306,9 +292,7 @@ async def test_email_reply_ingestion():
                 action_calls = tracker.find_by_action("email.reply")
                 assert len(action_calls) == 2
 
-                pre_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "pre"
-                )
+                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
                 assert pre_call["payload"]["original_message_id"] == "msg_original"
 
                 return True, ""
@@ -342,9 +326,7 @@ async def test_email_forward_ingestion():
                 action_calls = tracker.find_by_action("email.forward")
                 assert len(action_calls) == 2
 
-                post_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "post"
-                )
+                post_call = next(c for c in action_calls if c["payload"]["phase"] == "post")
                 assert post_call["payload"]["to"] == "forward@example.com"
 
                 return True, ""

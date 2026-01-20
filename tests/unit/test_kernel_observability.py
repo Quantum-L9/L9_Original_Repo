@@ -19,7 +19,6 @@ from core.observability.models import (
     Span,
 )
 
-
 # =============================================================================
 # SpanKind Tests
 # =============================================================================
@@ -312,4 +311,3 @@ class TestTraceContextIntegration:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

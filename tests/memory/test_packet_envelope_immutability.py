@@ -118,7 +118,7 @@ class TestPacketEnvelopeImmutability:
 
     def test_cannot_reassign_payload(self):
         """packet.payload = {} → MUST RAISE ValidationError.
-        
+
         Note: Pydantic's frozen=True prevents field reassignment but not
         nested dict mutation. For deep immutability, use with_mutation().
         """
@@ -270,4 +270,3 @@ class TestPacketEnvelopeInConversion:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

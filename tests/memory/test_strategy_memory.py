@@ -25,7 +25,6 @@ from memory.neo4j_strategy_memory import (
     create_neo4j_strategy_memory,
 )
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -169,9 +168,7 @@ class TestRetrieveStrategies:
     ):
         """Should respect the limit parameter."""
         # Return multiple strategies
-        strategies = [
-            {"strategy": {**sample_strategy_data, "id": f"str_{i}"}} for i in range(10)
-        ]
+        strategies = [{"strategy": {**sample_strategy_data, "id": f"str_{i}"}} for i in range(10)]
         mock_neo4j_client.execute_query = AsyncMock(return_value=strategies)
 
         result = await strategy_memory_service.retrieve_strategies(
@@ -190,9 +187,7 @@ class TestRetrieveStrategies:
         """Should return empty list when Neo4j unavailable."""
         mock_neo4j_client.is_available = AsyncMock(return_value=False)
 
-        result = await strategy_memory_service.retrieve_strategies(
-            sample_retrieval_request
-        )
+        result = await strategy_memory_service.retrieve_strategies(sample_retrieval_request)
 
         assert result == []
 
@@ -206,9 +201,7 @@ class TestRetrieveStrategies:
         """Should filter candidates below min_confidence threshold."""
         # Low confidence strategy
         low_conf_strategy = {**sample_strategy_data, "performance_score": 0.1}
-        mock_neo4j_client.execute_query = AsyncMock(
-            return_value=[{"strategy": low_conf_strategy}]
-        )
+        mock_neo4j_client.execute_query = AsyncMock(return_value=[{"strategy": low_conf_strategy}])
 
         request = StrategyRetrievalRequest(
             task_id="task_123",
@@ -238,9 +231,7 @@ class TestRecordNewStrategy:
         mock_neo4j_client: MagicMock,
     ):
         """Should successfully record a new strategy."""
-        mock_neo4j_client.execute_query = AsyncMock(
-            return_value=[{"strategy_id": "str_new123"}]
-        )
+        mock_neo4j_client.execute_query = AsyncMock(return_value=[{"strategy_id": "str_new123"}])
 
         strategy_id = await strategy_memory_service.record_new_strategy(
             task_id="task_789",

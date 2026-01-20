@@ -26,9 +26,7 @@ def get_os_module(module_name: str):
         return None
 
     try:
-        spec = importlib.util.spec_from_file_location(
-            f"aios_{module_name}", str(module_path)
-        )
+        spec = importlib.util.spec_from_file_location(f"aios_{module_name}", str(module_path))
         if spec is None or spec.loader is None:
             return None
 

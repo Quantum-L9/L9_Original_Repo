@@ -18,7 +18,6 @@ from agents.cursor.gmp_meta_learning import (
     GMPMetaLearningEngine,
 )
 
-
 # ============================================================================
 # PYDANTIC MODEL TESTS
 # ============================================================================
@@ -257,9 +256,7 @@ class TestGraduationCriteria:
         """L2→L3 graduation requires 10 perfect executions."""
         # Create metrics at boundary
         metrics_9 = AutonomyGraduationMetrics(perfect_executions_l2=9)
-        metrics_10 = AutonomyGraduationMetrics(
-            perfect_executions_l2=10, l2_to_l3_ready=True
-        )
+        metrics_10 = AutonomyGraduationMetrics(perfect_executions_l2=10, l2_to_l3_ready=True)
 
         assert metrics_9.l2_to_l3_ready is False
         assert metrics_10.l2_to_l3_ready is True
@@ -269,9 +266,7 @@ class TestGraduationCriteria:
         # Below threshold
         metrics_low = AutonomyGraduationMetrics(consistency_score_l3=0.90)
         # At threshold
-        metrics_high = AutonomyGraduationMetrics(
-            consistency_score_l3=0.95, l3_to_l4_ready=True
-        )
+        metrics_high = AutonomyGraduationMetrics(consistency_score_l3=0.95, l3_to_l4_ready=True)
 
         assert metrics_low.l3_to_l4_ready is False
         assert metrics_high.l3_to_l4_ready is True
@@ -324,11 +319,7 @@ class TestGraduationCriteria:
 
         # Check criteria
         def is_perfect(r: GMPExecutionResult) -> bool:
-            return (
-                r.error_count == 0
-                and r.final_confidence >= 95
-                and r.audit_result == "PASS"
-            )
+            return r.error_count == 0 and r.final_confidence >= 95 and r.audit_result == "PASS"
 
         assert is_perfect(perfect) is True
         assert is_perfect(with_errors) is False

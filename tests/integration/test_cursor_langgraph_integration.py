@@ -62,9 +62,7 @@ class TestDecisionWrittenToPacketstoreV2:
         )
 
         # Mock governance context
-        with patch(
-            "agents.cursor.integrations.cursor_gateway.governance_context"
-        ) as mock_ctx:
+        with patch("agents.cursor.integrations.cursor_gateway.governance_context") as mock_ctx:
             mock_ctx.return_value = asynccontextmanager(lambda: iter([None]))()
 
             gateway = CursorMemoryGateway(mock_service)
@@ -242,9 +240,7 @@ class TestCheckpointAndResumeThread:
         """Simulate partial execution, checkpoint, interruption, resume."""
         # Mock dependencies
         mock_postgres_saver = Mock(spec=L9PostgresSaver)
-        mock_postgres_saver.put = AsyncMock(
-            return_value={"checkpoint_id": "test-checkpoint"}
-        )
+        mock_postgres_saver.put = AsyncMock(return_value={"checkpoint_id": "test-checkpoint"})
         mock_postgres_saver.get = AsyncMock(return_value={"task": "resumed task"})
 
         mock_gateway = Mock(spec=CursorMemoryGateway)
@@ -298,9 +294,7 @@ class TestScopeEnforcementCursorCannotReadLPrivate:
 
         # Attempt with allowed scope (should not raise)
         # Note: search_memory now returns empty list on error (graceful degradation)
-        with patch(
-            "agents.cursor.integrations.cursor_gateway.governance_context"
-        ) as mock_ctx:
+        with patch("agents.cursor.integrations.cursor_gateway.governance_context") as mock_ctx:
             mock_ctx.return_value = asynccontextmanager(lambda: iter([None]))()
 
             result = await gateway.search_memory(

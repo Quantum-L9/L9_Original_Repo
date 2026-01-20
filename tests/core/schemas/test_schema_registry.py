@@ -234,6 +234,7 @@ class TestReadPacket:
         packet = read_packet(raw)
 
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError):
             packet.packet_type = "changed"
 
@@ -368,4 +369,3 @@ class TestSchemaRegistryProperties:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

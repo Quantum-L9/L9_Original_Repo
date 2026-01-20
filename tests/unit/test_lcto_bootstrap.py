@@ -22,7 +22,6 @@ from unittest.mock import patch
 import pytest
 import yaml
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -71,9 +70,7 @@ def temp_kernel_dir() -> Path:
                 {
                     "kernel": {"name": "behavioral", "version": "1.0.0", "priority": 4},
                     "thresholds": {"execute": 0.8, "questions_max": 1},
-                    "prohibitions": [
-                        {"name": "sycophancy", "detect": ["Great question"]}
-                    ],
+                    "prohibitions": [{"name": "sycophancy", "detect": ["Great question"]}],
                 },
             ),
             (
@@ -102,9 +99,7 @@ def temp_kernel_dir() -> Path:
                 "08_safety_kernel.yaml",
                 {
                     "kernel": {"name": "safety", "version": "1.0.0", "priority": 8},
-                    "guardrails": {
-                        "destructive_ops": {"name": "destructive_ops", "enabled": True}
-                    },
+                    "guardrails": {"destructive_ops": {"name": "destructive_ops", "enabled": True}},
                     "prohibited_actions": ["delete_production_data"],
                 },
             ),
@@ -281,9 +276,7 @@ class TestLCTOAgent:
 class TestKernelAwareAgentRegistry:
     """Tests for KernelAwareAgentRegistry."""
 
-    def test_registry_initialization_with_kernels(
-        self, temp_kernel_dir: Path, monkeypatch
-    ) -> None:
+    def test_registry_initialization_with_kernels(self, temp_kernel_dir: Path, monkeypatch) -> None:
         """Registry should initialize with kernels when USE_KERNELS=true."""
         monkeypatch.setenv("L9_USE_KERNELS", "true")
 
@@ -303,12 +296,8 @@ class TestKernelAwareAgentRegistry:
             assert registry.get_kernel_state() == "ACTIVE"
             assert registry.get_l_cto_agent() is not None
 
-    @pytest.mark.skip(
-        reason="Environment mocking requires module reload - test maintenance needed"
-    )
-    def test_registry_initialization_without_kernels(
-        self, mock_env_without_kernels
-    ) -> None:
+    @pytest.mark.skip(reason="Environment mocking requires module reload - test maintenance needed")
+    def test_registry_initialization_without_kernels(self, mock_env_without_kernels) -> None:
         """Registry should initialize with fallback when USE_KERNELS=false."""
         from core.agents.kernel_registry import KernelAwareAgentRegistry
 
@@ -345,9 +334,7 @@ class TestKernelAwareAgentRegistry:
 class TestCreateKernelAwareRegistry:
     """Tests for create_kernel_aware_registry factory."""
 
-    @pytest.mark.skip(
-        reason="Environment mocking requires module reload - test maintenance needed"
-    )
+    @pytest.mark.skip(reason="Environment mocking requires module reload - test maintenance needed")
     def test_create_registry_without_kernels(self, mock_env_without_kernels) -> None:
         """Factory should create registry without kernels."""
         from core.agents.kernel_registry import create_kernel_aware_registry
@@ -406,13 +393,9 @@ class TestBootstrapIntegration:
         # Check absorbed data
         assert len(agent.kernels) == 10
         # Check identity was absorbed
-        assert hasattr(agent, "_identity") and "L" in agent._identity.get(
-            "designation", ""
-        )
+        assert hasattr(agent, "_identity") and "L" in agent._identity.get("designation", "")
 
-    @pytest.mark.skip(
-        reason="Import patching complexity - l_cto.py uses runtime.kernel_loader"
-    )
+    @pytest.mark.skip(reason="Import patching complexity - l_cto.py uses runtime.kernel_loader")
     def test_bootstrap_with_create_l_cto_agent(self, temp_kernel_dir: Path) -> None:
         """Test bootstrap using create_l_cto_agent factory."""
         from agents.l_cto import create_l_cto_agent

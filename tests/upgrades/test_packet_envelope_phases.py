@@ -628,4 +628,3 @@ class TestIntegration:
         assert validation["phase_3"]["cloudevents_spec"] == "v1.0"
         assert validation["phase_4"]["cqrs"] == "enabled"
         assert validation["phase_5"]["gdpr_support"] == "enabled"
-

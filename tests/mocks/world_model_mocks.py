@@ -178,9 +178,7 @@ class MockWorldModel:
         del self.nodes[node_id]
 
         # Remove associated edges
-        self.edges = [
-            e for e in self.edges if e.source_id != node_id and e.target_id != node_id
-        ]
+        self.edges = [e for e in self.edges if e.source_id != node_id and e.target_id != node_id]
 
         return True
 

@@ -46,7 +46,7 @@ class TestContentHashComputation:
     def test_different_payloads_different_hashes(self):
         """Different payloads produce different hashes."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
-        
+
         packet1 = PacketEnvelope(
             packet_type="test",
             payload={"data": "value1"},
@@ -67,7 +67,7 @@ class TestContentHashComputation:
         """Different metadata produces different hashes."""
         timestamp = datetime(2024, 1, 1, 12, 0, 0)
         payload = {"data": "value"}
-        
+
         packet1 = PacketEnvelope(
             packet_type="test",
             payload=payload,
@@ -89,7 +89,7 @@ class TestContentHashComputation:
     def test_different_timestamps_different_hashes(self):
         """Different timestamps produce different hashes."""
         payload = {"data": "value"}
-        
+
         packet1 = PacketEnvelope(
             packet_type="test",
             payload=payload,
@@ -268,4 +268,3 @@ class TestHashAlgorithmProperties:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

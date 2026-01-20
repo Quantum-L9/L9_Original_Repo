@@ -174,10 +174,7 @@ class TestCellAgentAdapter:
             "collaborative_cells.architect_cell.ArchitectCell"
             in adapter._role_mapping["ArchitectAgent"]
         )
-        assert (
-            "collaborative_cells.coder_cell.CoderCell"
-            in adapter._role_mapping["CoderAgent"]
-        )
+        assert "collaborative_cells.coder_cell.CoderCell" in adapter._role_mapping["CoderAgent"]
 
     def test_adapter_custom_role_mapping(self):
         """Test custom role mapping."""

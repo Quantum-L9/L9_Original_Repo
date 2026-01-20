@@ -24,7 +24,9 @@ async def test_dispatch_tool_call_rejects_unknown_args_before_executor_runs():
     )
 
     # execute_tool exists on ToolRegistry; patch it so we can assert it is not called
-    registry.execute_tool = AsyncMock(return_value={"success": True, "result": "ok", "duration_ms": 1})
+    registry.execute_tool = AsyncMock(
+        return_value={"success": True, "result": "ok", "duration_ms": 1}
+    )
 
     adapter = ExecutorToolRegistry(base_registry=registry, governance_enabled=False)
 
@@ -37,5 +39,3 @@ async def test_dispatch_tool_call_rejects_unknown_args_before_executor_runs():
     assert result.success is False
     assert "unknown field" in (result.error or "").lower()
     registry.execute_tool.assert_not_called()
-
-

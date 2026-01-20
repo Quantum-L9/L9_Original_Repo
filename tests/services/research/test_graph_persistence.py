@@ -20,10 +20,7 @@ from pathlib import Path
 
 _spec = importlib.util.spec_from_file_location(
     "graph_persistence",
-    Path(__file__).parent.parent.parent.parent
-    / "services"
-    / "research"
-    / "graph_persistence.py",
+    Path(__file__).parent.parent.parent.parent / "services" / "research" / "graph_persistence.py",
 )
 _graph_persistence = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_graph_persistence)
@@ -145,9 +142,7 @@ class TestResearchGraphPersistence:
         persistence._neo4j.execute_query.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_persist_finding_validates_content(
-        self, persistence: ResearchGraphPersistence
-    ):
+    async def test_persist_finding_validates_content(self, persistence: ResearchGraphPersistence):
         """Test that empty content is rejected."""
         empty_finding = ResearchFinding(
             finding_type=FindingType.INSIGHT.value,
@@ -192,9 +187,7 @@ class TestResearchGraphPersistence:
     # =========================================================================
 
     @pytest.mark.asyncio
-    async def test_link_finding_to_query_success(
-        self, persistence: ResearchGraphPersistence
-    ):
+    async def test_link_finding_to_query_success(self, persistence: ResearchGraphPersistence):
         """Test successful query linking."""
         result = await persistence.link_finding_to_query(
             finding_id="find_123",
@@ -222,9 +215,7 @@ class TestResearchGraphPersistence:
     # =========================================================================
 
     @pytest.mark.asyncio
-    async def test_link_finding_to_agent_success(
-        self, persistence: ResearchGraphPersistence
-    ):
+    async def test_link_finding_to_agent_success(self, persistence: ResearchGraphPersistence):
         """Test successful agent linking."""
         result = await persistence.link_finding_to_agent(
             finding_id="find_123",
@@ -238,9 +229,7 @@ class TestResearchGraphPersistence:
     # =========================================================================
 
     @pytest.mark.asyncio
-    async def test_get_findings_by_type_success(
-        self, persistence: ResearchGraphPersistence
-    ):
+    async def test_get_findings_by_type_success(self, persistence: ResearchGraphPersistence):
         """Test retrieving findings by type."""
         persistence._neo4j.execute_query = AsyncMock(
             return_value=[
@@ -274,9 +263,7 @@ class TestResearchGraphPersistence:
         assert findings[1]["confidence"] == 0.7
 
     @pytest.mark.asyncio
-    async def test_get_findings_by_type_empty(
-        self, persistence: ResearchGraphPersistence
-    ):
+    async def test_get_findings_by_type_empty(self, persistence: ResearchGraphPersistence):
         """Test empty results handling."""
         persistence._neo4j.execute_query = AsyncMock(return_value=[])
 
@@ -289,9 +276,7 @@ class TestResearchGraphPersistence:
     # =========================================================================
 
     @pytest.mark.asyncio
-    async def test_persist_evidence_as_findings_batch(
-        self, persistence: ResearchGraphPersistence
-    ):
+    async def test_persist_evidence_as_findings_batch(self, persistence: ResearchGraphPersistence):
         """Test batch persistence of evidence."""
         evidence_list = [
             {
@@ -321,9 +306,7 @@ class TestResearchGraphPersistence:
         assert len(finding_ids) == 2
 
     @pytest.mark.asyncio
-    async def test_persist_evidence_classifies_types(
-        self, persistence: ResearchGraphPersistence
-    ):
+    async def test_persist_evidence_classifies_types(self, persistence: ResearchGraphPersistence):
         """Test that evidence is correctly classified by type."""
         # Test GAP classification
         gap_evidence = {

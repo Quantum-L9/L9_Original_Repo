@@ -20,7 +20,6 @@ import pytest
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
-
 # =============================================================================
 # Shared Test Data
 # =============================================================================
@@ -81,8 +80,7 @@ class TestLReadsCursorMemories:
 
             assert len(results) >= 1, "L should find Cursor's memory"
             assert any(
-                "Cursor saved" in str(r.get("envelope", {}).get("payload", {}))
-                for r in results
+                "Cursor saved" in str(r.get("envelope", {}).get("payload", {})) for r in results
             ), "L should see Cursor's content"
 
     @pytest.mark.asyncio
@@ -189,9 +187,7 @@ class TestCursorReadsLMemories:
             project_id="l9",
         )
 
-        assert "l-private" not in ctx.allowed_scopes, (
-            "Cursor context should not include l-private"
-        )
+        assert "l-private" not in ctx.allowed_scopes, "Cursor context should not include l-private"
         assert "developer" in ctx.allowed_scopes
         assert "global" in ctx.allowed_scopes
 
@@ -254,9 +250,9 @@ class TestBidirectionalDeveloperScope:
         }
 
         # When L reads this memory, creator should still be Cursor-IDE
-        assert memory["envelope"]["metadata"]["creator"] == original_creator, (
-            "Creator metadata must be preserved on cross-client read"
-        )
+        assert (
+            memory["envelope"]["metadata"]["creator"] == original_creator
+        ), "Creator metadata must be preserved on cross-client read"
 
 
 # =============================================================================
@@ -291,14 +287,14 @@ class TestScopeIsolationQuery:
         )
 
         # Verify parameterized (no string interpolation)
-        assert "$" in sql_fragment or "ANY" in sql_fragment.upper(), (
-            "Scope filter should use parameterized queries"
-        )
+        assert (
+            "$" in sql_fragment or "ANY" in sql_fragment.upper()
+        ), "Scope filter should use parameterized queries"
 
         # Verify l-private NOT in filter (ctx.allowed_scopes doesn't have it)
-        assert "l-private" not in ctx.allowed_scopes, (
-            "l-private should not be in Cursor's allowed scopes"
-        )
+        assert (
+            "l-private" not in ctx.allowed_scopes
+        ), "l-private should not be in Cursor's allowed scopes"
 
     def test_governance_context_enforces_caller_scopes(self):
         """Verify governance context correctly sets allowed scopes per caller."""
