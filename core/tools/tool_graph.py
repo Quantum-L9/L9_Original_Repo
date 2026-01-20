@@ -656,24 +656,32 @@ async def register_tool_with_metadata(
 # =============================================================================
 
 L9_TOOLS = [
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Awaiting Firecrawl/Perplexity MCP integration
+    # Alternative: run_research_query (full pipeline with Perplexity)
+    # ========================================================================
     ToolDefinition(
         name="web_search",
         description="Search the web using Firecrawl",
         external_apis=["Firecrawl", "Perplexity"],
         category="research",
     ),
+    # ACTIVE - Executor: runtime/l_tools.py::llm_chat
     ToolDefinition(
         name="llm_chat",
         description="Chat with OpenAI models",
         external_apis=["OpenAI"],
         category="ai",
     ),
+    # ACTIVE - Executor: runtime/l_tools.py::memory_write
     ToolDefinition(
         name="memory_write",
         description="Write to L9 memory substrate",
         external_apis=["PostgreSQL"],
         category="memory",
     ),
+    # ACTIVE - Executor: runtime/l_tools.py::memory_search
     ToolDefinition(
         name="memory_search",
         description="Search L9 memory with embeddings",
@@ -681,13 +689,18 @@ L9_TOOLS = [
         internal_dependencies=["memory_write"],
         category="memory",
     ),
+    # ACTIVE - Executor: runtime/l_tools.py::slack_send
     ToolDefinition(
         name="slack_send",
         description="Send message to Slack",
         external_apis=["Slack"],
         category="communication",
     ),
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
     # Email Agent Tools (Gmail multi-account via email_agent/)
+    # Awaiting email_agent/ integration with TOOL_EXECUTORS
+    # ========================================================================
     ToolDefinition(
         name="email_query",
         description="Query emails from Gmail account",
@@ -724,6 +737,10 @@ L9_TOOLS = [
         external_apis=["Gmail API"],
         category="communication",
     ),
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Calendar Tools - Awaiting Google Calendar API integration
+    # ========================================================================
     ToolDefinition(
         name="calendar_create",
         description="Create calendar event",
@@ -756,7 +773,10 @@ async def register_l9_tools() -> int:
 # =============================================================================
 
 L_INTERNAL_TOOLS = [
-    # Memory & World Model tools
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # Superseded by: memory_get_packet, memory_search, memory_query_packets
+    # ========================================================================
     ToolDefinition(
         name="memory_read",
         description="Read from L9 memory substrate",
@@ -767,6 +787,9 @@ L_INTERNAL_TOOLS = [
         external_apis=["PostgreSQL"],
         agent_id="L",
     ),
+    # ========================================================================
+    # Memory & World Model tools - ACTIVE
+    # ========================================================================
     ToolDefinition(
         name="memory_search",
         description="Search L9 memory with embeddings. Use for structured data retrieval, aggregations, keyword search, and text similarity. Best for: totals, averages, counts, tabular reports, finding specific facts.",
@@ -1046,7 +1069,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["MCP", "Neo4j"],
         agent_id="L",
     ),
-    # GitHub MCP Tools
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # GitHub MCP Tools - Awaiting MCP GitHub server integration
+    # ========================================================================
     ToolDefinition(
         name="github_create_issue",
         description="Create a GitHub issue via MCP",
@@ -1081,7 +1107,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["GitHub", "MCP"],
         agent_id="L",
     ),
-    # Notion MCP Tools
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Notion MCP Tools - Awaiting MCP Notion server integration
+    # ========================================================================
     ToolDefinition(
         name="notion_create_page",
         description="Create a Notion page via MCP",
@@ -1104,7 +1133,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["Notion", "MCP"],
         agent_id="L",
     ),
-    # Vercel MCP Tools
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Vercel MCP Tools - Awaiting MCP Vercel server integration
+    # ========================================================================
     ToolDefinition(
         name="vercel_trigger_deploy",
         description="Trigger a Vercel deployment via MCP",
@@ -1128,7 +1160,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["Vercel", "MCP"],
         agent_id="L",
     ),
-    # GoDaddy MCP Tools
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # GoDaddy MCP Tools - Awaiting MCP GoDaddy server integration
+    # ========================================================================
     ToolDefinition(
         name="godaddy_update_dns_record",
         description="Update a GoDaddy DNS record via MCP",
@@ -1405,7 +1440,10 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         agent_id="L",
     ),
-    # Schema Introspection & Hybrid RAG (GMP-55)
+    # ========================================================================
+    # DEPRECATED - LOW PRIORITY
+    # Schema Introspection - Can use neo4j_query or direct SQL instead
+    # ========================================================================
     ToolDefinition(
         name="schema_introspect_postgres",
         description="Introspect PostgreSQL schema (tables, columns, indexes)",
@@ -1428,6 +1466,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # Superseded by: neo4j_query (accepts any Cypher)
+    # ========================================================================
     ToolDefinition(
         name="cypher_template_list",
         description="List available parameterized Cypher templates",
@@ -1449,6 +1491,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # Superseded by: memory_hybrid_search (already implemented)
+    # ========================================================================
     ToolDefinition(
         name="hybrid_rag_search",
         description="Hybrid RAG search combining vector similarity (Postgres/pgvector) + graph enrichment (Neo4j). Use when you need BOTH semantic matching AND relationship context. Best for: questions spanning facts and connections, enriched search results with related entities.",
@@ -1543,6 +1589,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["PostgreSQL", "OpenAI"],
         agent_id="L",
     ),
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # Superseded by: tools_list_all, tools_list_enabled (ADR-0022)
+    # ========================================================================
     ToolDefinition(
         name="tool_router_list",
         description="List all available tools in the tool router",
@@ -1553,7 +1603,10 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         agent_id="L",
     ),
-    # Conversational Graph Memory (GMP-58)
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # graph_memory_store superseded by: memory_write, neo4j_query
+    # ========================================================================
     ToolDefinition(
         name="graph_memory_store",
         description="Store a message in conversational graph memory",
@@ -1565,6 +1618,11 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Conversational Graph Memory - Convenience wrappers over neo4j_query
+    # Implementation: wrap neo4j_query with predefined Cypher patterns
+    # ========================================================================
     ToolDefinition(
         name="graph_memory_query_history",
         description="Query user conversation history from graph memory",
@@ -1598,7 +1656,9 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
-    # Research Agent Integration (GMP: wire_research_lcto_integration)
+    # ========================================================================
+    # ACTIVE - Research Agent Integration (GMP: wire_research_lcto_integration)
+    # ========================================================================
     ToolDefinition(
         name="run_research_query",
         description="Execute a research query through the full LangGraph pipeline. Triggers: PlannerAgent → ResearcherAgent (Perplexity web search) → MergerAgent → CriticAgent → FinalizerAgent → GraphPersistence (Neo4j). Use for external research, evidence gathering, architecture decisions requiring current information.",

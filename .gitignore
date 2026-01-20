@@ -100,6 +100,10 @@ secrets/
 
 # Backup/reference files (local only)
 Repo-Files/
+VPS-Repo-Files/
+
+# Perplexity research outputs (ephemeral)
+wiring-audit-perplexity/
 
 # Local reports (generated / archive)
 reports/GMP Reports/
