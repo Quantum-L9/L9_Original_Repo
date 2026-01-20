@@ -22,6 +22,7 @@ Changelog:
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -324,12 +325,12 @@ class RetrievalPipeline:
                         "packet_id": str(r["packet_id"]),
                         "packet_type": r["packet_type"],
                         "score": float(r["rank"]) if r["rank"] else 0.0,
-                        "timestamp": r["timestamp"].isoformat()
-                        if r["timestamp"]
-                        else None,
-                        "payload": r["envelope"].get("payload", {})
-                        if r["envelope"]
-                        else {},
+                        "timestamp": (
+                            r["timestamp"].isoformat() if r["timestamp"] else None
+                        ),
+                        "payload": (
+                            r["envelope"].get("payload", {}) if r["envelope"] else {}
+                        ),
                     }
                     for r in rows
                 ]
@@ -490,9 +491,11 @@ class RetrievalPipeline:
                     "embedding_id": str(hit.embedding_id),
                     "packet_id": packet_id,
                     "payload": hit.payload,
-                    "packet": matching_packet.model_dump(mode="json")
-                    if matching_packet
-                    else None,
+                    "packet": (
+                        matching_packet.model_dump(mode="json")
+                        if matching_packet
+                        else None
+                    ),
                     "source": "semantic",
                 }
             )
@@ -530,9 +533,11 @@ class RetrievalPipeline:
                     "embedding_id": None,
                     "packet_id": packet_id,
                     "payload": kw_hit.get("payload", {}),
-                    "packet": matching_packet.model_dump(mode="json")
-                    if matching_packet
-                    else None,
+                    "packet": (
+                        matching_packet.model_dump(mode="json")
+                        if matching_packet
+                        else None
+                    ),
                     "source": "keyword",
                 }
             )
@@ -577,9 +582,9 @@ class RetrievalPipeline:
             "semantic_hits": len(semantic_hits),
             "keyword_hits": len(keyword_results),
             "filtered_count": len(filtered_packets),
-            "fusion_type": "4-way_rrf_cross_encoder"
-            if cross_encoder_used
-            else "3-way_rrf",
+            "fusion_type": (
+                "4-way_rrf_cross_encoder" if cross_encoder_used else "3-way_rrf"
+            ),
             "cross_encoder_used": cross_encoder_used,
             "cross_encoder_time_ms": cross_encoder_time_ms,
             "results": combined,
@@ -730,9 +735,9 @@ class RetrievalPipeline:
                 {
                     "packet_id": str(current_id),
                     "packet_type": packet.packet_type,
-                    "timestamp": packet.timestamp.isoformat()
-                    if packet.timestamp
-                    else None,
+                    "timestamp": (
+                        packet.timestamp.isoformat() if packet.timestamp else None
+                    ),
                     "depth": depth,
                 }
             )
@@ -1264,6 +1269,11 @@ class RetrievalPipeline:
 
 
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="retrieval_pipeline",
+    lifecycle="lazy",
+    description="Memory retrieval pipeline for semantic and graph-based search",
+)
 def get_retrieval_pipeline() -> RetrievalPipeline:
     """Get or create the retrieval pipeline singleton. CACHED."""
     return RetrievalPipeline()

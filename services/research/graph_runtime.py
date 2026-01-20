@@ -32,6 +32,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import structlog
+from core.singleton_auto_registry import register_singleton
 from typing import Any, Optional
 from uuid import uuid4
 
@@ -183,6 +184,11 @@ class ResearchGraphRuntime:
 _runtime: Optional[ResearchGraphRuntime] = None
 
 
+@register_singleton(
+    name="research_graph_runtime",
+    lifecycle="lazy",
+    description="Research service graph runtime",
+)
 def get_runtime() -> ResearchGraphRuntime:
     """Get or create runtime singleton."""
     global _runtime

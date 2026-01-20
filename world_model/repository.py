@@ -18,6 +18,7 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -777,15 +778,13 @@ class WorldModelRepository:
         pool = await get_pool()
         async with pool.acquire() as conn:
             await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
-            row = await conn.fetchrow(
-                """
+            row = await conn.fetchrow("""
                 SELECT snapshot_id, snapshot, state_version, entity_count,
                        relation_count, created_at, description, created_by
                 FROM world_model_snapshots
                 ORDER BY created_at DESC
                 LIMIT 1
-                """
-            )
+                """)
             if row:
                 snapshot = row["snapshot"]
                 if isinstance(snapshot, str):
@@ -873,12 +872,10 @@ class WorldModelRepository:
         pool = await get_pool()
         async with pool.acquire() as conn:
             await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
-            row = await conn.fetchrow(
-                """
+            row = await conn.fetchrow("""
                 SELECT COALESCE(MAX(version), 0) as max_version
                 FROM world_model_entities
-                """
-            )
+                """)
             return row["max_version"] if row else 0
 
 
@@ -889,6 +886,11 @@ class WorldModelRepository:
 _repository: Optional[WorldModelRepository] = None
 
 
+@register_singleton(
+    name="world_model_repository",
+    lifecycle="lazy",
+    description="World model data repository",
+)
 def get_world_model_repository() -> WorldModelRepository:
     """Get or create singleton repository."""
     global _repository

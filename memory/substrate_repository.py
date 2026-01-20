@@ -47,6 +47,7 @@ from typing import Any, AsyncGenerator, Optional
 from uuid import UUID, uuid4
 
 import asyncpg
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 
 async def _init_json_codecs(conn: asyncpg.Connection) -> None:
@@ -452,16 +453,22 @@ class SubstrateRepository:
             # Core fields (migration 0001)
             packet_id=row["packet_id"],
             packet_type=row["packet_type"],
-            envelope=json.loads(row["envelope"])
-            if isinstance(row["envelope"], str)
-            else row["envelope"],
+            envelope=(
+                json.loads(row["envelope"])
+                if isinstance(row["envelope"], str)
+                else row["envelope"]
+            ),
             timestamp=row["timestamp"],
-            routing=json.loads(row["routing"])
-            if row["routing"] and isinstance(row["routing"], str)
-            else row["routing"],
-            provenance=json.loads(row["provenance"])
-            if row["provenance"] and isinstance(row["provenance"], str)
-            else row["provenance"],
+            routing=(
+                json.loads(row["routing"])
+                if row["routing"] and isinstance(row["routing"], str)
+                else row["routing"]
+            ),
+            provenance=(
+                json.loads(row["provenance"])
+                if row["provenance"] and isinstance(row["provenance"], str)
+                else row["provenance"]
+            ),
             # Threading & lineage (migration 0002)
             thread_id=row.get("thread_id"),
             parent_ids=row.get("parent_ids") or [],
@@ -575,9 +582,11 @@ class SubstrateRepository:
                     timestamp=r["timestamp"],
                     packet_id=r["packet_id"],
                     event_type=r["event_type"],
-                    content=json.loads(r["content"])
-                    if isinstance(r["content"], str)
-                    else r["content"],
+                    content=(
+                        json.loads(r["content"])
+                        if isinstance(r["content"], str)
+                        else r["content"]
+                    ),
                 )
                 for r in rows
             ]
@@ -661,26 +670,41 @@ class SubstrateRepository:
                     trace_id=r["trace_id"],
                     agent_id=r["agent_id"],
                     packet_id=r["packet_id"],
-                    steps=json.loads(r["steps"])
-                    if r["steps"] and isinstance(r["steps"], str)
-                    else r["steps"],
-                    extracted_features=json.loads(r["extracted_features"])
-                    if r["extracted_features"]
-                    and isinstance(r["extracted_features"], str)
-                    else r["extracted_features"],
-                    inference_steps=json.loads(r["inference_steps"])
-                    if r["inference_steps"] and isinstance(r["inference_steps"], str)
-                    else r["inference_steps"],
-                    reasoning_tokens=json.loads(r["reasoning_tokens"])
-                    if r["reasoning_tokens"] and isinstance(r["reasoning_tokens"], str)
-                    else r["reasoning_tokens"],
-                    decision_tokens=json.loads(r["decision_tokens"])
-                    if r["decision_tokens"] and isinstance(r["decision_tokens"], str)
-                    else r["decision_tokens"],
-                    confidence_scores=json.loads(r["confidence_scores"])
-                    if r["confidence_scores"]
-                    and isinstance(r["confidence_scores"], str)
-                    else r["confidence_scores"],
+                    steps=(
+                        json.loads(r["steps"])
+                        if r["steps"] and isinstance(r["steps"], str)
+                        else r["steps"]
+                    ),
+                    extracted_features=(
+                        json.loads(r["extracted_features"])
+                        if r["extracted_features"]
+                        and isinstance(r["extracted_features"], str)
+                        else r["extracted_features"]
+                    ),
+                    inference_steps=(
+                        json.loads(r["inference_steps"])
+                        if r["inference_steps"]
+                        and isinstance(r["inference_steps"], str)
+                        else r["inference_steps"]
+                    ),
+                    reasoning_tokens=(
+                        json.loads(r["reasoning_tokens"])
+                        if r["reasoning_tokens"]
+                        and isinstance(r["reasoning_tokens"], str)
+                        else r["reasoning_tokens"]
+                    ),
+                    decision_tokens=(
+                        json.loads(r["decision_tokens"])
+                        if r["decision_tokens"]
+                        and isinstance(r["decision_tokens"], str)
+                        else r["decision_tokens"]
+                    ),
+                    confidence_scores=(
+                        json.loads(r["confidence_scores"])
+                        if r["confidence_scores"]
+                        and isinstance(r["confidence_scores"], str)
+                        else r["confidence_scores"]
+                    ),
                     created_at=r["created_at"],
                 )
                 for r in rows
@@ -800,9 +824,11 @@ class SubstrateRepository:
             fact_id=row["fact_id"],
             subject=row["subject"],
             predicate=row["predicate"],
-            object=json.loads(row["object"])
-            if isinstance(row["object"], str)
-            else row["object"],
+            object=(
+                json.loads(row["object"])
+                if isinstance(row["object"], str)
+                else row["object"]
+            ),
             confidence=row["confidence"],
             source_packet=row["source_packet"],
             created_at=row["created_at"],
@@ -855,9 +881,11 @@ class SubstrateRepository:
                     fact_id=r["fact_id"],
                     subject=r["subject"],
                     predicate=r["predicate"],
-                    object=json.loads(r["object"])
-                    if isinstance(r["object"], str)
-                    else r["object"],
+                    object=(
+                        json.loads(r["object"])
+                        if isinstance(r["object"], str)
+                        else r["object"]
+                    ),
                     confidence=r["confidence"],
                     source_packet=r["source_packet"],
                     created_at=r["created_at"],
@@ -982,9 +1010,11 @@ class SubstrateRepository:
                 SemanticHit(
                     embedding_id=r["embedding_id"],
                     score=float(r["score"]),
-                    payload=json.loads(r["payload"])
-                    if isinstance(r["payload"], str)
-                    else r["payload"],
+                    payload=(
+                        json.loads(r["payload"])
+                        if isinstance(r["payload"], str)
+                        else r["payload"]
+                    ),
                 )
                 for r in rows
             ]
@@ -1087,9 +1117,11 @@ class SubstrateRepository:
                 return GraphCheckpointRow(
                     checkpoint_id=row["checkpoint_id"],
                     agent_id=row["agent_id"],
-                    graph_state=json.loads(row["graph_state"])
-                    if isinstance(row["graph_state"], str)
-                    else row["graph_state"],
+                    graph_state=(
+                        json.loads(row["graph_state"])
+                        if isinstance(row["graph_state"], str)
+                        else row["graph_state"]
+                    ),
                     updated_at=row["updated_at"],
                 )
             return None
@@ -1304,9 +1336,11 @@ class SubstrateRepository:
                     fact_id=r["fact_id"],
                     subject=r["subject"],
                     predicate=r["predicate"],
-                    object=json.loads(r["object"])
-                    if isinstance(r["object"], str)
-                    else r["object"],
+                    object=(
+                        json.loads(r["object"])
+                        if isinstance(r["object"], str)
+                        else r["object"]
+                    ),
                     confidence=r["confidence"],
                     source_packet=r["source_packet"],
                     created_at=r["created_at"],
@@ -1344,9 +1378,11 @@ class SubstrateRepository:
                     fact_id=r["fact_id"],
                     subject=r["subject"],
                     predicate=r["predicate"],
-                    object=json.loads(r["object"])
-                    if isinstance(r["object"], str)
-                    else r["object"],
+                    object=(
+                        json.loads(r["object"])
+                        if isinstance(r["object"], str)
+                        else r["object"]
+                    ),
                     confidence=r["confidence"],
                     source_packet=r["source_packet"],
                     created_at=r["created_at"],
@@ -1449,9 +1485,11 @@ class SubstrateRepository:
                     fact_id=r["fact_id"],
                     subject=r["subject"],
                     predicate=r["predicate"],
-                    object=json.loads(r["object"])
-                    if isinstance(r["object"], str)
-                    else r["object"],
+                    object=(
+                        json.loads(r["object"])
+                        if isinstance(r["object"], str)
+                        else r["object"]
+                    ),
                     confidence=r["confidence"],
                     source_packet=r["source_packet"],
                     created_at=r["created_at"],
@@ -1638,9 +1676,11 @@ class SubstrateRepository:
                 user_id=r["user_id"],
                 agent_id=r.get("agent_id"),
                 fact_text=r["fact_text"],
-                triplet=r["triplet"]
-                if isinstance(r["triplet"], dict)
-                else json.loads(r["triplet"] or "{}"),
+                triplet=(
+                    r["triplet"]
+                    if isinstance(r["triplet"], dict)
+                    else json.loads(r["triplet"] or "{}")
+                ),
                 importance=r["importance"],
                 access_count=r["access_count"],
                 last_accessed=r.get("last_accessed"),
@@ -1693,9 +1733,11 @@ class SubstrateRepository:
                 user_id=r["user_id"],
                 agent_id=r.get("agent_id"),
                 fact_text=r["fact_text"],
-                triplet=r["triplet"]
-                if isinstance(r["triplet"], dict)
-                else json.loads(r["triplet"] or "{}"),
+                triplet=(
+                    r["triplet"]
+                    if isinstance(r["triplet"], dict)
+                    else json.loads(r["triplet"] or "{}")
+                ),
                 importance=r["importance"],
                 access_count=r["access_count"],
                 last_accessed=r.get("last_accessed"),
@@ -1935,9 +1977,11 @@ class SubstrateRepository:
                 event_timestamp=r["event_timestamp"],
                 duration_seconds=r.get("duration_seconds"),
                 entities=r.get("entities") or [],
-                context=r["context"]
-                if isinstance(r["context"], dict)
-                else json.loads(r["context"] or "{}"),
+                context=(
+                    r["context"]
+                    if isinstance(r["context"], dict)
+                    else json.loads(r["context"] or "{}")
+                ),
                 outcome=r.get("outcome"),
                 severity=r.get("severity", 0.5),
                 impact_score=r.get("impact_score", 0.5),
@@ -2051,9 +2095,11 @@ class SubstrateRepository:
                 event_timestamp=r["event_timestamp"],
                 duration_seconds=r.get("duration_seconds"),
                 entities=r.get("entities") or [],
-                context=r["context"]
-                if isinstance(r["context"], dict)
-                else json.loads(r["context"] or "{}"),
+                context=(
+                    r["context"]
+                    if isinstance(r["context"], dict)
+                    else json.loads(r["context"] or "{}")
+                ),
                 outcome=r.get("outcome"),
                 severity=r.get("severity", 0.5),
                 impact_score=r.get("impact_score", 0.5),
@@ -2105,9 +2151,11 @@ class SubstrateRepository:
                 user_id=r["user_id"],
                 agent_id=r.get("agent_id"),
                 fact_text=r["fact_text"],
-                triplet=r["triplet"]
-                if isinstance(r["triplet"], dict)
-                else json.loads(r["triplet"] or "{}"),
+                triplet=(
+                    r["triplet"]
+                    if isinstance(r["triplet"], dict)
+                    else json.loads(r["triplet"] or "{}")
+                ),
                 importance=r["importance"],
                 access_count=r["access_count"],
                 last_accessed=r.get("last_accessed"),
@@ -2322,6 +2370,11 @@ class SubstrateRepository:
 _repository: Optional[SubstrateRepository] = None
 
 
+@register_singleton(
+    name="memory_substrate_repository",
+    lifecycle="startup",
+    description="PostgreSQL connection pool for memory substrate",
+)
 def get_repository() -> SubstrateRepository:
     """Get repository singleton (must be initialized first)."""
     if _repository is None:
@@ -2352,6 +2405,7 @@ async def init_repository(database_url: str, **kwargs) -> SubstrateRepository:
     return _repository
 
 
+@register_singleton_closer("memory_substrate_repository")
 async def close_repository() -> None:
     """Close the repository connection."""
     global _repository

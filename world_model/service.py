@@ -17,6 +17,7 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -651,6 +652,11 @@ class WorldModelService:
 _service: Optional[WorldModelService] = None
 
 
+@register_singleton(
+    name="world_model_service",
+    lifecycle="lazy",
+    description="World model service layer",
+)
 def get_world_model_service() -> WorldModelService:
     """Get or create singleton service."""
     global _service

@@ -42,6 +42,7 @@ import structlog
 from datetime import datetime
 from typing import Any, Optional
 
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 from core.schemas import (
     PacketEnvelopeIn,
     PacketWriteResult,
@@ -1293,6 +1294,11 @@ _service: Optional[MemorySubstrateService] = None
 
 
 @must_stay_async("callers use await")
+@register_singleton(
+    name="memory_substrate_service",
+    lifecycle="startup",
+    description="Memory substrate service orchestrating repository, semantic, and graph layers",
+)
 async def get_service() -> MemorySubstrateService:
     """Get service singleton (must be initialized first)."""
     if _service is None:
@@ -1310,6 +1316,7 @@ async def init_service(
     return _service
 
 
+@register_singleton_closer("memory_substrate_service")
 async def close_service() -> None:
     """Close the service and release resources."""
     global _service

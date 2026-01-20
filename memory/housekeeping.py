@@ -12,6 +12,7 @@ All operations are async-safe and use logging (no print statements).
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -181,12 +182,10 @@ class HousekeepingEngine:
 
         async with self._repository.acquire() as conn:
             # Delete expired packets
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 DELETE FROM packet_store
                 WHERE ttl IS NOT NULL AND ttl < NOW()
-                """
-            )
+                """)
 
             # Parse count from result
             count = int(result.split()[-1]) if result else 0
@@ -211,8 +210,7 @@ class HousekeepingEngine:
         async with self._repository.acquire() as conn:
             # Find packets with parent_ids referencing non-existent packets
             # Clear orphan references rather than deleting packets
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 UPDATE packet_store p
                 SET parent_ids = ARRAY(
                     SELECT unnest(p.parent_ids)
@@ -225,8 +223,7 @@ class HousekeepingEngine:
                     SELECT 1 FROM unnest(p.parent_ids) AS parent_id
                     WHERE parent_id NOT IN (SELECT packet_id FROM packet_store)
                 )
-                """
-            )
+                """)
 
             count = int(result.split()[-1]) if result else 0
 
@@ -300,38 +297,32 @@ class HousekeepingEngine:
 
         async with self._repository.acquire() as conn:
             # Clean orphan semantic embeddings
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 DELETE FROM semantic_memory sm
                 WHERE EXISTS (
                     SELECT 1 FROM jsonb_extract_path_text(sm.payload::jsonb, 'packet_id') AS pid
                     WHERE pid IS NOT NULL 
                     AND pid::uuid NOT IN (SELECT packet_id FROM packet_store)
                 )
-                """
-            )
+                """)
             embed_count = int(result.split()[-1]) if result else 0
             total_cleaned += embed_count
 
             # Clean orphan memory events
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 DELETE FROM agent_memory_events
                 WHERE packet_id IS NOT NULL
                 AND packet_id NOT IN (SELECT packet_id FROM packet_store)
-                """
-            )
+                """)
             event_count = int(result.split()[-1]) if result else 0
             total_cleaned += event_count
 
             # Clean orphan knowledge facts
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 DELETE FROM knowledge_facts
                 WHERE source_packet IS NOT NULL
                 AND source_packet NOT IN (SELECT packet_id FROM packet_store)
-                """
-            )
+                """)
             fact_count = int(result.split()[-1]) if result else 0
             total_cleaned += fact_count
 
@@ -407,8 +398,7 @@ class HousekeepingEngine:
             )
 
             # Count orphan references
-            orphan_refs = await conn.fetchval(
-                """
+            orphan_refs = await conn.fetchval("""
                 SELECT COUNT(*) FROM packet_store p
                 WHERE parent_ids IS NOT NULL 
                 AND array_length(parent_ids, 1) > 0
@@ -416,8 +406,7 @@ class HousekeepingEngine:
                     SELECT 1 FROM unnest(p.parent_ids) AS parent_id
                     WHERE parent_id NOT IN (SELECT packet_id FROM packet_store)
                 )
-                """
-            )
+                """)
 
             # Count total packets
             total_packets = await conn.fetchval("SELECT COUNT(*) FROM packet_store")
@@ -447,6 +436,11 @@ class HousekeepingEngine:
 
 
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="housekeeping_engine",
+    lifecycle="lazy",
+    description="Memory housekeeping engine for cleanup and optimization",
+)
 def get_housekeeping_engine() -> HousekeepingEngine:
     """Get or create the housekeeping engine singleton. CACHED."""
     return HousekeepingEngine()

@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import structlog
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 from dataclasses import dataclass
 
 from core.auto_registry import AutoRegistry
@@ -106,7 +106,7 @@ def register_singleton_service(
     module_path: str,
     getter: Callable,
     closer: Optional[Callable] = None,
-    lifecycle: SingletonLifecycle = SingletonLifecycle.LAZY,
+    lifecycle: Union[str, SingletonLifecycle] = SingletonLifecycle.LAZY,
     dependencies: Optional[List[str]] = None,
     description: str = "",
     category: str = "general",
@@ -141,12 +141,18 @@ def register_singleton_service(
             category="core"
         )
     """
+    # Convert string lifecycle to enum if needed
+    if isinstance(lifecycle, str):
+        lifecycle_enum = SingletonLifecycle(lifecycle)
+    else:
+        lifecycle_enum = lifecycle
+
     config = SingletonServiceConfig(
         name=name,
         module_path=module_path,
         getter=getter,
         closer=closer,
-        lifecycle=lifecycle,
+        lifecycle=lifecycle_enum,
         dependencies=dependencies or [],
         description=description,
         category=category,
@@ -156,7 +162,7 @@ def register_singleton_service(
         component_id=name,
         component=config,
         priority=priority,
-        tags=[category, lifecycle.value],
+        tags=[category, lifecycle_enum.value],
     )
 
     logger.info("singleton_service_registry.registered", name=name, category=category)
@@ -165,7 +171,7 @@ def register_singleton_service(
 
 def register_singleton(
     name: Optional[str] = None,
-    lifecycle: SingletonLifecycle = SingletonLifecycle.LAZY,
+    lifecycle: Union[str, SingletonLifecycle] = SingletonLifecycle.LAZY,
     dependencies: Optional[List[str]] = None,
     description: str = "",
     category: str = "general",

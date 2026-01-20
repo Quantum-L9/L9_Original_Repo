@@ -57,6 +57,7 @@ from enum import Enum
 from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 logger = structlog.get_logger(__name__)
 
@@ -415,6 +416,11 @@ class ToolRegistry:
 _registry: Optional[ToolRegistry] = None
 
 
+@register_singleton(
+    name="tool_registry",
+    lifecycle="startup",
+    description="In-memory registry of available tools with rate limiting",
+)
 def get_tool_registry() -> ToolRegistry:
     """Get or create tool registry singleton."""
     global _registry
