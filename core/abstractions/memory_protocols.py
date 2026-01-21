@@ -472,6 +472,8 @@ class RetrievalStrategy(Protocol):
 
 
 # Type aliases
+# NOTE: Using Union[] instead of | for Python 3.9 compatibility (VPS runtime)
+# See .cursor/rules/92-learned-lessons.mdc for why this matters
 MemoryProtocols = Union[
     CacheClient,
     GraphClient,

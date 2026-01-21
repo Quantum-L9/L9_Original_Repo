@@ -357,6 +357,8 @@ class KernelAwareAgent(Protocol):
 
 
 # Type aliases for common use cases
+# NOTE: Using Union[] instead of | for Python 3.9 compatibility (VPS runtime)
+# See .cursor/rules/92-learned-lessons.mdc for why this matters
 KernelProtocols = Union[
     KernelValidator,
     KernelDiscovery,
