@@ -1,10 +1,50 @@
 # TODO
 
-> **Last Updated:** 2026-01-20 (Strategy Memory Phase 2 RAFA & Agent Q added)
+> **Last Updated:** 2026-01-21 (PRs 28-30 merge tracking, adaptive cache, api/server.py deferred)
 
 ---
 
 ## 🔴 High Priority
+
+### PRs #28, #29, #30 Merge (BLOCKED on CI)
+
+**Status:** CI failing on all 3 PRs — Manus fixing (prompts sent)
+
+| PR | Title | CI Status | Blocker |
+|----|-------|-----------|---------|
+| #28 | ExecutorComposer + DIContainer | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
+| #29 | Observability Infrastructure | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
+| #30 | Memory & Governance | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
+
+**Merge Order:** #28 → #29 → #30 (dependency chain)
+
+**Post-Merge TODO:**
+- [ ] Wire `DeduplicationEngine` into `memory/consolidation.py` `_run_deduplication()`
+- [ ] Wire `registry_cache.py` into `core/tools/registry_adapter.py`
+- [ ] Add tracing decorators to high-traffic routes
+
+**DEFERRED:** `api/server.py` refactor → separate future PR
+
+---
+
+### Tool Registry Adaptive Cache (ADR-0050 Extension)
+
+**Status:** Future enhancement — add after PR #30 merged
+
+**Current:** Fixed 5-minute TTL for all tools in `core/tools/registry_cache.py`
+
+**Proposed:** HOT tools get longer TTL based on access frequency:
+- `>100 accesses` → 1 hour TTL
+- `>10 accesses` → 10 min TTL  
+- `<10 accesses` → 5 min TTL (default)
+
+**Files to update:**
+- `core/tools/registry_cache.py` — Add access counter + adaptive TTL logic
+- `readme/ADR/0050-tool-registry-cache.md` — Document adaptive behavior
+
+**Priority:** 🟢 Low (optimization, not blocking)
+
+---
 
 ### Agent/Tenant ID Naming Review
 
