@@ -27,7 +27,7 @@ Version: 1.2.0 (async interface)
 """
 
 from __future__ import annotations
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -72,6 +72,7 @@ if TYPE_CHECKING:
     from world_model.knowledge_ingestor import KnowledgeIngestor
     from world_model.causal_mapper import CausalMapper
     from world_model.reflection_memory import ReflectionMemory
+    from world_model.service import WorldModelService
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -149,7 +150,26 @@ class WorldModelEngine:
         self._causal_mapper: Optional[CausalMapper] = None
         self._reflection_memory: Optional[ReflectionMemory] = None
 
-        logger.info("WorldModelEngine initialized (v1.2.0 async)")
+        # World Model Service for DB-backed entity persistence
+        self._world_model_service: Optional["WorldModelService"] = None
+
+        logger.info("WorldModelEngine initialized (v1.3.0 async with DB sync)")
+
+    def set_world_model_service(self, service: "WorldModelService") -> None:
+        """
+        Set WorldModelService for DB-backed entity persistence.
+
+        When set, entities ingested via update_from_packet() are
+        automatically synced to PostgreSQL after in-memory ingestion.
+
+        Args:
+            service: WorldModelService instance
+        """
+        self._world_model_service = service
+        # Wire to ingestor if already initialized
+        if self._ingestor:
+            self._ingestor.set_world_model_service(service)
+        logger.info("WorldModelService attached to engine for DB sync")
 
     # =========================================================================
     # Initialization
@@ -225,6 +245,9 @@ class WorldModelEngine:
 
             # Initialize runtime components
             self._ingestor = KnowledgeIngestor(state=self._state)
+            # Wire DB sync if service available
+            if self._world_model_service:
+                self._ingestor.set_world_model_service(self._world_model_service)
             self._causal_mapper = CausalMapper()
             self._reflection_memory = ReflectionMemory()
 
@@ -316,6 +339,12 @@ class WorldModelEngine:
                 affected_entities = result.get("entities", [])
                 affected_relations = result.get("relations", [])
                 errors = result.get("errors", [])
+
+                # Sync entities to DB if service available (GMP-WIRE: Pipeline unification)
+                if self._world_model_service and self._ingestor:
+                    sync_result = await self._ingestor.sync_to_db()
+                    if sync_result.get("errors"):
+                        logger.warning(f"DB sync partial: {sync_result['errors']}")
 
                 self._version += 1
 

@@ -46,10 +46,13 @@ __dora_meta__ = {
 
 import structlog
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import WebSocket
 from core.decorators import must_stay_async
+
+# Input segmenter for multi-part directive support (harvested from tokenizer)
+from orchestration.input_segmenter import get_segmenter
 
 logger = structlog.get_logger(__name__)
 
@@ -247,12 +250,16 @@ class WebSocketOrchestrator:
         Routes L-CTO chat interactions through kernel-aware agent stack:
         AgentTask → AgentExecutorService → AIOSRuntime → kernel execution
 
+        Multi-part directive support (harvested from tokenizer):
+        - Compound directives like "Deploy RIL, test ToT" are automatically
+          segmented and processed as separate tasks.
+
         Args:
             agent_id: WebSocket client ID (e.g., "lws-12345")
             data: Message payload with required "message" field
 
         Returns:
-            Response dict with task_id, status, reply
+            Response dict with task_id, status, reply (combined if multi-part)
         """
         from core.agents.schemas import (
             AgentTask,
@@ -289,10 +296,95 @@ class WebSocketOrchestrator:
                 "reply": "Agent executor not initialized - check server startup logs",
             }
 
-        # Build AgentTask for L-CTO
         thread_id = data.get("thread_id", "ws-default")
         metadata = data.get("metadata", {})
 
+        # === Multi-Part Directive Support (harvested from tokenizer) ===
+        segment_enabled = data.get("segment_multi_part", True)
+        segmenter = get_segmenter()
+        segment_result = segmenter.segment(message)
+
+        if segment_enabled and segment_result.segment_count > 1:
+            logger.info(
+                "handle_conversation_task: multi-part directive detected",
+                segment_count=segment_result.segment_count,
+                segments=segment_result.segments,
+                agent_id=agent_id,
+            )
+
+            replies: List[Tuple[str, str, str]] = []  # (segment, status, reply)
+            first_task_id = None
+
+            for i, segment in enumerate(segment_result.segments):
+                task = AgentTask(
+                    agent_id="l-cto",
+                    agent_type=AgentType.ASSISTANT,
+                    source_id=agent_id,
+                    thread_identifier=thread_id,
+                    payload={
+                        "message": segment,
+                        "channel": "ws",
+                        "metadata": metadata,
+                        "segment_index": i,
+                        "total_segments": segment_result.segment_count,
+                        "from_multi_part": True,
+                        "original_message": message,
+                    },
+                )
+
+                if first_task_id is None:
+                    first_task_id = str(task.id)
+
+                try:
+                    result = await executor.start_agent_task(task)
+
+                    if isinstance(result, DuplicateTaskResponse):
+                        replies.append((segment, "duplicate", "Duplicate task"))
+                    else:
+                        replies.append(
+                            (
+                                segment,
+                                result.status,
+                                result.result or result.error or "No response",
+                            )
+                        )
+                except Exception as e:
+                    logger.exception(
+                        "handle_conversation_task: segment %d failed: %s", i, str(e)
+                    )
+                    replies.append((segment, "error", f"Error: {str(e)}"))
+
+            # Combine replies
+            successful = [r for s, st, r in replies if st == "completed"]
+            all_successful = all(st == "completed" for _, st, _ in replies)
+
+            if all_successful:
+                combined_reply = (
+                    "\n\n---\n\n".join(successful)
+                    if len(successful) > 1
+                    else (successful[0] if successful else "All tasks processed")
+                )
+            else:
+                combined_reply = (
+                    f"Processed {len(successful)}/{len(replies)} tasks:\n\n"
+                )
+                for seg, status, reply in replies:
+                    icon = "✅" if status == "completed" else "⚠️"
+                    combined_reply += (
+                        f"{icon} **{seg}**: {reply[:200]}...\n\n"
+                        if len(reply) > 200
+                        else f"{icon} **{seg}**: {reply}\n\n"
+                    )
+
+            return {
+                "task_id": first_task_id or "",
+                "status": "completed" if all_successful else "partial",
+                "reply": combined_reply,
+                "was_multi_part": True,
+                "segments_processed": segment_result.segment_count,
+            }
+
+        # === Single task execution (original behavior) ===
         task = AgentTask(
             agent_id="l-cto",
             agent_type=AgentType.ASSISTANT,

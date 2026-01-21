@@ -1,11 +1,11 @@
 # ============================================================================
 # DORA META - AUTO-GENERATED
 # ============================================================================
-# component_name: "Master"
-# module_version: "1.0.0"
+# component_name: "Master Subsystem Config"
+# module_version: "1.1.0"
 # created_by: "Igor Beylin"
 # created_at: "2026-01-16T00:01:21Z"
-# updated_at: "2026-01-17T23:47:56Z"
+# updated_at: "2026-01-20T00:30:00Z"
 # layer: "foundation"
 # domain: "configuration"
 # file_name: "master"
@@ -15,20 +15,46 @@
 
 subsystems:
   code_mutation:
-    config_path: l9/subsystems/code_mutation/config.yaml
+    config_path: config/subsystems/code_mutation.yaml
     enabled: true
     priority: high
     max_parallel: 1
+    description: "Agentic code generation and mutation tracking"
+  
+  tools:
+    config_path: config/subsystems/tools.yaml
+    enabled: true
+    priority: medium
+    max_parallel: 2
+    description: "Tool registry and capability-based dispatch"
+  
+  auth:
+    config_path: config/subsystems/auth.yaml
+    enabled: true
+    priority: critical
+    max_parallel: 1
+    description: "Authentication, authorization, and RLS"
+  
+  memory_retrieval:
+    config_path: config/subsystems/memory_retrieval.yaml
+    enabled: true
+    priority: medium
+    max_parallel: 3
+    description: "Memory query, retrieval, and ranking"
 
 orchestration:
-  execution_model: sequential
-  default_pattern: l9/patterns/architecture_pipeline_pattern_v1.yaml
-```
+  execution_model: mixed_sequential_parallel
+  default_pattern: config/patterns/pipeline_v1.yaml
+  rules:
+    - "code_mutation must complete before other subsystems mutate repo"
+    - "auth changes require sequential execution (no parallel)"
+    - "tools and memory_retrieval can run in parallel"
+    - "Each subsystem runs its own N1-N9 pipeline independently"
 
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================
-# tags: ["configuration", "foundation", "model-config", "pipeline", "utility"]
-# keywords: ["master"]
-# last_modified: "2026-01-17T23:47:56Z"
+# tags: ["configuration", "foundation", "model-config", "orchestration", "pipeline", "utility"]
+# keywords: ["master", "subsystems", "orchestration"]
+# last_modified: "2026-01-20T00:30:00Z"
 # ============================================================================

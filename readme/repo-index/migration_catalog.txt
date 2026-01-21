@@ -28,6 +28,7 @@
 | `0020_tool_embeddings.sql` | Migration: 0020_tool_embeddings.sql |
 | `0021_gmp_learning.sql` | Migration: 0021_gmp_learning.sql |
 | `0022_temporal_fact_validity.sql` | ============================================================ |
+| `0024_cmts_schema.sql` | ============================================================ |
 
 ## Key Tables Created
 

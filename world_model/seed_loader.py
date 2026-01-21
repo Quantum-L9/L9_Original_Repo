@@ -494,18 +494,27 @@ class SeedLoader:
             r.get("ingest_result", {}).get("relations_added", 0) or 0 for r in results
         )
 
+        # Sync all pending entities to DB (GMP-WIRE: Pipeline unification)
+        db_synced = 0
+        if hasattr(self.ingestor, "sync_to_db"):
+            sync_result = await self.ingestor.sync_to_db()
+            db_synced = sync_result.get("entities_synced", 0)
+            if sync_result.get("errors"):
+                logger.warning(f"DB sync partial: {sync_result['errors']}")
+
         summary = {
             "files_loaded": len(results),
             "total_entities": total_entities,
             "total_relations": total_relations,
             "reflections_loaded": reflections_loaded,
+            "entities_synced_to_db": db_synced,
             "results": results,
         }
 
         logger.info(
             f"Seed loading complete: {len(results)} files, "
             f"{total_entities} entities, {total_relations} relations, "
-            f"{reflections_loaded} reflections"
+            f"{reflections_loaded} reflections, {db_synced} synced to DB"
         )
 
         return summary

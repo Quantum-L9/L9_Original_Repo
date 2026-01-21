@@ -26,6 +26,70 @@
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
+**COMPLETED THIS SESSION (2026-01-20)**:
+- ✅ **GMP-WIRE: World Model Pipeline Unification** — Unified 3 memory pipelines into single flow:
+  - **Problem:** World Model had 2 isolated systems: in-memory `KnowledgeIngestor` → lost on restart, and DB-backed `WorldModelService` → PostgreSQL (never called from in-memory path)
+  - **Analysis:** Traced all 3 memory pipelines: `ingest_packet()`, `_emit_packet()`, World Model `ingest()`. Found first two converge to `write_packet()` → DAG, but World Model was isolated.
+  - **Solution:** Added `sync_to_db()` to `KnowledgeIngestor`, wired callers (`runtime.py`, `engine.py`, `seed_loader.py`), then wired `WorldModelService` to `WorldModelRuntime` at startup
+  - **Files:** `world_model/knowledge_ingestor.py`, `world_model/runtime.py`, `world_model/engine.py`, `world_model/seed_loader.py`, `api/server.py`
+  - **Report:** `reports/WIRE-Report-WorldModelService-Pipeline-20260120.md`
+- ✅ **GMP-106: Fix Python 3.9 Union Syntax + Merge PR #22** — DI/DIP Foundation merged:
+  - **Issue:** PR #22 used Python 3.10+ `|` union syntax incompatible with Python 3.9
+  - **Fix:** Changed `KernelProtocols | MemoryProtocols | ...` to `Union[KernelProtocols, MemoryProtocols, ...]` in 4 protocol files
+  - **Validation:** py_compile PASSED, imports PASSED, 20 unit tests PASSED
+  - **PR Merged:** #22 at 2026-01-20T18:10:12Z (+5,133 lines, 13 files)
+  - **New Modules:** `core/abstractions/` (24 protocols), `core/di/` (DI container), `docs/architecture/` (3 guides)
+  - **Report:** `reports/GMP-Report-106-Fix-Python39-Union-Syntax-PR22.md`
+- ✅ **GMP-105: Checkpoint Resilience (Batch 1+2)** — Production-ready LangGraph checkpoint persistence:
+  - **Research:** Read @DOCS (LangGraph Persistence, PostgreSQL Vacuuming) + Perplexity deep research for gaps
+  - **Batch 1 (Resilience):** Created `L9RetryablePostgresSaver` with exponential backoff retry, implemented proper `list()` method (was stub returning `[]`), added `get_pool_stats()`. 20 tests.
+  - **Batch 2 (Observability):** Added 3 Prometheus gauges (`CHECKPOINT_POOL_SIZE/AVAILABLE/WAITING`), `record_pool_stats()` function, `/health/checkpoint` endpoint. 14 tests.
+  - **New Rule:** Created `.cursor-commands/rules/93-perplexity-research-protocol.md` — Docs-first, Perplexity-second workflow
+  - **Files:** `memory/checkpoint/postgres_saver.py` (+263), `memory/checkpoint_metrics.py` (+77), `api/server.py` (+32), 2 test files (+522)
+  - **Report:** `reports/GMP-Report-105-Checkpoint-Resilience-Complete.md`
+- ✅ **Gap Analysis: TODO Memory Files** — Analyzed 6 TODO Memory Files vs L9 production codebase:
+  - `chunking-protocol.md` — N/A (code generation protocol, not memory)
+  - `Data_Pipeline_Orchestration_v4.0.md` — N/A (Odoo-specific, not L9)
+  - `DSL_Compiler_Description.md` — Not needed (L9 has Semantic Compiler + YAML policies)
+  - `enforceable_recursive_extractor.prompt.md` — PARTIAL (L9 has extractors but simpler schema)
+  - `belief_calibration.md` — FOUNDATIONAL (confidence fields exist, no calibration loop)
+  - `inverse_reinforcement_learning.md` — N/A (research-level, not production)
+  - **Conclusion:** L9 has extensive memory infrastructure that surpasses most proposals
+- ✅ **Policy Generator Utility** — Created `core/governance/policy_generator.py` (~550 LOC):
+  - Template presets: `scope-access`, `tool-approval`, `resource-access`
+  - Auto-generates DORA metadata (header + footer)
+  - CLI interface (`python -m core.governance.policy_generator`)
+  - Programmatic API with `PolicySpec`, `ScopeAccessSpec` dataclasses
+  - Generated example: `config/policies/tool_approval_generated.yaml`
+- ✅ **Governance Exports** — Added `PolicyGenerator`, `PolicySpec`, `ScopeAccessSpec` to `core/governance/__init__.py`
+
+**COMPLETED THIS SESSION (2026-01-19 late evening)**:
+- ✅ **GMP Phase 0.5 (CONTEXT HARVEST)** — Added new phase to `/gmp` command between Phase 0 and Phase 1:
+  - Systematic analysis of provided/attached files before implementation
+  - Harvest checklist: file inventory, pattern extraction, function catalog, import map, type/model discovery, test patterns
+  - Structured output format with tables for files analyzed, reusable functions, patterns, imports, models
+  - Updated Definition of Done with DOD-01.5
+- ✅ **C_GOV_FILES Flat Structure** — Consolidated `.cursor-commands/C_GOV_FILES/` subdirectories:
+  - Moved 83 files from 17 subdirectories to flat parent directory
+  - Deleted all empty subdirectories and READMEs
+  - Identified 3 YAML files with broken path references (moved but not re-wired)
+- ✅ **/wire v10.0.0 Dynamic Wiring** — Complete rewrite of `/wire` command:
+  - Now dynamic: analyzes component type, discovers all references, generates wiring plan
+  - Added Phase 6 (RECURSIVE VERIFICATION): re-run discovery to confirm complete, no new/broken refs
+  - Added Phase 7 (REPORT): GMP-style report at `reports/WIRE-Report-{component}-{date}.md`
+  - Component type detection: Config, Module, Service, Route, Tool, Agent
+  - Fail conditions updated to require Phase 6 pass and Phase 7 generation
+- ✅ **C_GOV_FILES Python Analysis** — Analyzed 10 orphaned Python files in C_GOV_FILES:
+  - ALL 10 files UNUSED (zero references in L9 codebase)
+  - High-value candidates: `auto_calibrator.py`, `feedback_collector.py`, `chat-learning-extractor.py`, `context-extractor.py`
+  - Delete candidates: `governance-api.py` (Flask, superseded by FastAPI), `gmp-todo.schema.yaml` (obsolete)
+- ✅ **Cursor SQLite Documentation** — Documented state.vscdb locations and chat export infrastructure:
+  - Per-workspace: `~/Library/Application Support/Cursor/User/workspaceStorage/{hash}/state.vscdb`
+  - Global: `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb`
+  - Tables: `ItemTable`, `cursorDiskKV` with chat/composer/aiService keys
+  - Export infrastructure: `export_chats.sh` runs hourly → `ops/logs/chat_exports/` (93+ workspaces)
+- ❌ **Autonomous Chat Extractor** — GMP-103 cancelled (user passed)
+
 **COMPLETED THIS SESSION (2026-01-19 evening)**:
 - ✅ **BackgroundTaskRegistry + ReActRuntime** — Harvested from `Runtime 2.md`, wired into L9:
   - Created `runtime/background_tasks.py` (~260 LOC) — Centralized background task management with feature flags, graceful shutdown, observability
@@ -251,6 +315,9 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-20] **World Model Pipeline Unification** — Unified 3 memory pipelines. Traced `ingest_packet()` (external), `_emit_packet()` (executor), and World Model `ingest()`. Found World Model in-memory path was isolated (entities lost on restart). Solution: Added `sync_to_db()` method to `KnowledgeIngestor`, wired to callers (`runtime.py`, `engine.py`, `seed_loader.py`), connected `WorldModelService` to `WorldModelRuntime` at startup via `set_world_model_service()`. All World Model entities now automatically persist to PostgreSQL. Files: `world_model/knowledge_ingestor.py`, `world_model/runtime.py`, `world_model/engine.py`, `world_model/seed_loader.py`, `api/server.py`. Report: `reports/WIRE-Report-WorldModelService-Pipeline-20260120.md`.
+- [2026-01-20] **Policy Generator Utility** — Created `core/governance/policy_generator.py` (~550 LOC) for declarative YAML policy generation. Features: 3 template presets (`scope-access`, `tool-approval`, `resource-access`), auto DORA metadata, CLI (`python -m core.governance.policy_generator`), programmatic API. Generated example at `config/policies/tool_approval_generated.yaml`. Added exports to `core/governance/__init__.py` (`PolicyGenerator`, `PolicySpec`, `ScopeAccessSpec`).
+- [2026-01-20] **Gap Analysis: TODO Memory Files** — Analyzed 6 files in `current_work/TODO Memory Files/` against L9 production. Results: chunking-protocol (N/A), Data_Pipeline_v4.0 (N/A - Odoo), DSL_Compiler (not needed - L9 has semantic compiler), recursive_extractor (partial), belief_calibration (foundational only), IRL (N/A - research). L9 has extensive memory infrastructure: LangGraph DAG pipeline, insight extraction, consolidation, importance manager, retrieval strategies, closed-loop learning via adaptive prompting.
 - [2026-01-19] **GMP-95: Wire Stage 2 Memory Consolidation Modules** — Wired `NeuralDecayScheduler` and `HierarchicalSummarizer` into `api/server.py` Stage 4 consolidation loop. Both modules initialized at startup with repository from substrate service. `run_decay_pass()` (salience decay) and `run_cascade()` (20min→daily→weekly summarization) now execute every `L9_CONSOLIDATION_INTERVAL_HOURS` (default 4h). Existing `MemoryConsolidationService` untouched (additive wiring). Files: `api/server.py` (+24 lines in Stage 4 block).
 - [2026-01-16] **GMP-93: Remove slack_sdk Dependency Entirely** — Removed `slack_sdk` dependency from L9 codebase. Extended `api/slack_client.py` with async `upload_file()` and `get_file_info()` methods. Migrated all callers to async: `orchestrators/agent_execution/orchestrator.py`, `mac_agent/runner.py`, `api/webhook_mac_agent.py`, `services/slack_files.py`, `memory/slack_ingest.py`. Deleted `services/slack_client.py` (312 lines). Removed `slack-sdk>=3.26.0` from `requirements.txt`. **Result:** 100% async httpx-based Slack client, no blocking I/O, no slack_sdk dependency. Report: `reports/GMP_Report_GMP-93.md`
 - [2026-01-15] **Feature Flag Centralization** — Fixed hardcoded feature flags in `api/server.py`. Added 10 new flags to `config/settings.py` (L9_NEW_AGENT_INIT, L9_STAGE3_MODULES, L9_GRAPH_AGENT_STATE, L9_OBSERVABILITY, L9_SKIP_STARTUP_CHECKS, L9_STAGE4_CONSOLIDATION, L9_CONSOLIDATION_INTERVAL_HOURS, L9_GRAPH_WM_SYNC, L9_TOOL_PATTERN_EXTRACTION, LOCAL_DEV). Updated `api/server.py` to use `settings.xyz` instead of `os.getenv()`. Also fixed `_has_mac_agent` and `_has_waba` to use existing settings. All feature flags now read from `.env` via centralized Pydantic settings.
@@ -288,6 +355,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Decision Log (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-20] **Unified Memory Pipeline Architecture**: Three entry points (`ingest_packet()`, `_emit_packet()`, World Model `ingest()`) all ultimately flow to PostgreSQL. `ingest_packet()` and `_emit_packet()` use `write_packet()` → DAG. World Model uses `sync_to_db()` → `WorldModelService.upsert_entity()`. Key insight: `_emit_packet()` cannot be replaced with `ingest_packet()` because they serve different abstraction levels (internal executor trace vs external API entry point), but they both converge to the same destination.
 - [2026-01-19] **BackgroundTaskRegistry Pattern**: All periodic background tasks in `api/server.py` should use `bg_tasks.register()` instead of inline `while True` loops. Benefits: centralized error handling, feature flag support, graceful shutdown, observability via `snapshot()`. New tasks: just call `bg_tasks.register(name, coro, interval)`.
 - [2026-01-19] **Pydantic v2 Annotated Pattern**: Future-proof fields in schemas should use `Annotated[T, Field(...)]` with explicit constraints (regex patterns, `conlist` for bounded lists). Descriptions prefixed with `"FUTURE-PROOF:"` for documentation clarity.
 - [2026-01-17] **Memory Pipeline Architecture**: Use `MemorySubstrateService` directly (not `SubstrateDagOrchestrator`) for Cursor integration and testing. Rationale: simpler path until memory pipeline fully validated. `SubstrateDagOrchestrator` now has enterprise resilience (retry/CB/DLQ) ready for future wiring when needed. Pre-existing blocker: `graph_client.py:28` syntax error (unindented import in try block) needs separate fix.
@@ -340,7 +408,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Embedding Dimensions**: ALL systems aligned at **1536** (text-embedding-3-large truncated, text-embedding-3-small native)
 
 ---
-*Last updated: 2026-01-19 (Auto-Wiring Phase 3: BackgroundTaskRegistry + ReActRuntime; Pydantic Annotated pattern)*
+*Last updated: 2026-01-20 (World Model Pipeline Unification + GMP-WIRE)*
 
 ## Next Steps (Current Session)
 
@@ -365,6 +433,10 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ~~**S3 Backup Automation**~~ ✅ DONE — VPS cron job set for 12-hour backups
 
 **Recent Sessions (7-day window):**
+- 2026-01-20: **World Model Pipeline Unification + GMP-106 PR #22** — Unified 3 memory pipelines: traced `ingest_packet()`, `_emit_packet()`, World Model `ingest()`. Found World Model in-memory path was isolated. Added `sync_to_db()` to `KnowledgeIngestor`, wired to callers, connected `WorldModelService` to `WorldModelRuntime` at startup. All World Model entities now persist to PostgreSQL. Also: Fixed Python 3.9 union syntax, merged PR #22 (+5,133 lines).
+- ✅ 2026-01-20: **GMP-105 Checkpoint Resilience + Research Protocol** — Completed GMP-105 Batch 1+2: `L9RetryablePostgresSaver` with retry logic, proper `list()` implementation, Prometheus pool gauges, `/health/checkpoint` endpoint. 34 new tests. Established Perplexity Research Protocol rule (docs-first, Perplexity for gaps only). Also: Gap Analysis + Policy Generator utility.
+- 2026-01-20: **Gap Analysis + Policy Generator** — Analyzed 6 TODO Memory Files vs L9 production (most N/A or already implemented). Created `core/governance/policy_generator.py` (~550 LOC) with template presets (`scope-access`, `tool-approval`, `resource-access`), DORA metadata, CLI + programmatic API. Generated `config/policies/tool_approval_generated.yaml`. **New utility for declarative policy creation.**
+- 2026-01-19: **Governance Command Enhancements** — Added Phase 0.5 (CONTEXT HARVEST) to `/gmp` for systematic file analysis before implementation. Rewrote `/wire` to v10.0.0 (dynamic wiring + Phase 6 recursive verify + Phase 7 report). Consolidated `C_GOV_FILES/` (83 files from 17 subdirs → flat). Analyzed 10 orphaned Python files (all unused). Documented Cursor state.vscdb + chat export infrastructure.
 - 2026-01-19: **Auto-Wiring Phase 3: BackgroundTaskRegistry + ReActRuntime** — Harvested `BackgroundTaskRegistry` (~260 LOC) and `ReActRuntime` (~225 LOC) from Runtime 2.md. Refactored `api/server.py` to use registry (~35 lines removed). Applied Pydantic v2 `Annotated` pattern to future-proof fields in `core/agents/schemas.py` (regex validation, list bounds). **New files:** `runtime/background_tasks.py`, `core/runtimes/react_runtime.py`.
 - 2026-01-19: **Memory Consolidation Wiring (GMP-95)** — Wired `NeuralDecayScheduler` and `HierarchicalSummarizer` into server background loop. Verified memory tools (`memory_search`, `memory_write`) already registered. Earlier: README Gold Standard Infrastructure (GMP-100/101), superprompt enhancements, research agent facade. **Stage 2 memory consolidation now active.**
 - ✅ 2026-01-19: **Pre-Commit v3.0 Frontier-Grade** — Upgraded to 8-gate security hook. Gates: branch protection, secret scan, format, lint, type check (strict), AI security, test+coverage (75%), protected surfaces, audit logging. **All 5 critical gaps CLOSED.**

@@ -1880,6 +1880,117 @@ def generate_decorator_catalog():
     return "No decorators found."
 
 
+def generate_adr_catalog():
+    """Generate catalog of Architecture Decision Records (ADRs)."""
+    from datetime import datetime
+
+    lines = [
+        "# L9 Architecture Decision Record (ADR) Catalog",
+        f"# Generated: {datetime.now().strftime('%Y-%m-%d')}",
+    ]
+
+    adr_dir = os.path.join(REPO_DIR, "readme", "adr")
+    if not os.path.isdir(adr_dir):
+        return "# No ADR directory found at readme/adr/"
+
+    # Collect ADRs
+    adrs = []
+    do_not_rules = []
+
+    for fname in sorted(os.listdir(adr_dir)):
+        if fname.endswith(".md") and fname[0].isdigit():
+            fpath = os.path.join(adr_dir, fname)
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    content = f.read()
+
+                    # Extract ADR number from filename (e.g., "0024" from "0024-resilience-mixin-pattern.md")
+                    adr_num = fname.split("-")[0]
+
+                    # Extract title from first line: "# ADR 0024: <Title>"
+                    title = "Unknown"
+                    title_match = re.search(
+                        r"^#\s+ADR\s+\d+:\s*(.+)$", content, re.MULTILINE
+                    )
+                    if title_match:
+                        title = title_match.group(1).strip()
+
+                    # Extract status from "## Status\n<status>" section
+                    status = "Unknown"
+                    status_match = re.search(
+                        r"##\s*Status\s*\n+([A-Za-z]+)", content, re.MULTILINE
+                    )
+                    if status_match:
+                        status = status_match.group(1).strip()
+
+                    rel_path = f"readme/adr/{fname}"
+                    adrs.append((adr_num, status, title, rel_path))
+
+                    # Extract "DO NOT" rules from content for quick reference
+                    do_not_matches = re.findall(
+                        r"DO NOT[^.!?\n]{10,80}", content, re.IGNORECASE
+                    )
+                    for rule in do_not_matches[:2]:  # Max 2 per ADR
+                        # Clean up the rule text
+                        rule_clean = rule.strip()
+                        if rule_clean and len(rule_clean) > 15:
+                            do_not_rules.append((adr_num, rule_clean))
+
+            except Exception:
+                pass
+
+    # Add total count
+    lines.append(f"# Total: {len(adrs)} ADRs")
+    lines.append("#")
+    lines.append("# Format: ADR_NUMBER | STATUS | TITLE | PATH")
+    lines.append("# " + "=" * 76)
+    lines.append("")
+
+    # Group ADRs by range
+    foundation = [(n, s, t, p) for n, s, t, p in adrs if int(n) <= 13]
+    core = [(n, s, t, p) for n, s, t, p in adrs if 14 <= int(n) <= 23]
+    advanced = [(n, s, t, p) for n, s, t, p in adrs if int(n) >= 24]
+
+    if foundation:
+        lines.append("# FOUNDATION (0001-0013)")
+        for adr_num, status, title, path in foundation:
+            lines.append(f"{adr_num} | {status} | {title} | {path}")
+        lines.append("")
+
+    if core:
+        lines.append("# CORE PATTERNS (0014-0023)")
+        for adr_num, status, title, path in core:
+            lines.append(f"{adr_num} | {status} | {title} | {path}")
+        lines.append("")
+
+    if advanced:
+        lines.append("# ADVANCED PATTERNS (0024+)")
+        for adr_num, status, title, path in advanced:
+            lines.append(f"{adr_num} | {status} | {title} | {path}")
+        lines.append("")
+
+    # Add AI Quick Reference section with DO NOT rules
+    if do_not_rules:
+        lines.append("# " + "=" * 76)
+        lines.append("# AI QUICK REFERENCE - KEY DO NOT's")
+        lines.append("# " + "=" * 76)
+        lines.append("")
+
+        # Deduplicate and sort by ADR number
+        seen = set()
+        unique_rules = []
+        for adr_num, rule in sorted(do_not_rules, key=lambda x: int(x[0])):
+            rule_key = rule.lower()[:50]
+            if rule_key not in seen:
+                seen.add(rule_key)
+                unique_rules.append((adr_num, rule))
+
+        for adr_num, rule in unique_rules:
+            lines.append(f"# {rule} (ADR-{adr_num})")
+
+    return "\n".join(lines)
+
+
 def main():
     """Generate index files and export them."""
     if not os.path.isdir(REPO_DIR):
@@ -1995,6 +2106,7 @@ def main():
             generate_async_function_map,
         ),
         "decorator_catalog.txt": ("🏷️  Decorator catalog", generate_decorator_catalog),
+        "adr_catalog.txt": ("📜 ADR catalog", generate_adr_catalog),
     }
 
     logger.info("\n📝 Generating indexes...\n")

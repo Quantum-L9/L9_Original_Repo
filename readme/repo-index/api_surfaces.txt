@@ -1,8 +1,5 @@
 
 # API Surface:
-  api/adapters/calendar_adapter/routes/calendar_adapter.py::router
-  api/adapters/email_adapter/routes/email_adapter.py::router
-  api/adapters/twilio_adapter/routes/twilio_adapter.py::router
   api/agent_routes.py::router
   api/memory/cache.py::router
   api/memory/graph.py::router
@@ -15,11 +12,14 @@
   api/routes/gmp_learning.py::router
   api/routes/mcp.py::router
   api/routes/modules.py::router
+  api/routes/observability.py::router
   api/routes/pattern.py::router
   api/routes/reasoning.py::router
+  api/routes/reflection_agent.py::router
+  api/routes/registry.py::router
   api/routes/research.py::router
+  api/routes/research_agent.py::router
   api/routes/simulation.py::router
-  api/routes/slack.py::router
 
 # SERVICES Surface:
   services/research/research_api.py::router

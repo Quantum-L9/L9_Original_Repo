@@ -47,8 +47,12 @@ import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
+    from memory.identity_tier import IdentityTierService
 
 logger = structlog.get_logger(__name__)
 
@@ -139,8 +143,8 @@ class HierarchicalContextBuilder:
 
     def __init__(
         self,
-        repository=None,
-        identity_service=None,
+        repository: Optional["SubstrateRepository"] = None,
+        identity_service: Optional["IdentityTierService"] = None,
         allocation: Optional[dict[MemoryTier, float]] = None,
     ):
         """
@@ -156,11 +160,11 @@ class HierarchicalContextBuilder:
         self._allocation = allocation or self.DEFAULT_ALLOCATION
         logger.info("HierarchicalContextBuilder initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_identity_service(self, service) -> None:
+    def set_identity_service(self, service: "IdentityTierService") -> None:
         """Set or update the identity service reference."""
         self._identity_service = service
 

@@ -2,35 +2,66 @@ L9/
 ├── .cursorignore
 ├── .dockerignore
 ├── .gitignore
+├── .gitleaks.toml
 ├── .gitleaksignore
 ├── .migrations_applied
 ├── .vultureignore
 ├── L9.code-workspace
-├── MRI-VPS-2.md
-├── MRI-VPS-RESULTS.md
-├── MRI-VPS-Results-2.md
-├── ... (18 more files)
+├── Makefile
+├── README.md
+├── ... (22 more files)
 ├── .audit_cache/
+├── .cursorrules/
+│   ├── 00-global.mdc
+│   ├── 01-vps-rules.mdc
+│   ├── 02-slash-commands.mdc
+│   ├── 03-mcp-memory.mdc
+│   ├── 05-ask-mode.mdc
+│   ├── 10-lang-typescript.mdc
+│   ├── 20-lang-python.mdc
+│   ├── 25-python-dora-header.mdc
+│   ├── 30-framework-react.mdc
+│   ├── 40-domain-autonomy.mdc
+│   ├── ... (22 more files)
 ├── .github/
+│   ├── scripts/
+│   │   ├── generate-ai-collab-report.py
+│   │   ├── validate-protected-files.py
+│   │   ├── validate-readme-sections.py
 │   └── workflows/
 │       ├── ci.yml
 │       ├── dev-layer-gmp.yml
+│       ├── docs-code-sync.yml
 │       ├── terminology-guard.yml
 ├── .sec/
 │   ├── semgrep.yaml
 ├── .tmp.drivedownload/
 ├── _archived/
-│   └── legacy_deploy/
-│       ├── deploy-old.sh
-│       ├── l9-deploy-runner.sh
-│       ├── vps-deploy-helper.sh
+│   ├── deprecated_backup_scripts/
+│   │   ├── backup_database.sh
+│   │   ├── test_backup_restore.sh
+│   ├── legacy_deploy/
+│   │   ├── deploy-old.sh
+│   │   ├── l9-deploy-runner.sh
+│   │   ├── vps-deploy-helper.sh
+│   └── symbolic_computation/
+│       ├── __init__.py
+│       ├── config.py
+│       ├── core.py
+│       ├── exceptions.py
+│       ├── logger.py
+│       ├── models.py
+│       ├── test_symbolic_computation.py
+│       ├── utils.py
 ├── agents/
+│   ├── README.md
 │   ├── __init__.py
+│   ├── agent_registry.py
 │   ├── base_agent.py
 │   ├── l_cto.py
 │   ├── qa_agent.py
 │   ├── reflection_agent.py
-│   ├── research_agent.py
+│   ├── research_agent_impl.py
 │   ├── architect_agent/
 │   │   ├── __init__.py
 │   │   ├── architect_agent_a.py
@@ -39,40 +70,44 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── coder_agent_a.py
 │   │   ├── coder_agent_b.py
-│   └── cursor/
-│       ├── CURSOR-GOD-PROMPT.md
-│       ├── CURSOR-RUNBOOK.md
+│   ├── cursor/
+│   │   ├── README.md
+│   │   ├── __init__.py
+│   │   ├── cursor_client.py
+│   │   ├── cursor_memory_client.py
+│   │   ├── cursor_memory_kernel.py
+│   │   ├── cursor_neo4j_query.py
+│   │   ├── cursor_system_prompt.md
+│   │   ├── cursor_workflow_kernel.yaml
+│   │   ├── gmp_meta_learning.py
+│   │   ├── governance-reference.md
+│   │   ├── GMP-v2.0-Perplex-Py-Scripts/
+│   │   ├── docs/
+│   │   ├── extractors/
+│   │   ├── gmp_protocol/
+│   │   ├── integrations/
+│   │   ├── perplexity_research_queries/
+│   │   ├── prompts/
+│   │   └── scripts/
+│   └── research_agent/
+│       ├── RESEARCH-AGENT-ANALYSIS.md
 │       ├── __init__.py
-│       ├── cursor-phase-0-planning.md
-│       ├── cursor-phase-1-baseline.md
-│       ├── cursor-phase-2-implementation.md
-│       ├── cursor-phase-3-enforcement.md
-│       ├── cursor-phase-4-validation.md
-│       ├── cursor-phase-5-recursion.md
-│       ├── cursor-phase-6-finalization.md
-│       ├── ... (7 more files)
-│       ├── docs/
-│       ├── extractors/
-│       ├── integrations/
-│       ├── prompts/
-│       └── scripts/
+│       ├── research_facade.py
+│       └── prompts/
 ├── api/
 │   ├── README-SLACK-COMPREHENSIVE.md
 │   ├── README-SLACK.md
+│   ├── README.md
+│   ├── README.meta.yaml
 │   ├── SLACK_INTEGRATION.md
 │   ├── __init__.py
 │   ├── agent_routes.py
 │   ├── auth.py
 │   ├── db.py
 │   ├── dependencies.py
-│   ├── e2e_slack_audit.py
-│   ├── llm.py
-│   ├── ... (13 more files)
+│   ├── ... (14 more files)
 │   ├── adapters/
-│   │   ├── calendar_adapter/
-│   │   ├── email_adapter/
-│   │   ├── slack_adapter/
-│   │   └── twilio_adapter/
+│   │   └── slack_adapter/
 │   ├── memory/
 │   │   ├── __init__.py
 │   │   ├── cache.py
@@ -87,9 +122,9 @@ L9/
 │   │   ├── gmp_learning.py
 │   │   ├── mcp.py
 │   │   ├── modules.py
+│   │   ├── observability.py
 │   │   ├── pattern.py
-│   │   ├── reasoning.py
-│   │   ├── ... (5 more files)
+│   │   ├── ... (9 more files)
 │   └── tools/
 │       ├── __init__.py
 │       ├── router.py
@@ -103,16 +138,18 @@ L9/
 │   ├── check_syntax.py
 │   ├── check_tool_naming.py
 │   ├── check_tool_wiring.py
-│   ├── lint_forbidden_imports.py
-│   ├── ... (3 more files)
+│   ├── dora_compliance_check.py
+│   ├── ... (4 more files)
 ├── clients/
 │   ├── __init__.py
 │   ├── memory_client.py
 │   ├── world_model_client.py
 ├── collaborative_cells/
+│   ├── README.md
 │   ├── __init__.py
 │   ├── architect_cell.py
 │   ├── base_cell.py
+│   ├── cell_registry.py
 │   ├── coder_cell.py
 │   ├── reflection_cell.py
 │   ├── reviewer_cell.py
@@ -120,6 +157,7 @@ L9/
 │   ├── __init__.py
 │   ├── boot_overlay.yaml
 │   ├── cursor_langgraph_config.py
+│   ├── mcp_servers.yaml
 │   ├── memory_substrate_settings.py
 │   ├── research_settings.py
 │   ├── rls_config.py
@@ -128,22 +166,50 @@ L9/
 │   ├── agents/
 │   │   ├── L-CTO-Agent.yaml
 │   │   ├── L-CTO-Research-Overlay.yaml
+│   │   ├── README.md
 │   │   ├── l9-standard-v1.yaml
+│   │   ├── reflection-agent-v1.yaml
 │   │   ├── research-agent-v1.yaml
+│   ├── gmp/
+│   │   ├── phase0-scope-schema.yaml
 │   ├── patterns/
 │   │   ├── pipeline_v1.yaml
 │   ├── policies/
 │   │   ├── defaults.yaml
+│   │   ├── high_risk_tools.yaml
+│   │   ├── memory_scope.yaml
+│   │   ├── protected_files.yaml
+│   │   ├── rate_limits.yaml
+│   │   ├── tool_approval_generated.yaml
 │   │   ├── tool_usage.yaml
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── adr_schema.yaml
 │   └── subsystems/
+│       ├── auth.yaml
 │       ├── code_mutation.yaml
 │       ├── master.yaml
+│       ├── memory_retrieval.yaml
+│       ├── tools.yaml
 ├── core/
+│   ├── README.md
 │   ├── __init__.py
+│   ├── auto_registry.py
+│   ├── decorators.py
 │   ├── error_tracking.py
+│   ├── event_type_registry.py
 │   ├── moduleregistry.py
+│   ├── singleton_auto_registry.py
 │   ├── singleton_registry.py
+│   ├── abstractions/
+│   │   ├── __init__.py
+│   │   ├── agent_protocols.py
+│   │   ├── kernel_protocols.py
+│   │   ├── memory_protocols.py
+│   │   ├── observability_protocols.py
 │   ├── agents/
+│   │   ├── README.md
+│   │   ├── README.meta.yaml
 │   │   ├── __init__.py
 │   │   ├── adaptive_prompting.py
 │   │   ├── agent_instance.py
@@ -152,9 +218,7 @@ L9/
 │   │   ├── kernelevolution.py
 │   │   ├── prompt_builder.py
 │   │   ├── prompt_defense.py
-│   │   ├── registry.py
-│   │   ├── schemas.py
-│   │   ├── ... (1 more files)
+│   │   ├── ... (3 more files)
 │   │   ├── bootstrap/
 │   │   └── graph_state/
 │   ├── aios/
@@ -177,25 +241,24 @@ L9/
 │   ├── coordination/
 │   │   ├── __init__.py
 │   │   ├── event_queue.py
+│   ├── di/
+│   │   ├── __init__.py
+│   │   ├── container.py
 │   ├── evaluation/
 │   │   ├── __init__.py
 │   │   ├── evaluator.py
-│   ├── gmp/
-│   │   ├── README.md
-│   │   ├── __init__.py
-│   │   ├── meta_learning_engine.py
 │   ├── governance/
 │   │   ├── __init__.py
 │   │   ├── approval_gate.py
 │   │   ├── approval_manager.py
 │   │   ├── approvals.py
+│   │   ├── cmts.py
 │   │   ├── credentials_policy.py
 │   │   ├── engine.py
 │   │   ├── loader.py
 │   │   ├── mistake_prevention.py
-│   │   ├── quick_fixes.py
-│   │   ├── schemas.py
-│   │   ├── ... (2 more files)
+│   │   ├── policy_generator.py
+│   │   ├── ... (9 more files)
 │   ├── graph/
 │   │   └── query/
 │   ├── integration/
@@ -248,10 +311,15 @@ L9/
 │   │   ├── standardization.py
 │   ├── resilience/
 │   │   ├── __init__.py
+│   │   ├── mixin.py
+│   │   ├── protocols.py
 │   │   ├── retry.py
 │   ├── retrievers/
 │   │   ├── __init__.py
 │   │   ├── substrate_retriever.py
+│   ├── runtimes/
+│   │   ├── __init__.py
+│   │   ├── react_runtime.py
 │   ├── schemas/
 │   │   ├── README.md
 │   │   ├── __init__.py
@@ -263,37 +331,29 @@ L9/
 │   │   ├── research_factory_models.py
 │   │   ├── research_factory_nodes.py
 │   │   ├── research_factory_state.py
-│   │   ├── ... (4 more files)
+│   │   ├── ... (5 more files)
 │   │   └── tests/
 │   ├── security/
 │   │   ├── __init__.py
 │   │   ├── path_safety.py
 │   │   ├── permission_graph.py
-│   ├── symbolic_computation/
-│   │   ├── __init__.py
-│   │   ├── config.py
-│   │   ├── core.py
-│   │   ├── exceptions.py
-│   │   ├── logger.py
-│   │   ├── models.py
-│   │   ├── test_symbolic_computation.py
-│   │   ├── utils.py
 │   ├── testing/
 │   │   ├── __init__.py
 │   │   ├── test_agent.py
 │   │   ├── test_executor.py
 │   │   ├── test_generator.py
 │   ├── tools/
+│   │   ├── README.md
+│   │   ├── README.meta.yaml
 │   │   ├── __init__.py
 │   │   ├── agent_self_modify.py
 │   │   ├── base_registry.py
 │   │   ├── memory_tools.py
+│   │   ├── reflection_tools.py
 │   │   ├── registry_adapter.py
+│   │   ├── research_tools.py
 │   │   ├── sanitizer.py
-│   │   ├── symbolic_tool.py
-│   │   ├── tool_audit.py
-│   │   ├── tool_embeddings.py
-│   │   ├── tool_graph.py
+│   │   ├── ... (4 more files)
 │   └── worldmodel/
 │       ├── __init__.py
 │       ├── insight_emitter.py
@@ -307,17 +367,21 @@ L9/
 ├── docker/
 │   ├── prometheus.yml
 ├── docs/
+│   ├── AUTO_WIRING_PHASE2_GUIDE.md
 │   ├── CAPABILITY_ENABLING_PATTERN.md
+│   ├── CODE-MAP.yaml
+│   ├── CURSOR-RUNBOOK.md
+│   ├── GOD-MODE-ORCHESTRATOR.md
 │   ├── GRACEFUL_DEGRADATION_VS_FAIL_LOUDLY.md
 │   ├── IMPL-Self-Reflection-Governance-Tracking.md
 │   ├── MCP-MEMORY-CAPSULE.md
 │   ├── Roadmap-2.md
 │   ├── TOOLS-Explained.md
-│   ├── Untitled
-│   ├── WIRING-Explained.md
-│   ├── WIRING.md
-│   ├── anomaly_response_monitor.md
-│   ├── ... (1 more files)
+│   ├── ... (9 more files)
+│   └── architecture/
+│       ├── di-container-guide.md
+│       ├── migration-checklist.md
+│       ├── protocol-catalog.md
 ├── email_agent/
 │   ├── __init__.py
 │   ├── client.py
@@ -414,6 +478,7 @@ L9/
 ├── memory/
 │   ├── MCP-MEMORY-CAPSULE.md
 │   ├── README.md
+│   ├── README.meta.yaml
 │   ├── __init__.py
 │   ├── active_encoder.py
 │   ├── agent_persistence.py
@@ -421,8 +486,7 @@ L9/
 │   ├── checkpoint_manager.py
 │   ├── checkpoint_metrics.py
 │   ├── checkpoint_validator.py
-│   ├── consolidation.py
-│   ├── ... (46 more files)
+│   ├── ... (52 more files)
 │   ├── checkpoint/
 │   │   ├── __init__.py
 │   │   ├── cursor_checkpoint_manager.py
@@ -449,26 +513,27 @@ L9/
 │   ├── 0008_memory_substrate_10x.sql
 │   ├── 0009_feedback_and_effectiveness.sql
 │   ├── 0010_add_fact_deprecation.sql
-│   ├── ... (14 more files)
+│   ├── ... (16 more files)
 ├── modules/
 ├── ops/
 │   ├── setup-git-hooks.sh
 │   ├── vps_release_gate.sh
 ├── orchestration/
+│   ├── README.md
 │   ├── __init__.py
 │   ├── cell_orchestrator.py
 │   ├── email_task_router.py
+│   ├── input_segmenter.py
 │   ├── long_plan_graph.py
 │   ├── orchestrator_kernel.py
 │   ├── plan_executor.py
 │   ├── quantum_swarm_loader.py
 │   ├── slack_task_router.py
-│   ├── task_router.py
-│   ├── unified_controller.py
-│   ├── ... (1 more files)
+│   ├── ... (3 more files)
 ├── orchestrators/
 │   ├── README.md
 │   ├── __init__.py
+│   ├── orchestrator_registry.py
 │   ├── ws_bridge.py
 │   ├── action_tool/
 │   │   ├── __init__.py
@@ -499,6 +564,7 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── cell_adapter.py
 │   │   ├── interface.py
+│   │   ├── master_orchestrator.py
 │   │   ├── metrics.py
 │   │   ├── orchestrator.py
 │   ├── reasoning/
@@ -536,8 +602,18 @@ L9/
 │   │   ├── stage-report-template.md
 │   └── pipeline/
 │       ├── n1_requirements.txt
+│       ├── n2_pipeline_architecture.txt
+│       ├── n3_frontier_review.txt
+│       ├── n4_todo_plan.txt
+│       ├── n5_architect_approval.txt
 │       ├── n5_l_improvement.txt
+│       ├── n5_me_approval.txt
+│       ├── n6_implementation.txt
+│       ├── n7_test_validation.txt
+│       ├── n8_git_mutation.txt
+│       ├── ... (1 more files)
 ├── readme/
+│   ├── AGENTS-README.md
 │   ├── AUDIT_PacketEnvelope_PacketStore_Integration.md
 │   ├── CHECKPOINT-OPS-RUNBOOK.md
 │   ├── DEPLOYMENT_CANONICAL.md
@@ -547,8 +623,7 @@ L9/
 │   ├── L9-KERNEL-REFERENCE.md
 │   ├── MANIFEST.md
 │   ├── MEMORY-README.md
-│   ├── RLS TENANT ID.md
-│   ├── ... (6 more files)
+│   ├── ... (10 more files)
 │   ├── L-CTO/
 │   │   ├── L-CTO-ABILITIES.md
 │   │   ├── L-CTO-ARCHITECTURE.md
@@ -556,7 +631,23 @@ L9/
 │   │   ├── L-Graph-Backed Agent State.v1.0.md
 │   │   ├── L-YAML.yaml
 │   │   ├── l9_operator_handbook_v2.yaml
+│   ├── SOLID Principals Framework/
+│   │   ├── SOLID-Pincipals.md
+│   │   ├── Solid Principals Blog.md
+│   ├── adr/
+│   │   ├── 0000-l9-philosophy.md
+│   │   ├── 0001-path-safety.md
+│   │   ├── 0002-circular-import-prevention.md
+│   │   ├── 0003-documentation-standards.md
+│   │   ├── 0004-singleton-auto-registry.md
+│   │   ├── 0005-rls-shared-tenant-model.md
+│   │   ├── 0006-packet-envelope-audit-trail.md
+│   │   ├── 0007-seven-phase-bootstrap.md
+│   │   ├── 0008-feature-flag-gating.md
+│   │   ├── 0009-circuit-breaker-resilience.md
+│   │   ├── ... (27 more files)
 │   └── repo-index/
+│       ├── adr_catalog.txt
 │       ├── agent_catalog.txt
 │       ├── api_surfaces.txt
 │       ├── architecture.txt
@@ -566,51 +657,31 @@ L9/
 │       ├── config_files.txt
 │       ├── decorator_catalog.txt
 │       ├── dependencies.txt
-│       ├── deployment_manifest.txt
-│       ├── ... (23 more files)
-├── reports/
-│   ├── AUDIT_Memory_Ingestion_Pipeline.md
-│   ├── GMP-77 MCP-Tools-Graph-Cache.md
-│   ├── GMP-78-Semantic-Tool-Retrieval.md
-│   ├── GMP-88-ReAct-Saga-Tools.md
-│   ├── GMP-Action-68-Memory-Governance-Gate-A.md
-│   ├── GMP-Action-69-Memory-Governance-Gate-B.md
-│   ├── GMP-Action-Memory-Governance-Gate.md
-│   ├── GMP_Report_DeadCode-20260113.md
-│   ├── GMP_Report_FIX-Jaeger-Exporter-Import-Error.md
-│   ├── GMP_Report_GMP-32-CircuitBreaker-Integration.md
-│   ├── ... (90 more files)
-│   └── _archived/
-│       ├── wiring_audit.json
-├── research_results_cursor/
-│   ├── PHASE-0-TODO-STAGE-4-BELIEF-REVISION.md
-│   ├── README.md
-│   ├── stage4_belief_revision_system.md
-│   ├── stage5_predictive_memory_warming.md
-│   ├── stage6_multi_agent_consensus.md
+│       ├── ... (24 more files)
 ├── runtime/
 │   ├── Dockerfile
+│   ├── README.md
 │   ├── __init__.py
+│   ├── auth_rate_limiter.py
+│   ├── background_tasks.py
 │   ├── construct_enhancer.py
 │   ├── dora.py
 │   ├── execution_gate.py
 │   ├── git_tool.py
 │   ├── gmp_approval.py
-│   ├── gmp_tool.py
-│   ├── gmp_worker.py
-│   ├── introspection.py
-│   ├── ... (16 more files)
+│   ├── ... (21 more files)
 ├── scripts/
+│   ├── 10x_deploy.sh
 │   ├── ORGANIZATION_PROPOSAL.md
 │   ├── __init__.py
+│   ├── cursor-start-session
 │   ├── dev_layer_compile.sh
-│   ├── gmp-ci-runner.sh
-│   ├── gmp-validate-stage.py
-│   ├── install_git_hooks.sh
-│   ├── migrate_substrate_models.py
-│   ├── modules_example.txt
-│   ├── run_pattern.py
-│   ├── setup_gmail_accounts.py
+│   ├── diagnose_memory_search.py
+│   ├── extract_code_facts.py
+│   ├── fix_async_decorators.py
+│   ├── generate_gmp_report.py
+│   ├── generate_readme_superprompt.py
+│   ├── ... (9 more files)
 │   ├── agents/
 │   │   ├── neo4j_merge_agent_nodes.py
 │   │   ├── neo4j_unify_relationships.py
@@ -625,20 +696,26 @@ L9/
 │   │   ├── ensure_logger_instantiated.py
 │   │   ├── find_dead_code.py
 │   │   ├── generate_gmp_todos.py
-│   │   ├── resolve_dead_code_refs.py
-│   │   ├── run_all.py
-│   │   ├── ... (3 more files)
+│   │   ├── inject_dora_complete.py
+│   │   ├── inject_dora_multiformat_complete.py
+│   │   ├── ... (7 more files)
 │   │   └── tier1/
+│   ├── backup/
+│   │   ├── README.md
+│   │   ├── backup_l9_memory.sh
+│   │   ├── backup_server_config.sh
+│   │   ├── restore_l9_memory.sh
+│   │   ├── setup_s3_bucket.sh
 │   ├── batch/
 │   │   ├── batch_generate_specs.py
 │   ├── deployment/
 │   │   ├── 10X_Deploy_Script.sh
-│   │   ├── backup_database.sh
 │   │   ├── deploy_agent_executor.sh
+│   │   ├── fix_env_sync.sh
 │   │   ├── pull_to_vps.sh
 │   │   ├── rollback_vps.sh
 │   │   ├── sync_env_vars.sh
-│   │   ├── test_backup_restore.sh
+│   │   ├── sync_local_env_to_vps.sh
 │   │   ├── verify_vps_env.sh
 │   │   ├── vps-mri.sh
 │   ├── development/
@@ -648,9 +725,16 @@ L9/
 │   │   ├── precommit_docker_smoke.sh
 │   │   ├── test_everything.sh
 │   ├── hooks/
+│   │   ├── DEPLOYMENT-GUIDE.md
+│   │   ├── install-precommit-security.sh
 │   │   ├── post-merge
 │   │   ├── pre-commit
 │   │   ├── pre-push
+│   ├── infra/
+│   │   ├── README.md
+│   │   ├── bootstrap_vps.sh
+│   │   ├── deploy_new_vps.sh
+│   │   └── terraform/
 │   ├── memory/
 │   │   ├── DELETE_TRASH_INSTRUCTIONS.md
 │   │   ├── __init__.py
@@ -662,9 +746,7 @@ L9/
 │   │   ├── cleanup_trash_embeddings.py
 │   │   ├── cleanup_trash_embeddings_via_api.py
 │   │   ├── delete_trash_embeddings.py
-│   │   ├── ... (15 more files)
-│   ├── reports/
-│   │   ├── audit_infrastructure_health.json
+│   │   ├── ... (16 more files)
 │   ├── research/
 │   │   ├── delegate_deep_research.py
 │   │   ├── extract_perplexity_pack.py
@@ -677,6 +759,7 @@ L9/
 │   │   ├── test_api_endpoints.sh
 │   ├── vps/
 │   │   ├── README.md
+│   │   ├── fix_env_sync.sh
 │   │   ├── run_migrations.sh
 │   │   ├── sync_env_vars.sh
 │   │   ├── verify_vps_env.sh
@@ -689,10 +772,10 @@ L9/
 │   ├── mac_tasks.py
 │   ├── ocr_engine.py
 │   ├── pdf_engine.py
-│   ├── slack_client.py
 │   ├── slack_files.py
 │   ├── research/
 │   │   ├── __init__.py
+│   │   ├── graph_persistence.py
 │   │   ├── graph_runtime.py
 │   │   ├── graph_state.py
 │   │   ├── insight_extractor.py
@@ -735,12 +818,13 @@ L9/
 │   ├── smoke_test_root.py
 │   ├── test_anomaly_classifier.py
 │   ├── test_anomaly_response_monitor.py
+│   ├── test_code_facts_extraction.py
 │   ├── test_imports.py
 │   ├── test_l_cto_kernel_activation.py
-│   ├── test_memory_adapter.py
-│   ├── ... (7 more files)
+│   ├── ... (8 more files)
 │   ├── agents/
 │   │   ├── __init__.py
+│   │   ├── test_agent_registry.py
 │   │   ├── test_architect_agents.py
 │   │   ├── test_base_agent.py
 │   │   ├── test_l_cto_memory_emission.py
@@ -748,20 +832,30 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── test_agent_auth.py
 │   │   ├── test_auth.py
+│   │   ├── test_auth_api_key_enforcement.py
 │   │   ├── test_e2e_slack_audit.py
 │   │   ├── test_factory_path_safety.py
 │   │   ├── test_server_health.py
 │   │   ├── test_slack_adapter.py
 │   │   ├── test_websocket_auth.py
+│   │   └── routes/
 │   ├── clients/
 │   │   ├── __init__.py
 │   │   ├── test_memory_client.py
 │   ├── collaborative_cells/
 │   │   ├── __init__.py
 │   │   ├── test_base_cell.py
+│   │   ├── test_cell_registry.py
 │   ├── config/
 │   │   ├── test_l_cto_yaml.py
 │   ├── core/
+│   │   ├── test_auto_registry.py
+│   │   ├── test_event_type_registry.py
+│   │   ├── test_fail_closed_executor.py
+│   │   ├── test_fail_closed_registry.py
+│   │   ├── test_moduleregistry.py
+│   │   ├── test_resilience_mixin.py
+│   │   ├── test_singleton_auto_registry.py
 │   │   ├── aios/
 │   │   ├── bootstrap/
 │   │   ├── governance/
@@ -769,6 +863,9 @@ L9/
 │   │   ├── schemas/
 │   │   ├── security/
 │   │   └── tools/
+│   ├── cursor/
+│   │   ├── __init__.py
+│   │   ├── test_gmp_meta_learning.py
 │   ├── docker/
 │   │   ├── __init__.py
 │   │   ├── conftest.py
@@ -779,9 +876,6 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── test_email_router.py
 │   │   ├── test_email_triage.py
-│   ├── gmp/
-│   │   ├── __init__.py
-│   │   ├── test_meta_learning.py
 │   ├── integration/
 │   │   ├── __init__.py
 │   │   ├── test_api_agent_integration.py
@@ -793,7 +887,7 @@ L9/
 │   │   ├── test_graph_state_integration.py
 │   │   ├── test_graph_wm_sync.py
 │   │   ├── test_igor_commands.py
-│   │   ├── ... (17 more files)
+│   │   ├── ... (18 more files)
 │   ├── ir_engine/
 │   │   ├── __init__.py
 │   │   ├── conftest.py
@@ -810,28 +904,36 @@ L9/
 │   ├── mac_agent/
 │   │   ├── __init__.py
 │   │   ├── test_executor.py
+│   ├── mcp_memory/
+│   │   ├── test_legacy_routes_disabled.py
+│   │   ├── test_mcp_server_governance.py
+│   │   ├── test_query_temporal_parameterization.py
 │   ├── memory/
 │   │   ├── __init__.py
 │   │   ├── conftest_governance.py
 │   │   ├── run_all_memory_tests.py
 │   │   ├── test_agent_persistence.py
 │   │   ├── test_blob_offload.py
+│   │   ├── test_checkpoint_metrics_pool.py
+│   │   ├── test_checkpoint_retry.py
 │   │   ├── test_consolidation.py
 │   │   ├── test_consolidation_graph.py
 │   │   ├── test_cross_client_consistency.py
-│   │   ├── test_cypher_templates.py
-│   │   ├── test_e2e_memory_audit.py
-│   │   ├── ... (31 more files)
+│   │   ├── ... (38 more files)
+│   │   └── tests/
 │   ├── mocks/
 │   │   ├── __init__.py
 │   │   ├── kernel_mocks.py
 │   │   ├── memory_mocks.py
 │   │   ├── orchestrator_mocks.py
 │   │   ├── world_model_mocks.py
+│   ├── orchestration/
+│   │   ├── test_input_segmenter.py
 │   ├── orchestrators/
 │   │   ├── __init__.py
 │   │   ├── test_action_tool_orchestrator.py
 │   │   ├── test_kernel_injection.py
+│   │   ├── test_orchestrator_registry.py
 │   │   ├── test_pattern_orchestrator.py
 │   │   ├── test_rate_limit_persistence.py
 │   │   ├── test_task_execution.py
@@ -849,14 +951,18 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── test_execution_gate.py
 │   │   ├── test_execution_wiring_sanity.py
+│   │   ├── test_fail_closed_task_queue.py
 │   │   ├── test_kernel_state.py
+│   │   ├── test_mcp_server_registry.py
 │   │   ├── test_packet_envelopes_invariants.py
+│   │   ├── test_tool_registry.py
 │   │   ├── test_websocket_orchestrator_basic.py
 │   │   ├── test_ws_protocol_static.py
 │   ├── scripts/
 │   │   ├── __init__.py
 │   │   ├── test_factory_extract_cli.py
 │   ├── services/
+│   │   ├── research/
 │   │   └── symbolic_computation/
 │   ├── simulation/
 │   │   ├── __init__.py
@@ -875,6 +981,7 @@ L9/
 │   │   ├── test_registry_adapter_sanitization.py
 │   │   ├── test_startup_readiness.py
 │   │   ├── test_tool_input_sanitizer.py
+│   │   └── di/
 │   ├── upgrades/
 │   │   ├── __init__.py
 │   │   ├── conftest.py
@@ -884,6 +991,7 @@ L9/
 │       ├── test_wm_boot.py
 │       ├── test_wm_integrity.py
 │       ├── test_wm_nodes.py
+│       ├── test_wm_scope.py
 │       ├── test_world_model_repository_basic.py
 ├── tools/
 │   ├── README.md
@@ -891,10 +999,6 @@ L9/
 │   ├── __init__.py
 │   ├── export_repo_indexes.py
 │   ├── mac_protocol.py
-├── wiring-audit-perplexity/
-│   ├── EXECUTION_SUMMARY.md
-│   ├── validate_wiring_alignment.py
-│   ├── wiring-audit-phase0-plan.md
 ├── workers/
 │   ├── __init__.py
 │   ├── anomaly_classifier.py
@@ -903,6 +1007,7 @@ L9/
 │   ├── violation_patterns.py
 │   ├── violation_tracker_service.py
 └── world_model/
+    ├── README.md
     ├── __init__.py
     ├── causal_graph.py
     ├── causal_mapper.py
@@ -910,10 +1015,9 @@ L9/
     ├── interfaces.py
     ├── knowledge_ingestor.py
     ├── loader.py
+    ├── query_engine.py
     ├── reflection_memory.py
-    ├── registry.py
-    ├── repository.py
-    ├── ... (6 more files)
+    ├── ... (8 more files)
     ├── _pack_staging/
     │   ├── loader.py
     │   ├── neo4j_substrate.py

@@ -52,7 +52,7 @@ def _get_research_agent():
     global _research_agent
     if _research_agent is None:
         try:
-            from agents.research_agent import create_research_agent
+            from agents.research_agent_impl import create_research_agent
 
             _research_agent = create_research_agent()
             logger.info(
@@ -72,6 +72,85 @@ def _get_research_agent():
 
 # ============================================================================
 # Tool Executors
+
+
+async def run_research_query(
+    query: str,
+    user_id: str = "l_agent",
+    thread_id: Optional[str] = None,
+    **kwargs,
+) -> dict[str, Any]:
+    """
+    Execute a research query through the full LangGraph pipeline.
+
+    This is the PRIMARY research tool that triggers:
+    1. PlannerAgent → Decompose query into research steps
+    2. ResearcherAgent → Gather evidence (Perplexity web search)
+    3. MergerAgent → Synthesize findings
+    4. CriticAgent → Evaluate quality (may trigger retry)
+    5. FinalizerAgent → Package output
+    6. GraphPersistence → Store findings as Neo4j nodes
+
+    Use this tool when you need to:
+    - Research external topics (web search)
+    - Gather evidence for decisions
+    - Answer questions requiring current information
+    - Build knowledge for architecture decisions
+
+    Args:
+        query: Research question (1-5000 chars)
+        user_id: User identifier for tracking (default: l_agent)
+        thread_id: Optional thread ID for correlation
+
+    Returns:
+        Dict with research results:
+        - success: bool
+        - thread_id: str (for follow-up)
+        - summary: str (synthesized findings)
+        - sources: list[str] (URLs cited)
+        - evidence_count: int
+        - quality_score: float (0-1)
+        - feedback: str (critic feedback)
+        - error: str (if failed)
+
+    Example:
+        result = await run_research_query(
+            query="What are the latest advances in LLM memory architectures?"
+        )
+        # result["summary"] contains the synthesized findings
+    """
+    try:
+        from services.research import run_research
+
+        logger.info("run_research_query", query=query[:50], user_id=user_id)
+
+        result = await run_research(
+            query=query,
+            user_id=user_id,
+            thread_id=thread_id,
+        )
+
+        return {
+            "success": True,
+            "thread_id": result.get("thread_id", ""),
+            "summary": result.get("summary", ""),
+            "sources": result.get("sources", []),
+            "evidence_count": result.get("evidence_count", 0),
+            "quality_score": result.get("quality_score", 0.0),
+            "feedback": result.get("feedback", ""),
+        }
+    except ImportError as e:
+        logger.error("run_research_query: services.research not available", error=str(e))
+        return {
+            "success": False,
+            "error": f"Research service not available: {e}",
+        }
+    except Exception as e:
+        logger.error("run_research_query failed", error=str(e), exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+        }
 
 
 async def research_agent_synthesize(
@@ -273,6 +352,7 @@ async def research_agent_generate_spec(
 # Tool Executor Registry (for runtime.l_tools integration)
 
 RESEARCH_TOOL_EXECUTORS = {
+    "run_research_query": run_research_query,  # PRIMARY: Full LangGraph pipeline
     "research_agent_synthesize": research_agent_synthesize,
     "research_agent_discover": research_agent_discover,
     "research_agent_generate_spec": research_agent_generate_spec,
@@ -282,6 +362,7 @@ RESEARCH_TOOL_EXECUTORS = {
 # Public API
 
 __all__ = [
+    "run_research_query",
     "research_agent_synthesize",
     "research_agent_discover",
     "research_agent_generate_spec",

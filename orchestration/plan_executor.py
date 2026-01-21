@@ -186,6 +186,9 @@ class ExecutorConfig:
     allowed_write_roots: list[str] = field(
         default_factory=lambda: ["/Users/ib-mac/Projects"]
     )
+    # Strategy Memory auto-capture (Phase 1 - GMP-103)
+    auto_capture_enabled: bool = True  # Auto-capture successful executions
+    capture_min_success_ratio: float = 0.85  # Min success ratio to capture
 
 
 # =============================================================================
@@ -420,6 +423,110 @@ class PlanExecutor:
         except Exception as e:
             logger.warning(f"Strategy feedback recording failed: {e}")
 
+    async def _maybe_capture_strategy(
+        self,
+        plan: Any,
+        result: "ExecutionResult",
+        context: dict[str, Any],
+    ) -> Optional[str]:
+        """
+        Capture a successful execution as a new strategy (Phase 1 - GMP-103).
+
+        Auto-captures when:
+        - No existing strategy was used (strategy_id not in context)
+        - Execution was successful (COMPLETED status)
+        - Success ratio >= capture_min_success_ratio
+        - Strategy Memory is configured
+
+        Args:
+            plan: The executed plan
+            result: Execution result
+            context: Execution context
+
+        Returns:
+            strategy_id if captured, None otherwise
+        """
+        # Guard: auto-capture must be enabled
+        if not self._config.auto_capture_enabled:
+            return None
+
+        # Guard: Strategy Memory must be configured
+        if self._strategy_memory is None:
+            return None
+
+        # Guard: Don't capture if a strategy was already used (avoid duplicates)
+        if context.get("strategy_id"):
+            return None
+
+        # Guard: Only capture successful executions
+        if result.status != ExecutionStatus.COMPLETED:
+            return None
+
+        # Guard: Check success ratio threshold
+        total_steps = (
+            result.completed_steps + result.failed_steps + result.skipped_steps
+        )
+        success_ratio = result.completed_steps / total_steps if total_steps > 0 else 0.0
+
+        if success_ratio < self._config.capture_min_success_ratio:
+            logger.debug(
+                "strategy_capture_skipped",
+                reason="success_ratio_below_threshold",
+                success_ratio=success_ratio,
+                threshold=self._config.capture_min_success_ratio,
+            )
+            return None
+
+        try:
+            # Build description from plan metadata
+            task_kind = context.get("task_kind", "unknown")
+            goal = context.get("goal_description", f"Plan {plan.plan_id}")
+            description = f"Auto-captured strategy for {task_kind}: {goal}"
+
+            # Serialize plan structure for reuse
+            plan_payload = {
+                "task_kind": task_kind,
+                "steps": [
+                    {
+                        "action_type": s.action_type,
+                        "target": s.target,
+                        "description": getattr(s, "description", ""),
+                        "parameters": getattr(s, "parameters", {}),
+                    }
+                    for s in plan.steps
+                ],
+                "source_plan_id": str(plan.plan_id),
+                "captured_from_execution": str(result.execution_id),
+            }
+
+            # Get embedding from context if available
+            context_embedding = context.get("context_embedding", [])
+
+            # Get tags from context or infer from task_kind
+            tags = context.get("tags", [task_kind])
+
+            strategy_id = await self._strategy_memory.record_new_strategy(
+                task_id=context.get("task_id", str(plan.plan_id)),
+                description=description,
+                plan_payload=plan_payload,
+                context_embedding=context_embedding,
+                tags=tags,
+            )
+
+            logger.info(
+                "strategy_auto_captured",
+                strategy_id=strategy_id,
+                task_kind=task_kind,
+                success_ratio=success_ratio,
+                steps_count=len(plan.steps),
+            )
+
+            return strategy_id
+
+        except Exception as e:
+            logger.warning(f"Strategy auto-capture failed: {e}")
+            return None
+
     # =========================================================================
     # Handler Registration
     # =========================================================================
@@ -466,6 +573,10 @@ class PlanExecutor:
         Args:
             plan: ExecutionPlan from IRToPlanAdapter
             context: Execution context (workspace, credentials, etc.)
+                Optional keys for Strategy Memory integration:
+                - strategy_id: ID of strategy being executed (for feedback)
+                - task_id: Original task ID
+                - task_kind: Type of task (e.g., "research", "code_review")
 
         Returns:
             ExecutionResult with step outcomes and artifacts
@@ -479,7 +590,14 @@ class PlanExecutor:
         self._active_executions[result.execution_id] = result
         context = context or {}
 
-        logger.info(f"Executing plan {plan.plan_id} with {len(plan.steps)} steps")
+        # Track strategy usage for feedback (GMP-102)
+        strategy_id = context.get("strategy_id")
+        task_id = context.get("task_id", str(plan.plan_id))
+
+        logger.info(
+            f"Executing plan {plan.plan_id} with {len(plan.steps)} steps",
+            strategy_id=strategy_id,
+        )
 
         # Emit start packet
         await self._emit_execution_start_packet(result, plan)
@@ -520,6 +638,42 @@ class PlanExecutor:
             f"{result.completed_steps}/{len(plan.steps)} steps, "
             f"status={result.status.value}, packets={result.packets_emitted}"
         )
+
+        # Record strategy feedback if a strategy was used (GMP-102)
+        if strategy_id and self._strategy_memory:
+            execution_time_ms = (
+                int((result.completed_at - result.started_at).total_seconds() * 1000)
+                if result.completed_at and result.started_at
+                else 0
+            )
+
+            # Compute outcome score based on step success ratio
+            total_steps = (
+                result.completed_steps + result.failed_steps + result.skipped_steps
+            )
+            outcome_score = (
+                result.completed_steps / total_steps if total_steps > 0 else 0.0
+            )
+
+            await self.record_strategy_feedback(
+                strategy_id=strategy_id,
+                task_id=task_id,
+                success=result.status == ExecutionStatus.COMPLETED,
+                outcome_score=outcome_score,
+                execution_time_ms=execution_time_ms,
+                metadata={
+                    "plan_id": str(plan.plan_id),
+                    "steps_total": len(plan.steps),
+                    "steps_completed": result.completed_steps,
+                    "steps_failed": result.failed_steps,
+                    "errors": result.errors[:3] if result.errors else [],
+                },
+            )
+
+        # Auto-capture successful executions as new strategies (Phase 1 - GMP-103)
+        # Only when no existing strategy was used
+        if not strategy_id:
+            await self._maybe_capture_strategy(plan, result, context)
 
         return result
 

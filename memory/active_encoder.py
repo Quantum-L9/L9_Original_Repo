@@ -34,7 +34,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Anthropic API", "OpenAI API"],
         "memory_layers": ["episodic_memory", "semantic_memory"],
-        "imported_by": ["memory.__init__", "memory.ingestion", "tests.memory.test_frontier_memory_pipeline"],
+        "imported_by": [
+            "memory.__init__",
+            "memory.ingestion",
+            "tests.memory.test_frontier_memory_pipeline",
+        ],
     },
 }
 # ============================================================================
@@ -42,8 +46,12 @@ __dora_meta__ = {
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
+    from memory.consolidation import ConsolidationPipeline
 
 logger = structlog.get_logger(__name__)
 
@@ -344,9 +352,9 @@ class ActiveMemoryEncoder:
 
     def __init__(
         self,
-        repository=None,
+        repository: Optional["SubstrateRepository"] = None,
         learning_extractor: Optional[LearningExtractor] = None,
-        consolidation_pipeline=None,
+        consolidation_pipeline: Optional["ConsolidationPipeline"] = None,
     ):
         """
         Initialize ActiveMemoryEncoder.
@@ -361,11 +369,11 @@ class ActiveMemoryEncoder:
         self._consolidation = consolidation_pipeline
         logger.info("ActiveMemoryEncoder initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update repository reference."""
         self._repository = repository
 
-    def set_consolidation_pipeline(self, pipeline) -> None:
+    def set_consolidation_pipeline(self, pipeline: "ConsolidationPipeline") -> None:
         """Set or update consolidation pipeline reference."""
         self._consolidation = pipeline
 
@@ -684,6 +692,7 @@ def init_active_encoder(
         encoder.set_consolidation_pipeline(consolidation_pipeline)
     return encoder
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -693,8 +702,26 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["async", "dataclass", "debugging", "event-driven", "learning", "logging", "memory-substrate", "queue"],
-    "keywords": ["active", "based", "completion", "consolidation", "detection", "encoder", "encoding", "extract"],
+    "tags": [
+        "async",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "queue",
+    ],
+    "keywords": [
+        "active",
+        "based",
+        "completion",
+        "consolidation",
+        "detection",
+        "encoder",
+        "encoding",
+        "extract",
+    ],
     "business_value": "Implements frontier-grade active memory management where the system automatically decides what to en",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

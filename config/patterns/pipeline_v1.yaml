@@ -84,8 +84,295 @@ nodes:
     
     next: [N3]
   
-  # ... N3 through N9 follow same pattern ...
-  # (See l9_enhanced_pipeline_v3.yaml for full spec)
+  - id: N3
+    uid: node.frontier_review.v1
+    name: FrontierReview
+    kind: reasoning
+    role: ArchitectAgent
+    description: >
+      Compare architecture draft against industry best practices and frontier research.
+      Identify gaps, anti-patterns, and improvement opportunities.
+    
+    input_contract:
+      - name: pipeline_draft
+        type: object
+        required: true
+      - name: subsystem_metadata
+        type: dict
+        required: true
+    
+    output_contract:
+      packet_type: frontier_analysis
+      schema:
+        type: object
+        properties:
+          best_practices_alignment: {type: array}
+          gaps_identified: {type: array}
+          recommendations: {type: array}
+          frontier_score: {type: number}
+        required: [best_practices_alignment, gaps_identified, recommendations, frontier_score]
+    
+    memory_segment: segment.generation_artifacts
+    
+    next: [N4]
+  
+  - id: N4
+    uid: node.todo_plan.v1
+    name: TODOPlan
+    kind: reasoning
+    role: ArchitectAgent
+    description: >
+      Generate deterministic TODO plan with exact files, line ranges, and actions.
+      Actions: Create, Insert, Replace, Delete, Wrap.
+    
+    input_contract:
+      - name: frontier_analysis
+        type: object
+        required: true
+      - name: requirements_document
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: todo_plan
+      schema:
+        type: object
+        properties:
+          plan_id: {type: string}
+          items: {type: array}
+          file_budget: {type: object}
+          estimated_complexity: {type: string}
+        required: [plan_id, items, file_budget]
+    
+    memory_segment: segment.generation_artifacts
+    
+    next: [N5]
+  
+  - id: N5
+    uid: node.architect_approval.v1
+    name: ArchitectApproval
+    kind: approval
+    role: ArchitectAgent
+    description: >
+      Initial architect review gate. Evaluate TODO plan for completeness,
+      risk coverage, and alignment with requirements.
+    
+    input_contract:
+      - name: todo_plan
+        type: object
+        required: true
+      - name: requirements_document
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: architect_approval
+      schema:
+        type: object
+        properties:
+          approved: {type: boolean}
+          confidence: {type: number}
+          issues: {type: array}
+          revision_requests: {type: array}
+        required: [approved, confidence]
+    
+    memory_segment: segment.approval_artifacts
+    
+    next: [N5_L_IMPROVEMENT_LOOP]
+  
+  - id: N5_L_IMPROVEMENT_LOOP
+    uid: node.l_improvement_loop.v1
+    name: LImprovementLoop
+    kind: reasoning
+    role: CTOAgent
+    description: >
+      CTO (L) recursive optimization loop. Analyzes plan across 10 dimensions.
+      Recurses while yield >= 10%, terminates when yield < 10% or max 5 iterations.
+    
+    input_contract:
+      - name: todo_plan
+        type: object
+        required: true
+      - name: architect_approval
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: improvement_analysis
+      schema:
+        type: object
+        properties:
+          iteration: {type: integer}
+          improvements: {type: array}
+          total_yield_pct: {type: number}
+          decision: {type: object}
+        required: [iteration, improvements, total_yield_pct, decision]
+    
+    memory_segment: segment.approval_artifacts
+    
+    next: [N5_ME_APPROVAL]
+  
+  - id: N5_ME_APPROVAL
+    uid: node.me_approval.v1
+    name: MEApproval
+    kind: approval
+    role: HumanGate
+    description: >
+      Final human (Igor) approval gate before implementation.
+      Reviews L's improvements and gives final go/no-go.
+    
+    input_contract:
+      - name: improvement_analysis
+        type: object
+        required: true
+      - name: todo_plan
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: me_approval
+      schema:
+        type: object
+        properties:
+          approved: {type: boolean}
+          approver: {type: string}
+          approval_timestamp: {type: string}
+          notes: {type: string}
+        required: [approved, approver, approval_timestamp]
+    
+    memory_segment: segment.approval_artifacts
+    
+    next: [N6]
+  
+  - id: N6
+    uid: node.implementation.v1
+    name: Implementation
+    kind: execution
+    role: CoderAgent
+    description: >
+      Code generation following exact TODO plan.
+      Produces implementation artifacts matching plan specifications.
+    
+    input_contract:
+      - name: todo_plan
+        type: object
+        required: true
+      - name: me_approval
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: implementation_artifacts
+      schema:
+        type: object
+        properties:
+          files_created: {type: array}
+          files_modified: {type: array}
+          code_blocks: {type: array}
+          implementation_notes: {type: string}
+        required: [files_created, files_modified, code_blocks]
+    
+    memory_segment: segment.generation_artifacts
+    
+    next: [N7]
+  
+  - id: N7
+    uid: node.test_suite_validation.v1
+    name: TestSuiteValidation
+    kind: validation
+    role: QAAgent
+    description: >
+      Test gap analysis, test generation, execution, and coverage verification.
+      Target: 80%+ coverage before proceeding.
+    
+    input_contract:
+      - name: implementation_artifacts
+        type: object
+        required: true
+      - name: todo_plan
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: test_validation
+      schema:
+        type: object
+        properties:
+          coverage_pct: {type: number}
+          tests_passed: {type: integer}
+          tests_failed: {type: integer}
+          gap_analysis: {type: array}
+          generated_tests: {type: array}
+        required: [coverage_pct, tests_passed, tests_failed]
+    
+    memory_segment: segment.verification_artifacts
+    
+    next: [N8]
+  
+  - id: N8
+    uid: node.git_worker_mutation.v1
+    name: GitWorkerMutation
+    kind: execution
+    role: GitWorker
+    description: >
+      Apply code to repository, run guardrails, commit, push, create PR.
+      Track mutation in CMTS (Code Mutation Tracking System).
+    
+    input_contract:
+      - name: implementation_artifacts
+        type: object
+        required: true
+      - name: test_validation
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: mutation_result
+      schema:
+        type: object
+        properties:
+          commit_sha: {type: string}
+          branch_name: {type: string}
+          pr_url: {type: string}
+          guardrails_passed: {type: boolean}
+          cmts_tracking_id: {type: string}
+        required: [commit_sha, branch_name, guardrails_passed, cmts_tracking_id]
+    
+    memory_segment: segment.code_mutations
+    
+    next: [N9]
+  
+  - id: N9
+    uid: node.final_validation.v1
+    name: FinalValidation
+    kind: validation
+    role: QAAgent
+    description: >
+      Verify PR is accessible, CMTS tracking is complete, and all artifacts
+      are ready for merge. Final checkpoint before deployment.
+    
+    input_contract:
+      - name: mutation_result
+        type: object
+        required: true
+      - name: test_validation
+        type: object
+        required: true
+    
+    output_contract:
+      packet_type: final_validation
+      schema:
+        type: object
+        properties:
+          pr_accessible: {type: boolean}
+          cmts_verified: {type: boolean}
+          merge_ready: {type: boolean}
+          validation_summary: {type: string}
+        required: [pr_accessible, cmts_verified, merge_ready]
+    
+    memory_segment: segment.verification_artifacts
+    
+    next: []
 
 # ===== VALIDATION & GOVERNANCE =====
 phase_0_mandatory:

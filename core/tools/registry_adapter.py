@@ -203,17 +203,14 @@ class RiskLevel:
     HIGH = "high"
 
 
-# Side-effect tools that require governance approval
-SIDE_EFFECT_TOOLS = {
-    "http_request",  # Can make external requests
-}
+# GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
+from core.governance.tool_risk_policy import (
+    get_high_risk_tools,
+    get_side_effect_tools,
+)
 
-# Tools with elevated risk
-HIGH_RISK_TOOLS = {
-    "shell_exec",
-    "file_write",
-    "database_write",
-}
+SIDE_EFFECT_TOOLS = get_side_effect_tools()
+HIGH_RISK_TOOLS = get_high_risk_tools()
 
 
 # =============================================================================
@@ -1041,7 +1038,8 @@ class ExecutorToolRegistry:
 
         # GATE 6: Check tool approval for high-risk tools
         try:
-            from core.governance.approvals import ApprovalManager, HIGH_RISK_TOOLS
+            from core.governance.approvals import ApprovalManager
+            # GMP-104: Uses module-level HIGH_RISK_TOOLS from tool_risk_policy (line 213)
 
             if tool_id in HIGH_RISK_TOOLS:
                 # Import substrate service if available

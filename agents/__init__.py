@@ -38,7 +38,7 @@ from agents.l_cto import (
     create_l_cto_research_agent,
     is_research_mode,
 )
-from agents.research_agent import ResearchAgent
+from agents.research_agent_impl import ResearchAgent
 
 __all__ = [
     # Base

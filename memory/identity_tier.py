@@ -47,8 +47,11 @@ import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -152,7 +155,7 @@ class IdentityTierService:
     - Bulk import/export for identity facts
     """
 
-    def __init__(self, repository=None):
+    def __init__(self, repository: Optional["SubstrateRepository"] = None):
         """
         Initialize IdentityTierService.
 
@@ -162,7 +165,7 @@ class IdentityTierService:
         self._repository = repository
         logger.info("IdentityTierService initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -558,7 +561,9 @@ def get_identity_tier_service() -> IdentityTierService:
     return _identity_service
 
 
-def init_identity_tier_service(repository) -> IdentityTierService:
+def init_identity_tier_service(
+    repository: "SubstrateRepository",
+) -> IdentityTierService:
     """Initialize the IdentityTierService with repository."""
     service = get_identity_tier_service()
     service.set_repository(repository)

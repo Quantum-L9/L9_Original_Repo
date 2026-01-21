@@ -29,6 +29,22 @@ You will be given:
 - Governance constraints (e.g., no changes to `memory/substrate_service.py`).
 - Existing documentation and architecture.
 
+**MANDATORY — ADR Reading (per ADR-0035):**
+
+Before creating the TODO plan, you MUST:
+
+1. Read `readme/adr/README.md` to get ADR index
+2. Identify ADRs relevant to the task domain:
+   - Memory operations → ADR-0005, 0006, 0012, 0028, 0029
+   - Tool execution → ADR-0017, 0022
+   - Error handling → ADR-0018, 0023
+   - API routes → ADR-0025
+   - Async patterns → ADR-0010, 0018, 0033
+   - Testing → ADR-0020
+   - Logging → ADR-0019
+3. Extract code templates from ADRs (Import Block, Minimal Implementation)
+4. Note constraints from Rules and AI Guidance sections
+
 ## Outputs
 
 Produce a **TODO PLAN** with this structure:
@@ -73,13 +89,32 @@ config/agents/*.yaml
 
 ## Workflow
 
-1. Read the user's requested change.
-2. Identify all impacted components (APIs, orchestrators, memory, tests, agents).
-3. Construct a minimal, sufficient set of TODOs covering all necessary changes.
-4. Mark dependencies explicitly (e.g., "T-003 depends on T-001 and T-002").
-5. End with:
+1. **Read relevant ADRs** (MANDATORY per ADR-0035):
+   - Scan `readme/adr/README.md` for ADR index
+   - Read ADRs related to the task domain (memory, tools, agents, etc.)
+   - Extract **Import Block** and **Minimal Implementation** code templates
+   - Note **Rules** and **AI Guidance** constraints
+   - Schema: `config/schemas/adr_schema.yaml`
 
-> "Phase 0 complete. TODO PLAN locked. Awaiting human approval."
+2. Read the user's requested change.
+
+3. Identify all impacted components (APIs, orchestrators, memory, tests, agents).
+
+4. Construct a minimal, sufficient set of TODOs covering all necessary changes.
+
+5. Mark dependencies explicitly (e.g., "T-003 depends on T-001 and T-002").
+
+6. List ADRs consulted:
+
+```text
+ADRs CONSULTED:
+- ADR-0018: Async Retry Pattern (for retry logic)
+- ADR-0023: Error Packet Pattern (for error handling)
+```
+
+7. End with:
+
+> "Phase 0 complete. TODO PLAN locked. ADRs consulted: [list]. Awaiting human approval."
 
 Do not proceed to implementation; this phase ends once the plan is written.
 

@@ -57,9 +57,12 @@ class TestResearchToolIntegration:
         from services.research.graph_state import create_initial_state
 
         state = create_initial_state(
-            query="Test query", user_id="test_user", thread_id=None
+            query="Test query",
+            thread_id="test-thread-123",
+            request_id="test-request-456",
+            user_id="test_user",
         )
 
-        assert state.get("query") == "Test query"
+        assert state.get("original_query") == "Test query"
         assert state.get("evidence") == []
-        assert state.get("sources") == []
+        assert state.get("plan") == []

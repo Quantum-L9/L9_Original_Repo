@@ -56,9 +56,16 @@ __dora_meta__ = {
 
 import asyncio
 import os
+import sys
 from typing import TYPE_CHECKING
 
 import structlog
+
+# Add project root to path for imports
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
+from core.governance.tool_risk_policy import get_high_risk_tools_list
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -216,16 +223,9 @@ L_KERNELS = [
     },
 ]
 
-# High-risk tools that require SafetyKernel guard
+# GMP-104: High-risk tools loaded from config/policies/high_risk_tools.yaml
 # Note: Tool names must match OpenAI pattern ^[a-zA-Z0-9_-]+$ (no dots)
-HIGH_RISK_TOOLS = [
-    "gmp_run",
-    "git_commit",
-    "mac_agent_exec_task",
-    "github_create_pull_request",
-    "github_merge_pull_request",
-    "vercel_trigger_deploy",
-]
+HIGH_RISK_TOOLS = get_high_risk_tools_list()
 
 
 async def create_schema_constraints(driver: "AsyncDriver") -> int:

@@ -1657,6 +1657,129 @@ async def world_model_list_updates(
 
 
 # ============================================================================
+# SLACK TOOLS
+
+
+@must_stay_async("callers use await")
+async def slack_send(
+    channel: str,
+    text: str,
+    thread_ts: Optional[str] = None,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """
+    Send a message to Slack.
+
+    Args:
+        channel: Channel ID (C...) or user ID (U...) for DM
+        text: Message text to send
+        thread_ts: Optional thread timestamp to reply in thread
+
+    Returns:
+        Dict with Slack API response or error
+    """
+    try:
+        import os
+        import httpx
+        from api.slack_client import SlackAPIClient, SlackClientError
+
+        slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
+        if not slack_bot_token:
+            return {"error": "SLACK_BOT_TOKEN not configured", "status": "error"}
+
+        async with httpx.AsyncClient() as http_client:
+            client = SlackAPIClient(bot_token=slack_bot_token, http_client=http_client)
+            response = await client.post_message(
+                channel=channel,
+                text=text,
+                thread_ts=thread_ts,
+            )
+
+        logger.info(f"Slack message sent: channel={channel} ts={response.get('ts')}")
+        return {
+            "status": "success",
+            "channel": channel,
+            "ts": response.get("ts"),
+            "message": "Message sent successfully",
+        }
+
+    except SlackClientError as e:
+        logger.error(f"Slack send failed: {e}")
+        return {"error": str(e), "status": "error"}
+    except Exception as e:
+        logger.error(f"Slack send failed: {e}")
+        return {"error": str(e), "status": "error"}
+
+
+# ============================================================================
+# LLM TOOLS
+
+
+@must_stay_async("callers use await")
+async def llm_chat(
+    message: str,
+    model: Optional[str] = None,
+    system_prompt: Optional[str] = None,
+    temperature: float = 0.3,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """
+    Direct LLM chat completion without research pipeline.
+
+    Args:
+        message: User message to send to LLM
+        model: Optional model override (default: gpt-4o-mini)
+        system_prompt: Optional custom system prompt
+        temperature: Temperature for generation (0-1)
+
+    Returns:
+        Dict with LLM response or error
+    """
+    try:
+        import os
+        from openai import AsyncOpenAI
+
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return {"error": "OPENAI_API_KEY not configured", "status": "error"}
+
+        client = AsyncOpenAI(api_key=api_key)
+        model_name = model or os.getenv("L9_LLM_MODEL", "gpt-4o-mini")
+
+        # Build messages
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": message})
+
+        response = await client.chat.completions.create(
+            model=model_name,
+            messages=messages,
+            temperature=temperature,
+        )
+
+        reply = response.choices[0].message.content.strip()
+
+        logger.info(
+            f"LLM chat: model={model_name} tokens={response.usage.total_tokens}"
+        )
+        return {
+            "status": "success",
+            "reply": reply,
+            "model": model_name,
+            "usage": {
+                "prompt_tokens": response.usage.prompt_tokens,
+                "completion_tokens": response.usage.completion_tokens,
+                "total_tokens": response.usage.total_tokens,
+            },
+        }
+
+    except Exception as e:
+        logger.error(f"LLM chat failed: {e}")
+        return {"error": str(e), "status": "error"}
+
+
+# ============================================================================
 # SIMULATION TOOLS
 
 
@@ -2677,8 +2800,30 @@ TOOL_EXECUTORS: dict[str, Any] = {
     # World Model Advanced (GMP-32 Batch 10)
     "world_model_restore": world_model_restore,
     "world_model_list_updates": world_model_list_updates,
+    # Slack Tools
+    "slack_send": slack_send,
+    # LLM Tools
+    "llm_chat": llm_chat,
+    # Cross-DB Saga Tools (from base_registry.py)
+    # Lazy-loaded to avoid circular imports
+    "saga_fetch_and_enrich": lambda **kwargs: _get_saga_tool("saga_fetch_and_enrich")(
+        **kwargs
+    ),
+    "saga_enrich_entities": lambda **kwargs: _get_saga_tool("saga_enrich_entities")(
+        **kwargs
+    ),
+    "saga_timeline_correlation": lambda **kwargs: _get_saga_tool(
+        "saga_timeline_correlation"
+    )(**kwargs),
+    "saga_execute_custom": lambda **kwargs: _get_saga_tool("saga_execute_custom")(
+        **kwargs
+    ),
+    "tool_router_find": lambda **kwargs: _get_saga_tool("tool_router_find")(**kwargs),
     # Research Agent Tools (GMP: wire_research_lcto_integration)
     # Lazy-loaded to avoid circular imports
+    "run_research_query": lambda **kwargs: _get_research_tool("run_research_query")(
+        **kwargs
+    ),  # PRIMARY: Full LangGraph research pipeline
     "research_agent_synthesize": lambda **kwargs: _get_research_tool(
         "research_agent_synthesize"
     )(**kwargs),
@@ -2727,11 +2872,53 @@ def _get_research_tool(tool_name: str):
                 return {"error": "Research tools not available", "status": "error"}
 
             _research_tools = {
+                "run_research_query": _missing,
                 "research_agent_synthesize": _missing,
                 "research_agent_discover": _missing,
                 "research_agent_generate_spec": _missing,
             }
     return _research_tools.get(tool_name)
+
+
+# Lazy loader for saga/cross-DB tools
+_saga_tools = None
+
+
+def _get_saga_tool(tool_name: str):
+    """Lazy import saga tools to avoid circular dependency."""
+    global _saga_tools
+    if _saga_tools is None:
+        try:
+            from core.tools.base_registry import (
+                saga_fetch_and_enrich,
+                saga_enrich_entities,
+                saga_timeline_correlation,
+                saga_execute_custom,
+                tool_router_find,
+            )
+
+            _saga_tools = {
+                "saga_fetch_and_enrich": saga_fetch_and_enrich,
+                "saga_enrich_entities": saga_enrich_entities,
+                "saga_timeline_correlation": saga_timeline_correlation,
+                "saga_execute_custom": saga_execute_custom,
+                "tool_router_find": tool_router_find,
+            }
+        except ImportError as e:
+            logger.warning(f"Saga tools not available: {e}")
+
+            @must_stay_async("callers use await")
+            async def _missing(**kwargs):
+                return {"error": "Saga tools not available", "status": "error"}
+
+            _saga_tools = {
+                "saga_fetch_and_enrich": _missing,
+                "saga_enrich_entities": _missing,
+                "saga_timeline_correlation": _missing,
+                "saga_execute_custom": _missing,
+                "tool_router_find": _missing,
+            }
+    return _saga_tools.get(tool_name)
 
 
 # Lazy loader for reflection tools

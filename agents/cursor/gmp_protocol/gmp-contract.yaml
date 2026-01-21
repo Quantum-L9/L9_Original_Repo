@@ -28,19 +28,23 @@ phases:
     inputs:
       - "User request or task description"
       - "Relevant codebase files"
+      - "Relevant ADRs from readme/adr/ (MANDATORY - per ADR-0035)"
     
     outputs:
       required:
         - "TODO_PLAN_LOCKED"
         - "SCOPE_BOUNDARIES"
         - "FORBIDDEN_AREAS"
+        - "ADRS_CONSULTED"
       optional:
         - "RISK_ASSESSMENT"
         - "DEPENDENCY_MAP"
     
     actions:
+      - "Read relevant ADRs (readme/adr/*.md) for patterns and constraints"
+      - "Extract copy-paste templates from ADRs (per config/schemas/adr_schema.yaml)"
       - "Analyze problem statement"
-      - "Read relevant files (no changes)"
+      - "Read relevant codebase files (no changes)"
       - "Identify dependencies"
       - "Decompose into atomic TODO items"
       - "Document constraints and risks"
@@ -64,6 +68,12 @@ phases:
         required: true
       - id: "P0-06"
         check: "No protected files in scope (or explicit approval)"
+        required: true
+      - id: "P0-07"
+        check: "Relevant ADRs read and listed (readme/adr/)"
+        required: true
+      - id: "P0-08"
+        check: "Code templates extracted from ADRs for reuse"
         required: true
     
     fail_rule: "If any checkpoint fails: STOP. Re-run Phase 0."

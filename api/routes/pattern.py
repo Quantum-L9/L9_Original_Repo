@@ -353,6 +353,116 @@ async def validate_pattern_config(
 
 
 # ============================================================================
+# Multi-Subsystem Execution
+# ============================================================================
+
+
+class MasterExecuteRequest(BaseModel):
+    """Request model for multi-subsystem execution."""
+
+    user_prompts: List[str] = Field(
+        ...,
+        min_length=1,
+        description="User prompts/requirements to process through all pipelines",
+    )
+    subsystems: Optional[List[str]] = Field(
+        default=None,
+        description="Specific subsystems to run (defaults to all enabled)",
+    )
+    dry_run: bool = Field(
+        default=False,
+        description="If true, validate without executing agents",
+    )
+
+
+class MasterExecuteResponse(BaseModel):
+    """Response model for multi-subsystem execution."""
+
+    success: bool = Field(..., description="Whether all subsystems succeeded")
+    trace_id: str = Field(..., description="Master execution trace ID")
+    status: str = Field(..., description="Overall status: success|partial|failure")
+    subsystems_executed: int = Field(
+        default=0, description="Number of subsystems executed"
+    )
+    subsystems_failed: int = Field(
+        default=0, description="Number of subsystems that failed"
+    )
+    results: Dict[str, Any] = Field(
+        default_factory=dict, description="Per-subsystem results"
+    )
+    duration_ms: int = Field(default=0, description="Total duration in milliseconds")
+    errors: List[str] = Field(
+        default_factory=list, description="Any errors encountered"
+    )
+
+
+@router.post("/execute-all", response_model=MasterExecuteResponse)
+async def execute_all_subsystems(
+    request: MasterExecuteRequest,
+    http_request: Request,
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+):
+    """
+    Execute pattern pipelines for all enabled subsystems.
+
+    Runs the N1-N9 architecture pipeline for each enabled subsystem in master.yaml.
+    Execution order: code_mutation (sequential) → auth (sequential) → others (parallel)
+    """
+    try:
+        logger.info(
+            "Master execution request",
+            prompt_count=len(request.user_prompts),
+            subsystems=request.subsystems,
+            dry_run=request.dry_run,
+        )
+
+        from orchestrators.pattern import MasterOrchestrator
+
+        master = MasterOrchestrator(
+            master_config_path="config/subsystems/master.yaml",
+            pattern_path="config/patterns/pipeline_v1.yaml",
+        )
+
+        result = await master.execute_all(
+            user_prompts=request.user_prompts,
+            dry_run=request.dry_run,
+            subsystems=request.subsystems,
+        )
+
+        logger.info(
+            "Master execution complete",
+            status=result.status,
+            executed=result.subsystems_executed,
+            failed=result.subsystems_failed,
+        )
+
+        return MasterExecuteResponse(
+            success=result.status == "success",
+            trace_id=result.trace_id,
+            status=result.status,
+            subsystems_executed=result.subsystems_executed,
+            subsystems_failed=result.subsystems_failed,
+            results=result.results,
+            duration_ms=int(result.total_duration_ms),
+            errors=result.errors,
+        )
+
+    except FileNotFoundError as e:
+        logger.error(f"Config file not found: {e}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Configuration file not found: {str(e)}",
+        )
+    except Exception as e:
+        logger.error(f"Master execution failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Master execution failed: {str(e)}",
+        )
+
+
+# ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_footer__ = {

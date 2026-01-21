@@ -13,7 +13,7 @@ All operations are async-safe with proper logging.
 """
 
 from __future__ import annotations
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -39,8 +39,11 @@ __dora_meta__ = {
 import structlog
 import re
 from functools import lru_cache
-from typing import Any
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 from core.schemas import PacketEnvelope
 from memory.substrate_models import ExtractedInsight, KnowledgeFact
@@ -88,7 +91,7 @@ class InsightExtractionPipeline:
     - Patterns and anomalies
     """
 
-    def __init__(self, repository=None):
+    def __init__(self, repository: Optional["SubstrateRepository"] = None):
         """
         Initialize insight extraction pipeline.
 
@@ -103,7 +106,7 @@ class InsightExtractionPipeline:
         }
         logger.info("InsightExtractionPipeline initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -484,7 +487,9 @@ def get_insight_pipeline() -> InsightExtractionPipeline:
     return InsightExtractionPipeline()
 
 
-def init_insight_pipeline(repository) -> InsightExtractionPipeline:
+def init_insight_pipeline(
+    repository: "SubstrateRepository",
+) -> InsightExtractionPipeline:
     """Initialize the insight extraction pipeline with a repository."""
     pipeline = get_insight_pipeline()
     pipeline.set_repository(repository)

@@ -1,8 +1,23 @@
 """
-Approval Manager
+Approval Manager (Session-Based)
 
 High-risk tool execution requires explicit Igor approval before dispatch.
 This module manages the approval workflow for destructive operations.
+
+ARCHITECTURE NOTE (GMP-104):
+    This module provides SESSION-BASED approval management with in-memory caches.
+    Approvals are tracked in _pending/_decisions dicts with optional checkpointing.
+
+    For PERSISTENT approval management (stored in memory substrate),
+    see: core/governance/approvals.py
+
+    Key differences:
+    - This module: uses in-memory _pending/_decisions with ApprovalStatus/ApprovalDecision
+    - approvals.py: is_approved() queries memory substrate packets
+
+    Both are valid — choose based on persistence requirements:
+    - Use this for: FastAPI request-scoped approvals, Cursor executor
+    - Use approvals.py for: Long-running tasks, audit trail, closed-loop learning
 """
 
 from __future__ import annotations
@@ -44,6 +59,7 @@ import structlog
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
 from core.decorators import must_stay_async
+from core.governance.tool_risk_policy import get_high_risk_tools_with_descriptions
 
 logger = structlog.get_logger(__name__)
 
@@ -109,16 +125,8 @@ class ApprovalManager:
     5. Executor checks approval before dispatch
     """
 
-    # Tools that always require Igor approval
-    HIGH_RISK_TOOLS = {
-        "gmp_run": "Execute GMP protocol (code changes)",
-        "git_commit": "Commit changes to git repository",
-        "git_push": "Push changes to remote repository",
-        "file_delete": "Delete files from filesystem",
-        "database_write": "Write to production database",
-        "deploy": "Deploy to production environment",
-        "mac_agent_exec": "Execute commands on Mac agent",
-    }
+    # GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
+    HIGH_RISK_TOOLS = get_high_risk_tools_with_descriptions()
 
     def __init__(
         self,

@@ -33,12 +33,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import structlog
-from typing import Any, Optional
+from typing import Any, List, Optional
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
 from core.decorators import must_stay_async
+
+# Input segmenter for multi-part directive support (harvested from tokenizer)
+from orchestration.input_segmenter import get_segmenter
 
 logger = structlog.get_logger(__name__)
 
@@ -70,15 +73,30 @@ class ExecuteTaskRequest(BaseModel):
     max_iterations: int = Field(
         default=10, ge=1, le=50, description="Max reasoning iterations"
     )
+    # Multi-part directive support (harvested from tokenizer)
+    segment_multi_part: bool = Field(
+        default=True,
+        description="Auto-segment multi-part directives (e.g., 'Deploy RIL, test ToT')",
+    )
 
     model_config = {"extra": "forbid"}
+
+
+class SegmentResult(BaseModel):
+    """Result for a single segment in multi-part execution."""
+
+    segment: str = Field(..., description="The segmented directive")
+    task_id: str = Field(..., description="Task ID for this segment")
+    status: str = Field(..., description="Execution status")
+    result: Optional[str] = Field(None, description="Agent response")
+    error: Optional[str] = Field(None, description="Error if failed")
 
 
 class ExecuteTaskResponse(BaseModel):
     """Response model for /execute endpoint."""
 
     ok: bool = Field(..., description="Whether execution succeeded")
-    task_id: str = Field(..., description="Task identifier")
+    task_id: str = Field(..., description="Task identifier (first task if multi-part)")
     status: str = Field(
         ..., description="Execution status: completed, failed, terminated, duplicate"
     )
@@ -88,6 +106,16 @@ class ExecuteTaskResponse(BaseModel):
         default=0, description="Execution duration in milliseconds"
     )
     error: Optional[str] = Field(None, description="Error message if failed")
+    # Multi-part fields
+    was_multi_part: bool = Field(
+        default=False, description="Whether input was segmented"
+    )
+    segments_processed: int = Field(
+        default=1, description="Number of segments processed"
+    )
+    segment_results: Optional[List[SegmentResult]] = Field(
+        None, description="Individual results if multi-part"
+    )
 
     model_config = {"extra": "forbid"}
 
@@ -167,6 +195,11 @@ async def execute_task(
     3. Waits for completion
     4. Returns the result
 
+    Multi-part directive support (harvested from tokenizer):
+    - If segment_multi_part=True (default), compound directives like
+      "Deploy RIL, test ToT, sync Supabase" are automatically segmented
+      and processed as separate tasks.
+
     For long-running tasks, consider using /task for async submission.
 
     Requires authentication via L9_EXECUTOR_API_KEY.
@@ -175,13 +208,13 @@ async def execute_task(
         POST /agent/execute
         Authorization: Bearer {L9_EXECUTOR_API_KEY}
         {
-            "message": "What is the capital of France?",
+            "message": "Deploy RIL, test ToT, sync Supabase",
             "agent_id": "l9-standard-v1",
-            "max_iterations": 5
+            "segment_multi_part": true
         }
 
     Returns:
-        ExecuteTaskResponse with result or error
+        ExecuteTaskResponse with result or error (includes segment_results if multi-part)
     """
     # Check if executor is available
     executor = getattr(request.app.state, "agent_executor", None)
@@ -205,7 +238,107 @@ async def execute_task(
         }
         agent_type = type_map.get(body.kind.lower(), AgentType.ASSISTANT)
 
-        # Create AgentTask
+        # === Multi-Part Directive Support (harvested from tokenizer) ===
+        segmenter = get_segmenter()
+        segment_result = segmenter.segment(body.message)
+
+        # Process as multi-part if enabled and multiple segments detected
+        if body.segment_multi_part and segment_result.segment_count > 1:
+            logger.info(
+                "Multi-part directive detected: %d segments",
+                segment_result.segment_count,
+                segments=segment_result.segments,
+            )
+
+            segment_results: List[SegmentResult] = []
+            total_iterations = 0
+            total_duration_ms = 0
+            first_task_id = None
+            all_successful = True
+            combined_results: List[str] = []
+
+            for i, segment in enumerate(segment_result.segments):
+                # Create AgentTask for this segment
+                task = AgentTask(
+                    agent_type=agent_type,
+                    agent_id=body.agent_id or "l9-standard-v1",
+                    source_id=body.source_id,
+                    thread_identifier=body.thread_id,
+                    payload={
+                        "message": segment,
+                        "segment_index": i,
+                        "total_segments": segment_result.segment_count,
+                        "from_multi_part": True,
+                        "original_message": body.message,
+                        **body.context,
+                    },
+                    max_iterations=body.max_iterations,
+                )
+
+                if first_task_id is None:
+                    first_task_id = str(task.id)
+
+                logger.info(
+                    "Executing segment %d/%d: %s",
+                    i + 1,
+                    segment_result.segment_count,
+                    segment,
+                )
+
+                # Execute segment
+                result = await executor.start_agent_task(task)
+
+                # Handle duplicate
+                if hasattr(result, "ok") and result.status == "duplicate":
+                    segment_results.append(
+                        SegmentResult(
+                            segment=segment,
+                            task_id=str(result.task_id),
+                            status="duplicate",
+                            result=None,
+                            error=None,
+                        )
+                    )
+                    continue
+
+                # Record result
+                segment_results.append(
+                    SegmentResult(
+                        segment=segment,
+                        task_id=str(result.task_id),
+                        status=result.status,
+                        result=result.result,
+                        error=result.error,
+                    )
+                )
+
+                total_iterations += result.iterations
+                total_duration_ms += result.duration_ms
+
+                if result.status != "completed":
+                    all_successful = False
+                else:
+                    combined_results.append(result.result or "")
+
+            # Combine results
+            combined_result = (
+                "\n\n---\n\n".join(combined_results) if combined_results else None
+            )
+
+            return ExecuteTaskResponse(
+                ok=all_successful,
+                task_id=first_task_id or "",
+                status="completed" if all_successful else "partial",
+                result=combined_result,
+                iterations=total_iterations,
+                duration_ms=total_duration_ms,
+                error=None if all_successful else "Some segments failed",
+                was_multi_part=True,
+                segments_processed=segment_result.segment_count,
+                segment_results=segment_results,
+            )
+
+        # === Single task execution (original behavior) ===
         task = AgentTask(
             agent_type=agent_type,
             agent_id=body.agent_id or "l9-standard-v1",
@@ -258,6 +391,53 @@ async def execute_task(
             status_code=500,
             detail=f"Task execution failed: {str(e)}",
         )
+
+
+# =============================================================================
+# Segmentation Endpoint (for preview/debugging)
+# =============================================================================
+
+
+class SegmentPreviewRequest(BaseModel):
+    """Request model for segment preview."""
+
+    message: str = Field(..., description="Message to segment")
+
+
+class SegmentPreviewResponse(BaseModel):
+    """Response model for segment preview."""
+
+    segments: List[str] = Field(..., description="Segmented directives")
+    segment_count: int = Field(..., description="Number of segments")
+    was_multi_part: bool = Field(..., description="Whether multiple segments detected")
+    original_input: str = Field(..., description="Original input")
+
+
+@router.post("/segment", response_model=SegmentPreviewResponse)
+async def segment_preview(
+    body: SegmentPreviewRequest,
+) -> SegmentPreviewResponse:
+    """
+    Preview how a message would be segmented (no execution).
+
+    Useful for debugging multi-part directive parsing.
+
+    Example:
+        POST /agent/segment
+        {"message": "Deploy RIL, test ToT, sync Supabase"}
+
+    Returns:
+        {"segments": ["deploy ril", "test tot", "sync supabase"], "segment_count": 3, ...}
+    """
+    segmenter = get_segmenter()
+    result = segmenter.segment(body.message)
+
+    return SegmentPreviewResponse(
+        segments=result.segments,
+        segment_count=result.segment_count,
+        was_multi_part=result.was_multi_part,
+        original_input=result.raw_input,
+    )
 
 
 @must_stay_async("health endpoint")
