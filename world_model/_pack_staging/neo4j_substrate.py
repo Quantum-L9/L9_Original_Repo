@@ -12,10 +12,10 @@ NIST AI RMF Map-2 (graph-native analytics).
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Graph-Native Query Engine for World Model.",
-    "module_version": "1.0.0",
+    "module_version": "1.0.1",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-15T23:45:01Z",
-    "updated_at": "2026-01-17T23:47:56Z",
+    "updated_at": "2026-01-21T01:57:00Z",
     "layer": "learning",
     "domain": "world_model",
     "module_name": "neo4j_substrate",
@@ -34,8 +34,7 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import logging
 
-from world_model.interfaces import Entity, Relation
-from world_model.state import WorldModelState
+from world_model.state import Entity, Relation, WorldModelState
 
 
 logger = logging.getLogger(__name__)
@@ -548,13 +547,12 @@ __dora_footer__ = {
         "engine",
     ],
     "business_value": "Provides neo4j substrate components including Neo4jConfig, Neo4jSubstrate",
-    "last_modified": "2026-01-17T23:47:56Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
+    "last_modified": "2026-01-21T01:57:00Z",
+    "modified_by": "L9_GMP_Phase2",
+    "change_summary": "Fixed import: world_model.interfaces -> world_model.state",
 }
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
 # ============================================================================
 __l9_trace__ = {
     "trace_id": "",
@@ -566,6 +564,4 @@ __l9_trace__ = {
     "outputs": {},
     "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
 }
-# ============================================================================
-# END L9 DORA BLOCK
 # ============================================================================

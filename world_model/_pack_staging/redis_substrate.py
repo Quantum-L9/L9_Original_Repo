@@ -13,10 +13,10 @@ NIST AI RMF Govern-1 (cache governance).
 # ============================================================================
 __dora_meta__ = {
     "component_name": "High-Performance Cache Layer for World Model.",
-    "module_version": "1.0.0",
+    "module_version": "1.0.1",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-15T23:45:01Z",
-    "updated_at": "2026-01-17T23:47:57Z",
+    "updated_at": "2026-01-21T01:57:00Z",
     "layer": "learning",
     "domain": "world_model",
     "module_name": "redis_substrate",
@@ -36,8 +36,7 @@ from dataclasses import dataclass
 import json
 import logging
 
-from world_model.interfaces import Entity, Relation
-from world_model.state import WorldModelState
+from world_model.state import Entity, Relation, WorldModelState
 
 
 logger = logging.getLogger(__name__)
@@ -494,13 +493,12 @@ __dora_footer__ = {
         "governance",
     ],
     "business_value": "Entity/Relation caching with TTL Atomic operations (SETEX, GETEX, DEL) Pub/Sub for state change notifications Session management (L9 authority model) Performance: Sub-ms lookups + ~1GB/10M entities in",
-    "last_modified": "2026-01-17T23:47:57Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
+    "last_modified": "2026-01-21T01:57:00Z",
+    "modified_by": "L9_GMP_Phase2",
+    "change_summary": "Fixed import: world_model.interfaces -> world_model.state",
 }
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
 # ============================================================================
 __l9_trace__ = {
     "trace_id": "",
@@ -512,6 +510,4 @@ __l9_trace__ = {
     "outputs": {},
     "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
 }
-# ============================================================================
-# END L9 DORA BLOCK
 # ============================================================================
