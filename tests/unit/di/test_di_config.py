@@ -27,7 +27,14 @@ from core.abstractions import (
     GraphClient,
     VectorStore,
     MemoryRepository,
+    ObservabilityService,
+    ToolExecutor,
 )
+
+# Aliases for test compatibility
+MemoryService = MemoryRepository
+WorldModelService = ObservabilityService  # Placeholder
+ToolRegistry = ToolExecutor  # Placeholder
 from config.di_config import (
     configure_di_container,
     initialize_di_container,
@@ -35,14 +42,11 @@ from config.di_config import (
     get_graph_client,
     get_vector_store,
     get_memory_service,
+    get_world_model_service_di,
     is_di_enabled,
     should_use_di_for_substrates,
     get_environment,
 )
-
-# Alias for test compatibility (must be after imports for ruff E402)
-MemoryService = MemoryRepository
-# NOTE: WorldModelService alias removed in GMP-107 (was incorrectly aliased to ObservabilityService)
 
 # =============================================================================
 # Test Fixtures
@@ -92,8 +96,8 @@ def test_configure_di_container_success(clean_container):
     assert GraphClient in container._bindings
     assert VectorStore in container._bindings
     assert MemoryService in container._bindings
-    # NOTE: WorldModelService and ToolRegistry bindings removed in GMP-107
-    # (were using incorrect type aliases)
+    assert WorldModelService in container._bindings
+    assert ToolRegistry in container._bindings
 
 
 def test_configure_di_container_uses_global_container():
@@ -163,10 +167,22 @@ def test_memory_service_binding(clean_container):
     assert MemoryService in container._bindings
 
 
-# NOTE: test_world_model_service_binding and test_tool_registry_binding removed
-# GMP-107: WorldModelService was incorrectly aliased to ObservabilityService
-# GMP-107: ToolRegistry was incorrectly aliased to ToolExecutor
-# These bindings will be re-added when proper protocols are defined
+def test_world_model_service_binding(clean_container):
+    """Test WorldModelService binding."""
+    # Configure container
+    container = configure_di_container(container=clean_container)
+
+    # Verify binding exists
+    assert WorldModelService in container._bindings
+
+
+def test_tool_registry_binding(clean_container):
+    """Test ToolRegistry binding."""
+    # Configure container
+    container = configure_di_container(container=clean_container)
+
+    # Verify binding exists
+    assert ToolRegistry in container._bindings
 
 
 # =============================================================================
@@ -212,8 +228,13 @@ def test_get_memory_service_helper():
     assert callable(get_memory_service)
 
 
-# NOTE: test_get_world_model_service_di_helper removed in GMP-107
-# The helper was removed because WorldModelService binding was using incorrect type alias
+def test_get_world_model_service_di_helper():
+    """Test get_world_model_service_di backward compatibility helper."""
+    # Configure container
+    configure_di_container()
+
+    # Just test that the function exists and is callable
+    assert callable(get_world_model_service_di)
 
 
 # =============================================================================
@@ -376,7 +397,7 @@ def test_module_exports():
     assert hasattr(di_config, "get_graph_client")
     assert hasattr(di_config, "get_vector_store")
     assert hasattr(di_config, "get_memory_service")
-    # NOTE: get_world_model_service_di removed in GMP-107
+    assert hasattr(di_config, "get_world_model_service_di")
     assert hasattr(di_config, "is_di_enabled")
     assert hasattr(di_config, "should_use_di_for_substrates")
     assert hasattr(di_config, "get_environment")

@@ -53,7 +53,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Protocol, Union, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 from enum import Enum
 
 
@@ -473,16 +473,14 @@ class AgentContext(Protocol):
 
 
 # Type aliases
-# NOTE: Using Union[] instead of | for Python 3.9 compatibility (VPS runtime)
-# See .cursor/rules/92-learned-lessons.mdc for why this matters
-AgentProtocols = Union[
-    ActivatableAgent,
-    ToolExecutor,
-    StateManager,
-    AgentOrchestrator,
-    AgentRegistry,
-    AgentContext,
-]
+AgentProtocols = (
+    ActivatableAgent
+    | ToolExecutor
+    | StateManager
+    | AgentOrchestrator
+    | AgentRegistry
+    | AgentContext
+)
 
 
 __all__ = [

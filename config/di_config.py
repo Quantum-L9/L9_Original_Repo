@@ -86,12 +86,10 @@ from core.abstractions import (
     ToolExecutor,
 )
 
-# Alias for backward compatibility (MemoryService is the canonical name)
+# Aliases for backward compatibility
 MemoryService = MemoryRepository
-
-# NOTE: WorldModelService and ToolRegistry removed - they were confusing aliases
-# pointing to unrelated protocols (ObservabilityService, ToolExecutor).
-# Use the actual protocols directly until proper implementations exist.
+WorldModelService = ObservabilityService  # Placeholder for world model
+ToolRegistry = ToolExecutor  # Placeholder for tool registry
 
 logger = structlog.get_logger(__name__)
 
@@ -148,16 +146,16 @@ def create_pgvector_client() -> VectorStore:
 
     Returns:
         VectorStore: pgvector client instance
-
-    Raises:
-        NotImplementedError: pgvector client not yet implemented
     """
-    # L9 Fail-Loud Pattern: Raise explicit error instead of returning None
-    # This prevents silent failures when DI resolution is attempted
-    raise NotImplementedError(
-        "pgvector VectorStore client not yet implemented. "
-        "Use memory.substrate_repository for vector operations until this is ready."
+    # Note: Assuming pgvector client exists or will be created
+    # For now, we'll use a placeholder that returns None
+    # TODO: Implement actual pgvector client
+    logger.warning(
+        "di_config.create_pgvector_client",
+        action="pgvector_not_implemented",
+        message="pgvector client not yet implemented, returning None",
     )
+    return None  # type: ignore
 
 
 def create_memory_substrate_service(
@@ -188,9 +186,26 @@ def create_memory_substrate_service(
     return get_memory_substrate_service()
 
 
-# NOTE: create_world_model_service removed - was using incorrect type alias
-# WorldModelService was aliased to ObservabilityService which is semantically wrong
-# World Model will get proper DI bindings in a future PR when WorldModelProtocol is defined
+def create_world_model_service(graph: GraphClient) -> WorldModelService:
+    """
+    Create world model service with injected dependencies.
+
+    Args:
+        graph: Graph client (Neo4j)
+
+    Returns:
+        WorldModelService: World model service instance
+    """
+    from world_model.service import get_world_model_service
+
+    logger.info(
+        "di_config.create_world_model_service",
+        action="creating_world_model_service",
+        has_graph=graph is not None,
+    )
+    # For now, use existing singleton getter
+    # TODO: Refactor world_model service to accept injected dependencies
+    return get_world_model_service()
 
 
 def create_observability_service() -> ObservabilityService:
@@ -199,33 +214,44 @@ def create_observability_service() -> ObservabilityService:
 
     Returns:
         ObservabilityService: Observability service instance
-
-    Raises:
-        NotImplementedError: Observability service not yet implemented
     """
-    # L9 Fail-Loud Pattern: Raise explicit error instead of returning None
-    raise NotImplementedError(
-        "ObservabilityService not yet implemented. "
-        "Use core.observability.five_tier directly until unified service is ready."
+    # TODO: Implement observability service
+    logger.warning(
+        "di_config.create_observability_service",
+        action="observability_not_implemented",
+        message="Observability service not yet implemented, returning None",
     )
+    return None  # type: ignore
 
 
-def create_tool_registry() -> ToolExecutor:
+def create_kernel_loader() -> KernelLoader:
+    """
+    Create kernel loader.
+
+    Returns:
+        KernelLoader: Kernel loader instance
+    """
+    # Note: Kernel loader is not a singleton, it's a module
+    # We'll return a placeholder for now
+    logger.warning(
+        "di_config.create_kernel_loader",
+        action="kernel_loader_not_singleton",
+        message="Kernel loader is a module, not a singleton",
+    )
+    return None  # type: ignore
+
+
+def create_tool_registry() -> ToolRegistry:
     """
     Create tool registry.
 
     Returns:
-        ToolExecutor: Tool registry instance (implements ToolExecutor protocol)
-
-    Raises:
-        NotImplementedError: Tool registry not yet DI-enabled
+        ToolRegistry: Tool registry instance
     """
-    # L9 Fail-Loud Pattern: Raise explicit error instead of returning None
-    # The tool registry exists but doesn't implement ToolExecutor protocol yet
-    raise NotImplementedError(
-        "ToolExecutor binding not yet implemented. "
-        "Use core.tools.registry_adapter directly until DI migration is complete."
-    )
+    from runtime.tool_registry import get_tool_registry
+
+    logger.info("di_config.create_tool_registry", action="creating_tool_registry")
+    return get_tool_registry()
 
 
 # =============================================================================
@@ -290,8 +316,11 @@ def configure_di_container(
     container.bind_singleton(MemoryService, create_memory_substrate_service)
     logger.debug("di_config", action="bound_memory_service", protocol="MemoryService")
 
-    # NOTE: WorldModelService binding removed - was using incorrect type alias
-    # World Model will get proper DI bindings when WorldModelProtocol is defined
+    # World model service (with auto-injection)
+    container.bind_singleton(WorldModelService, create_world_model_service)
+    logger.debug(
+        "di_config", action="bound_world_model_service", protocol="WorldModelService"
+    )
 
     # Observability service
     container.bind_singleton(ObservabilityService, create_observability_service)
@@ -305,9 +334,9 @@ def configure_di_container(
     # Tool & Registry Bindings (Layer 3: Userland)
     # =========================================================================
 
-    # Tool registry (implements ToolExecutor protocol)
-    container.bind_singleton(ToolExecutor, create_tool_registry)
-    logger.debug("di_config", action="bound_tool_executor", protocol="ToolExecutor")
+    # Tool registry
+    container.bind_singleton(ToolRegistry, create_tool_registry)
+    logger.debug("di_config", action="bound_tool_registry", protocol="ToolRegistry")
 
     # =========================================================================
     # Environment-Specific Overrides
@@ -335,7 +364,7 @@ def configure_di_container(
         "di_config.configure_di_container",
         action="configuration_complete",
         environment=env,
-        binding_count=len(container.get_bindings()),
+        binding_count=len(container._bindings),
     )
 
     return container
@@ -396,8 +425,15 @@ def get_memory_service() -> MemoryService:
     return container.resolve(MemoryService)
 
 
-# NOTE: get_world_model_service_di removed - binding was using incorrect type alias
-# Use world_model.service.get_world_model_service() directly
+def get_world_model_service_di() -> WorldModelService:
+    """
+    Get world model service (backward-compatible helper).
+
+    Returns:
+        WorldModelService: World model service instance
+    """
+    container = get_di_container()
+    return container.resolve(WorldModelService)
 
 
 # =============================================================================
@@ -454,7 +490,7 @@ def initialize_di_container() -> DIContainer:
     logger.info(
         "di_config.initialize_di_container",
         action="initialization_complete",
-        binding_count=len(container.get_bindings()),
+        binding_count=len(container._bindings),
     )
 
     return container
@@ -471,6 +507,7 @@ __all__ = [
     "get_graph_client",
     "get_vector_store",
     "get_memory_service",
+    "get_world_model_service_di",
     "is_di_enabled",
     "should_use_di_for_substrates",
     "get_environment",

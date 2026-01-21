@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-01-20T20:00:00Z",
+  "adrs": [
+    {
+      "id": "0001",
+      "title": "ADR System for L9",
+      "status": "accepted",
+      "date": "2026-01-20",
+      "author": "l-cto",
+      "category": "process",
+      "impact": "high",
+      "tier": "t2",
+      "file": "docs/adr/0001-adr-system.md",
+      "tags": ["governance", "documentation", "process"],
+      "related_adrs": [],
+      "related_prs": [24]
+    },
+    {
+      "id": "0002",
+      "title": "Cursor File Organization",
+      "status": "accepted",
+      "date": "2026-01-11",
+      "author": "l-cto",
+      "category": "architecture",
+      "impact": "medium",
+      "tier": "t2",
+      "file": "docs/adr/0002-cursor-file-organization.md",
+      "tags": ["agents", "cursor", "organization"],
+      "related_adrs": [],
+      "related_prs": []
+    },
+    {
+      "id": "0003",
+      "title": "TypedDict vs Pydantic for LangGraph State",
+      "status": "accepted",
+      "date": "2026-01-11",
+      "author": "l-cto",
+      "category": "architecture",
+      "impact": "medium",
+      "tier": "t2",
+      "file": "docs/adr/0003-typeddict-vs-pydantic.md",
+      "tags": ["langgraph", "type-system", "pydantic"],
+      "related_adrs": [],
+      "related_prs": []
+    },
+    {
+      "id": "0004",
+      "title": "Dependency Injection and Inversion (DI/DIP) Foundation",
+      "status": "accepted",
+      "date": "2026-01-20",
+      "author": "l-cto",
+      "category": "architecture",
+      "impact": "high",
+      "tier": "t3",
+      "file": "docs/adr/0004-di-dip-foundation.md",
+      "tags": ["di", "dip", "protocols", "dependency-injection"],
+      "related_adrs": ["0005"],
+      "related_prs": [22, 23]
+    },
+    {
+      "id": "0005",
+      "title": "Kernel Configuration Externalization",
+      "status": "accepted",
+      "date": "2026-01-20",
+      "author": "l-cto",
+      "category": "infrastructure",
+      "impact": "high",
+      "tier": "t3",
+      "file": "docs/adr/0005-kernel-config-externalization.md",
+      "tags": ["kernel", "configuration", "governance"],
+      "related_adrs": ["0004"],
+      "related_prs": [23]
+    }
+  ]
+}

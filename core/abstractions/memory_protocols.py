@@ -54,7 +54,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Protocol, Union, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -472,16 +472,14 @@ class RetrievalStrategy(Protocol):
 
 
 # Type aliases
-# NOTE: Using Union[] instead of | for Python 3.9 compatibility (VPS runtime)
-# See .cursor/rules/92-learned-lessons.mdc for why this matters
-MemoryProtocols = Union[
-    CacheClient,
-    GraphClient,
-    VectorStore,
-    MemoryRepository,
-    IngestionPipeline,
-    RetrievalStrategy,
-]
+MemoryProtocols = (
+    CacheClient
+    | GraphClient
+    | VectorStore
+    | MemoryRepository
+    | IngestionPipeline
+    | RetrievalStrategy
+)
 
 
 __all__ = [
