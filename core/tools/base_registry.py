@@ -57,7 +57,7 @@ from enum import Enum
 from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from core.singleton_auto_registry import register_singleton
 
 logger = structlog.get_logger(__name__)
 
@@ -555,10 +555,13 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
     # Simple calculator executor
     def calculate_executor(expression: str) -> dict:
         try:
-            # Safe eval for simple math
-            allowed_names = {"abs": abs, "round": round, "min": min, "max": max}
-            result = eval(expression, {"__builtins__": {}}, allowed_names)
+            # Safe evaluation using ast.literal_eval (only allows literals)
+            import ast
+
+            result = ast.literal_eval(expression)
             return {"result": result, "expression": expression}
+        except (ValueError, SyntaxError) as e:
+            return {"error": f"Invalid expression: {str(e)}", "expression": expression}
         except Exception as e:
             return {"error": str(e), "expression": expression}
 

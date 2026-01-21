@@ -334,14 +334,15 @@ class DIContainer:
 
                     # Handle string annotations (from __future__ import annotations)
                     if isinstance(annotation, str):
-                        # Try to resolve string annotation from factory's globals
+                        # Try to resolve string annotation using get_type_hints (safe)
                         try:
+                            from typing import get_type_hints
+
                             if inspect.isclass(factory):
-                                annotation = eval(
-                                    annotation, factory.__init__.__globals__
-                                )
+                                type_hints = get_type_hints(factory.__init__)
                             else:
-                                annotation = eval(annotation, factory.__globals__)
+                                type_hints = get_type_hints(factory)
+                            annotation = type_hints.get(param.name, annotation)
                         except Exception as e:
                             logger.debug(
                                 "di_container.skipping_unresolvable_annotation",

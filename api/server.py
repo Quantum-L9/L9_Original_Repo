@@ -1925,7 +1925,9 @@ async def lifespan(app: FastAPI):
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
         else:
-            logger.warning("⚠️ Memory tools not registered: tool_registry not available")
+            logger.warning(
+                "⚠️ Memory tools not registered: tool_registry not available"
+            )
     except Exception as e:
         logger.error(f"❌ Memory tool registration failed: {e}", exc_info=True)
 
@@ -2711,6 +2713,16 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="L9 Phase 2 Secure AI OS",
     lifespan=lifespan,
+)
+
+# Add rate limiting middleware
+from api.middleware import RateLimiterMiddleware
+
+app.add_middleware(
+    RateLimiterMiddleware,
+    requests_per_minute=int(os.getenv("RATE_LIMIT_RPM", "60")),
+    burst_size=int(os.getenv("RATE_LIMIT_BURST", "10")),
+    enabled=os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true",
 )
 
 

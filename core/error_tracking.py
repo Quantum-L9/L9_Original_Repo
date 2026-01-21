@@ -235,9 +235,9 @@ async def get_error_stats(hours: int = 24) -> dict[str, int]:
         return {}
 
     try:
-        cutoff = (
-            datetime.utcnow() - __import__("datetime").timedelta(hours=hours)
-        ).isoformat()
+        from datetime import timedelta
+
+        cutoff = (datetime.utcnow() - timedelta(hours=hours)).isoformat()
 
         result = await neo4j.run_query(
             """
