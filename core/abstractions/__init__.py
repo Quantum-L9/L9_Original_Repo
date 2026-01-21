@@ -27,7 +27,6 @@ from core.abstractions.kernel_protocols import (
     KernelActivator,
     KernelAwareAgent,
     KernelDiscovery,
-    KernelProtocols,
     KernelStateManager,
     KernelValidator,
 )
@@ -37,7 +36,6 @@ from core.abstractions.memory_protocols import (
     CacheClient,
     GraphClient,
     IngestionPipeline,
-    MemoryProtocols,
     MemoryRepository,
     RetrievalStrategy,
     VectorStore,
@@ -48,7 +46,6 @@ from core.abstractions.observability_protocols import (
     HealthChecker,
     LogExporter,
     MetricsCollector,
-    ObservabilityProtocols,
     ObservabilityService,
     SpanEmitter,
     SpanKind,
@@ -61,7 +58,6 @@ from core.abstractions.agent_protocols import (
     ActivatableAgent,
     AgentContext,
     AgentOrchestrator,
-    AgentProtocols,
     AgentRegistry,
     AgentState,
     StateManager,
@@ -76,7 +72,6 @@ __all__ = [
     "KernelActivator",
     "KernelStateManager",
     "KernelAwareAgent",
-    "KernelProtocols",
     # Memory protocols
     "CacheClient",
     "GraphClient",
@@ -84,7 +79,6 @@ __all__ = [
     "MemoryRepository",
     "IngestionPipeline",
     "RetrievalStrategy",
-    "MemoryProtocols",
     # Observability protocols
     "SpanEmitter",
     "MetricsCollector",
@@ -94,7 +88,6 @@ __all__ = [
     "ObservabilityService",
     "SpanKind",
     "SpanStatus",
-    "ObservabilityProtocols",
     # Agent protocols
     "ActivatableAgent",
     "ToolExecutor",
@@ -103,7 +96,6 @@ __all__ = [
     "AgentRegistry",
     "AgentContext",
     "AgentState",
-    "AgentProtocols",
 ]
 
 __version__ = "1.0.0"

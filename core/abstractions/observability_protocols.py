@@ -52,7 +52,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, Optional, Protocol, Union, runtime_checkable
+from typing import Any, Dict, Optional, Protocol, runtime_checkable
 from enum import Enum
 
 
@@ -398,17 +398,6 @@ class ObservabilityService(Protocol):
         ...
 
 
-# Type aliases (Python 3.9 compatible)
-ObservabilityProtocols = Union[
-    SpanEmitter,
-    MetricsCollector,
-    TraceContext,
-    LogExporter,
-    HealthChecker,
-    ObservabilityService,
-]
-
-
 __all__ = [
     "SpanEmitter",
     "MetricsCollector",
@@ -418,5 +407,4 @@ __all__ = [
     "ObservabilityService",
     "SpanKind",
     "SpanStatus",
-    "ObservabilityProtocols",
 ]
