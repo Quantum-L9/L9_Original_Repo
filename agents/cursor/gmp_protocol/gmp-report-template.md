@@ -1,21 +1,27 @@
-<!-- CONTRACT: agents/cursor/gmp_protocol/gmp-report-contract.yaml -->
+<!-- CONTRACT: agents/cursor/gmp_protocol/gmp-report-contract.yaml v3.3.0 -->
 <!-- VALIDATE: python3 scripts/validate_gmp_report.py {this_file} -->
 <!-- ID: Next sequential after checking reports/ and reports/GMP Reports/ -->
 
 # GMP-Report-{###}-{Description}
 
-**ID:** GMP-{###} | **Task:** {task} | **Tier:** {KERNEL|RUNTIME|INFRA|UX}_TIER | **Date:** {YYYY-MM-DD} | **Status:** {✅ COMPLETE|⚠️ PARTIAL|❌ FAILED}
+**ID:** GMP-{###}
+**Task:** {task}
+**Tier:** {KERNEL|RUNTIME|INFRA|UX}_TIER
+**Date:** {YYYY-MM-DD}
+**Time:** {HH:MM} EST
+**Status:** {✅ COMPLETE|⚠️ PARTIAL|❌ FAILED}
 
 <!-- 
   BEFORE CREATING:
   1. Check highest GMP number: ls reports/GMP-Report-*.md reports/'GMP Reports'/GMP*Report*.md | grep -oE '[0-9]+' | sort -n | tail -1
   2. Use: highest + 1, zero-padded to 3 digits (e.g., 097, 098, 099)
   3. Date: Today's date in ISO format (YYYY-MM-DD)
+  4. Time: Current EST time in 24-hour format (HH:MM EST)
 -->
 
 ---
 
-## TODO PLAN
+## PLAN
 
 | ID | File | Lines | Action | Status |
 |----|------|-------|--------|--------|
@@ -23,20 +29,6 @@
 | T2 | {path} | {L###-###} | {action} | {✅|❌} |
 
 **Hash:** `{TODO_COUNT} TODOs | {key files summary}`
-
----
-
-## PHASES
-
-| # | Phase | Status |
-|---|-------|--------|
-| 0 | PLANNING | ✅ |
-| 1 | BASELINE | ✅ |
-| 2 | IMPLEMENTATION | ✅ |
-| 3 | ENFORCEMENT | ✅ |
-| 4 | VALIDATION | ✅ |
-| 5 | RECURSION | ✅ |
-| 6 | FINALIZATION | ✅ |
 
 ---
 
@@ -66,16 +58,6 @@
 
 ---
 
-## VERIFICATION
-
-- [x] All TODOs implemented
-- [x] No unauthorized changes
-- [x] No scope drift
-- [x] Protected files documented
-
----
-
 ## DECLARATION
 
-> Phases 0-6 complete. No assumptions. No drift.
-> Report: `{report_path}`
+Phases 0-6 complete. No assumptions. No drift.

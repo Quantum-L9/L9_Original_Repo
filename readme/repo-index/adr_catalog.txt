@@ -1,6 +1,6 @@
 # L9 Architecture Decision Record (ADR) Catalog
-# Generated: 2026-01-20
-# Total: 36 ADRs
+# Generated: 2026-01-21
+# Total: 55 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH
 # ============================================================================
@@ -48,6 +48,23 @@
 0035 | Accepted | ADR Bootstrap Protocol | readme/adr/0035-adr-bootstrap-protocol.md
 0036 | Accepted | Schema Organization Pattern | readme/adr/0036-schema-organization-pattern.md
 0037 | Accepted | Tool Wiring Protocol | readme/adr/0037-tool-wiring-protocol.md
+0038 | Unknown | Secrets Management Protocol | readme/adr/0038-secrets-management-protocol.md
+0039 | Unknown | L9 CLI Tool | readme/adr/0039-l9-cli-tool.md
+0040 | Unknown | CI/CD Security Scanning | readme/adr/0040-ci-cd-security-scanning.md
+0041 | Proposed | Executor Builder Pattern | readme/adr/0041-executor-builder-pattern.md
+0042 | Proposed | Execution Profiles | readme/adr/0042-execution-profiles.md
+0043 | Proposed | Controller Profiles | readme/adr/0043-controller-profiles.md
+0044 | Proposed | Agent Policy Protocols | readme/adr/0044-agent-policy-protocols.md
+0045 | Proposed | Online/Offline Execution Split | readme/adr/0045-online-offline-execution-split.md
+0046 | Proposed | Pipeline Stage Organization | readme/adr/0046-pipeline-stage-organization.md
+0047 | Proposed | Memory Facade Decomposition | readme/adr/0047-memory-facade-decomposition.md
+0048 | Proposed | Tool Dispatch Strategy | readme/adr/0048-tool-dispatch-strategy.md
+0049 | Proposed | Checkpoint Plan Snapshots | readme/adr/0049-checkpoint-plan-snapshots.md
+0050 | Proposed | Tool Registry Cache | readme/adr/0050-tool-registry-cache.md
+0051 | Accepted | Cursor File Organization | readme/adr/0051-cursor-file-organization.md
+0052 | Accepted | Dependency Injection and Inversion (DI/DIP) Foundation | readme/adr/0052-di-dip-foundation.md
+0053 | Accepted | Kernel Configuration Externalization | readme/adr/0053-kernel-config-externalization.md
+0054 | Proposed | Loop Stage Protocol | readme/adr/0054-loop-stage-protocol.md
 
 # ============================================================================
 # AI QUICK REFERENCE - KEY DO NOT's
@@ -59,3 +76,5 @@
 # DO NOT duplicate validation elsewhere:** (ADR-0012)
 # do NOT validate packets (they may not emit packets at all) (ADR-0012)
 # DO NOT place before docstring (ADR-0014)
+# do not implement | `# DEPRECATED - DO NOT IMPLEMENT` | (ADR-0037)
+# DO NOT IMPLEMENT (ADR-0037)

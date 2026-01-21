@@ -36,6 +36,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import List
+from zoneinfo import ZoneInfo
 
 # ============================================================================
 # Configuration
@@ -112,6 +113,7 @@ class GMPReportData:
     # Auto-populated
     gmp_id: int = 0
     date: str = ""
+    time: str = ""
     status: str = "✅ COMPLETE"
 
 
@@ -170,8 +172,14 @@ class GMPReportGenerator:
         # Auto-populate missing data
         if not data.gmp_id:
             data.gmp_id = self.find_next_gmp_id()
+        
+        # Use EST timezone for accurate timestamps
+        est = ZoneInfo("America/New_York")
+        now_est = datetime.now(est)
         if not data.date:
-            data.date = datetime.now().strftime("%Y-%m-%d")
+            data.date = now_est.strftime("%Y-%m-%d")
+        if not data.time:
+            data.time = now_est.strftime("%H:%M EST")
 
         # Determine overall status
         if data.phases:
@@ -199,12 +207,15 @@ class GMPReportGenerator:
         # Generate report content
         lines = []
 
-        # Header (single line with all metadata)
+        # Header (each field on its own line)
         lines.append(f"# GMP-Report-{data.gmp_id:03d}")
         lines.append("")
-        lines.append(
-            f"**ID:** GMP-{data.gmp_id:03d} | **Task:** {data.task} | **Tier:** {data.tier} | **Date:** {data.date} | **Status:** {data.status}"
-        )
+        lines.append(f"**ID:** GMP-{data.gmp_id:03d}")
+        lines.append(f"**Task:** {data.task}")
+        lines.append(f"**Tier:** {data.tier}")
+        lines.append(f"**Date:** {data.date}")
+        lines.append(f"**Time:** {data.time}")
+        lines.append(f"**Status:** {data.status}")
         lines.append("")
         lines.append("---")
         lines.append("")
@@ -227,8 +238,8 @@ class GMPReportGenerator:
             lines.append("---")
             lines.append("")
 
-        # TODO PLAN (required)
-        lines.append("## TODO PLAN")
+        # PLAN (required)
+        lines.append("## PLAN")
         lines.append("")
         lines.append("| ID | File | Lines | Action | Status |")
         lines.append("|----|------|-------|--------|--------|")
@@ -241,17 +252,6 @@ class GMPReportGenerator:
         # Hash
         key_files = ", ".join(set(t.file.split("/")[-1] for t in data.todos[:3]))
         lines.append(f"**Hash:** `{len(data.todos)} TODOs | {key_files}`")
-        lines.append("")
-        lines.append("---")
-        lines.append("")
-
-        # PHASES (required)
-        lines.append("## PHASES")
-        lines.append("")
-        lines.append("| # | Phase | Status |")
-        lines.append("|---|-------|--------|")
-        for phase in data.phases:
-            lines.append(f"| {phase.phase} | {phase.name} | {phase.status} |")
         lines.append("")
         lines.append("---")
         lines.append("")
@@ -310,18 +310,6 @@ class GMPReportGenerator:
         lines.append("---")
         lines.append("")
 
-        # VERIFICATION (required)
-        lines.append("## VERIFICATION")
-        lines.append("")
-        all_todos_done = all(t.status == "✅" for t in data.todos)
-        lines.append(f"- [{'x' if all_todos_done else ' '}] All TODOs implemented")
-        lines.append("- [x] No unauthorized changes")
-        lines.append("- [x] No scope drift")
-        lines.append("- [x] Protected files documented")
-        lines.append("")
-        lines.append("---")
-        lines.append("")
-
         # Optional Breaking Changes
         if data.breaking_changes and data.breaking_changes.lower() != "none":
             lines.append("## BREAKING CHANGES")
@@ -334,9 +322,7 @@ class GMPReportGenerator:
         # DECLARATION (required)
         lines.append("## DECLARATION")
         lines.append("")
-        lines.append("> Phases 0-6 complete. No assumptions. No drift.")
-        filename = self.generate_filename(data.gmp_id, data.task)
-        lines.append(f"> Report: `reports/{filename}`")
+        lines.append("Phases 0-6 complete. No assumptions. No drift.")
         lines.append("")
 
         return "\n".join(lines)

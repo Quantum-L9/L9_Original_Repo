@@ -1,0 +1,50 @@
+aios_metrics:
+  memory_substrate:
+    - metric: "pgvector_insert_throughput"
+      unit: "packets/sec"
+      baseline: 1000
+      threshold: 0.95  # 95% of baseline = 950 packets/sec min
+      
+    - metric: "vector_search_latency_p99"
+      unit: "milliseconds"
+      baseline: 50
+      threshold: 1.15  # Allow 15% increase to 57.5ms
+      
+    - metric: "connection_pool_exhaustion_events"
+      unit: "count/day"
+      baseline: 0
+      threshold: 0  # Must stay at 0
+  
+  executor:
+    - metric: "task_execution_latency_p50"
+      unit: "milliseconds"
+      baseline: 15
+      threshold: 1.20
+      
+    - metric: "state_machine_error_rate"
+      unit: "percent"
+      baseline: 0.001  # 0.1%
+      threshold: 0.002  # 0.2%
+      
+    - metric: "tool_binding_failures"
+      unit: "count/1000_tasks"
+      baseline: 0
+      threshold: 0
+  
+  governance:
+    - metric: "policy_evaluation_latency_p99"
+      unit: "milliseconds"
+      baseline: 5
+      threshold: 1.50
+      
+    - metric: "false_denials"  # Should never happen
+      unit: "count"
+      baseline: 0
+      threshold: 0
+    
+    - metric: "false_approvals"  # Security critical
+      unit: "count"
+      baseline: 0
+      threshold: 0
+
+# Monitor these before/after each refactoring phase

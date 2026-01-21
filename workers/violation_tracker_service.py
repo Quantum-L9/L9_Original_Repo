@@ -49,6 +49,9 @@ import structlog
 from pydantic import BaseModel, Field
 from core.decorators import must_stay_async
 
+# MCP Memory integration
+from clients.memory_client import get_memory_client
+
 from workers.violation_patterns import (
     ViolationPatterns,
     ViolationPatternsRequest,
@@ -413,29 +416,45 @@ class ViolationTrackerService:
     @must_stay_async("callers use await")
     async def _emit_to_mcp_memory(self, violation: ViolationRecord) -> None:
         """Emit violation to MCP Memory for cross-session persistence."""
-        # In production, this would call the MCP Memory API
-        # For now, we log the intent
-        logger.info(
-            "mcp_memory_emit",
-            kind="lesson_violation",
-            lesson_id=violation.lesson_id,
-            violation_count=violation.violation_count,
-        )
+        try:
+            client = get_memory_client()
 
-        # TODO: Implement actual MCP call
-        # async with httpx.AsyncClient() as client:
-        #     await client.post(
-        #         "https://l9.quantumaipartners.com/mcp/tools/save_memory",
-        #         json={
-        #             "content": f"VIOLATION: {violation.lesson_id} violated ({violation.violation_count}x). Pattern: {violation.pattern}",
-        #             "kind": "lesson_violation",
-        #             "scope": "cursor",
-        #             "metadata": {
-        #                 "lesson_id": violation.lesson_id,
-        #                 "violation_count": violation.violation_count,
-        #             }
-        #         }
-        #     )
+            await client.write_packet(
+                packet_type="lesson_violation",
+                payload={
+                    "violation_id": violation.violation_id,
+                    "lesson_id": violation.lesson_id,
+                    "severity": violation.severity.value,
+                    "pattern": violation.pattern,
+                    "description": violation.description,
+                    "source": violation.source,
+                    "context": violation.context,
+                    "violation_count": violation.violation_count,
+                },
+                metadata={
+                    "agent": "violation_tracker",
+                    "domain": "governance",
+                    "schema_version": "1.0.0",
+                },
+                confidence={
+                    "score": 1.0,  # Deterministic pattern match
+                    "rationale": f"Pattern '{violation.pattern}' matched in source",
+                },
+            )
+
+            logger.info(
+                "mcp_memory_emit_success",
+                lesson_id=violation.lesson_id,
+                violation_count=violation.violation_count,
+            )
+
+        except Exception as e:
+            # Non-fatal: log warning but don't fail the violation tracking
+            logger.warning(
+                "mcp_memory_emit_failed",
+                lesson_id=violation.lesson_id,
+                error=str(e),
+            )
 
     @must_stay_async("callers use await")
     async def _trigger_escalation(self, lesson_id: str) -> None:

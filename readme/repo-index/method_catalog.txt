@@ -32,6 +32,12 @@ AccountConfig::client_secret_file() @ email_agent/config.py
 AccountConfig::tokens_file() @ email_agent/config.py
 ActionNode::add_constraint(constraint_id) @ ir_engine/ir_schema.py
 ActionNode::add_dependency(action_id) @ ir_engine/ir_schema.py
+ActionRegistry::__init__() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::execute(action) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::has_action(action_type) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::list_actions(category) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::register(action_type, description, category) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionResult::__post_init__() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
 ActionToolOrchestrator::__init__(tool_registry, governance_engine) @ igor/DONE!/audit-tools/orchestrators_action_tool_orchestrator.py
 ActionToolOrchestrator::__init__(tool_registry, governance_engine) @ orchestrators/action_tool/orchestrator.py
 ActionToolOrchestrator::async _execute_with_retry(tool_id, arguments, max_retries) @ igor/DONE!/audit-tools/orchestrators_action_tool_orchestrator.py
@@ -40,10 +46,10 @@ ActionToolOrchestrator::async _get_registry() @ igor/DONE!/audit-tools/orchestra
 ActionToolOrchestrator::async _get_registry() @ orchestrators/action_tool/orchestrator.py
 ActionToolOrchestrator::async execute(request) @ igor/DONE!/audit-tools/orchestrators_action_tool_orchestrator.py
 ActionToolOrchestrator::async execute(request) @ orchestrators/action_tool/orchestrator.py
-ActivatableAgent::agent_id() @ core/abstractions/agent_protocols.py
-ActivatableAgent::get_kernel_state() @ core/abstractions/agent_protocols.py
-ActivatableAgent::kernel_activate(manifest, context) @ core/abstractions/agent_protocols.py
-ActivatableAgent::kernel_deactivate() @ core/abstractions/agent_protocols.py
+ActivatableAgent::agent_id() @ core/protocols/agent_protocols.py
+ActivatableAgent::get_kernel_state() @ core/protocols/agent_protocols.py
+ActivatableAgent::kernel_activate(manifest, context) @ core/protocols/agent_protocols.py
+ActivatableAgent::kernel_deactivate() @ core/protocols/agent_protocols.py
 ActiveMemoryEncoder::__init__(repository, learning_extractor, consolidation_pipeline) @ memory/active_encoder.py
 ActiveMemoryEncoder::async _check_consolidation(result) @ memory/active_encoder.py
 ActiveMemoryEncoder::async _create_episode(outcome, result) @ memory/active_encoder.py
@@ -108,11 +114,11 @@ AgentConfigExtractor::extract_signals(content) @ igor/DONE!/audit-memory/memory_
 AgentConfigExtractor::extract_signals(content) @ memory/extractor/agent_config_extractor.py
 AgentConfigExtractor::extract_sops(content) @ igor/DONE!/audit-memory/memory_extractor_agent_config_extractor.py
 AgentConfigExtractor::extract_sops(content) @ memory/extractor/agent_config_extractor.py
-AgentContext::agent_id() @ core/abstractions/agent_protocols.py
-AgentContext::get_memory(key) @ core/abstractions/agent_protocols.py
-AgentContext::get_metadata() @ core/abstractions/agent_protocols.py
-AgentContext::session_id() @ core/abstractions/agent_protocols.py
-AgentContext::set_memory(key, value) @ core/abstractions/agent_protocols.py
+AgentContext::agent_id() @ core/protocols/agent_protocols.py
+AgentContext::get_memory(key) @ core/protocols/agent_protocols.py
+AgentContext::get_metadata() @ core/protocols/agent_protocols.py
+AgentContext::session_id() @ core/protocols/agent_protocols.py
+AgentContext::set_memory(key, value) @ core/protocols/agent_protocols.py
 AgentController::__init__(reasoning_engine, packet_router, governance_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
 AgentController::_create_blocked_response(original_packet, reason) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
 AgentController::_create_success_response(original_packet, result) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
@@ -238,11 +244,11 @@ AgentInstance::transition_to(new_state) @ current_work/DONE/GMP Stage 1 - Tools/
 AgentInstance::transition_to(new_state) @ current_work/DONE/GMP Stage 2 - Tools & Memory/agent_instance.py
 AgentInstance::user_corrections() @ core/agents/agent_instance.py
 AgentMessage::to_dict() @ agents/base_agent.py
-AgentOrchestrator::async get_agent_status(agent_id) @ core/abstractions/agent_protocols.py
-AgentOrchestrator::async register_agent(agent, metadata) @ core/abstractions/agent_protocols.py
-AgentOrchestrator::async route_task(task, constraints) @ core/abstractions/agent_protocols.py
-AgentOrchestrator::async unregister_agent(agent_id) @ core/abstractions/agent_protocols.py
-AgentOrchestrator::list_agents() @ core/abstractions/agent_protocols.py
+AgentOrchestrator::async get_agent_status(agent_id) @ core/protocols/agent_protocols.py
+AgentOrchestrator::async register_agent(agent, metadata) @ core/protocols/agent_protocols.py
+AgentOrchestrator::async route_task(task, constraints) @ core/protocols/agent_protocols.py
+AgentOrchestrator::async unregister_agent(agent_id) @ core/protocols/agent_protocols.py
+AgentOrchestrator::list_agents() @ core/protocols/agent_protocols.py
 AgentPersistenceService::__init__(service, repository, enable_checksums) @ memory/agent_persistence.py
 AgentPersistenceService::_serialize_value(value) @ memory/agent_persistence.py
 AgentPersistenceService::async _emit_checkpoint_packet(event_type, agent_id, checkpoint_id, reason, state_keys) @ memory/agent_persistence.py
@@ -266,18 +272,18 @@ AgentRegistry::agent_exists(agent_id) @ core/agents/registry.py
 AgentRegistry::async load_from_directory(config_dir) @ core/agents/registry.py
 AgentRegistry::ensure_default_agent() @ core/agents/registry.py
 AgentRegistry::ensure_test_agent() @ core/agents/registry.py
-AgentRegistry::find_agents(agent_type, filters) @ core/abstractions/agent_protocols.py
-AgentRegistry::get_agent(agent_id) @ core/abstractions/agent_protocols.py
+AgentRegistry::find_agents(agent_type, filters) @ core/protocols/agent_protocols.py
+AgentRegistry::get_agent(agent_id) @ core/protocols/agent_protocols.py
 AgentRegistry::get_agent_config(agent_id) @ core/agents/registry.py
 AgentRegistry::get_all_configs() @ core/agents/registry.py
 AgentRegistry::get_default_agent() @ core/agents/registry.py
 AgentRegistry::list_agents() @ core/agents/registry.py
-AgentRegistry::list_all() @ core/abstractions/agent_protocols.py
-AgentRegistry::register(agent_id, agent_type, metadata) @ core/abstractions/agent_protocols.py
+AgentRegistry::list_all() @ core/protocols/agent_protocols.py
+AgentRegistry::register(agent_id, agent_type, metadata) @ core/protocols/agent_protocols.py
 AgentRegistry::register_agent(config) @ core/agents/registry.py
 AgentRegistry::register_from_dict(data) @ core/agents/registry.py
 AgentRegistry::to_dict() @ core/agents/registry.py
-AgentRegistry::unregister(agent_id) @ core/abstractions/agent_protocols.py
+AgentRegistry::unregister(agent_id) @ core/protocols/agent_protocols.py
 AgentRegistry::unregister_agent(agent_id) @ core/agents/registry.py
 AgentRegistryProtocol::agent_exists(agent_id) @ core/agents/executor.py
 AgentRegistryProtocol::agent_exists(agent_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
@@ -291,7 +297,22 @@ AgentSelfModifyTool::async _log_modification(agent_id, action, details) @ core/t
 AgentSelfModifyTool::async add_directive(agent_id, text, context, severity, igor_approved) @ core/tools/agent_self_modify.py
 AgentSelfModifyTool::async add_sop_step(agent_id, sop_name, step) @ core/tools/agent_self_modify.py
 AgentSelfModifyTool::async update_responsibility(agent_id, responsibility_title, new_description) @ core/tools/agent_self_modify.py
+AgentState::__post_init__() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentState::to_dict() @ agents/codegenagent/cursor_context_sync_engine.py
+AgentStateManager::__init__(agent_id, state_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::action_history() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::confidence_threshold() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::confidence_threshold(value) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::get_state_summary() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::last_reflection_timestamp() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::last_reflection_timestamp(value) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::load_state() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::performance_metrics() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::record_action_outcome(action_record) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::save_state() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::trust_index() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::trust_index(value) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::value_alignment_vector() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentTask::get_dedupe_key() @ core/agents/schemas.py
 AgentTask::get_thread_id() @ core/agents/schemas.py
 AgentTask::to_dict() @ core/schemas/tasks.py
@@ -313,6 +334,7 @@ AnomalyHandler::async handle_anomaly(anomaly) @ codegen/extractions/domain_tenso
 AnomalyResponseMonitor::__init__(classifier, remediation_engine, poll_interval_seconds) @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::_calc_duration(start_time) @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::_detect_anomaly(event) @ workers/anomaly_response_monitor.py
+AnomalyResponseMonitor::add_telemetry_provider(name, provider_fn) @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::async _collect_telemetry() @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::async _process_event(event) @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::async health_check() @ workers/anomaly_response_monitor.py
@@ -321,6 +343,7 @@ AnomalyResponseMonitor::async shutdown() @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::async start_continuous_monitoring(telemetry_source) @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::async startup() @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitor::async stop_continuous_monitoring() @ workers/anomaly_response_monitor.py
+AnomalyResponseMonitor::remove_telemetry_provider(name) @ workers/anomaly_response_monitor.py
 AnonymizationEngine::__init__() @ core/packet_envelope/governance.py
 AnonymizationEngine::__init__() @ current_work/packetEnvelope - Phase 2-5/phase_5_governance.py
 AnonymizationEngine::async anonymize_aggregate(aggregate_data) @ core/packet_envelope/governance.py
@@ -399,6 +422,7 @@ ArtifactClassifier::classify(text) @ codegen/dev_layer/am_engine/compile.py
 ArtifactCompiler::__init__(output_dir) @ codegen/dev_layer/am_engine/compile.py
 ArtifactCompiler::compile_artifact(artifact_text, source_path, force_category) @ codegen/dev_layer/am_engine/compile.py
 ArtifactCompiler::compile_directory(input_dir, extensions) @ codegen/dev_layer/am_engine/compile.py
+ArtifactExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 AsyncMockCursor::__init__() @ tests/conftest.py
 AsyncMockCursor::execute(q) @ tests/conftest.py
 AsyncMockCursor::fetchone() @ tests/conftest.py
@@ -638,6 +662,11 @@ BoundaryEnforcer::has_spec() @ core/boundary/enforcer.py
 BoundaryEnforcer::reload_spec() @ core/boundary/enforcer.py
 BoundarySpec::__init__(raw_content, redaction_patterns, protected_fields) @ core/boundary/enforcer.py
 BoundarySpec::apply_redactions(text) @ core/boundary/enforcer.py
+CACodeChange::__init__(repo_root, governance_loader, confidence_threshold) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::apply_change(proposal) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::generate_commit_message(proposal) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::propose_change(task, changes, rationale, confidence, change_type, tests_added) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::save_artifacts(proposal, output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 CGMPEngine::__init__(meta_loader, symbolic_engine, readme_generator, auto_generate_readme) @ agents/codegenagent/CodeGenAgent Engine.py
 CGMPEngine::__init__(meta_loader, symbolic_engine, readme_generator, auto_generate_readme) @ agents/codegenagent/c_gmp_engine.py
 CGMPEngine::_expand_template(section) @ agents/codegenagent/CodeGenAgent Engine.py
@@ -670,12 +699,12 @@ CMTSService::async get_recent_mutations(limit, subsystem) @ core/governance/cmts
 CMTSService::async query_mutations(query) @ core/governance/cmts.py
 CMTSService::async rollback_mutation(tracking_id, rollback_commit_sha) @ core/governance/cmts.py
 CMTSService::async start_mutation(subsystem, files, agent_id, trace_id, metadata) @ core/governance/cmts.py
-CacheClient::async close() @ core/abstractions/memory_protocols.py
-CacheClient::async delete(key) @ core/abstractions/memory_protocols.py
-CacheClient::async exists(key) @ core/abstractions/memory_protocols.py
-CacheClient::async expire(key, ttl) @ core/abstractions/memory_protocols.py
-CacheClient::async get(key) @ core/abstractions/memory_protocols.py
-CacheClient::async set(key, value, ttl) @ core/abstractions/memory_protocols.py
+CacheClient::async close() @ core/protocols/memory_protocols.py
+CacheClient::async delete(key) @ core/protocols/memory_protocols.py
+CacheClient::async exists(key) @ core/protocols/memory_protocols.py
+CacheClient::async expire(key, ttl) @ core/protocols/memory_protocols.py
+CacheClient::async get(key) @ core/protocols/memory_protocols.py
+CacheClient::async set(key, value, ttl) @ core/protocols/memory_protocols.py
 CacheClient::get(key) @ tests/unit/di/test_container.py
 CacheClient::set(key, value) @ tests/unit/di/test_container.py
 CacheManager::__init__(cache_dir) @ scripts/audit/audit_shared_core.py
@@ -1132,6 +1161,16 @@ ComputationRequest::validate_expression(cls, v) @ services/symbolic_computation/
 ComputationRequest::validate_variables(cls, v) @ _archived/symbolic_computation/models.py
 ComputationRequest::validate_variables(cls, v) @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 ComputationRequest::validate_variables(cls, v) @ services/symbolic_computation/models.py
+ConceptExtractor::__init__(aggressive) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_calculate_confidence(name, context, category) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_create_concept_from_match(file_path, content, match) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_determine_category(name, context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_extract_description(content, start_pos) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_extract_from_headers(file_path, content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_extract_from_yaml(file_path, content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_generate_id(file_path, concept_name) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_read_file(file_path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::extract_from_file(file_path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 Condition::evaluate(context) @ core/governance/schemas.py
 ConfigValidator::__init__() @ scripts/audit/audit_shared_core.py
 ConfigValidator::add_rule(rule) @ scripts/audit/audit_shared_core.py
@@ -1161,10 +1200,23 @@ ConstraintChallenger::async _analyze_constraints(graph, context) @ ir_engine/con
 ConstraintChallenger::async challenge(graph, context) @ ir_engine/constraint_challenger.py
 ConstraintChallenger::async challenge_multiple(graphs, context) @ ir_engine/constraint_challenger.py
 ConstraintChallenger::challenge_rule_based(graph) @ ir_engine/constraint_challenger.py
+ConstraintExtractor::_extract_id(text, prefix) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_rationale(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_rule(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_scope(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_severity(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintNode::challenge(reason, alternative) @ ir_engine/ir_schema.py
 ConstraintNode::invalidate(reason) @ ir_engine/ir_schema.py
 ConstraintNode::verify() @ ir_engine/ir_schema.py
 ConstraintSet::to_dict() @ world_model/world_model_service.py
+ConstraintValidator::__init__(repo_root, governance_loader) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::_check_dangerous_patterns(change) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::_check_file_edit_constraint(change) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::_check_test_constraint(change) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::format_violations(result) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::validate_batch(changes) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::validate_change(change) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ConstructEnhancer::__init__(perplexity_api_key, strict_validation) @ runtime/construct_enhancer.py
 ConstructEnhancer::analyze_gaps(spec) @ runtime/construct_enhancer.py
 ConstructEnhancer::async enhance_spec(spec, max_iterations) @ runtime/construct_enhancer.py
@@ -1177,6 +1229,7 @@ ContextEnvelope::to_dict() @ agents/codegenagent/cursor_sync.py
 ContextSection::__post_init__() @ memory/context_builder.py
 ContextStrategy::async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
 ContextStrategy::async assemble(conversation, knowledge_base, max_tokens) @ current_work/DONE/Observability/observability_context_strategies.py
+ControllerProfile::build_pipeline() @ readme/harvested/perplexity-refactor-2026-01-20/controller_profile_protocol.py
 ControllerResult::to_dict() @ orchestration/unified_controller.py
 Convergence::__init__() @ orchestrators/research_swarm/convergence.py
 Convergence::async process(data) @ orchestrators/research_swarm/convergence.py
@@ -1391,12 +1444,20 @@ DeploymentAutomationEngine::async run_phase_2_rollout() @ current_work/packetEnv
 DeploymentAutomationEngine::async run_phase_3_rollout() @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/deployment_automation.py
 DeploymentAutomationEngine::async run_phase_4_rollout() @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/deployment_automation.py
 DeploymentAutomationEngine::async run_phase_5_rollout() @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/deployment_automation.py
+DiffGenerator::__init__(repo_root) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::format_for_git(batch_diff) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::format_for_review(batch_diff) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::generate_batch_diff(changes) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::generate_diff(file_path, original, modified) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::save_diff(batch_diff, output_path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
 DirectLLMAgent::__init__(api_key, model, temperature, max_tokens) @ orchestrators/pattern/cell_adapter.py
 DirectLLMAgent::async invoke(role, prompt, input_data, context) @ orchestrators/pattern/cell_adapter.py
 DistributedIntuitionCache::__init__(redis_client, agent_id, ttl_seconds) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DistributedIntuitionCache::async consolidate_intuition() @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DistributedIntuitionCache::async update_from_learning(learning) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+DocumentClassifier::__init__(schemas) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+DocumentClassifier::classify(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 DomainContextBuilder::build_domain_context(packet, domain) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py
 DomainPacketHandler::_enrich_mortgageos_payload(payload) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
 DomainPacketHandler::_enrich_plastos_payload(payload) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
@@ -1629,6 +1690,7 @@ ExecutionChain::to_dict() @ orchestration/orchestrator_kernel.py
 ExecutionPlan::get_executable_steps() @ ir_engine/ir_to_plan_adapter.py
 ExecutionPlan::get_next_step() @ ir_engine/ir_to_plan_adapter.py
 ExecutionPlan::to_dict() @ ir_engine/ir_to_plan_adapter.py
+ExecutionProfile::async configure_executor(builder) @ readme/harvested/perplexity-refactor-2026-01-20/execution_profile_protocol.py
 ExecutionResult::duration_ms() @ orchestration/plan_executor.py
 ExecutionResult::to_dict() @ orchestration/plan_executor.py
 ExecutionStep::to_dict() @ ir_engine/ir_to_plan_adapter.py
@@ -1768,7 +1830,18 @@ FileEmitter::rollback() @ agents/codegenagent/file_emitter.py
 FileExtractor::_extract_by_pattern(text, pattern, language) @ codegen/codegenAgent Spec/run_codegen_superprompt.py
 FileExtractor::_find_filename(content, language, index) @ codegen/codegenAgent Spec/run_codegen_superprompt.py
 FileExtractor::extract_files(response_text) @ codegen/codegenAgent Spec/run_codegen_superprompt.py
+FileScanner::__init__(root_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+FileScanner::get_file_info(file_path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+FileScanner::scan() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 FileSnapshot::to_dict() @ agents/codegenagent/rollback_hook.py
+ForesightEngine::__init__(state_manager, memory_manager, action_registry, candidate_generator, outcome_simulator) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::_get_timestamp() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::confidence_threshold() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::decide_and_act(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::evaluate_candidates(context, candidates) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::execute_action(action, confidence) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::generate_candidates(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::simulate_action(context, action) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 GMPIntegration::__init__(audit_name) @ scripts/audit/audit_shared_core.py
 GMPIntegration::add_todo(file_path, line_start, line_end, action, target, behavior, imports) @ scripts/audit/audit_shared_core.py
 GMPIntegration::generate_plan() @ scripts/audit/audit_shared_core.py
@@ -1803,11 +1876,9 @@ GMPReportValidator::_validate_consistency(result) @ scripts/validate_gmp_report.
 GMPReportValidator::_validate_declaration(lines, result) @ scripts/validate_gmp_report.py
 GMPReportValidator::_validate_filename(filename, result) @ scripts/validate_gmp_report.py
 GMPReportValidator::_validate_header(lines, result) @ scripts/validate_gmp_report.py
-GMPReportValidator::_validate_phases(lines, result) @ scripts/validate_gmp_report.py
+GMPReportValidator::_validate_plan(lines, result) @ scripts/validate_gmp_report.py
 GMPReportValidator::_validate_todo_change_map(lines, result) @ scripts/validate_gmp_report.py
-GMPReportValidator::_validate_todo_plan(lines, result) @ scripts/validate_gmp_report.py
 GMPReportValidator::_validate_validation_section(lines, result) @ scripts/validate_gmp_report.py
-GMPReportValidator::_validate_verification(lines, result) @ scripts/validate_gmp_report.py
 GMPReportValidator::validate_file(filepath) @ scripts/validate_gmp_report.py
 GMPStageValidator::__init__(stage_id, report_path, config_path) @ scripts/gmp-validate-stage.py
 GMPStageValidator::print_results() @ scripts/gmp-validate-stage.py
@@ -1915,20 +1986,29 @@ GovernanceEngineService::is_allowed(subject, action, resource, context) @ core/g
 GovernanceEngineService::policies() @ core/governance/engine.py
 GovernanceEngineService::policy_count() @ core/governance/engine.py
 GovernanceEngineService::reload_policies(policy_dir) @ core/governance/engine.py
+GovernanceIntegration::__init__(repo_root, agent_id, memory_manager) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::apply_code_change(proposal) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::decide_and_act(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::get_agent_state() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::get_full_status() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::propose_code_change(task, changes, rationale, confidence) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::reflect_on_actions(window) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::register_action(action_type, description) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernancePattern::from_packet_payload(cls, payload) @ igor/DONE!/audit-memory/memory_governance_patterns.py
 GovernancePattern::from_packet_payload(cls, payload) @ memory/governance_patterns.py
 GovernancePattern::to_packet_payload() @ igor/DONE!/audit-memory/memory_governance_patterns.py
 GovernancePattern::to_packet_payload() @ memory/governance_patterns.py
-GraphClient::async close() @ core/abstractions/memory_protocols.py
-GraphClient::async create_node(labels, properties) @ core/abstractions/memory_protocols.py
-GraphClient::async create_relationship(from_node_id, to_node_id, rel_type, properties) @ core/abstractions/memory_protocols.py
-GraphClient::async execute_query(query, parameters) @ core/abstractions/memory_protocols.py
-GraphClient::async get_node(node_id) @ core/abstractions/memory_protocols.py
+GraphClient::async close() @ core/protocols/memory_protocols.py
+GraphClient::async create_node(labels, properties) @ core/protocols/memory_protocols.py
+GraphClient::async create_relationship(from_node_id, to_node_id, rel_type, properties) @ core/protocols/memory_protocols.py
+GraphClient::async execute_query(query, parameters) @ core/protocols/memory_protocols.py
+GraphClient::async get_node(node_id) @ core/protocols/memory_protocols.py
 GraphEnricher::__init__(neo4j_client) @ memory/hybrid_rag.py
 GraphEnricher::async _get_causal_chain(event_id) @ memory/hybrid_rag.py
 GraphEnricher::async _get_direct_neighbors(entity_type, entity_id, limit) @ memory/hybrid_rag.py
 GraphEnricher::async _get_extended_neighborhood(entity_type, entity_id, limit) @ memory/hybrid_rag.py
 GraphEnricher::async enrich(entities, strategy, max_related) @ memory/hybrid_rag.py
+GraphHydrationPolicy::async hydrate(task, instance) @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
 GraphHydrator::__init__(neo4j_driver, kernel_stack) @ core/agents/graph_state/graph_hydrator.py
 GraphHydrator::_build_system_prompt_from_kernels() @ core/agents/graph_state/graph_hydrator.py
 GraphHydrator::_extract_safety_constraints() @ core/agents/graph_state/graph_hydrator.py
@@ -1962,10 +2042,16 @@ HTTPStructuredBinding::serialize(event) @ core/packet_envelope/standardization.p
 HTTPStructuredBinding::serialize(event) @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 HTTPTool::async execute(args) @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
 HTTPTool::async execute(args) @ services/research/tools/tool_wrappers.py
-HealthChecker::async check_component(component_name) @ core/abstractions/observability_protocols.py
-HealthChecker::async check_health() @ core/abstractions/observability_protocols.py
-HealthChecker::get_health_summary() @ core/abstractions/observability_protocols.py
+HealthChecker::async check_component(component_name) @ core/protocols/observability_protocols.py
+HealthChecker::async check_health() @ core/protocols/observability_protocols.py
+HealthChecker::get_health_summary() @ core/protocols/observability_protocols.py
 HealthProbe::async check() @ scripts/audit/tier1/audit_infrastructure_health.py
+HeuristicExtractor::_extract_id(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_rationale(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_rule(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_severity(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_violations(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicMatch::to_dict() @ world_model/world_model_service.py
 HierarchicalContextBuilder::__init__(repository, identity_service, allocation) @ memory/context_builder.py
 HierarchicalContextBuilder::_format_context(sections, format_type) @ memory/context_builder.py
@@ -2198,8 +2284,8 @@ IngestionPipeline::async _sync_to_graph(envelope) @ memory/ingestion.py
 IngestionPipeline::async _trigger_critical_checkpoint(envelope) @ memory/ingestion.py
 IngestionPipeline::async _update_lineage(envelope) @ igor/DONE!/audit-memory/memory_ingestion.py
 IngestionPipeline::async _update_lineage(envelope) @ memory/ingestion.py
-IngestionPipeline::async batch_ingest(items) @ core/abstractions/memory_protocols.py
-IngestionPipeline::async ingest(content, metadata) @ core/abstractions/memory_protocols.py
+IngestionPipeline::async batch_ingest(items) @ core/protocols/memory_protocols.py
+IngestionPipeline::async ingest(content, metadata) @ core/protocols/memory_protocols.py
 IngestionPipeline::async ingest(packet_in, embed, generate_tags) @ igor/DONE!/audit-memory/memory_ingestion.py
 IngestionPipeline::async ingest(packet_in, embed, generate_tags) @ memory/ingestion.py
 IngestionPipeline::async ingest_batch(packets) @ igor/DONE!/audit-memory/memory_ingestion.py
@@ -2211,7 +2297,7 @@ IngestionPipeline::set_repository(repository) @ igor/DONE!/audit-memory/memory_i
 IngestionPipeline::set_repository(repository) @ memory/ingestion.py
 IngestionPipeline::set_semantic_service(service) @ igor/DONE!/audit-memory/memory_ingestion.py
 IngestionPipeline::set_semantic_service(service) @ memory/ingestion.py
-IngestionPipeline::validate_content(content) @ core/abstractions/memory_protocols.py
+IngestionPipeline::validate_content(content) @ core/protocols/memory_protocols.py
 InjectionDetectionResult::to_dict() @ core/agents/prompt_defense.py
 InputSegmenter::__init__(config) @ orchestration/input_segmenter.py
 InputSegmenter::_is_separator(text) @ orchestration/input_segmenter.py
@@ -2257,9 +2343,9 @@ InsightExtractorAgent::async extract_insights(query, summary, evidence, quality_
 IntegrationResult::success_rate() @ core/schemas/research_factory_models.py
 IntegrityChange::__init__(path, change_type, old_hash, new_hash) @ core/kernels/integrity.py
 IntegrityChange::__repr__() @ core/kernels/integrity.py
-IntegrityVerifier::compute_hash(path) @ core/abstractions/kernel_protocols.py
-IntegrityVerifier::get_algorithm() @ core/abstractions/kernel_protocols.py
-IntegrityVerifier::verify_integrity(path, stored_hash) @ core/abstractions/kernel_protocols.py
+IntegrityVerifier::compute_hash(path) @ core/protocols/kernel_protocols.py
+IntegrityVerifier::get_algorithm() @ core/protocols/kernel_protocols.py
+IntegrityVerifier::verify_integrity(path, stored_hash) @ core/protocols/kernel_protocols.py
 IntentModel::is_ambiguous() @ core/commands/schemas.py
 IntentNode::add_child(child_id) @ ir_engine/ir_schema.py
 JSONFileExporter::__init__(file_path) @ core/observability/exporters.py
@@ -2280,16 +2366,16 @@ KPITracker::get_trend(kpi_name) @ core/observability/aggregation.py
 KPITracker::get_trend(kpi_name) @ current_work/DONE/Observability/observability_aggregation.py
 KPITracker::record_kpi(kpi) @ core/observability/aggregation.py
 KPITracker::record_kpi(kpi) @ current_work/DONE/Observability/observability_aggregation.py
-KernelActivator::activate(manifest, agent, context) @ core/abstractions/kernel_protocols.py
-KernelActivator::deactivate(agent) @ core/abstractions/kernel_protocols.py
+KernelActivator::activate(manifest, agent, context) @ core/protocols/kernel_protocols.py
+KernelActivator::deactivate(agent) @ core/protocols/kernel_protocols.py
 KernelAwareAgent::absorb_kernel(kernel_data) @ core/kernels/kernelloader.py
 KernelAwareAgent::absorb_kernel(kernel_data) @ igor/DONE!/audit-tools/Current Config/runtime_kernel_loader.py
 KernelAwareAgent::absorb_kernel(kernel_data) @ runtime/kernel_loader.py
 KernelAwareAgent::apply_boot_overlay(overlay) @ runtime/kernel_loader.py
 KernelAwareAgent::get_kernel_section(section) @ core/agents/prompt_builder.py
-KernelAwareAgent::get_kernel_state() @ core/abstractions/kernel_protocols.py
-KernelAwareAgent::kernel_activate(manifest, context) @ core/abstractions/kernel_protocols.py
-KernelAwareAgent::kernel_deactivate() @ core/abstractions/kernel_protocols.py
+KernelAwareAgent::get_kernel_state() @ core/protocols/kernel_protocols.py
+KernelAwareAgent::kernel_activate(manifest, context) @ core/protocols/kernel_protocols.py
+KernelAwareAgent::kernel_deactivate() @ core/protocols/kernel_protocols.py
 KernelAwareAgent::set_system_context(context) @ core/kernels/kernelloader.py
 KernelAwareAgent::set_system_context(context) @ igor/DONE!/audit-tools/Current Config/runtime_kernel_loader.py
 KernelAwareAgent::set_system_context(context) @ runtime/kernel_loader.py
@@ -2302,8 +2388,8 @@ KernelAwareAgentRegistry::get_kernel_hashes() @ core/agents/kernel_registry.py
 KernelAwareAgentRegistry::get_kernel_state() @ core/agents/kernel_registry.py
 KernelAwareAgentRegistry::get_l_cto_agent() @ core/agents/kernel_registry.py
 KernelAwareAgentRegistry::verify_kernel_integrity() @ core/agents/kernel_registry.py
-KernelDiscovery::discover_kernels(base_path) @ core/abstractions/kernel_protocols.py
-KernelDiscovery::get_kernel_order() @ core/abstractions/kernel_protocols.py
+KernelDiscovery::discover_kernels(base_path) @ core/protocols/kernel_protocols.py
+KernelDiscovery::get_kernel_order() @ core/protocols/kernel_protocols.py
 KernelEvolutionEvent::__init__(event_type, agent_id, kernel_ids, previous_hashes, new_hashes, modified_kernels, trigger, success, errors, metadata) @ core/memory/runtime.py
 KernelEvolutionEvent::to_packet_payload() @ core/memory/runtime.py
 KernelLifecycleSpan::start(cls, name, trace_id, kernel_id, parent_span_id, kind) @ core/observability/models.py
@@ -2329,15 +2415,18 @@ KernelState::log_decision(intent, reasoning, confidence, outcome, kernel_source)
 KernelState::log_escalation(category, issue, severity, trigger, resolution, action) @ runtime/kernel_state.py
 KernelState::log_tool_execution(tool_id, params, status, result, error) @ runtime/kernel_state.py
 KernelState::summary() @ runtime/kernel_state.py
-KernelStateManager::get_all_states() @ core/abstractions/kernel_protocols.py
-KernelStateManager::get_state(kernel_id) @ core/abstractions/kernel_protocols.py
-KernelStateManager::set_state(kernel_id, state) @ core/abstractions/kernel_protocols.py
-KernelStateManager::transition_state(kernel_id, from_state, to_state) @ core/abstractions/kernel_protocols.py
+KernelStateManager::get_all_states() @ core/protocols/kernel_protocols.py
+KernelStateManager::get_state(kernel_id) @ core/protocols/kernel_protocols.py
+KernelStateManager::set_state(kernel_id, state) @ core/protocols/kernel_protocols.py
+KernelStateManager::transition_state(kernel_id, from_state, to_state) @ core/protocols/kernel_protocols.py
 KernelUpdateProposal::to_dict() @ core/agents/kernelevolution.py
 KernelUpdateProposal::to_gmp_spec() @ core/agents/kernelevolution.py
-KernelValidator::validate(data, file_path) @ core/abstractions/kernel_protocols.py
-KernelValidator::validate_manifest(manifest) @ core/abstractions/kernel_protocols.py
+KernelValidator::validate(data, file_path) @ core/protocols/kernel_protocols.py
+KernelValidator::validate_manifest(manifest) @ core/protocols/kernel_protocols.py
 KernelViolationError::__init__(message, constraint, value) @ tests/mocks/kernel_mocks.py
+KnowledgeHarvester::__init__(root_dir, output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+KnowledgeHarvester::_generate_summary(concepts, yaml_specs) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+KnowledgeHarvester::harvest() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 KnowledgeIngestor::__init__(state, config) @ world_model/knowledge_ingestor.py
 KnowledgeIngestor::_add_entity(data, result) @ world_model/knowledge_ingestor.py
 KnowledgeIngestor::_add_relation(data, result) @ world_model/knowledge_ingestor.py
@@ -2387,6 +2476,12 @@ L9CodeGenerator::generate_phase_3_enforcement() @ data/l9-phase0-to-6-execution.
 L9CodeGenerator::generate_phase_4_validation() @ data/l9-phase0-to-6-execution.py
 L9CodeGenerator::generate_phase_5_verification() @ data/l9-phase0-to-6-execution.py
 L9CodeGenerator::generate_phase_6_finalize() @ data/l9-phase0-to-6-execution.py
+L9Compiler::__init__() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::_calculate_confidence(data, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::_hash_file(path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::_load_schemas() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::compile_directory(input_dir, output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::compile_document(doc_path, output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 L9ExternalSystem::to_node_dict() @ core/worldmodel/l9_schema.py
 L9Infrastructure::to_node_dict() @ core/worldmodel/l9_schema.py
 L9MasterExecutor::__init__(lock_file, feature, auto_push) @ data/l9-phase0-to-6-execution.py
@@ -2408,6 +2503,34 @@ L9RetryablePostgresSaver::async get(config) @ memory/checkpoint/postgres_saver.p
 L9RetryablePostgresSaver::async list(config, filter, before, limit) @ memory/checkpoint/postgres_saver.py
 L9RetryablePostgresSaver::async put(config, checkpoint, metadata, new_versions) @ memory/checkpoint/postgres_saver.py
 L9RetryablePostgresSaver::get_pool_stats() @ memory/checkpoint/postgres_saver.py
+L9SpecGenerator::__init__(output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::__init__(output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_acceptance_criteria(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_acceptance_criteria(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_agent_rules(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_agent_rules(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_context(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_context(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_definition_of_done(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_definition_of_done(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_task_description(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_task_description(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::generate_cursor_prompt(plan, concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::generate_cursor_prompt(plan, concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::generate_from_file(concept_file, project_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::generate_from_file(concept_file, project_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::generate_plan_spec(concept, project_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::generate_plan_spec(concept, project_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::parse_concept(concept_file) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::parse_concept(concept_file) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9TextToCode::__init__(output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::_build_generation_prompt(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::_find_compiler() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::_find_superprompt() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::compile_governance(module_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::generate_code(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::generate_from_file(concept_file) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::parse_concept(concept_file) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9Tool::to_node_dict() @ core/worldmodel/l9_schema.py
 LCTOAgent::__init__(agent_id, config, manifest) @ agents/l_cto.py
 LCTOAgent::__init__(agent_id, config, manifest) @ igor/DONE!/audit-tools/Current Config/agents_l_cto.py
@@ -2459,13 +2582,14 @@ LocalAPI::list_directory(dir_path) @ runtime/local_api.py
 LocalAPI::read_file(file_path, limit) @ runtime/local_api.py
 LocalAPI::validate_command(cmd) @ runtime/local_api.py
 LocalAPI::write_file(file_path, content) @ runtime/local_api.py
-LogExporter::critical(message) @ core/abstractions/observability_protocols.py
-LogExporter::debug(message) @ core/abstractions/observability_protocols.py
-LogExporter::error(message) @ core/abstractions/observability_protocols.py
-LogExporter::info(message) @ core/abstractions/observability_protocols.py
-LogExporter::log(level, message, context) @ core/abstractions/observability_protocols.py
-LogExporter::warning(message) @ core/abstractions/observability_protocols.py
+LogExporter::critical(message) @ core/protocols/observability_protocols.py
+LogExporter::debug(message) @ core/protocols/observability_protocols.py
+LogExporter::error(message) @ core/protocols/observability_protocols.py
+LogExporter::info(message) @ core/protocols/observability_protocols.py
+LogExporter::log(level, message, context) @ core/protocols/observability_protocols.py
+LogExporter::warning(message) @ core/protocols/observability_protocols.py
 Logger::log(message) @ tests/unit/di/test_container.py
+LoopStage::async run(ctx) @ readme/harvested/perplexity-refactor-2026-01-20/loop_stage_protocol.py
 MCPClient::__init__() @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 MCPClient::__init__() @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 MCPClient::__init__() @ runtime/mcp_client.py
@@ -2539,6 +2663,14 @@ MemoryAPI::async list_segments(agent_id) @ current_work/DONE/Phased Upgrades/Sta
 MemoryAPI::async search(query, segment, agent_id, limit) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
 MemoryAPI::async semantic_search(embedding, segment, agent_id, limit) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
 MemoryAPI::async write(segment, content, agent_id, metadata, embedding, ttl_hours) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
+MemoryAdapter::__init__(memory_manager) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::_detect_simple_patterns() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::_embed_context(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::find_similar_contexts(context, limit) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::get_action_history(action_type, limit) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::get_actions_for_context(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::get_recent_patterns(days) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::store_action_outcome(action_record) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryBridge::__init__(substrate_service) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
 MemoryBridge::async get_working_memory(key) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
 MemoryBridge::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
@@ -2599,10 +2731,10 @@ MemoryPacket::as_postgres_tuple() @ current_work/DONE/Phased Upgrades/Stage 1 - 
 MemoryPacket::from_postgres_row(cls, row) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
 MemoryPacket::validate_embedding(cls, v) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
 MemoryPacket::validate_expires_at(cls, v, values) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryRepository::async delete_memory(memory_id) @ core/abstractions/memory_protocols.py
-MemoryRepository::async retrieve_memory(memory_id) @ core/abstractions/memory_protocols.py
-MemoryRepository::async search_memories(query, memory_type, top_k) @ core/abstractions/memory_protocols.py
-MemoryRepository::async store_memory(content, memory_type, metadata) @ core/abstractions/memory_protocols.py
+MemoryRepository::async delete_memory(memory_id) @ core/protocols/memory_protocols.py
+MemoryRepository::async retrieve_memory(memory_id) @ core/protocols/memory_protocols.py
+MemoryRepository::async search_memories(query, memory_type, top_k) @ core/protocols/memory_protocols.py
+MemoryRepository::async store_memory(content, memory_type, metadata) @ core/protocols/memory_protocols.py
 MemoryStateManager::__init__(service, agent_id) @ igor/DONE!/audit-memory/memory_state_manager.py
 MemoryStateManager::__init__(service, agent_id) @ memory/state_manager.py
 MemoryStateManager::agent_id() @ igor/DONE!/audit-memory/memory_state_manager.py
@@ -2689,6 +2821,7 @@ MemoryTelemetry::log_search(segment, agent_id, result_count, duration_ms) @ curr
 MemoryTelemetry::log_structured(event, level) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
 MemoryTelemetry::log_write(segment, agent_id) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py
 MemoryTier::precedence() @ memory/context_builder.py
+MemoryWarmPolicy::async warm(task) @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
 MemoryWarmingService::__init__(gap_detector, cache, config, graph_client) @ memory/warming_service.py
 MemoryWarmingService::_format_cache_metrics() @ memory/warming_service.py
 MemoryWarmingService::async get_warmed_context(entity_ids) @ memory/warming_service.py
@@ -2763,11 +2896,11 @@ MetricsCollector::async _persist_evaluation_metric(metric) @ services/symbolic_c
 MetricsCollector::async get_metrics_summary(last_hours) @ services/symbolic_computation/core/metrics.py
 MetricsCollector::async record_compilation(expr, language, duration_ms, success) @ services/symbolic_computation/core/metrics.py
 MetricsCollector::async record_evaluation(expr, backend, duration_ms, success, cache_hit) @ services/symbolic_computation/core/metrics.py
-MetricsCollector::get_metrics() @ core/abstractions/observability_protocols.py
-MetricsCollector::increment_counter(name, value, labels) @ core/abstractions/observability_protocols.py
-MetricsCollector::record_histogram(name, value, labels) @ core/abstractions/observability_protocols.py
+MetricsCollector::get_metrics() @ core/protocols/observability_protocols.py
+MetricsCollector::increment_counter(name, value, labels) @ core/protocols/observability_protocols.py
+MetricsCollector::record_histogram(name, value, labels) @ core/protocols/observability_protocols.py
 MetricsCollector::reset() @ services/symbolic_computation/core/metrics.py
-MetricsCollector::set_gauge(name, value, labels) @ core/abstractions/observability_protocols.py
+MetricsCollector::set_gauge(name, value, labels) @ core/protocols/observability_protocols.py
 MigrationRunner::__init__(database_url, migrations_dir) @ igor/DONE!/audit-memory/memory_migration_runner.py
 MigrationRunner::__init__(database_url, migrations_dir) @ memory/migration_runner.py
 MigrationRunner::async connect() @ igor/DONE!/audit-memory/memory_migration_runner.py
@@ -3156,7 +3289,7 @@ ObservabilityService::async compute_metrics() @ core/observability/service.py
 ObservabilityService::async compute_metrics() @ current_work/DONE/Observability/observability_service.py
 ObservabilityService::async detect_failures() @ core/observability/service.py
 ObservabilityService::async detect_failures() @ current_work/DONE/Observability/observability_service.py
-ObservabilityService::async health_check() @ core/abstractions/observability_protocols.py
+ObservabilityService::async health_check() @ core/protocols/observability_protocols.py
 ObservabilityService::async initialize_exporters() @ core/observability/service.py
 ObservabilityService::async initialize_exporters() @ current_work/DONE/Observability/observability_service.py
 ObservabilityService::async shutdown() @ core/observability/service.py
@@ -3164,13 +3297,13 @@ ObservabilityService::async shutdown() @ current_work/DONE/Observability/observa
 ObservabilityService::async update_agent_kpis() @ core/observability/service.py
 ObservabilityService::current_trace_context() @ core/observability/service.py
 ObservabilityService::current_trace_context() @ current_work/DONE/Observability/observability_service.py
-ObservabilityService::emit_span(span) @ core/abstractions/observability_protocols.py
+ObservabilityService::emit_span(span) @ core/protocols/observability_protocols.py
 ObservabilityService::export_span(span) @ core/observability/service.py
 ObservabilityService::export_span(span) @ current_work/DONE/Observability/observability_service.py
 ObservabilityService::get(cls) @ core/observability/service.py
 ObservabilityService::get(cls) @ current_work/DONE/Observability/observability_service.py
-ObservabilityService::log_event(level, message) @ core/abstractions/observability_protocols.py
-ObservabilityService::record_metric(name, value, metric_type) @ core/abstractions/observability_protocols.py
+ObservabilityService::log_event(level, message) @ core/protocols/observability_protocols.py
+ObservabilityService::record_metric(name, value, metric_type) @ core/protocols/observability_protocols.py
 ObservabilityService::set_global(cls, service) @ core/observability/service.py
 ObservabilityService::set_global(cls, service) @ current_work/DONE/Observability/observability_service.py
 ObservabilityService::set_trace_context(ctx) @ core/observability/service.py
@@ -3322,6 +3455,13 @@ PacketValidator::validate(packet_in, strict) @ memory/validators/packet_validato
 PacketValidator::validate_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py
 PathSafetyError::__str__() @ core/security/path_safety.py
 Pattern::to_dict() @ world_model/reflection_memory.py
+PatternExtractor::_extract_applicability(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_constraints(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_failure_modes(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_id(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_intent(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_name(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PatternMatch::to_dict() @ world_model/world_model_service.py
 PatternMetrics::__init__(subsystem) @ orchestrators/pattern/metrics.py
 PatternMetrics::record_agent_result(role, status) @ orchestrators/pattern/metrics.py
@@ -3580,10 +3720,16 @@ PredictiveCache::async shutdown() @ memory/predictive_cache.py
 PredictiveCache::async warm_entities(entity_ids) @ memory/predictive_cache.py
 PredictiveCache::async warm_entity(entity_id) @ memory/predictive_cache.py
 PredictiveCache::get_metrics() @ memory/predictive_cache.py
+PromptDefensePolicy::async check(task) @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
 ProtocolBinding::deserialize(data) @ core/packet_envelope/standardization.py
 ProtocolBinding::deserialize(data) @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 ProtocolBinding::serialize(event) @ core/packet_envelope/standardization.py
 ProtocolBinding::serialize(event) @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
+ProtocolExtractor::_extract_enforcement(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::_extract_id(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::_extract_name(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::_extract_steps(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PythonModuleHealthProbe::__init__(service_name, module, function, timeout) @ scripts/audit/tier1/audit_infrastructure_health.py
 PythonModuleHealthProbe::async check() @ scripts/audit/tier1/audit_infrastructure_health.py
 QAAgent::__init__(agent_id, config) @ agents/qa_agent.py
@@ -3593,6 +3739,25 @@ QAAgent::async regression_analysis(old_code, new_code, change_description) @ age
 QAAgent::async review_test_results(test_output, expected_behavior) @ agents/qa_agent.py
 QAAgent::async run(task, context) @ agents/qa_agent.py
 QAAgent::get_system_prompt() @ agents/qa_agent.py
+QCDashboard::__init__(harvested_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_approve_concept(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_batch_approve() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_clear_screen() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_edit_concept(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_export_summary() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_generate_plan_specs() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_load_concepts() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_load_reviews() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_reject_concept(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_review_concepts() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_save_review(review) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_approved() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_concept(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_header() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_menu() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_rejected() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_stats() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::run() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QuantumSwarmLoader::__init__(symbolic_engine, max_parallel) @ orchestration/quantum_swarm_loader.py
 QuantumSwarmLoader::_load_capsule(capsule_path) @ orchestration/quantum_swarm_loader.py
 QuantumSwarmLoader::async _warmup_cache(expressions) @ orchestration/quantum_swarm_loader.py
@@ -3885,6 +4050,21 @@ RedisSubstrate::store_session(session_id, data, ttl) @ current_work/DONE/WORLD_M
 RedisSubstrate::store_session(session_id, data, ttl) @ world_model/_pack_staging/redis_substrate.py
 RedisSubstrate::subscribe_to_updates(callback) @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/redis_substrate.py
 RedisSubstrate::subscribe_to_updates(callback) @ world_model/_pack_staging/redis_substrate.py
+RefactoringBootstrap::__init__(project_root, language, verbose) @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_analyze_python() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_analyze_typescript() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_create_directories() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_setup_java_analysis() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_setup_python_analysis() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_setup_typescript_analysis() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_validate_project() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::bootstrap() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::create_refactoring_backlog() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::generate_ai_workflow_config() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::generate_baseline_metrics() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::setup_ci_validation() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::setup_pre_commit_hooks() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::setup_static_analysis() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
 Reflection::from_dict(cls, data) @ world_model/reflection_memory.py
 Reflection::to_dict() @ world_model/reflection_memory.py
 ReflectionAgent::__init__(agent_id, config) @ agents/reflection_agent.py
@@ -3912,6 +4092,13 @@ ReflectionCell::async reflect_on_execution(execution_history, current_state, goa
 ReflectionCell::async reflect_on_failure(failure_context, error_message, stack_trace) @ collaborative_cells/reflection_cell.py
 ReflectionCell::clear_history() @ collaborative_cells/reflection_cell.py
 ReflectionCell::get_reflection_history() @ collaborative_cells/reflection_cell.py
+ReflectionEngine::__init__(state_manager, memory_manager) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::adjust_behavior(learning) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::compare_expectation_vs_reality(expectation, actual) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::extract_learning(comparison, action_record) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::reflect_on_action(action_record) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::reflect_on_recent_actions(window) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::update_models(learning) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
 ReflectionMemory::__init__(max_reflections) @ world_model/reflection_memory.py
 ReflectionMemory::_evict_old_reflections() @ world_model/reflection_memory.py
 ReflectionMemory::_matches_task_filters(reflection, filters) @ world_model/reflection_memory.py
@@ -3944,6 +4131,7 @@ ReflectionMemory::store_lesson(lesson, context, task_id, tags, confidence) @ wor
 ReflectionMemory::to_dict() @ world_model/reflection_memory.py
 ReflectionMemory::update_improvement_status(improvement_id, status, actual_impact) @ world_model/reflection_memory.py
 ReflectionMemory::update_reflection(reflection_id, content, confidence, priority) @ world_model/reflection_memory.py
+ReflectionPolicy::async run(task, result, instance) @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
 ReflectiveAuditor::audit_reasoning(decision) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py
 RemediationEngine::__init__(rollback_endpoint, escalation_endpoint) @ workers/remediation_engine.py
 RemediationEngine::_calc_duration(start_time) @ workers/remediation_engine.py
@@ -3973,6 +4161,12 @@ RepoGraphLoader::load_method_catalog() @ scripts/memory/load_indexes_to_neo4j.py
 RepoGraphLoader::load_pydantic_models() @ scripts/memory/load_indexes_to_neo4j.py
 RepoGraphLoader::load_route_handlers() @ scripts/memory/load_indexes_to_neo4j.py
 RepoGraphLoader::print_summary() @ scripts/memory/load_indexes_to_neo4j.py
+ReportGenerator::__init__(agent_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::_detect_breaking_changes(changes) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::_identify_risks(changes) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::format_commit_message(report) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::format_report(report) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::generate_change_report(task, changes, rationale, confidence, change_type, tests_added, tests_passed, breaking_changes, risks, mitigation) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 Reporter::__init__(audit_name, repo_root) @ scripts/audit/audit_shared_core.py
 Reporter::generate_html_template(title, summary, content) @ scripts/audit/audit_shared_core.py
 Reporter::to_html(html_content, filename) @ scripts/audit/audit_shared_core.py
@@ -4109,10 +4303,10 @@ RetrievalPipeline::set_repository(repository) @ igor/DONE!/audit-memory/memory_r
 RetrievalPipeline::set_repository(repository) @ memory/retrieval.py
 RetrievalPipeline::set_semantic_service(service) @ igor/DONE!/audit-memory/memory_retrieval.py
 RetrievalPipeline::set_semantic_service(service) @ memory/retrieval.py
-RetrievalStrategy::async retrieve(query, top_k, filters) @ core/abstractions/memory_protocols.py
+RetrievalStrategy::async retrieve(query, top_k, filters) @ core/protocols/memory_protocols.py
 RetrievalStrategy::description() @ memory/retrieval_strategy.py
-RetrievalStrategy::get_strategy_name() @ core/abstractions/memory_protocols.py
-RetrievalStrategy::rank_results(results, query) @ core/abstractions/memory_protocols.py
+RetrievalStrategy::get_strategy_name() @ core/protocols/memory_protocols.py
+RetrievalStrategy::rank_results(results, query) @ core/protocols/memory_protocols.py
 RetryExhaustedError::__init__(message, last_error, attempts) @ core/resilience/retry.py
 RetryPolicy::get_delay(attempt) @ memory/substrate_dag_wrapper.py
 ReviewerCell::__init__(config) @ collaborative_cells/reviewer_cell.py
@@ -4240,6 +4434,10 @@ SchemaValidator::validate_yaml(yaml_content) @ codegen/code-gen-files/schema_val
 SchemaValidator::validate_yaml(yaml_path) @ ir_engine/schema_validator.py
 SchemaVersion::current(cls) @ memory/checkpoint_validator.py
 ScopeAccessSpec::to_dict() @ core/governance/policy_generator.py
+SecretsClient::async delete_secret(key) @ core/protocols/secrets_protocols.py
+SecretsClient::async get_secret(key) @ core/protocols/secrets_protocols.py
+SecretsClient::async rotate_secret(key) @ core/protocols/secrets_protocols.py
+SecretsClient::async set_secret(key, value) @ core/protocols/secrets_protocols.py
 SeedLoader::__init__(substrate, ingestor, seed_dir) @ world_model/seed_loader.py
 SeedLoader::_transform_seed_for_ingestion(content, data_type) @ world_model/seed_loader.py
 SeedLoader::async load_file(path, write_to_substrate, ingest_to_world_model) @ world_model/seed_loader.py
@@ -4373,10 +4571,10 @@ Span::finish(status, error) @ core/observability/models.py
 Span::finish(status, error) @ current_work/DONE/Observability/observability_models.py
 Span::start(cls, name, trace_id, parent_span_id, kind) @ core/observability/models.py
 Span::start(cls, name, trace_id, parent_span_id, kind) @ current_work/DONE/Observability/observability_models.py
-SpanEmitter::add_span_event(span, name, attributes) @ core/abstractions/observability_protocols.py
-SpanEmitter::emit_span(span) @ core/abstractions/observability_protocols.py
-SpanEmitter::finish_span(span, status, error) @ core/abstractions/observability_protocols.py
-SpanEmitter::start_span(name, trace_id, parent_span_id, kind) @ core/abstractions/observability_protocols.py
+SpanEmitter::add_span_event(span, name, attributes) @ core/protocols/observability_protocols.py
+SpanEmitter::emit_span(span) @ core/protocols/observability_protocols.py
+SpanEmitter::finish_span(span, status, error) @ core/protocols/observability_protocols.py
+SpanEmitter::start_span(name, trace_id, parent_span_id, kind) @ core/protocols/observability_protocols.py
 SpanExporter::export(spans) @ core/observability/exporters.py
 SpanExporter::export(spans) @ current_work/DONE/Observability/observability_exporters.py
 SpecCompiler::__init__(ssot_dir, manifest_dir) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
@@ -4420,10 +4618,10 @@ SpecCompiler::_validate_completeness(spec) @ codegen/code-gen-files/Module Produ
 SpecCompiler::compile(block) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
 SpecPatcher::_set_nested(data, path, value) @ runtime/superprompt_emitter.py
 SpecPatcher::apply_patches(spec, patches) @ runtime/superprompt_emitter.py
-StateManager::async get_state(agent_id) @ core/abstractions/agent_protocols.py
-StateManager::async get_state_history(agent_id, limit) @ core/abstractions/agent_protocols.py
-StateManager::async set_state(agent_id, state) @ core/abstractions/agent_protocols.py
-StateManager::async transition_state(agent_id, from_state, to_state) @ core/abstractions/agent_protocols.py
+StateManager::async get_state(agent_id) @ core/protocols/agent_protocols.py
+StateManager::async get_state_history(agent_id, limit) @ core/protocols/agent_protocols.py
+StateManager::async set_state(agent_id, state) @ core/protocols/agent_protocols.py
+StateManager::async transition_state(agent_id, from_state, to_state) @ core/protocols/agent_protocols.py
 StepResult::to_dict() @ orchestration/plan_executor.py
 StrategyBasedRetriever::__init__(repository, identity_service, strategy_determiner) @ memory/retrieval_strategy.py
 StrategyBasedRetriever::_facts_may_contradict(fact1, fact2) @ memory/retrieval_strategy.py
@@ -4912,6 +5110,8 @@ TestAgentTaskAuth::test_agent_task_with_valid_auth(api_client_with_auth) @ tests
 TestAgentWithoutKernelAttribute::test_agent_with_none_kernels() @ tests/core/bootstrap/test_prompt_builder.py
 TestAgentWithoutKernelAttribute::test_agent_without_kernels_attr() @ tests/core/bootstrap/test_prompt_builder.py
 TestAllLayersIntegration::async test_all_layers_available() @ mcp_memory/tests/test_all_layers.py
+TestAnomalyClassifierInit::test_init_loads_default_rules() @ tests/workers/test_anomaly_classifier.py
+TestAnomalyClassifierInit::test_init_with_custom_rules() @ tests/workers/test_anomaly_classifier.py
 TestApprovalIntegration::test_format_approval_request_all_passing() @ tests/integration/test_recursive_self_testing.py
 TestApprovalIntegration::test_format_approval_request_with_tests() @ tests/integration/test_recursive_self_testing.py
 TestApprovalIntegration::test_format_approval_request_without_tests() @ tests/integration/test_recursive_self_testing.py
@@ -5082,6 +5282,10 @@ TestCircuitBreakerIntegration::async test_failure_records_with_circuit_breaker()
 TestCircuitBreakerIntegration::async test_success_records_with_circuit_breaker() @ tests/memory/test_dag_orchestrator_resilience.py
 TestCircularDependencyDetection::test_circular_dependency_raises_error(container) @ tests/unit/di/test_container.py
 TestCircularDependencyDetection::test_self_referential_dependency_raises_error(container) @ tests/unit/di/test_container.py
+TestClassificationRules::async test_critical_security_detected() @ tests/workers/test_anomaly_classifier.py
+TestClassificationRules::async test_governance_violation_detected() @ tests/workers/test_anomaly_classifier.py
+TestClassificationRules::async test_moderate_performance_detected() @ tests/workers/test_anomaly_classifier.py
+TestClassificationRules::async test_unknown_defaults_to_moderate() @ tests/workers/test_anomaly_classifier.py
 TestCodeCompilation::generator() @ tests/services/symbolic_computation/test_code_generator.py
 TestCodeCompilation::test_compile_python_code(generator) @ tests/services/symbolic_computation/test_code_generator.py
 TestCodeGenerator::async test_c_code_generation(codegen) @ _archived/symbolic_computation/test_symbolic_computation.py
@@ -5140,6 +5344,8 @@ TestConfidenceEscalation::test_custom_threshold() @ tests/runtime/test_execution
 TestConfidenceEscalation::test_should_escalate_below_threshold() @ tests/runtime/test_execution_gate.py
 TestConfidenceEscalation::test_should_not_escalate_above_threshold() @ tests/runtime/test_execution_gate.py
 TestConfidenceScore::test_confidence_is_always_1() @ tests/integration/test_tool_observability_integration.py
+TestConfidenceScoring::async test_confidence_capped_at_95() @ tests/workers/test_anomaly_classifier.py
+TestConfidenceScoring::async test_confidence_increases_with_matches() @ tests/workers/test_anomaly_classifier.py
 TestConfidenceThresholds::async test_confidence_calculation(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 TestConfidenceThresholds::async test_low_confidence_warning(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
 TestConfidenceValidation::test_confidence_above_one() @ core/schemas/tests/test_packet_envelope.py
@@ -5361,6 +5567,13 @@ TestEntityExtractor::async test_extract_from_metadata() @ tests/memory/test_hybr
 TestEntityExtractor::async test_extract_gmp_references() @ tests/memory/test_hybrid_rag.py
 TestEntityExtractor::async test_extract_slack_users() @ tests/memory/test_hybrid_rag.py
 TestEntityExtractor::async test_extract_uuid_patterns() @ tests/memory/test_hybrid_rag.py
+TestEnvSecretsClient::async test_delete_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
+TestEnvSecretsClient::async test_get_secret_caching(monkeypatch) @ tests/core/abstractions/test_secrets_protocols.py
+TestEnvSecretsClient::async test_get_secret_from_env(monkeypatch) @ tests/core/abstractions/test_secrets_protocols.py
+TestEnvSecretsClient::async test_get_secret_not_found() @ tests/core/abstractions/test_secrets_protocols.py
+TestEnvSecretsClient::async test_rotate_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
+TestEnvSecretsClient::async test_set_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
+TestEnvSecretsClient::test_protocol_compliance() @ tests/core/abstractions/test_secrets_protocols.py
 TestEnvironmentVariables::test_api_port_is_numeric() @ tests/docker/test_env_validation.py
 TestEnvironmentVariables::test_database_url_format() @ tests/docker/test_env_validation.py
 TestEnvironmentVariables::test_database_url_not_localhost_in_docker() @ tests/docker/test_env_validation.py
@@ -5599,6 +5812,8 @@ TestGuardedExecuteEdgeCases::async test_dispatch_failure_propagates(mock_agent) 
 TestGuardedExecuteEdgeCases::async test_empty_context(mock_agent) @ tests/unit/test_guarded_execution.py
 TestHashAlgorithmProperties::test_hash_is_collision_resistant() @ tests/core/schemas/test_content_hash_integrity.py
 TestHashAlgorithmProperties::test_hash_is_sha256() @ tests/core/schemas/test_content_hash_integrity.py
+TestHealthCheck::async test_health_after_startup() @ tests/workers/test_anomaly_classifier.py
+TestHealthCheck::async test_health_before_startup() @ tests/workers/test_anomaly_classifier.py
 TestHealthEndpoints::test_agent_health(api_client) @ tests/docker/test_stack_smoke.py
 TestHealthEndpoints::test_memory_api_health(memory_client) @ tests/docker/test_stack_smoke.py
 TestHealthEndpoints::test_os_health(api_client) @ tests/docker/test_stack_smoke.py
@@ -5794,6 +6009,10 @@ TestKernelStateGuards::async test_guard_validating_state() @ tests/unit/test_gua
 TestKernelStateTransitions::test_state_error_on_failure() @ tests/unit/test_lcto_bootstrap.py
 TestKernelStateTransitions::test_state_inactive_to_loading() @ tests/unit/test_lcto_bootstrap.py
 TestKernelStateTransitions::test_state_loading_to_active(temp_kernel_dir) @ tests/unit/test_lcto_bootstrap.py
+TestL9CLI::test_cli_help() @ tests/tools/test_l9_cli.py
+TestL9CLI::test_manage_debt_command(tmp_path) @ tests/tools/test_l9_cli.py
+TestL9CLI::test_scan_quality_command(tmp_path) @ tests/tools/test_l9_cli.py
+TestL9CLI::test_scan_secrets_command(tmp_path) @ tests/tools/test_l9_cli.py
 TestL9Integration::async test_instrument_agent_executor_wraps_method() @ tests/core/observability/test_observability_integration.py
 TestL9Integration::async test_instrument_handles_missing_methods() @ tests/core/observability/test_observability_integration.py
 TestL9Integration::async test_instrument_handles_none_service() @ tests/core/observability/test_observability_integration.py
@@ -6405,6 +6624,9 @@ TestReciprocalRankFusion::test_consistent_winner() @ tests/memory/test_retrieval
 TestReciprocalRankFusion::test_empty_rankings() @ tests/memory/test_retrieval_audit.py
 TestReciprocalRankFusion::test_k_parameter_effect() @ tests/memory/test_retrieval_audit.py
 TestReciprocalRankFusion::test_single_ranking() @ tests/memory/test_retrieval_audit.py
+TestRecommendedActions::async test_critical_recommends_rollback() @ tests/workers/test_anomaly_classifier.py
+TestRecommendedActions::async test_minor_recommends_log_and_monitor() @ tests/workers/test_anomaly_classifier.py
+TestRecommendedActions::async test_moderate_recommends_remediate() @ tests/workers/test_anomaly_classifier.py
 TestRecordMemorySearch::test_record_memory_search_different_types() @ tests/telemetry/test_memory_metrics.py
 TestRecordMemorySearch::test_record_memory_search_increments_counter() @ tests/telemetry/test_memory_metrics.py
 TestRecordMemorySearch::test_record_memory_search_never_raises() @ tests/telemetry/test_memory_metrics.py
@@ -7097,6 +7319,21 @@ TestVersionDetection::test_detect_v1_0_1_packet() @ tests/core/schemas/test_sche
 TestVersionDetection::test_detect_v1_1_0_by_fields() @ tests/core/schemas/test_schema_registry.py
 TestVersionDetection::test_detect_v2_0_0_by_content_hash() @ tests/core/schemas/test_schema_registry.py
 TestVersionDetection::test_detect_version_from_metadata() @ tests/core/schemas/test_schema_registry.py
+TestViolationCounting::test_get_all_violation_counts_returns_copy() @ tests/workers/test_violation_tracker.py
+TestViolationCounting::test_get_violation_count_returns_zero_for_unknown() @ tests/workers/test_violation_tracker.py
+TestViolationCounting::test_reset_violation_count_removes_lesson() @ tests/workers/test_violation_tracker.py
+TestViolationRecord::test_record_has_required_fields() @ tests/workers/test_violation_tracker.py
+TestViolationRecord::test_record_timestamp_auto_generated() @ tests/workers/test_violation_tracker.py
+TestViolationTrackerProcess::async test_process_detects_violations(mock_service) @ tests/workers/test_violation_tracker.py
+TestViolationTrackerProcess::async test_process_increments_violation_count(mock_service) @ tests/workers/test_violation_tracker.py
+TestViolationTrackerProcess::async test_process_returns_ok_on_no_violations(mock_service) @ tests/workers/test_violation_tracker.py
+TestViolationTrackerProcess::async test_process_triggers_escalation_at_threshold(mock_service) @ tests/workers/test_violation_tracker.py
+TestViolationTrackerProcess::mock_service() @ tests/workers/test_violation_tracker.py
+TestViolationTrackerServiceInit::test_init_creates_pattern_matcher() @ tests/workers/test_violation_tracker.py
+TestViolationTrackerServiceInit::test_init_mcp_can_be_disabled() @ tests/workers/test_violation_tracker.py
+TestViolationTrackerServiceInit::test_init_mcp_enabled_by_default() @ tests/workers/test_violation_tracker.py
+TestViolationTrackerServiceInit::test_init_stats_zeroed() @ tests/workers/test_violation_tracker.py
+TestViolationTrackerServiceInit::test_init_with_custom_pattern_matcher() @ tests/workers/test_violation_tracker.py
 TestWSTaskRouterRouting::test_error_event_routing() @ tests/orchestrators/test_ws_task_router_routing.py
 TestWSTaskRouterRouting::test_heartbeat_does_not_generate_task() @ tests/orchestrators/test_ws_task_router_routing.py
 TestWSTaskRouterRouting::test_task_result_routing() @ tests/orchestrators/test_ws_task_router_routing.py
@@ -7176,10 +7413,10 @@ ToolEmbedding::compute_hash() @ memory/tool_router.py
 ToolEmbedding::to_searchable_text() @ memory/tool_router.py
 ToolExecutor::async execute() @ core/tools/registry_adapter.py
 ToolExecutor::async execute() @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
-ToolExecutor::async execute_tool(tool_name, parameters, context) @ core/abstractions/agent_protocols.py
-ToolExecutor::get_tool_schema(tool_name) @ core/abstractions/agent_protocols.py
-ToolExecutor::list_available_tools() @ core/abstractions/agent_protocols.py
-ToolExecutor::validate_tool_parameters(tool_name, parameters) @ core/abstractions/agent_protocols.py
+ToolExecutor::async execute_tool(tool_name, parameters, context) @ core/protocols/agent_protocols.py
+ToolExecutor::get_tool_schema(tool_name) @ core/protocols/agent_protocols.py
+ToolExecutor::list_available_tools() @ core/protocols/agent_protocols.py
+ToolExecutor::validate_tool_parameters(tool_name, parameters) @ core/protocols/agent_protocols.py
 ToolGraph::async _get_neo4j() @ core/tools/tool_graph.py
 ToolGraph::async _get_neo4j() @ current_work/DONE/GMP Stage 1 - Tools/tool_graph.py
 ToolGraph::async _get_neo4j() @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_graph.py
@@ -7322,13 +7559,13 @@ TopicExtractor::extract_entities(content) @ memory/graph_memory.py
 TopicExtractor::extract_topics(content) @ memory/graph_memory.py
 TraceContext::child_context() @ core/observability/models.py
 TraceContext::child_context() @ current_work/DONE/Observability/observability_models.py
-TraceContext::from_headers(cls, headers) @ core/abstractions/observability_protocols.py
-TraceContext::parent_span_id() @ core/abstractions/observability_protocols.py
-TraceContext::span_id() @ core/abstractions/observability_protocols.py
-TraceContext::to_headers() @ core/abstractions/observability_protocols.py
+TraceContext::from_headers(cls, headers) @ core/protocols/observability_protocols.py
+TraceContext::parent_span_id() @ core/protocols/observability_protocols.py
+TraceContext::span_id() @ core/protocols/observability_protocols.py
 TraceContext::to_headers() @ core/observability/models.py
+TraceContext::to_headers() @ core/protocols/observability_protocols.py
 TraceContext::to_headers() @ current_work/DONE/Observability/observability_models.py
-TraceContext::trace_id() @ core/abstractions/observability_protocols.py
+TraceContext::trace_id() @ core/protocols/observability_protocols.py
 TranscriptCompiler::compile(transcript_text) @ codegen/compiler/transcript_compiler.py
 TwilioAdapterAdapter::__init__(substrate_service, aios_runtime_client, memory_service_client) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/adapters/twilio_adapter_adapter.py
 TwilioAdapterAdapter::_generate_context(request) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/adapters/twilio_adapter_adapter.py
@@ -7475,10 +7712,10 @@ VectorPubSub::__init__(redis_client, max_buffer_size) @ current_work/Neural-Symb
 VectorPubSub::async publish(channel, vector, agent_id, reasoning) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 VectorPubSub::async subscribe(channel, callback) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 VectorPubSub::get_recent_learnings(channel, limit) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
-VectorStore::async close() @ core/abstractions/memory_protocols.py
-VectorStore::async delete_embedding(id) @ core/abstractions/memory_protocols.py
-VectorStore::async search_similar(query_embedding, top_k, threshold) @ core/abstractions/memory_protocols.py
-VectorStore::async upsert_embedding(id, embedding, metadata) @ core/abstractions/memory_protocols.py
+VectorStore::async close() @ core/protocols/memory_protocols.py
+VectorStore::async delete_embedding(id) @ core/protocols/memory_protocols.py
+VectorStore::async search_similar(query_embedding, top_k, threshold) @ core/protocols/memory_protocols.py
+VectorStore::async upsert_embedding(id, embedding, metadata) @ core/protocols/memory_protocols.py
 VerificationReport::to_json() @ codegen/dev_layer/modules/code_planning.py
 VerificationResult::is_green() @ scripts/audit/verify_wiring_alignment.py
 ViolationPatterns::__init__(custom_patterns) @ workers/violation_patterns.py
@@ -7888,6 +8125,14 @@ WorldModelUpdater::validate_operation(operation) @ world_model/updater.py
 WorldModelUpdater::validate_update(update) @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py
 WorldModelUpdater::validate_update(update) @ world_model/_pack_staging/updater.py
 WorldModelUpdater::validate_update(update) @ world_model/updater.py
+YAMLGenerator::_generate_example(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_architecture(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_auditable_outputs(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_data_flow(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_decision_points(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_expandability(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_sanitize_name(name) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::generate(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 _SchemaRegistry::__init__() @ core/schemas/schema_registry.py
 _SchemaRegistry::_compute_migration_path(from_version, to_version) @ core/schemas/schema_registry.py
 _SchemaRegistry::_register_builtin_upcasters() @ core/schemas/schema_registry.py
@@ -7902,4 +8147,4 @@ _SchemaRegistry::write_packet(packet) @ core/schemas/schema_registry.py
 _StubRateLimiter::async check_and_increment(key, limit) @ core/governance/rate_limit_policy.py
 _StubRateLimiter::async get_usage(key) @ core/governance/rate_limit_policy.py
 
-# Total: 7898 class methods
+# Total: 8143 class methods

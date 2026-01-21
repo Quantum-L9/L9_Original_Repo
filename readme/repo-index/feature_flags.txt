@@ -19,6 +19,7 @@
 | `L9_ENABLE_WS_ORCHESTRATOR` | WebSocket routes use wstaskrouter | `true` | tools/export_repo_indexes.py |
 | `L9_NEW_AGENT_INIT` | Enable 7-phase bootstrap ceremony | `true` | api/server.py |
 | `L9_USE_KERNELS` | Load kernels from files | `true` | agents/cursor/GMP-v2.0-Perplex-Py-Scripts/script_4.py |
+| `L9_USE_KERNEL_CONFIG` | Feature flag | `false` | runtime/kernel_loader.py |
 
 ## Flag Usage Pattern
 

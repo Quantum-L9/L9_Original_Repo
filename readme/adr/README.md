@@ -10,7 +10,7 @@ before performing any code operations. See ADR-0035 for bootstrap protocol.
 **Bootstrap**: If you're reading this, you found the ADRs. Now scan all `Status: Accepted` ADRs
 and apply their constraints during code analysis/generation.
 
-## Current ADRs (37 total)
+## Current ADRs (56 total)
 
 ### Philosophy (0000)
 | ADR | Title | Status |
@@ -52,7 +52,7 @@ and apply their constraints during code analysis/generation.
 | [0022](./0022-registry-pattern.md) | Registry Pattern | Accepted |
 | [0023](./0023-error-packet-pattern.md) | Error Packet Pattern | Accepted |
 
-### Advanced Patterns (0024-0036)
+### Advanced Patterns (0024-0040)
 | ADR | Title | Status |
 |-----|-------|--------|
 | [0024](./0024-resilience-mixin-pattern.md) | Resilience Mixin | Proposed |
@@ -68,6 +68,29 @@ and apply their constraints during code analysis/generation.
 | [0034](./0034-agent-capability-scoping.md) | Agent Capability Scoping | Accepted |
 | [0035](./0035-adr-bootstrap-protocol.md) | ADR Bootstrap Protocol | Accepted |
 | [0036](./0036-schema-organization-pattern.md) | Schema Organization Pattern | Accepted |
+| [0037](./0037-tool-wiring-protocol.md) | Tool Wiring Protocol | Accepted |
+| [0038](./0038-secrets-management-protocol.md) | Secrets Management Protocol | Accepted |
+| [0039](./0039-l9-cli-tool.md) | L9 CLI Tool | Accepted |
+| [0040](./0040-ci-cd-security-scanning.md) | CI/CD Security Scanning | Accepted |
+
+### Refactoring Patterns (0041-0054)
+| ADR | Title | Status |
+|-----|-------|--------|
+| [0041](./0041-executor-builder-pattern.md) | Executor Builder Pattern | Proposed |
+| [0042](./0042-execution-profiles.md) | Execution Profiles | Proposed |
+| [0043](./0043-controller-profiles.md) | Controller Profiles | Proposed |
+| [0044](./0044-agent-policy-protocols.md) | Agent Policy Protocols | Proposed |
+| [0045](./0045-online-offline-execution-split.md) | Online/Offline Execution Split | Proposed |
+| [0046](./0046-pipeline-stage-organization.md) | Pipeline Stage Organization | Proposed |
+| [0047](./0047-memory-facade-decomposition.md) | Memory Facade Decomposition | Proposed |
+| [0048](./0048-tool-dispatch-strategy.md) | Tool Dispatch Strategy | Proposed |
+| [0049](./0049-checkpoint-plan-snapshots.md) | Checkpoint Plan Snapshots | Proposed |
+| [0050](./0050-tool-registry-cache.md) | Tool Registry Cache | Proposed |
+| [0051](./0051-cursor-file-organization.md) | Cursor File Organization | Accepted |
+| [0052](./0052-di-dip-foundation.md) | DI/DIP Foundation | Accepted |
+| [0053](./0053-kernel-config-externalization.md) | Kernel Config Externalization | Accepted |
+| [0054](./0054-loop-stage-protocol.md) | Loop Stage Protocol | Proposed |
+| [0055](./0055-fail-loudly-vs-graceful-degradation.md) | Fail-Loudly vs Graceful Degradation | Accepted |
 
 ## ADR Format (AI-Optimized)
 

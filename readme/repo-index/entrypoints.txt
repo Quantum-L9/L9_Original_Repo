@@ -323,7 +323,13 @@ scripts/workspace/rename_l_to_l_cto.py
 services/symbolic_computation/health_check.py
   Type: Script
   Has __main__ block: Yes
+tools/adr/adr_cli.py
+  Type: Script
+  Has __main__ block: Yes
 tools/export_repo_indexes.py
+  Type: Script
+  Has __main__ block: Yes
+tools/l9_cli.py
   Type: Script
   Has __main__ block: Yes
 world_model/seed_loader.py

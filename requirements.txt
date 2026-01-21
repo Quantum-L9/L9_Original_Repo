@@ -81,3 +81,6 @@ mypy>=1.10.0
 python-multipart
 # Pin urllib3 to avoid LibreSSL warning on macOS
 urllib3<2
+
+# Mutation Testing
+mutmut>=2.4.5

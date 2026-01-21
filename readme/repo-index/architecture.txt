@@ -31,7 +31,6 @@ collaborative_cells/ -
 config/ - L9 Configuration Module.
 config/schemas/ - 
 core/ - 
-core/abstractions/ - 
 core/agents/ - 
 core/agents/bootstrap/ - 
 core/agents/graph_state/ - 
@@ -50,6 +49,7 @@ core/kernels/ -
 core/memory/ - 
 core/observability/ - 
 core/packet_envelope/ - 
+core/protocols/ - 
 core/resilience/ - 
 core/retrievers/ - L9 Core Retrievers
 core/runtimes/ - 
@@ -59,6 +59,8 @@ core/security/ -
 core/testing/ - 
 core/tools/ - 
 core/worldmodel/ - 
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ - 
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/ - 
 current_work/DONE/AUTOWIRING/ - 
 dev/ - No module docstring
 dev/tools/ - No module docstring
@@ -136,10 +138,13 @@ tests/services/research/ - Tests for research services.
 tests/simulation/ - 
 tests/telemetry/ - 
 tests/unit/ - Unit tests for L9.
+tests/unit/adr/ - No module docstring
 tests/unit/di/ - No module docstring
 tests/upgrades/ - 
+tests/workers/ - Tests for workers package.
 tests/world_model/ - World Model Tests
 tools/ - 
+tools/adr/ - 
 workers/ - 
 world_model/ - 
 world_model/nodes/ - 

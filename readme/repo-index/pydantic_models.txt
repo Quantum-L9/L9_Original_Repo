@@ -33,6 +33,8 @@ AnalyzeFailureRequest @ api/routes/reflection_agent.py - Request model for failu
 AnalyzeFailureResponse @ api/routes/reflection_agent.py - Response model for failure analysis.
 AnomalyClassifierRequest @ workers/anomaly_classifier.py - Input request for AnomalyClassifier.
 AnomalyClassifierResponse @ workers/anomaly_classifier.py - Output response from AnomalyClassifier.
+AnomalyProcessRequest @ api/routes/workers.py - Request to process telemetry events for anomalies.
+AnomalyProcessResponse @ api/routes/workers.py - Response from anomaly processing.
 AnomalyResponseMonitorRequest @ workers/anomaly_response_monitor.py - Input request for AnomalyResponseMonitor.
 AnomalyResponseMonitorResponse @ workers/anomaly_response_monitor.py - Output response from AnomalyResponseMonitor.
 ApplyDecayArgs @ mcp_memory/src/models.py - Validation model for apply_decay tool arguments.
@@ -577,19 +579,23 @@ ValidateRequest @ services/symbolic_computation/api/routes.py - Request model fo
 ValidateResponse @ api/routes/factory.py - Response model for schema validation.
 ValidationError @ ir_engine/ir_schema.py - A single validation error.
 ValidationResult @ services/symbolic_computation/core/models.py - Result model for expression validation.
+ViolationCountsResponse @ api/routes/workers.py - Response with violation counts per lesson.
 ViolationMatch @ workers/violation_patterns.py - A single violation match.
 ViolationPatternsRequest @ workers/violation_patterns.py - Input request for ViolationPatterns.
 ViolationPatternsResponse @ workers/violation_patterns.py - Output response from ViolationPatterns.
 ViolationRecord @ workers/violation_tracker_service.py - A recorded violation.
+ViolationScanRequest @ api/routes/workers.py - Request to scan content for violations.
+ViolationScanResponse @ api/routes/workers.py - Response from violation scan.
 ViolationTrackerServiceRequest @ workers/violation_tracker_service.py - Input request for ViolationTrackerService.
 ViolationTrackerServiceResponse @ workers/violation_tracker_service.py - Output response from ViolationTrackerService.
 WarmRequest @ api/memory/router.py - Request for memory warming.
 WarmResponse @ api/memory/router.py - Response from memory warming.
 WiringSpec @ codegen/code-gen-files/glue_resolver.py - Specification for an agent-to-agent wiring.
+WorkersHealthResponse @ api/routes/workers.py - Health status of all workers.
 WorldModelIntegrationBlock @ codegen/code-gen-files/schema_parser.py - External context integration.
 WorldModelQueryInput @ core/schemas/l_tools.py - Input schema for world model query.
 WorldModelQueryInput @ igor/DONE!/audit-tools/core_schemas_l_tools.py - Input schema for world model query.
 WorldModelRequest @ orchestrators/world_model/interface.py - Request to world_model orchestrator.
 WorldModelResponse @ orchestrators/world_model/interface.py - Response from world_model orchestrator.
 
-# Total: 588 Pydantic models
+# Total: 594 Pydantic models

@@ -40,6 +40,7 @@ GET /health → agent_health() @ api/agent_routes.py
 GET /health → cache_health() @ api/memory/cache.py
 GET /health → factory_health() @ api/routes/factory.py
 GET /health → get_health() @ api/routes/observability.py
+GET /health → get_workers_health() @ api/routes/workers.py
 GET /health → graph_health() @ api/memory/graph.py
 GET /health → health() @ api/server.py
 GET /health → health() @ api/server_memory.py
@@ -131,11 +132,13 @@ GET /test → research_test() @ api/routes/research.py
 GET /thread/{thread_id} → get_thread() @ api/memory/router.py
 GET /thread/{thread_id} → get_thread() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /updates → list_updates() @ api/world_model_api.py
+GET /violations/counts → get_violation_counts() @ api/routes/workers.py
 GET /waba/webhook → verify_waba_webhook() @ api/webhook_waba.py
 GET /warm/metrics → get_warming_metrics() @ api/memory/router.py
 GET /{run_id} → get_simulation_run() @ api/routes/simulation.py
 POST /agent/exec → agent_exec() @ api/vps_executor.py
 POST /analyze-failure → analyze_failure() @ api/routes/reflection_agent.py
+POST /anomaly/process → process_anomalies() @ api/routes/workers.py
 POST /api/chat → chat() @ local_dashboard/app.py
 POST /batch → batch_ingest() @ igor/DONE!/L9 Memory Substrate Audit/script_2.py
 POST /batch → batch_ingest() @ igor/DONE!/L9 Memory Substrate Audit/script_9.py
@@ -241,6 +244,8 @@ POST /twilio/webhook → twilio_webhook() @ api/webhook_twilio.py
 POST /validate → validate_expression() @ services/symbolic_computation/api/routes.py
 POST /validate → validate_pattern_config() @ api/routes/pattern.py
 POST /validate → validate_schema() @ api/routes/factory.py
+POST /violations/reset/{lesson_id} → reset_violation_count() @ api/routes/workers.py
+POST /violations/scan → scan_for_violations() @ api/routes/workers.py
 POST /waba/webhook → waba_webhook() @ api/webhook_waba.py
 POST /warm → warm_memory_for_query() @ api/memory/router.py
 POST /{account}/draft → draft_email() @ email_agent/router.py
@@ -255,4 +260,4 @@ WEBSOCKET /ws/agent → agent_ws_endpoint() @ api/server.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ current_work/DONE/GMP Stage 1 - Tools/server.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ current_work/DONE/Slack-Debug-2/server.py
 
-# Total: 251 route handlers
+# Total: 256 route handlers

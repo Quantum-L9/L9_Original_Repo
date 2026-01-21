@@ -8,8 +8,8 @@ L9/
 ├── .vultureignore
 ├── L9.code-workspace
 ├── Makefile
-├── README.md
-├── ... (22 more files)
+├── PR_DESCRIPTION.md
+├── ... (23 more files)
 ├── .audit_cache/
 ├── .cursorrules/
 │   ├── 00-global.mdc
@@ -124,7 +124,7 @@ L9/
 │   │   ├── modules.py
 │   │   ├── observability.py
 │   │   ├── pattern.py
-│   │   ├── ... (9 more files)
+│   │   ├── ... (10 more files)
 │   └── tools/
 │       ├── __init__.py
 │       ├── router.py
@@ -157,12 +157,14 @@ L9/
 │   ├── __init__.py
 │   ├── boot_overlay.yaml
 │   ├── cursor_langgraph_config.py
+│   ├── di_config.py
+│   ├── kernel_discovery.yaml
 │   ├── mcp_servers.yaml
 │   ├── memory_substrate_settings.py
 │   ├── research_settings.py
 │   ├── rls_config.py
 │   ├── settings.py
-│   ├── settings.yaml
+│   ├── ... (1 more files)
 │   ├── agents/
 │   │   ├── L-CTO-Agent.yaml
 │   │   ├── L-CTO-Research-Overlay.yaml
@@ -201,12 +203,6 @@ L9/
 │   ├── moduleregistry.py
 │   ├── singleton_auto_registry.py
 │   ├── singleton_registry.py
-│   ├── abstractions/
-│   │   ├── __init__.py
-│   │   ├── agent_protocols.py
-│   │   ├── kernel_protocols.py
-│   │   ├── memory_protocols.py
-│   │   ├── observability_protocols.py
 │   ├── agents/
 │   │   ├── README.md
 │   │   ├── README.meta.yaml
@@ -309,6 +305,13 @@ L9/
 │   │   ├── observability.py
 │   │   ├── scalability.py
 │   │   ├── standardization.py
+│   ├── protocols/
+│   │   ├── __init__.py
+│   │   ├── agent_protocols.py
+│   │   ├── kernel_protocols.py
+│   │   ├── memory_protocols.py
+│   │   ├── observability_protocols.py
+│   │   ├── secrets_protocols.py
 │   ├── resilience/
 │   │   ├── __init__.py
 │   │   ├── mixin.py
@@ -369,6 +372,7 @@ L9/
 ├── docs/
 │   ├── AUTO_WIRING_PHASE2_GUIDE.md
 │   ├── CAPABILITY_ENABLING_PATTERN.md
+│   ├── CI_WORKFLOW_CHANGES.md
 │   ├── CODE-MAP.yaml
 │   ├── CURSOR-RUNBOOK.md
 │   ├── GOD-MODE-ORCHESTRATOR.md
@@ -376,12 +380,23 @@ L9/
 │   ├── IMPL-Self-Reflection-Governance-Tracking.md
 │   ├── MCP-MEMORY-CAPSULE.md
 │   ├── Roadmap-2.md
-│   ├── TOOLS-Explained.md
-│   ├── ... (9 more files)
-│   └── architecture/
-│       ├── di-container-guide.md
-│       ├── migration-checklist.md
-│       ├── protocol-catalog.md
+│   ├── ... (10 more files)
+│   ├── architecture/
+│   │   ├── di-container-guide.md
+│   │   ├── migration-checklist.md
+│   │   ├── protocol-catalog.md
+│   └── cursor rules/
+│       ├── 00-global.mdc
+│       ├── 01-vps-rules.mdc
+│       ├── 02-slash-commands.mdc
+│       ├── 03-mcp-memory.mdc
+│       ├── 05-ask-mode.mdc
+│       ├── 10-lang-typescript.mdc
+│       ├── 20-lang-python.mdc
+│       ├── 25-python-dora-header.mdc
+│       ├── 30-framework-react.mdc
+│       ├── 40-domain-autonomy.mdc
+│       ├── ... (22 more files)
 ├── email_agent/
 │   ├── __init__.py
 │   ├── client.py
@@ -645,7 +660,21 @@ L9/
 │   │   ├── 0007-seven-phase-bootstrap.md
 │   │   ├── 0008-feature-flag-gating.md
 │   │   ├── 0009-circuit-breaker-resilience.md
-│   │   ├── ... (27 more files)
+│   │   ├── ... (46 more files)
+│   ├── diagrams/
+│   │   ├── 01-memory-substrate.mmd
+│   │   ├── 01-memory-substrate.png
+│   │   ├── 02-governance-system.mmd
+│   │   ├── 02-governance-system.png
+│   │   ├── 03-kernel-runtime.mmd
+│   │   ├── 03-kernel-runtime.png
+│   │   ├── 04-agent-execution.mmd
+│   │   ├── 04-agent-execution.png
+│   │   ├── 05-world-model.mmd
+│   │   ├── 05-world-model.png
+│   │   ├── ... (11 more files)
+│   ├── harvested/
+│   │   └── perplexity-refactor-2026-01-20/
 │   └── repo-index/
 │       ├── adr_catalog.txt
 │       ├── agent_catalog.txt
@@ -669,7 +698,7 @@ L9/
 │   ├── execution_gate.py
 │   ├── git_tool.py
 │   ├── gmp_approval.py
-│   ├── ... (21 more files)
+│   ├── ... (22 more files)
 ├── scripts/
 │   ├── 10x_deploy.sh
 │   ├── ORGANIZATION_PROPOSAL.md
@@ -816,12 +845,12 @@ L9/
 │   ├── smoke_email.py
 │   ├── smoke_test.py
 │   ├── smoke_test_root.py
-│   ├── test_anomaly_classifier.py
-│   ├── test_anomaly_response_monitor.py
 │   ├── test_code_facts_extraction.py
 │   ├── test_imports.py
 │   ├── test_l_cto_kernel_activation.py
-│   ├── ... (8 more files)
+│   ├── test_memory_adapter.py
+│   ├── test_memory_governance_gate.py
+│   ├── ... (5 more files)
 │   ├── agents/
 │   │   ├── __init__.py
 │   │   ├── test_agent_registry.py
@@ -856,6 +885,7 @@ L9/
 │   │   ├── test_moduleregistry.py
 │   │   ├── test_resilience_mixin.py
 │   │   ├── test_singleton_auto_registry.py
+│   │   ├── abstractions/
 │   │   ├── aios/
 │   │   ├── bootstrap/
 │   │   ├── governance/
@@ -971,6 +1001,8 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── conftest.py
 │   │   ├── test_memory_metrics.py
+│   ├── tools/
+│   │   ├── test_l9_cli.py
 │   ├── unit/
 │   │   ├── __init__.py
 │   │   ├── conftest.py
@@ -981,11 +1013,18 @@ L9/
 │   │   ├── test_registry_adapter_sanitization.py
 │   │   ├── test_startup_readiness.py
 │   │   ├── test_tool_input_sanitizer.py
-│   │   └── di/
+│   │   ├── adr/
+│   │   ├── di/
+│   │   └── kernel/
 │   ├── upgrades/
 │   │   ├── __init__.py
 │   │   ├── conftest.py
 │   │   ├── test_packet_envelope_phases.py
+│   ├── workers/
+│   │   ├── __init__.py
+│   │   ├── conftest.py
+│   │   ├── test_anomaly_classifier.py
+│   │   ├── test_violation_tracker.py
 │   └── world_model/
 │       ├── __init__.py
 │       ├── test_wm_boot.py
@@ -998,7 +1037,14 @@ L9/
 │   ├── TOOL_LOADING_DIAGRAM.md
 │   ├── __init__.py
 │   ├── export_repo_indexes.py
+│   ├── l9_cli.py
 │   ├── mac_protocol.py
+│   └── adr/
+│       ├── __init__.py
+│       ├── adr_cli.py
+│       ├── adr_generator.py
+│       ├── adr_indexer.py
+│       ├── adr_validator.py
 ├── workers/
 │   ├── __init__.py
 │   ├── anomaly_classifier.py
