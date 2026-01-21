@@ -555,9 +555,47 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
     # Simple calculator executor
     def calculate_executor(expression: str) -> dict:
         try:
-            # Safe eval for simple math
-            allowed_names = {"abs": abs, "round": round, "min": min, "max": max}
-            result = eval(expression, {"__builtins__": {}}, allowed_names)
+            # Use ast module for safer expression evaluation
+            import ast
+            import operator
+            
+            # Define allowed operations
+            allowed_ops = {
+                ast.Add: operator.add,
+                ast.Sub: operator.sub,
+                ast.Mult: operator.mul,
+                ast.Div: operator.truediv,
+                ast.Pow: operator.pow,
+                ast.USub: operator.neg,
+            }
+            
+            def eval_expr(node):
+                if isinstance(node, ast.Constant):  # Python 3.8+
+                    return node.value
+                elif isinstance(node, ast.BinOp):
+                    op = allowed_ops.get(type(node.op))
+                    if op is None:
+                        raise ValueError(f"Unsupported operation: {type(node.op).__name__}")
+                    return op(eval_expr(node.left), eval_expr(node.right))
+                elif isinstance(node, ast.UnaryOp):
+                    op = allowed_ops.get(type(node.op))
+                    if op is None:
+                        raise ValueError(f"Unsupported operation: {type(node.op).__name__}")
+                    return op(eval_expr(node.operand))
+                elif isinstance(node, ast.Call):
+                    # Allow specific functions
+                    if isinstance(node.func, ast.Name):
+                        func_name = node.func.id
+                        if func_name in ["abs", "round", "min", "max"]:
+                            func = eval(func_name)  # Safe: only built-in functions
+                            args = [eval_expr(arg) for arg in node.args]
+                            return func(*args)
+                    raise ValueError(f"Function calls not allowed: {ast.unparse(node)}")
+                else:
+                    raise ValueError(f"Unsupported expression: {ast.unparse(node)}")
+            
+            tree = ast.parse(expression, mode='eval')
+            result = eval_expr(tree.body)
             return {"result": result, "expression": expression}
         except Exception as e:
             return {"error": str(e), "expression": expression}
