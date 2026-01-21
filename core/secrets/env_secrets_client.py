@@ -45,7 +45,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Optional
+from typing import Dict, Optional
 
 import structlog
 
@@ -67,7 +67,7 @@ class EnvSecretsClient:
 
     def __init__(self):
         """Initialize environment secrets client."""
-        self._cache: dict[str, str] = {}
+        self._cache: Dict[str, str] = {}
         logger.info("env_secrets_client.initialized")
 
     async def get_secret(self, key: str) -> Optional[str]:
