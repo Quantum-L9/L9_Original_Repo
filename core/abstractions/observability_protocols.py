@@ -52,7 +52,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, Optional, Protocol, runtime_checkable
+from typing import Any, Dict, Optional, Protocol, Union, runtime_checkable
 from enum import Enum
 
 
@@ -399,14 +399,16 @@ class ObservabilityService(Protocol):
 
 
 # Type aliases
-ObservabilityProtocols = (
-    SpanEmitter
-    | MetricsCollector
-    | TraceContext
-    | LogExporter
-    | HealthChecker
-    | ObservabilityService
-)
+# NOTE: Using Union[] instead of | for Python 3.9 compatibility (VPS runtime)
+# See .cursor/rules/92-learned-lessons.mdc for why this matters
+ObservabilityProtocols = Union[
+    SpanEmitter,
+    MetricsCollector,
+    TraceContext,
+    LogExporter,
+    HealthChecker,
+    ObservabilityService,
+]
 
 
 __all__ = [
