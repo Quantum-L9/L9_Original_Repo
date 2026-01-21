@@ -17,7 +17,7 @@ Features:
 
 Usage:
     from core.di.container import DIContainer
-    from core.abstractions import CacheClient
+    from core.protocols import CacheClient
 
     container = DIContainer()
     container.bind_singleton(CacheClient, lambda: RedisClient())

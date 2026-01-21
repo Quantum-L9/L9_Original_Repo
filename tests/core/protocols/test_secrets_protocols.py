@@ -10,7 +10,7 @@ GMP: security-remediation-phase1
 
 import pytest
 
-from core.abstractions.secrets_protocols import SecretsClient
+from core.protocols.secrets_protocols import SecretsClient
 from core.secrets.env_secrets_client import EnvSecretsClient
 
 

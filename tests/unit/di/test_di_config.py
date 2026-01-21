@@ -22,7 +22,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from core.di.container import DIContainer, get_di_container
-from core.abstractions import (
+from core.protocols import (
     CacheClient,
     GraphClient,
     VectorStore,

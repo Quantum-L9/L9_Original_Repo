@@ -12,7 +12,7 @@ Exports:
 
 Usage:
     from core.di import DIContainer, get_di_container
-    from core.abstractions import CacheClient
+    from core.protocols import CacheClient
 
     container = get_di_container()
     container.bind_singleton(CacheClient, lambda: RedisClient())

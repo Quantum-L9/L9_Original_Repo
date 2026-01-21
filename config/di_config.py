@@ -77,7 +77,7 @@ import structlog
 from core.di.container import DIContainer, get_di_container
 
 # Protocol abstractions from PR #22
-from core.abstractions import (
+from core.protocols import (
     CacheClient,
     GraphClient,
     VectorStore,
