@@ -38,7 +38,6 @@ from mocks.orchestrator_mocks import (
     MockToolRegistry,
 )
 
-
 # =============================================================================
 # Kernel Fixtures
 # =============================================================================
@@ -201,11 +200,7 @@ async def async_world_model():
             self.edges.append((a, b, rel))
 
         async def get_edges(self, nid):
-            return [
-                {"type": rel, "src": a, "dst": b}
-                for (a, b, rel) in self.edges
-                if a == nid
-            ]
+            return [{"type": rel, "src": a, "dst": b} for (a, b, rel) in self.edges if a == nid]
 
     return AsyncMockWM()
 
@@ -317,7 +312,6 @@ import hmac
 import hashlib
 import time
 
-
 SLACK_TEST_SIGNING_SECRET = "test_slack_signing_secret_123"
 SLACK_TEST_CHANNEL_ID = "C12345678"
 SLACK_TEST_USER_ID = "U12345678"
@@ -343,19 +337,17 @@ def slack_test_ids() -> dict:
 def generate_slack_signature(body: str, timestamp: str, secret: str) -> str:
     """
     Generate valid Slack HMAC-SHA256 signature for testing.
-    
+
     Args:
         body: Request body as string
         timestamp: Unix timestamp as string
         secret: Slack signing secret
-        
+
     Returns:
         Signature in format "v0=<hex_hash>"
     """
     sig_basestring = f"v0:{timestamp}:{body}"
-    signature = hmac.new(
-        secret.encode(), sig_basestring.encode(), hashlib.sha256
-    ).hexdigest()
+    signature = hmac.new(secret.encode(), sig_basestring.encode(), hashlib.sha256).hexdigest()
     return f"v0={signature}"
 
 
@@ -363,7 +355,7 @@ def generate_slack_signature(body: str, timestamp: str, secret: str) -> str:
 def slack_signature_generator():
     """
     Provide a function to generate valid Slack signatures.
-    
+
     Usage:
         sig = slack_signature_generator(body, timestamp, secret)
     """
@@ -386,7 +378,7 @@ def stale_slack_timestamp() -> str:
 def slack_enabled(monkeypatch):
     """
     Enable Slack integration for tests.
-    
+
     Sets SLACK_APP_ENABLED=true and SLACK_SIGNING_SECRET.
     """
     monkeypatch.setenv("SLACK_APP_ENABLED", "true")
@@ -397,7 +389,7 @@ def slack_enabled(monkeypatch):
 def slack_disabled(monkeypatch):
     """
     Disable Slack integration for tests.
-    
+
     Sets SLACK_APP_ENABLED=false.
     """
     monkeypatch.setenv("SLACK_APP_ENABLED", "false")

@@ -42,11 +42,11 @@ class TestPacketEnvelope:
     def test_create_packet_with_all_fields(self):
         """Test creating a packet with all fields."""
         from core.schemas import (
-    PacketConfidence,
-    PacketEnvelope,
-    PacketMetadata,
-    PacketProvenance,
-)
+            PacketConfidence,
+            PacketEnvelope,
+            PacketMetadata,
+            PacketProvenance,
+        )
 
         packet_id = uuid4()
         parent_id = uuid4()

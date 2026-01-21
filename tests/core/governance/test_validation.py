@@ -89,9 +89,7 @@ class TestValidateSafety:
 
     def test_blocks_dangerous_payload(self):
         """Dangerous patterns in payload should be blocked."""
-        result = validate_safety(
-            action="execute command", payload={"command": "rm -rf /"}
-        )
+        result = validate_safety(action="execute command", payload={"command": "rm -rf /"})
         assert result["safe"] is False
 
 
@@ -104,9 +102,7 @@ class TestDetectDrift:
         for i in range(10):
             audit_log(agent_id="l-cto", action=f"action_{i}", success=True)
 
-        drift = detect_drift(
-            agent_id="l-cto", action="action_10", success=True, threshold=0.6
-        )
+        drift = detect_drift(agent_id="l-cto", action="action_10", success=True, threshold=0.6)
 
         assert drift is None  # No drift detected
 
@@ -120,9 +116,7 @@ class TestDetectDrift:
                 success=(i < 3),  # Only 3/10 succeed
             )
 
-        drift = detect_drift(
-            agent_id="l-cto", action="action_10", success=False, threshold=0.6
-        )
+        drift = detect_drift(agent_id="l-cto", action="action_10", success=False, threshold=0.6)
 
         assert drift is not None
         assert drift["drift_detected"] is True
@@ -136,9 +130,7 @@ class TestDetectDrift:
         for i in range(3):
             audit_log(agent_id="l-cto", action=action, success=False)
 
-        drift = detect_drift(
-            agent_id="l-cto", action=action, success=False, threshold=0.6
-        )
+        drift = detect_drift(agent_id="l-cto", action=action, success=False, threshold=0.6)
 
         assert drift is not None
         assert drift["drift_detected"] is True

@@ -50,9 +50,7 @@ class TestRLSScopeTransaction:
         async def mock_transaction_cm():
             yield mock_conn
 
-        mock_conn.transaction = MagicMock(
-            return_value=mock_transaction_cm().__aenter__()
-        )
+        mock_conn.transaction = MagicMock(return_value=mock_transaction_cm().__aenter__())
         # Make transaction return an async context manager
         mock_conn.transaction = lambda: mock_transaction_cm()
 
@@ -226,9 +224,7 @@ class TestWritePacketWithRLS:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
-            return_value=None
-        )
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
 
         # Mock DAG
         mock_dag = AsyncMock()

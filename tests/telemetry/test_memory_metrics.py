@@ -125,7 +125,9 @@ class TestRecordMemoryWrite:
 
         # Both should be tracked
         gov_val = MEMORY_WRITE_TOTAL.labels(segment="governance_meta", status="ok")._value._value
-        session_val = MEMORY_WRITE_TOTAL.labels(segment="session_context", status="ok")._value._value
+        session_val = MEMORY_WRITE_TOTAL.labels(
+            segment="session_context", status="ok"
+        )._value._value
 
         assert gov_val >= 1
         assert session_val >= 1
@@ -147,7 +149,9 @@ class TestRecordMemoryWrite:
 
         # All three statuses tracked
         ok_val = MEMORY_WRITE_TOTAL.labels(segment="test_segment", status="ok")._value._value
-        partial_val = MEMORY_WRITE_TOTAL.labels(segment="test_segment", status="partial")._value._value
+        partial_val = MEMORY_WRITE_TOTAL.labels(
+            segment="test_segment", status="partial"
+        )._value._value
         error_val = MEMORY_WRITE_TOTAL.labels(segment="test_segment", status="error")._value._value
 
         assert ok_val >= 1
@@ -177,11 +181,15 @@ class TestRecordMemorySearch:
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
 
-        initial = MEMORY_SEARCH_TOTAL.labels(segment="project_history", search_type="semantic")._value._value
+        initial = MEMORY_SEARCH_TOTAL.labels(
+            segment="project_history", search_type="semantic"
+        )._value._value
 
         record_memory_search(segment="project_history", hit_count=5, search_type="semantic")
 
-        new_value = MEMORY_SEARCH_TOTAL.labels(segment="project_history", search_type="semantic")._value._value
+        new_value = MEMORY_SEARCH_TOTAL.labels(
+            segment="project_history", search_type="semantic"
+        )._value._value
         assert new_value == initial + 1
 
     def test_record_memory_search_records_hits(self):
@@ -256,11 +264,15 @@ class TestRecordToolInvocation:
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
 
-        initial = TOOL_INVOCATION_TOTAL.labels(tool_id="test_tool_counter", status="success")._value._value
+        initial = TOOL_INVOCATION_TOTAL.labels(
+            tool_id="test_tool_counter", status="success"
+        )._value._value
 
         record_tool_invocation(tool_id="test_tool_counter", status="success", duration_ms=100)
 
-        new_value = TOOL_INVOCATION_TOTAL.labels(tool_id="test_tool_counter", status="success")._value._value
+        new_value = TOOL_INVOCATION_TOTAL.labels(
+            tool_id="test_tool_counter", status="success"
+        )._value._value
         assert new_value == initial + 1
 
     def test_record_tool_invocation_records_duration(self):
@@ -295,10 +307,16 @@ class TestRecordToolInvocation:
         record_tool_invocation(tool_id="status_test", status="denied", duration_ms=10)
         record_tool_invocation(tool_id="status_test", status="timeout", duration_ms=10)
 
-        success = TOOL_INVOCATION_TOTAL.labels(tool_id="status_test", status="success")._value._value
-        failure = TOOL_INVOCATION_TOTAL.labels(tool_id="status_test", status="failure")._value._value
+        success = TOOL_INVOCATION_TOTAL.labels(
+            tool_id="status_test", status="success"
+        )._value._value
+        failure = TOOL_INVOCATION_TOTAL.labels(
+            tool_id="status_test", status="failure"
+        )._value._value
         denied = TOOL_INVOCATION_TOTAL.labels(tool_id="status_test", status="denied")._value._value
-        timeout = TOOL_INVOCATION_TOTAL.labels(tool_id="status_test", status="timeout")._value._value
+        timeout = TOOL_INVOCATION_TOTAL.labels(
+            tool_id="status_test", status="timeout"
+        )._value._value
 
         assert success >= 1
         assert failure >= 1
@@ -630,6 +648,3 @@ class TestHistogramBuckets:
         assert 1 in buckets
         assert 10 in buckets
         assert 100 in buckets
-
-
-

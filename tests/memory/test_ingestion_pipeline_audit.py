@@ -78,9 +78,7 @@ class TestDAGNodeCoverage:
         ]
 
         for node in expected_nodes:
-            assert f'graph.add_node("{node}"' in source, (
-                f"Missing node registration: {node}"
-            )
+            assert f'graph.add_node("{node}"' in source, f"Missing node registration: {node}"
 
     def test_graph_has_correct_edge_definitions(self):
         """Verify graph builder has expected edge definitions."""
@@ -199,9 +197,9 @@ class TestGMP42EmbeddingFilter:
         )
 
         for pattern in SKIP_EMBEDDING_PATTERNS:
-            assert _should_skip_embedding(pattern), (
-                f"GMP-42 pattern should be skipped: {pattern[:50]}"
-            )
+            assert _should_skip_embedding(
+                pattern
+            ), f"GMP-42 pattern should be skipped: {pattern[:50]}"
 
     def test_short_text_skipped(self):
         """Text <10 chars should not be embedded."""
@@ -230,9 +228,9 @@ class TestGMP42EmbeddingFilter:
         ]
 
         for variant in error_variants:
-            assert _should_skip_embedding(variant), (
-                f"Error variant should be skipped: {variant[:50]}"
-            )
+            assert _should_skip_embedding(
+                variant
+            ), f"Error variant should be skipped: {variant[:50]}"
 
     @pytest.mark.asyncio
     async def test_semantic_embed_node_respects_skip_filter(self):
@@ -243,9 +241,7 @@ class TestGMP42EmbeddingFilter:
         state = {
             "envelope": {
                 "packet_type": "chat.message",
-                "payload": {
-                    "text": "Sorry, I encountered a temporary error. Please try again."
-                },
+                "payload": {"text": "Sorry, I encountered a temporary error. Please try again."},
             },
             "errors": [],
             "written_tables": [],
@@ -350,9 +346,7 @@ class TestDualPipelineArchitecture:
         ]
 
         for feature in pipeline_features:
-            assert hasattr(IngestionPipeline, feature), (
-                f"IngestionPipeline missing: {feature}"
-            )
+            assert hasattr(IngestionPipeline, feature), f"IngestionPipeline missing: {feature}"
 
         # SubstrateDAG features (reasoning, insights, world model)
         from memory.substrate_dag import (
@@ -440,8 +434,7 @@ class TestTransactionAtomicity:
         # Should report error status due to transaction failure
         assert result.status in ("error", "partial")
         assert (
-            "transaction" in (result.error_message or "").lower()
-            or len(result.written_tables) == 0
+            "transaction" in (result.error_message or "").lower() or len(result.written_tables) == 0
         )
 
     def test_transaction_commits_on_success(self):
@@ -558,9 +551,9 @@ class TestCrossSubstrateConsistency:
         assert prepare_embed_pos > 0, "Embedding preparation should exist"
 
         # Embedding prep should be before transaction (fail-fast pattern)
-        assert prepare_embed_pos < transaction_pos, (
-            "Embedding preparation should happen before transaction"
-        )
+        assert (
+            prepare_embed_pos < transaction_pos
+        ), "Embedding preparation should happen before transaction"
 
     def test_storage_tables_documented(self):
         """Verify all storage tables are modeled."""

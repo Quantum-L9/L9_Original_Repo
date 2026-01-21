@@ -239,9 +239,7 @@ class TestLCTOEndToEnd:
 
         # Verify blocked
         assert result.status == "blocked"
-        assert (
-            "Authority violation" in result.error or "violation" in result.error.lower()
-        )
+        assert "Authority violation" in result.error or "violation" in result.error.lower()
 
         # Verify AIOS was NOT called
         assert not mock_aios_runtime.execute_reasoning.called

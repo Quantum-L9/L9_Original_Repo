@@ -34,9 +34,7 @@ class TestWorldModelRepositoryIntegration:
             mock_pool.return_value.acquire.return_value.__aenter__ = AsyncMock(
                 return_value=mock_conn
             )
-            mock_pool.return_value.acquire.return_value.__aexit__ = AsyncMock(
-                return_value=None
-            )
+            mock_pool.return_value.acquire.return_value.__aexit__ = AsyncMock(return_value=None)
 
             from world_model.repository import WorldModelRepository
 

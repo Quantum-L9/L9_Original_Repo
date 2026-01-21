@@ -16,7 +16,6 @@ from memory.substrate_dag_wrapper import SubstrateDagOrchestrator, RetryPolicy
 from memory.dead_letter import DeadLetterQueue, DeadLetterEntry
 from core.schemas import PacketEnvelopeIn, PacketWriteResult
 
-
 # =============================================================================
 # RetryPolicy Tests
 # =============================================================================
@@ -90,17 +89,13 @@ class TestRetryBehavior:
         mock_dag.run = AsyncMock(
             side_effect=[
                 Exception("Transient error"),
-                PacketWriteResult(
-                    packet_id=uuid4(), status="ok", written_tables=["packet_store"]
-                ),
+                PacketWriteResult(packet_id=uuid4(), status="ok", written_tables=["packet_store"]),
             ]
         )
 
         orchestrator = SubstrateDagOrchestrator(
             dag=mock_dag,
-            retry_policy=RetryPolicy(
-                max_retries=3, backoff_base=0.01
-            ),  # Fast for tests
+            retry_policy=RetryPolicy(max_retries=3, backoff_base=0.01),  # Fast for tests
         )
 
         envelope = PacketEnvelopeIn(packet_type="test", payload={"foo": "bar"})
@@ -117,9 +112,7 @@ class TestRetryBehavior:
             side_effect=[
                 Exception("Error 1"),
                 Exception("Error 2"),
-                PacketWriteResult(
-                    packet_id=uuid4(), status="ok", written_tables=["packet_store"]
-                ),
+                PacketWriteResult(packet_id=uuid4(), status="ok", written_tables=["packet_store"]),
             ]
         )
 
@@ -205,9 +198,7 @@ class TestCircuitBreakerIntegration:
         """When circuit is closed, request proceeds normally."""
         mock_dag = Mock()
         mock_dag.run = AsyncMock(
-            return_value=PacketWriteResult(
-                packet_id=uuid4(), status="ok", written_tables=[]
-            )
+            return_value=PacketWriteResult(packet_id=uuid4(), status="ok", written_tables=[])
         )
 
         mock_cb = Mock()
@@ -230,9 +221,7 @@ class TestCircuitBreakerIntegration:
         """Successful call records success with CB."""
         mock_dag = Mock()
         mock_dag.run = AsyncMock(
-            return_value=PacketWriteResult(
-                packet_id=uuid4(), status="ok", written_tables=[]
-            )
+            return_value=PacketWriteResult(packet_id=uuid4(), status="ok", written_tables=[])
         )
 
         mock_cb = Mock()

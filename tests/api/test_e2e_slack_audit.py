@@ -87,9 +87,8 @@ async def audit_slack_configuration() -> AuditResult:
             return result
 
         # Check 2: Signing secret configured
-        signing_secret = (
-            integration_settings.slack_signing_secret
-            or os.getenv("SLACK_SIGNING_SECRET")
+        signing_secret = integration_settings.slack_signing_secret or os.getenv(
+            "SLACK_SIGNING_SECRET"
         )
         has_signing_secret = bool(signing_secret and len(signing_secret) > 10)
         result.add_check(
@@ -99,14 +98,16 @@ async def audit_slack_configuration() -> AuditResult:
         )
 
         # Check 3: Bot token configured
-        bot_token = (
-            integration_settings.slack_bot_token or os.getenv("SLACK_BOT_TOKEN")
-        )
+        bot_token = integration_settings.slack_bot_token or os.getenv("SLACK_BOT_TOKEN")
         has_bot_token = bool(bot_token and bot_token.startswith("xoxb-"))
         result.add_check(
             "bot_token_configured",
             has_bot_token,
-            "SLACK_BOT_TOKEN is set (xoxb-...)" if has_bot_token else "SLACK_BOT_TOKEN missing or invalid",
+            (
+                "SLACK_BOT_TOKEN is set (xoxb-...)"
+                if has_bot_token
+                else "SLACK_BOT_TOKEN missing or invalid"
+            ),
         )
 
         # Check 4: Legacy flag status
@@ -117,7 +118,9 @@ async def audit_slack_configuration() -> AuditResult:
             f"L9_ENABLE_LEGACY_SLACK_ROUTER={legacy_enabled}",
         )
         if legacy_enabled:
-            result.add_warning("Legacy Slack router is enabled - using AIOS /chat instead of L-CTO agent")
+            result.add_warning(
+                "Legacy Slack router is enabled - using AIOS /chat instead of L-CTO agent"
+            )
 
         # Check 5: Bot user ID (for self-message filtering) - OPTIONAL
         bot_user_id = os.getenv("SLACK_BOT_USER_ID")
@@ -125,7 +128,11 @@ async def audit_slack_configuration() -> AuditResult:
         result.add_check(
             "bot_user_id_configured",
             True,  # Always pass - this is optional
-            f"SLACK_BOT_USER_ID={bot_user_id}" if has_bot_user_id else "SLACK_BOT_USER_ID not set (optional)",
+            (
+                f"SLACK_BOT_USER_ID={bot_user_id}"
+                if has_bot_user_id
+                else "SLACK_BOT_USER_ID not set (optional)"
+            ),
         )
         if not has_bot_user_id:
             result.add_warning(
@@ -161,9 +168,8 @@ async def audit_slack_security() -> AuditResult:
         from config.settings import get_integration_settings
 
         integration_settings = get_integration_settings()
-        signing_secret = (
-            integration_settings.slack_signing_secret
-            or os.getenv("SLACK_SIGNING_SECRET")
+        signing_secret = integration_settings.slack_signing_secret or os.getenv(
+            "SLACK_SIGNING_SECRET"
         )
         if not signing_secret:
             result.add_check(
@@ -374,7 +380,7 @@ async def audit_slack_memory_integration() -> AuditResult:
 
         # Check 5: Thread UUID generation
         from api.slack_adapter import SlackRequestNormalizer
-        
+
         thread_uuid = SlackRequestNormalizer._generate_thread_uuid(
             "T123", "C456", "1234567890.123456"
         )
@@ -414,7 +420,11 @@ async def audit_slack_telemetry() -> AuditResult:
         result.add_check(
             "prometheus_available",
             PROMETHEUS_AVAILABLE,
-            "prometheus_client installed" if PROMETHEUS_AVAILABLE else "prometheus_client not installed",
+            (
+                "prometheus_client installed"
+                if PROMETHEUS_AVAILABLE
+                else "prometheus_client not installed"
+            ),
         )
 
         if PROMETHEUS_AVAILABLE:
@@ -504,18 +514,20 @@ async def audit_slack_rate_limiting() -> AuditResult:
         # Check 3: Redis backend check (optional for local dev - runs on VPS)
         try:
             from runtime.redis_client import get_redis_client
-            
+
             redis = await get_redis_client()
             redis_available = redis and redis.is_available()
             result.add_check(
                 "redis_rate_limit_backend",
                 True,  # Always pass - Redis runs on VPS, not required locally
-                "Redis available for rate limiting" if redis_available else "Redis not available locally (runs on VPS)",
+                (
+                    "Redis available for rate limiting"
+                    if redis_available
+                    else "Redis not available locally (runs on VPS)"
+                ),
             )
             if not redis_available:
-                result.add_warning(
-                    "Redis not running locally - rate limiting active on VPS only"
-                )
+                result.add_warning("Redis not running locally - rate limiting active on VPS only")
         except Exception as e:
             result.add_check("redis_rate_limit_backend", True, f"Redis check skipped: {e}")
 
@@ -562,11 +574,13 @@ async def audit_slack_e2e_flow() -> AuditResult:
         normalized = SlackRequestNormalizer.parse_event_callback(test_payload)
         result.add_check(
             "request_normalization",
-            all([
-                normalized.get("team_id") == "T123TEST",
-                normalized.get("channel_id") == "C123TEST",
-                normalized.get("thread_uuid"),
-            ]),
+            all(
+                [
+                    normalized.get("team_id") == "T123TEST",
+                    normalized.get("channel_id") == "C123TEST",
+                    normalized.get("thread_uuid"),
+                ]
+            ),
             "Event callback normalized with thread_uuid",
         )
 
@@ -724,4 +738,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

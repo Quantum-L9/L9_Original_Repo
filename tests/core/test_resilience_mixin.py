@@ -21,7 +21,6 @@ from core.observability.circuit_breaker import (
 )
 from memory.substrate_dag_wrapper import RetryPolicy
 
-
 # =============================================================================
 # Test Service Implementation
 # =============================================================================
@@ -136,9 +135,7 @@ class TestRetryBehavior:
     @pytest.mark.asyncio
     async def test_retry_succeeds_on_second_attempt(self):
         """First call fails, second succeeds."""
-        service = TestService(
-            retry_policy=RetryPolicy(max_retries=3, backoff_base=0.01, jitter=0)
-        )
+        service = TestService(retry_policy=RetryPolicy(max_retries=3, backoff_base=0.01, jitter=0))
         service._operation_mock.side_effect = [
             Exception("Transient error"),
             {"status": "ok"},
@@ -152,9 +149,7 @@ class TestRetryBehavior:
     @pytest.mark.asyncio
     async def test_retry_succeeds_on_third_attempt(self):
         """First two calls fail, third succeeds."""
-        service = TestService(
-            retry_policy=RetryPolicy(max_retries=3, backoff_base=0.01, jitter=0)
-        )
+        service = TestService(retry_policy=RetryPolicy(max_retries=3, backoff_base=0.01, jitter=0))
         service._operation_mock.side_effect = [
             Exception("Error 1"),
             Exception("Error 2"),

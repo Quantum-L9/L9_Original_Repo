@@ -19,9 +19,7 @@ TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 async def substrate_service():
     """Provide a memory substrate service for integration tests."""
     if not TEST_DB_URL:
-        pytest.skip(
-            "TEST_DATABASE_URL or DATABASE_URL not set; skipping alignment tests."
-        )
+        pytest.skip("TEST_DATABASE_URL or DATABASE_URL not set; skipping alignment tests.")
     service = await init_service(TEST_DB_URL)
     yield service
     await close_service()
@@ -52,9 +50,9 @@ class TestSubstrateAlignment:
 
         report = await checker.check_postgres_to_neo4j(limit=100)
 
-        assert report.alignment_percentage >= 90.0, (
-            f"Alignment below threshold: {report.alignment_percentage}%"
-        )
+        assert (
+            report.alignment_percentage >= 90.0
+        ), f"Alignment below threshold: {report.alignment_percentage}%"
 
     @pytest.mark.asyncio
     async def test_neo4j_to_postgres_alignment(self, substrate_service, graph_client):

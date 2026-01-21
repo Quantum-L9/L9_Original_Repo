@@ -17,7 +17,6 @@ import sys
 
 import pytest
 
-
 # Core modules that should always be importable
 CORE_MODULES = [
     "api.server",
@@ -138,9 +137,7 @@ class TestModuleAttributes:
         """api.server_memory must have 'app' attribute."""
         import api.server_memory
 
-        assert hasattr(api.server_memory, "app"), (
-            "api.server_memory missing 'app' attribute"
-        )
+        assert hasattr(api.server_memory, "app"), "api.server_memory missing 'app' attribute"
 
     def test_routers_have_router(self):
         """Router modules must have 'router' attribute."""
@@ -152,9 +149,7 @@ class TestModuleAttributes:
 
         for module_name in router_modules:
             module = importlib.import_module(module_name)
-            assert hasattr(module, "router"), (
-                f"{module_name} missing 'router' attribute"
-            )
+            assert hasattr(module, "router"), f"{module_name} missing 'router' attribute"
 
 
 if __name__ == "__main__":

@@ -22,7 +22,6 @@ from core.schemas import (
 )
 from memory.substrate_models import EnrichmentResult, KnowledgeFact
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -53,15 +52,17 @@ def mock_semantic_service():
 def mock_dag():
     """Create a mock SubstrateDAG that returns successful enrichment."""
     dag = AsyncMock()
-    dag.enrich = AsyncMock(return_value=EnrichmentResult(
-        packet_id=uuid4(),
-        facts=[],
-        insights=[],
-        reasoning_trace=None,
-        facts_inserted=2,
-        world_model_triggered=False,
-        enrichment_duration_ms=100.0,
-    ))
+    dag.enrich = AsyncMock(
+        return_value=EnrichmentResult(
+            packet_id=uuid4(),
+            facts=[],
+            insights=[],
+            reasoning_trace=None,
+            facts_inserted=2,
+            world_model_triggered=False,
+            enrichment_duration_ms=100.0,
+        )
+    )
     return dag
 
 
@@ -89,15 +90,15 @@ class TestCoreWritesEnrichmentDisabled:
     ):
         """Core writes succeed with enrichment disabled."""
         from memory.ingestion import IngestionPipeline
-        
+
         pipeline = IngestionPipeline(
             repository=mock_repository,
             semantic_service=mock_semantic_service,
             enable_enrichment=False,  # Disabled
         )
-        
+
         result = await pipeline.ingest(sample_packet_in)
-        
+
         assert result.status == "ok"
         assert result.enrichment_status == "disabled"
         assert result.enrichment_facts_count == 0
@@ -110,15 +111,15 @@ class TestCoreWritesEnrichmentDisabled:
     ):
         """Enrichment status is 'disabled' when flag is False."""
         from memory.ingestion import IngestionPipeline
-        
+
         pipeline = IngestionPipeline(
             repository=mock_repository,
             semantic_service=mock_semantic_service,
             enable_enrichment=False,
         )
-        
+
         result = await pipeline.ingest(sample_packet_in)
-        
+
         assert result.enrichment_status == "disabled"
 
 
@@ -136,16 +137,16 @@ class TestCoreWritesWithEnrichment:
     ):
         """Core writes + enrichment succeed when both work."""
         from memory.ingestion import IngestionPipeline
-        
+
         pipeline = IngestionPipeline(
             repository=mock_repository,
             semantic_service=mock_semantic_service,
             dag=mock_dag,
             enable_enrichment=True,
         )
-        
+
         result = await pipeline.ingest(sample_packet_in)
-        
+
         assert result.status == "ok"
         assert result.enrichment_status == "success"
         assert result.enrichment_facts_count == 2
@@ -158,16 +159,16 @@ class TestCoreWritesWithEnrichment:
     ):
         """Successful enrichment adds 'knowledge_facts' to written_tables."""
         from memory.ingestion import IngestionPipeline
-        
+
         pipeline = IngestionPipeline(
             repository=mock_repository,
             semantic_service=mock_semantic_service,
             dag=mock_dag,
             enable_enrichment=True,
         )
-        
+
         result = await pipeline.ingest(sample_packet_in)
-        
+
         assert "knowledge_facts" in result.written_tables
 
 
@@ -185,20 +186,20 @@ class TestEnrichmentFailureNonBlocking:
     ):
         """Enrichment exception = core write persisted, enrichment_status='failed'."""
         from memory.ingestion import IngestionPipeline
-        
+
         # DAG that throws exception
         failing_dag = AsyncMock()
         failing_dag.enrich = AsyncMock(side_effect=Exception("DAG exploded"))
-        
+
         pipeline = IngestionPipeline(
             repository=mock_repository,
             semantic_service=mock_semantic_service,
             dag=failing_dag,
             enable_enrichment=True,
         )
-        
+
         result = await pipeline.ingest(sample_packet_in)
-        
+
         # Core write succeeded!
         assert result.status == "ok"
         # Enrichment failed
@@ -214,19 +215,19 @@ class TestEnrichmentFailureNonBlocking:
     ):
         """Enrichment failure includes error message in result."""
         from memory.ingestion import IngestionPipeline
-        
+
         failing_dag = AsyncMock()
         failing_dag.enrich = AsyncMock(side_effect=ValueError("Invalid state"))
-        
+
         pipeline = IngestionPipeline(
             repository=mock_repository,
             semantic_service=mock_semantic_service,
             dag=failing_dag,
             enable_enrichment=True,
         )
-        
+
         result = await pipeline.ingest(sample_packet_in)
-        
+
         assert result.enrichment_status == "failed"
         assert "Invalid state" in result.enrichment_error
         assert result.warnings == ["Invalid state"]
@@ -246,7 +247,7 @@ class TestEnrichmentTimeout:
     ):
         """Slow DAG = timeout, core write persisted, enrichment_status='failed'."""
         from memory.ingestion import IngestionPipeline
-        
+
         async def slow_enrich(*args, **kwargs):
             await asyncio.sleep(60)  # Way longer than timeout
             return EnrichmentResult(
@@ -257,10 +258,10 @@ class TestEnrichmentTimeout:
                 world_model_triggered=False,
                 enrichment_duration_ms=60000.0,
             )
-        
+
         slow_dag = AsyncMock()
         slow_dag.enrich = slow_enrich
-        
+
         pipeline = IngestionPipeline(
             repository=mock_repository,
             semantic_service=mock_semantic_service,
@@ -268,9 +269,9 @@ class TestEnrichmentTimeout:
             enable_enrichment=True,
             enrichment_timeout=0.1,  # 100ms timeout
         )
-        
+
         result = await pipeline.ingest(sample_packet_in)
-        
+
         # Core write succeeded
         assert result.status == "ok"
         # Enrichment timed out
@@ -298,7 +299,7 @@ class TestPacketWriteResultSchema:
             write_tier_used="full",
             warnings=[],
         )
-        
+
         assert result.enrichment_status == "success"
         assert result.enrichment_facts_count == 5
         assert result.write_tier_used == "full"
@@ -310,7 +311,7 @@ class TestPacketWriteResultSchema:
             status="ok",
             packet_id=uuid4(),
         )
-        
+
         assert result.enrichment_status == "not_attempted"
         assert result.enrichment_error is None
         assert result.enrichment_facts_count == 0
@@ -338,7 +339,7 @@ class TestEnrichmentResultSchema:
             world_model_triggered=True,
             enrichment_duration_ms=150.5,
         )
-        
+
         assert result.packet_id == packet_id
         assert len(result.facts) == 1
         assert result.facts_inserted == 1
@@ -358,16 +359,16 @@ class TestSubstrateDAGEnrichPrevalidation:
     async def test_enrich_requires_packet_id(self, mock_repository):
         """enrich() raises if envelope has no packet_id."""
         from memory.substrate_dag import SubstrateDAG
-        
+
         dag = SubstrateDAG(repository=mock_repository)
-        
+
         # Create envelope without packet_id
         envelope = PacketEnvelope(
             packet_id=None,  # Missing!
             packet_type="test",
             payload={"content": "test"},
         )
-        
+
         with pytest.raises(ValueError, match="packet_id"):
             await dag.enrich(envelope)
 
@@ -375,9 +376,9 @@ class TestSubstrateDAGEnrichPrevalidation:
     async def test_enrich_requires_packet_type(self, mock_repository):
         """enrich() raises if envelope has no packet_type."""
         from memory.substrate_dag import SubstrateDAG
-        
+
         dag = SubstrateDAG(repository=mock_repository)
-        
+
         # Create envelope without packet_type (Pydantic won't allow this easily,
         # so we test with empty string)
         envelope = PacketEnvelope(
@@ -385,7 +386,7 @@ class TestSubstrateDAGEnrichPrevalidation:
             packet_type="",  # Empty = falsy
             payload={"content": "test"},
         )
-        
+
         with pytest.raises(ValueError, match="packet_type"):
             await dag.enrich(envelope)
 
@@ -401,14 +402,14 @@ class TestFeatureFlagIntegration:
     def test_settings_has_enable_dag_enrichment(self):
         """MemorySubstrateSettings has enable_dag_enrichment field."""
         from config.memory_substrate_settings import MemorySubstrateSettings
-        
+
         # Check field exists in model
         assert "enable_dag_enrichment" in MemorySubstrateSettings.model_fields
 
     def test_settings_default_enrichment_disabled(self):
         """Default for enable_dag_enrichment is False."""
         from config.memory_substrate_settings import MemorySubstrateSettings
-        
+
         # Get the default value from field info
         field_info = MemorySubstrateSettings.model_fields["enable_dag_enrichment"]
         assert field_info.default is False
@@ -426,27 +427,29 @@ class TestMCPTieredFallback:
     async def test_mcp_returns_enrichment_fields_on_success(self):
         """MCP response includes enrichment fields when pipeline succeeds."""
         from mcp_memory.src.routes.memory_unified import save_memory_handler
-        
+
         # Mock substrate service
         mock_service = AsyncMock()
-        mock_service.write_packet = AsyncMock(return_value=PacketWriteResult(
-            status="ok",
-            packet_id=uuid4(),
-            written_tables=["packet_store", "knowledge_facts"],
-            enrichment_status="success",
-            enrichment_error=None,
-            enrichment_facts_count=3,
-            write_tier_used="full",
-            warnings=[],
-        ))
-        
+        mock_service.write_packet = AsyncMock(
+            return_value=PacketWriteResult(
+                status="ok",
+                packet_id=uuid4(),
+                written_tables=["packet_store", "knowledge_facts"],
+                enrichment_status="success",
+                enrichment_error=None,
+                enrichment_facts_count=3,
+                write_tier_used="full",
+                warnings=[],
+            )
+        )
+
         result = await save_memory_handler(
             user_id="test",
             content="Test content",
             kind="fact",
             substrate_service=mock_service,
         )
-        
+
         assert result["enrichment_status"] == "success"
         assert result["enrichment_facts_count"] == 3
         assert result["tier_used"] == "full"
@@ -455,27 +458,29 @@ class TestMCPTieredFallback:
     async def test_mcp_returns_200_on_enrichment_failure(self):
         """Enrichment failure = 200 with enrichment_status='failed'."""
         from mcp_memory.src.routes.memory_unified import save_memory_handler
-        
+
         # Mock substrate service that returns enrichment failure
         mock_service = AsyncMock()
-        mock_service.write_packet = AsyncMock(return_value=PacketWriteResult(
-            status="ok",  # Core write succeeded!
-            packet_id=uuid4(),
-            written_tables=["packet_store"],
-            enrichment_status="failed",
-            enrichment_error="DAG timeout",
-            enrichment_facts_count=0,
-            write_tier_used="core_only",
-            warnings=["DAG timeout"],
-        ))
-        
+        mock_service.write_packet = AsyncMock(
+            return_value=PacketWriteResult(
+                status="ok",  # Core write succeeded!
+                packet_id=uuid4(),
+                written_tables=["packet_store"],
+                enrichment_status="failed",
+                enrichment_error="DAG timeout",
+                enrichment_facts_count=0,
+                write_tier_used="core_only",
+                warnings=["DAG timeout"],
+            )
+        )
+
         result = await save_memory_handler(
             user_id="test",
             content="Test content",
             kind="fact",
             substrate_service=mock_service,
         )
-        
+
         # Should return 200 (not raise)
         assert result["enrichment_status"] == "failed"
         assert result["tier_used"] == "core_only"
@@ -490,7 +495,7 @@ class TestMCPTieredFallback:
 @pytest.mark.slow
 class TestIntegrationWithRealDAG:
     """Integration tests that require real DAG (marked as slow)."""
-    
+
     @pytest.mark.skip(reason="Requires database connection")
     @pytest.mark.asyncio
     async def test_real_dag_enrichment_extracts_facts(self):

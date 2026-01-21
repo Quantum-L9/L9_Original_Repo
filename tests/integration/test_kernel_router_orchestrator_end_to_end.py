@@ -25,7 +25,6 @@ from core.kernel_wiring.packet_protocol_wiring import (
     get_default_channel,
 )
 
-
 # ------------------------------------------------------------
 # FIXTURES
 # ------------------------------------------------------------

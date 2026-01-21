@@ -83,9 +83,7 @@ class TestRegistryAdapterFailClosed:
         tool_embeddings.find_relevant_tools = mock_fail
 
         try:
-            with pytest.raises(
-                RuntimeError, match="Semantic tool retrieval unavailable"
-            ):
+            with pytest.raises(RuntimeError, match="Semantic tool retrieval unavailable"):
                 await registry.get_relevant_tools(
                     agent_id="test",
                     principal_id="test",
@@ -118,9 +116,7 @@ class TestRegistryAdapterFailClosed:
 
         # Mock governance engine that fails
         mock_gov_engine = MagicMock()
-        mock_gov_engine.evaluate = AsyncMock(
-            side_effect=Exception("Governance unavailable")
-        )
+        mock_gov_engine.evaluate = AsyncMock(side_effect=Exception("Governance unavailable"))
         registry._governance_engine = mock_gov_engine
 
         result = await registry.guarded_execute(

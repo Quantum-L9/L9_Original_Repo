@@ -17,7 +17,6 @@ from memory.checkpoint.postgres_saver import (
     L9RetryablePostgresSaver,
 )
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -177,9 +176,7 @@ class TestRetryablePut:
         valid_metadata,
     ):
         """Test successful put operation."""
-        result = await retryable_saver.put(
-            valid_config, valid_checkpoint, valid_metadata, {}
-        )
+        result = await retryable_saver.put(valid_config, valid_checkpoint, valid_metadata, {})
 
         assert "checkpoint_id" in result
         mock_repository.save_checkpoint.assert_called_once()
@@ -199,9 +196,7 @@ class TestRetryablePut:
             "checkpoint-456",
         ]
 
-        result = await retryable_saver.put(
-            valid_config, valid_checkpoint, valid_metadata, {}
-        )
+        result = await retryable_saver.put(valid_config, valid_checkpoint, valid_metadata, {})
 
         assert result["checkpoint_id"] == "checkpoint-456"
         assert mock_repository.save_checkpoint.call_count == 2
@@ -297,9 +292,7 @@ class TestListCheckpoints:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_list_handles_exception(
-        self, basic_saver, mock_repository, valid_config
-    ):
+    async def test_list_handles_exception(self, basic_saver, mock_repository, valid_config):
         """Test list handles exceptions gracefully."""
         mock_repository.list_checkpoints_by_agent.side_effect = Exception("DB Error")
 
@@ -382,9 +375,7 @@ class TestRetryableIntegration:
         mock_repository.get_checkpoint.return_value = mock_checkpoint
 
         # Put
-        put_result = await retryable_saver.put(
-            valid_config, valid_checkpoint, valid_metadata, {}
-        )
+        put_result = await retryable_saver.put(valid_config, valid_checkpoint, valid_metadata, {})
         assert "checkpoint_id" in put_result
 
         # Get

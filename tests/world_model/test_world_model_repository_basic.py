@@ -10,9 +10,7 @@ Covers:
 
 import pytest
 
-pytest.skip(
-    "world_model.repository not available in test environment.", allow_module_level=True
-)
+pytest.skip("world_model.repository not available in test environment.", allow_module_level=True)
 
 
 from world_model.repository import WorldModelRepository
