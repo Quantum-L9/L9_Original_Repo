@@ -1,10 +1,25 @@
+"""
+L9 Research Factory API Routes
+==============================
+
+REST API endpoints for the Research Factory:
+- POST /factory/extract - Extract agent from schema
+- POST /factory/validate - Validate schema without extracting
+- GET /factory/templates - List available templates
+- GET /factory/health - Health check
+
+Version: 1.0.0
+"""
+
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Factory",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2025-12-20T15:08:40Z",
-    "updated_at": "2026-01-17T23:47:56Z",
+    "updated_at": "2026-01-21T12:00:00Z",
     "layer": "operations",
     "domain": "api_gateway",
     "module_name": "factory",
@@ -26,37 +41,19 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-# CodeGen????
-
-"""
-L9 Research Factory API Routes
-==============================
-
-REST API endpoints for the Research Factory:
-- POST /factory/extract - Extract agent from schema
-- POST /factory/validate - Validate schema without extracting
-- GET /factory/templates - List available templates
-- GET /factory/health - Health check
-
-Version: 1.0.0
-"""
-
-from __future__ import annotations
-
 import structlog
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel, Field
 from core.decorators import must_stay_async
+from api.routes.registry import router_registry
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/factory", tags=["research-factory"])
 
 # AUTO-REGISTRATION (Phase 2 Auto-Wiring)
-from api.routes.registry import router_registry
-
 router_registry.register(
     router=router,
     prefix="",  # Router already has prefix="/factory"
