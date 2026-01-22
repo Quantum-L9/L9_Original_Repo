@@ -51,7 +51,6 @@ __dora_meta__ = {
 
 import asyncio
 import structlog
-from runtime.tool_registry import register_tool
 from collections import defaultdict
 from datetime import datetime, timedelta
 from enum import Enum
@@ -652,7 +651,6 @@ async def get_l_memory_state() -> dict:
         Dictionary with memory state: governance_rules, project_history, recent_tasks
     """
     import structlog
-from runtime.tool_registry import register_tool
     from memory.substrate_service import get_service
 
     logger = structlog.get_logger(__name__)
@@ -728,7 +726,6 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
         List of task result dicts with task_id, status, duration_ms, error, etc.
     """
     import structlog
-from runtime.tool_registry import register_tool
     from memory.substrate_service import get_service
 
     logger = structlog.get_logger(__name__)
@@ -806,7 +803,6 @@ async def tool_router_find(
         - count: Number of tools found
     """
     import structlog
-from runtime.tool_registry import register_tool
 
     logger = structlog.get_logger(__name__)
 
@@ -901,7 +897,6 @@ async def saga_fetch_and_enrich(
         Dict with combined results from both databases
     """
     import structlog
-from runtime.tool_registry import register_tool
 
     logger = structlog.get_logger(__name__)
 
@@ -1035,7 +1030,6 @@ async def saga_enrich_entities(
         Dict with enriched entity data including relationships
     """
     import structlog
-from runtime.tool_registry import register_tool
 
     logger = structlog.get_logger(__name__)
 
@@ -1139,7 +1133,6 @@ async def saga_timeline_correlation(
         Dict with timeline events and causal relationships
     """
     import structlog
-from runtime.tool_registry import register_tool
     from datetime import datetime, timedelta
 
     logger = structlog.get_logger(__name__)
@@ -1277,7 +1270,6 @@ async def saga_execute_custom(
         Dict with results from each step
     """
     import structlog
-from runtime.tool_registry import register_tool
     import re
 
     logger = structlog.get_logger(__name__)
