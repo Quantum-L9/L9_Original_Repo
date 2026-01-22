@@ -669,14 +669,11 @@ async def lifespan(app: FastAPI):
     try:
         from runtime.tool_registry import (
             discover_tools,
-            register_legacy_tool_executors,
             register_extension_tool_executors,
             get_tool_snapshot,
         )
 
-        # 1. Register legacy TOOL_EXECUTORS (bridge to existing tools)
-        legacy_count = register_legacy_tool_executors()
-
+         # 1. All tools now use @register_tool decorator - legacy bridge removed
         # 2. Register extension tools (research, reflection)
         extension_count = register_extension_tool_executors()
 
@@ -690,7 +687,7 @@ async def lifespan(app: FastAPI):
         snapshot = get_tool_snapshot()
         logger.info(
             "Tool executor auto-registration complete",
-            legacy_tools=legacy_count,
+
             extension_tools=extension_count,
             total_tools=snapshot["component_count"],
         )
