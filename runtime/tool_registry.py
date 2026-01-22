@@ -188,50 +188,29 @@ def register_extension_tool_executors() -> int:
     """
     Register tools from extension modules (research, reflection, etc).
 
+    MIGRATED: All extension tools now use @register_tool decorator.
+    This function triggers auto-discovery of extension tools.
+
     Returns:
         Number of additional tools registered
     """
     registered = 0
 
-    # Research tools
+    # Auto-discover research tools (all have @register_tool decorator)
     try:
-        from core.tools.research_tools import RESEARCH_TOOL_EXECUTORS
+        import core.tools.research_tools  # noqa: F401 - trigger module load for @register_tool
+        logger.debug("extension_tools.research_loaded")
+        registered += 4  # run_research_query, synthesize, discover, generate_spec
+    except ImportError as e:
+        logger.warning(f"extension_tools.research_unavailable: {e}")
 
-        for tool_name, executor_func in RESEARCH_TOOL_EXECUTORS.items():
-            try:
-                tool_executor_registry.register_instance(
-                    component_id=tool_name,
-                    component=executor_func,
-                    priority=0,
-                    tags=["research", "extension"],
-                    category="research",
-                    source="extension",
-                )
-                registered += 1
-            except Exception:
-                pass
-    except ImportError:
-        pass
-
-    # Reflection tools
+    # Auto-discover reflection tools (all have @register_tool decorator)
     try:
-        from core.tools.reflection_tools import REFLECTION_TOOL_EXECUTORS
-
-        for tool_name, executor_func in REFLECTION_TOOL_EXECUTORS.items():
-            try:
-                tool_executor_registry.register_instance(
-                    component_id=tool_name,
-                    component=executor_func,
-                    priority=0,
-                    tags=["reflection", "extension"],
-                    category="reflection",
-                    source="extension",
-                )
-                registered += 1
-            except Exception:
-                pass
-    except ImportError:
-        pass
+        import core.tools.reflection_tools  # noqa: F401 - trigger module load for @register_tool
+        logger.debug("extension_tools.reflection_loaded")
+        registered += 5  # reflect, analyze_failure, compare_approaches, extract_patterns, generate_improvements
+    except ImportError as e:
+        logger.warning(f"extension_tools.reflection_unavailable: {e}")
 
     if registered > 0:
         logger.info("extension_tools_registered", count=registered)

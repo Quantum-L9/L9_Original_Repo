@@ -358,14 +358,8 @@ async def research_agent_generate_spec(
 
 
 # ============================================================================
-# Tool Executor Registry (for runtime.l_tools integration)
-
-RESEARCH_TOOL_EXECUTORS = {
-    "run_research_query": run_research_query,  # PRIMARY: Full LangGraph pipeline
-    "research_agent_synthesize": research_agent_synthesize,
-    "research_agent_discover": research_agent_discover,
-    "research_agent_generate_spec": research_agent_generate_spec,
-}
+# LEGACY: RESEARCH_TOOL_EXECUTORS dictionary removed - all tools now use @register_tool decorator
+# All research tools are auto-discovered via runtime.tool_registry.discover_tools()
 
 # ============================================================================
 # Public API
@@ -375,7 +369,6 @@ __all__ = [
     "research_agent_synthesize",
     "research_agent_discover",
     "research_agent_generate_spec",
-    "RESEARCH_TOOL_EXECUTORS",
 ]
 
 # ============================================================================

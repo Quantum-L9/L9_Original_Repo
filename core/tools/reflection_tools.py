@@ -40,6 +40,7 @@ from runtime.tool_registry import register_tool
 logger = structlog.get_logger(__name__)
 
 
+@register_tool(name="reflection_agent_reflect", category="reflection", priority=10, description="Execute reflection on execution history")
 async def reflection_agent_reflect_executor(
     history: list[dict[str, Any]],
     focus: str = "general",
@@ -72,6 +73,7 @@ async def reflection_agent_reflect_executor(
     )
 
 
+@register_tool(name="reflection_agent_analyze_failure", category="reflection", priority=10, description="Deep failure root cause analysis")
 async def reflection_agent_analyze_failure_executor(
     failure_context: dict[str, Any],
     error: str,
@@ -104,6 +106,7 @@ async def reflection_agent_analyze_failure_executor(
     )
 
 
+@register_tool(name="reflection_agent_compare_approaches", category="reflection", priority=10, description="Compare two approaches with scoring")
 async def reflection_agent_compare_approaches_executor(
     approach_a: dict[str, Any],
     approach_b: dict[str, Any],
@@ -135,6 +138,7 @@ async def reflection_agent_compare_approaches_executor(
     )
 
 
+@register_tool(name="reflection_agent_extract_patterns", category="reflection", priority=10, description="Extract patterns from examples")
 async def reflection_agent_extract_patterns_executor(
     examples: list[dict[str, Any]],
 ) -> dict[str, Any]:
@@ -158,6 +162,7 @@ async def reflection_agent_extract_patterns_executor(
     return await agent.reflection_agent_extract_patterns(examples=examples)
 
 
+@register_tool(name="reflection_agent_generate_improvements", category="reflection", priority=10, description="Generate improvement plan from current performance")
 async def reflection_agent_generate_improvements_executor(
     current_performance: dict[str, Any],
     goals: list[str],
@@ -186,14 +191,8 @@ async def reflection_agent_generate_improvements_executor(
     )
 
 
-# Export all executors for registration
-REFLECTION_TOOL_EXECUTORS = {
-    "reflection_agent_reflect": reflection_agent_reflect_executor,
-    "reflection_agent_analyze_failure": reflection_agent_analyze_failure_executor,
-    "reflection_agent_compare_approaches": reflection_agent_compare_approaches_executor,
-    "reflection_agent_extract_patterns": reflection_agent_extract_patterns_executor,
-    "reflection_agent_generate_improvements": reflection_agent_generate_improvements_executor,
-}
+# LEGACY: REFLECTION_TOOL_EXECUTORS dictionary removed - all tools now use @register_tool decorator
+# All reflection tools are auto-discovered via runtime.tool_registry.discover_tools()
 
 __all__ = [
     "reflection_agent_reflect_executor",
@@ -201,7 +200,6 @@ __all__ = [
     "reflection_agent_compare_approaches_executor",
     "reflection_agent_extract_patterns_executor",
     "reflection_agent_generate_improvements_executor",
-    "REFLECTION_TOOL_EXECUTORS",
 ]
 
 # ============================================================================
