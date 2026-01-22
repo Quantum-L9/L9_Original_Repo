@@ -629,8 +629,16 @@ class GmailClient:
                     .execute()
                 )
                 thread_id = original_msg.get("threadId")
-            except Exception:
+            except Exception as e:
+                # ACCEPTABLE FALLBACK: If thread lookup fails, forward appears as new thread
+                # instead of reply. This is acceptable behavior for forwarding.
                 thread_id = None
+                logger.warning(
+                    "Thread lookup failed for forward",
+                    original_message_id=msg_id,
+                    impact="Forward will appear as new thread instead of reply",
+                    error=str(e)
+                )
 
             raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
 

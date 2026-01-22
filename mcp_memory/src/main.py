@@ -254,7 +254,14 @@ class CallerIdentity:
 
     @property
     def source(self) -> str:
-        """Metadata source value for this caller."""
+        """
+        Metadata source value for this caller.
+        
+        NOTE: "l9-kernel" is the MCP memory SOURCE identifier (where memory came from),
+        which is DIFFERENT from the agent_id "l-cto" (who the agent is).
+        - l9-kernel = memory source (MCP server context)
+        - l-cto = agent identity (canonical agent_id)
+        """
         return "l9-kernel" if self.is_l else "cursor-ide"
 
 

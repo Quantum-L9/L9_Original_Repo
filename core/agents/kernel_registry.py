@@ -130,6 +130,8 @@ class KernelAwareAgentRegistry:
             # Register as agent config
             # NOTE: Capabilities stored in metadata for reference
             # Tool capabilities are enforced by ExecutorToolRegistry, not AgentConfig
+            # PRIMARY: l-cto (canonical agent_id)
+            # ALIAS: l9-standard-v1 (config name for backward compatibility)
             self._agents["l9-standard-v1"] = AgentConfig(
                 agent_id="l9-standard-v1",
                 personality_id="l-cto",
@@ -144,7 +146,8 @@ class KernelAwareAgentRegistry:
                 },
             )
 
-            # Also register as "l-cto" alias
+            # Register canonical agent_id "l-cto" as alias to l9-standard-v1
+            # This allows both identifiers to work (l-cto is PRIMARY, l9-standard-v1 is ALIAS)
             self._agents["l-cto"] = self._agents["l9-standard-v1"]
 
             logger.info(

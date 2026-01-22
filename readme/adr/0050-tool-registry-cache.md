@@ -2,11 +2,18 @@
 
 ## Status
 
-Proposed
+Implemented (v1.0.0 - Base + Adaptive TTL)
 
 ## Pattern
 
-Add an **in-memory TTL cache** for tool definitions in the ToolRegistry. Cache hits avoid database queries, providing ~10x faster tool lookups during plan execution.
+Add an **in-memory TTL cache with adaptive TTL** for tool definitions in the ToolRegistry. Cache hits avoid database queries, providing ~10x faster tool lookups during plan execution.
+
+**Adaptive TTL Logic**:
+- **HOT tools** (>100 accesses) → 1 hour TTL
+- **WARM tools** (>10 accesses) → 10 min TTL
+- **COLD tools** (<10 accesses) → 5 min TTL (default)
+
+This ensures frequently-used tools stay cached longer, reducing cache misses and database load.
 
 ## Context
 
@@ -19,9 +26,9 @@ L9's ToolRegistry queries the database on every `get_tool()` call. During plan e
 
 ## Files
 
-### New Files to Create
+### New Files Created
 
-- `core/tools/registry_cache.py` - TTL cache implementation
+- ✅ `core/tools/registry_cache.py` - TTL cache implementation with adaptive TTL (v1.0.0)
 
 ### Files to Modify
 
@@ -314,13 +321,16 @@ class ToolRegistry:
 
 ## Rules
 
-1. Cache MUST be thread-safe (use locking)
-2. TTL MUST be configurable (default 5 minutes)
-3. Cache MUST support manual invalidation
-4. Metrics MUST be exposed (hit rate, evictions)
-5. Cache MUST NOT store None values (use absence to indicate miss)
-6. Global singleton MUST be used for cache consistency
-7. Invalidation endpoint MUST exist for admin operations
+1. ✅ Cache MUST be thread-safe (use locking)
+2. ✅ TTL MUST be configurable (default 5 minutes)
+3. ✅ Cache MUST support manual invalidation
+4. ✅ Metrics MUST be exposed (hit rate, evictions, tier distribution)
+5. ✅ Cache MUST NOT store None values (use absence to indicate miss)
+6. ✅ Global singleton MUST be used for cache consistency
+7. ⏳ Invalidation endpoint MUST exist for admin operations (TODO: add to api/routes/tools.py)
+8. ✅ Adaptive TTL MUST track access counts per tool
+9. ✅ Tier distribution MUST be included in metrics
+10. ✅ Top 10 most accessed tools MUST be tracked
 
 ## AI Guidance
 

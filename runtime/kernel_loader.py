@@ -517,6 +517,10 @@ async def _bootstrap_memory(agent: Any) -> None:
 
             # Include if: owned by L, or no owner (legacy)
             # Exclude if: owned by cursor-ide
+            # NOTE: L has multiple aliases for backward compatibility:
+            #   - "l-cto" (PRIMARY canonical agent_id)
+            #   - "l9-standard-v1" (ALIAS config name)
+            #   - "L" (legacy shorthand)
             if agent_id == "cursor-ide":
                 continue
             if agent_id in ("l9-standard-v1", "l-cto", "L", "", None):
