@@ -341,20 +341,21 @@ class MemorySubstrateService:
                     self._circuit_breaker.record_failure(
                         result.error_message or "DAG returned error status"
                     )
-            except Exception as dag_error:
-                # DAG threw exception - record failure
-                self._circuit_breaker.record_failure(str(dag_error))
+            except (ConnectionError, TimeoutError) as conn_error:
+                # Network or connection issues - record failure and queue for retry
+                self._circuit_breaker.record_failure(str(conn_error))
                 logger.error(
-                    "memory_substrate_dag_exception",
+                    "memory_substrate_connection_error",
                     packet_id=str(envelope.packet_id),
-                    error=str(dag_error),
+                    error=str(conn_error),
+                    error_type=type(conn_error).__name__,
                     circuit_state=self._circuit_breaker.get_state(),
                 )
                 
                 # Push to Dead-Letter Queue for later reprocessing
                 if hasattr(self, '_dlq') and self._dlq:
                     try:
-                        await self._dlq.push(packet_in, str(dag_error))
+                        await self._dlq.push(packet_in, str(conn_error))
                         logger.info(
                             "memory_substrate_packet_queued_for_retry",
                             packet_id=str(envelope.packet_id),
@@ -366,6 +367,29 @@ class MemorySubstrateService:
                             error=str(dlq_error),
                         )
                 
+                raise RuntimeError(f"DAG execution failed due to connection error: {conn_error}") from conn_error
+            
+            except ValueError as val_error:
+                # Data validation or processing error - likely not retryable
+                self._circuit_breaker.record_failure(str(val_error))
+                logger.error(
+                    "memory_substrate_validation_error",
+                    packet_id=str(envelope.packet_id),
+                    error=str(val_error),
+                    circuit_state=self._circuit_breaker.get_state(),
+                )
+                raise ValueError(f"DAG execution failed due to validation error: {val_error}") from val_error
+            
+            except Exception as dag_error:
+                # Unexpected error - record failure and re-raise
+                self._circuit_breaker.record_failure(str(dag_error))
+                logger.exception(
+                    "memory_substrate_unexpected_error",
+                    packet_id=str(envelope.packet_id),
+                    error=str(dag_error),
+                    error_type=type(dag_error).__name__,
+                    circuit_state=self._circuit_breaker.get_state(),
+                )
                 raise
 
         # Record Prometheus metrics for memory write (result is defined in both branches)

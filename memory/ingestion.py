@@ -80,6 +80,11 @@ class IngestionPipeline:
     """
     PacketEnvelope ingestion pipeline.
 
+    .. deprecated:: 1.2.0
+        IngestionPipeline is deprecated and will be removed in v2.0.0.
+        Use MemorySubstrateService.write_packet() instead, which uses
+        the SubstrateDAG for proper LangGraph-based execution.
+
     Handles the full lifecycle of packet ingestion:
     1. Validation
     2. Content embedding
@@ -113,6 +118,9 @@ class IngestionPipeline:
         """
         Initialize ingestion pipeline.
 
+        .. deprecated:: 1.2.0
+            This class is deprecated. Use MemorySubstrateService instead.
+
         Args:
             repository: SubstrateRepository instance
             semantic_service: SemanticService for embeddings
@@ -134,8 +142,9 @@ class IngestionPipeline:
         self._enable_enrichment = enable_enrichment
         self._enrichment_timeout = enrichment_timeout
 
-        logger.info(
-            "IngestionPipeline initialized",
+        logger.warning(
+            "IngestionPipeline is deprecated and will be removed in v2.0.0. "
+            "Use MemorySubstrateService.write_packet() instead.",
             enable_enrichment=enable_enrichment,
             enrichment_timeout=enrichment_timeout,
         )
