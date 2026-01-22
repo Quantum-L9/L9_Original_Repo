@@ -84,3 +84,15 @@ urllib3<2
 
 # Mutation Testing
 mutmut>=2.4.5
+
+# Testing enhancements
+pytest-cov>=4.1.0
+pytest-xdist>=3.5.0
+pytest-timeout>=2.2.0
+coverage[toml]>=7.4.0
+
+# Security scanning
+bandit>=1.7.8
+
+# Type checking enhancements
+types-redis>=4.6.0

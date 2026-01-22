@@ -1,0 +1,80 @@
+# Dependabot configuration for L9 AI OS
+# https://docs.github.com/en/code-security/dependabot
+
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "cryptoxdog"
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    # Group minor and patch updates
+    groups:
+      fastapi-ecosystem:
+        patterns:
+          - "fastapi*"
+          - "uvicorn*"
+          - "pydantic*"
+          - "starlette*"
+      langchain-ecosystem:
+        patterns:
+          - "langchain*"
+          - "langgraph*"
+      database-drivers:
+        patterns:
+          - "psycopg*"
+          - "asyncpg*"
+          - "sqlalchemy*"
+          - "redis*"
+          - "neo4j*"
+      testing:
+        patterns:
+          - "pytest*"
+          - "coverage*"
+      linting:
+        patterns:
+          - "ruff*"
+          - "mypy*"
+          - "bandit*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "cryptoxdog"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "cryptoxdog"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "docker"
