@@ -48,6 +48,7 @@ from uuid import UUID, uuid4
 
 import asyncpg
 from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from memory.query_cache import get_cache
 
 
 async def _init_json_codecs(conn: asyncpg.Connection) -> None:
@@ -973,6 +974,10 @@ class SubstrateRepository:
             List of SemanticHit with embedding_id, score, payload
         """
         async with self.acquire() as conn:
+            # Apply vector search optimization
+            from memory.vector_search_config import get_vector_config
+            config = get_vector_config()
+            await config.apply(conn)
             vector_str = f"[{','.join(str(v) for v in query_embedding)}]"
 
             if agent_id:
