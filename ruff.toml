@@ -1,29 +1,53 @@
 # Ruff Configuration for L9 AI OS
 # https://docs.astral.sh/ruff/
+# Python Version: 3.12+ (as specified in pyproject.toml)
+
+# Python version target - MUST match pyproject.toml requirement
+target-version = "py312"
+
+# Line length target (100 is a good balance for readability)
+line-length = 100
 
 [lint]
 # Enable specific rule sets
 select = [
-    "E",   # pycodestyle errors
-    "F",   # pyflakes
-    "I",   # isort (import sorting)
-    "N",   # pep8-naming
-    "W",   # pycodestyle warnings
-    "UP",  # pyupgrade (modern Python syntax)
-    "B",   # flake8-bugbear (common bugs)
-    "C4",  # flake8-comprehensions
-    "SIM", # flake8-simplify
-    "RUF", # Ruff-specific rules
+    "E",     # pycodestyle errors
+    "F",     # pyflakes
+    "I",     # isort (import sorting)
+    "N",     # pep8-naming
+    "W",     # pycodestyle warnings
+    "UP",    # pyupgrade (modern Python syntax)
+    "B",     # flake8-bugbear (common bugs)
+    "C4",    # flake8-comprehensions
+    "SIM",   # flake8-simplify
+    "RUF",   # Ruff-specific rules
+    "ASYNC", # flake8-async (async/await best practices)
+    "S",     # flake8-bandit (security)
+    "T20",   # flake8-print (detect print statements)
+    "PT",    # flake8-pytest-style
+    "Q",     # flake8-quotes
+    "RET",   # flake8-return (return statement improvements)
+    "ARG",   # flake8-unused-arguments
+    "PTH",   # flake8-use-pathlib (prefer pathlib over os.path)
 ]
 
 # Ignore specific rules
 ignore = [
-    "E501",   # Line too long (handled by formatter)
-    "B008",   # Do not perform function call in argument defaults
-    "C901",   # Function is too complex
-    "N802",   # Function name should be lowercase (conflicts with LangGraph conventions)
-    "N803",   # Argument name should be lowercase
-    "SIM108", # Use ternary operator (sometimes less readable)
+    "E501",    # Line too long (handled by formatter)
+    "B008",    # Do not perform function call in argument defaults (FastAPI Depends pattern)
+    "C901",    # Function is too complex (use sparingly, refactor when possible)
+    "N802",    # Function name should be lowercase (conflicts with LangGraph conventions)
+    "N803",    # Argument name should be lowercase
+    "SIM108",  # Use ternary operator (sometimes less readable)
+    "S101",    # Use of assert detected (common in tests)
+    "S104",    # Possible binding to all interfaces (0.0.0.0 is intentional for containers)
+    "S105",    # Possible hardcoded password (too many false positives)
+    "S106",    # Possible hardcoded password (too many false positives)
+    "S107",    # Possible hardcoded password (too many false positives)
+    "T201",    # print() found (gradually migrate to logger)
+    "ARG001",  # Unused function argument (common in FastAPI dependencies)
+    "ARG002",  # Unused method argument (common in abstract methods)
+    "PTH123",  # open() should be replaced by Path.open() (gradual migration)
 ]
 
 # Allow autofix for all enabled rules
@@ -35,23 +59,84 @@ exclude = [
     ".git",
     ".venv",
     "venv",
+    "env",
     "__pycache__",
     "*.pyc",
     ".pytest_cache",
+    ".ruff_cache",
     "build",
     "dist",
     "*.egg-info",
+    ".mypy_cache",
+    "node_modules",
+    "_pack_staging",  # Exclude staging/experimental code
 ]
 
 [lint.per-file-ignores]
 # Ignore import errors in __init__.py files
-"__init__.py" = ["F401", "F403"]
-# Ignore complexity in tests
-"tests/**/*.py" = ["C901"]
+"__init__.py" = ["F401", "F403", "E402"]
+
+# Ignore complexity and print statements in tests
+"tests/**/*.py" = ["C901", "S101", "T201", "ARG001", "PTH"]
+
+# Ignore security checks in test fixtures
+"tests/**/conftest.py" = ["S105", "S106"]
+
+# Allow print statements in CLI tools
+"tools/**/*.py" = ["T201"]
+
+# Allow print statements in scripts
+"scripts/**/*.py" = ["T201"]
+
+# Staging code can have relaxed rules
+"world_model/_pack_staging/**/*.py" = ["ALL"]
 
 [lint.isort]
-known-first-party = ["core", "api", "memory", "agents", "orchestrators", "runtime", "world_model"]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+# First-party modules (L9 codebase)
+known-first-party = [
+    "core",
+    "api",
+    "memory",
+    "agents",
+    "orchestrators",
+    "runtime",
+    "world_model",
+    "tools",
+    "workers",
+]
+
+# Import section order
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+
+# Combine "as" imports on the same line
+combine-as-imports = true
+
+# Split imports on separate lines
+force-single-line = false
+
+# Lines after imports
+lines-after-imports = 2
+
+[lint.flake8-pytest-style]
+# Use @pytest.fixture() instead of @pytest.fixture
+fixture-parentheses = true
+
+# Use pytest.raises() with match parameter
+raises-require-match-for = ["Exception", "ValueError", "TypeError"]
+
+[lint.flake8-quotes]
+# Use double quotes (consistent with formatter)
+inline-quotes = "double"
+
+[lint.pyupgrade]
+# Keep runtime type checking (TYPE_CHECKING) blocks
+keep-runtime-typing = true
 
 [format]
 # Use double quotes for strings
@@ -63,8 +148,9 @@ indent-style = "space"
 # Respect magic trailing commas
 skip-magic-trailing-comma = false
 
-# Line length target
-line-length = 100
+# Docstring formatting
+docstring-code-format = true
+docstring-code-line-length = 88
 
-# Python version target
-target-version = "py311"
+# Preview features (opt-in to latest formatting improvements)
+preview = false
