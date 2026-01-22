@@ -776,7 +776,6 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
 
 
 @register_tool(category="routing", priority=10, description="tool_router_find tool")
-@register_tool(category="routing", priority=10, description="tool_router_find tool")
 async def tool_router_find(
     query: str,
     top_k: int = 5,
@@ -871,7 +870,6 @@ async def tool_router_find(
 # =============================================================================
 
 
-@register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
 @register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
 async def saga_fetch_and_enrich(
     query: str,
@@ -1006,7 +1004,6 @@ async def saga_fetch_and_enrich(
 
 
 @register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
-@register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
 async def saga_enrich_entities(
     entity_ids: List[str],
     relationship_types: Optional[List[str]] = None,
@@ -1108,7 +1105,6 @@ async def saga_enrich_entities(
         }
 
 
-@register_tool(category="saga", priority=10, description="saga_timeline_correlation tool")
 @register_tool(category="saga", priority=10, description="saga_timeline_correlation tool")
 async def saga_timeline_correlation(
     start_entity_id: str,
@@ -1246,7 +1242,6 @@ async def saga_timeline_correlation(
         }
 
 
-@register_tool(category="saga", priority=10, description="saga_execute_custom tool")
 @register_tool(category="saga", priority=10, description="saga_execute_custom tool")
 async def saga_execute_custom(
     steps: List[dict],
