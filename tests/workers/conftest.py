@@ -15,10 +15,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 # Now verify the import works
 try:
-    import workers
+    pass
 except ImportError as e:
     print(f"WARNING: Failed to import workers: {e}")
     print(f"PROJECT_ROOT: {PROJECT_ROOT}")
     print(f"sys.path: {sys.path[:5]}")
-
-import pytest

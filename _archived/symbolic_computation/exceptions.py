@@ -43,25 +43,17 @@ class SymbolicComputationError(Exception):
 class EvaluationError(SymbolicComputationError):
     """Exception raised when expression evaluation fails."""
 
-    pass
-
 
 class CodeGenerationError(SymbolicComputationError):
     """Exception raised when code generation fails."""
-
-    pass
 
 
 class ValidationError(SymbolicComputationError):
     """Exception raised when input validation fails."""
 
-    pass
-
 
 class CacheError(SymbolicComputationError):
     """Exception raised when cache operations fail."""
-
-    pass
 
 
 # ============================================================================

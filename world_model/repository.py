@@ -18,7 +18,8 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+
+from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -49,13 +50,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 import os
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
 import asyncpg
+import structlog
 
 logger = structlog.get_logger(__name__)
 

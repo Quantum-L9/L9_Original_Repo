@@ -15,11 +15,12 @@ from __future__ import annotations
 
 import pytest
 
-from services.symbolic_computation.core.expression_evaluator import ExpressionEvaluator
+from services.symbolic_computation.core.cache_manager import CacheManager
+from services.symbolic_computation.core.expression_evaluator import \
+    ExpressionEvaluator
+from services.symbolic_computation.core.metrics import MetricsCollector
 from services.symbolic_computation.core.optimizer import Optimizer
 from services.symbolic_computation.core.validator import ExpressionValidator
-from services.symbolic_computation.core.cache_manager import CacheManager
-from services.symbolic_computation.core.metrics import MetricsCollector
 from services.symbolic_computation.tools.symbolic_tool import SymPyTool
 
 
@@ -107,7 +108,7 @@ class TestCacheIntegration:
         assert result.result == 25.0
 
         # Cache should have stored it
-        stats = cache.get_stats()
+        cache.get_stats()
         # Note: First call is a miss, but result should be stored
 
     @pytest.mark.asyncio

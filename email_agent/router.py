@@ -59,10 +59,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
+import structlog
 from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel
 
@@ -151,8 +151,8 @@ async def ingest_email_event(
     Raises:
         HTTPException: If ingestion fails (fail loud policy)
     """
-    from memory.ingestion import ingest_packet
     from core.schemas import PacketEnvelopeIn
+    from memory.ingestion import ingest_packet
 
     packet_type = f"email_{phase}"
 

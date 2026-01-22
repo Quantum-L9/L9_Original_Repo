@@ -40,17 +40,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from functools import lru_cache
 from typing import Any, Dict
 
+import structlog
 from fastapi import APIRouter, HTTPException
-from core.decorators import must_stay_async
 
-from core.packet_envelope import (
-    PacketEnvelopeUpgradeEngine,
-    validate_deployment,
-)
+from core.decorators import must_stay_async
+from core.packet_envelope import (PacketEnvelopeUpgradeEngine,
+                                  validate_deployment)
 
 logger = structlog.get_logger(__name__)
 

@@ -50,14 +50,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from collections import defaultdict
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, List, Optional
 
+import structlog
 from pydantic import BaseModel, Field
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+
+from core.singleton_auto_registry import register_singleton
 
 logger = structlog.get_logger(__name__)
 
@@ -432,11 +433,9 @@ def get_tool_registry() -> ToolRegistry:
 
 def _initialize_default_tools(registry: ToolRegistry) -> None:
     """Initialize default tools in registry with schemas."""
-    from services.research.tools.tool_wrappers import (
-        PerplexityTool,
-        HTTPTool,
-        MockSearchTool,
-    )
+    from services.research.tools.tool_wrappers import (HTTPTool,
+                                                       MockSearchTool,
+                                                       PerplexityTool)
 
     # Perplexity Search
     perplexity_meta = ToolMetadata(
@@ -580,10 +579,12 @@ async def ask_l(query: str) -> dict:
     Returns:
         Dictionary with execution results: task_ids, status, message
     """
-    import structlog
-    from core.agents.executor import _generate_tasks_from_query
-    from runtime.task_queue import dispatch_task_immediate, QueuedTask
     from uuid import uuid4
+
+    import structlog
+
+    from core.agents.executor import _generate_tasks_from_query
+    from runtime.task_queue import QueuedTask, dispatch_task_immediate
 
     logger = structlog.get_logger(__name__)
 
@@ -651,6 +652,7 @@ async def get_l_memory_state() -> dict:
         Dictionary with memory state: governance_rules, project_history, recent_tasks
     """
     import structlog
+
     from memory.substrate_service import get_service
 
     logger = structlog.get_logger(__name__)
@@ -726,6 +728,7 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
         List of task result dicts with task_id, status, duration_ms, error, etc.
     """
     import structlog
+
     from memory.substrate_service import get_service
 
     logger = structlog.get_logger(__name__)
@@ -1124,8 +1127,9 @@ async def saga_timeline_correlation(
     Returns:
         Dict with timeline events and causal relationships
     """
-    import structlog
     from datetime import datetime, timedelta
+
+    import structlog
 
     logger = structlog.get_logger(__name__)
 
@@ -1259,8 +1263,9 @@ async def saga_execute_custom(
     Returns:
         Dict with results from each step
     """
-    import structlog
     import re
+
+    import structlog
 
     logger = structlog.get_logger(__name__)
 

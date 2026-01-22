@@ -20,16 +20,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
+from typing import Any, Dict
+
 import structlog
-from typing import Dict, Any
 from openai import OpenAI
 
 # Import kernel-based prompt builder
 try:
-    from core.kernels.prompt_builder import (
-        build_system_prompt_from_kernels,
-        get_fallback_prompt,
-    )
+    from core.kernels.prompt_builder import build_system_prompt_from_kernels
 
     KERNELS_AVAILABLE = True
 except ImportError:

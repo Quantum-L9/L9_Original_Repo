@@ -39,9 +39,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
-import structlog
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

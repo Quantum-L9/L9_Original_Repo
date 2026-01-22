@@ -11,12 +11,8 @@ Version: 1.0.0
 import pytest
 
 from core.schemas import PacketEnvelope, PacketEnvelopeIn
-from memory.packet_serializer import (
-    envelope_to_dict,
-    envelope_from_dict,
-    envelope_to_json,
-    envelope_from_json,
-)
+from memory.packet_serializer import (envelope_from_dict, envelope_from_json,
+                                      envelope_to_dict, envelope_to_json)
 
 
 class TestPacketEnvelopeRoundtrip:

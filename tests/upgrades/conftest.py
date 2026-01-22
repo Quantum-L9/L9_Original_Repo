@@ -3,8 +3,8 @@ Conftest for upgrades tests
 Ensures proper path resolution for imports
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add project root to path for upgrades imports
@@ -15,7 +15,7 @@ if PROJECT_ROOT not in sys.path:
 
 # Force import of core.packet_envelope to verify path is correct
 try:
-    import core.packet_envelope
+    pass
 except ImportError:
     # If still not found, try adding explicitly
     pass

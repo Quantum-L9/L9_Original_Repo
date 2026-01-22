@@ -49,18 +49,19 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import uuid4
 
+import structlog
+
 if TYPE_CHECKING:
-    from world_model.engine import WorldModelEngine
-    from world_model.runtime import WorldModelRuntime
-    from world_model.reflection_memory import ReflectionMemory
     from world_model.causal_mapper import CausalMapper
+    from world_model.engine import WorldModelEngine
     from world_model.knowledge_ingestor import KnowledgeIngestor
+    from world_model.reflection_memory import ReflectionMemory
+    from world_model.runtime import WorldModelRuntime
 
 logger = structlog.get_logger(__name__)
 
@@ -445,7 +446,7 @@ class WorldModelServiceAPI:
 
         # Gather causal structure
         if include_causal and self._causal_mapper:
-            causal_stats = self._causal_mapper.get_stats()
+            self._causal_mapper.get_stats()
             causal_data = self._causal_mapper.to_dict()
 
             context.causal_nodes = causal_data.get("nodes", [])[:limit]

@@ -30,15 +30,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from world_model.interfaces import (
-    IWorldModelState,
-    Entity,
-    Relation,
-)
+from world_model.interfaces import Entity, IWorldModelState, Relation
 
 
 @dataclass
@@ -335,7 +331,8 @@ class WorldModelState(IWorldModelState):
         for rid, relation_data in snapshot["relations"].items():
             if isinstance(relation_data, dict):
                 try:
-                    from world_model.interfaces import Relation as RelationClass
+                    from world_model.interfaces import \
+                        Relation as RelationClass
 
                     self._relations[rid] = RelationClass(**relation_data)
                 except:

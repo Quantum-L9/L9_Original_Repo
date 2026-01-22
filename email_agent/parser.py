@@ -27,14 +27,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import base64
-import structlog
 import re
-from typing import Dict, Any, List
 from email.header import decode_header
+from typing import Any, Dict, List
+
+import structlog
 
 try:
     from html.parser import HTMLParser
-    import html
 
     HTML_AVAILABLE = True
 except ImportError:
@@ -250,7 +250,7 @@ def html_to_text(html: str) -> str:
             import html as html_module
 
             text = html_module.unescape(text)
-        except Exception as e:
+        except Exception:
             # Silently ignore HTML unescape errors
             pass
 

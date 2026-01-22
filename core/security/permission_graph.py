@@ -38,9 +38,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

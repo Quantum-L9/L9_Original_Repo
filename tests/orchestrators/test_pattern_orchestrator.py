@@ -16,24 +16,21 @@ _this_file = Path(__file__).resolve()
 PROJECT_ROOT = _this_file.parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
+
+import pytest
 
 # Try to import pattern modules - skip if unavailable
 _pattern_import_error = ""
 try:
-    from orchestrators.pattern.interface import (
-        NodeKind,
-        NodeStatus,
-        PipelineStatus,
-        NodeDefinition,
-        NodeResult,
-        PipelineResult,
-    )
-    from orchestrators.pattern.cell_adapter import CellAgentAdapter, DirectLLMAgent
-    from orchestrators.pattern.orchestrator import PatternOrchestrator
     from orchestrators.pattern import metrics
+    from orchestrators.pattern.cell_adapter import CellAgentAdapter
+    from orchestrators.pattern.interface import (NodeDefinition, NodeKind,
+                                                 NodeResult, NodeStatus,
+                                                 PipelineResult,
+                                                 PipelineStatus)
+    from orchestrators.pattern.orchestrator import PatternOrchestrator
 
     _pattern_available = True
 except ImportError as e:
@@ -174,7 +171,10 @@ class TestCellAgentAdapter:
             "collaborative_cells.architect_cell.ArchitectCell"
             in adapter._role_mapping["ArchitectAgent"]
         )
-        assert "collaborative_cells.coder_cell.CoderCell" in adapter._role_mapping["CoderAgent"]
+        assert (
+            "collaborative_cells.coder_cell.CoderCell"
+            in adapter._role_mapping["CoderAgent"]
+        )
 
     def test_adapter_custom_role_mapping(self):
         """Test custom role mapping."""

@@ -43,12 +43,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_repository import SubstrateRepository
@@ -222,7 +223,7 @@ class IdentityTierService:
             fact_tags.extend(tags)
 
         # Set validation if provided
-        validated_at = datetime.utcnow() if validated_by else None
+        datetime.utcnow() if validated_by else None
 
         # Create fact via repository
         fact_id = await self._repository.insert_semantic_fact(
@@ -312,8 +313,9 @@ class IdentityTierService:
         if not row:
             return None
 
-        from memory.substrate_models import SemanticFactRow
         import json
+
+        from memory.substrate_models import SemanticFactRow
 
         return SemanticFactRow(
             fact_id=row["fact_id"],
@@ -322,9 +324,11 @@ class IdentityTierService:
             user_id=row["user_id"],
             agent_id=row.get("agent_id"),
             fact_text=row["fact_text"],
-            triplet=row["triplet"]
-            if isinstance(row["triplet"], dict)
-            else json.loads(row["triplet"] or "{}"),
+            triplet=(
+                row["triplet"]
+                if isinstance(row["triplet"], dict)
+                else json.loads(row["triplet"] or "{}")
+            ),
             importance=row["importance"],
             access_count=row["access_count"],
             last_accessed=row.get("last_accessed"),

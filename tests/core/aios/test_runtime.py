@@ -8,10 +8,11 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
 import sys
 from pathlib import Path
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -19,8 +20,8 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 try:
-    from core.aios.runtime import AIOSRuntime, create_aios_runtime
     from core.agents.schemas import AIOSResult
+    from core.aios.runtime import AIOSRuntime
 except ImportError as e:
     pytest.skip(f"Could not import core.aios.runtime: {e}", allow_module_level=True)
 

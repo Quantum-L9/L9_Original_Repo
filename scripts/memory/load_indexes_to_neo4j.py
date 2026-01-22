@@ -42,13 +42,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import argparse
 import os
 import re
 import sys
-import argparse
-import structlog
 from pathlib import Path
 from typing import Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

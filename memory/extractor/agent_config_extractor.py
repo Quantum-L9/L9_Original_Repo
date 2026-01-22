@@ -28,10 +28,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
-import yaml
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List
+
+import yaml
+
 from .base_extractor import BaseExtractor
 
 

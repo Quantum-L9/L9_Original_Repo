@@ -42,13 +42,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, Optional, TypeVar
 from uuid import UUID, uuid4
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -192,7 +194,6 @@ class BaseCell(ABC):
         Returns:
             Producer output
         """
-        pass
 
     @abstractmethod
     @must_stay_async("callers use await")
@@ -213,7 +214,6 @@ class BaseCell(ABC):
         Returns:
             Critique with score and suggestions
         """
-        pass
 
     @abstractmethod
     def _apply_revisions(
@@ -231,7 +231,6 @@ class BaseCell(ABC):
         Returns:
             Tuple of (revised_output, list_of_revisions_made)
         """
-        pass
 
     @abstractmethod
     @must_stay_async("callers use await")
@@ -250,7 +249,6 @@ class BaseCell(ABC):
         Returns:
             Tuple of (is_valid, list_of_errors)
         """
-        pass
 
     # ==========================================================================
     # Main Execution

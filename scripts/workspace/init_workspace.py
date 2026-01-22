@@ -44,6 +44,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+
 import structlog
 
 logger = structlog.get_logger(__name__)

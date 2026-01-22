@@ -44,17 +44,9 @@ __dora_meta__ = {
 import importlib
 import inspect
 import pkgutil
+from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
+
 import structlog
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    TypeVar,
-    Union,
-)
 
 logger = structlog.get_logger(__name__)
 
@@ -69,25 +61,17 @@ T = TypeVar("T")
 class RegistryError(Exception):
     """Base exception for registry errors."""
 
-    pass
-
 
 class DuplicateRegistrationError(RegistryError):
     """Raised when attempting to register a component with a duplicate ID."""
-
-    pass
 
 
 class ComponentNotFoundError(RegistryError):
     """Raised when a requested component is not found in the registry."""
 
-    pass
-
 
 class ValidationError(RegistryError):
     """Raised when a component fails validation."""
-
-    pass
 
 
 # =============================================================================

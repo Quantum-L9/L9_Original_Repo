@@ -13,14 +13,17 @@ Version: 1.0.0
 Created: 2026-01-08
 """
 
-import pytest
-import sys
 import os
-from unittest.mock import AsyncMock, MagicMock
+import sys
 import time
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 # Ensure project root is in path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 
 # =============================================================================
@@ -94,12 +97,10 @@ class TestSlackMetrics:
 
     def test_metrics_module_imports(self):
         """Verify slack_metrics module imports without error."""
-        from telemetry.slack_metrics import (
-            record_slack_request,
-            record_signature_verification,
-            record_slack_processing,
-            record_aios_call,
-        )
+        from telemetry.slack_metrics import (record_aios_call,
+                                             record_signature_verification,
+                                             record_slack_processing,
+                                             record_slack_request)
 
         # All imports should succeed
         assert callable(record_slack_request)
@@ -186,7 +187,8 @@ class TestSlackMetrics:
 
     def test_init_slack_metrics(self):
         """Test metrics initialization."""
-        from telemetry.slack_metrics import init_slack_metrics, PROMETHEUS_AVAILABLE
+        from telemetry.slack_metrics import (PROMETHEUS_AVAILABLE,
+                                             init_slack_metrics)
 
         result = init_slack_metrics()
         # Result depends on whether prometheus_client is installed
@@ -221,7 +223,9 @@ class TestCanonicalLogEvents:
         ]
 
         for event in canonical_events:
-            assert event in source, f"Canonical event '{event}' not found in slack_ingest.py"
+            assert (
+                event in source
+            ), f"Canonical event '{event}' not found in slack_ingest.py"
 
 
 # =============================================================================
@@ -302,7 +306,8 @@ class TestPacketStorage:
     @pytest.mark.asyncio
     async def test_inbound_packet_stored(self, mock_substrate_service):
         """Test inbound packet is stored."""
-        from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+        from core.schemas import (PacketEnvelopeIn, PacketMetadata,
+                                  PacketProvenance)
 
         packet = PacketEnvelopeIn(
             packet_type="slack.in",
@@ -318,7 +323,8 @@ class TestPacketStorage:
     @pytest.mark.asyncio
     async def test_outbound_packet_stored(self, mock_substrate_service):
         """Test outbound packet is stored."""
-        from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
+        from core.schemas import (PacketEnvelopeIn, PacketMetadata,
+                                  PacketProvenance)
 
         packet = PacketEnvelopeIn(
             packet_type="slack.out",
@@ -414,10 +420,8 @@ class TestErrorHandling:
 
     def test_metrics_graceful_degradation(self):
         """Test metrics degrade gracefully when prometheus unavailable."""
-        from telemetry.slack_metrics import (
-            record_slack_request,
-            record_signature_verification,
-        )
+        from telemetry.slack_metrics import (record_signature_verification,
+                                             record_slack_request)
 
         # These should never raise, even if prometheus is unavailable
         try:
@@ -429,7 +433,9 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_substrate_error_handled(self, mock_substrate_service):
         """Test substrate errors are handled gracefully."""
-        mock_substrate_service.write_packet.side_effect = Exception("DB connection failed")
+        mock_substrate_service.write_packet.side_effect = Exception(
+            "DB connection failed"
+        )
 
         with pytest.raises(Exception) as exc_info:
             await mock_substrate_service.write_packet(MagicMock())

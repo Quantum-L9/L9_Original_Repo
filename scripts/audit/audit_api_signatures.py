@@ -38,10 +38,10 @@ __dora_meta__ = {
 import ast
 import os
 import sys
-from pathlib import Path
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Tuple
 from enum import Enum
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 # Add repo root to path
 REPO_ROOT = Path(__file__).parent.parent.parent
@@ -223,7 +223,6 @@ class SignatureAnalyzer(ast.NodeVisitor):
     def _check_value_access(self, node: ast.Call) -> None:
         """Check for incorrect .value access patterns."""
         # This is handled in visit_Attribute
-        pass
 
 
 def analyze_file(filepath: Path) -> Tuple[List[SignatureMismatch], Optional[str]]:

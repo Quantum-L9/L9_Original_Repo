@@ -6,14 +6,12 @@ decorator-at-import issues with fixture clearing.
 """
 
 import pytest
-from core.schemas.upcaster_registry import (
-    upcaster_registry,
-    register_upcaster,
-    get_all_upcasters,
-    get_upcaster,
-    wire_upcasters_to_schema_registry,
-)
+
 from core.schemas.schema_registry import _SchemaRegistry
+from core.schemas.upcaster_registry import (get_all_upcasters, get_upcaster,
+                                            register_upcaster,
+                                            upcaster_registry,
+                                            wire_upcasters_to_schema_registry)
 
 
 @pytest.fixture(autouse=True)

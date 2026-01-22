@@ -22,6 +22,7 @@ Changelog:
 """
 
 from __future__ import annotations
+
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -53,26 +54,23 @@ __dora_meta__ = {
 # ============================================================================
 
 import math
-import structlog
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID
+
+import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_repository import SubstrateRepository
     from memory.substrate_semantic import SemanticService
 
 from core.schemas import SemanticHit, SemanticSearchResult
+from memory.cross_encoder_reranker import (get_cross_encoder_reranker,
+                                           is_cross_encoder_available)
+from memory.governance_gate import (build_scope_project_filter,
+                                    require_governance_context)
 from memory.substrate_models import KnowledgeFactRow, PacketStoreRow
-from memory.governance_gate import (
-    build_scope_project_filter,
-    require_governance_context,
-)
-from memory.cross_encoder_reranker import (
-    get_cross_encoder_reranker,
-    is_cross_encoder_available,
-)
 
 logger = structlog.get_logger(__name__)
 
@@ -1201,11 +1199,9 @@ class RetrievalPipeline:
             Dict with strategy, results, and metadata
         """
         from memory.query_classifier import get_query_classifier
-        from memory.retrieval_strategy import (
-            StrategyContext,
-            get_strategy_retriever,
-        )
         from memory.retrieval_ranking import get_multi_factor_ranker
+        from memory.retrieval_strategy import (StrategyContext,
+                                               get_strategy_retriever)
 
         context = context or {}
 

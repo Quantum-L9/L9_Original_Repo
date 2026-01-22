@@ -42,9 +42,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import httpx
 import os
 from typing import Any, Dict, Optional
+
+import httpx
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -57,8 +58,6 @@ SLACK_FILES_INFO_ENDPOINT = f"{SLACK_API_BASE}/files.info"
 
 class SlackClientError(Exception):
     """Raised when Slack API call fails."""
-
-    pass
 
 
 class SlackAPIClient:

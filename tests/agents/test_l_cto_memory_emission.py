@@ -20,8 +20,9 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 # Lazy imports - will be imported inside test functions
 
@@ -32,8 +33,8 @@ class TestLCTOMemoryEmission:
     @pytest.mark.asyncio
     async def test_emits_reasoning_packet_on_success(self):
         """Agent should emit reasoning packet after successful execution."""
-        from agents.l_cto import LCTOAgent
         from agents.base_agent import AgentResponse
+        from agents.l_cto import LCTOAgent
 
         agent = LCTOAgent(agent_id="test-l-cto")
         agent.kernel_state = "ACTIVE"  # Simulate activated agent
@@ -66,8 +67,8 @@ class TestLCTOMemoryEmission:
     @pytest.mark.asyncio
     async def test_emission_gracefully_handles_missing_service(self):
         """Emission should not fail if substrate service unavailable."""
-        from agents.l_cto import LCTOAgent
         from agents.base_agent import AgentResponse
+        from agents.l_cto import LCTOAgent
 
         agent = LCTOAgent(agent_id="test-l-cto")
         agent.kernel_state = "ACTIVE"
@@ -76,15 +77,17 @@ class TestLCTOMemoryEmission:
         response = AgentResponse(agent_id="test-l-cto", content="Test", success=True)
 
         # Mock service unavailable
-        with patch("agents.l_cto.init_service", side_effect=Exception("Service unavailable")):
+        with patch(
+            "agents.l_cto.init_service", side_effect=Exception("Service unavailable")
+        ):
             # Should not raise
             await agent._emit_reasoning_packet(task, response, None)
 
     @pytest.mark.asyncio
     async def test_emission_includes_task_and_response(self):
         """Packet payload should include task and response data."""
-        from agents.l_cto import LCTOAgent
         from agents.base_agent import AgentResponse
+        from agents.l_cto import LCTOAgent
 
         agent = LCTOAgent(agent_id="test-l-cto")
         agent.kernel_state = "ACTIVE"
@@ -115,8 +118,8 @@ class TestLCTOMemoryEmission:
     @pytest.mark.asyncio
     async def test_run_calls_emission(self):
         """LCTOAgent.run() should call _emit_reasoning_packet."""
-        from agents.l_cto import LCTOAgent
         from agents.base_agent import AgentResponse
+        from agents.l_cto import LCTOAgent
 
         agent = LCTOAgent(agent_id="test-l-cto")
         agent.kernel_state = "ACTIVE"
@@ -129,7 +132,9 @@ class TestLCTOMemoryEmission:
         )
 
         with patch.object(agent, "call_llm", return_value=mock_response):
-            with patch.object(agent, "_emit_reasoning_packet", new_callable=AsyncMock) as mock_emit:
+            with patch.object(
+                agent, "_emit_reasoning_packet", new_callable=AsyncMock
+            ) as mock_emit:
                 task = {"message": "Test"}
                 await agent.run(task)
 

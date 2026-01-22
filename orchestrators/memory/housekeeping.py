@@ -27,9 +27,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
+
+import structlog
 
 from memory.consolidation import ConsolidationPipeline
 

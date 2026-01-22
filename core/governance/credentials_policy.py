@@ -39,11 +39,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
-import structlog
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -472,9 +473,9 @@ class CredentialRecord:
             "credential_type": self.credential_type,
             "name": self.name,
             "created_at": self.created_at.isoformat(),
-            "last_rotated": self.last_rotated.isoformat()
-            if self.last_rotated
-            else None,
+            "last_rotated": (
+                self.last_rotated.isoformat() if self.last_rotated else None
+            ),
             "rotation_period_days": self.rotation_period_days,
             "days_since_rotation": self.days_since_rotation,
             "days_until_due": self.days_until_due,

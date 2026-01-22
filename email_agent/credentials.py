@@ -34,8 +34,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
+from typing import Any, Dict, Optional
+
 import structlog
-from typing import Optional, Dict, Any
 
 try:
     from google.auth.transport.requests import Request
@@ -48,13 +49,8 @@ except ImportError:
     Credentials = None  # Type hint placeholder
     structlog.get_logger(__name__).warning("Gmail OAuth libraries not available")
 
-from email_agent.config import (
-    TOKENS_FILE,
-    CLIENT_SECRET_FILE,
-    SCOPES,
-    ensure_dirs,
-    get_account_config,
-)
+from email_agent.config import (CLIENT_SECRET_FILE, SCOPES, TOKENS_FILE,
+                                ensure_dirs, get_account_config)
 
 logger = structlog.get_logger(__name__)
 

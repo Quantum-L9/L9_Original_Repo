@@ -37,12 +37,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
 import structlog
 
 if TYPE_CHECKING:
-    from runtime.kernel_state import KernelState
+    pass
 
 logger = structlog.get_logger(__name__)
 

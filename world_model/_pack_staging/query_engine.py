@@ -30,12 +30,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Any, Optional, Callable, Set, Tuple
 from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from world_model.interfaces import Entity
-from world_model.state import WorldModelState
 from world_model.registry import WorldModelRegistry
+from world_model.state import WorldModelState
 
 
 @dataclass
@@ -151,9 +151,9 @@ class QueryEngine:
                 "gte": lambda a, b: a >= b,
                 "lte": lambda a, b: a <= b,
                 "in": lambda a, b: a in b,
-                "contains": lambda a, b: b in a
-                if isinstance(a, (list, str))
-                else False,
+                "contains": lambda a, b: (
+                    b in a if isinstance(a, (list, str)) else False
+                ),
             }
 
             comp_func = comparators.get(comparator, comparators["eq"])

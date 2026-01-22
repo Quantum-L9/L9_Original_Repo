@@ -52,42 +52,34 @@ __dora_meta__ = {
 
 import json
 import os
-import structlog
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Protocol
 from uuid import UUID, uuid4
 
-from core.agents.schemas import (
-    AgentTask,
-    AgentConfig,
-    AIOSResult,
-    AIOSResultType,
-    ExecutorState,
-    ExecutionResult,
-    DuplicateTaskResponse,
-    ToolCallRequest,
-    ToolCallResult,
-    ToolBinding,
-)
+import structlog
+
 from core.agents.agent_instance import AgentInstance
-from core.schemas import PacketEnvelopeIn
-from memory.agent_persistence import AgentPersistenceService
+from core.agents.schemas import (AgentConfig, AgentTask, AIOSResult,
+                                 AIOSResultType, DuplicateTaskResponse,
+                                 ExecutionResult, ExecutorState, ToolBinding,
+                                 ToolCallRequest, ToolCallResult)
 from core.governance.approvals import ApprovalManager
+from core.observability.circuit_breaker import (CircuitBreaker,
+                                                CircuitBreakerConfig)
+from core.schemas import PacketEnvelopeIn
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
+from memory.agent_persistence import AgentPersistenceService
 from runtime.dora import emit_executor_trace, update_dora_block_in_file
-from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 
 # Initialize logger early for import error handling
 logger = structlog.get_logger(__name__)
 
 # Self-reflection imports (optional - graceful degradation if not available)
 try:
-    from core.agents.selfreflection import (
-        TaskExecutionContext,
-        analyze_task_execution,
-    )
     from core.agents.kernelevolution import create_evolution_plan
+    from core.agents.selfreflection import (TaskExecutionContext,
+                                            analyze_task_execution)
 
     _has_self_reflection = True
 except ImportError:
@@ -95,12 +87,9 @@ except ImportError:
 
 # Prompt defense imports (GMP-60: Runtime hardening)
 try:
-    from core.agents.prompt_defense import (
-        detect_prompt_injection,
-        should_block_request,
-        get_blocked_response,
-        InjectionDetectionResult,
-    )
+    from core.agents.prompt_defense import (detect_prompt_injection,
+                                            get_blocked_response,
+                                            should_block_request)
 
     _has_prompt_defense = True
 except ImportError:
@@ -109,10 +98,8 @@ except ImportError:
 
 # Kernel-aware prompt builder (GMP-60: Runtime hardening)
 try:
-    from core.agents.prompt_builder import (
-        build_kernel_system_prompt,
-        build_runtime_prompt,
-    )
+    from core.agents.prompt_builder import (build_kernel_system_prompt,
+                                            build_runtime_prompt)
 
     _has_prompt_builder = True
 except ImportError:
@@ -123,7 +110,7 @@ from core.decorators import must_stay_async
 
 # Stage 5: Predictive Memory Warming (optional - graceful degradation)
 try:
-    from memory.warming_service import MemoryWarmingService
+    pass
 
     _has_memory_warming = True
 except ImportError:
@@ -632,9 +619,11 @@ class AgentExecutorService:
                             "event": "prompt_injection_blocked",
                             "task_id": task_id_str,
                             "agent_id": task.agent_id,
-                            "severity": injection_result.severity.value
-                            if injection_result.severity
-                            else "unknown",
+                            "severity": (
+                                injection_result.severity.value
+                                if injection_result.severity
+                                else "unknown"
+                            ),
                             "patterns": injection_result.patterns_matched,
                             "redacted_input": injection_result.redacted_input,
                         },
@@ -644,9 +633,11 @@ class AgentExecutorService:
                     logger.warning(
                         "agent.executor.prompt_injection_blocked",
                         task_id=task_id_str,
-                        severity=injection_result.severity.value
-                        if injection_result.severity
-                        else "unknown",
+                        severity=(
+                            injection_result.severity.value
+                            if injection_result.severity
+                            else "unknown"
+                        ),
                         patterns=injection_result.patterns_matched,
                     )
 
@@ -718,12 +709,16 @@ class AgentExecutorService:
                         "agent.executor.graph_hydration",
                         task_id=task_id_str,
                         agent_id=task.agent_id,
-                        responsibilities=len(hydrated_context.responsibilities)
-                        if hydrated_context
-                        else 0,
-                        tools=len(hydrated_context.available_tools)
-                        if hydrated_context
-                        else 0,
+                        responsibilities=(
+                            len(hydrated_context.responsibilities)
+                            if hydrated_context
+                            else 0
+                        ),
+                        tools=(
+                            len(hydrated_context.available_tools)
+                            if hydrated_context
+                            else 0
+                        ),
                     )
                 except Exception as hydration_error:
                     # Non-fatal - log and continue without hydrated context
@@ -884,10 +879,8 @@ class AgentExecutorService:
             # Safe import pattern: gracefully handle missing module
             try:
                 from runtime.memory_helpers import (
-                    memory_search,
                     MEMORY_SEGMENT_GOVERNANCE_META,
-                    MEMORY_SEGMENT_PROJECT_HISTORY,
-                )
+                    MEMORY_SEGMENT_PROJECT_HISTORY, memory_search)
 
                 _has_memory_helpers = True
             except ImportError:
@@ -995,9 +988,10 @@ class AgentExecutorService:
         and dispatches them immediately with approval gate enforcement.
         """
         import asyncio
-        from runtime.task_queue import dispatch_task_immediate, QueuedTask
-        from core.governance.approvals import ApprovalManager
         from uuid import uuid4
+
+        from core.governance.approvals import ApprovalManager
+        from runtime.task_queue import QueuedTask, dispatch_task_immediate
 
         logger.info("Reactive dispatch loop started")
         approval_manager = ApprovalManager(self._substrate_service)
@@ -1258,7 +1252,8 @@ class AgentExecutorService:
 
         # Pre-execution governance validation
         try:
-            from core.governance.validation import validate_authority, validate_safety
+            from core.governance.validation import (validate_authority,
+                                                    validate_safety)
 
             # Extract action from task
             action = (
@@ -1586,9 +1581,9 @@ class AgentExecutorService:
                 instance.add_tool_result(
                     tool_id=tool_call.tool_id,
                     call_id=str(tool_call.call_id),
-                    result=tool_result.result
-                    if tool_result.success
-                    else tool_result.error,
+                    result=(
+                        tool_result.result if tool_result.success else tool_result.error
+                    ),
                     success=tool_result.success,
                 )
 
@@ -1692,9 +1687,11 @@ class AgentExecutorService:
         for tr in instance.tool_results:
             tool_call_results.append(
                 ToolCallResult(
-                    call_id=UUID(tr["call_id"])
-                    if isinstance(tr.get("call_id"), str)
-                    else tr.get("call_id", uuid4()),
+                    call_id=(
+                        UUID(tr["call_id"])
+                        if isinstance(tr.get("call_id"), str)
+                        else tr.get("call_id", uuid4())
+                    ),
                     tool_id=tr.get("tool_id", "unknown"),
                     result=tr.get("result"),
                     success=tr.get("success", True),
@@ -1712,12 +1709,12 @@ class AgentExecutorService:
             trace_id=instance.instance_id,
             tool_calls=tool_call_results if tool_call_results else None,
             tokens_used=instance.total_tokens,
-            governance_blocks=instance.governance_blocks
-            if instance.governance_blocks
-            else None,
-            user_corrections=instance.user_corrections
-            if instance.user_corrections
-            else None,
+            governance_blocks=(
+                instance.governance_blocks if instance.governance_blocks else None
+            ),
+            user_corrections=(
+                instance.user_corrections if instance.user_corrections else None
+            ),
         )
 
     # =========================================================================
@@ -1799,9 +1796,8 @@ class AgentExecutorService:
                 # Get adaptive context from past patterns for high-risk tools
                 adaptive_context = ""
                 try:
-                    from core.agents.adaptive_prompting import (
-                        get_adaptive_context_for_tool,
-                    )
+                    from core.agents.adaptive_prompting import \
+                        get_adaptive_context_for_tool
 
                     adaptive_context = await get_adaptive_context_for_tool(
                         tool_call.tool_id
@@ -1960,8 +1956,8 @@ class AgentExecutorService:
         Returns:
             Dict with execution summary: completed, failed, pending_approvals
         """
-        from runtime.task_queue import TaskQueue
         from core.governance.approvals import ApprovalManager
+        from runtime.task_queue import TaskQueue
 
         task_queue = TaskQueue(queue_name="l9:tasks", use_redis=True)
         approval_manager = ApprovalManager(self._substrate_service)
@@ -2153,9 +2149,9 @@ class AgentExecutorService:
             # Call on_task_completion with task outcome
             encoding_result = await on_task_completion(
                 task_id=str(task.id),
-                task_type=task.kind.value
-                if hasattr(task.kind, "value")
-                else str(task.kind),
+                task_type=(
+                    task.kind.value if hasattr(task.kind, "value") else str(task.kind)
+                ),
                 description=task.payload.get("message", "") if task.payload else "",
                 outcome_text=str(result.result)[:1000] if result.result else "",
                 success=result.status == "completed",
@@ -2164,9 +2160,11 @@ class AgentExecutorService:
                 impact_score=0.5 + (0.3 if result.status == "completed" else -0.2),
                 agent_id=task.agent_id,
                 project_id=task.project_id if hasattr(task, "project_id") else None,
-                session_id=str(task.get_thread_id())
-                if hasattr(task, "get_thread_id")
-                else None,
+                session_id=(
+                    str(task.get_thread_id())
+                    if hasattr(task, "get_thread_id")
+                    else None
+                ),
                 metadata={
                     "iterations": result.iterations,
                     "duration_ms": result.duration_ms,
@@ -2223,9 +2221,9 @@ class AgentExecutorService:
             context = TaskExecutionContext(
                 task_id=str(task.id),
                 agent_id=task.agent_id,
-                task_kind=task.kind.value
-                if hasattr(task.kind, "value")
-                else str(task.kind),
+                task_kind=(
+                    task.kind.value if hasattr(task.kind, "value") else str(task.kind)
+                ),
                 success=result.status == "completed",
                 duration_ms=float(result.duration_ms),
                 tool_calls=[
@@ -2245,9 +2243,9 @@ class AgentExecutorService:
                     for uc in (result.user_corrections or [])
                 ],
                 metadata={
-                    "thread_id": str(task.get_thread_id())
-                    if task.get_thread_id()
-                    else None,
+                    "thread_id": (
+                        str(task.get_thread_id()) if task.get_thread_id() else None
+                    ),
                 },
             )
 
@@ -2262,20 +2260,24 @@ class AgentExecutorService:
                     reflection_packet = PacketEnvelopeIn(
                         packet_type="agent.reflection.result",
                         agent_id=task.agent_id,
-                        thread_id=str(task.get_thread_id())
-                        if task.get_thread_id()
-                        else None,
+                        thread_id=(
+                            str(task.get_thread_id()) if task.get_thread_id() else None
+                        ),
                         payload={
                             "reflection_id": reflection_result.reflection_id,
                             "task_id": str(task.id),
                             "gaps_detected": [
                                 {
-                                    "gap_type": gap.gap_type.value
-                                    if hasattr(gap.gap_type, "value")
-                                    else str(gap.gap_type),
-                                    "severity": gap.severity.value
-                                    if hasattr(gap.severity, "value")
-                                    else str(gap.severity),
+                                    "gap_type": (
+                                        gap.gap_type.value
+                                        if hasattr(gap.gap_type, "value")
+                                        else str(gap.gap_type)
+                                    ),
+                                    "severity": (
+                                        gap.severity.value
+                                        if hasattr(gap.severity, "value")
+                                        else str(gap.severity)
+                                    ),
                                     "description": gap.description,
                                     "suggested_action": gap.suggested_action,
                                 }

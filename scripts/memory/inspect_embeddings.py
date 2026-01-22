@@ -31,11 +31,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional
-import asyncio
+from typing import Any, Dict, Optional
+
 import structlog
 from dotenv import load_dotenv
 
@@ -64,8 +65,9 @@ async def inspect_embeddings(
         Dict with statistics and sample payloads
     """
     try:
-        import asyncpg
         import json as json_lib
+
+        import asyncpg
 
         conn = await asyncpg.connect(database_url)
         try:
@@ -180,9 +182,11 @@ async def inspect_embeddings(
                             "payload_type": payload_type,
                             "text_preview": str(text)[:100] if text else "",
                             "text_length": len(str(text)) if text else 0,
-                            "created_at": row["created_at"].isoformat()
-                            if row["created_at"]
-                            else None,
+                            "created_at": (
+                                row["created_at"].isoformat()
+                                if row["created_at"]
+                                else None
+                            ),
                             "full_payload": payload,
                         }
                     )

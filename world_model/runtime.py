@@ -58,18 +58,19 @@ __dora_meta__ = {
 
 import asyncio
 import fnmatch
-import structlog
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Optional
 from uuid import UUID, uuid4
 
-from world_model.state import WorldModelState, Entity, Relation
+import structlog
+
 from world_model.causal_graph import CausalGraph
 from world_model.registry import WorldModelRegistry
+from world_model.state import Entity, Relation, WorldModelState
 
 if TYPE_CHECKING:
     from world_model.engine import WorldModelEngine
@@ -80,6 +81,7 @@ if TYPE_CHECKING:
     from world_model.service import WorldModelService
     from simulation.simulation_engine import SimulationEngine
     from memory.substrate_service import MemorySubstrateService
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -479,10 +481,10 @@ class WorldModelRuntime:
 
         try:
             # Lazy import to avoid circular dependencies
-            from world_model.seed_loader import SeedLoader
-            from world_model.knowledge_ingestor import KnowledgeIngestor
-            from memory.substrate_service import MemorySubstrateService
             from memory.substrate_repository import get_substrate_repository
+            from memory.substrate_service import MemorySubstrateService
+            from world_model.knowledge_ingestor import KnowledgeIngestor
+            from world_model.seed_loader import SeedLoader
 
             # Initialize seed loader if not already done
             if not self._seed_loader:
@@ -864,11 +866,12 @@ class WorldModelRuntime:
         async with self._lock:
             try:
                 packet_type = packet.get("packet_type", packet.get("kind", "unknown"))
-                payload = packet.get("payload", packet)
+                packet.get("payload", packet)
 
                 # Initialize ingestor if needed
                 if not self._ingestor:
-                    from world_model.knowledge_ingestor import KnowledgeIngestor
+                    from world_model.knowledge_ingestor import \
+                        KnowledgeIngestor
 
                     self._ingestor = KnowledgeIngestor(state=self._state)
                     # Wire DB sync if service available
@@ -1213,11 +1216,9 @@ class WorldModelRuntime:
         try:
             # Initialize simulation engine if needed
             if not self._simulation_engine:
-                from simulation.simulation_engine import (
-                    SimulationEngine,
-                    SimulationConfig,
-                    SimulationMode,
-                )
+                from simulation.simulation_engine import (SimulationConfig,
+                                                          SimulationEngine,
+                                                          SimulationMode)
 
                 mode_map = {
                     "fast": SimulationMode.FAST,
@@ -1248,11 +1249,11 @@ class WorldModelRuntime:
                     outcome_id=result_data["run_id"],
                     outcome_type="simulation_result",
                     description=f"Simulation of {variant.name or 'variant'}",
-                    result="success"
-                    if run.score > 0.7
-                    else "partial"
-                    if run.score > 0.4
-                    else "failure",
+                    result=(
+                        "success"
+                        if run.score > 0.7
+                        else "partial" if run.score > 0.4 else "failure"
+                    ),
                     metrics={
                         "score": run.score,
                         "total_steps": len(run.steps),
@@ -1923,9 +1924,9 @@ class WorldModelRuntime:
             "running": self._running,
             "iterations": self._run_iteration,
             "packets_processed_total": self._packets_processed_total,
-            "last_poll_time": self._last_poll_time.isoformat()
-            if self._last_poll_time
-            else None,
+            "last_poll_time": (
+                self._last_poll_time.isoformat() if self._last_poll_time else None
+            ),
             "poll_interval_seconds": self._config.poll_interval_seconds,
             "batch_size": self._config.batch_size,
             "seeds_loaded": self._seeds_loaded,

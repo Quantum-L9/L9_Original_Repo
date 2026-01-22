@@ -35,10 +35,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from typing import Any, Optional
 
-from agents.base_agent import BaseAgent, AgentConfig, AgentResponse, AgentRole
+import structlog
+
+from agents.base_agent import AgentConfig, AgentResponse, AgentRole, BaseAgent
 
 logger = structlog.get_logger(__name__)
 

@@ -43,16 +43,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from uuid import UUID
 
-from ir_engine.ir_schema import (
-    IRGraph,
-    IRValidationResult,
-    ConstraintNode,
-    ConstraintStatus,
-    IRStatus,
-)
+import structlog
+
+from ir_engine.ir_schema import (ConstraintNode, ConstraintStatus, IRGraph,
+                                 IRStatus, IRValidationResult)
 
 logger = structlog.get_logger(__name__)
 

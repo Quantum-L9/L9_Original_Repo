@@ -75,7 +75,7 @@ class DoraLegacyMigrator:
 
             # Safely evaluate the dict
             # First, fix Python booleans for JSON
-            dict_str_json = dict_str.replace("True", "true").replace("False", "false")
+            dict_str.replace("True", "true").replace("False", "false")
 
             # Try to parse as JSON-like (it's close enough)
             data = eval(dict_str)  # Safe here since we control the file
@@ -103,7 +103,7 @@ class DoraLegacyMigrator:
         """Format new __dora_meta__ header from legacy data."""
         deps = json.dumps(legacy_data.get("dependencies", []))
 
-        return f'''# ============================================================================
+        return f"""# ============================================================================
 # DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # See footer for extended metadata
 # ============================================================================
@@ -124,13 +124,13 @@ __dora_meta__ = {{
     "dependencies": {deps},
 }}
 # ============================================================================
-'''
+"""
 
     def _format_new_footer(self, legacy_data: Dict) -> str:
         """Format new __dora_footer__ from legacy data."""
         timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        return f'''
+        return f"""
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -147,7 +147,7 @@ __dora_footer__ = {{
     "change_summary": "Migrated from legacy __dora_block__ to three-block format",
 }}
 # ============================================================================
-'''
+"""
 
     def _format_new_trace(self) -> str:
         """Format new __l9_trace__ block (empty, runtime will populate)."""
@@ -364,7 +364,7 @@ class DoraMultiFormatMigrator:
             timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
             # Add new three-block format
-            new_header = f'''# ============================================================================
+            new_header = f"""# ============================================================================
 # DORA HEADER META - AUTO-GENERATED
 # ============================================================================
 dora_meta:
@@ -384,9 +384,9 @@ dora_meta:
   dependencies: []
 # ============================================================================
 
-'''
+"""
 
-            new_footer = f'''
+            new_footer = f"""
 
 # ============================================================================
 # DORA FOOTER META
@@ -401,7 +401,7 @@ dora_footer:
   modified_by: "L9_DORA_Migrator"
   change_summary: "Migrated from legacy l9_dora"
 # ============================================================================
-'''
+"""
 
             new_trace = """
 

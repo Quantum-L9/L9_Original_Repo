@@ -38,55 +38,42 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any, Optional
 
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
-from core.schemas import (
-    PacketEnvelopeIn,
-    PacketWriteResult,
-    SemanticHit,
-    SemanticSearchRequest,
-    SemanticSearchResult,
-)
-from memory.substrate_repository import SubstrateRepository
-from memory.substrate_semantic import (
-    SemanticService,
-    EmbeddingProvider,
-    StubEmbeddingProvider,
-    create_embedding_provider,
-)
-from memory.substrate_dag import SubstrateDAG
-from memory.validators.packet_validator import PacketValidator, PacketValidationError
+import structlog
+
+from core.decorators import must_stay_async
+from core.observability.circuit_breaker import (CircuitBreaker,
+                                                CircuitBreakerConfig)
+from core.schemas import (PacketEnvelopeIn, PacketWriteResult, SemanticHit,
+                          SemanticSearchRequest, SemanticSearchResult)
+from core.singleton_auto_registry import (register_singleton,
+                                          register_singleton_closer)
+from memory.agent_persistence import AgentPersistenceService
+from memory.audit_utils import prepare_packet_for_ingest
+from memory.consolidation import ConsolidationPipeline
+from memory.governance_gate import (enforce_packet_governance,
+                                    ensure_governance_context,
+                                    governance_context,
+                                    require_governance_context)
 from memory.query_classifier import QueryClassifier, get_query_classifier
 from memory.reasoning_replay import ReasoningReplayPipeline
-from memory.consolidation import ConsolidationPipeline
-from memory.agent_persistence import AgentPersistenceService
 from memory.retention_engine import RetentionEngine
-from memory.saga import (
-    SagaExecutor,
-    SagaResult,
-)
-from memory.saga_patterns import (
-    SagaPatterns,
-)
-from memory.audit_utils import prepare_packet_for_ingest
-from memory.governance_gate import (
-    ensure_governance_context,
-    enforce_packet_governance,
-    governance_context,
-    require_governance_context,
-)
-from telemetry.memory_metrics import (
-    record_memory_write,
-    record_memory_search,
-    set_memory_substrate_health,
-    record_memory_quarantine,
-    record_memory_ingest,
-)
-from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
-from core.decorators import must_stay_async
+from memory.saga import SagaExecutor, SagaResult
+from memory.saga_patterns import SagaPatterns
+from memory.substrate_dag import SubstrateDAG
+from memory.substrate_repository import SubstrateRepository
+from memory.substrate_semantic import (EmbeddingProvider, SemanticService,
+                                       StubEmbeddingProvider,
+                                       create_embedding_provider)
+from memory.validators.packet_validator import (PacketValidationError,
+                                                PacketValidator)
+from telemetry.memory_metrics import (record_memory_ingest,
+                                      record_memory_quarantine,
+                                      record_memory_search,
+                                      record_memory_write,
+                                      set_memory_substrate_health)
 
 logger = structlog.get_logger(__name__)
 
@@ -569,8 +556,9 @@ class MemorySubstrateService:
             logger.error(f"Error querying packets: {e}")
             # Log to error telemetry
             try:
-                from core.error_tracking import log_error_to_graph
                 import asyncio
+
+                from core.error_tracking import log_error_to_graph
 
                 asyncio.create_task(
                     log_error_to_graph(
@@ -832,8 +820,9 @@ class MemorySubstrateService:
             logger.error(f"World model update failed: {e}")
             # Log to error telemetry (non-blocking)
             try:
-                from core.error_tracking import log_error_to_graph
                 import asyncio
+
+                from core.error_tracking import log_error_to_graph
 
                 asyncio.create_task(
                     log_error_to_graph(

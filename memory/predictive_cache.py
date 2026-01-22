@@ -49,11 +49,8 @@ from typing import Any, Optional
 import structlog
 
 # Use harvested models
-from memory.warming_models import (
-    SubgraphEntry,
-    CacheMetrics,
-    PredictiveCacheConfig,
-)
+from memory.warming_models import (CacheMetrics, PredictiveCacheConfig,
+                                   SubgraphEntry)
 
 logger = structlog.get_logger(__name__)
 

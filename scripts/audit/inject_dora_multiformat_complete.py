@@ -375,7 +375,7 @@ class DoraMultiFormatInjector:
             f"  dependencies:\n{deps}" if header.dependencies else "  dependencies: []"
         )
 
-        return f'''dora_meta:
+        return f"""dora_meta:
   component_id: "{header.component_id}"
   component_name: "{header.component_name}"
   module_version: "{header.module_version}"
@@ -391,11 +391,11 @@ class DoraMultiFormatInjector:
   purpose: "{header.purpose}"
 {deps_block}
 
-'''
+"""
 
     def _format_yaml_footer(self, footer: FooterMeta) -> str:
         """Format Footer Meta for YAML."""
-        return f'''
+        return f"""
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -411,11 +411,11 @@ dora_footer:
   modified_by: "{footer.modified_by}"
   change_summary: "{footer.change_summary}"
 # ============================================================================
-'''
+"""
 
     def _format_yaml_trace(self, trace: DoraTraceBlock) -> str:
         """Format DORA Trace Block for YAML."""
-        return f'''
+        return f"""
 
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
@@ -435,7 +435,7 @@ l9_trace:
     confidence: ""
     errors_detected: []
     stability_score: ""
-'''
+"""
 
     # ========================================================================
     # JSON FORMATTERS

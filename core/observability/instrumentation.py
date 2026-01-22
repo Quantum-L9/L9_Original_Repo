@@ -27,17 +27,12 @@ __dora_meta__ = {
 
 import asyncio
 import functools
-import structlog
 from typing import Any, Callable, TypeVar
 
-from .models import (
-    Span,
-    LLMGenerationSpan,
-    ToolCallSpan,
-    GovernanceCheckSpan,
-    SpanKind,
-    SpanStatus,
-)
+import structlog
+
+from .models import (GovernanceCheckSpan, LLMGenerationSpan, Span, SpanKind,
+                     SpanStatus, ToolCallSpan)
 
 logger = structlog.get_logger(__name__)
 

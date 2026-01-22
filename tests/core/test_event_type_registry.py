@@ -2,17 +2,16 @@
 Tests for L9 Event Type Auto-Registration System
 """
 
-import pytest
 from enum import Enum
-from core.event_type_registry import (
-    event_type_registry,
-    register_event_type,
-    register_event_category,
-    get_all_event_types,
-    get_event_categories,
-    create_dynamic_event_enum,
-    is_event_type_registered,
-)
+
+import pytest
+
+from core.event_type_registry import (create_dynamic_event_enum,
+                                      event_type_registry, get_all_event_types,
+                                      get_event_categories,
+                                      is_event_type_registered,
+                                      register_event_category,
+                                      register_event_type)
 
 
 @pytest.fixture(autouse=True)
@@ -25,7 +24,9 @@ def clear_registries():
 
 def test_register_event_type():
     """Test that an event type can be registered."""
-    register_event_type(name="test_event", category="testing", description="A test event")
+    register_event_type(
+        name="test_event", category="testing", description="A test event"
+    )
 
     event_types = get_all_event_types()
     assert "test_event" in event_types

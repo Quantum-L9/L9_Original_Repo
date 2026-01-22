@@ -27,7 +27,8 @@ class TestToolAuditMetricsIntegration:
     async def test_tool_invocation_records_both_packet_and_metrics(self):
         """Contract: Single tool call records both memory packet and Prometheus metrics."""
         from memory.tool_audit import log_tool_invocation
-        from telemetry.memory_metrics import TOOL_INVOCATION_TOTAL, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_TOTAL)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -62,7 +63,8 @@ class TestToolAuditMetricsIntegration:
     async def test_tool_failure_records_both_packet_and_metrics(self):
         """Contract: Failed tool call records failure in both systems."""
         from memory.tool_audit import log_tool_invocation
-        from telemetry.memory_metrics import TOOL_INVOCATION_TOTAL, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_TOTAL)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -91,10 +93,8 @@ class TestToolAuditMetricsIntegration:
     async def test_tool_duration_recorded_in_histogram(self):
         """Contract: Tool duration is recorded in Prometheus histogram."""
         from memory.tool_audit import log_tool_invocation
-        from telemetry.memory_metrics import (
-            TOOL_INVOCATION_DURATION,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_DURATION)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -119,7 +119,8 @@ class TestToolAuditMetricsIntegration:
     async def test_multiple_tools_tracked_separately(self):
         """Contract: Multiple different tools have separate metric series."""
         from memory.tool_audit import log_tool_invocation
-        from telemetry.memory_metrics import TOOL_INVOCATION_TOTAL, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_TOTAL)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -141,8 +142,12 @@ class TestToolAuditMetricsIntegration:
                 call_id=uuid4(), tool_id=tool_b, agent_id="L", status="success"
             )
 
-            count_a = TOOL_INVOCATION_TOTAL.labels(tool_id=tool_a, status="success")._value._value
-            count_b = TOOL_INVOCATION_TOTAL.labels(tool_id=tool_b, status="success")._value._value
+            count_a = TOOL_INVOCATION_TOTAL.labels(
+                tool_id=tool_a, status="success"
+            )._value._value
+            count_b = TOOL_INVOCATION_TOTAL.labels(
+                tool_id=tool_b, status="success"
+            )._value._value
 
             assert count_a >= 2
             assert count_b >= 1
@@ -164,8 +169,10 @@ class TestMetricsEndpointIntegration:
     def test_metrics_generate_latest_includes_l9_metrics(self):
         """Contract: generate_latest includes L9 custom metrics."""
         try:
-            from prometheus_client import generate_latest, REGISTRY
-            from telemetry.memory_metrics import record_tool_invocation, PROMETHEUS_AVAILABLE
+            from prometheus_client import REGISTRY, generate_latest
+
+            from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                                  record_tool_invocation)
 
             if not PROMETHEUS_AVAILABLE:
                 pytest.skip("Prometheus not available")
@@ -190,7 +197,7 @@ class TestMetricsEndpointIntegration:
     def test_metrics_output_format(self):
         """Contract: Metrics output is valid Prometheus text format."""
         try:
-            from prometheus_client import generate_latest, REGISTRY
+            from prometheus_client import REGISTRY, generate_latest
 
             output = generate_latest(REGISTRY).decode("utf-8")
 
@@ -223,7 +230,8 @@ class TestObservabilityResilience:
         with (
             patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
             patch(
-                "memory.tool_audit.record_tool_invocation", side_effect=Exception("Metrics error")
+                "memory.tool_audit.record_tool_invocation",
+                side_effect=Exception("Metrics error"),
             ),
         ):
             # Should not raise despite metrics failure
@@ -240,7 +248,8 @@ class TestObservabilityResilience:
     @pytest.mark.asyncio
     async def test_high_volume_metrics_recording(self):
         """Contract: High volume of metric recordings doesn't cause issues."""
-        from telemetry.memory_metrics import record_tool_invocation, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              record_tool_invocation)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -258,7 +267,8 @@ class TestObservabilityResilience:
     @pytest.mark.asyncio
     async def test_concurrent_metric_recording(self):
         """Contract: Concurrent metric recording is thread-safe."""
-        from telemetry.memory_metrics import record_tool_invocation, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              record_tool_invocation)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -290,7 +300,12 @@ class TestMemorySegmentEnum:
         """Contract: All four canonical segments are defined."""
         from memory.substrate_models import MemorySegment
 
-        expected = ["GOVERNANCE_META", "PROJECT_HISTORY", "TOOL_AUDIT", "SESSION_CONTEXT"]
+        expected = [
+            "GOVERNANCE_META",
+            "PROJECT_HISTORY",
+            "TOOL_AUDIT",
+            "SESSION_CONTEXT",
+        ]
 
         for segment in expected:
             assert hasattr(MemorySegment, segment), f"Missing segment: {segment}"
@@ -341,7 +356,9 @@ class TestPacketStructure:
             return task
 
         with (
-            patch("memory.tool_audit.asyncio.create_task", side_effect=capture_create_task),
+            patch(
+                "memory.tool_audit.asyncio.create_task", side_effect=capture_create_task
+            ),
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(
@@ -388,4 +405,3 @@ class TestConfidenceScore:
         # Tool audits are direct observations, not inferences
         # Confidence should always be 1.0
         # This is verified in log_tool_invocation where confidence=PacketConfidence(score=1.0, ...)
-        pass

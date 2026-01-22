@@ -49,7 +49,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -57,11 +56,12 @@ from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
+import structlog
 from openai import AsyncOpenAI
 
-from core.resilience.retry import async_retry, AsyncRetryConfig
 from core.decorators import must_stay_async
 from core.governance.rate_limit_policy import rate_limit
+from core.resilience.retry import AsyncRetryConfig, async_retry
 
 logger = structlog.get_logger(__name__)
 
@@ -123,9 +123,9 @@ class AgentResponse:
         return {
             "response_id": str(self.response_id),
             "agent_id": self.agent_id,
-            "content": self.content[:200] + "..."
-            if len(self.content) > 200
-            else self.content,
+            "content": (
+                self.content[:200] + "..." if len(self.content) > 200 else self.content
+            ),
             "success": self.success,
             "tokens_used": self.tokens_used,
             "duration_ms": self.duration_ms,
@@ -192,7 +192,6 @@ class BaseAgent(ABC):
         Returns:
             System prompt string
         """
-        pass
 
     @abstractmethod
     @must_stay_async("callers use await")
@@ -209,7 +208,6 @@ class BaseAgent(ABC):
         Returns:
             AgentResponse with result
         """
-        pass
 
     # ==========================================================================
     # LLM Interaction
@@ -250,9 +248,9 @@ class BaseAgent(ABC):
             kwargs: dict[str, Any] = {
                 "model": self._config.model,
                 "messages": api_messages,
-                "temperature": temperature
-                if temperature is not None
-                else self._config.temperature,
+                "temperature": (
+                    temperature if temperature is not None else self._config.temperature
+                ),
                 "max_tokens": self._config.max_tokens,
             }
 

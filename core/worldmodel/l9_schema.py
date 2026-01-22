@@ -43,7 +43,6 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-
 # =============================================================================
 # Enums
 # =============================================================================
@@ -258,9 +257,9 @@ class L9MemorySegment(BaseModel):
             "entity_type": self.entity_type.value,
             "name": self.name,
             "segment_type": self.segment_type,
-            "last_updated": self.last_updated.isoformat()
-            if self.last_updated
-            else None,
+            "last_updated": (
+                self.last_updated.isoformat() if self.last_updated else None
+            ),
             "size_bytes": self.size_bytes,
             "query_count": self.query_count,
             "retention_days": self.retention_days,
@@ -298,9 +297,9 @@ class L9ExternalSystem(BaseModel):
             "integration_type": self.integration_type,
             "api_endpoint": self.api_endpoint,
             "connection_status": self.connection_status.value,
-            "last_contact": self.last_contact.isoformat()
-            if self.last_contact
-            else None,
+            "last_contact": (
+                self.last_contact.isoformat() if self.last_contact else None
+            ),
             "auth_method": self.auth_method,
         }
 

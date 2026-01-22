@@ -56,7 +56,7 @@ __dora_meta__ = {
 from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, List, Optional
-from uuid import UUID, uuid4, uuid5, NAMESPACE_DNS
+from uuid import NAMESPACE_DNS, UUID, uuid4, uuid5
 
 from pydantic import BaseModel, Field, conlist
 

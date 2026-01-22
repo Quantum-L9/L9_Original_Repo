@@ -25,9 +25,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Optional, Any, Union
-from pydantic import BaseModel, Field, validator
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, Field, validator
 
 
 class BackendType(str, Enum):

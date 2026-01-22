@@ -22,18 +22,9 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from ir_engine.ir_schema import (
-    IRGraph,
-    IRMetadata,
-    IRStatus,
-    IntentNode,
-    IntentType,
-    ConstraintNode,
-    ConstraintType,
-    ActionNode,
-    ActionType,
-    NodePriority,
-)
+from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
+                                 ConstraintType, IntentNode, IntentType,
+                                 IRGraph, IRMetadata, IRStatus, NodePriority)
 
 # =============================================================================
 # LLM Response Stubs
@@ -269,7 +260,7 @@ def graph_with_circular_dependency() -> IRGraph:
         description="Test circular deps",
         target="test",
     )
-    intent_id = graph.add_intent(intent)
+    graph.add_intent(intent)
 
     # Create actions with circular dependency
     action1_id = uuid4()
@@ -391,7 +382,11 @@ def mock_openai_client():
 
     # Default response
     mock.chat.completions.create.return_value = MagicMock(
-        choices=[MagicMock(message=MagicMock(content=json.dumps(make_llm_extraction_response())))]
+        choices=[
+            MagicMock(
+                message=MagicMock(content=json.dumps(make_llm_extraction_response()))
+            )
+        ]
     )
 
     return mock
@@ -401,7 +396,11 @@ def mock_openai_client():
 def mock_openai_complex(mock_openai_client):
     """Mock client with complex multi-intent response."""
     mock_openai_client.chat.completions.create.return_value = MagicMock(
-        choices=[MagicMock(message=MagicMock(content=json.dumps(make_complex_llm_response())))]
+        choices=[
+            MagicMock(
+                message=MagicMock(content=json.dumps(make_complex_llm_response()))
+            )
+        ]
     )
     return mock_openai_client
 

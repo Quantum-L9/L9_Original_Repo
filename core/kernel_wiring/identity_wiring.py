@@ -45,7 +45,7 @@ def get_identity_profile() -> dict:
 def apply_identity_to_response(text: str) -> str:
     identity = get_identity_profile()
     # Example: enforce tone, brevity, etc.
-    style = identity.get("style", {})
+    identity.get("style", {})
     # You can later expand this; for now, just return text.
     return text
 

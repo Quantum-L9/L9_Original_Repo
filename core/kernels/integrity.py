@@ -50,11 +50,12 @@ __dora_meta__ = {
 
 import hashlib
 import json
-import structlog
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

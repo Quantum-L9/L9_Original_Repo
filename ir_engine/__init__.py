@@ -16,68 +16,34 @@ Components:
 - deliberation_cell: 2-agent collaboration for IR refinement
 """
 
-from ir_engine.ir_schema import (
-    IntentNode,
-    ConstraintNode,
-    ActionNode,
-    IRGraph,
-    IRValidationResult,
-    IRMetadata,
-)
-from ir_engine.semantic_compiler import SemanticCompiler
-from ir_engine.ir_validator import IRValidator
-from ir_engine.ir_generator import IRGenerator
+from ir_engine.compile_meta_to_ir import (DependencyEdge, GenerationTarget,
+                                          MetaToIRCompiler, ModuleIR,
+                                          PacketSpec, TestSpec, WiringSpec,
+                                          compile_contract_to_ir,
+                                          compile_meta_to_ir)
 from ir_engine.constraint_challenger import ConstraintChallenger
-from ir_engine.simulation_router import SimulationRouter
-from ir_engine.ir_to_plan_adapter import IRToPlanAdapter
 from ir_engine.deliberation_cell import DeliberationCell
-from ir_engine.schema_validator import (
-    SchemaValidator,
-    SchemaValidationError,
-    validate_schema,
-    validate_and_parse,
-)
-from ir_engine.compile_meta_to_ir import (
-    MetaToIRCompiler,
-    ModuleIR,
-    GenerationTarget,
-    DependencyEdge,
-    PacketSpec,
-    TestSpec,
-    WiringSpec,
-    compile_meta_to_ir,
-    compile_contract_to_ir,
-)
-from ir_engine.ir_to_python import (
-    IRToPythonCompiler,
-    compile_ir_to_python,
-    compile_ir_to_single,
-)
-from ir_engine.meta_ir import (
-    MetaContract,
-    MetaContractValidationResult,
-    MetaContractValidationError,
-    ModuleMetadata,
-    OwnershipSpec,
-    RuntimeWiringSpec,
-    ExternalSurface,
-    DependencySpec,
-    PacketContract,
-    IdempotencySpec,
-    ErrorPolicy,
-    ObservabilitySpec,
-    RuntimeTouchpoints,
-    TestScope,
-    AcceptanceSpec,
-    GlobalInvariantsAck,
-    SpecConfidence,
-    RepoSpec,
-    InterfacesSpec,
-    EnvironmentSpec,
-    OrchestrationSpec,
-    BootImpact,
-    StandardsSpec,
-)
+from ir_engine.ir_generator import IRGenerator
+from ir_engine.ir_schema import (ActionNode, ConstraintNode, IntentNode,
+                                 IRGraph, IRMetadata, IRValidationResult)
+from ir_engine.ir_to_plan_adapter import IRToPlanAdapter
+from ir_engine.ir_to_python import (IRToPythonCompiler, compile_ir_to_python,
+                                    compile_ir_to_single)
+from ir_engine.ir_validator import IRValidator
+from ir_engine.meta_ir import (AcceptanceSpec, BootImpact, DependencySpec,
+                               EnvironmentSpec, ErrorPolicy, ExternalSurface,
+                               GlobalInvariantsAck, IdempotencySpec,
+                               InterfacesSpec, MetaContract,
+                               MetaContractValidationError,
+                               MetaContractValidationResult, ModuleMetadata,
+                               ObservabilitySpec, OrchestrationSpec,
+                               OwnershipSpec, PacketContract, RepoSpec,
+                               RuntimeTouchpoints, RuntimeWiringSpec,
+                               SpecConfidence, StandardsSpec, TestScope)
+from ir_engine.schema_validator import (SchemaValidationError, SchemaValidator,
+                                        validate_and_parse, validate_schema)
+from ir_engine.semantic_compiler import SemanticCompiler
+from ir_engine.simulation_router import SimulationRouter
 
 __all__ = [
     # Schema

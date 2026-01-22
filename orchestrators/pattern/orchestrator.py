@@ -40,7 +40,10 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["working_memory"],
-        "imported_by": ["orchestrators.pattern.__init__", "tests.orchestrators.test_pattern_orchestrator"],
+        "imported_by": [
+            "orchestrators.pattern.__init__",
+            "tests.orchestrators.test_pattern_orchestrator",
+        ],
     },
 }
 # ============================================================================
@@ -56,20 +59,15 @@ import yaml
 from jsonschema import ValidationError as JsonSchemaError
 from jsonschema import validate as json_validate
 
-from orchestrators.pattern.interface import (
-    InputField,
-    NodeDefinition,
-    NodeResult,
-    NodeStatus,
-    PatternConfig,
-    PipelineResult,
-    PipelineStatus,
-    SubsystemConfig,
-)
+from orchestrators.pattern.interface import (InputField, NodeDefinition,
+                                             NodeResult, NodeStatus,
+                                             PatternConfig, PipelineResult,
+                                             PipelineStatus, SubsystemConfig)
 from orchestrators.pattern.metrics import PatternMetrics
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -546,9 +544,11 @@ class PatternOrchestrator:
                 source_id="pattern_orchestrator",
                 agent_id=f"pattern.{node.role}",
                 thread_id=context.get("trace_id", ""),
-                kind=node.output_contract.packet_type
-                if node.output_contract
-                else "artifact",
+                kind=(
+                    node.output_contract.packet_type
+                    if node.output_contract
+                    else "artifact"
+                ),
                 payload=output,
                 metadata={
                     "node_id": node.id,
@@ -600,7 +600,7 @@ def create_pattern_orchestrator(
     # Try to get memory service
     memory_service = None
     try:
-        from memory.substrate_service import MemorySubstrateService
+        pass
         # Memory service would need to be initialized elsewhere
         # This is just a placeholder for integration
     except ImportError:
@@ -613,6 +613,7 @@ def create_pattern_orchestrator(
         memory_service=memory_service,
     )
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -622,8 +623,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators", "core.schemas", "memory.substrate_service"],
-    "tags": ["async", "config", "debugging", "filesystem", "intelligence", "logging", "messaging", "metrics", "orchestration", "serialization"],
-    "keywords": ["agent", "architecture", "create", "execute", "integration", "invoke", "memory", "orchestrator"],
+    "tags": [
+        "async",
+        "config",
+        "debugging",
+        "filesystem",
+        "intelligence",
+        "logging",
+        "messaging",
+        "metrics",
+        "orchestration",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "architecture",
+        "create",
+        "execute",
+        "integration",
+        "invoke",
+        "memory",
+        "orchestrator",
+    ],
     "business_value": "orchestrator = PatternOrchestrator( pattern_path=, subsystem_config_path=, ) result = await orchestr",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

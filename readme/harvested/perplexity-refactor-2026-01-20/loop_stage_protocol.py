@@ -1,6 +1,7 @@
 class LoopStage(Protocol):
     async def run(self, ctx: LoopContext) -> LoopContext: ...
 
+
 @dataclass
 class LoopContext:
     instance: AgentInstance

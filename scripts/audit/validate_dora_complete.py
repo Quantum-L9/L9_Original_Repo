@@ -392,9 +392,11 @@ class DoraCompleteValidator:
             "non_compliant": len(non_compliant),
             "legacy_blocks": len(legacy),
             "missing_all_blocks": len(missing_all),
-            "compliance_rate": f"{len(compliant) / len(self.results) * 100:.1f}%"
-            if self.results
-            else "N/A",
+            "compliance_rate": (
+                f"{len(compliant) / len(self.results) * 100:.1f}%"
+                if self.results
+                else "N/A"
+            ),
             "summary": {
                 "has_header": len([r for r in self.results if r.has_header]),
                 "has_footer": len([r for r in self.results if r.has_footer]),
@@ -515,7 +517,7 @@ def main():
 
     validator.validate_all(files)
     validator.print_summary()
-    report = validator.generate_report(args.report)
+    validator.generate_report(args.report)
 
     # CI mode - fail if not 100% compliant
     if args.ci:

@@ -4,9 +4,10 @@ Kernel → Agent Activation Integration Tests
 Tests the flow: Kernel Load → Agent Activation → Prompt Generation
 """
 
-import pytest
-from unittest.mock import patch
 from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 
 pytestmark = pytest.mark.integration
 
@@ -37,11 +38,8 @@ class TestKernelAgentActivationIntegration:
             with patch("core.agents.executor.get_redis_client"):
                 from core.agents.executor import AgentExecutorService
                 from tests.core.agents.test_executor import (
-                    MockAIOSRuntime,
-                    MockToolRegistry,
-                    MockSubstrateService,
-                    MockAgentRegistry,
-                )
+                    MockAgentRegistry, MockAIOSRuntime, MockSubstrateService,
+                    MockToolRegistry)
 
                 executor = AgentExecutorService(
                     aios_runtime=MockAIOSRuntime(),
@@ -59,7 +57,8 @@ class TestKernelAgentActivationIntegration:
 
     def test_kernel_prompt_builder_integration(self):
         """Prompt builder uses kernel data."""
-        from core.kernels.prompt_builder import build_system_prompt_from_kernels
+        from core.kernels.prompt_builder import \
+            build_system_prompt_from_kernels
 
         prompt = build_system_prompt_from_kernels()
 

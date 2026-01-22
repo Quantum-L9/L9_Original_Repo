@@ -28,10 +28,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from pathlib import Path
 from typing import Dict, Set
 
+import structlog
 import yaml
 
 logger = structlog.get_logger(__name__)

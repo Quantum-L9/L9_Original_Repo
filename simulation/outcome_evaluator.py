@@ -34,12 +34,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 from simulation.simulation_engine import SimulationRun
 

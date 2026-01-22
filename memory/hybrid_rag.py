@@ -40,11 +40,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -709,9 +711,11 @@ class HybridRAGPipeline:
 
             return [
                 VectorHit(
-                    packet_id=UUID(str(r.packet_id))
-                    if hasattr(r, "packet_id")
-                    else UUID("00000000-0000-0000-0000-000000000000"),
+                    packet_id=(
+                        UUID(str(r.packet_id))
+                        if hasattr(r, "packet_id")
+                        else UUID("00000000-0000-0000-0000-000000000000")
+                    ),
                     content=r.content if hasattr(r, "content") else str(r),
                     similarity=r.similarity if hasattr(r, "similarity") else 0.0,
                     kind=r.kind if hasattr(r, "kind") else None,
@@ -849,8 +853,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["async", "auth", "data-models", "dataclass", "debugging", "event-driven", "graph-db", "learning", "logging", "messaging"],
-    "keywords": ["(vector", "bridge", "bridge)", "enrich", "enricher", "enrichment", "entities", "entity"],
+    "tags": [
+        "async",
+        "auth",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "graph-db",
+        "learning",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "(vector",
+        "bridge",
+        "bridge)",
+        "enrich",
+        "enricher",
+        "enrichment",
+        "entities",
+        "entity",
+    ],
     "business_value": "Combines vector search (pgvector) with graph enrichment (Neo4j) for comprehensive retrieval",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

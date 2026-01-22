@@ -30,13 +30,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import sys
-import json
-import re
-from pathlib import Path
-from typing import Dict, Any
 import asyncio
+import json
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Any, Dict
+
 import structlog
 from dotenv import load_dotenv
 
@@ -124,8 +125,9 @@ async def cleanup_trash_embeddings(
         Dict with cleanup statistics
     """
     try:
-        import asyncpg
         import json as json_lib
+
+        import asyncpg
 
         conn = await asyncpg.connect(database_url)
         try:

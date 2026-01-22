@@ -140,7 +140,9 @@ async def run_research_query(
             "feedback": result.get("feedback", ""),
         }
     except ImportError as e:
-        logger.error("run_research_query: services.research not available", error=str(e))
+        logger.error(
+            "run_research_query: services.research not available", error=str(e)
+        )
         return {
             "success": False,
             "error": f"Research service not available: {e}",

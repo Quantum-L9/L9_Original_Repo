@@ -41,7 +41,7 @@ class TestInitMetrics:
 
     def test_init_metrics_returns_true_when_available(self):
         """Contract: init_metrics returns True when Prometheus is available."""
-        from telemetry.memory_metrics import init_metrics, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import PROMETHEUS_AVAILABLE, init_metrics
 
         if PROMETHEUS_AVAILABLE:
             result = init_metrics()
@@ -49,7 +49,8 @@ class TestInitMetrics:
 
     def test_init_metrics_sets_initial_health(self):
         """Contract: init_metrics sets initial substrate health to healthy."""
-        from telemetry.memory_metrics import init_metrics, MEMORY_SUBSTRATE_HEALTHY
+        from telemetry.memory_metrics import (MEMORY_SUBSTRATE_HEALTHY,
+                                              init_metrics)
 
         init_metrics()
         # Gauge should be set to 1 (healthy)
@@ -73,30 +74,30 @@ class TestRecordMemoryWrite:
 
     def test_record_memory_write_increments_counter(self):
         """Contract: record_memory_write increments the write counter."""
-        from telemetry.memory_metrics import (
-            record_memory_write,
-            MEMORY_WRITE_TOTAL,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_WRITE_TOTAL,
+                                              PROMETHEUS_AVAILABLE,
+                                              record_memory_write)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
 
         # Get initial value
-        initial = MEMORY_WRITE_TOTAL.labels(segment="tool_audit", status="ok")._value._value
+        initial = MEMORY_WRITE_TOTAL.labels(
+            segment="tool_audit", status="ok"
+        )._value._value
 
         record_memory_write(segment="tool_audit", status="ok")
 
         # Verify increment
-        new_value = MEMORY_WRITE_TOTAL.labels(segment="tool_audit", status="ok")._value._value
+        new_value = MEMORY_WRITE_TOTAL.labels(
+            segment="tool_audit", status="ok"
+        )._value._value
         assert new_value == initial + 1
 
     def test_record_memory_write_with_duration(self):
         """Contract: record_memory_write records duration when provided."""
-        from telemetry.memory_metrics import (
-            record_memory_write,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              record_memory_write)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -110,11 +111,9 @@ class TestRecordMemoryWrite:
 
     def test_record_memory_write_different_segments(self):
         """Contract: Different segments are tracked separately."""
-        from telemetry.memory_metrics import (
-            record_memory_write,
-            MEMORY_WRITE_TOTAL,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_WRITE_TOTAL,
+                                              PROMETHEUS_AVAILABLE,
+                                              record_memory_write)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -124,7 +123,9 @@ class TestRecordMemoryWrite:
         record_memory_write(segment="session_context", status="ok")
 
         # Both should be tracked
-        gov_val = MEMORY_WRITE_TOTAL.labels(segment="governance_meta", status="ok")._value._value
+        gov_val = MEMORY_WRITE_TOTAL.labels(
+            segment="governance_meta", status="ok"
+        )._value._value
         session_val = MEMORY_WRITE_TOTAL.labels(
             segment="session_context", status="ok"
         )._value._value
@@ -134,11 +135,9 @@ class TestRecordMemoryWrite:
 
     def test_record_memory_write_different_statuses(self):
         """Contract: Different statuses are tracked separately."""
-        from telemetry.memory_metrics import (
-            record_memory_write,
-            MEMORY_WRITE_TOTAL,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_WRITE_TOTAL,
+                                              PROMETHEUS_AVAILABLE,
+                                              record_memory_write)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -148,11 +147,15 @@ class TestRecordMemoryWrite:
         record_memory_write(segment="test_segment", status="error")
 
         # All three statuses tracked
-        ok_val = MEMORY_WRITE_TOTAL.labels(segment="test_segment", status="ok")._value._value
+        ok_val = MEMORY_WRITE_TOTAL.labels(
+            segment="test_segment", status="ok"
+        )._value._value
         partial_val = MEMORY_WRITE_TOTAL.labels(
             segment="test_segment", status="partial"
         )._value._value
-        error_val = MEMORY_WRITE_TOTAL.labels(segment="test_segment", status="error")._value._value
+        error_val = MEMORY_WRITE_TOTAL.labels(
+            segment="test_segment", status="error"
+        )._value._value
 
         assert ok_val >= 1
         assert partial_val >= 1
@@ -172,11 +175,9 @@ class TestRecordMemorySearch:
 
     def test_record_memory_search_increments_counter(self):
         """Contract: record_memory_search increments the search counter."""
-        from telemetry.memory_metrics import (
-            record_memory_search,
-            MEMORY_SEARCH_TOTAL,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_SEARCH_TOTAL,
+                                              PROMETHEUS_AVAILABLE,
+                                              record_memory_search)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -185,7 +186,9 @@ class TestRecordMemorySearch:
             segment="project_history", search_type="semantic"
         )._value._value
 
-        record_memory_search(segment="project_history", hit_count=5, search_type="semantic")
+        record_memory_search(
+            segment="project_history", hit_count=5, search_type="semantic"
+        )
 
         new_value = MEMORY_SEARCH_TOTAL.labels(
             segment="project_history", search_type="semantic"
@@ -194,11 +197,9 @@ class TestRecordMemorySearch:
 
     def test_record_memory_search_records_hits(self):
         """Contract: record_memory_search records hit count histogram."""
-        from telemetry.memory_metrics import (
-            record_memory_search,
-            MEMORY_SEARCH_HITS,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_SEARCH_HITS,
+                                              PROMETHEUS_AVAILABLE,
+                                              record_memory_search)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -212,11 +213,9 @@ class TestRecordMemorySearch:
 
     def test_record_memory_search_different_types(self):
         """Contract: Different search types are tracked."""
-        from telemetry.memory_metrics import (
-            record_memory_search,
-            MEMORY_SEARCH_TOTAL,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_SEARCH_TOTAL,
+                                              PROMETHEUS_AVAILABLE,
+                                              record_memory_search)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -225,9 +224,15 @@ class TestRecordMemorySearch:
         record_memory_search(segment="test", search_type="exact")
         record_memory_search(segment="test", search_type="hybrid")
 
-        semantic = MEMORY_SEARCH_TOTAL.labels(segment="test", search_type="semantic")._value._value
-        exact = MEMORY_SEARCH_TOTAL.labels(segment="test", search_type="exact")._value._value
-        hybrid = MEMORY_SEARCH_TOTAL.labels(segment="test", search_type="hybrid")._value._value
+        semantic = MEMORY_SEARCH_TOTAL.labels(
+            segment="test", search_type="semantic"
+        )._value._value
+        exact = MEMORY_SEARCH_TOTAL.labels(
+            segment="test", search_type="exact"
+        )._value._value
+        hybrid = MEMORY_SEARCH_TOTAL.labels(
+            segment="test", search_type="hybrid"
+        )._value._value
 
         assert semantic >= 1
         assert exact >= 1
@@ -235,7 +240,8 @@ class TestRecordMemorySearch:
 
     def test_record_memory_search_zero_hits(self):
         """Contract: Zero hits is valid and recorded."""
-        from telemetry.memory_metrics import record_memory_search, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              record_memory_search)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -255,11 +261,9 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_increments_counter(self):
         """Contract: record_tool_invocation increments the invocation counter."""
-        from telemetry.memory_metrics import (
-            record_tool_invocation,
-            TOOL_INVOCATION_TOTAL,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_TOTAL,
+                                              record_tool_invocation)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -268,7 +272,9 @@ class TestRecordToolInvocation:
             tool_id="test_tool_counter", status="success"
         )._value._value
 
-        record_tool_invocation(tool_id="test_tool_counter", status="success", duration_ms=100)
+        record_tool_invocation(
+            tool_id="test_tool_counter", status="success", duration_ms=100
+        )
 
         new_value = TOOL_INVOCATION_TOTAL.labels(
             tool_id="test_tool_counter", status="success"
@@ -277,27 +283,25 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_records_duration(self):
         """Contract: record_tool_invocation records duration histogram."""
-        from telemetry.memory_metrics import (
-            record_tool_invocation,
-            TOOL_INVOCATION_DURATION,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_DURATION,
+                                              record_tool_invocation)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
 
-        record_tool_invocation(tool_id="duration_test", status="success", duration_ms=250)
+        record_tool_invocation(
+            tool_id="duration_test", status="success", duration_ms=250
+        )
 
         hist = TOOL_INVOCATION_DURATION.labels(tool_id="duration_test")
         assert hist._sum._value >= 250
 
     def test_record_tool_invocation_different_statuses(self):
         """Contract: Different statuses are tracked separately."""
-        from telemetry.memory_metrics import (
-            record_tool_invocation,
-            TOOL_INVOCATION_TOTAL,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_TOTAL,
+                                              record_tool_invocation)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -313,7 +317,9 @@ class TestRecordToolInvocation:
         failure = TOOL_INVOCATION_TOTAL.labels(
             tool_id="status_test", status="failure"
         )._value._value
-        denied = TOOL_INVOCATION_TOTAL.labels(tool_id="status_test", status="denied")._value._value
+        denied = TOOL_INVOCATION_TOTAL.labels(
+            tool_id="status_test", status="denied"
+        )._value._value
         timeout = TOOL_INVOCATION_TOTAL.labels(
             tool_id="status_test", status="timeout"
         )._value._value
@@ -325,7 +331,8 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_zero_duration(self):
         """Contract: Zero duration is valid (e.g., for denied calls)."""
-        from telemetry.memory_metrics import record_tool_invocation, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              record_tool_invocation)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -335,17 +342,17 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_high_duration(self):
         """Contract: High duration values are recorded correctly."""
-        from telemetry.memory_metrics import (
-            record_tool_invocation,
-            TOOL_INVOCATION_DURATION,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_DURATION,
+                                              record_tool_invocation)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
 
         # 5 minutes in ms
-        record_tool_invocation(tool_id="slow_tool", status="success", duration_ms=300000)
+        record_tool_invocation(
+            tool_id="slow_tool", status="success", duration_ms=300000
+        )
 
         hist = TOOL_INVOCATION_DURATION.labels(tool_id="slow_tool")
         assert hist._sum._value >= 300000
@@ -363,11 +370,9 @@ class TestSetMemorySubstrateHealth:
 
     def test_set_health_to_healthy(self):
         """Contract: Setting health to True sets gauge to 1."""
-        from telemetry.memory_metrics import (
-            set_memory_substrate_health,
-            MEMORY_SUBSTRATE_HEALTHY,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_SUBSTRATE_HEALTHY,
+                                              PROMETHEUS_AVAILABLE,
+                                              set_memory_substrate_health)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -377,11 +382,9 @@ class TestSetMemorySubstrateHealth:
 
     def test_set_health_to_unhealthy(self):
         """Contract: Setting health to False sets gauge to 0."""
-        from telemetry.memory_metrics import (
-            set_memory_substrate_health,
-            MEMORY_SUBSTRATE_HEALTHY,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_SUBSTRATE_HEALTHY,
+                                              PROMETHEUS_AVAILABLE,
+                                              set_memory_substrate_health)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -394,11 +397,9 @@ class TestSetMemorySubstrateHealth:
 
     def test_set_health_toggle(self):
         """Contract: Health can be toggled between healthy and unhealthy."""
-        from telemetry.memory_metrics import (
-            set_memory_substrate_health,
-            MEMORY_SUBSTRATE_HEALTHY,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (MEMORY_SUBSTRATE_HEALTHY,
+                                              PROMETHEUS_AVAILABLE,
+                                              set_memory_substrate_health)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -426,11 +427,9 @@ class TestUpdatePacketStoreSize:
 
     def test_update_packet_store_size_sets_gauge(self):
         """Contract: update_packet_store_size sets the gauge value."""
-        from telemetry.memory_metrics import (
-            update_packet_store_size,
-            PACKET_STORE_SIZE,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PACKET_STORE_SIZE,
+                                              PROMETHEUS_AVAILABLE,
+                                              update_packet_store_size)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -442,11 +441,9 @@ class TestUpdatePacketStoreSize:
 
     def test_update_packet_store_size_different_segments(self):
         """Contract: Different segments have independent gauge values."""
-        from telemetry.memory_metrics import (
-            update_packet_store_size,
-            PACKET_STORE_SIZE,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PACKET_STORE_SIZE,
+                                              PROMETHEUS_AVAILABLE,
+                                              update_packet_store_size)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -465,11 +462,9 @@ class TestUpdatePacketStoreSize:
 
     def test_update_packet_store_size_overwrites(self):
         """Contract: Gauge value is overwritten, not accumulated."""
-        from telemetry.memory_metrics import (
-            update_packet_store_size,
-            PACKET_STORE_SIZE,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PACKET_STORE_SIZE,
+                                              PROMETHEUS_AVAILABLE,
+                                              update_packet_store_size)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -482,11 +477,9 @@ class TestUpdatePacketStoreSize:
 
     def test_update_packet_store_size_zero(self):
         """Contract: Zero count is valid."""
-        from telemetry.memory_metrics import (
-            update_packet_store_size,
-            PACKET_STORE_SIZE,
-            PROMETHEUS_AVAILABLE,
-        )
+        from telemetry.memory_metrics import (PACKET_STORE_SIZE,
+                                              PROMETHEUS_AVAILABLE,
+                                              update_packet_store_size)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -525,14 +518,12 @@ class TestPublicAPI:
 
     def test_exports_are_callable(self):
         """Contract: All function exports are callable."""
-        from telemetry.memory_metrics import (
-            record_memory_write,
-            record_memory_search,
-            record_tool_invocation,
-            set_memory_substrate_health,
-            update_packet_store_size,
-            init_metrics,
-        )
+        from telemetry.memory_metrics import (init_metrics,
+                                              record_memory_search,
+                                              record_memory_write,
+                                              record_tool_invocation,
+                                              set_memory_substrate_health,
+                                              update_packet_store_size)
 
         assert callable(record_memory_write)
         assert callable(record_memory_search)
@@ -562,7 +553,9 @@ class TestGracefulDegradation:
             # All these should return without error
             metrics.record_memory_write(segment="test", status="ok")
             metrics.record_memory_search(segment="test", hit_count=5)
-            metrics.record_tool_invocation(tool_id="test", status="success", duration_ms=10)
+            metrics.record_tool_invocation(
+                tool_id="test", status="success", duration_ms=10
+            )
             metrics.set_memory_substrate_health(True)
             metrics.update_packet_store_size(segment="test", count=100)
             result = metrics.init_metrics()
@@ -580,7 +573,8 @@ class TestMetricLabels:
 
     def test_tool_invocation_labels(self):
         """Contract: Tool invocation metrics use correct labels."""
-        from telemetry.memory_metrics import TOOL_INVOCATION_TOTAL, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_TOTAL)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -591,7 +585,8 @@ class TestMetricLabels:
 
     def test_memory_write_labels(self):
         """Contract: Memory write metrics use correct labels."""
-        from telemetry.memory_metrics import MEMORY_WRITE_TOTAL, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (MEMORY_WRITE_TOTAL,
+                                              PROMETHEUS_AVAILABLE)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -601,7 +596,8 @@ class TestMetricLabels:
 
     def test_memory_search_labels(self):
         """Contract: Memory search metrics use correct labels."""
-        from telemetry.memory_metrics import MEMORY_SEARCH_TOTAL, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (MEMORY_SEARCH_TOTAL,
+                                              PROMETHEUS_AVAILABLE)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -615,7 +611,8 @@ class TestHistogramBuckets:
 
     def test_tool_invocation_duration_buckets(self):
         """Contract: Tool invocation histogram has appropriate ms buckets."""
-        from telemetry.memory_metrics import TOOL_INVOCATION_DURATION, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
+                                              TOOL_INVOCATION_DURATION)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -628,7 +625,8 @@ class TestHistogramBuckets:
 
     def test_memory_write_duration_buckets(self):
         """Contract: Memory write histogram has appropriate second buckets."""
-        from telemetry.memory_metrics import MEMORY_WRITE_DURATION, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (MEMORY_WRITE_DURATION,
+                                              PROMETHEUS_AVAILABLE)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -639,7 +637,8 @@ class TestHistogramBuckets:
 
     def test_memory_search_hits_buckets(self):
         """Contract: Memory search hits histogram has count buckets."""
-        from telemetry.memory_metrics import MEMORY_SEARCH_HITS, PROMETHEUS_AVAILABLE
+        from telemetry.memory_metrics import (MEMORY_SEARCH_HITS,
+                                              PROMETHEUS_AVAILABLE)
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")

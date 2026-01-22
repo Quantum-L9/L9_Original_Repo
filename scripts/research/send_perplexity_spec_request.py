@@ -29,9 +29,9 @@ Send Module Spec generation request to Perplexity with full context embedded.
 Usage:
     python scripts/send_perplexity_spec_request.py
 """
+import json
 import os
 import sys
-import json
 import time
 from pathlib import Path
 
@@ -153,7 +153,9 @@ Generate the complete Module-Spec v2.5 YAML now. Start immediately with 'schema_
             )
 
             elapsed = time.time() - start
-            logger.info(f"\n⏱️  Response in {elapsed:.1f}s (status: {resp.status_code})")
+            logger.info(
+                f"\n⏱️  Response in {elapsed:.1f}s (status: {resp.status_code})"
+            )
 
             if resp.status_code == 200:
                 data = resp.json()

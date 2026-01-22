@@ -33,12 +33,12 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
      Subfolder naming: MM-DD-YYYY - <description>
 """
 
+import argparse
 import ast
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from dataclasses import dataclass, field
-import argparse
 
 try:
     import yaml

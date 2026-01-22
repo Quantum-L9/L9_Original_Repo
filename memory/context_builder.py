@@ -43,16 +43,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID
 
+import structlog
+
 if TYPE_CHECKING:
-    from memory.substrate_repository import SubstrateRepository
     from memory.identity_tier import IdentityTierService
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 

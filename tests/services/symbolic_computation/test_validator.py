@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import pytest
 
-from services.symbolic_computation.core.validator import ExpressionValidator
 from services.symbolic_computation.config import SymbolicComputationConfig
+from services.symbolic_computation.core.validator import ExpressionValidator
 
 
 class TestExpressionValidator:
@@ -149,7 +149,9 @@ class TestSyntaxValidation:
         result = validator.validate("(x**2 + 1")
 
         assert result.is_valid is False
-        assert any("unclosed" in e.lower() or "unmatched" in e.lower() for e in result.errors)
+        assert any(
+            "unclosed" in e.lower() or "unmatched" in e.lower() for e in result.errors
+        )
 
     def test_mismatched_brackets(self, validator):
         """Test mismatched bracket detection."""

@@ -16,16 +16,11 @@ dependencies (asyncpg). Import AgentExecutorService directly from
 core.agents.executor when needed.
 """
 
-# Light imports (no heavy dependencies)
-from core.agents.schemas import (
-    AgentTask,
-    AgentConfig,
-    AIOSResult,
-    ExecutorState,
-    ToolCallRequest,
-    ToolCallResult,
-)
 from core.agents.agent_instance import AgentInstance
+# Light imports (no heavy dependencies)
+from core.agents.schemas import (AgentConfig, AgentTask, AIOSResult,
+                                 ExecutorState, ToolCallRequest,
+                                 ToolCallResult)
 
 
 # Lazy import for executor (heavy deps)

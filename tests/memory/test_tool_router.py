@@ -4,17 +4,13 @@ Tests for Semantic Tool Router (GMP-57)
 Tests the semantic tool discovery functionality.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from memory.tool_router import (
-    ToolRouter,
-    ToolEmbedding,
-    ToolMatch,
-    ToolSearchResult,
-    get_tool_router,
-    init_tool_router,
-)
+import pytest
+
+from memory.tool_router import (ToolEmbedding, ToolMatch, ToolRouter,
+                                ToolSearchResult, get_tool_router,
+                                init_tool_router)
 
 
 class MockToolDefinition:
@@ -263,9 +259,15 @@ class TestToolRouter:
         router = ToolRouter()
 
         tools = [
-            MockToolDefinition(name="mem1", description="Memory tool 1", category="memory"),
-            MockToolDefinition(name="mem2", description="Memory tool 2", category="memory"),
-            MockToolDefinition(name="fs1", description="File tool", category="filesystem"),
+            MockToolDefinition(
+                name="mem1", description="Memory tool 1", category="memory"
+            ),
+            MockToolDefinition(
+                name="mem2", description="Memory tool 2", category="memory"
+            ),
+            MockToolDefinition(
+                name="fs1", description="File tool", category="filesystem"
+            ),
         ]
 
         await router.embed_tools(tools)

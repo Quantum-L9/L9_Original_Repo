@@ -16,10 +16,11 @@ Test Coverage:
 """
 
 import os
-import pytest
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # Add project root to path FIRST - before any other imports
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -31,8 +32,9 @@ os.environ["L9_EXECUTOR_API_KEY"] = "test-api-key-12345"
 # Now import the modules
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from email_agent.router import router, QueryRequest, GetRequest
+
 from email_agent.config import VALID_ACCOUNTS
+from email_agent.router import GetRequest, QueryRequest, router
 
 # =============================================================================
 # Fixtures
@@ -72,7 +74,10 @@ def mock_gmail_client():
             "attachments": [],
         }
         mock_client.draft_email.return_value = "draft-123"
-        mock_client.send_email.return_value = {"message_id": "msg-123", "thread_id": "thread-123"}
+        mock_client.send_email.return_value = {
+            "message_id": "msg-123",
+            "thread_id": "thread-123",
+        }
         mock_client.reply_to_email.return_value = {
             "message_id": "msg-456",
             "thread_id": "thread-123",
@@ -169,7 +174,9 @@ class TestAccountRouting:
         assert response.status_code == 200
         assert response.json()["account"] == "igor"
 
-    def test_l_account_accepted(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_l_account_accepted(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """L account is valid."""
         response = client.post(
             "/email/l/query",
@@ -288,7 +295,9 @@ class TestEndpoints:
         assert "trace_id" in data
         assert len(data["messages"]) == 2
 
-    def test_get_returns_message(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_get_returns_message(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Get endpoint returns full message."""
         response = client.post(
             "/email/igor/get",

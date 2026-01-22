@@ -23,7 +23,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Dict
+from typing import Dict, List
+
 import sympy as sp
 from sympy.utilities.memoization import recurrence_memo
 

@@ -23,9 +23,10 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
+
+import pytest
 
 # DO NOT import executor or kernel_registry at module level - they trigger
 # imports of memory.substrate_models before path is set
@@ -239,7 +240,9 @@ class TestLCTOEndToEnd:
 
         # Verify blocked
         assert result.status == "blocked"
-        assert "Authority violation" in result.error or "violation" in result.error.lower()
+        assert (
+            "Authority violation" in result.error or "violation" in result.error.lower()
+        )
 
         # Verify AIOS was NOT called
         assert not mock_aios_runtime.execute_reasoning.called

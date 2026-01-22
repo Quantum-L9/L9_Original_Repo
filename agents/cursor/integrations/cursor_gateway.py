@@ -39,17 +39,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Any, List, Dict, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
+import structlog
+
 from core.decorators import must_stay_async
+from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
+from memory.governance_gate import build_governance_context, governance_context
 from memory.substrate_service import MemorySubstrateService
-from memory.governance_gate import (
-    build_governance_context,
-    governance_context,
-)
 
 logger = structlog.get_logger(__name__)
 
@@ -61,8 +59,6 @@ logger = structlog.get_logger(__name__)
 
 class CursorScopeViolationError(Exception):
     """Raised when Cursor attempts to access disallowed scope."""
-
-    pass
 
 
 # =============================================================================
@@ -390,7 +386,8 @@ class CursorMemoryGateway:
                 return None
 
             # Import here to avoid circular dependency
-            from agents.cursor.integrations.cursor_langgraph import CursorAgentState
+            from agents.cursor.integrations.cursor_langgraph import \
+                CursorAgentState
 
             # Reconstruct CursorAgentState
             state = CursorAgentState(**state_dict)

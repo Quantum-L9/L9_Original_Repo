@@ -30,12 +30,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 import os
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -43,13 +44,9 @@ from mac_agent.helpers.logging import log_step, ts
 
 # Playwright imports
 try:
-    from playwright.async_api import (
-        async_playwright,
-        Browser,
-        BrowserContext,
-        Page,
-        TimeoutError as PlaywrightTimeoutError,
-    )
+    from playwright.async_api import Browser, BrowserContext, Page
+    from playwright.async_api import TimeoutError as PlaywrightTimeoutError
+    from playwright.async_api import async_playwright
 
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
@@ -59,15 +56,14 @@ except ImportError:
 # GUI fallback imports
 try:
     import pyautogui
-    from PIL import Image
 
     PYTHON_AUTOGUI_AVAILABLE = True
 except ImportError:
     PYTHON_AUTOGUI_AVAILABLE = False
     logger.warning("pyautogui/Pillow not installed. GUI fallback disabled.")
 
-from mac_agent.config import get_config
 from core.decorators import must_stay_async
+from mac_agent.config import get_config
 
 
 class AutomationExecutor:
@@ -548,9 +544,9 @@ class AutomationExecutor:
                 "status": overall_status,
                 "logs": self.logs,
                 "screenshots": screenshots,
-                "screenshot_path": screenshots[0]
-                if screenshots
-                else None,  # Backward compatibility
+                "screenshot_path": (
+                    screenshots[0] if screenshots else None
+                ),  # Backward compatibility
                 "started_at": started_at,
                 "finished_at": finished_at,
                 "data": page_data,

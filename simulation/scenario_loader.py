@@ -35,13 +35,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

@@ -29,10 +29,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 import os
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
+import structlog
 from openai import OpenAI
 
 logger = structlog.get_logger(__name__)
@@ -143,9 +143,9 @@ NOTE: This router ONLY creates mac_task types. Email operations should be handle
                 {"role": "user", "content": user_message},
             ],
             temperature=0.3,
-            response_format={"type": "json_object"}
-            if MODEL.startswith("gpt-4")
-            else None,
+            response_format=(
+                {"type": "json_object"} if MODEL.startswith("gpt-4") else None
+            ),
         )
 
         content = response.choices[0].message.content.strip()

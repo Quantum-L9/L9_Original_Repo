@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Awaitable, Callable, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict
 
 from core.schemas import PacketEnvelopeIn
 

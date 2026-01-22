@@ -215,12 +215,10 @@ class ProtocolBinding(ABC):
     @abstractmethod
     def serialize(self, event: CloudEvent) -> Any:
         """Serialize event to protocol format"""
-        pass
 
     @abstractmethod
     def deserialize(self, data: Any) -> CloudEvent:
         """Deserialize event from protocol format"""
-        pass
 
 
 class HTTPBinaryBinding(ProtocolBinding):

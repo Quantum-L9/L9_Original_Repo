@@ -46,10 +46,9 @@ import sympy
 from sympy import sympify
 from sympy.utilities.lambdify import lambdify
 
-from services.symbolic_computation.config import SymbolicComputationConfig, get_config
-from services.symbolic_computation.core.models import (
-    ComputationResult,
-)
+from services.symbolic_computation.config import (SymbolicComputationConfig,
+                                                  get_config)
+from services.symbolic_computation.core.models import ComputationResult
 
 logger = structlog.get_logger(__name__)
 
@@ -149,7 +148,7 @@ class ExpressionEvaluator:
                     )
 
             # Parse and compile expression
-            parsed_expr = sympify(expr)
+            sympify(expr)
             var_symbols = [sympy.Symbol(v) for v in variables.keys()]
 
             # Get or compile lambdified function

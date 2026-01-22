@@ -44,11 +44,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Optional, TypedDict
 
-from world_model.engine import get_world_model_engine
+import structlog
+
 from core.decorators import must_stay_async
+from world_model.engine import get_world_model_engine
 
 logger = structlog.get_logger(__name__)
 

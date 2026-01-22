@@ -26,16 +26,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import Any, Dict, List, Optional
+
 import structlog
-from typing import List, Dict, Any, Optional
 from openai import AsyncOpenAI
 
-from .interface import (
-    Blueprint,
-    BlueprintEvaluation,
-    BlueprintScore,
-    EvaluationCriteria,
-)
+from .interface import (Blueprint, BlueprintEvaluation, BlueprintScore,
+                        EvaluationCriteria)
 
 logger = structlog.get_logger(__name__)
 

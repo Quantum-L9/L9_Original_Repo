@@ -31,22 +31,21 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Neo4j"],
         "memory_layers": [],
-        "imported_by": ["tests.core.bootstrap.test_graph_state", "tests.memory.test_consolidation_graph"],
+        "imported_by": [
+            "tests.core.bootstrap.test_graph_state",
+            "tests.memory.test_consolidation_graph",
+        ],
     },
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Optional
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Optional
 
 import structlog
 
-from .schema import (
-    LOAD_AGENT_STATE_QUERY,
-    AGENT_EXISTS_QUERY,
-    GET_DIRECTIVES_BY_SEVERITY_QUERY,
-    GET_TOOLS_QUERY,
-)
+from .schema import (AGENT_EXISTS_QUERY, GET_DIRECTIVES_BY_SEVERITY_QUERY,
+                     GET_TOOLS_QUERY, LOAD_AGENT_STATE_QUERY)
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -57,6 +56,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class AgentResponsibility:
     """A responsibility assigned to an agent."""
+
     title: str
     description: str
     priority: int = 1
@@ -65,6 +65,7 @@ class AgentResponsibility:
 @dataclass
 class AgentDirective:
     """A behavioral directive for an agent."""
+
     text: str
     context: str
     severity: str  # CRITICAL, HIGH, MEDIUM, LOW
@@ -73,6 +74,7 @@ class AgentDirective:
 @dataclass
 class AgentSOP:
     """A standard operating procedure."""
+
     name: str
     steps: list[str]
 
@@ -80,6 +82,7 @@ class AgentSOP:
 @dataclass
 class AgentTool:
     """A tool available to the agent."""
+
     name: str
     risk_level: str  # HIGH, MEDIUM, LOW
     requires_approval: bool
@@ -90,32 +93,33 @@ class AgentTool:
 class AgentGraphState:
     """
     Complete agent state loaded from Neo4j graph.
-    
+
     This replaces the kernel-based AgentConfig for mutable state.
     """
+
     agent_id: str
     designation: str
     role: str
     mission: str
     authority_level: str
     status: str = "ACTIVE"
-    
+
     responsibilities: list[AgentResponsibility] = field(default_factory=list)
     directives: list[AgentDirective] = field(default_factory=list)
     sops: list[AgentSOP] = field(default_factory=list)
     tools: list[AgentTool] = field(default_factory=list)
-    
+
     supervisor_id: Optional[str] = None
     collaborator_ids: list[str] = field(default_factory=list)
-    
+
     def get_critical_directives(self) -> list[AgentDirective]:
         """Get all CRITICAL severity directives."""
         return [d for d in self.directives if d.severity == "CRITICAL"]
-    
+
     def get_high_risk_tools(self) -> list[AgentTool]:
         """Get tools requiring Igor approval."""
         return [t for t in self.tools if t.requires_approval]
-    
+
     def get_sop_steps(self, sop_name: str) -> list[str]:
         """Get steps for a specific SOP."""
         for sop in self.sops:
@@ -127,18 +131,18 @@ class AgentGraphState:
 class AgentGraphLoader:
     """
     Loads agent state from Neo4j graph.
-    
+
     This replaces KernelLoader for mutable agent state, enabling:
     - Faster startup (single query vs multiple YAML parses)
     - Runtime state persistence across restarts
     - Real-time self-modification
     - Full audit trail in Neo4j
     """
-    
+
     def __init__(self, neo4j_driver: "AsyncDriver"):
         self.driver = neo4j_driver
         self._cache: dict[str, AgentGraphState] = {}
-    
+
     async def load(
         self,
         agent_id: str,
@@ -146,14 +150,14 @@ class AgentGraphLoader:
     ) -> AgentGraphState:
         """
         Load complete agent state from Neo4j.
-        
+
         Args:
             agent_id: The agent to load (e.g., "L")
             use_cache: Whether to use cached state if available
-        
+
         Returns:
             AgentGraphState with all responsibilities, directives, SOPs, tools
-        
+
         Raises:
             ValueError: If agent not found in graph
         """
@@ -161,9 +165,9 @@ class AgentGraphLoader:
         if use_cache and agent_id in self._cache:
             logger.debug("Using cached agent state", agent_id=agent_id)
             return self._cache[agent_id]
-        
+
         logger.info("Loading agent state from Neo4j", agent_id=agent_id)
-        
+
         async with self.driver.session() as session:
             # Run main query
             result = await session.run(
@@ -171,13 +175,13 @@ class AgentGraphLoader:
                 agent_id=agent_id,
             )
             record = await result.single()
-            
+
             if not record or not record["a"]:
                 raise ValueError(f"Agent not found in graph: {agent_id}")
-            
+
             # Parse agent node
             agent_node = record["a"]
-            
+
             # Parse responsibilities
             responsibilities = [
                 AgentResponsibility(
@@ -188,7 +192,7 @@ class AgentGraphLoader:
                 for r in record["responsibilities"]
                 if r is not None
             ]
-            
+
             # Parse directives
             directives = [
                 AgentDirective(
@@ -199,7 +203,7 @@ class AgentGraphLoader:
                 for d in record["directives"]
                 if d is not None
             ]
-            
+
             # Parse SOPs
             sops = [
                 AgentSOP(
@@ -209,7 +213,7 @@ class AgentGraphLoader:
                 for s in record["sops"]
                 if s is not None
             ]
-            
+
             # Parse tools
             tools = [
                 AgentTool(
@@ -221,18 +225,16 @@ class AgentGraphLoader:
                 for t in record["tools"]
                 if t is not None
             ]
-            
+
             # Parse supervisor
             supervisor = record["supervisor"]
             supervisor_id = supervisor["agent_id"] if supervisor else None
-            
+
             # Parse collaborators
             collaborator_ids = [
-                p["agent_id"]
-                for p in record["collaborators"]
-                if p is not None
+                p["agent_id"] for p in record["collaborators"] if p is not None
             ]
-            
+
             # Build state object
             state = AgentGraphState(
                 agent_id=agent_node["agent_id"],
@@ -248,10 +250,10 @@ class AgentGraphLoader:
                 supervisor_id=supervisor_id,
                 collaborator_ids=collaborator_ids,
             )
-            
+
             # Cache result
             self._cache[agent_id] = state
-            
+
             logger.info(
                 "Loaded agent state from Neo4j",
                 agent_id=agent_id,
@@ -261,9 +263,9 @@ class AgentGraphLoader:
                 tools=len(tools),
                 supervisor=supervisor_id,
             )
-            
+
             return state
-    
+
     async def exists(self, agent_id: str) -> bool:
         """Check if agent exists in graph."""
         async with self.driver.session() as session:
@@ -273,11 +275,11 @@ class AgentGraphLoader:
             )
             record = await result.single()
             return record is not None and record["exists"]
-    
+
     def invalidate_cache(self, agent_id: Optional[str] = None) -> None:
         """
         Invalidate cached agent state.
-        
+
         Args:
             agent_id: Specific agent to invalidate, or None for all
         """
@@ -287,7 +289,7 @@ class AgentGraphLoader:
         else:
             self._cache.clear()
             logger.debug("Invalidated all agent state cache")
-    
+
     async def get_critical_directives(
         self,
         agent_id: str,
@@ -300,7 +302,7 @@ class AgentGraphLoader:
                 severity="CRITICAL",
             )
             records = await result.data()
-            
+
             return [
                 AgentDirective(
                     text=r["text"],
@@ -309,7 +311,7 @@ class AgentGraphLoader:
                 )
                 for r in records
             ]
-    
+
     async def get_tools_requiring_approval(
         self,
         agent_id: str,
@@ -321,7 +323,7 @@ class AgentGraphLoader:
                 agent_id=agent_id,
             )
             records = await result.data()
-            
+
             return [
                 AgentTool(
                     name=r["name"],
@@ -333,6 +335,7 @@ class AgentGraphLoader:
                 if r["requires_approval"]
             ]
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -342,8 +345,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["agent-execution", "async", "auth", "caching", "dataclass", "debugging", "foundation", "graph-db", "loader", "logging"],
-    "keywords": ["agent", "approval", "cache", "critical", "directive", "directives", "exists", "graph"],
+    "tags": [
+        "agent-execution",
+        "async",
+        "auth",
+        "caching",
+        "dataclass",
+        "debugging",
+        "foundation",
+        "graph-db",
+        "loader",
+        "logging",
+    ],
+    "keywords": [
+        "agent",
+        "approval",
+        "cache",
+        "critical",
+        "directive",
+        "directives",
+        "exists",
+        "graph",
+    ],
     "business_value": "This enables faster startup (~100-500ms vs 5-7s) and runtime state persistence. loader = AgentGraphL",
     "last_modified": "2026-01-14T15:03:00Z",
     "modified_by": "L9_Codegen_Engine",

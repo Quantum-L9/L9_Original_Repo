@@ -48,22 +48,18 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from datetime import datetime
 from typing import Any, Optional, TypedDict
 from uuid import UUID, uuid4
 
-from langgraph.graph import StateGraph, END
+import structlog
 from langchain_core.runnables import RunnableConfig
+from langgraph.graph import END, StateGraph
 
-from core.schemas import PacketEnvelope, PacketWriteResult
 from core.decorators import must_stay_async
-from memory.substrate_models import (
-    EnrichmentResult,
-    ExtractedInsight,
-    KnowledgeFact,
-    StructuredReasoningBlock,
-)
+from core.schemas import PacketEnvelope, PacketWriteResult
+from memory.substrate_models import (EnrichmentResult, ExtractedInsight,
+                                     KnowledgeFact, StructuredReasoningBlock)
 
 logger = structlog.get_logger(__name__)
 
@@ -214,7 +210,7 @@ async def intake_node(
     - Ensures packet_id and timestamp are set
     - Prepares state for downstream processing
     """
-    repository = _get_config_dependency(config, "repository")
+    _get_config_dependency(config, "repository")
     logger.debug("intake_node: Processing packet")
 
     envelope = state.get("envelope", {})
@@ -264,7 +260,7 @@ async def reasoning_node(
     - Generates confidence scores
     - Determines memory write operations
     """
-    repository = _get_config_dependency(config, "repository")
+    _get_config_dependency(config, "repository")
     logger.debug("reasoning_node: Generating reasoning block")
 
     envelope = state.get("envelope", {})
@@ -412,7 +408,7 @@ async def semantic_embed_node(
 
     Only embeds if payload contains text content suitable for semantic search.
     """
-    repository = _get_config_dependency(config, "repository")
+    _get_config_dependency(config, "repository")
     semantic_service = _get_config_dependency(config, "semantic_service")
     logger.debug("semantic_embed_node: Processing embedding")
 
@@ -565,7 +561,7 @@ async def extract_insights_node(
     - Conclusion-like statements in text
     - Entity mentions and relationships
     """
-    repository = _get_config_dependency(config, "repository")
+    _get_config_dependency(config, "repository")
     logger.debug("extract_insights_node: Extracting insights")
 
     envelope = state.get("envelope", {})
@@ -787,7 +783,7 @@ async def world_model_trigger_node(
     - Uses world_model.service.WorldModelService for DB-backed updates
     - Falls back to orchestrator if service not available
     """
-    repository = _get_config_dependency(config, "repository")
+    _get_config_dependency(config, "repository")
     world_model_service = _get_config_dependency(config, "world_model_service")
     logger.debug("world_model_trigger_node: Checking for world model updates")
 

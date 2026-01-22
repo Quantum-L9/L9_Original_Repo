@@ -56,12 +56,10 @@ try:
     from opentelemetry.exporter.jaeger.thrift import JaegerExporter
     from opentelemetry.propagators.composite import CompositePropagator
     from opentelemetry.sdk.metrics import MeterProvider
-    from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry.trace.propagation.tracecontext import (
-        TraceContextTextMapPropagator,
-    )
+    from opentelemetry.trace.propagation.tracecontext import \
+        TraceContextTextMapPropagator
 
     OPENTELEMETRY_AVAILABLE = True
 except ImportError:

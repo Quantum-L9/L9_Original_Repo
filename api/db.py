@@ -20,6 +20,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
+
 import psycopg
 
 # Get DSN from environment - NEVER hardcode localhost in Docker!

@@ -8,10 +8,11 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
-from unittest.mock import MagicMock
 import importlib.util
 from pathlib import Path
+from unittest.mock import MagicMock
+
+import pytest
 
 
 def get_os_module(module_name: str):
@@ -26,7 +27,9 @@ def get_os_module(module_name: str):
         return None
 
     try:
-        spec = importlib.util.spec_from_file_location(f"aios_{module_name}", str(module_path))
+        spec = importlib.util.spec_from_file_location(
+            f"aios_{module_name}", str(module_path)
+        )
         if spec is None or spec.loader is None:
             return None
 
@@ -99,8 +102,8 @@ def test_controller_start_stop():
     try:
         controller = Controller(settings=mock_settings, local_api=mock_local_api)
         # Check for common method patterns
-        has_start = any("start" in name.lower() for name in dir(controller))
-        has_stop = any("stop" in name.lower() for name in dir(controller))
+        any("start" in name.lower() for name in dir(controller))
+        any("stop" in name.lower() for name in dir(controller))
         # At least one lifecycle method should exist
         assert True  # Test passes if controller can be instantiated
     except Exception as e:

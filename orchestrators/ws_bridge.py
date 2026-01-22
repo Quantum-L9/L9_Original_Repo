@@ -42,11 +42,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Optional
 
-from core.schemas.ws_event_stream import EventMessage, EventType
+import structlog
+
 from core.schemas.tasks import AgentTask, TaskEnvelope
+from core.schemas.ws_event_stream import EventMessage, EventType
 
 logger = structlog.get_logger(__name__)
 

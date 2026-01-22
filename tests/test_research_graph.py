@@ -7,16 +7,14 @@ Tests for the research graph and its components.
 
 import pytest
 
-pytest.skip("Legacy research graph — services.research not available.", allow_module_level=True)
+pytest.skip(
+    "Legacy research graph — services.research not available.", allow_module_level=True
+)
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
-from services.research.graph_state import (
-    ResearchGraphState,
-    ResearchStep,
-    Evidence,
-    create_initial_state,
-)
+from services.research.graph_state import (Evidence, ResearchGraphState,
+                                           ResearchStep, create_initial_state)
 
 
 class TestResearchGraphState:
@@ -228,7 +226,9 @@ class TestResearchGraph:
         mock_state["critic_score"] = 0.5
         mock_state["retry_count"] = 0
 
-        with patch("services.research.research_graph.get_research_settings") as mock_settings:
+        with patch(
+            "services.research.research_graph.get_research_settings"
+        ) as mock_settings:
             mock_settings.return_value.critic_threshold = 0.7
             mock_settings.return_value.max_retries = 2
 
@@ -242,7 +242,9 @@ class TestResearchGraph:
         mock_state["critic_score"] = 0.8
         mock_state["retry_count"] = 0
 
-        with patch("services.research.research_graph.get_research_settings") as mock_settings:
+        with patch(
+            "services.research.research_graph.get_research_settings"
+        ) as mock_settings:
             mock_settings.return_value.critic_threshold = 0.7
             mock_settings.return_value.max_retries = 2
 
@@ -256,7 +258,9 @@ class TestResearchGraph:
         mock_state["critic_score"] = 0.5
         mock_state["retry_count"] = 2
 
-        with patch("services.research.research_graph.get_research_settings") as mock_settings:
+        with patch(
+            "services.research.research_graph.get_research_settings"
+        ) as mock_settings:
             mock_settings.return_value.critic_threshold = 0.7
             mock_settings.return_value.max_retries = 2
 

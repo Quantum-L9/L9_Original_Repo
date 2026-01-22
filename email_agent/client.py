@@ -34,9 +34,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -345,9 +346,9 @@ def execute_email_task(
             "status": status,
             "logs": logs,
             "screenshots": [],
-            "started_at": logs[0]["timestamp"]
-            if logs
-            else datetime.utcnow().isoformat(),
+            "started_at": (
+                logs[0]["timestamp"] if logs else datetime.utcnow().isoformat()
+            ),
             "finished_at": datetime.utcnow().isoformat(),
             "data": data if "data" in locals() else {"task_type": "email_task"},
         }

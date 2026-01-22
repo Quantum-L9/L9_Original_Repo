@@ -45,16 +45,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Union
 
-from core.commands.schemas import (
-    Command,
-    CommandType,
-    NLPPrompt,
-    RiskLevel,
-    COMMAND_PATTERNS,
-)
+import structlog
+
+from core.commands.schemas import (COMMAND_PATTERNS, Command, CommandType,
+                                   NLPPrompt, RiskLevel)
 
 logger = structlog.get_logger(__name__)
 

@@ -53,11 +53,12 @@ import hashlib
 import json
 import re
 import unicodedata
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Iterable, Optional, Set
-from uuid import UUID, NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, UUID, uuid5
+
+import structlog
 
 from core.schemas import PacketEnvelopeIn, PacketMetadata
 

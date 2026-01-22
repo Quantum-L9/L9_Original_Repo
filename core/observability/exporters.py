@@ -25,13 +25,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import List, Any
 from abc import ABC, abstractmethod
+from typing import Any, List
 
-from core.schemas import PacketEnvelopeIn
-from .models import Span
+import structlog
+
 from core.decorators import must_stay_async
+from core.schemas import PacketEnvelopeIn
+
+from .models import Span
 
 logger = structlog.get_logger(__name__)
 
@@ -42,7 +44,6 @@ class SpanExporter(ABC):
     @abstractmethod
     def export(self, spans: List[Span]) -> None:
         """Synchronously export spans."""
-        pass
 
 
 class AsyncSpanExporter(ABC):
@@ -52,12 +53,10 @@ class AsyncSpanExporter(ABC):
     @must_stay_async("callers use await")
     async def export_async(self, spans: List[Span]) -> None:
         """Asynchronously export spans."""
-        pass
 
     @must_stay_async("callers use await")
     async def flush(self) -> None:
         """Flush any pending spans."""
-        pass
 
 
 class ConsoleExporter(SpanExporter):

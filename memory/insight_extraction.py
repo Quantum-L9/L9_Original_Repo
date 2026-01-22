@@ -13,6 +13,7 @@ All operations are async-safe with proper logging.
 """
 
 from __future__ import annotations
+
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -36,11 +37,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import re
 from functools import lru_cache
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID
+
+import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_repository import SubstrateRepository

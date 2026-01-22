@@ -44,13 +44,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
+import structlog
 from fastapi import WebSocket
-from core.decorators import must_stay_async
 
+from core.decorators import must_stay_async
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
 
@@ -261,12 +261,9 @@ class WebSocketOrchestrator:
         Returns:
             Response dict with task_id, status, reply (combined if multi-part)
         """
-        from core.agents.schemas import (
-            AgentTask,
-            AgentType,
-            ExecutionResult,
-            DuplicateTaskResponse,
-        )
+        from core.agents.schemas import (AgentTask, AgentType,
+                                         DuplicateTaskResponse,
+                                         ExecutionResult)
 
         # Validate message field
         message = data.get("message")
@@ -455,9 +452,10 @@ class WebSocketOrchestrator:
         Returns:
             List of task IDs for generated and dispatched tasks
         """
-        from core.agents.executor import _generate_tasks_from_query
-        from runtime.task_queue import dispatch_task_immediate, QueuedTask
         from uuid import uuid4
+
+        from core.agents.executor import _generate_tasks_from_query
+        from runtime.task_queue import QueuedTask, dispatch_task_immediate
 
         # Generate tasks from query
         task_specs = await _generate_tasks_from_query(message)

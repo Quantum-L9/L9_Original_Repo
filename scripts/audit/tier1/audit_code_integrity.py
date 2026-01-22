@@ -46,16 +46,18 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import re
-import json
-import hashlib
-import asyncio
-from pathlib import Path
-from collections import defaultdict
-from dataclasses import dataclass, asdict, field
-from typing import Optional, Set, List, Dict, Tuple, Any, Union
 import ast
+import asyncio
+import hashlib
+import json
+import re
+from collections import defaultdict
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
+
 import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -644,9 +646,11 @@ def analyze_file_for_orphans(filepath: Path, all_content: str) -> List[OrphanCla
 
         # Skip exception classes, ABC, etc.
         base_names = [
-            b.id
-            if isinstance(b, ast.Name)
-            else (f"{b.value.id}.{b.attr}" if isinstance(b, ast.Attribute) else "")
+            (
+                b.id
+                if isinstance(b, ast.Name)
+                else (f"{b.value.id}.{b.attr}" if isinstance(b, ast.Attribute) else "")
+            )
             for b in node.bases
         ]
 

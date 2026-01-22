@@ -30,18 +30,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
-from world_model.interfaces import (
-    IWorldModelUpdater,
-    Entity,
-    Relation,
-    UpdateOperation,
-    UpdateResult,
-)
-from world_model.state import WorldModelState
+from world_model.interfaces import (Entity, IWorldModelUpdater, Relation,
+                                    UpdateOperation, UpdateResult)
 from world_model.registry import WorldModelRegistry
+from world_model.state import WorldModelState
 
 
 @dataclass
@@ -215,7 +210,7 @@ class WorldModelUpdater(IWorldModelUpdater):
 
         elif operation.op_type == "delete_relation":
             # Check that relation exists
-            relation_id = operation.data.get("relation_id")
+            operation.data.get("relation_id")
             # TODO: add get_relation to state
             return True
 

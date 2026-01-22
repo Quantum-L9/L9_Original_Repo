@@ -53,7 +53,6 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-
 # =============================================================================
 # Schema Version Constants
 # =============================================================================
@@ -405,9 +404,9 @@ class PacketEnvelopeIn(BaseModel):
             packet_type=self.packet_type,
             payload=self.payload,
             timestamp=self.timestamp or datetime.utcnow(),
-            metadata=PacketMetadata(**self.metadata)
-            if self.metadata
-            else PacketMetadata(),
+            metadata=(
+                PacketMetadata(**self.metadata) if self.metadata else PacketMetadata()
+            ),
             provenance=PacketProvenance(**self.provenance) if self.provenance else None,
             confidence=PacketConfidence(**self.confidence) if self.confidence else None,
             reasoning_block=self.reasoning_block,

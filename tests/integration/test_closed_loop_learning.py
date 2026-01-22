@@ -7,8 +7,9 @@ Tests:
 - Adaptive context generation
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # =============================================================================
 # Test Adaptive Prompting (uses core.agents which doesn't have memory import at top)
@@ -127,7 +128,8 @@ class TestPatternRetrieval:
             if "core.agents.adaptive_prompting" in sys.modules:
                 del sys.modules["core.agents.adaptive_prompting"]
 
-            from core.agents.adaptive_prompting import get_adaptive_context_for_tool
+            from core.agents.adaptive_prompting import \
+                get_adaptive_context_for_tool
 
             context = await get_adaptive_context_for_tool("gmprun")
 
@@ -154,7 +156,9 @@ class TestApprovalManagerPatternWriting:
         mock_governance_patterns.DecisionType = MagicMock()
         mock_governance_patterns.DecisionType.APPROVED = "approved"
         mock_governance_patterns.GovernancePattern = MagicMock()
-        mock_governance_patterns.GovernancePattern.return_value.to_packet_payload.return_value = {}
+        mock_governance_patterns.GovernancePattern.return_value.to_packet_payload.return_value = (
+            {}
+        )
         mock_governance_patterns.extract_conditions_from_reason = MagicMock(
             return_value=["good_test_coverage"]
         )
@@ -200,7 +204,9 @@ class TestApprovalManagerPatternWriting:
 
         mock_governance_patterns = MagicMock()
         mock_governance_patterns.DecisionType = MagicMock()
-        mock_governance_patterns.extract_conditions_from_reason = MagicMock(return_value=[])
+        mock_governance_patterns.extract_conditions_from_reason = MagicMock(
+            return_value=[]
+        )
 
         with patch.dict(
             "sys.modules",

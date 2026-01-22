@@ -7,25 +7,17 @@ Tests for world model population, insight emission, and query APIs.
 Version: 1.0.0
 """
 
-import pytest
 from uuid import uuid4
 
-# Test the schema models
-from core.worldmodel.l9_schema import (
-    L9Agent,
-    L9Infrastructure,
-    L9Tool,
-    L9Relationship,
-    L9RelationshipType,
-    EntityType,
-    InfrastructureType,
-    ToolCategory,
-    ToolRiskLevel,
-)
+import pytest
 
 # Test insight emitter
 from core.worldmodel.insight_emitter import Insight, InsightEmitter
-
+# Test the schema models
+from core.worldmodel.l9_schema import (EntityType, InfrastructureType, L9Agent,
+                                       L9Infrastructure, L9Relationship,
+                                       L9RelationshipType, L9Tool,
+                                       ToolCategory, ToolRiskLevel)
 # Test service
 from core.worldmodel.service import WorldModelService
 

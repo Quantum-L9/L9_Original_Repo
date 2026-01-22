@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional, Protocol, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Protocol
 
 if TYPE_CHECKING:
     from core.observability.circuit_breaker import CircuitBreaker

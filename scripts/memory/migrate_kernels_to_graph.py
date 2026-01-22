@@ -41,8 +41,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
 import argparse
+import asyncio
 import os
 import sys
 from pathlib import Path
@@ -66,6 +66,7 @@ async def run_migration(force: bool = False) -> dict:
         dict with migration statistics
     """
     from neo4j import AsyncGraphDatabase, basic_auth
+
     from core.agents.graph_state.bootstrap_l_graph import bootstrap_l_graph
 
     # Get Neo4j connection details
@@ -114,6 +115,7 @@ async def verify_migration() -> dict:
         dict with verification results
     """
     from neo4j import AsyncGraphDatabase, basic_auth
+
     from core.agents.graph_state.bootstrap_l_graph import verify_l_graph
 
     neo4j_uri = os.getenv("NEO4J_URL") or os.getenv(
@@ -196,12 +198,7 @@ async def main():
         logger.info("=" * 60)
 
         from core.agents.graph_state.bootstrap_l_graph import (
-            L_AGENT_CONFIG,
-            L_RESPONSIBILITIES,
-            L_DIRECTIVES,
-            L_SOPS,
-            L_TOOLS,
-        )
+            L_AGENT_CONFIG, L_DIRECTIVES, L_RESPONSIBILITIES, L_SOPS, L_TOOLS)
 
         logger.info(
             f"\n  Agent: {L_AGENT_CONFIG['agent_id']} ({L_AGENT_CONFIG['designation']})"

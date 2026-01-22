@@ -1,5 +1,5 @@
 """Route modules for L9 MCP Memory Server."""
 
-from src.routes import memory, health
+from src.routes import health, memory
 
 __all__ = ["memory", "health"]

@@ -38,11 +38,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import math
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID
+
+import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_repository import SubstrateRepository
@@ -452,8 +453,7 @@ class ImportanceManager:
                         WHERE tier != ALL($1::text[])
                         AND importance < $2
                         AND created_at < NOW() - INTERVAL '%s days'
-                        """
-                        % min_age_days,
+                        """ % min_age_days,
                         exempt_tiers,
                         threshold,
                     )
@@ -473,8 +473,7 @@ class ImportanceManager:
                         AND created_at < NOW() - INTERVAL '%s days'
                         LIMIT $3
                     )
-                    """
-                    % min_age_days,
+                    """ % min_age_days,
                     exempt_tiers,
                     threshold,
                     batch_size,
@@ -506,8 +505,7 @@ class ImportanceManager:
 
         try:
             async with self._repository.acquire() as conn:
-                rows = await conn.fetch(
-                    """
+                rows = await conn.fetch("""
                     SELECT 
                         tier,
                         COUNT(*) as count,
@@ -518,25 +516,32 @@ class ImportanceManager:
                     FROM semantic_facts
                     GROUP BY tier
                     ORDER BY tier
-                    """
-                )
+                    """)
 
                 stats = {}
                 for row in rows:
                     stats[row["tier"]] = {
                         "count": row["count"],
-                        "avg_importance": round(row["avg_importance"], 3)
-                        if row["avg_importance"]
-                        else 0,
-                        "min_importance": round(row["min_importance"], 3)
-                        if row["min_importance"]
-                        else 0,
-                        "max_importance": round(row["max_importance"], 3)
-                        if row["max_importance"]
-                        else 0,
-                        "avg_access_count": round(row["avg_access_count"], 1)
-                        if row["avg_access_count"]
-                        else 0,
+                        "avg_importance": (
+                            round(row["avg_importance"], 3)
+                            if row["avg_importance"]
+                            else 0
+                        ),
+                        "min_importance": (
+                            round(row["min_importance"], 3)
+                            if row["min_importance"]
+                            else 0
+                        ),
+                        "max_importance": (
+                            round(row["max_importance"], 3)
+                            if row["max_importance"]
+                            else 0
+                        ),
+                        "avg_access_count": (
+                            round(row["avg_access_count"], 1)
+                            if row["avg_access_count"]
+                            else 0
+                        ),
                     }
 
                 return stats

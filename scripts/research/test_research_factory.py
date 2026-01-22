@@ -12,6 +12,7 @@ Usage:
 
 import asyncio
 import os
+
 import httpx
 
 BASE_URL = os.getenv("L9_BASE_URL", "http://localhost:8000")

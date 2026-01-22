@@ -38,12 +38,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import json
+from typing import Any, Optional
+
+import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
+
 from api.auth import verify_api_key
-from typing import Optional, Any
-import structlog
-import json
 
 logger = structlog.get_logger(__name__)
 

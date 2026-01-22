@@ -40,17 +40,15 @@ from typing import Any, Dict, List, Optional
 import structlog
 import yaml
 
-from services.symbolic_computation import SymbolicComputation
 from agents.codegenagent.c_gmp_engine import CGMPEngine
 from agents.codegenagent.meta_loader import MetaLoader
+from services.symbolic_computation import SymbolicComputation
 
 logger = structlog.get_logger(__name__)
 
 
 class SwarmLoaderError(Exception):
     """Exception raised when swarm loading fails."""
-
-    pass
 
 
 class QuantumSwarmLoader:

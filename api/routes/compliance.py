@@ -31,10 +31,9 @@ __dora_meta__ = {
 from datetime import datetime, timedelta
 from typing import Any
 
+import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-
-import structlog
 
 from api.dependencies import get_substrate_service, verify_api_key
 from core.compliance.audit_reporter import ComplianceReporter

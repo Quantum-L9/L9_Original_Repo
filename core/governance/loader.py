@@ -40,18 +40,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from pathlib import Path
 from typing import Any
 
+import structlog
 import yaml
 
-from core.governance.schemas import (
-    Policy,
-    PolicyEffect,
-    Condition,
-    ConditionOperator,
-)
+from core.governance.schemas import (Condition, ConditionOperator, Policy,
+                                     PolicyEffect)
 
 logger = structlog.get_logger(__name__)
 
@@ -72,8 +68,6 @@ class PolicyLoadError(Exception):
 
 class InvalidPolicyError(PolicyLoadError):
     """Raised when a policy file is invalid."""
-
-    pass
 
 
 # =============================================================================

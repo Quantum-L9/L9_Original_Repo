@@ -27,6 +27,7 @@ Version: 1.2.0 (async interface)
 """
 
 from __future__ import annotations
+
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -57,15 +58,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from datetime import datetime
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import uuid4
 
-from world_model.state import WorldModelState
+import structlog
+
 from world_model.causal_graph import CausalGraph
-from world_model.registry import WorldModelRegistry
 from world_model.loader import WorldModelLoader
+from world_model.registry import WorldModelRegistry
+from world_model.state import WorldModelState
 from world_model.updater import WorldModelUpdater
 
 if TYPE_CHECKING:
@@ -73,6 +75,7 @@ if TYPE_CHECKING:
     from world_model.causal_mapper import CausalMapper
     from world_model.reflection_memory import ReflectionMemory
     from world_model.service import WorldModelService
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -239,8 +242,8 @@ class WorldModelEngine:
                     self._causal_graph.from_dict(initial_state["causal_graph"])
 
             # Lazy import to avoid circular dependencies
-            from world_model.knowledge_ingestor import KnowledgeIngestor
             from world_model.causal_mapper import CausalMapper
+            from world_model.knowledge_ingestor import KnowledgeIngestor
             from world_model.reflection_memory import ReflectionMemory
 
             # Initialize runtime components
@@ -388,7 +391,7 @@ class WorldModelEngine:
         """Process execution plan packet from ir_to_plan_adapter.to_memory_packet()."""
         entities: list[str] = []
 
-        plan_id = payload.get("plan_id", str(uuid4()))
+        payload.get("plan_id", str(uuid4()))
 
         if self._ingestor:
             from world_model.knowledge_ingestor import SourceType
@@ -595,7 +598,7 @@ class WorldModelEngine:
                 "errors": ["Engine not initialized"],
             }
 
-        simulation_type = change_request.get("type", "counterfactual")
+        change_request.get("type", "counterfactual")
         intervention = change_request.get("intervention", {})
         target = change_request.get("target")
         errors: list[str] = []

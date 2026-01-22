@@ -10,9 +10,10 @@ Integration tests for the GMP-80 frontier memory retrieval architecture:
 These tests verify the complete pipeline without requiring a live database.
 """
 
-import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
+
+import pytest
 
 # =============================================================================
 # GMP-80-A5: Identity Tier Tests
@@ -44,7 +45,8 @@ class TestIdentityTier:
 
     def test_identity_tier_service_initialization(self):
         """Test IdentityTierService can be instantiated."""
-        from memory.identity_tier import IdentityTierService, IDENTITY_MIN_IMPORTANCE
+        from memory.identity_tier import (IDENTITY_MIN_IMPORTANCE,
+                                          IdentityTierService)
 
         service = IdentityTierService()
         assert service is not None
@@ -122,11 +124,9 @@ class TestRetrievalStrategy:
 
     def test_strategy_determiner_identity_keywords(self):
         """Test StrategyDeterminer detects identity keywords."""
-        from memory.retrieval_strategy import (
-            StrategyDeterminer,
-            StrategyContext,
-            RetrievalStrategy,
-        )
+        from memory.retrieval_strategy import (RetrievalStrategy,
+                                               StrategyContext,
+                                               StrategyDeterminer)
 
         determiner = StrategyDeterminer()
 
@@ -139,11 +139,9 @@ class TestRetrievalStrategy:
 
     def test_strategy_determiner_temporal_keywords(self):
         """Test StrategyDeterminer detects temporal keywords."""
-        from memory.retrieval_strategy import (
-            StrategyDeterminer,
-            StrategyContext,
-            RetrievalStrategy,
-        )
+        from memory.retrieval_strategy import (RetrievalStrategy,
+                                               StrategyContext,
+                                               StrategyDeterminer)
 
         determiner = StrategyDeterminer()
 
@@ -154,11 +152,9 @@ class TestRetrievalStrategy:
 
     def test_strategy_determiner_high_uncertainty(self):
         """Test StrategyDeterminer triggers uncertainty_fill for high uncertainty."""
-        from memory.retrieval_strategy import (
-            StrategyDeterminer,
-            StrategyContext,
-            RetrievalStrategy,
-        )
+        from memory.retrieval_strategy import (RetrievalStrategy,
+                                               StrategyContext,
+                                               StrategyDeterminer)
 
         determiner = StrategyDeterminer()
 
@@ -296,7 +292,9 @@ class TestQueryClassifierStrategy:
         from memory.query_classifier import get_query_classifier
 
         classifier = get_query_classifier()
-        strategy, reason = classifier.determine_retrieval_strategy("What happened last week?")
+        strategy, reason = classifier.determine_retrieval_strategy(
+            "What happened last week?"
+        )
 
         assert strategy == "temporal_recall"
 
@@ -498,21 +496,14 @@ class TestPipelineIntegration:
     def test_full_memory_exports(self):
         """Test all GMP-80 exports are available via direct import."""
         # GMP-80-A5 (direct import - not in main __init__.py)
-        from memory.identity_tier import IdentityTierService
-        from memory.context_builder import HierarchicalContextBuilder
-
-        # GMP-80-A6 (direct import)
-        from memory.retrieval_strategy import (
-            RetrievalStrategy,
-            StrategyBasedRetriever,
-        )
-        from memory.retrieval_ranking import MultiFactorRanker
-
         # GMP-80-A7 (exported in __init__.py)
-        from memory import (
-            ActiveMemoryEncoder,
-            ImportanceManager,
-        )
+        from memory import ActiveMemoryEncoder, ImportanceManager
+        from memory.context_builder import HierarchicalContextBuilder
+        from memory.identity_tier import IdentityTierService
+        from memory.retrieval_ranking import MultiFactorRanker
+        # GMP-80-A6 (direct import)
+        from memory.retrieval_strategy import (RetrievalStrategy,
+                                               StrategyBasedRetriever)
 
         # All imports successful
         assert IdentityTierService is not None
@@ -525,10 +516,10 @@ class TestPipelineIntegration:
 
     def test_singleton_factories(self):
         """Test singleton factory functions return same instance."""
-        from memory.retrieval_strategy import get_strategy_retriever
-        from memory.retrieval_ranking import get_multi_factor_ranker
         from memory.active_encoder import get_active_encoder
         from memory.importance_manager import get_importance_manager
+        from memory.retrieval_ranking import get_multi_factor_ranker
+        from memory.retrieval_strategy import get_strategy_retriever
 
         # Each call should return the same singleton
         retriever1 = get_strategy_retriever()

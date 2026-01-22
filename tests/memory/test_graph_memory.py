@@ -4,21 +4,16 @@ Tests for Conversational Graph Memory (GMP-58)
 Tests the Neo4j-backed conversation history storage.
 """
 
-import pytest
+from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-from datetime import datetime
 
-from memory.graph_memory import (
-    ConversationGraphMemory,
-    GraphMessage,
-    ConversationContext,
-    MessageRole,
-    TopicExtractor,
-    get_graph_memory,
-    store_message,
-    query_history,
-)
+import pytest
+
+from memory.graph_memory import (ConversationContext, ConversationGraphMemory,
+                                 GraphMessage, MessageRole, TopicExtractor,
+                                 get_graph_memory, query_history,
+                                 store_message)
 
 
 class TestTopicExtractor:

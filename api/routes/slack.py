@@ -42,23 +42,22 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Dict, Any
-from fastapi import APIRouter, Request, Header, HTTPException, Depends
-import structlog
 from time import time as current_time
+from typing import Any, Dict
+
+import structlog
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 
 from api.slack_adapter import SlackRequestValidator
-from memory.slack_ingest import handle_slack_events, handle_slack_commands
 from core.decorators import must_stay_async
+from memory.slack_ingest import handle_slack_commands, handle_slack_events
 
 # Optional telemetry - gracefully degrade if module not available
 try:
-    from telemetry.slack_metrics import (
-        record_slack_request,
-        record_signature_verification,
-        record_slack_processing,
-        record_rate_limit_hit,
-    )
+    from telemetry.slack_metrics import (record_rate_limit_hit,
+                                         record_signature_verification,
+                                         record_slack_processing,
+                                         record_slack_request)
 except ImportError:
     # Stub functions when telemetry not available
     def record_slack_request(*args, **kwargs):
@@ -233,8 +232,8 @@ async def slack_events(
     neo4j_client = getattr(request.app.state, "neo4j_client", None)
     if neo4j_client:
         try:
-            from uuid import uuid4
             from datetime import datetime
+            from uuid import uuid4
 
             await neo4j_client.create_event(
                 event_id=f"slack:{payload.get('event_id', uuid4())}",

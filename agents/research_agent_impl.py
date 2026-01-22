@@ -40,25 +40,20 @@ import asyncio
 import json
 import os
 import re
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-import httpx
 import structlog
-from tenacity import retry, stop_after_attempt, wait_exponential
-from core.decorators import must_stay_async
 
+from core.decorators import must_stay_async
 # Import production Perplexity client
-from services.research.tools.perplexity_client import (
-    PerplexityClient as ProductionPerplexityClient,
-    PerplexityRequest,
-    PerplexityModel,
-    SearchContextSize,
-    get_perplexity_client,
-)
+from services.research.tools.perplexity_client import \
+    PerplexityClient as ProductionPerplexityClient
+from services.research.tools.perplexity_client import (PerplexityModel,
+                                                       PerplexityRequest)
 
 # ============================================================================
 # Configuration
@@ -249,10 +244,10 @@ Provide: Fusion architectures, cross-modal patterns, modality-specific benchmark
 class PerplexityClient:
     """
     Compatibility wrapper around the production PerplexityClient.
-    
+
     Provides the legacy .query() and .deep_research() interface
     while delegating to services.research.tools.perplexity_client.
-    
+
     This eliminates code duplication while maintaining backward compatibility.
     """
 
@@ -282,13 +277,13 @@ class PerplexityClient:
     ) -> str:
         """
         Submit prompt to Perplexity API.
-        
+
         Delegates to production client's search() method.
         """
         self.log.info("querying_perplexity", model=model, prompt_len=len(prompt))
-        
+
         client = await self._get_client()
-        
+
         # Map model string to enum
         model_enum = PerplexityModel.SONAR_PRO  # default
         if "deep" in model.lower():
@@ -297,20 +292,20 @@ class PerplexityClient:
             model_enum = PerplexityModel.SONAR_REASONING_PRO
         elif "sonar" in model.lower() and "pro" not in model.lower():
             model_enum = PerplexityModel.SONAR
-        
+
         request = PerplexityRequest(
             query=prompt,
             model=model_enum,
             temperature=temperature,
             max_tokens=max_tokens,
         )
-        
+
         response = await client.search(request)
-        
+
         if not response.success:
             self.log.error("perplexity_error", error=response.error)
             raise RuntimeError(f"Perplexity API error: {response.error}")
-        
+
         self.log.info("perplexity_response", response_len=len(response.content))
         return response.content
 
@@ -321,18 +316,18 @@ class PerplexityClient:
     ) -> str:
         """
         Execute deep research query with longer timeout.
-        
+
         Delegates to production client's deep_research() method.
         """
         self.log.info("deep_research_start", prompt_len=len(prompt))
-        
+
         client = await self._get_client()
         response = await client.deep_research(prompt)
-        
+
         if not response.success:
             self.log.error("deep_research_error", error=response.error)
             raise RuntimeError(f"Deep research error: {response.error}")
-        
+
         self.log.info("deep_research_complete", response_len=len(response.content))
         return response.content
 

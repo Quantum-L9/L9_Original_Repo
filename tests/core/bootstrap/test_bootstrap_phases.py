@@ -9,9 +9,10 @@ when the client isn't available (offline mode).
 Version: 2.2.0 - Simplified for offline testing (no Neo4j mocking needed)
 """
 
-import pytest
 from unittest.mock import MagicMock
 from uuid import UUID
+
+import pytest
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -84,7 +85,8 @@ class TestPhase0Validate:
     @pytest.mark.asyncio
     async def test_validate_agent_config_success(self):
         """Valid AgentConfig with kernels passes validation."""
-        from core.agents.bootstrap.phase_0_validate import validate_agent_blueprint
+        from core.agents.bootstrap.phase_0_validate import \
+            validate_agent_blueprint
 
         config = MockAgentConfig()
         mock_substrate = MockSubstrateService()
@@ -99,7 +101,8 @@ class TestPhase0Validate:
     @pytest.mark.asyncio
     async def test_validate_agent_config_missing_id(self):
         """AgentConfig without agent_id fails validation."""
-        from core.agents.bootstrap.phase_0_validate import validate_agent_blueprint
+        from core.agents.bootstrap.phase_0_validate import \
+            validate_agent_blueprint
 
         config = MockAgentConfig(agent_id="", name="Test Agent")
         mock_substrate = MockSubstrateService()
@@ -112,7 +115,8 @@ class TestPhase0Validate:
     @pytest.mark.asyncio
     async def test_validate_agent_config_missing_name(self):
         """AgentConfig without name fails validation."""
-        from core.agents.bootstrap.phase_0_validate import validate_agent_blueprint
+        from core.agents.bootstrap.phase_0_validate import \
+            validate_agent_blueprint
 
         config = MockAgentConfig(agent_id="test", name="")
         mock_substrate = MockSubstrateService()
@@ -133,7 +137,8 @@ class TestPhase1LoadKernels:
     @pytest.mark.asyncio
     async def test_load_kernels_returns_dict(self):
         """load_and_parse_kernels returns a dict."""
-        from core.agents.bootstrap.phase_1_load_kernels import load_and_parse_kernels
+        from core.agents.bootstrap.phase_1_load_kernels import \
+            load_and_parse_kernels
 
         # Use a nonexistent path - function should handle gracefully
         kernels = await load_and_parse_kernels("/tmp/nonexistent")
@@ -144,8 +149,10 @@ class TestPhase1LoadKernels:
     @pytest.mark.asyncio
     async def test_load_kernels_real_path(self):
         """Kernels load from real kernel directory if available."""
-        from core.agents.bootstrap.phase_1_load_kernels import load_and_parse_kernels
         from pathlib import Path
+
+        from core.agents.bootstrap.phase_1_load_kernels import \
+            load_and_parse_kernels
 
         kernel_dir = "private/kernels/00_system"
 
@@ -169,9 +176,7 @@ class TestPhase2Instantiate:
     async def test_instantiate_agent_creates_instance(self):
         """Agent instance is created with valid UUID."""
         from core.agents.bootstrap.phase_2_instantiate import (
-            instantiate_agent,
-            BootstrapInstanceData,
-        )
+            BootstrapInstanceData, instantiate_agent)
 
         config = MockAgentConfig()
         mock_substrate = MockSubstrateService()
@@ -211,8 +216,10 @@ class TestPhase3BindKernels:
     @pytest.mark.asyncio
     async def test_bind_kernels_sets_bound_state(self):
         """Binding kernels updates instance state to BOUND."""
-        from core.agents.bootstrap.phase_3_bind_kernels import bind_kernels_to_agent
-        from core.agents.bootstrap.phase_2_instantiate import BootstrapInstanceData
+        from core.agents.bootstrap.phase_2_instantiate import \
+            BootstrapInstanceData
+        from core.agents.bootstrap.phase_3_bind_kernels import \
+            bind_kernels_to_agent
 
         instance = BootstrapInstanceData(
             instance_id="test-inst-123",
@@ -246,8 +253,10 @@ class TestPhase4LoadIdentity:
     @pytest.mark.asyncio
     async def test_load_identity_sets_defaults(self):
         """Identity uses defaults when file not found."""
-        from core.agents.bootstrap.phase_4_load_identity import load_identity_persona
-        from core.agents.bootstrap.phase_2_instantiate import BootstrapInstanceData
+        from core.agents.bootstrap.phase_2_instantiate import \
+            BootstrapInstanceData
+        from core.agents.bootstrap.phase_4_load_identity import \
+            load_identity_persona
 
         instance = BootstrapInstanceData(
             instance_id="test-inst-123",
@@ -277,8 +286,10 @@ class TestPhase5BindTools:
     @pytest.mark.asyncio
     async def test_bind_tools_completes(self):
         """Tool binding completes without error."""
-        from core.agents.bootstrap.phase_5_bind_tools import bind_tools_and_capabilities
-        from core.agents.bootstrap.phase_2_instantiate import BootstrapInstanceData
+        from core.agents.bootstrap.phase_2_instantiate import \
+            BootstrapInstanceData
+        from core.agents.bootstrap.phase_5_bind_tools import \
+            bind_tools_and_capabilities
 
         instance = BootstrapInstanceData(
             instance_id="test-inst-123",
@@ -304,8 +315,10 @@ class TestPhase6WireGovernance:
     @pytest.mark.asyncio
     async def test_wire_governance_completes(self):
         """Governance wiring completes without error."""
-        from core.agents.bootstrap.phase_6_wire_governance import wire_governance_gates
-        from core.agents.bootstrap.phase_2_instantiate import BootstrapInstanceData
+        from core.agents.bootstrap.phase_2_instantiate import \
+            BootstrapInstanceData
+        from core.agents.bootstrap.phase_6_wire_governance import \
+            wire_governance_gates
 
         instance = BootstrapInstanceData(
             instance_id="test-inst-123",
@@ -332,8 +345,10 @@ class TestPhase7VerifyAndLock:
     @pytest.mark.asyncio
     async def test_verify_returns_signature(self):
         """Verify and lock returns initialization signature."""
-        from core.agents.bootstrap.phase_7_verify_and_lock import verify_and_lock
-        from core.agents.bootstrap.phase_2_instantiate import BootstrapInstanceData
+        from core.agents.bootstrap.phase_2_instantiate import \
+            BootstrapInstanceData
+        from core.agents.bootstrap.phase_7_verify_and_lock import \
+            verify_and_lock
 
         instance = BootstrapInstanceData(
             instance_id="test-inst-123",
@@ -360,8 +375,10 @@ class TestPhase7VerifyAndLock:
     @pytest.mark.asyncio
     async def test_verify_with_no_kernels(self):
         """Verify handles empty kernel case."""
-        from core.agents.bootstrap.phase_7_verify_and_lock import verify_and_lock
-        from core.agents.bootstrap.phase_2_instantiate import BootstrapInstanceData
+        from core.agents.bootstrap.phase_2_instantiate import \
+            BootstrapInstanceData
+        from core.agents.bootstrap.phase_7_verify_and_lock import \
+            verify_and_lock
 
         instance = BootstrapInstanceData(
             instance_id="test-inst-123",
@@ -391,14 +408,16 @@ class TestBootstrapOrchestrator:
     @pytest.mark.asyncio
     async def test_orchestrator_import(self):
         """Orchestrator can be imported without errors."""
-        from core.agents.bootstrap.orchestrator import AgentBootstrapOrchestrator
+        from core.agents.bootstrap.orchestrator import \
+            AgentBootstrapOrchestrator
 
         assert AgentBootstrapOrchestrator is not None
 
     @pytest.mark.asyncio
     async def test_orchestrator_init(self):
         """Orchestrator can be instantiated."""
-        from core.agents.bootstrap.orchestrator import AgentBootstrapOrchestrator
+        from core.agents.bootstrap.orchestrator import \
+            AgentBootstrapOrchestrator
 
         mock_substrate = MockSubstrateService()
         orchestrator = AgentBootstrapOrchestrator(mock_substrate)
@@ -408,7 +427,8 @@ class TestBootstrapOrchestrator:
     @pytest.mark.asyncio
     async def test_orchestrator_phase_failure_raises(self):
         """Orchestrator raises on phase failure."""
-        from core.agents.bootstrap.orchestrator import AgentBootstrapOrchestrator
+        from core.agents.bootstrap.orchestrator import \
+            AgentBootstrapOrchestrator
 
         config = MockAgentConfig(agent_id="", name="Test")  # Invalid - empty ID
         mock_substrate = MockSubstrateService()
@@ -418,4 +438,6 @@ class TestBootstrapOrchestrator:
         with pytest.raises(RuntimeError) as exc_info:
             await orchestrator.bootstrap_agent(config)
 
-        assert "Phase 0" in str(exc_info.value) or "failed" in str(exc_info.value).lower()
+        assert (
+            "Phase 0" in str(exc_info.value) or "failed" in str(exc_info.value).lower()
+        )

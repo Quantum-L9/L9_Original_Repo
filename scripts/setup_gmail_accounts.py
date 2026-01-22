@@ -47,7 +47,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from email_agent.config import get_account_config, VALID_ACCOUNTS
+from email_agent.config import VALID_ACCOUNTS, get_account_config
 
 # Gmail OAuth files in repo (private_auth folder)
 GMAIL_REPO_DIR = PROJECT_ROOT / "email_agent" / "private_auth"

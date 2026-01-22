@@ -26,23 +26,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import pytest
-
-from symbolic_computation.core import (
-    ExpressionEvaluator,
-    CodeGenerator,
-    SymbolicComputation,
-)
-from symbolic_computation.models import (
-    ComputationRequest,
-    CodeGenRequest,
-    BackendType,
-    CodeLanguage,
-)
-from symbolic_computation.utils import (
-    validate_expression,
-    extract_variables,
-    simplify_expression,
-)
+from symbolic_computation.core import (CodeGenerator, ExpressionEvaluator,
+                                       SymbolicComputation)
+from symbolic_computation.models import (BackendType, CodeGenRequest,
+                                         CodeLanguage, ComputationRequest)
+from symbolic_computation.utils import (extract_variables, simplify_expression,
+                                        validate_expression)
 
 
 class TestExpressionEvaluator:
@@ -313,11 +302,11 @@ class TestPerformance:
 
         # First evaluation
         result1 = await evaluator.evaluate(request)
-        time1 = result1.execution_time_ms
+        result1.execution_time_ms
 
         # Second evaluation (should be cached)
         result2 = await evaluator.evaluate(request)
-        time2 = result2.execution_time_ms
+        result2.execution_time_ms
 
         assert result1.success is True
         assert result2.success is True

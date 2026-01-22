@@ -306,7 +306,6 @@ class MockPostgresCursor:
 
     def close(self) -> None:
         """Close cursor."""
-        pass
 
 
 # ============================================================================

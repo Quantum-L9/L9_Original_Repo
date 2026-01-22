@@ -30,7 +30,6 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-
 # Directories to skip
 SKIP_DIRS = {
     "__pycache__",
@@ -243,7 +242,7 @@ def main():
         sys.exit(0)
 
     # Report findings
-    print(f"📊 DORA Compliance Report")
+    print("📊 DORA Compliance Report")
     print(f"{'=' * 60}")
     print(f"  Files scanned: {len(scan_files(check_path, ['.py', '.yaml', '.yml']))}")
     print(f"  Missing header: {len(missing_header)}")
@@ -291,7 +290,7 @@ def main():
                 failed += 1
 
         print()
-        print(f"📊 Fix Summary")
+        print("📊 Fix Summary")
         print(f"{'=' * 60}")
         print(f"  Fixed: {fixed}")
         print(f"  Failed: {failed}")

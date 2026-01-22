@@ -48,18 +48,20 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional, Dict, Any, TYPE_CHECKING
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import TYPE_CHECKING, Any, Dict, Optional
 from uuid import uuid4
 
 import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+
 from core.decorators import must_stay_async
-from core.governance.tool_risk_policy import get_high_risk_tools_with_descriptions
+from core.governance.tool_risk_policy import \
+    get_high_risk_tools_with_descriptions
 
 logger = structlog.get_logger(__name__)
 
@@ -375,9 +377,9 @@ class ApprovalManager:
                 "request_id": str(request.request_id),
                 "tool_id": request.tool_id,
                 "approved_by": decision.approved_by,
-                "approved_at": decision.approved_at.isoformat()
-                if decision.approved_at
-                else None,
+                "approved_at": (
+                    decision.approved_at.isoformat() if decision.approved_at else None
+                ),
                 "scope": decision.scope,
                 "context": request.context,
             }
@@ -460,7 +462,7 @@ class ApprovalManager:
     def get_pending_requests(self) -> list[ApprovalRequest]:
         """Get all pending approval requests"""
         # Clean up expired requests
-        now = datetime.utcnow()
+        datetime.utcnow()
         expired = [req_id for req_id, req in self._pending.items() if req.is_expired()]
         for req_id in expired:
             del self._pending[req_id]

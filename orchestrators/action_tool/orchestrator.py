@@ -30,17 +30,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from typing import Any, Dict, Optional
 
-from .interface import (
-    IActionToolOrchestrator,
-    ActionToolRequest,
-    ActionToolResponse,
-    ToolSafetyLevel,
-)
-from .validator import Validator
+import structlog
+
 from core.decorators import must_stay_async
+
+from .interface import (ActionToolRequest, ActionToolResponse,
+                        IActionToolOrchestrator, ToolSafetyLevel)
+from .validator import Validator
 
 logger = structlog.get_logger(__name__)
 
@@ -83,7 +81,8 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
         """Get or lazily load the tool registry."""
         if self._registry is None:
             try:
-                from core.tools.registry_adapter import create_executor_tool_registry
+                from core.tools.registry_adapter import \
+                    create_executor_tool_registry
 
                 self._registry = create_executor_tool_registry(
                     governance_enabled=self._governance is not None,
@@ -200,9 +199,9 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
                     if result.success:
                         return {
                             "success": True,
-                            "result": result.result
-                            if hasattr(result, "result")
-                            else None,
+                            "result": (
+                                result.result if hasattr(result, "result") else None
+                            ),
                         }, attempt
                     else:
                         last_error = (

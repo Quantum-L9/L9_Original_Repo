@@ -61,15 +61,9 @@ from uuid import UUID
 
 import structlog
 
-from core.schemas import (
-    PacketEnvelope,
-    PacketMetadata,
-    PacketLineage,
-    PacketProvenance,
-    PacketConfidence,
-    SCHEMA_VERSION,
-    SUPPORTED_VERSIONS,
-)
+from core.schemas import (SCHEMA_VERSION, SUPPORTED_VERSIONS, PacketConfidence,
+                          PacketEnvelope, PacketLineage, PacketMetadata,
+                          PacketProvenance)
 
 logger = structlog.get_logger(__name__)
 
@@ -82,13 +76,9 @@ logger = structlog.get_logger(__name__)
 class UpcasterNotFoundError(Exception):
     """Raised when no upcaster path exists between versions."""
 
-    pass
-
 
 class InvalidSchemaVersionError(Exception):
     """Raised when a schema version is malformed or unsupported."""
-
-    pass
 
 
 # =============================================================================

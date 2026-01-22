@@ -41,21 +41,17 @@ __dora_meta__ = {
 import asyncio
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from uuid import uuid4, uuid5, NAMESPACE_DNS
+from uuid import NAMESPACE_DNS, uuid4, uuid5
 
 import structlog
 from pydantic import BaseModel, Field
-from core.decorators import must_stay_async
 
-from workers.anomaly_classifier import (
-    AnomalyClassifier,
-    AnomalyClassifierRequest,
-    AnomalySeverity,
-)
-from workers.remediation_engine import (
-    RemediationEngine,
-    RemediationEngineRequest,
-)
+from core.decorators import must_stay_async
+from workers.anomaly_classifier import (AnomalyClassifier,
+                                        AnomalyClassifierRequest,
+                                        AnomalySeverity)
+from workers.remediation_engine import (RemediationEngine,
+                                        RemediationEngineRequest)
 
 logger = structlog.get_logger(__name__)
 

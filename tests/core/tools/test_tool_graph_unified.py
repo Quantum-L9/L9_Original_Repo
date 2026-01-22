@@ -13,11 +13,12 @@ Created: 2026-01-05
 GMP: GMP-UKG-1 (Schema Unification)
 """
 
-import pytest
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
 from types import ModuleType
+from unittest.mock import AsyncMock, patch
+
+import pytest
 
 # Ensure project root is on path FIRST
 project_root = Path(__file__).parent.parent.parent.parent
@@ -32,16 +33,10 @@ if "memory.tool_audit" not in sys.modules:
     sys.modules["memory.tool_audit"] = fake_tool_audit
 
 # Now import from the package - the fake module will be used
-from core.tools.tool_graph import (
-    ToolGraph,
-    ToolDefinition,
-    create_tool_definition,
-    register_tool_with_metadata,
-    L9_TOOLS,
-    register_l9_tools,
-    L_INTERNAL_TOOLS,
-    register_l_tools,
-)
+from core.tools.tool_graph import (L9_TOOLS, L_INTERNAL_TOOLS, ToolDefinition,
+                                   ToolGraph, create_tool_definition,
+                                   register_l9_tools, register_l_tools,
+                                   register_tool_with_metadata)
 
 # =============================================================================
 # Test Relationship Constants
@@ -147,7 +142,7 @@ async def test_get_l_tool_catalog_query_format():
     )
 
     with patch.object(ToolGraph, "_get_neo4j", return_value=mock_neo4j):
-        catalog = await ToolGraph.get_l_tool_catalog()
+        await ToolGraph.get_l_tool_catalog()
 
         # Verify query was called
         assert mock_neo4j.run_query.called

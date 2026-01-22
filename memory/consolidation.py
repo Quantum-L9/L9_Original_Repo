@@ -43,10 +43,11 @@ __dora_meta__ = {
 
 import asyncio
 import re
-import structlog
 from datetime import datetime, timedelta
-from typing import Any, Optional, List, Dict
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
+
+import structlog
 
 from memory.substrate_repository import SubstrateRepository
 

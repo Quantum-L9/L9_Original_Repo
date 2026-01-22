@@ -7,11 +7,13 @@ Verifies decision chain reconstruction and explainability.
 """
 
 import os
+
 import pytest
 
-from memory.reasoning_replay import ReasoningReplayPipeline
-from memory.substrate_service import MemorySubstrateService, init_service, close_service
 from core.schemas import PacketEnvelopeIn
+from memory.reasoning_replay import ReasoningReplayPipeline
+from memory.substrate_service import (MemorySubstrateService, close_service,
+                                      init_service)
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
@@ -20,7 +22,9 @@ TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
     if not TEST_DB_URL:
-        pytest.skip("TEST_DATABASE_URL or DATABASE_URL not set; skipping reasoning replay tests.")
+        pytest.skip(
+            "TEST_DATABASE_URL or DATABASE_URL not set; skipping reasoning replay tests."
+        )
     service = await init_service(TEST_DB_URL)
     yield service
     await close_service()
@@ -108,7 +112,9 @@ async def test_explain_decision_json_format(
     packet_id = result.packet_id
 
     # Explain decision
-    explanation = await reasoning_replay_pipeline.explain_decision(packet_id, format="json")
+    explanation = await reasoning_replay_pipeline.explain_decision(
+        packet_id, format="json"
+    )
 
     assert explanation is not None
     assert "chain_id" in explanation
@@ -139,7 +145,9 @@ async def test_explain_decision_narrative_format(
     packet_id = result.packet_id
 
     # Explain decision
-    explanation = await reasoning_replay_pipeline.explain_decision(packet_id, format="narrative")
+    explanation = await reasoning_replay_pipeline.explain_decision(
+        packet_id, format="narrative"
+    )
 
     assert explanation is not None
     assert isinstance(explanation, str)
@@ -165,7 +173,9 @@ async def test_explain_decision_graph_viz_format(
     packet_id = result.packet_id
 
     # Explain decision
-    explanation = await reasoning_replay_pipeline.explain_decision(packet_id, format="graph_viz")
+    explanation = await reasoning_replay_pipeline.explain_decision(
+        packet_id, format="graph_viz"
+    )
 
     assert explanation is not None
     assert isinstance(explanation, str)
@@ -191,7 +201,9 @@ async def test_explain_decision_mermaid_format(
     packet_id = result.packet_id
 
     # Explain decision
-    explanation = await reasoning_replay_pipeline.explain_decision(packet_id, format="mermaid")
+    explanation = await reasoning_replay_pipeline.explain_decision(
+        packet_id, format="mermaid"
+    )
 
     assert explanation is not None
     assert isinstance(explanation, str)

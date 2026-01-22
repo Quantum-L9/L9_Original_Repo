@@ -41,14 +41,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
-import structlog
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
+import structlog
 import yaml
-
 
 # =============================================================================
 # SCHEMA DEFINITION - v2.5 REQUIRED SECTIONS
@@ -177,8 +176,6 @@ VALID_EXECUTION_MODELS = ["request_driven", "event_driven", "scheduled"]
 
 class SpecValidationError(Exception):
     """Raised when spec validation fails."""
-
-    pass
 
 
 class ValidationResult:

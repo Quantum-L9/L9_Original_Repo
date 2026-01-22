@@ -47,19 +47,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 import os
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
+import structlog
 from openai import AsyncOpenAI
 
-from core.agents.schemas import (
-    AIOSResult,
-    AIOSResultType,
-    ToolCallRequest,
-)
+from core.agents.schemas import AIOSResult, AIOSResultType, ToolCallRequest
 
 logger = structlog.get_logger(__name__)
 

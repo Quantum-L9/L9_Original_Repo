@@ -30,19 +30,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Optional
-from dataclasses import dataclass
 import json
 import logging
+from dataclasses import dataclass
+from typing import List, Optional
 
-from world_model.interfaces import (
-    Entity,
-    Relation,
-    EntityTypeSchema,
-    RelationTypeSchema,
-)
+from world_model.interfaces import (Entity, EntityTypeSchema, Relation,
+                                    RelationTypeSchema)
 from world_model.state import WorldModelState
-
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +77,6 @@ class PostgresSubstrate:
             ConnectionError: If connection fails
         """
         try:
-            import psycopg2
             from psycopg2 import pool
 
             self._pool = pool.SimpleConnectionPool(

@@ -6,12 +6,10 @@ decorator-at-import issues with fixture clearing.
 """
 
 import pytest
-from collaborative_cells.cell_registry import (
-    cell_registry,
-    register_cell,
-    get_all_cells,
-    get_cells_by_category,
-)
+
+from collaborative_cells.cell_registry import (cell_registry, get_all_cells,
+                                               get_cells_by_category,
+                                               register_cell)
 
 
 @pytest.fixture(autouse=True)

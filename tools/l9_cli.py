@@ -51,7 +51,6 @@ import click
 @click.group()
 def cli():
     """L9 CLI Tool for security and code quality management."""
-    pass
 
 
 @cli.command()

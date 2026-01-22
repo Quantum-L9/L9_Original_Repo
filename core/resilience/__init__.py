@@ -8,13 +8,10 @@ Includes Protocol + Mixin for DIP-based resilience (ADR-0014).
 Version: 1.1.0
 """
 
-from core.resilience.retry import (
-    async_retry,
-    AsyncRetryConfig,
-    RetryExhaustedError,
-)
-from core.resilience.protocols import ResilientService
 from core.resilience.mixin import ResilienceMixin
+from core.resilience.protocols import ResilientService
+from core.resilience.retry import (AsyncRetryConfig, RetryExhaustedError,
+                                   async_retry)
 
 __all__ = [
     # Retry utilities

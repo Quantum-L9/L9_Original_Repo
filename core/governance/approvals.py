@@ -50,21 +50,20 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+import structlog
+
 from core.schemas import PacketEnvelopeIn
-from memory.governance_patterns import (
-    DecisionType,
-    GovernancePattern,
-    extract_conditions_from_reason,
-)
+from memory.governance_patterns import (DecisionType, GovernancePattern,
+                                        extract_conditions_from_reason)
 
 logger = structlog.get_logger(__name__)
 
 # GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
-from core.governance.tool_risk_policy import get_high_risk_tools_with_descriptions  # noqa: E402
+from core.governance.tool_risk_policy import \
+    get_high_risk_tools_with_descriptions  # noqa: E402
 
 HIGH_RISK_TOOLS = get_high_risk_tools_with_descriptions()
 

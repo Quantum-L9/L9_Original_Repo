@@ -47,6 +47,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, List, Optional
+
 from core.decorators import must_stay_async
 
 logger = logging.getLogger(__name__)
@@ -232,7 +233,6 @@ class BatchIngestionEngine:
     async def _cache_result(self, key: str, result: BatchIngestResult):
         """Cache result for idempotency"""
         # TODO: Store in cache (Redis/Memcached)
-        pass
 
 
 # ============================================================================

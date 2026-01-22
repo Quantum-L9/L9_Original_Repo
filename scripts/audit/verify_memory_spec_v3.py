@@ -301,7 +301,6 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
 
 def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]:
     """Verify feature flags are defined in code (optional - informational)."""
-    issues = []
     warnings = []
 
     feature_flags = spec.get("feature_flags", {})

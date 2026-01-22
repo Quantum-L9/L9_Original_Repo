@@ -15,23 +15,23 @@ Verifies:
 Updated for v2.0.0: Uses MemorySubstrateService directly (no SubstrateDagOrchestrator)
 """
 
-import pytest
-from uuid import uuid4
-from unittest.mock import Mock, AsyncMock, patch
 from contextlib import asynccontextmanager
+from unittest.mock import AsyncMock, Mock, patch
+from uuid import uuid4
 
-from agents.cursor.integrations.cursor_langgraph import CursorAgentState
+import pytest
+
 from agents.cursor.integrations.cursor_gateway import (
-    CursorMemoryGateway,
-    CursorScopeViolationError,
-)
-from memory.substrate_service import MemorySubstrateService
+    CursorMemoryGateway, CursorScopeViolationError)
+from agents.cursor.integrations.cursor_langgraph import CursorAgentState
+from core.governance.approval_gate import (escalate_to_igor,
+                                           is_high_impact_decision)
+from core.governance.approval_manager import ApprovalManager, ApprovalStatus
 from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
 from memory.checkpoint.postgres_saver import L9PostgresSaver
-from memory.semantic_search import semantic_search, SearchHit
-from memory.graph_search_cache import cached_graph_search, GraphSearchContext
-from core.governance.approval_gate import is_high_impact_decision, escalate_to_igor
-from core.governance.approval_manager import ApprovalManager, ApprovalStatus
+from memory.graph_search_cache import GraphSearchContext, cached_graph_search
+from memory.semantic_search import SearchHit, semantic_search
+from memory.substrate_service import MemorySubstrateService
 
 
 def create_mock_substrate_service():
@@ -62,7 +62,9 @@ class TestDecisionWrittenToPacketstoreV2:
         )
 
         # Mock governance context
-        with patch("agents.cursor.integrations.cursor_gateway.governance_context") as mock_ctx:
+        with patch(
+            "agents.cursor.integrations.cursor_gateway.governance_context"
+        ) as mock_ctx:
             mock_ctx.return_value = asynccontextmanager(lambda: iter([None]))()
 
             gateway = CursorMemoryGateway(mock_service)
@@ -240,7 +242,9 @@ class TestCheckpointAndResumeThread:
         """Simulate partial execution, checkpoint, interruption, resume."""
         # Mock dependencies
         mock_postgres_saver = Mock(spec=L9PostgresSaver)
-        mock_postgres_saver.put = AsyncMock(return_value={"checkpoint_id": "test-checkpoint"})
+        mock_postgres_saver.put = AsyncMock(
+            return_value={"checkpoint_id": "test-checkpoint"}
+        )
         mock_postgres_saver.get = AsyncMock(return_value={"task": "resumed task"})
 
         mock_gateway = Mock(spec=CursorMemoryGateway)
@@ -294,7 +298,9 @@ class TestScopeEnforcementCursorCannotReadLPrivate:
 
         # Attempt with allowed scope (should not raise)
         # Note: search_memory now returns empty list on error (graceful degradation)
-        with patch("agents.cursor.integrations.cursor_gateway.governance_context") as mock_ctx:
+        with patch(
+            "agents.cursor.integrations.cursor_gateway.governance_context"
+        ) as mock_ctx:
             mock_ctx.return_value = asynccontextmanager(lambda: iter([None]))()
 
             result = await gateway.search_memory(

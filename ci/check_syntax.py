@@ -33,12 +33,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
+import argparse
 import ast
 import re
-import argparse
+import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 import structlog
 
@@ -366,7 +366,7 @@ def check_and_fix_syntax(
 
     # File has syntax errors - try to fix if requested
     if fix:
-        original_lines = lines.copy()
+        lines.copy()
 
         # Fix 1: Extra closing parens like ):)
         fixed, lines = fix_extra_closing_parens(lines)

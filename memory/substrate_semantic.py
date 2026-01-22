@@ -34,9 +34,11 @@ __dora_meta__ = {
 
 import asyncio
 import random
-import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -57,7 +59,6 @@ class EmbeddingProvider(ABC):
         Returns:
             Embedding vector (list of floats)
         """
-        pass
 
     @abstractmethod
     @must_stay_async("callers use await")
@@ -71,13 +72,11 @@ class EmbeddingProvider(ABC):
         Returns:
             List of embedding vectors
         """
-        pass
 
     @property
     @abstractmethod
     def dimensions(self) -> int:
         """Return the embedding dimensions."""
-        pass
 
 
 class OpenAIEmbeddingProvider(EmbeddingProvider):

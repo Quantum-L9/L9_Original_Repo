@@ -51,9 +51,9 @@ import structlog
 import yaml
 from pydantic import BaseModel, Field
 
-from orchestrators.pattern.orchestrator import PatternOrchestrator
 from orchestrators.pattern.cell_adapter import CellAgentAdapter
 from orchestrators.pattern.interface import PipelineResult
+from orchestrators.pattern.orchestrator import PatternOrchestrator
 
 logger = structlog.get_logger(__name__)
 

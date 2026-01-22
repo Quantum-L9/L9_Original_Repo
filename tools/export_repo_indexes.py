@@ -31,13 +31,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import structlog
-import sys
-import re
 import ast
 import fnmatch
+import os
+import re
+import sys
 from collections import defaultdict
+
+import structlog
 
 # Configuration
 logger = structlog.get_logger(__name__)

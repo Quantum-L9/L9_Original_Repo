@@ -46,12 +46,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Optional
 from uuid import UUID, uuid4
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -302,11 +304,11 @@ class OrchestratorKernel:
             return
 
         try:
-            from ir_engine.semantic_compiler import SemanticCompiler
-            from ir_engine.ir_validator import IRValidator
             from ir_engine.constraint_challenger import ConstraintChallenger
-            from ir_engine.simulation_router import SimulationRouter
             from ir_engine.ir_to_plan_adapter import IRToPlanAdapter
+            from ir_engine.ir_validator import IRValidator
+            from ir_engine.semantic_compiler import SemanticCompiler
+            from ir_engine.simulation_router import SimulationRouter
 
             self._compiler = SemanticCompiler(
                 api_key=self._config.api_key,
@@ -780,9 +782,9 @@ class OrchestratorKernel:
                     payload={
                         "result_id": str(result.result_id),
                         "success": result.success,
-                        "graph_id": str(result.graph.graph_id)
-                        if result.graph
-                        else None,
+                        "graph_id": (
+                            str(result.graph.graph_id) if result.graph else None
+                        ),
                         "plan_id": str(result.plan.plan_id) if result.plan else None,
                         "simulation_score": result.simulation_score,
                         "steps_executed": result.steps_executed,

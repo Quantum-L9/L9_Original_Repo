@@ -21,48 +21,28 @@ Author: Top Frontier AI Lab
 
 from __future__ import annotations
 
-# Kernel protocols
-from core.protocols.kernel_protocols import (
-    IntegrityVerifier,
-    KernelActivator,
-    KernelAwareAgent,
-    KernelDiscovery,
-    KernelStateManager,
-    KernelValidator,
-)
-
-# Memory protocols
-from core.protocols.memory_protocols import (
-    CacheClient,
-    GraphClient,
-    IngestionPipeline,
-    MemoryRepository,
-    RetrievalStrategy,
-    VectorStore,
-)
-
-# Observability protocols
-from core.protocols.observability_protocols import (
-    HealthChecker,
-    LogExporter,
-    MetricsCollector,
-    ObservabilityService,
-    SpanEmitter,
-    SpanKind,
-    SpanStatus,
-    TraceContext,
-)
-
 # Agent protocols
-from core.protocols.agent_protocols import (
-    ActivatableAgent,
-    AgentContext,
-    AgentOrchestrator,
-    AgentRegistry,
-    AgentState,
-    StateManager,
-    ToolExecutor,
-)
+from core.protocols.agent_protocols import (ActivatableAgent, AgentContext,
+                                            AgentOrchestrator, AgentRegistry,
+                                            AgentState, StateManager,
+                                            ToolExecutor)
+# Kernel protocols
+from core.protocols.kernel_protocols import (IntegrityVerifier,
+                                             KernelActivator, KernelAwareAgent,
+                                             KernelDiscovery,
+                                             KernelStateManager,
+                                             KernelValidator)
+# Memory protocols
+from core.protocols.memory_protocols import (CacheClient, GraphClient,
+                                             IngestionPipeline,
+                                             MemoryRepository,
+                                             RetrievalStrategy, VectorStore)
+# Observability protocols
+from core.protocols.observability_protocols import (HealthChecker, LogExporter,
+                                                    MetricsCollector,
+                                                    ObservabilityService,
+                                                    SpanEmitter, SpanKind,
+                                                    SpanStatus, TraceContext)
 
 __all__ = [
     # Kernel protocols

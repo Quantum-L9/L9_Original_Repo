@@ -65,9 +65,10 @@ __dora_meta__ = {
 
 import os
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-import yaml
+from typing import Any, Dict, List, Optional
+
 import structlog
+import yaml
 
 logger = structlog.get_logger(__name__)
 

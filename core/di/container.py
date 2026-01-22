@@ -72,25 +72,17 @@ T = TypeVar("T")
 class DIContainerError(Exception):
     """Base exception for DI container errors."""
 
-    pass
-
 
 class CircularDependencyError(DIContainerError):
     """Raised when circular dependency is detected."""
-
-    pass
 
 
 class BindingNotFoundError(DIContainerError):
     """Raised when no binding exists for requested type."""
 
-    pass
-
 
 class ResolutionError(DIContainerError):
     """Raised when dependency resolution fails."""
-
-    pass
 
 
 class DIContainer:

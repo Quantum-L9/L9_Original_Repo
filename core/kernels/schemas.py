@@ -54,7 +54,6 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
 # =============================================================================
 # Base Config - Allow extra fields for flexibility
 # =============================================================================

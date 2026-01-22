@@ -46,10 +46,9 @@ __dora_meta__ = {
 
 import ast
 import sys
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime
-import json
+from pathlib import Path
+from typing import Any, Dict, List
 
 try:
     import yaml
@@ -307,7 +306,6 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str
         subsystem_path = repo_root / config["path"]
 
         # Extract class info
-        entrypoint_file = None
         entrypoint_info = {}
 
         # Try to find entrypoint class
@@ -316,7 +314,6 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str
                 py_file, config["entrypoint_class"]
             )
             if class_info:
-                entrypoint_file = py_file
                 entrypoint_info = class_info
                 break
 
@@ -429,7 +426,7 @@ def main():
 
     print("\n✨ Code facts extraction complete!")
     print(f"📊 Generated {len(SUBSYSTEMS)} subsystem metadata files")
-    print(f"📋 All files committed to source control")
+    print("📋 All files committed to source control")
     return 0
 
 

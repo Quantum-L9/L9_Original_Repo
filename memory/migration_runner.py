@@ -28,12 +28,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 import os
 from pathlib import Path
 from typing import Optional
 
 import asyncpg
+import structlog
 
 logger = structlog.get_logger(__name__)
 

@@ -13,7 +13,7 @@ Version: 1.0.0
 """
 
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 # =============================================================================
 # Configuration
@@ -100,6 +100,7 @@ class TestWebSocketAuthHelper:
         with patch.dict(os.environ, env, clear=True):
             # Reload module to pick up empty env
             import importlib
+
             import runtime.websocket_orchestrator
 
             importlib.reload(runtime.websocket_orchestrator)

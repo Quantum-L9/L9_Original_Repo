@@ -28,26 +28,19 @@ __dora_meta__ = {
 
 import asyncio
 import time
-from typing import Dict, List, Union, Any, Callable
 from functools import lru_cache
-import structlog
+from typing import Any, Callable, Dict, List, Union
 
+import structlog
 import sympy as sp
-from sympy.utilities.lambdify import lambdify
 from sympy.utilities.autowrap import autowrap
 from sympy.utilities.codegen import codegen
+from sympy.utilities.lambdify import lambdify
 
-from .models import (
-    ComputationRequest,
-    ComputationResult,
-    CodeGenRequest,
-    CodeGenResult,
-    BackendType,
-    CodeLanguage,
-)
 from .exceptions import EvaluationError
 from .logger import get_logger
-
+from .models import (BackendType, CodeGenRequest, CodeGenResult, CodeLanguage,
+                     ComputationRequest, ComputationResult)
 
 logger = structlog.get_logger(__name__)
 logger = get_logger(__name__)
@@ -213,7 +206,7 @@ class CodeGenerator:
         Returns:
             Generated code and compilation status
         """
-        start_time = time.time()
+        time.time()
 
         try:
             # Parse expression

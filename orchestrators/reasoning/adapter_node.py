@@ -29,11 +29,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Optional, TypedDict
 
+import structlog
+
+from .interface import ReasoningMode, ReasoningRequest
 from .orchestrator import ReasoningOrchestrator
-from .interface import ReasoningRequest, ReasoningMode
 
 logger = structlog.get_logger(__name__)
 

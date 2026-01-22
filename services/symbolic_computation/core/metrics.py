@@ -41,7 +41,8 @@ from typing import Any, Dict, List, Optional
 
 import structlog
 
-from services.symbolic_computation.config import SymbolicComputationConfig, get_config
+from services.symbolic_computation.config import (SymbolicComputationConfig,
+                                                  get_config)
 from services.symbolic_computation.core.models import MetricsSummary
 
 logger = structlog.get_logger(__name__)

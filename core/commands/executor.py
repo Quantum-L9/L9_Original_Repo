@@ -39,16 +39,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any, Optional
-from core.decorators import must_stay_async
 
-from core.commands.schemas import (
-    Command,
-    CommandResult,
-    CommandType,
-)
+import structlog
+
+from core.commands.schemas import Command, CommandResult, CommandType
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -191,7 +188,7 @@ class CommandExecutor:
                 },
             )
 
-            result = await self._agent_executor.start_agent_task(task)
+            await self._agent_executor.start_agent_task(task)
 
             return CommandResult(
                 success=True,
@@ -275,7 +272,7 @@ class CommandExecutor:
                     },
                 )
 
-                result = await self._agent_executor.start_agent_task(task)
+                await self._agent_executor.start_agent_task(task)
 
                 return CommandResult(
                     success=True,
@@ -404,7 +401,7 @@ class CommandExecutor:
                     },
                 )
 
-                result = await self._agent_executor.start_agent_task(task)
+                await self._agent_executor.start_agent_task(task)
 
                 return CommandResult(
                     success=True,
@@ -521,7 +518,7 @@ Natural language:
                 },
             )
 
-            result = await self._agent_executor.start_agent_task(task)
+            await self._agent_executor.start_agent_task(task)
 
             return CommandResult(
                 success=True,

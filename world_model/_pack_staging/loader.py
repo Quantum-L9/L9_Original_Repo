@@ -29,19 +29,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Any, Tuple, Optional
-import yaml
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-from world_model.interfaces import (
-    IWorldModelLoader,
-    EntityTypeSchema,
-    RelationTypeSchema,
-    Entity,
-    Relation,
-)
-from world_model.state import WorldModelState
+import yaml
+
+from world_model.interfaces import (Entity, EntityTypeSchema,
+                                    IWorldModelLoader, Relation,
+                                    RelationTypeSchema)
 from world_model.registry import WorldModelRegistry
+from world_model.state import WorldModelState
 
 
 class WorldModelLoader(IWorldModelLoader):
@@ -258,7 +255,8 @@ class WorldModelLoader(IWorldModelLoader):
         Raises:
             ValueError: If causal structure invalid
         """
-        from world_model.causal_graph import CausalGraph, CausalNode, CausalEdge
+        from world_model.causal_graph import (CausalEdge, CausalGraph,
+                                              CausalNode)
 
         graph = CausalGraph()
 

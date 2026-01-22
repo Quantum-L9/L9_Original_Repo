@@ -35,12 +35,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
-import structlog
-import re
 import argparse
+import re
+import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -229,7 +230,6 @@ def lint_file(file_path: Path, fix: bool = False) -> LintResult:
     import_insert_pos = -1
     logger_insert_pos = -1
     in_docstring = False
-    docstring_char = None
     skip_lines = set()  # Track lines to skip (part of multi-line print)
 
     # First pass: check for structlog import and logger definition
@@ -264,7 +264,6 @@ def lint_file(file_path: Path, fix: bool = False) -> LintResult:
 
     # Second pass: fix issues
     in_docstring_pass2 = False
-    docstring_char_pass2 = None
     for line_num, line in enumerate(lines, 1):
         original_line = line
         new_line = line

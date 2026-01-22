@@ -40,23 +40,14 @@ from typing import Any, Dict, Optional
 from uuid import UUID
 
 import structlog
-from core.decorators import must_stay_async
 
-from core.worldmodel.l9_schema import (
-    L9Agent,
-    L9Repository,
-    L9Infrastructure,
-    L9Tool,
-    L9MemorySegment,
-    L9ExternalSystem,
-    L9Relationship,
-    L9RelationshipType,
-    EntityType,
-    InfrastructureType,
-    ToolCategory,
-    ToolRiskLevel,
-    ConnectionStatus,
-)
+from core.decorators import must_stay_async
+from core.worldmodel.l9_schema import (ConnectionStatus, EntityType,
+                                       InfrastructureType, L9Agent,
+                                       L9ExternalSystem, L9Infrastructure,
+                                       L9MemorySegment, L9Relationship,
+                                       L9RelationshipType, L9Repository,
+                                       L9Tool, ToolCategory, ToolRiskLevel)
 
 logger = structlog.get_logger(__name__)
 

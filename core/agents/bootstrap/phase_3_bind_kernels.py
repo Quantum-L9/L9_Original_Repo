@@ -28,15 +28,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, TYPE_CHECKING
 from datetime import datetime
+from typing import TYPE_CHECKING, Dict
 
 import structlog
 
 if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
+
     from .phase_1_load_kernels import KernelParsed
     from .phase_2_instantiate import BootstrapInstanceData
-    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

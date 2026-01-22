@@ -16,17 +16,15 @@ Updated: 2026-01-15 - Refactored to use AgentGraphState dataclass
 GMP: GMP-UKG-5 (Memory Consolidation Loop)
 """
 
-import pytest
+from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from typing import Optional
+import pytest
 
-from core.agents.graph_state.agent_graph_loader import (
-    AgentGraphState,
-    AgentResponsibility,
-    AgentDirective,
-    AgentTool,
-)
+from core.agents.graph_state.agent_graph_loader import (AgentDirective,
+                                                        AgentGraphState,
+                                                        AgentResponsibility,
+                                                        AgentTool)
 
 # =============================================================================
 # Test Helpers
@@ -50,7 +48,9 @@ def make_mock_graph_state(
         authority_level="AGENT",
         status=status,
         responsibilities=[
-            AgentResponsibility(title=r.get("title", ""), description=r.get("description", ""))
+            AgentResponsibility(
+                title=r.get("title", ""), description=r.get("description", "")
+            )
             for r in (responsibilities or [])
         ],
         directives=[
@@ -240,7 +240,9 @@ async def test_consolidate_graph_state_default_agent():
     mock_loader.load = AsyncMock(return_value=mock_graph_state)
 
     with patch("core.agents.graph_state.AgentGraphLoader", return_value=mock_loader):
-        result = await service.consolidate_graph_state()  # No agent_id - uses default "L"
+        result = (
+            await service.consolidate_graph_state()
+        )  # No agent_id - uses default "L"
 
     # Should use default "L"
     mock_loader.load.assert_called_once_with("L")

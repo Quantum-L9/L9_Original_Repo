@@ -35,13 +35,14 @@ __dora_meta__ = {
 import hashlib
 import json
 import random
-import structlog
 from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional
 
-from runtime.redis_client import RedisClient
-from memory.graph_client import Neo4jClient
+import structlog
 from pydantic import BaseModel, Field
+
+from memory.graph_client import Neo4jClient
+from runtime.redis_client import RedisClient
 
 logger = structlog.get_logger(__name__)
 
@@ -85,9 +86,8 @@ def compute_graph_schema_version() -> str:
     """
     try:
         # Try to import graph query builder
-        from core.graph.query.graph_search_query_builder import (
-            GRAPH_CACHE_SCHEMA_VERSION as query_builder_version,
-        )
+        from core.graph.query.graph_search_query_builder import \
+            GRAPH_CACHE_SCHEMA_VERSION as query_builder_version
 
         query_hash = query_builder_version
     except ImportError:
@@ -102,9 +102,8 @@ def compute_graph_schema_version() -> str:
 
     try:
         # Try to import world model schema version
-        from core.worldmodel.l9schema import (
-            WORLD_MODEL_SCHEMA_VERSION as world_model_version,
-        )
+        from core.worldmodel.l9schema import \
+            WORLD_MODEL_SCHEMA_VERSION as world_model_version
 
         world_model_hash = world_model_version
     except (ImportError, AttributeError):

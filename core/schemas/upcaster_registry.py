@@ -34,9 +34,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Callable, Dict
 from dataclasses import dataclass
+from typing import Callable, Dict
+
+import structlog
 
 from core.auto_registry import AutoRegistry
 

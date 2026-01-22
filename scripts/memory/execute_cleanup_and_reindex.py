@@ -27,12 +27,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
 import os
 import sys
-import asyncio
-import structlog
 from pathlib import Path
+
+import structlog
 from dotenv import load_dotenv
+
 from core.decorators import must_stay_async
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -64,7 +66,6 @@ async def delete_trash_embeddings_from_sql():
         sql_content = sql_file.read_text()
 
         # Extract just the DELETE statement
-        delete_sql = None
         embedding_ids = []
 
         for line in sql_content.split("\n"):
@@ -72,7 +73,7 @@ async def delete_trash_embeddings_from_sql():
                 eid = line.strip().rstrip(",").strip("'")
                 embedding_ids.append(eid)
             elif "DELETE FROM semantic_memory" in line:
-                delete_sql = line
+                pass
 
         if not embedding_ids:
             logger.warning("No embedding IDs found in SQL file")

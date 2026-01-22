@@ -35,12 +35,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Any, Optional
 from datetime import datetime
+from typing import Any, Optional
 
-from runtime.long_plan_tool import long_plan_execute_tool, long_plan_simulate_tool
+import structlog
+
 from core.decorators import must_stay_async
+from runtime.long_plan_tool import (long_plan_execute_tool,
+                                    long_plan_simulate_tool)
 
 # Lazy import for symbolic tools (requires sympy)
 symbolic_compute = None
@@ -227,9 +229,11 @@ async def memory_get_packet(
             logger.info(f"Memory get_packet: id={packet_id} found=True")
             return {
                 "status": "success",
-                "packet": packet.model_dump()
-                if hasattr(packet, "model_dump")
-                else dict(packet),
+                "packet": (
+                    packet.model_dump()
+                    if hasattr(packet, "model_dump")
+                    else dict(packet)
+                ),
             }
         else:
             return {"status": "not_found", "packet_id": packet_id}
@@ -508,9 +512,9 @@ async def memory_embed_text(
             "status": "success",
             "text_length": len(text),
             "embedding_dims": len(embedding) if embedding else 0,
-            "embedding": embedding[:10]
-            if embedding
-            else None,  # Return first 10 dims as sample
+            "embedding": (
+                embedding[:10] if embedding else None
+            ),  # Return first 10 dims as sample
         }
     except Exception as e:
         logger.error(f"Memory embed_text failed: {e}")
@@ -1053,8 +1057,8 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
         Dict with registration results
     """
     try:
+        from core.tools.tool_graph import ToolDefinition, ToolGraph
         from runtime.mcp_client import get_mcp_client
-        from core.tools.tool_graph import ToolGraph, ToolDefinition
 
         client = get_mcp_client()
 
@@ -1680,7 +1684,9 @@ async def slack_send(
     """
     try:
         import os
+
         import httpx
+
         from api.slack_client import SlackAPIClient, SlackClientError
 
         slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
@@ -1737,6 +1743,7 @@ async def llm_chat(
     """
     try:
         import os
+
         from openai import AsyncOpenAI
 
         api_key = os.getenv("OPENAI_API_KEY")
@@ -1801,11 +1808,9 @@ async def simulation_execute(
         Dict with simulation results including score, metrics, failure_modes
     """
     try:
-        from simulation.simulation_engine import (
-            SimulationEngine,
-            SimulationConfig,
-            SimulationMode,
-        )
+        from simulation.simulation_engine import (SimulationConfig,
+                                                  SimulationEngine,
+                                                  SimulationMode)
 
         # Map mode string to enum
         mode_map = {
@@ -2409,7 +2414,7 @@ async def tools_get_by_type(
         Dict with matching tools
     """
     try:
-        from core.tools.base_registry import get_tool_registry, ToolType
+        from core.tools.base_registry import ToolType, get_tool_registry
 
         registry = get_tool_registry()
         try:
@@ -2489,9 +2494,11 @@ async def world_model_get_entity(
             logger.info(f"World model get_entity: id={entity_id} found=True")
             return {
                 "status": "success",
-                "entity": entity.model_dump()
-                if hasattr(entity, "model_dump")
-                else dict(entity),
+                "entity": (
+                    entity.model_dump()
+                    if hasattr(entity, "model_dump")
+                    else dict(entity)
+                ),
             }
         else:
             return {"status": "not_found", "entity_id": entity_id}
@@ -2627,9 +2634,9 @@ async def world_model_send_insights(
         return {
             "status": "success",
             "insights_sent": len(insights),
-            "result": result.model_dump()
-            if hasattr(result, "model_dump")
-            else dict(result),
+            "result": (
+                result.model_dump() if hasattr(result, "model_dump") else dict(result)
+            ),
         }
     except Exception as e:
         logger.error(f"World model send_insights failed: {e}")
@@ -2654,9 +2661,11 @@ async def world_model_get_state_version(
         logger.info("World model get_state_version")
         return {
             "status": "success",
-            "version": version.model_dump()
-            if hasattr(version, "model_dump")
-            else dict(version),
+            "version": (
+                version.model_dump()
+                if hasattr(version, "model_dump")
+                else dict(version)
+            ),
         }
     except Exception as e:
         logger.error(f"World model get_state_version failed: {e}")
@@ -2889,13 +2898,11 @@ def _get_saga_tool(tool_name: str):
     global _saga_tools
     if _saga_tools is None:
         try:
-            from core.tools.base_registry import (
-                saga_fetch_and_enrich,
-                saga_enrich_entities,
-                saga_timeline_correlation,
-                saga_execute_custom,
-                tool_router_find,
-            )
+            from core.tools.base_registry import (saga_enrich_entities,
+                                                  saga_execute_custom,
+                                                  saga_fetch_and_enrich,
+                                                  saga_timeline_correlation,
+                                                  tool_router_find)
 
             _saga_tools = {
                 "saga_fetch_and_enrich": saga_fetch_and_enrich,

@@ -31,14 +31,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict, List, Optional, Union
 
-from services.symbolic_computation import (
-    SymbolicComputation,
-    ComputationResult,
-    CodeGenResult,
-)
+import structlog
+
+from services.symbolic_computation import (CodeGenResult, ComputationResult,
+                                           SymbolicComputation)
 
 logger = structlog.get_logger(__name__)
 
@@ -208,7 +206,7 @@ class SymbolicComputationTool:
 
         try:
             # Use sympy optimization functions
-            from sympy import sympify, simplify, expand, factor, cse
+            from sympy import cse, expand, factor, simplify, sympify
 
             expr = sympify(expression)
             optimized = expr

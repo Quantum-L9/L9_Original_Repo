@@ -30,10 +30,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from pathlib import Path
+from typing import Any, Dict
+
 import pytest
 import yaml
-from pathlib import Path
-from typing import Dict, Any
 
 
 @pytest.fixture
@@ -41,7 +42,9 @@ def code_map() -> Dict[str, Any]:
     """Load CODE-MAP.yaml for testing."""
     code_map_path = Path("docs/CODE-MAP.yaml")
     if not code_map_path.exists():
-        pytest.skip("CODE-MAP.yaml not found. Run: python scripts/extract_code_facts.py")
+        pytest.skip(
+            "CODE-MAP.yaml not found. Run: python scripts/extract_code_facts.py"
+        )
 
     with open(code_map_path) as f:
         return yaml.safe_load(f)
@@ -109,9 +112,13 @@ class TestCodeMapValidity:
         """Protected files must be valid file paths."""
         for subsystem, info in code_map.get("subsystems", {}).items():
             protected = info.get("protected_files", [])
-            assert isinstance(protected, list), f"{subsystem} protected_files not a list"
+            assert isinstance(
+                protected, list
+            ), f"{subsystem} protected_files not a list"
             for f in protected:
-                assert isinstance(f, str), f"{subsystem} protected file not a string: {f}"
+                assert isinstance(
+                    f, str
+                ), f"{subsystem} protected file not a string: {f}"
                 assert len(f) > 0, f"{subsystem} empty protected file path"
 
     def test_ai_patterns_are_valid(self, code_map):
@@ -120,8 +127,12 @@ class TestCodeMapValidity:
             allowed = info.get("ai_allowed_patterns", [])
             forbidden = info.get("ai_forbidden_patterns", [])
 
-            assert isinstance(allowed, list), f"{subsystem} ai_allowed_patterns not a list"
-            assert isinstance(forbidden, list), f"{subsystem} ai_forbidden_patterns not a list"
+            assert isinstance(
+                allowed, list
+            ), f"{subsystem} ai_allowed_patterns not a list"
+            assert isinstance(
+                forbidden, list
+            ), f"{subsystem} ai_forbidden_patterns not a list"
 
             # All items should be non-empty strings
             for item in allowed + forbidden:
@@ -161,8 +172,12 @@ class TestMetaYamlValidity:
             ai_collab = meta.get("aicollaboration", {})
 
             assert "allowedscopes" in ai_collab, f"{subsystem} missing allowedscopes"
-            assert "restrictedscopes" in ai_collab, f"{subsystem} missing restrictedscopes"
-            assert "forbiddenscopes" in ai_collab, f"{subsystem} missing forbiddenscopes"
+            assert (
+                "restrictedscopes" in ai_collab
+            ), f"{subsystem} missing restrictedscopes"
+            assert (
+                "forbiddenscopes" in ai_collab
+            ), f"{subsystem} missing forbiddenscopes"
 
             assert isinstance(ai_collab["allowedscopes"], list)
             assert isinstance(ai_collab["restrictedscopes"], list)
@@ -218,7 +233,9 @@ class TestAICollaborationScopes:
 
             # Check for exact overlaps (wildcard patterns might have semantic overlap)
             overlap = allowed & forbidden
-            assert not overlap, f"{subsystem}: patterns in both allowed and forbidden: {overlap}"
+            assert (
+                not overlap
+            ), f"{subsystem}: patterns in both allowed and forbidden: {overlap}"
 
     def test_all_allowed_patterns_are_valid_globs(self, code_map):
         """Allowed patterns should be valid glob or path patterns."""
@@ -255,7 +272,9 @@ class TestCodeMapAndMetaConsistency:
                 continue
 
             meta_forbidden = set(
-                meta_files[subsystem].get("aicollaboration", {}).get("forbiddenscopes", [])
+                meta_files[subsystem]
+                .get("aicollaboration", {})
+                .get("forbiddenscopes", [])
             )
 
             # Meta files should define forbidden scopes
@@ -292,7 +311,9 @@ class TestInvariantCoverage:
                         "must",
                     ]
                 )
-                assert has_concrete or len(inv) > 30, f"{subsystem} invariant too vague: '{inv}'"
+                assert (
+                    has_concrete or len(inv) > 30
+                ), f"{subsystem} invariant too vague: '{inv}'"
 
 
 if __name__ == "__main__":

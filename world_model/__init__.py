@@ -28,107 +28,55 @@ Compatibility:
 Version: 1.0.0 (production)
 """
 
-# Core components
-from world_model.engine import WorldModelEngine, get_world_model_engine
-from world_model.state import WorldModelState, Entity, Relation
 from world_model.causal_graph import CausalGraph
-from world_model.registry import WorldModelRegistry
-from world_model.loader import WorldModelLoader
-from world_model.updater import WorldModelUpdater
-from world_model.query_engine import QueryEngine, QueryContext
-from world_model.interfaces import (
-    IWorldModelEngine,
-    IWorldModelState,
-    IWorldModelUpdater,
-)
-
-# Database persistence (v1.0.0+)
-from world_model.repository import (
-    WorldModelRepository,
-    WorldModelEntityRow,
-    WorldModelUpdateRow,
-    WorldModelSnapshotRow,
-    get_world_model_repository,
-)
-
-# Service layer (v1.0.0+)
-from world_model.service import (
-    WorldModelService,
-    get_world_model_service,
-)
-
-# Service API layer (v2.0.0+)
-from world_model.world_model_service import (
-    WorldModelServiceAPI,
-    get_world_model_service_api,
-    reset_world_model_service_api,
-    WorldContext,
-    ConstraintSet,
-    PatternMatch,
-    HeuristicMatch,
-)
-
-# LangGraph nodes (v1.0.0+)
-from world_model.nodes import (
-    update_world_model_node,
-    world_model_service_update_node,
-    world_model_snapshot_node,
-    world_model_query_node,
-    WorldModelGraphState,
-    WorldModelNodeState,
-)
-
-# IR Engine integration (v2.0.0+)
-from world_model.runtime import (
-    WorldModelRuntime,
-    RuntimeConfig,
-    RuntimeMode,
-    UpdateRecord,
-    RuntimeStats,
-    PacketSource,
-    MemorySubstratePacketSource,
-    QueryPattern,
-    SimulationVariant,
-)
-from world_model.knowledge_ingestor import (
-    KnowledgeIngestor,
-    IngestorConfig,
-    IngestResult,
-    SourceType,
-    ExtractedFact,
-    NormalizedPattern,
-    NormalizedHeuristic,
-)
-from world_model.causal_mapper import (
-    CausalMapper,
-    CausalNode,
-    CausalEdge,
-    CausalPath,
-    CausalQuery,
-    CausalQueryResult,
-    CausalRelationType,
-    CausalStrength,
-    # v1.2.0 additions
-    Decision,
-    Outcome,
-    CausalLink,
-)
-from world_model.reflection_memory import (
-    ReflectionMemory,
-    Reflection,
-    ReflectionType,
-    ReflectionPriority,
-    Pattern,
-    Improvement,
-    # v1.2.0 additions
-    TaskReflection,
-)
-
+from world_model.causal_mapper import (CausalEdge,  # v1.2.0 additions
+                                       CausalLink, CausalMapper, CausalNode,
+                                       CausalPath, CausalQuery,
+                                       CausalQueryResult, CausalRelationType,
+                                       CausalStrength, Decision, Outcome)
 # Async singleton (v1.2.0)
-from world_model.engine import (
-    init_world_model_engine,
-    reset_world_model_engine,
-)
+# Core components
+from world_model.engine import (WorldModelEngine, get_world_model_engine,
+                                init_world_model_engine,
+                                reset_world_model_engine)
+from world_model.interfaces import (IWorldModelEngine, IWorldModelState,
+                                    IWorldModelUpdater)
+from world_model.knowledge_ingestor import (ExtractedFact, IngestorConfig,
+                                            IngestResult, KnowledgeIngestor,
+                                            NormalizedHeuristic,
+                                            NormalizedPattern, SourceType)
+from world_model.loader import WorldModelLoader
+# LangGraph nodes (v1.0.0+)
+from world_model.nodes import (WorldModelGraphState, WorldModelNodeState,
+                               update_world_model_node, world_model_query_node,
+                               world_model_service_update_node,
+                               world_model_snapshot_node)
+from world_model.query_engine import QueryContext, QueryEngine
+from world_model.reflection_memory import (Improvement,  # v1.2.0 additions
+                                           Pattern, Reflection,
+                                           ReflectionMemory,
+                                           ReflectionPriority, ReflectionType,
+                                           TaskReflection)
+from world_model.registry import WorldModelRegistry
+# Database persistence (v1.0.0+)
+from world_model.repository import (WorldModelEntityRow, WorldModelRepository,
+                                    WorldModelSnapshotRow, WorldModelUpdateRow,
+                                    get_world_model_repository)
+# IR Engine integration (v2.0.0+)
+from world_model.runtime import (MemorySubstratePacketSource, PacketSource,
+                                 QueryPattern, RuntimeConfig, RuntimeMode,
+                                 RuntimeStats, SimulationVariant, UpdateRecord,
+                                 WorldModelRuntime)
+# Service layer (v1.0.0+)
+from world_model.service import WorldModelService, get_world_model_service
+from world_model.state import Entity, Relation, WorldModelState
+from world_model.updater import WorldModelUpdater
+# Service API layer (v2.0.0+)
+from world_model.world_model_service import (ConstraintSet, HeuristicMatch,
+                                             PatternMatch, WorldContext,
+                                             WorldModelServiceAPI,
+                                             get_world_model_service_api,
+                                             reset_world_model_service_api)
 
 __all__ = [
     # Core

@@ -47,11 +47,11 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 if TYPE_CHECKING:
-    from world_model.state import WorldModelState, Entity
     from world_model.registry import WorldModelRegistry
+    from world_model.state import Entity, WorldModelState
 
 
 @dataclass

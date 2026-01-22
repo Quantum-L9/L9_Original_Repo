@@ -36,20 +36,10 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-
-from ir_engine.ir_schema import (
-    IRGraph,
-    IRMetadata,
-    IRStatus,
-    IRValidationResult,
-    IntentNode,
-    IntentType,
-    ConstraintNode,
-    ConstraintType,
-    ConstraintStatus,
-    ActionNode,
-    ActionType,
-)
+from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
+                                 ConstraintStatus, ConstraintType, IntentNode,
+                                 IntentType, IRGraph, IRMetadata, IRStatus,
+                                 IRValidationResult)
 from ir_engine.ir_validator import IRValidator
 
 
@@ -375,7 +365,7 @@ class TestCompletenessValidation:
             description="Create module",
             target="module",
         )
-        intent_id = graph.add_intent(intent)
+        graph.add_intent(intent)
 
         # Action that doesn't derive from intent
         action = ActionNode(
@@ -440,7 +430,9 @@ class TestValidateAndUpdateStatus:
 
         # Find status change event
         status_events = [
-            e for e in simple_valid_graph.processing_log if e["event"] == "status_changed"
+            e
+            for e in simple_valid_graph.processing_log
+            if e["event"] == "status_changed"
         ]
         assert len(status_events) > 0
 

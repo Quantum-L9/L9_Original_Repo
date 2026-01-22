@@ -16,14 +16,15 @@ Run with: python -m api.e2e_slack_audit
 """
 
 import asyncio
-import structlog
+import hashlib
+import hmac
 import os
 import sys
-import hmac
-import hashlib
 import time
 from datetime import datetime
 from typing import Any
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -94,7 +95,11 @@ async def audit_slack_configuration() -> AuditResult:
         result.add_check(
             "signing_secret_configured",
             has_signing_secret,
-            "SLACK_SIGNING_SECRET is set" if has_signing_secret else "SLACK_SIGNING_SECRET missing",
+            (
+                "SLACK_SIGNING_SECRET is set"
+                if has_signing_secret
+                else "SLACK_SIGNING_SECRET missing"
+            ),
         )
 
         # Check 3: Bot token configured
@@ -183,7 +188,9 @@ async def audit_slack_security() -> AuditResult:
         # Check 1: Validator initialization
         try:
             validator = SlackRequestValidator(signing_secret)
-            result.add_check("validator_initialized", True, "SlackRequestValidator created")
+            result.add_check(
+                "validator_initialized", True, "SlackRequestValidator created"
+            )
         except Exception as e:
             result.add_check("validator_initialized", False, f"Failed: {e}")
             result.finalize()
@@ -261,10 +268,8 @@ async def audit_slack_routing() -> AuditResult:
     result = AuditResult("Slack Routing")
 
     try:
-        from memory.slack_ingest import (
-            L9_ENABLE_LEGACY_SLACK_ROUTER,
-            _is_email_command,
-        )
+        from memory.slack_ingest import (L9_ENABLE_LEGACY_SLACK_ROUTER,
+                                         _is_email_command)
 
         # Check 1: Feature flag status
         result.add_check(
@@ -428,13 +433,7 @@ async def audit_slack_telemetry() -> AuditResult:
         )
 
         if PROMETHEUS_AVAILABLE:
-            from telemetry.slack_metrics import (
-                SLACK_REQUESTS_TOTAL,
-                SLACK_PROCESSING_DURATION,
-                SLACK_AIOS_CALL_DURATION,
-                SLACK_SIGNATURE_FAILURES,
-                SLACK_IDEMPOTENT_HITS,
-            )
+            pass
 
             # Check 2: Metrics defined
             metrics_defined = [
@@ -527,9 +526,13 @@ async def audit_slack_rate_limiting() -> AuditResult:
                 ),
             )
             if not redis_available:
-                result.add_warning("Redis not running locally - rate limiting active on VPS only")
+                result.add_warning(
+                    "Redis not running locally - rate limiting active on VPS only"
+                )
         except Exception as e:
-            result.add_check("redis_rate_limit_backend", True, f"Redis check skipped: {e}")
+            result.add_check(
+                "redis_rate_limit_backend", True, f"Redis check skipped: {e}"
+            )
 
         # Check 4: Rate limit response handling
         result.add_check(
@@ -610,7 +613,10 @@ async def audit_slack_e2e_flow() -> AuditResult:
         )
 
         # Check 4: Bot message detection
-        bot_payload = {**test_payload, "event": {**test_payload["event"], "bot_id": "B123"}}
+        bot_payload = {
+            **test_payload,
+            "event": {**test_payload["event"], "bot_id": "B123"},
+        }
         result.add_check(
             "bot_detection_logic",
             bot_payload["event"].get("bot_id") is not None,
@@ -679,9 +685,11 @@ async def run_full_audit() -> dict[str, Any]:
         results[name] = result
 
         # Print results
-        status_icon = {"PASSED": "✅", "PASSED_WITH_WARNINGS": "⚠️", "FAILED": "❌"}.get(
-            result.status, "❓"
-        )
+        status_icon = {
+            "PASSED": "✅",
+            "PASSED_WITH_WARNINGS": "⚠️",
+            "FAILED": "❌",
+        }.get(result.status, "❓")
         print(f"Status: {status_icon} {result.status}")
 
         for check in result.checks:

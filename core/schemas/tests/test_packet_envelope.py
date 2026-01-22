@@ -9,21 +9,16 @@ Validates:
 - Semantic search models
 """
 
-import pytest
 from datetime import datetime
 from uuid import uuid4
 
-from core.schemas.packet_envelope import (
-    PacketEnvelope,
-    PacketEnvelopeIn,
-    PacketWriteResult,
-    PacketMetadata,
-    PacketProvenance,
-    PacketConfidence,
-    SemanticSearchRequest,
-    SemanticHit,
-    SemanticSearchResult,
-)
+import pytest
+
+from core.schemas.packet_envelope import (PacketConfidence, PacketEnvelope,
+                                          PacketEnvelopeIn, PacketMetadata,
+                                          PacketProvenance, PacketWriteResult,
+                                          SemanticHit, SemanticSearchRequest,
+                                          SemanticSearchResult)
 
 
 class TestPacketEnvelopeImmutability:

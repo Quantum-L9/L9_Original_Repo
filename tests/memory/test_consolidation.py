@@ -7,10 +7,12 @@ Verifies memory consolidation strategies and reporting.
 """
 
 import os
+
 import pytest
 
 from memory.consolidation import ConsolidationPipeline, ConsolidationReport
-from memory.substrate_service import MemorySubstrateService, init_service, close_service
+from memory.substrate_service import (MemorySubstrateService, close_service,
+                                      init_service)
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
@@ -19,7 +21,9 @@ TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
     if not TEST_DB_URL:
-        pytest.skip("TEST_DATABASE_URL or DATABASE_URL not set; skipping consolidation tests.")
+        pytest.skip(
+            "TEST_DATABASE_URL or DATABASE_URL not set; skipping consolidation tests."
+        )
     service = await init_service(TEST_DB_URL)
     yield service
     await close_service()
@@ -110,7 +114,9 @@ class TestConsolidationPipeline:
         """Test consolidation config values match spec."""
         # Check deduplication config
         assert consolidation_pipeline._deduplication_config["enabled"] is True
-        assert consolidation_pipeline._deduplication_config["similarity_threshold"] == 0.95
+        assert (
+            consolidation_pipeline._deduplication_config["similarity_threshold"] == 0.95
+        )
         assert (
             consolidation_pipeline._deduplication_config["merge_policy"]
             == "keep_highest_confidence"

@@ -3,15 +3,14 @@ Tests for L9 Singleton Service Auto-Registration System
 """
 
 import pytest
-from core.singleton_auto_registry import (
-    singleton_service_registry,
-    register_singleton,
-    register_singleton_closer,
-    get_all_singleton_services,
-    get_singleton_services_by_category,
-    wire_singletons_to_registry,
-)
-from core.singleton_registry import SingletonRegistry, SingletonLifecycle
+
+from core.singleton_auto_registry import (get_all_singleton_services,
+                                          get_singleton_services_by_category,
+                                          register_singleton,
+                                          register_singleton_closer,
+                                          singleton_service_registry,
+                                          wire_singletons_to_registry)
+from core.singleton_registry import SingletonLifecycle, SingletonRegistry
 
 
 @pytest.fixture(autouse=True)

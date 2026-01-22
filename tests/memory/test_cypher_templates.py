@@ -4,17 +4,14 @@ Tests for Cypher Template Library (GMP-55)
 Tests parameterized Cypher templates that prevent LLM hallucination.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from memory.cypher_templates import (
-    CypherTemplate,
-    CypherTemplateCategory,
-    CypherTemplateLibrary,
-    CYPHER_TEMPLATES,
-    get_template_library,
-    execute_template,
-)
+import pytest
+
+from memory.cypher_templates import (CYPHER_TEMPLATES, CypherTemplate,
+                                     CypherTemplateCategory,
+                                     CypherTemplateLibrary, execute_template,
+                                     get_template_library)
 
 
 class TestCypherTemplateLibrary:
@@ -88,7 +85,9 @@ class TestCypherTemplateLibrary:
         query = "MATCH (n:$label {id: $entity_id}) RETURN n"
         params = {"label": "User", "entity_id": "user-123"}
 
-        modified_query, remaining_params = library._substitute_label_params(query, params)
+        modified_query, remaining_params = library._substitute_label_params(
+            query, params
+        )
 
         # Label should be substituted
         assert "$label" not in modified_query
@@ -173,12 +172,16 @@ class TestDefaultTemplates:
             assert template.description, f"{name} missing description"
             assert template.query, f"{name} missing query"
             assert template.category, f"{name} missing category"
-            assert isinstance(template.parameters, dict), f"{name} has invalid parameters"
+            assert isinstance(
+                template.parameters, dict
+            ), f"{name} has invalid parameters"
 
     def test_traversal_templates_have_depth_limits(self):
         """Ensure traversal templates don't allow unbounded traversal."""
         traversal_templates = [
-            t for t in CYPHER_TEMPLATES.values() if t.category == CypherTemplateCategory.TRAVERSAL
+            t
+            for t in CYPHER_TEMPLATES.values()
+            if t.category == CypherTemplateCategory.TRAVERSAL
         ]
 
         for template in traversal_templates:
@@ -186,7 +189,9 @@ class TestDefaultTemplates:
             query = template.query.lower()
             if "*" in query:
                 # Should have a limit like *..15 or *1..5
-                assert ".." in query or "limit" in query, f"{template.name} has unbounded traversal"
+                assert (
+                    ".." in query or "limit" in query
+                ), f"{template.name} has unbounded traversal"
 
     def test_all_templates_return_something(self):
         """Verify all templates have RETURN clause."""

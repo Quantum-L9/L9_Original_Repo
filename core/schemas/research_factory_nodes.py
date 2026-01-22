@@ -38,21 +38,18 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any, Callable, Optional
 
-from core.schemas.research_factory_models import (
-    IntegrationResult,
-    ParsedObject,
-    Query,
-    QueryPlan,
-    RetrievalBatch,
-    Superprompt,
-    ValidationStatus,
-)
-from core.schemas.research_factory_state import ResearchState
+import structlog
+
 from core.decorators import must_stay_async
+from core.schemas.research_factory_models import (IntegrationResult,
+                                                  ParsedObject, Query,
+                                                  QueryPlan, RetrievalBatch,
+                                                  Superprompt,
+                                                  ValidationStatus)
+from core.schemas.research_factory_state import ResearchState
 
 logger = structlog.get_logger(__name__)
 
@@ -391,9 +388,9 @@ async def pass_5_integrate_results(state: ResearchState) -> ResearchState:
         integration_summary = {
             "total_processed": len(state.parsed_objects),
             "valid_objects": valid_count,
-            "success_rate": valid_count / len(state.parsed_objects)
-            if state.parsed_objects
-            else 0.0,
+            "success_rate": (
+                valid_count / len(state.parsed_objects) if state.parsed_objects else 0.0
+            ),
             "sources_used": list(
                 set(
                     batch.sources[0]
@@ -446,7 +443,7 @@ def build_research_graph():
         result = await graph.ainvoke({"job_spec": job_spec})
     """
     try:
-        from langgraph.graph import StateGraph, START, END
+        from langgraph.graph import END, START, StateGraph
     except ImportError:
         logger.warning("LangGraph not installed. Graph builder unavailable.")
         return None

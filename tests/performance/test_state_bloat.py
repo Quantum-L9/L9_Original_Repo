@@ -6,8 +6,8 @@ Tests for monitoring state size and memory usage.
 """
 
 import sys
-from typing import TypedDict, Optional
 from datetime import datetime
+from typing import Optional, TypedDict
 
 
 # Mock ResearchGraphState for testing without production dependencies

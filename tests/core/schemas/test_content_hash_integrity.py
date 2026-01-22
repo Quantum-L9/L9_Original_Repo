@@ -19,10 +19,7 @@ from uuid import uuid4
 
 import pytest
 
-from core.schemas import (
-    PacketEnvelope,
-    PacketMetadata,
-)
+from core.schemas import PacketEnvelope, PacketMetadata
 from core.schemas.schema_registry import upcast
 
 

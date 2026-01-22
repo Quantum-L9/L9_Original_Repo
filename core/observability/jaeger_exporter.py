@@ -25,8 +25,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import TYPE_CHECKING, Any, List, Optional
+
 import structlog
-from typing import List, Optional, Any, TYPE_CHECKING
 
 from core.decorators import must_stay_async
 
@@ -39,10 +40,11 @@ if TYPE_CHECKING:
 # Try to import OpenTelemetry (runtime import)
 try:
     from opentelemetry import trace as _trace
-    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import \
+        OTLPSpanExporter
+    from opentelemetry.sdk.resources import Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry.sdk.resources import Resource
 
     OPENTELEMETRY_AVAILABLE = True
     trace = _trace  # Re-export for runtime use
@@ -152,7 +154,8 @@ class JaegerExporter:
                             otel_span.set_attribute(key, str(value))
 
                 # Add specialized span attributes
-                from .models import LLMGenerationSpan, ToolCallSpan, ContextAssemblySpan
+                from .models import (ContextAssemblySpan, LLMGenerationSpan,
+                                     ToolCallSpan)
 
                 if isinstance(span, LLMGenerationSpan):
                     otel_span.set_attribute("llm.model", span.model)
@@ -233,7 +236,6 @@ class JaegerExporter:
     async def flush(self) -> None:
         """Flush any pending spans."""
         # OpenTelemetry BatchSpanProcessor handles flushing automatically
-        pass
 
 
 # Global exporter instance

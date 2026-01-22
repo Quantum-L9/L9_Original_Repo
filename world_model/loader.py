@@ -52,15 +52,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
 import structlog
 import yaml
-from pathlib import Path
-from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from world_model.state import WorldModelState
     from world_model.causal_graph import CausalGraph
     from world_model.registry import WorldModelRegistry
+    from world_model.state import WorldModelState
 
 
 logger = structlog.get_logger(__name__)
@@ -403,7 +404,7 @@ class WorldModelLoader:
         Returns:
             Initialized WorldModelState
         """
-        from world_model.state import WorldModelState, Entity, Relation
+        from world_model.state import Entity, Relation, WorldModelState
 
         state = WorldModelState()
 

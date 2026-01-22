@@ -26,8 +26,10 @@ __dora_meta__ = {
 # ============================================================================
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional, Any
+from typing import Any, Dict, List, Optional
+
 import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -45,7 +47,6 @@ class ContextStrategy(ABC):
         max_tokens: int = 8000,
     ) -> str:
         """Assemble context for LLM input."""
-        pass
 
 
 class NaiveTruncationStrategy(ContextStrategy):

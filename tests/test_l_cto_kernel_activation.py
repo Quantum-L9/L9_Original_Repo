@@ -41,12 +41,15 @@ class TestLCTOKernelActivation:
     def test_kernel_state_active(self):
         """Test 2 — Kernel awareness: kernel_state == ACTIVE."""
         from agents.l_cto import LCTOAgent
-        from runtime.kernel_loader import load_kernels, require_kernel_activation
+        from runtime.kernel_loader import (load_kernels,
+                                           require_kernel_activation)
 
         agent = LCTOAgent(agent_id="test-l-cto")
         agent = load_kernels(agent)
 
-        assert agent.kernel_state == "ACTIVE", f"Expected ACTIVE, got: {agent.kernel_state}"
+        assert (
+            agent.kernel_state == "ACTIVE"
+        ), f"Expected ACTIVE, got: {agent.kernel_state}"
 
         # Should not raise
         require_kernel_activation(agent)
@@ -64,7 +67,9 @@ class TestLCTOKernelActivation:
 
         # Check that we have at least the master kernel
         master_loaded = any("master" in k for k in agent.kernels.keys())
-        assert master_loaded, f"Master kernel not loaded. Keys: {list(agent.kernels.keys())}"
+        assert (
+            master_loaded
+        ), f"Master kernel not loaded. Keys: {list(agent.kernels.keys())}"
 
     def test_system_prompt_from_kernels(self):
         """Verify system prompt is built from kernels."""
@@ -78,7 +83,9 @@ class TestLCTOKernelActivation:
 
         # Should contain key identity markers from kernels
         assert "L" in prompt, "Prompt should contain L identity"
-        assert "Igor" in prompt or "CTO" in prompt, "Prompt should reference Igor or CTO role"
+        assert (
+            "Igor" in prompt or "CTO" in prompt
+        ), "Prompt should reference Igor or CTO role"
 
         # Should not be the fallback prompt
         assert "degraded mode" not in prompt.lower(), "Should not be fallback prompt"
@@ -181,7 +188,8 @@ class TestKernelAwareRegistry:
         os.environ["L9_USE_KERNELS"] = "true"
 
         try:
-            from core.agents.kernel_registry import create_kernel_aware_registry
+            from core.agents.kernel_registry import \
+                create_kernel_aware_registry
 
             registry = create_kernel_aware_registry()
 
@@ -202,7 +210,8 @@ class TestKernelAwareRegistry:
         os.environ["L9_USE_KERNELS"] = "true"
 
         try:
-            from core.agents.kernel_registry import create_kernel_aware_registry
+            from core.agents.kernel_registry import \
+                create_kernel_aware_registry
 
             registry = create_kernel_aware_registry()
             config = registry.get_agent_config("l9-standard-v1")

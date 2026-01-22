@@ -46,11 +46,12 @@ __dora_meta__ = {
 
 import asyncio
 import math
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

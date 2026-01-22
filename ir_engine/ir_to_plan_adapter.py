@@ -40,20 +40,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from ir_engine.ir_schema import (
-    IRGraph,
-    IRStatus,
-    ActionNode,
-    ActionType,
-    NodePriority,
-)
+import structlog
+
 from ir_engine.ir_generator import IRGenerator
+from ir_engine.ir_schema import (ActionNode, ActionType, IRGraph, IRStatus,
+                                 NodePriority)
 
 logger = structlog.get_logger(__name__)
 
@@ -474,7 +470,7 @@ class IRToPlanAdapter:
         """
         for idx, step in enumerate(plan.steps):
             if step.step_id == step_id:
-                removed = plan.steps.pop(idx)
+                plan.steps.pop(idx)
 
                 # Renumber subsequent steps
                 for s in plan.steps[idx:]:

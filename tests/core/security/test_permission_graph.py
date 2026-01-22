@@ -8,10 +8,11 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
 import sys
 from pathlib import Path
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -21,7 +22,9 @@ if str(project_root) not in sys.path:
 try:
     from core.security.permission_graph import PermissionGraph
 except ImportError as e:
-    pytest.skip(f"Could not import core.security.permission_graph: {e}", allow_module_level=True)
+    pytest.skip(
+        f"Could not import core.security.permission_graph: {e}", allow_module_level=True
+    )
 
 
 # =============================================================================
@@ -35,7 +38,9 @@ async def test_permission_check():
     Contract: PermissionGraph can check permissions (mocked Neo4j).
     """
     # Mock Neo4j client
-    with patch("core.security.permission_graph.PermissionGraph._get_neo4j") as mock_get_neo4j:
+    with patch(
+        "core.security.permission_graph.PermissionGraph._get_neo4j"
+    ) as mock_get_neo4j:
         mock_neo4j = AsyncMock()
         mock_get_neo4j.return_value = mock_neo4j
 
@@ -61,7 +66,9 @@ async def test_grant_permission():
     Contract: PermissionGraph can grant permissions (mocked Neo4j).
     """
     # Mock Neo4j client
-    with patch("core.security.permission_graph.PermissionGraph._get_neo4j") as mock_get_neo4j:
+    with patch(
+        "core.security.permission_graph.PermissionGraph._get_neo4j"
+    ) as mock_get_neo4j:
         mock_neo4j = AsyncMock()
         mock_get_neo4j.return_value = mock_neo4j
 
