@@ -82,7 +82,7 @@ class TestAgentPersistenceService:
         }
 
         # Create checkpoint
-        checkpoint_id = await agent_persistence_service.create_checkpoint(
+        await agent_persistence_service.create_checkpoint(
             agent_id=agent_id,
             state=state,
             reason="test_restore",

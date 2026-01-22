@@ -682,7 +682,7 @@ class PlanExecutor:
     ) -> None:
         """Execute steps with dependency awareness."""
         completed_ids: set[UUID] = set()
-        step_map = {s.step_id: s for s in plan.steps}
+        {s.step_id: s for s in plan.steps}
 
         while len(completed_ids) < len(plan.steps):
             # Find executable steps (dependencies satisfied)

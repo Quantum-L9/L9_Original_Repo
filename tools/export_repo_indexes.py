@@ -1539,14 +1539,14 @@ def generate_route_handlers():
         "",
     ]
     routes = []
-    route_pattern = re.compile(
+    re.compile(
         r'@(?:app|router)\.(?:api_route|get|post|put|delete|patch|websocket|options|head)\s*\(\s*["\']([^"\']+)["\']',
         re.MULTILINE,
     )
-    method_pattern = re.compile(
+    re.compile(
         r"@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)"
     )
-    func_pattern = re.compile(r"(?:async\s+)?def\s+(\w+)\s*\(")
+    re.compile(r"(?:async\s+)?def\s+(\w+)\s*\(")
 
     for root, dirs, files in os.walk(REPO_DIR):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]

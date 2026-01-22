@@ -70,7 +70,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Optional
+from typing import Any, Optional
 
 import structlog
 
@@ -218,7 +218,7 @@ def create_observability_service() -> ObservabilityService:
     return None  # type: ignore
 
 
-def create_kernel_loader() -> KernelLoader:
+def create_kernel_loader() -> Any:  # KernelLoader
     """
     Create kernel loader.
 

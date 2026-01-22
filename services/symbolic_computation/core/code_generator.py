@@ -209,7 +209,7 @@ class CodeGenerator:
         from sympy.utilities.codegen import CCodeGen, FCodeGen, Routine
 
         # Create routine
-        routine = Routine(function_name, expr, argument_sequence=var_symbols)
+        Routine(function_name, expr, argument_sequence=var_symbols)
 
         # Select code generator
         if language.upper() == "C":

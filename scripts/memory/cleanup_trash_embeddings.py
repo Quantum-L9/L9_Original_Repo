@@ -107,7 +107,7 @@ def is_trash_embedding(payload: Dict[str, Any]) -> bool:
             json.loads(text)
             # If it parses as JSON and is short, it's likely a dump
             return True
-        except:
+        except Exception:
             pass
 
     return False

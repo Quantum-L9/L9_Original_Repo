@@ -102,7 +102,7 @@ async def git_commit_tool(
     # Create task and enqueue as pending
     try:
         task_id = str(uuid4())
-        task = QueuedTask(
+        QueuedTask(
             task_id=task_id,
             name="Git Commit",
             payload=payload,

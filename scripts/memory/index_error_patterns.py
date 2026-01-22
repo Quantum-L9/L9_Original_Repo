@@ -239,7 +239,7 @@ Error Message: {error_message}
 Fix Applied: {fix_applied if fix_applied else "No fix recorded"}
 """
             try:
-                embedding_id = await substrate_service.embed_text(
+                await substrate_service.embed_text(
                     text=error_context,
                     payload={
                         "error_type": error_type,

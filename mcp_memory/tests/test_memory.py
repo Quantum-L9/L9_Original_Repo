@@ -248,7 +248,7 @@ async def test_save_with_confidence():
 
             from src.routes.memory import save_memory_with_confidence
 
-            result = await save_memory_with_confidence(
+            await save_memory_with_confidence(
                 user_id="test",
                 content="I think this is correct",
                 kind="fact",

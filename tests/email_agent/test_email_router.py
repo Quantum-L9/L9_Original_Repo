@@ -423,7 +423,7 @@ class TestBackwardCompat:
             with patch("email_agent.gmail_client.build"):
                 from email_agent.gmail_client import GmailClient
 
-                client = GmailClient()  # No account param
+                GmailClient()  # No account param
 
         # Should call load_tokens with None (legacy mode)
         mock_load.assert_called_with(None)
@@ -435,7 +435,7 @@ class TestBackwardCompat:
             with patch("email_agent.gmail_client.build"):
                 from email_agent.gmail_client import GmailClient
 
-                client = GmailClient(account="igor")
+                GmailClient(account="igor")
 
         mock_load.assert_called_with("igor")
 

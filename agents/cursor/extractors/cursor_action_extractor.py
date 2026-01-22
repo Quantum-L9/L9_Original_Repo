@@ -386,18 +386,6 @@ class CursorActionExtractor(BaseExtractor):
         components = {}
 
         # Extract component names from content
-        component_patterns = [
-            r'master_loader:.*?description:\s*"([^"]+)"',
-            r'l_core_reasoning_engine:.*?description:\s*"([^"]+)"',
-            r'deployment_directive_bundle:.*?description:\s*"([^"]+)"',
-            r'l9_code_synthesis_agent:.*?description:\s*"([^"]+)"',
-            r'l9_memory_system:.*?description:\s*"([^"]+)"',
-            r'l_os_behavioral_kernel:.*?description:\s*"([^"]+)"',
-            r'diagnostic_suite:.*?description:\s*"([^"]+)"',
-            r'deployment_urgency_engine:.*?description:\s*"([^"]+)"',
-            r'extraction_engine_zero_loss:.*?description:\s*"([^"]+)"',
-            r'governance_consistency_hooks:.*?description:\s*"([^"]+)"',
-        ]
 
         component_names = [
             "master_loader",

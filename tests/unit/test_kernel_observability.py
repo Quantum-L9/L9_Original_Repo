@@ -168,7 +168,7 @@ class TestKernelLoaderSpanEmission:
         from core.kernels.kernelloader import _create_kernel_span
 
         # When observability is available, span should be created
-        span = _create_kernel_span(
+        _create_kernel_span(
             name="test_span",
             kernel_id="master",
             phase="load",
@@ -228,7 +228,7 @@ class TestKernelSpanAttributes:
 
     def test_span_includes_kernel_count(self):
         """Kernel spans include kernel count attribute."""
-        span = KernelLifecycleSpan.start(
+        KernelLifecycleSpan.start(
             name="kernel_loader.phase1",
             trace_id="trace123",
             kernel_id="all",

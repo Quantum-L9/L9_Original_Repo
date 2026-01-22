@@ -78,7 +78,6 @@ def analyze_pr(changed_files: Set[str], code_map: Dict) -> Dict[str, List[str]]:
         if not changed_file or changed_file == "":
             continue
 
-        found = False
 
         # Check each subsystem
         for subsystem_name, subsystem_info in code_map.get("subsystems", {}).items():
@@ -90,17 +89,14 @@ def analyze_pr(changed_files: Set[str], code_map: Dict) -> Dict[str, List[str]]:
 
             if any(pattern_match(changed_file, p) for p in allowed):
                 analysis["allowed"].append(f"{changed_file} ({subsystem_name})")
-                found = True
                 break
 
             if any(pattern_match(changed_file, p) for p in forbidden):
                 analysis["protected"].append(f"{changed_file} ({subsystem_name})")
-                found = True
                 break
 
             if changed_file.startswith(subsystem_info["path"]):
                 analysis["restricted"].append(f"{changed_file} ({subsystem_name})")
-                found = True
                 break
 
     # Find untouched subsystems

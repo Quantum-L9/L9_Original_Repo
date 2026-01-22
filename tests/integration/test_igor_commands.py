@@ -431,7 +431,7 @@ class TestAuditLogger:
         )
 
         # Patch the import within the audit_log module
-        with patch("core.compliance.audit_log.logger") as mock_logger:
+        with patch("core.compliance.audit_log.logger"):
             logger = AuditLogger(substrate_service=mock_substrate)
 
             # Note: In test environment, memory.substrate_models may not be available

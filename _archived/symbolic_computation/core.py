@@ -215,7 +215,7 @@ class CodeGenerator:
 
             if request.compile and request.language == CodeLanguage.PYTHON:
                 # Use autowrap for compiled Python extensions
-                compiled_func = await asyncio.to_thread(
+                await asyncio.to_thread(
                     autowrap,
                     expr,
                     args=syms,

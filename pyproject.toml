@@ -22,3 +22,55 @@ mypy_path = "."
 ignore_missing_imports = true
 warn_return_any = false
 warn_unused_ignores = false
+
+[tool.ruff]
+# Exclude kernel files, documentation, and common directories
+exclude = [
+    "l9_private/kernels",
+    "readme",
+    "_archived",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".git",
+    "*.egg-info",
+]
+
+# Line length to match Black
+line-length = 88
+
+[tool.ruff.lint]
+# Enable critical rules only (bugs, not style)
+select = [
+    "F",   # Pyflakes (undefined names, unused imports, etc.)
+    "E7",  # Statement errors (bare except, etc.)
+]
+
+# Ignore intentional patterns and style issues
+ignore = [
+    "E402",  # Module level import not at top of file (intentional for DORA metadata)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow unused imports in __init__.py files
+"__init__.py" = ["F401"]
+# Allow undefined names in test files (fixtures)
+"tests/**/*.py" = ["F821"]
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | l9_private/kernels
+  | __pycache__
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = ["l9_private/kernels", ".venv", "venv"]

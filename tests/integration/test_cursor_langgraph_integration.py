@@ -159,7 +159,7 @@ class TestGraphSearchUsesRedisCache:
         ctx = GraphSearchContext(project_id="test")
 
         # First call: should hit Neo4j
-        result1 = await cached_graph_search(
+        await cached_graph_search(
             query="MATCH (n) RETURN n",
             params={},
             ctx=ctx,
@@ -178,7 +178,7 @@ class TestGraphSearchUsesRedisCache:
             return_value='{"results": [], "created_at": "2026-01-01T00:00:00", "schema_version": "test", "ttl": 100}'
         )
 
-        result2 = await cached_graph_search(
+        await cached_graph_search(
             query="MATCH (n) RETURN n",
             params={},
             ctx=ctx,

@@ -488,7 +488,7 @@ async def send_email(
         if request.draft_id:
             # Send existing draft
             try:
-                draft = (
+                (
                     client.service.users()
                     .drafts()
                     .get(userId="me", id=request.draft_id)

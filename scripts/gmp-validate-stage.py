@@ -234,7 +234,7 @@ class GMPStageValidator:
         threshold = 85.0
 
         try:
-            result = subprocess.run(
+            subprocess.run(
                 ["pytest", "--cov=memory/consolidation", "--cov-report=json"],
                 capture_output=True,
                 text=True,

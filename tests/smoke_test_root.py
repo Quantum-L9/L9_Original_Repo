@@ -261,7 +261,7 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
         )
 
         # Create envelope with proper UUID
-        envelope = PacketEnvelope(
+        PacketEnvelope(
             packet_id=uuid4(),
             packet_type=packet.packet_type,
             payload=packet.payload,
@@ -273,7 +273,7 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
             from memory.substrate_dag import SubstrateDAG
 
             # Create DAG without services (dry run)
-            dag = SubstrateDAG(repository=None, semantic_service=None)
+            SubstrateDAG(repository=None, semantic_service=None)
         except ImportError:
             # langgraph not installed, skip DAG instantiation
             pass

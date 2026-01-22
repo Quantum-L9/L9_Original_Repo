@@ -273,7 +273,7 @@ Preference: {preference_text}
 Source: {preference.get("source", "unknown")}
 """
             try:
-                embedding_id = await substrate_service.embed_text(
+                await substrate_service.embed_text(
                     text=preference_context,
                     payload={
                         "user_id": user_id,

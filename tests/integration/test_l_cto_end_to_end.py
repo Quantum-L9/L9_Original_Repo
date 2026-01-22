@@ -342,7 +342,7 @@ class TestLCTOEndToEnd:
 
         # Verify audit trail has entry (if audit_log was called)
         # Note: This depends on audit_log implementation
-        trail = get_audit_trail(agent_id="l-cto", limit=10)
+        get_audit_trail(agent_id="l-cto", limit=10)
         # Trail may be empty if audit_log uses different storage
         # This test verifies the call path, not the storage
 
@@ -462,7 +462,7 @@ class TestLCTOEndToEnd:
 
         # Check for failure packet
         packet_calls = mock_substrate_service.write_packet.call_args_list
-        failure_packets = [
+        [
             call[0][0]
             for call in packet_calls
             if "failure" in call[0][0].packet_type.lower()

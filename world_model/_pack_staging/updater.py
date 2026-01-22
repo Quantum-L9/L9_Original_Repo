@@ -172,7 +172,7 @@ class WorldModelUpdater(IWorldModelUpdater):
                 if not self.validate_operation(op):
                     return False
             return True
-        except:
+        except Exception:
             return False
 
     def validate_operation(self, operation: UpdateOperation) -> bool:

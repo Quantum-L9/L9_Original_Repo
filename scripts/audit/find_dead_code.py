@@ -735,7 +735,7 @@ def find_unwired_tools(repo_root: Path) -> list[DeadCodeFinding]:
             continue
 
     # Check if tools are registered (search for register_tool calls referencing these arrays)
-    register_patterns = [
+    [
         re.compile(r"register_tool\s*\("),
         re.compile(r"for\s+tool\s+in\s+(\w+)"),
         re.compile(r"ToolGraph\.register_tool"),

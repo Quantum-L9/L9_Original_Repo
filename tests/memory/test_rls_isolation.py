@@ -74,7 +74,7 @@ class TestRLSScopeTransaction:
             org_id=TEST_ORG_A,
             user_id=TEST_USER_A,
             role="end_user",
-        ) as conn:
+        ):
             # Verify l9_set_scope was called
             mock_conn.execute.assert_called_once()
             call_args = mock_conn.execute.call_args[0]

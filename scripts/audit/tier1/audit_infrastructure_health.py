@@ -344,7 +344,7 @@ class PythonModuleHealthProbe(HealthProbe):
 
             # Try to call function (in asyncio)
             if asyncio.iscoroutinefunction(func):
-                result = await asyncio.wait_for(func(), timeout=self.timeout)
+                await asyncio.wait_for(func(), timeout=self.timeout)
             else:
                 func()
 

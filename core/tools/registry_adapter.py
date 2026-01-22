@@ -1107,7 +1107,7 @@ class ExecutorToolRegistry:
             log_tool_invocation = tool_audit_module.log_tool_invocation
             ToolAuditEntry = tool_audit_module.ToolAuditEntry
 
-            audit_entry = ToolAuditEntry(
+            ToolAuditEntry(
                 tool_name=tool_id,
                 agent_id=agent_id,
                 input_data={

@@ -208,7 +208,7 @@ class Neo4jSubstrate:
                 labels = record["labels"]
 
                 # Extract type from labels (skip "Entity" label)
-                entity_type = next((l for l in labels if l != "Entity"), None)
+                entity_type = next((line for line in labels if line != "Entity"), None)
 
                 return Entity(
                     id=node["id"],
@@ -237,7 +237,7 @@ class Neo4jSubstrate:
                 for record in result:
                     node = record["e"]
                     labels = record["labels"]
-                    entity_type = next((l for l in labels if l != "Entity"), None)
+                    entity_type = next((line for line in labels if line != "Entity"), None)
 
                     entities.append(
                         Entity(

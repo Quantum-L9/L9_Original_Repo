@@ -153,7 +153,7 @@ class PacketEnvelopeObservability:
         self.meter = metrics.get_meter(__name__)
 
         # Initialize propagators
-        propagator = CompositePropagator(
+        CompositePropagator(
             [
                 TraceContextTextMapPropagator(),
                 W3CBaggagePropagator(),

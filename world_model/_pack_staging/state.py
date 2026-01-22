@@ -320,7 +320,7 @@ class WorldModelState(IWorldModelState):
                     from world_model.interfaces import Entity as EntityClass
 
                     self._entities[eid] = EntityClass(**entity_data)
-                except:
+                except Exception:
                     # Fallback: store as-is
                     self._entities[eid] = entity_data
             else:
@@ -335,7 +335,7 @@ class WorldModelState(IWorldModelState):
                         Relation as RelationClass
 
                     self._relations[rid] = RelationClass(**relation_data)
-                except:
+                except Exception:
                     self._relations[rid] = relation_data
             else:
                 self._relations[rid] = relation_data

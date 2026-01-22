@@ -461,20 +461,20 @@ class SubstrateOrchestrator:
         try:
             self.postgres._connection.ping()
             health["postgres"] = "healthy"
-        except:
+        except Exception:
             health["postgres"] = "unhealthy"
 
         try:
             with self.neo4j._driver.session() as session:
                 session.run("RETURN 1")
             health["neo4j"] = "healthy"
-        except:
+        except Exception:
             health["neo4j"] = "unhealthy"
 
         try:
             self.redis._client.ping()
             health["redis"] = "healthy"
-        except:
+        except Exception:
             health["redis"] = "unhealthy"
 
         return health

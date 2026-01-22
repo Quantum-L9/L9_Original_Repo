@@ -159,7 +159,7 @@ class QueryEngine:
             comp_func = comparators.get(comparator, comparators["eq"])
             try:
                 return comp_func(attr_value, value)
-            except:
+            except Exception:
                 return False
 
         return self.filter_entities(matches)

@@ -249,7 +249,7 @@ class TestCallerIdentityEnforcement:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
             # Try to spoof creator in request body
-            resp = await client.post(
+            await client.post(
                 "/memory/save",
                 headers=l_auth,
                 json={

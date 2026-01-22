@@ -395,7 +395,7 @@ async def slack_commands(
     async def process_command_async():
         """Process command asynchronously after returning ACK."""
         try:
-            result = await handle_slack_commands(
+            await handle_slack_commands(
                 payload=payload,
                 substrate_service=substrate_service,
                 slack_client=slack_client,
