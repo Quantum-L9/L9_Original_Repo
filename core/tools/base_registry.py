@@ -582,7 +582,6 @@ async def ask_l(query: str) -> dict:
         Dictionary with execution results: task_ids, status, message
     """
     import structlog
-from runtime.tool_registry import register_tool
     from core.agents.executor import _generate_tasks_from_query
     from runtime.task_queue import dispatch_task_immediate, QueuedTask
     from uuid import uuid4

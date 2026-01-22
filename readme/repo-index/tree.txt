@@ -35,7 +35,6 @@ L9/
 │       ├── terminology-guard.yml
 ├── .sec/
 │   ├── semgrep.yaml
-├── .tmp.drivedownload/
 ├── _archived/
 │   ├── deprecated_backup_scripts/
 │   │   ├── backup_database.sh
@@ -366,6 +365,9 @@ L9/
 │       ├── insight_emitter.py
 │       ├── l9_schema.py
 │       ├── service.py
+├── deploy/
+│   └── k8s/
+│       └── c1/
 ├── dev/
 │   ├── __init__.py
 │   └── tools/
@@ -381,14 +383,19 @@ L9/
 │   ├── CURSOR-RUNBOOK.md
 │   ├── GOD-MODE-ORCHESTRATOR.md
 │   ├── GRACEFUL_DEGRADATION_VS_FAIL_LOUDLY.md
+│   ├── L9-Vision-thesis_excerpt.md
+│   ├── L9-Vision.md
 │   ├── MCP-MEMORY-CAPSULE.md
-│   ├── Roadmap-2.md
-│   ├── TOOLS-Explained.md
-│   ├── ... (3 more files)
+│   ├── ... (4 more files)
 │   ├── architecture/
 │   │   ├── di-container-guide.md
 │   │   ├── migration-checklist.md
 │   │   ├── protocol-catalog.md
+│   ├── audits/
+│   │   ├── AUTOREGISTRY_MIGRATION_AUDIT.md
+│   │   ├── L9_SLACK_INTEGRATION_AUDIT_V3.md
+│   │   ├── LAZY_LOADING_ANALYSIS.md
+│   │   ├── TOOL_EXECUTOR_MIGRATION_COMPLETE.md
 │   └── cursor rules/
 │       ├── 00-global.mdc
 │       ├── 01-vps-rules.mdc
@@ -505,7 +512,7 @@ L9/
 │   ├── checkpoint_manager.py
 │   ├── checkpoint_metrics.py
 │   ├── checkpoint_validator.py
-│   ├── ... (52 more files)
+│   ├── ... (53 more files)
 │   ├── checkpoint/
 │   │   ├── __init__.py
 │   │   ├── cursor_checkpoint_manager.py
@@ -636,13 +643,13 @@ L9/
 │   ├── AUDIT_PacketEnvelope_PacketStore_Integration.md
 │   ├── CHECKPOINT-OPS-RUNBOOK.md
 │   ├── CI-MUTATION-TESTING.md
+│   ├── DEPLOYMENT-PHILOSOPHY.md
 │   ├── DEPLOYMENT_CANONICAL.md
 │   ├── Docker Infra.md
 │   ├── GIT-HOOKS.md
 │   ├── L9-Classes.md
 │   ├── L9-KERNEL-REFERENCE.md
-│   ├── MANIFEST.md
-│   ├── ... (11 more files)
+│   ├── ... (12 more files)
 │   ├── L-CTO/
 │   │   ├── L-CTO-ABILITIES.md
 │   │   ├── L-CTO-ARCHITECTURE.md
@@ -664,7 +671,7 @@ L9/
 │   │   ├── 0007-seven-phase-bootstrap.md
 │   │   ├── 0008-feature-flag-gating.md
 │   │   ├── 0009-circuit-breaker-resilience.md
-│   │   ├── ... (47 more files)
+│   │   ├── ... (48 more files)
 │   ├── diagrams/
 │   │   ├── 01-memory-substrate.mmd
 │   │   ├── 01-memory-substrate.png
@@ -710,11 +717,11 @@ L9/
 │   ├── cursor-start-session
 │   ├── dev_layer_compile.sh
 │   ├── diagnose_memory_search.py
+│   ├── docker-validator.sh
 │   ├── extract_code_facts.py
 │   ├── fix_async_decorators.py
 │   ├── generate_gmp_report.py
-│   ├── generate_readme_superprompt.py
-│   ├── ... (9 more files)
+│   ├── ... (10 more files)
 │   ├── agents/
 │   │   ├── neo4j_merge_agent_nodes.py
 │   │   ├── neo4j_unify_relationships.py
@@ -994,9 +1001,10 @@ L9/
 │   │   ├── test_kernel_state.py
 │   │   ├── test_mcp_server_registry.py
 │   │   ├── test_packet_envelopes_invariants.py
+│   │   ├── test_slack_tools.py
 │   │   ├── test_tool_registry.py
 │   │   ├── test_websocket_orchestrator_basic.py
-│   │   ├── test_ws_protocol_static.py
+│   │   ├── ... (1 more files)
 │   ├── scripts/
 │   │   ├── __init__.py
 │   │   ├── test_factory_extract_cli.py

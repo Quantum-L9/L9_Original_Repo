@@ -980,13 +980,6 @@ core/testing/test_executor.py::TestResult - Result of a single test.
 core/testing/test_executor.py::TestResults - Results of a test run.
 core/testing/test_generator.py::TestGenerator - Generates tests from code proposals.
 core/tools/agent_self_modify.py::AgentSelfModifyTool - Allow agents to modify their own graph state.
-core/tools/base_registry.py::Config - No docstring
-core/tools/base_registry.py::Config - No docstring
-core/tools/base_registry.py::RateLimitWindow - Sliding window rate limiter.
-core/tools/base_registry.py::ToolMetadata - Metadata for a registered tool.
-core/tools/base_registry.py::ToolRegistry - In-memory registry of available tools.
-core/tools/base_registry.py::ToolSchema - JSON Schema for tool parameters (OpenAI function calling com
-core/tools/base_registry.py::ToolType - Types of available tools.
 core/tools/memory_tools.py::MemorySearchResult - Result from memory search
 core/tools/memory_tools.py::MemorySegment - Memory segments available for agent queries
 core/tools/memory_tools.py::MemoryWriteResult - Result from memory write
@@ -1074,6 +1067,10 @@ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::Language - No docstring
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::RefactoringBootstrap - Main orchestrator for refactoring pipeline setup
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::ToolConfig - Configuration for refactoring tools
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestIntegration - Integration tests - all tiers together
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier1MemoryEvolution - Test Tier 1: Differentiable Memory
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier2SwarmSync - Test Tier 2: Swarm Synchronicity
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier3Governance - Test Tier 3: Meta-Cognitive Governance
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::AutonomicSteering - Autonomic Resource Steering
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::LeanVerifier - Lean theorem prover integration for formal verification
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::MetaEvolutionEngine - Meta-Evolution Engine
@@ -1092,6 +1089,48 @@ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_ai
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier1MemoryEvolution - Test Tier 1: Differentiable Memory
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier2SwarmSync - Test Tier 2: Swarm Synchronicity
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier3Governance - Test Tier 3: Meta-Cognitive Governance
+current_work/01-21-2026/governance.py::AutonomicSteering - Autonomic Resource Steering
+current_work/01-21-2026/governance.py::LeanVerifier - Lean theorem prover integration for formal verification
+current_work/01-21-2026/governance.py::MetaEvolutionEngine - Meta-Evolution Engine
+current_work/01-21-2026/governance.py::RecursiveSelfCoding - Recursive Self-Coding Engine
+current_work/01-21-2026/governance.py::UtilityScorer - Scores graph subregions by reasoning density
+current_work/01-21-2026/neural_substrate.py::CanaryDeployment - Canary deployment system for schema mutations
+current_work/01-21-2026/neural_substrate.py::GNNKernel - Graph Neural Network Kernel for latent pattern discovery
+current_work/01-21-2026/neural_substrate.py::SchemaDistiller - Schema Distillation Engine
+current_work/01-21-2026/swarm_sync.py::AgentLearning - Represents a learning event from an agent
+current_work/01-21-2026/swarm_sync.py::ConflictResolutionMode - How to resolve conflicts between agents
+current_work/01-21-2026/swarm_sync.py::ConflictSuperposition - Stores disagreements between agents as probability distribut
+current_work/01-21-2026/swarm_sync.py::Coordinator - Swarm Coordinator
+current_work/01-21-2026/swarm_sync.py::DistributedIntuitionCache - Local intuition cache for agents
+current_work/01-21-2026/swarm_sync.py::VectorPubSub - Vector Pub/Sub system using Redis
+current_work/Bayesian Upgrade/bayesian_kernel.py::BayesianKernel - Bayesian Reasoning Kernel for L9.
+current_work/Bayesian Upgrade/bayesian_kernel.py::BeliefState - Represents current belief about a variable.
+current_work/Bayesian Upgrade/bayesian_kernel.py::EvidenceStrength - Classification of evidence strength.
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::SubjectiveLogicAdapter - Adapter between Bayesian probabilities and Subjective Logic 
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::BayesianUncertainty - Complete Bayesian uncertainty quantification.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::DeepEnsemble - Deep ensemble for implicit Bayesian inference.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::TestModel - No docstring
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::GovernanceDecision - Result of governance evaluation
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::HybridInferenceKernel - Upgraded Universal Kernel with probabilistic reasoning.
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::CursorProbabilisticEngine - Lightweight probabilistic reasoning engine for Cursor govern
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::Evidence - Single piece of evidence for probabilistic inference
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::ProbabilisticAssessment - Complete assessment from probabilistic model
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::RiskLevel - Risk classification levels
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::SubjectiveLogic - Subjective logic decomposition (Trust/Disbelief/Uncertainty)
+current_work/Bayesian Upgrade/hypergraph.py::BayesianNode - Bayesian belief state tracking node.
+current_work/Bayesian Upgrade/hypergraph.py::Evidence - Evidence item with strength assessment.
+current_work/Bayesian Upgrade/hypergraph.py::HypergraphNode - Base node in L9 hypergraph (directed acyclic graph).
+current_work/Bayesian Upgrade/hypergraph.py::NodeStatus - Node execution status.
+current_work/Bayesian Upgrade/hypergraph.py::NodeTemplate - Template for creating nodes of specific types.
+current_work/Bayesian Upgrade/hypergraph.py::NodeType - Node type enumeration.
+current_work/Bayesian Upgrade/hypergraph.py::ReasoningNode - Reasoning step node in task graph.
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::AutoCalibrator - Autonomous calibration system - no manual intervention requi
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::CalibrationReport - Report generated from calibration run
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackCollector - Collects and processes user feedback on governance decisions
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackEvent - Single feedback event
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackType - Types of user feedback
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::CalibrationDashboard - Monitoring and visualization for probabilistic governance.
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::CalibrationMetrics - Calibration quality metrics
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ArtifactExtractor - Base class for extracting structured data from documents.
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ConstraintExtractor - Extracts constraint definitions from documents.
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::DocumentClassifier - Classifies documents based on schema hints.
@@ -1814,6 +1853,8 @@ memory/cypher_templates.py::CypherTemplateCategory - Categories for Cypher templ
 memory/cypher_templates.py::CypherTemplateLibrary - Library for managing and executing parameterized Cypher temp
 memory/dead_letter.py::DeadLetterEntry - Entry in the dead letter queue.
 memory/dead_letter.py::DeadLetterQueue - Redis Stream-based dead letter queue for failed packets.
+memory/dead_letter_queue.py::DLQEntry - A single entry in the Dead-Letter Queue.
+memory/dead_letter_queue.py::DeadLetterQueue - Redis-backed Dead-Letter Queue for failed packet ingestions.
 memory/extractor/agent_config_extractor.py::AgentConfigExtractor - Extracts agent configuration (preferences, SOPs, roles).
 memory/extractor/base_extractor.py::BaseExtractor - Base class for all extractors.
 memory/extractor/code_extractor.py::CodeExtractor - Extracts code files from chat logs.

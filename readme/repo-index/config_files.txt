@@ -2964,6 +2964,21 @@ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compile
 current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/examples/example_confidence_router.yaml
 current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/examples/example_confidence_router.yaml
 current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/specs/plan_proj_l9_core_task_confidence_router_0_1_0_v1.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/Dockerfile.C1
+current_work/01-21-2026/Infro As Code - IaC - K8s/Dockerfile.orchestrator
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-ingress.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-l9-api.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-mcp-memory.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-monitoring.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-namespace.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-neo4j.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-network-policy.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-postgres.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-rbac.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-rbac2.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-redis.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/c1-secrets.yaml
+current_work/01-21-2026/Infro As Code - IaC - K8s/docker-compose.yml
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/Dockerfile.orchestrator
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/docker-compose.yml
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_configmap_secrets.yaml
@@ -2973,6 +2988,65 @@ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_neo4j_
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_network_policy.yaml
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_orchestrator_deployment.yaml
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_redis_statefulset.yaml
+current_work/01-22-2026/MortgageOS/specs/mortgageos.hypergraph.core.v1.0.0.yaml
+current_work/01-22-2026/MortgageOS/specs/mortgageos.minimal_domainos_pack.v1.0.0.yaml
+current_work/01-22-2026/MortgageOS/specs/mortgageos.strategy.layer.v1.0.0.yaml
+current_work/01-22-2026/MortgageOS/specs/mortgageos.tensor.margin.v1.0.0.yaml
+current_work/01-22-2026/PlastOS/specs/l9.bayesian_tree_reasoner.yaml
+current_work/01-22-2026/PlastOS/specs/l9.calibration.contract.yaml
+current_work/01-22-2026/PlastOS/specs/l9.constraints.registry.yaml
+current_work/01-22-2026/PlastOS/specs/l9.corrections.human_correction_protocol.yaml
+current_work/01-22-2026/PlastOS/specs/l9.envelopes.moisture_by_washline.yaml
+current_work/01-22-2026/PlastOS/specs/l9.envelopes.update_rules.yaml
+current_work/01-22-2026/PlastOS/specs/l9.governance.override_abuse_detection.yaml
+current_work/01-22-2026/PlastOS/specs/l9.graph.hyperedges.freight_execution.yaml
+current_work/01-22-2026/PlastOS/specs/l9.graph.hyperedges.pvc_extrusion.yaml
+current_work/01-22-2026/PlastOS/specs/l9.graph.hyperedges.washline_moistfilm.yaml
+current_work/01-22-2026/PlastOS/specs/l9.inference.bayesian_layer.yaml
+current_work/01-22-2026/PlastOS/specs/l9.inference.equipment_class_generalization.yaml
+current_work/01-22-2026/PlastOS/specs/l9.inferers.supplier_process_origin.yaml
+current_work/01-22-2026/PlastOS/specs/l9.inferers.washline_presence_inferer.yaml
+current_work/01-22-2026/PlastOS/specs/l9.learning.bayes_autocalibration.yaml
+current_work/01-22-2026/PlastOS/specs/l9.normalization.contract.yaml
+current_work/01-22-2026/PlastOS/specs/l9.overrides.human_exception.yaml
+current_work/01-22-2026/PlastOS/specs/l9.scp.confidence_evolution.yaml
+current_work/01-22-2026/PlastOS/specs/l9.supplier.visual_honesty_scoring.yaml
+current_work/01-22-2026/PlastOS/specs/l9.supplier_accuracy_to_normalization.yaml
+current_work/01-22-2026/PlastOS/specs/l9.vision.image_quality_gate.yaml
+current_work/01-22-2026/PlastOS/specs/l9.vision.visibility_weighting.yaml
+current_work/01-22-2026/PlastOS/specs/offer_picture_evaluator.prompt.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.archetype.registry.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.archetypes.buyer.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.archetypes.freight.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.archetypes.map.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.archetypes.supplier.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.bcp.equipment_capability.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.company.schema.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.constraints.catalog.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.constraints.freight_equipment.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.equipment_capability_master.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.freight.capability_profile.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.freight.equipment_registry.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.freight.mode_equipment_policy.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.freight.modes.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.freight.routing_contract.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.hard_constraints.film_storage.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.image_feature_taxonomy.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.offer_feature_registry.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.probabilistic_models.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.process_equipment_bayes_bridge.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.scp.schema.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.scrap_image_feature_taxonomy.max.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.supplier.material_envelope.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.tensor_warp.moistfilm_by_washline.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.tensor_warp.supplier_process.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.ui.constraint_visualization.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.vision_evidence_contract.yaml
+current_work/01-22-2026/PlastOS/specs/plastos.vision_to_normalization_mapping.yaml
+current_work/Bayesian Upgrade/bayesian_kernel.yaml
+current_work/Bayesian Upgrade/bayesian_tree_reasoner.yaml
+current_work/Bayesian Upgrade/causal_graph/bayesian_causal_graph_engine.yaml
+current_work/Bayesian Upgrade/schema/rule-registry-v2-schema.json
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/constraint.yaml
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/heuristic.yaml
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/interface.yaml
@@ -3001,6 +3075,19 @@ current_work/l-cto-Setup/l-cto-yaml-files/INITIALIZATION_KERNEL_UNIFIED.yaml
 current_work/l-cto-Setup/l-cto-yaml-files/L-CTO.yaml
 current_work/l-cto-Setup/l-cto-yaml-files/L9 AGENT MANIFEST — L-CTO v1.0.yaml
 current_work/l-cto-Setup/l-cto-yaml-files/personality_kernel.yaml
+deploy/k8s/c1/Dockerfile
+deploy/k8s/c1/manifests/c1-ingress.yaml
+deploy/k8s/c1/manifests/c1-l9-api.yaml
+deploy/k8s/c1/manifests/c1-mcp-memory.yaml
+deploy/k8s/c1/manifests/c1-monitoring.yaml
+deploy/k8s/c1/manifests/c1-namespace.yaml
+deploy/k8s/c1/manifests/c1-neo4j.yaml
+deploy/k8s/c1/manifests/c1-network-policy.yaml
+deploy/k8s/c1/manifests/c1-postgres.yaml
+deploy/k8s/c1/manifests/c1-rbac.yaml
+deploy/k8s/c1/manifests/c1-rbac2.yaml
+deploy/k8s/c1/manifests/c1-redis.yaml
+deploy/k8s/c1/manifests/c1-secrets.yaml
 docker-compose-README.md
 docker-compose.local.dev.yml
 docker-compose.override.yml.example
@@ -3019,6 +3106,7 @@ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_governance_policy.
 igor/DONE!/audit-tools/Current Config/07_execution_kernel.yaml
 igor/DONE!/audit-tools/Current Config/10_packet_protocol_kernel.yaml
 igor/DONE!/tokenizer/core/tokenizer/tokenizer_rules.json
+igor/dead-code-audit/dead_code_gmp_todos.yaml
 mac_agent/config.yaml
 mcp_memory/Dockerfile
 memory/README.meta.yaml
@@ -3095,7 +3183,6 @@ reports/audit_runs/phase2_check_routers.json
 reports/audit_runs/phase2_final.json
 reports/audit_runs/post_cleanup_audit.json
 reports/audit_runs/test_dead_code.json
-reports/dead-code-audit/dead_code_gmp_todos.yaml
 runtime/Dockerfile
 scripts/audit/audit.yaml
 scripts/reports/audit_infrastructure_health.json

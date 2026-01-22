@@ -107,6 +107,7 @@ BatchRequest::BaseModel @ api/memory/router.py
 BatchRequest::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
 BatchResponse::BaseModel @ api/memory/router.py
 BatchResponse::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
+BayesianNode::HypergraphNode @ current_work/Bayesian Upgrade/hypergraph.py
 BehavioralKernelData::FlexibleModel @ core/kernels/schemas.py
 BindingNotFoundError::DIContainerError @ core/di/container.py
 Blueprint::BaseModel @ orchestrators/meta/interface.py
@@ -224,6 +225,7 @@ ConditionOperator::str,Enum @ core/governance/schemas.py
 ConfidenceLevel::Enum @ runtime/response_tagger.py
 ConfirmationResult::BaseModel @ core/commands/schemas.py
 ConflictResolutionMode::str,Enum @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+ConflictResolutionMode::str,Enum @ current_work/01-21-2026/swarm_sync.py
 ConflictResolutionMode::str,Enum @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConnectionStatus::str,Enum @ core/worldmodel/l9_schema.py
 ConsensusStrategy::str,Enum @ collaborative_cells/base_cell.py
@@ -333,6 +335,7 @@ EventType::Enum @ current_work/packetEnvelope - Phase 2-5/phase_3_standardizatio
 EventType::str,Enum @ core/schemas/ws_event_stream.py
 EventType::str,Enum @ igor/DONE!/audit-memory/core_schemas_ws_event_stream.py
 Evidence::TypedDict @ services/research/graph_state.py
+EvidenceStrength::str,Enum @ current_work/Bayesian Upgrade/bayesian_kernel.py
 EvolutionOrchestrator::IEvolutionOrchestrator @ orchestrators/evolution/orchestrator.py
 EvolutionOrchestratorRequest::BaseModel @ orchestrators/evolution/interface.py
 EvolutionOrchestratorResponse::BaseModel @ orchestrators/evolution/interface.py
@@ -362,6 +365,7 @@ FailureSignal::BaseModel @ current_work/DONE/Observability/observability_models.
 FailureType::str,Enum @ agents/codegenagent/telemetry_codegen.py
 FailuresListResponse::BaseModel @ api/routes/observability.py
 FeatureFlag::Enum @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/feature_flags.py
+FeedbackType::Enum @ current_work/Bayesian Upgrade/learning/feedback_collector.py
 FetchAndEnrichRequest::BaseModel @ api/memory/router.py
 FileSnapshot::BaseModel @ core/governance/cmts.py
 FindingType::str,Enum @ services/research/graph_persistence.py
@@ -375,6 +379,7 @@ GMPExecutionResult::BaseModel @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp
 GMPRunInput::BaseModel @ core/schemas/l_tools.py
 GMPRunInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
 GNNKernel::Module @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+GNNKernel::Module @ current_work/01-21-2026/neural_substrate.py
 GNNKernel::Module @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GapSeverity::str,Enum @ memory/warming_models.py
 GateDecision::str,Enum @ codegen/dev_layer/runtime/enforcement.py
@@ -655,7 +660,9 @@ NodeKind::str,Enum @ orchestrators/pattern/interface.py
 NodePriority::str,Enum @ ir_engine/ir_schema.py
 NodeResult::BaseModel @ orchestrators/pattern/interface.py
 NodeResultResponse::BaseModel @ api/routes/pattern.py
+NodeStatus::str,Enum @ current_work/Bayesian Upgrade/hypergraph.py
 NodeStatus::str,Enum @ orchestrators/pattern/interface.py
+NodeType::str,Enum @ current_work/Bayesian Upgrade/hypergraph.py
 OAuthHandler::BaseHTTPRequestHandler @ email_agent/oauth_server.py
 ObservabilityConfig::BaseModel @ orchestrators/pattern/interface.py
 ObservabilityService::Protocol @ core/protocols/observability_protocols.py
@@ -780,6 +787,7 @@ ReasoningExecuteRequest::BaseModel @ api/routes/reasoning.py
 ReasoningExecuteResponse::BaseModel @ api/routes/reasoning.py
 ReasoningFeedbackConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 ReasoningMode::str,Enum @ orchestrators/reasoning/interface.py
+ReasoningNode::HypergraphNode @ current_work/Bayesian Upgrade/hypergraph.py
 ReasoningNodeState::TypedDict @ orchestrators/reasoning/adapter_node.py
 ReasoningOrchestrator::IReasoningOrchestrator @ orchestrators/reasoning/orchestrator.py
 ReasoningPhase::str,Enum @ memory/warming_models.py
@@ -849,6 +857,7 @@ RetryConfig::BaseModel @ ir_engine/meta_ir.py
 RetryExhaustedError::Exception @ core/resilience/retry.py
 ReviewerCell::BaseCell @ collaborative_cells/reviewer_cell.py
 Risk::str,Enum @ scripts/audit/tier1/audit_capability_inventory.py
+RiskLevel::Enum @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
 RiskLevel::str,Enum @ core/commands/schemas.py
 RiskLevel::str,Enum @ scripts/audit/categorize_dead_code.py
 RiskModel::BaseModel @ orchestrators/pattern/interface.py
@@ -1054,6 +1063,7 @@ TemporalQueryResponse::BaseModel @ mcp_memory/src/models.py
 TestIntegration::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestIntegration::TestCase @ world_model/_pack_staging/test_integration.py
 TestModel::BaseModel @ tests/memory/test_agent_persistence.py
+TestModel::Module @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
 TestOrchestration::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestOrchestration::TestCase @ world_model/_pack_staging/test_integration.py
 TestQueries::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
@@ -1083,7 +1093,6 @@ ToolExecutor::Protocol @ core/protocols/agent_protocols.py
 ToolExecutor::Protocol @ core/tools/registry_adapter.py
 ToolExecutor::Protocol @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
 ToolInputSanitizationError::ValueError @ core/tools/sanitizer.py
-ToolMetadata::BaseModel @ core/tools/base_registry.py
 ToolMetadata::BaseModel @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolMetadata::BaseModel @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 ToolName::str,Enum @ core/schemas/capabilities.py
@@ -1094,10 +1103,8 @@ ToolRegistryProtocol::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/
 ToolRiskLevel::str,Enum @ core/worldmodel/l9_schema.py
 ToolSafetyLevel::str,Enum @ igor/DONE!/audit-tools/orchestrators_action_tool_interface.py
 ToolSafetyLevel::str,Enum @ orchestrators/action_tool/interface.py
-ToolSchema::BaseModel @ core/tools/base_registry.py
 ToolSchema::BaseModel @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolSchema::BaseModel @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolType::str,Enum @ core/tools/base_registry.py
 ToolType::str,Enum @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolType::str,Enum @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 TraceContext::BaseModel @ core/observability/models.py
@@ -1171,4 +1178,4 @@ WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
 WorldModelUpdater::IWorldModelUpdater @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1167 classes with inheritance
+# Total: 1174 classes with inheritance

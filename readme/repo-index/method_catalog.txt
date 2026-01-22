@@ -530,6 +530,20 @@ AuthRateLimiter::async _set_lockout(key) @ runtime/auth_rate_limiter.py
 AuthRateLimiter::async check_allowed(ip_address, username) @ runtime/auth_rate_limiter.py
 AuthRateLimiter::async record_failure(ip_address, username) @ runtime/auth_rate_limiter.py
 AuthRateLimiter::async record_success(ip_address, username) @ runtime/auth_rate_limiter.py
+AutoCalibrator::__init__(registry_path, telemetry_path, meta_learning_log) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_adjust_thresholds(decisions) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_apply_correlation_penalty(name1, name2, correlation) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_calculate_correlation(values1, values2) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_calculate_ece(decisions, use_new_params) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_detect_evidence_correlations(decisions) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_load_decisions(hours) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_load_registry() @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_log_to_meta_learning(ece_before, ece_after, temp_before, temp_after, threshold_adjustments, weight_updates) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_normalize_weights() @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_optimize_temperature(decisions) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_save_registry() @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::_update_evidence_weights(decisions) @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
+AutoCalibrator::run_calibration() @ current_work/Bayesian Upgrade/learning/auto_calibrator.py
 AutoDiscovery::discover_by_convention(module_path, registry, class_suffix, submodule_name) @ current_work/DONE/AUTOWIRING/auto_registry/auto_registry.py
 AutoDiscovery::discover_subclasses(base_class, module_path, registry, recursive) @ current_work/DONE/AUTOWIRING/auto_registry/auto_registry.py
 AutoRegistry::__contains__(component_id) @ current_work/DONE/AUTOWIRING/auto_registry/auto_registry.py
@@ -578,10 +592,13 @@ AutomationExecutor::async _take_screenshot(task_id, suffix) @ mac_agent/executor
 AutomationExecutor::async run_steps(steps, headless, task_id) @ mac_agent/executor.py
 AutomationExecutor::run_gui_fallback(steps) @ mac_agent/executor.py
 AutonomicSteering::__init__(neo4j_driver, coordinator) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+AutonomicSteering::__init__(neo4j_driver, coordinator) @ current_work/01-21-2026/governance.py
 AutonomicSteering::__init__(neo4j_driver, coordinator) @ current_work/Neural-Symbolic Orchestration/governance.py
 AutonomicSteering::async _reallocate_to_shard(subgraph_id, target_shard, utility) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+AutonomicSteering::async _reallocate_to_shard(subgraph_id, target_shard, utility) @ current_work/01-21-2026/governance.py
 AutonomicSteering::async _reallocate_to_shard(subgraph_id, target_shard, utility) @ current_work/Neural-Symbolic Orchestration/governance.py
 AutonomicSteering::async steer_resources() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+AutonomicSteering::async steer_resources() @ current_work/01-21-2026/governance.py
 AutonomicSteering::async steer_resources() @ current_work/Neural-Symbolic Orchestration/governance.py
 AutonomyController::__init__(learning_engine) @ agents/cursor/gmp_meta_learning.py
 AutonomyController::__init__(learning_engine) @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
@@ -669,6 +686,27 @@ BatchSpecGenerator::__init__(config) @ scripts/batch/batch_generate_specs.py
 BatchSpecGenerator::async process_batch(modules) @ scripts/batch/batch_generate_specs.py
 BatchSpecGenerator::async run(modules, dry_run) @ scripts/batch/batch_generate_specs.py
 BatchSpecGenerator::save_spec(module_name, content) @ scripts/batch/batch_generate_specs.py
+BayesianKernel::__init__() @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianKernel::_build_system_prompt() @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianKernel::_calculate_confidence(distribution) @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianKernel::_timestamp() @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianKernel::add_evidence(variable, description, strength, source) @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianKernel::create_belief_state(variable, prior, metadata) @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianKernel::get_belief_state(variable) @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianKernel::is_enabled() @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianKernel::update_posterior(variable, new_posterior) @ current_work/Bayesian Upgrade/bayesian_kernel.py
+BayesianNode::__post_init__() @ current_work/Bayesian Upgrade/hypergraph.py
+BayesianNode::add_evidence(description, strength, source) @ current_work/Bayesian Upgrade/hypergraph.py
+BayesianNode::update_posterior(new_posterior, uncertainty) @ current_work/Bayesian Upgrade/hypergraph.py
+BayesianUncertainty::__init__(n_samples, ood_threshold, temperature) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+BayesianUncertainty::_compute_aleatoric(model, x) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+BayesianUncertainty::_compute_confidence(epistemic, aleatoric) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+BayesianUncertainty::_compute_epistemic(model, x) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+BayesianUncertainty::_temperature_scale(logits) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+BayesianUncertainty::compute_ece(n_bins) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+BayesianUncertainty::quantify(model, x, return_samples) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+BayesianUncertainty::set_ood_threshold(validation_epistemic, percentile) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+BayesianUncertainty::update_calibration(prediction, actual) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
 BehaviorGap::to_dict() @ core/agents/selfreflection.py
 BlueprintAdapter::__init__(openai_client, model) @ orchestrators/meta/adapter.py
 BlueprintAdapter::_build_improvement_prompt(blueprint, evaluation) @ orchestrators/meta/adapter.py
@@ -802,6 +840,18 @@ CalendarAdapterRequest::__post_init__() @ codegen/code-gen-files/Module Producti
 CalendarAdapterService::__init__(adapter) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/services/calendar_adapter_service.py
 CalendarAdapterService::async health_check() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/services/calendar_adapter_service.py
 CalendarAdapterService::async process(event_id, payload, source, attachments) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/services/calendar_adapter_service.py
+CalibrationDashboard::__init__(telemetry_path, report_dir) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_analyze_thresholds(decisions) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_breakdown_by_model(decisions) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_calculate_ece(decisions) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_calculate_mce(decisions) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_calculate_metrics(decisions) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_generate_recommendations(metrics, decisions) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_generate_reliability_diagram(decisions) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_insufficient_data_report() @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::_load_decisions(days) @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::detect_calibration_drift() @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
+CalibrationDashboard::generate_weekly_report() @ current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py
 CallGraphBuilder::__init__(filepath) @ scripts/audit/audit_shared_core.py
 CallGraphBuilder::__init__(filepath) @ scripts/audit/tier1/audit_code_integrity.py
 CallGraphBuilder::visit_AsyncFunctionDef(node) @ scripts/audit/audit_shared_core.py
@@ -821,10 +871,13 @@ CallerIdentity::is_l() @ mcp_memory/src/main.py
 CallerIdentity::source() @ igor/DONE!/audit-memory/mcp_memory_src_main.py
 CallerIdentity::source() @ mcp_memory/src/main.py
 CanaryDeployment::__init__(neo4j_driver) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+CanaryDeployment::__init__(neo4j_driver) @ current_work/01-21-2026/neural_substrate.py
 CanaryDeployment::__init__(neo4j_driver) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 CanaryDeployment::deploy_canary(schema, canary_agents) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+CanaryDeployment::deploy_canary(schema, canary_agents) @ current_work/01-21-2026/neural_substrate.py
 CanaryDeployment::deploy_canary(schema, canary_agents) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 CanaryDeployment::promote_to_production(schema) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+CanaryDeployment::promote_to_production(schema) @ current_work/01-21-2026/neural_substrate.py
 CanaryDeployment::promote_to_production(schema) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 CandidateAnalyzer::__init__() @ codegen/symbolic/analyzer.py
 CandidateAnalyzer::_check_issues(expr, result) @ codegen/symbolic/analyzer.py
@@ -1224,12 +1277,16 @@ ConfigValidator::__init__() @ scripts/audit/audit_shared_core.py
 ConfigValidator::add_rule(rule) @ scripts/audit/audit_shared_core.py
 ConfigValidator::validate(config) @ scripts/audit/audit_shared_core.py
 ConflictSuperposition::__init__(redis_client) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+ConflictSuperposition::__init__(redis_client) @ current_work/01-21-2026/swarm_sync.py
 ConflictSuperposition::__init__(redis_client) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConflictSuperposition::async record_conflict(subject, beliefs) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+ConflictSuperposition::async record_conflict(subject, beliefs) @ current_work/01-21-2026/swarm_sync.py
 ConflictSuperposition::async record_conflict(subject, beliefs) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConflictSuperposition::async resolve_by_observer(subject, observer_requirements) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+ConflictSuperposition::async resolve_by_observer(subject, observer_requirements) @ current_work/01-21-2026/swarm_sync.py
 ConflictSuperposition::async resolve_by_observer(subject, observer_requirements) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConflictSuperposition::get_superposition(subject) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+ConflictSuperposition::get_superposition(subject) @ current_work/01-21-2026/swarm_sync.py
 ConflictSuperposition::get_superposition(subject) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConsoleExporter::export(spans) @ core/observability/exporters.py
 ConsoleExporter::export(spans) @ current_work/DONE/Observability/observability_exporters.py
@@ -1313,12 +1370,16 @@ ConversationGraphMemory::async query_user_history(user_id, topic, time_range_day
 ConversationGraphMemory::async store_conversation(messages, user_id, session_id) @ memory/graph_memory.py
 ConversationGraphMemory::async store_message(content, role, user_id, session_id, previous_message_id, metadata) @ memory/graph_memory.py
 Coordinator::__init__(neo4j_driver, redis_client, schema_distiller) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+Coordinator::__init__(neo4j_driver, redis_client, schema_distiller) @ current_work/01-21-2026/swarm_sync.py
 Coordinator::__init__(neo4j_driver, redis_client, schema_distiller) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 Coordinator::async detect_and_record_conflicts(subject) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+Coordinator::async detect_and_record_conflicts(subject) @ current_work/01-21-2026/swarm_sync.py
 Coordinator::async detect_and_record_conflicts(subject) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 Coordinator::async promote_agent_l1_to_l2(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+Coordinator::async promote_agent_l1_to_l2(agent_id) @ current_work/01-21-2026/swarm_sync.py
 Coordinator::async promote_agent_l1_to_l2(agent_id) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 Coordinator::async sync_agent_intuition(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+Coordinator::async sync_agent_intuition(agent_id) @ current_work/01-21-2026/swarm_sync.py
 Coordinator::async sync_agent_intuition(agent_id) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 Counter::__init__() @ core/agents/bootstrap/bootstrap_metrics.py
 Counter::__init__() @ memory/checkpoint_metrics.py
@@ -1443,6 +1504,31 @@ CursorMemoryWriteNode::__init__(memory_gateway) @ agents/cursor/integrations/cur
 CursorMemoryWriteNode::async __call__(state) @ agents/cursor/integrations/cursor_langgraph.py
 CursorPlanningNode::__init__(llm_provider) @ agents/cursor/integrations/cursor_langgraph.py
 CursorPlanningNode::async __call__(state) @ agents/cursor/integrations/cursor_langgraph.py
+CursorProbabilisticEngine::__init__(registry_path, telemetry_path) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_apply_temperature_scaling(raw_prob, temperature) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_build_reasoning(evidence, raw_prob, calibrated_prob, subjective) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_calculate_cascading_risk(references) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_calculate_confidence(evidence) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_calculate_correction_adjustment(correction_count) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_calculate_ece_for_decisions(decisions) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_calculate_file_type_risk(file_type) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_calculate_frequency_risk(frequency) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_calculate_location_risk(file_path) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_classify_risk(probability, subjective) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_decompose_subjective_logic(evidence) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_ensure_telemetry_dir() @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_get_default_calibration() @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_get_default_registry() @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_get_default_thresholds() @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_infer_file_type(file_path) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_load_registry() @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_log_decision(assessment, evidence, file_path) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::_weighted_combination(evidence) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::assess_file_compliance_risk(file_path, file_type, edit_frequency, user_correction_count, references_count) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::calculate_ece(decisions) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::get_threshold(threshold_name) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::optimize_temperature(target_ece) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+CursorProbabilisticEngine::record_outcome(decision_id, outcome, feedback) @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
 CursorStack::from_dict(cls, data) @ agents/codegenagent/cursor_context_sync_engine.py
 CursorStack::to_dict() @ agents/codegenagent/cursor_context_sync_engine.py
 CypherTemplateLibrary::__init__(templates) @ memory/cypher_templates.py
@@ -1462,16 +1548,25 @@ DIContainer::clear_singletons() @ core/di/container.py
 DIContainer::get_bindings() @ core/di/container.py
 DIContainer::has_binding(interface) @ core/di/container.py
 DIContainer::resolve(interface) @ core/di/container.py
+DLQEntry::from_json(cls, json_str) @ memory/dead_letter_queue.py
+DLQEntry::to_json() @ memory/dead_letter_queue.py
 DataclassFieldVisitor::__init__(filepath) @ scripts/audit/find_dead_code.py
 DataclassFieldVisitor::visit_ClassDef(node) @ scripts/audit/find_dead_code.py
 DeadCodeFinding::to_dict() @ scripts/audit/find_dead_code.py
+DeadLetterQueue::__init__(redis_client) @ memory/dead_letter_queue.py
 DeadLetterQueue::__init__(redis_client, stream_key) @ memory/dead_letter.py
 DeadLetterQueue::_parse_entry(entry_id, data) @ memory/dead_letter.py
 DeadLetterQueue::async acknowledge(entry_id) @ memory/dead_letter.py
+DeadLetterQueue::async acknowledge(packet_id) @ memory/dead_letter_queue.py
 DeadLetterQueue::async depth() @ memory/dead_letter.py
 DeadLetterQueue::async enqueue(envelope, error, attempts) @ memory/dead_letter.py
 DeadLetterQueue::async get_entry(entry_id) @ memory/dead_letter.py
+DeadLetterQueue::async get_size() @ memory/dead_letter_queue.py
+DeadLetterQueue::async get_stats() @ memory/dead_letter_queue.py
 DeadLetterQueue::async peek(count) @ memory/dead_letter.py
+DeadLetterQueue::async pop(wait_for_retry) @ memory/dead_letter_queue.py
+DeadLetterQueue::async push(packet, failure_reason, failure_count) @ memory/dead_letter_queue.py
+DeadLetterQueue::async requeue(entry, new_failure_reason) @ memory/dead_letter_queue.py
 Decision::to_dict() @ world_model/causal_mapper.py
 DecisionSynthesizer::__init__(mode_weights) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
 DecisionSynthesizer::_build_summary(outputs, resolved) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
@@ -1481,6 +1576,9 @@ DecisionSynthesizer::_determine_action(outputs, confidence) @ codegen/extraction
 DecisionSynthesizer::_get_contributing_modes(outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
 DecisionSynthesizer::_resolve_conflicts(conflicts) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
 DecisionSynthesizer::async synthesize_decision(reasoning_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
+DeepEnsemble::__init__(n_models) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+DeepEnsemble::add_model(model) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+DeepEnsemble::predict_with_uncertainty(x) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
 DeliberationCell::__init__(api_key, model, max_rounds, consensus_threshold) @ ir_engine/deliberation_cell.py
 DeliberationCell::_apply_revisions(graph, producer_output) @ ir_engine/deliberation_cell.py
 DeliberationCell::_ensure_client() @ ir_engine/deliberation_cell.py
@@ -1528,12 +1626,16 @@ DiffGenerator::save_diff(batch_diff, output_path) @ current_work/Compiler + Dev 
 DirectLLMAgent::__init__(api_key, model, temperature, max_tokens) @ orchestrators/pattern/cell_adapter.py
 DirectLLMAgent::async invoke(role, prompt, input_data, context) @ orchestrators/pattern/cell_adapter.py
 DistributedIntuitionCache::__init__(redis_client, agent_id, ttl_seconds) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+DistributedIntuitionCache::__init__(redis_client, agent_id, ttl_seconds) @ current_work/01-21-2026/swarm_sync.py
 DistributedIntuitionCache::__init__(redis_client, agent_id, ttl_seconds) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DistributedIntuitionCache::async consolidate_intuition() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+DistributedIntuitionCache::async consolidate_intuition() @ current_work/01-21-2026/swarm_sync.py
 DistributedIntuitionCache::async consolidate_intuition() @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DistributedIntuitionCache::async update_from_learning(learning) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+DistributedIntuitionCache::async update_from_learning(learning) @ current_work/01-21-2026/swarm_sync.py
 DistributedIntuitionCache::async update_from_learning(learning) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/01-21-2026/swarm_sync.py
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DocumentClassifier::__init__(schemas) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 DocumentClassifier::__init__(schemas) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
@@ -1897,6 +1999,22 @@ FeatureFlagManager::get_percentage(flag) @ current_work/packetEnvelope - Phase 2
 FeatureFlagManager::is_enabled(flag) @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/feature_flags.py
 FeatureFlagManager::to_json() @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/feature_flags.py
 FeatureFlags::to_dict() @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/feature_flags.py
+FeedbackCollector::__init__(registry_path, telemetry_path, feedback_log_path) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_detect_systematic_pattern(event) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_infer_feedback_from_behavior(user_action, context) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_load_feedback_history() @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_load_registry() @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_log_feedback(event) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_log_pattern_to_meta_learning(pattern, event) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_micro_adjust_temperature(direction, magnitude) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_micro_adjust_thresholds(direction, magnitude) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_parse_feedback(feedback_text) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_process_feedback(event) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_save_registry() @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::_update_decision_outcome(decision_id, outcome) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::get_feedback_summary(days) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::record_explicit_feedback(decision_id, feedback, context) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
+FeedbackCollector::record_implicit_feedback(decision_id, user_action, decision_context) @ current_work/Bayesian Upgrade/learning/feedback_collector.py
 FileAnalysis::needs_fix() @ scripts/audit/ensure_logger_instantiated.py
 FileChange::__init__(path, action, old_content, new_content) @ agents/codegenagent/file_emitter.py
 FileChange::__repr__() @ agents/codegenagent/file_emitter.py
@@ -2001,14 +2119,19 @@ GMPWorker::async stop() @ current_work/DONE/GMP Stage 1 - Tools/gmp_worker.py
 GMPWorker::async stop() @ current_work/DONE/GMP Stage 2 - Tools & Memory/gmp_worker.py
 GMPWorker::async stop() @ runtime/gmp_worker.py
 GNNKernel::__init__(input_dim, hidden_dim, output_dim, num_layers, device) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+GNNKernel::__init__(input_dim, hidden_dim, output_dim, num_layers, device) @ current_work/01-21-2026/neural_substrate.py
 GNNKernel::__init__(input_dim, hidden_dim, output_dim, num_layers, device) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GNNKernel::decode(latent) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+GNNKernel::decode(latent) @ current_work/01-21-2026/neural_substrate.py
 GNNKernel::decode(latent) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GNNKernel::encode(data) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+GNNKernel::encode(data) @ current_work/01-21-2026/neural_substrate.py
 GNNKernel::encode(data) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GNNKernel::encode_reasoning(reasoning) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+GNNKernel::encode_reasoning(reasoning) @ current_work/01-21-2026/neural_substrate.py
 GNNKernel::encode_reasoning(reasoning) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GNNKernel::get_latent_patterns(encoded, threshold) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+GNNKernel::get_latent_patterns(encoded, threshold) @ current_work/01-21-2026/neural_substrate.py
 GNNKernel::get_latent_patterns(encoded, threshold) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GapAnalysis::can_proceed() @ runtime/superprompt_emitter.py
 GapAnalysis::has_critical_gaps() @ runtime/superprompt_emitter.py
@@ -2229,6 +2352,15 @@ HousekeepingEngine::set_repository(repository) @ igor/DONE!/audit-memory/memory_
 HousekeepingEngine::set_repository(repository) @ memory/housekeeping.py
 HousekeepingEngine::stats() @ igor/DONE!/audit-memory/memory_housekeeping.py
 HousekeepingEngine::stats() @ memory/housekeeping.py
+HybridInferenceKernel::__init__(registry_path) @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
+HybridInferenceKernel::_assess_command_risk(context) @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
+HybridInferenceKernel::_assess_escalation_need(context) @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
+HybridInferenceKernel::_assess_file_edit_risk(context) @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
+HybridInferenceKernel::_check_deterministic_rules(action_type, context) @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
+HybridInferenceKernel::_default_assessment(context) @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
+HybridInferenceKernel::_load_registry() @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
+HybridInferenceKernel::evaluate_governance_action(action_type, context) @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
+HybridInferenceKernel::evaluate_rule_with_probabilistic_predicate(rule_fol, context) @ current_work/Bayesian Upgrade/foundation/hybrid_kernel.py
 HybridRAGPipeline::__init__(semantic_service, neo4j_client, entity_extractor, graph_enricher) @ memory/hybrid_rag.py
 HybridRAGPipeline::_calculate_combined_score(hit, enrichment) @ memory/hybrid_rag.py
 HybridRAGPipeline::async _vector_search(query, limit, min_similarity) @ memory/hybrid_rag.py
@@ -2238,6 +2370,10 @@ HybridStrategy::__init__(rag_percent, summary_percent, recent_percent) @ current
 HybridStrategy::async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
 HybridStrategy::async assemble(conversation, knowledge_base, max_tokens) @ current_work/DONE/Observability/observability_context_strategies.py
 HydratedAgentContext::to_system_prompt_context() @ core/agents/graph_state/graph_hydrator.py
+HypergraphNode::add_input_edge(source_node_id) @ current_work/Bayesian Upgrade/hypergraph.py
+HypergraphNode::add_output_edge(target_node_id) @ current_work/Bayesian Upgrade/hypergraph.py
+HypergraphNode::is_ready() @ current_work/Bayesian Upgrade/hypergraph.py
+HypergraphNode::to_dict() @ current_work/Bayesian Upgrade/hypergraph.py
 IActionToolOrchestrator::async execute(request) @ igor/DONE!/audit-tools/orchestrators_action_tool_interface.py
 IActionToolOrchestrator::async execute(request) @ orchestrators/action_tool/interface.py
 IAgentExecutionOrchestrator::async execute(request) @ orchestrators/agent_execution/interface.py
@@ -2710,8 +2846,10 @@ LangGraphRouter::async _create_task_node(state) @ orchestration/ws_task_router.p
 LangGraphRouter::async _load_context_node(state) @ orchestration/ws_task_router.py
 LangGraphRouter::async route(event, context) @ orchestration/ws_task_router.py
 LeanVerifier::__init__(neo4j_driver) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+LeanVerifier::__init__(neo4j_driver) @ current_work/01-21-2026/governance.py
 LeanVerifier::__init__(neo4j_driver) @ current_work/Neural-Symbolic Orchestration/governance.py
 LeanVerifier::async verify_agent_logic(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+LeanVerifier::async verify_agent_logic(agent_id) @ current_work/01-21-2026/governance.py
 LeanVerifier::async verify_agent_logic(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 LearnedHeuristic::__hash__() @ agents/cursor/gmp_meta_learning.py
 LearnedHeuristic::__hash__() @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
@@ -2998,10 +3136,13 @@ MetaContract::validate_test_scope_rules() @ ir_engine/meta_ir.py
 MetaContractValidationResult::add_error(field, message) @ ir_engine/meta_ir.py
 MetaContractValidationResult::add_warning(field, message) @ ir_engine/meta_ir.py
 MetaEvolutionEngine::__init__(neo4j_driver, orchestrator) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+MetaEvolutionEngine::__init__(neo4j_driver, orchestrator) @ current_work/01-21-2026/governance.py
 MetaEvolutionEngine::__init__(neo4j_driver, orchestrator) @ current_work/Neural-Symbolic Orchestration/governance.py
 MetaEvolutionEngine::async analyze_global_metrics() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+MetaEvolutionEngine::async analyze_global_metrics() @ current_work/01-21-2026/governance.py
 MetaEvolutionEngine::async analyze_global_metrics() @ current_work/Neural-Symbolic Orchestration/governance.py
 MetaEvolutionEngine::async propose_kernel_improvement() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+MetaEvolutionEngine::async propose_kernel_improvement() @ current_work/01-21-2026/governance.py
 MetaEvolutionEngine::async propose_kernel_improvement() @ current_work/Neural-Symbolic Orchestration/governance.py
 MetaLoader::__init__(specs_dir, strict_validation) @ agents/codegenagent/meta_loader.py
 MetaLoader::detect_schema_format(meta) @ agents/codegenagent/meta_loader.py
@@ -3425,6 +3566,7 @@ NeuralDecayScheduler::async _process_packets(reference_time) @ memory/neural_dec
 NeuralDecayScheduler::async get_decay_preview(packet_id, fact_id) @ memory/neural_decay_scheduler.py
 NeuralDecayScheduler::async run_decay_pass(reference_time) @ memory/neural_decay_scheduler.py
 NeuralDecayScheduler::calculate_salience(initial_importance, days_since_access, access_count) @ memory/neural_decay_scheduler.py
+NodeTemplate::create_node() @ current_work/Bayesian Upgrade/hypergraph.py
 NormalizedHeuristic::to_entity_dict() @ world_model/knowledge_ingestor.py
 NormalizedPattern::to_entity_dict() @ world_model/knowledge_ingestor.py
 OAuthHandler::do_GET() @ email_agent/oauth_server.py
@@ -4053,16 +4195,12 @@ RateLimitPolicy::async increment(policy_key, unique_key) @ core/governance/rate_
 RateLimitPolicy::get_config(policy_key) @ core/governance/rate_limit_policy.py
 RateLimitPolicy::get_instance(cls) @ core/governance/rate_limit_policy.py
 RateLimitPolicy::is_exempted(ip_address, caller_id) @ core/governance/rate_limit_policy.py
-RateLimitWindow::__init__(window_seconds) @ core/tools/base_registry.py
 RateLimitWindow::__init__(window_seconds) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 RateLimitWindow::__init__(window_seconds) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-RateLimitWindow::check_and_increment(key, limit) @ core/tools/base_registry.py
 RateLimitWindow::check_and_increment(key, limit) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 RateLimitWindow::check_and_increment(key, limit) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-RateLimitWindow::get_remaining(key, limit) @ core/tools/base_registry.py
 RateLimitWindow::get_remaining(key, limit) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 RateLimitWindow::get_remaining(key, limit) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-RateLimitWindow::reset(key) @ core/tools/base_registry.py
 RateLimitWindow::reset(key) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 RateLimitWindow::reset(key) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 RateLimiter::__init__(request_limit, request_window_seconds, failed_auth_limit, failed_auth_block_seconds) @ mcp_memory/src/rate_limiter.py
@@ -4117,6 +4255,7 @@ ReasoningEngine::async apply_analogical_reasoning(context) @ codegen/extractions
 ReasoningEngine::async apply_causal_reasoning(context) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 ReasoningEngine::async execute_reasoning(context, modes) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
 ReasoningEngine::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py
+ReasoningNode::__post_init__() @ current_work/Bayesian Upgrade/hypergraph.py
 ReasoningOrchestrator::__init__(max_depth, default_branch_factor) @ orchestrators/reasoning/orchestrator.py
 ReasoningOrchestrator::async _beam_search(request) @ orchestrators/reasoning/orchestrator.py
 ReasoningOrchestrator::async _chain_of_thought(request) @ orchestrators/reasoning/orchestrator.py
@@ -4151,14 +4290,19 @@ RecoveryExecutor::async _execute_summarize(failure, action) @ current_work/DONE/
 RecoveryExecutor::async execute_recovery(failure, recovery_actions) @ core/observability/failures.py
 RecoveryExecutor::async execute_recovery(failure, recovery_actions) @ current_work/DONE/Observability/observability_failures.py
 RecursiveSelfCoding::__init__(neo4j_driver, coordinator) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+RecursiveSelfCoding::__init__(neo4j_driver, coordinator) @ current_work/01-21-2026/governance.py
 RecursiveSelfCoding::__init__(neo4j_driver, coordinator) @ current_work/Neural-Symbolic Orchestration/governance.py
 RecursiveSelfCoding::async deploy_improvement(agent_id, improvement) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+RecursiveSelfCoding::async deploy_improvement(agent_id, improvement) @ current_work/01-21-2026/governance.py
 RecursiveSelfCoding::async deploy_improvement(agent_id, improvement) @ current_work/Neural-Symbolic Orchestration/governance.py
 RecursiveSelfCoding::async propose_logic_improvement(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+RecursiveSelfCoding::async propose_logic_improvement(agent_id) @ current_work/01-21-2026/governance.py
 RecursiveSelfCoding::async propose_logic_improvement(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 RecursiveSelfCoding::async test_improvement(agent_id, improvement) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+RecursiveSelfCoding::async test_improvement(agent_id, improvement) @ current_work/01-21-2026/governance.py
 RecursiveSelfCoding::async test_improvement(agent_id, improvement) @ current_work/Neural-Symbolic Orchestration/governance.py
 RecursiveSelfCoding::async verify_and_promote(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+RecursiveSelfCoding::async verify_and_promote(agent_id) @ current_work/01-21-2026/governance.py
 RecursiveSelfCoding::async verify_and_promote(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 RedisCache::__init__(host, port, db, password, ttl_search_sec, ttl_governance_sec) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
 RedisCache::_make_key(prefix) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
@@ -4611,20 +4755,28 @@ ScenarioLoader::load_from_directory() @ simulation/scenario_loader.py
 ScenarioLoader::load_from_file(path) @ simulation/scenario_loader.py
 ScenarioLoader::save_scenario(scenario, path) @ simulation/scenario_loader.py
 SchemaDistiller::__init__(neo4j_driver, gnn_kernel) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+SchemaDistiller::__init__(neo4j_driver, gnn_kernel) @ current_work/01-21-2026/neural_substrate.py
 SchemaDistiller::__init__(neo4j_driver, gnn_kernel) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaDistiller::_infer_node_label(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+SchemaDistiller::_infer_node_label(pattern) @ current_work/01-21-2026/neural_substrate.py
 SchemaDistiller::_infer_node_label(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaDistiller::_infer_properties(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+SchemaDistiller::_infer_properties(pattern) @ current_work/01-21-2026/neural_substrate.py
 SchemaDistiller::_infer_properties(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaDistiller::_infer_relationships(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+SchemaDistiller::_infer_relationships(pattern) @ current_work/01-21-2026/neural_substrate.py
 SchemaDistiller::_infer_relationships(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaDistiller::_infer_schema_description(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+SchemaDistiller::_infer_schema_description(pattern) @ current_work/01-21-2026/neural_substrate.py
 SchemaDistiller::_infer_schema_description(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaDistiller::_infer_schema_name(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+SchemaDistiller::_infer_schema_name(pattern) @ current_work/01-21-2026/neural_substrate.py
 SchemaDistiller::_infer_schema_name(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaDistiller::discover_schemas(latent_patterns) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+SchemaDistiller::discover_schemas(latent_patterns) @ current_work/01-21-2026/neural_substrate.py
 SchemaDistiller::discover_schemas(latent_patterns) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaDistiller::validate_schema(schema, agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+SchemaDistiller::validate_schema(schema, agent_id) @ current_work/01-21-2026/neural_substrate.py
 SchemaDistiller::validate_schema(schema, agent_id) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaIntrospector::__init__(postgres_pool, neo4j_client) @ memory/schema_introspection.py
 SchemaIntrospector::async get_neo4j_labels() @ memory/schema_introspection.py
@@ -4922,6 +5074,13 @@ StubToolRegistry::async dispatch_tool_call(tool_id, arguments, context) @ curren
 StubToolRegistry::async dispatch_tool_call(tool_id, arguments, context) @ current_work/DONE/Slack-Debug-2/server.py
 StubToolRegistry::get_approved_tools(agent_id, principal_id) @ current_work/DONE/GMP Stage 1 - Tools/server.py
 StubToolRegistry::get_approved_tools(agent_id, principal_id) @ current_work/DONE/Slack-Debug-2/server.py
+SubjectiveLogic::__post_init__() @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
+SubjectiveLogicAdapter::__init__() @ current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py
+SubjectiveLogicAdapter::combine_opinions(opinion1, opinion2) @ current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py
+SubjectiveLogicAdapter::from_beta(alpha, beta) @ current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py
+SubjectiveLogicAdapter::from_probability(probability, uncertainty) @ current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py
+SubjectiveLogicAdapter::opinion_to_confidence(opinion) @ current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py
+SubjectiveLogicAdapter::to_probability(belief, disbelief, uncertainty, base_rate) @ current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py
 SubstrateAlignmentChecker::__init__(repository, graph_client) @ memory/substrate_alignment.py
 SubstrateAlignmentChecker::__init__(substrate_repository, graph_client, vector_store) @ igor/DONE!/L9 Memory Substrate Audit/substrate_alignment.py
 SubstrateAlignmentChecker::async _check_orphaned_relationships(neo4j_ids, postgres_ids) @ igor/DONE!/L9 Memory Substrate Audit/substrate_alignment.py
@@ -6167,6 +6326,7 @@ TestIntegration::async test_end_to_end_codegen() @ services/symbolic_computation
 TestIntegration::async test_end_to_end_computation() @ _archived/symbolic_computation/test_symbolic_computation.py
 TestIntegration::async test_end_to_end_computation() @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 TestIntegration::async test_end_to_end_computation() @ services/symbolic_computation/test_symbolic_computation.py
+TestIntegration::async test_full_evolution_cycle() @ current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestIntegration::async test_full_evolution_cycle() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestIntegration::async test_full_evolution_cycle() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 TestIntegration::async test_phase_2_activation() @ current_work/packetEnvelope - Phase 2-5/test_suite.py
@@ -6430,6 +6590,8 @@ TestMixedVersionLoad::test_load_mixed_versions() @ tests/core/schemas/test_schem
 TestModeSelection::test_ask_mode_at_low_confidence() @ tests/runtime/test_execution_gate.py
 TestModeSelection::test_developer_mode_at_medium_confidence() @ tests/runtime/test_execution_gate.py
 TestModeSelection::test_executive_mode_at_high_confidence() @ tests/runtime/test_execution_gate.py
+TestModel::__init__() @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+TestModel::forward(x) @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
 TestModels::test_computation_request_valid() @ _archived/symbolic_computation/test_symbolic_computation.py
 TestModels::test_computation_request_valid() @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 TestModels::test_computation_request_valid() @ services/symbolic_computation/test_symbolic_computation.py
@@ -7371,18 +7533,25 @@ TestTestResults::test_test_results_creation() @ tests/integration/test_recursive
 TestTestResults::test_test_results_to_dict() @ tests/integration/test_recursive_self_testing.py
 TestThreadSafety::test_concurrent_binding(container) @ tests/unit/di/test_container.py
 TestThreadSafety::test_concurrent_resolution(container) @ tests/unit/di/test_container.py
+TestTier1MemoryEvolution::async test_gnn_kernel_encoding() @ current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier1MemoryEvolution::async test_gnn_kernel_encoding() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier1MemoryEvolution::async test_gnn_kernel_encoding() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier1MemoryEvolution::async test_schema_discovery() @ current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier1MemoryEvolution::async test_schema_discovery() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier1MemoryEvolution::async test_schema_discovery() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier2SwarmSync::async test_conflict_superposition() @ current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier2SwarmSync::async test_conflict_superposition() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier2SwarmSync::async test_conflict_superposition() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier2SwarmSync::async test_intuition_cache_update() @ current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier2SwarmSync::async test_intuition_cache_update() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier2SwarmSync::async test_intuition_cache_update() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier2SwarmSync::async test_vector_pubsub_publish() @ current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier2SwarmSync::async test_vector_pubsub_publish() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier2SwarmSync::async test_vector_pubsub_publish() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier3Governance::async test_agent_promotion() @ current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier3Governance::async test_agent_promotion() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier3Governance::async test_agent_promotion() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier3Governance::async test_utility_scoring() @ current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier3Governance::async test_utility_scoring() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier3Governance::async test_utility_scoring() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 TestTimeoutHandling::async test_mock_results_without_tensoraios() @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
@@ -7721,49 +7890,34 @@ ToolPatternExtractor::async run_extraction() @ core/integration/tool_pattern_ext
 ToolPatternExtractor::async start() @ core/integration/tool_pattern_extractor.py
 ToolPatternExtractor::async stop() @ core/integration/tool_pattern_extractor.py
 ToolPatternExtractor::get_status() @ core/integration/tool_pattern_extractor.py
-ToolRegistry::__init__(rate_window_seconds) @ core/tools/base_registry.py
 ToolRegistry::__init__(rate_window_seconds) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::__init__(rate_window_seconds) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::async execute_tool(tool_id, arguments) @ core/tools/base_registry.py
 ToolRegistry::async execute_tool(tool_id, arguments) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::async execute_tool(tool_id, arguments) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::check_rate_limit(tool_id) @ core/tools/base_registry.py
 ToolRegistry::check_rate_limit(tool_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::check_rate_limit(tool_id) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::disable(tool_id) @ core/tools/base_registry.py
 ToolRegistry::disable(tool_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::disable(tool_id) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::enable(tool_id) @ core/tools/base_registry.py
 ToolRegistry::enable(tool_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::enable(tool_id) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::get(tool_id) @ core/tools/base_registry.py
 ToolRegistry::get(tool_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::get(tool_id) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::get_by_type(tool_type) @ core/tools/base_registry.py
 ToolRegistry::get_by_type(tool_type) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::get_by_type(tool_type) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::get_executor(tool_id) @ core/tools/base_registry.py
 ToolRegistry::get_executor(tool_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::get_executor(tool_id) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::get_for_role(role) @ core/tools/base_registry.py
 ToolRegistry::get_for_role(role) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::get_for_role(role) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::get_rate_limit_remaining(tool_id) @ core/tools/base_registry.py
 ToolRegistry::get_rate_limit_remaining(tool_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::get_rate_limit_remaining(tool_id) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::get_tool_schema(tool_id) @ core/tools/base_registry.py
 ToolRegistry::get_tool_schema(tool_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::get_tool_schema(tool_id) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::list_all() @ core/tools/base_registry.py
 ToolRegistry::list_all() @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::list_all() @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::list_enabled() @ core/tools/base_registry.py
 ToolRegistry::list_enabled() @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::list_enabled() @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::register(metadata, executor) @ core/tools/base_registry.py
 ToolRegistry::register(metadata, executor) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::register(metadata, executor) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
-ToolRegistry::reset_rate_limits(tool_id) @ core/tools/base_registry.py
 ToolRegistry::reset_rate_limits(tool_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolRegistry::reset_rate_limits(tool_id) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 ToolRegistryProtocol::async dispatch_tool_call(tool_id, arguments, context) @ core/agents/executor.py
@@ -7890,8 +8044,10 @@ UpcasterConfig::to_dict() @ current_work/DONE/AUTOWIRING/upcaster_registry.py
 UpdateRecord::to_dict() @ world_model/runtime.py
 UserCorrectionPattern::detect(context) @ core/agents/selfreflection.py
 UtilityScorer::__init__(neo4j_driver) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+UtilityScorer::__init__(neo4j_driver) @ current_work/01-21-2026/governance.py
 UtilityScorer::__init__(neo4j_driver) @ current_work/Neural-Symbolic Orchestration/governance.py
 UtilityScorer::score_subgraph(subgraph_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
+UtilityScorer::score_subgraph(subgraph_id) @ current_work/01-21-2026/governance.py
 UtilityScorer::score_subgraph(subgraph_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 VPSRepoGraphLoader::__init__(dry_run, verbose) @ scripts/memory/load_indexes_to_neo4j_vps.py
 VPSRepoGraphLoader::async api_request(method, endpoint) @ scripts/memory/load_indexes_to_neo4j_vps.py
@@ -7952,12 +8108,16 @@ Validator::async process(data) @ orchestrators/action_tool/validator.py
 Validator::async validate_tool(tool_id, arguments, context) @ igor/DONE!/audit-tools/orchestrators_action_tool_validator.py
 Validator::async validate_tool(tool_id, arguments, context) @ orchestrators/action_tool/validator.py
 VectorPubSub::__init__(redis_client, max_buffer_size) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+VectorPubSub::__init__(redis_client, max_buffer_size) @ current_work/01-21-2026/swarm_sync.py
 VectorPubSub::__init__(redis_client, max_buffer_size) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 VectorPubSub::async publish(channel, vector, agent_id, reasoning) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+VectorPubSub::async publish(channel, vector, agent_id, reasoning) @ current_work/01-21-2026/swarm_sync.py
 VectorPubSub::async publish(channel, vector, agent_id, reasoning) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 VectorPubSub::async subscribe(channel, callback) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+VectorPubSub::async subscribe(channel, callback) @ current_work/01-21-2026/swarm_sync.py
 VectorPubSub::async subscribe(channel, callback) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 VectorPubSub::get_recent_learnings(channel, limit) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+VectorPubSub::get_recent_learnings(channel, limit) @ current_work/01-21-2026/swarm_sync.py
 VectorPubSub::get_recent_learnings(channel, limit) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 VectorStore::async close() @ core/protocols/memory_protocols.py
 VectorStore::async delete_embedding(id) @ core/protocols/memory_protocols.py
@@ -8402,4 +8562,4 @@ _SchemaRegistry::write_packet(packet) @ core/schemas/schema_registry.py
 _StubRateLimiter::async check_and_increment(key, limit) @ core/governance/rate_limit_policy.py
 _StubRateLimiter::async get_usage(key) @ core/governance/rate_limit_policy.py
 
-# Total: 8398 class methods
+# Total: 8558 class methods

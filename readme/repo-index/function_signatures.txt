@@ -2042,27 +2042,6 @@ core/testing/test_generator.py::generate_unit_tests(code_proposal, module_name) 
 core/testing/test_generator.py::generate_unit_tests(self, code_proposal, module_name) - Generate unit tests for a code proposal.
 core/tools/agent_self_modify.py::__init__(self, neo4j_driver, substrate_service) - 
 core/tools/agent_self_modify.py::create_self_modify_tool(neo4j_driver, substrate_service) - Factory function to create AgentSelfModi
-core/tools/base_registry.py::__init__(self, rate_window_seconds) - Initialize empty registry.
-core/tools/base_registry.py::__init__(self, window_seconds) - Initialize rate limiter.
-core/tools/base_registry.py::_initialize_default_tools(registry) - Initialize default tools in registry wit
-core/tools/base_registry.py::calculate_executor(expression) - 
-core/tools/base_registry.py::check_and_increment(self, key, limit) - Check if under rate limit and increment 
-core/tools/base_registry.py::check_rate_limit(self, tool_id) - Check if tool is within rate limit (slid
-core/tools/base_registry.py::disable(self, tool_id) - Disable a tool.
-core/tools/base_registry.py::enable(self, tool_id) - Enable a tool.
-core/tools/base_registry.py::get(self, tool_id) - Get tool metadata by ID.
-core/tools/base_registry.py::get_by_type(self, tool_type) - Get all tools of a specific type.
-core/tools/base_registry.py::get_executor(self, tool_id) - Get tool executor instance by ID.
-core/tools/base_registry.py::get_for_role(self, role) - Get all tools available for a role.
-core/tools/base_registry.py::get_rate_limit_remaining(self, tool_id) - Get remaining calls in current rate limi
-core/tools/base_registry.py::get_remaining(self, key, limit) - Get remaining calls in current window.
-core/tools/base_registry.py::get_tool_registry() - Get or create tool registry singleton.
-core/tools/base_registry.py::get_tool_schema(self, tool_id) - Get OpenAI function calling schema for a
-core/tools/base_registry.py::list_all(self) - List all registered tools.
-core/tools/base_registry.py::list_enabled(self) - List only enabled tools.
-core/tools/base_registry.py::register(self, metadata, executor) - Register a tool with the registry.
-core/tools/base_registry.py::reset(self, key) - Reset rate limits for a key or all keys.
-core/tools/base_registry.py::reset_rate_limits(self, tool_id) - Reset rate limit counters for a tool or 
 core/tools/memory_tools.py::_detect_query_injection(query) - Detect SQL/Cypher injection patterns in 
 core/tools/registry_adapter.py::__init__(self, base_registry, governance_enabled, governance_engine) - Initialize the adapter.
 core/tools/registry_adapter.py::_get_l_tool_schema_for_registry(tool_name) - Get ToolSchema object for an L-CTO tool.
@@ -2314,6 +2293,8 @@ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::main() -
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::setup_ci_validation(self) - Create CI/CD validation pipeline
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::setup_pre_commit_hooks(self) - Configure pre-commit hooks for automatic
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::setup_static_analysis(self) - Deploy language-specific static analysis
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::mock_neo4j() - Fixture for mocked Neo4j driver
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::mock_redis() - Fixture for mocked Redis client
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::__init__(self, neo4j_driver) - 
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::__init__(self, neo4j_driver) - 
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::__init__(self, neo4j_driver, coordinator) - 
@@ -2345,6 +2326,171 @@ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::get_superposition(self, subject) - Retrieve superposition for a subject
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::mock_neo4j() - Fixture for mocked Neo4j driver
 current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::mock_redis() - Fixture for mocked Redis client
+current_work/01-21-2026/governance.py::__init__(self, neo4j_driver) - 
+current_work/01-21-2026/governance.py::__init__(self, neo4j_driver) - 
+current_work/01-21-2026/governance.py::__init__(self, neo4j_driver, coordinator) - 
+current_work/01-21-2026/governance.py::__init__(self, neo4j_driver, coordinator) - 
+current_work/01-21-2026/governance.py::__init__(self, neo4j_driver, orchestrator) - 
+current_work/01-21-2026/governance.py::score_subgraph(self, subgraph_id) - Calculate utility score for a subgraph
+current_work/01-21-2026/neural_substrate.py::__init__(self, input_dim, hidden_dim, output_dim, num_layers, device) - 
+current_work/01-21-2026/neural_substrate.py::__init__(self, neo4j_driver) - 
+current_work/01-21-2026/neural_substrate.py::__init__(self, neo4j_driver, gnn_kernel) - 
+current_work/01-21-2026/neural_substrate.py::_infer_node_label(self, pattern) - Infer Neo4j node label
+current_work/01-21-2026/neural_substrate.py::_infer_properties(self, pattern) - Infer node properties
+current_work/01-21-2026/neural_substrate.py::_infer_relationships(self, pattern) - Infer relationships to existing nodes
+current_work/01-21-2026/neural_substrate.py::_infer_schema_description(self, pattern) - Infer description from pattern character
+current_work/01-21-2026/neural_substrate.py::_infer_schema_name(self, pattern) - Infer descriptive name from pattern
+current_work/01-21-2026/neural_substrate.py::decode(self, latent) - Decode from latent space
+current_work/01-21-2026/neural_substrate.py::deploy_canary(self, schema, canary_agents) - Deploy schema to canary agents and monit
+current_work/01-21-2026/neural_substrate.py::discover_schemas(self, latent_patterns) - Discover new schemas from latent pattern
+current_work/01-21-2026/neural_substrate.py::encode(self, data) - Encode interaction data into latent spac
+current_work/01-21-2026/neural_substrate.py::encode_reasoning(self, reasoning) - Convert reasoning object to embedding ve
+current_work/01-21-2026/neural_substrate.py::get_latent_patterns(self, encoded, threshold) - Extract meaningful patterns from latent 
+current_work/01-21-2026/neural_substrate.py::promote_to_production(self, schema) - Promote canary deployment to full produc
+current_work/01-21-2026/neural_substrate.py::validate_schema(self, schema, agent_id) - Validate schema works on a specific agen
+current_work/01-21-2026/swarm_sync.py::__init__(self, neo4j_driver, redis_client, schema_distiller) - 
+current_work/01-21-2026/swarm_sync.py::__init__(self, redis_client) - 
+current_work/01-21-2026/swarm_sync.py::__init__(self, redis_client, agent_id, ttl_seconds) - 
+current_work/01-21-2026/swarm_sync.py::__init__(self, redis_client, max_buffer_size) - 
+current_work/01-21-2026/swarm_sync.py::get_cached_intuition(self, source_agent) - Get cached intuition
+current_work/01-21-2026/swarm_sync.py::get_recent_learnings(self, channel, limit) - Get recent learning events from history
+current_work/01-21-2026/swarm_sync.py::get_superposition(self, subject) - Retrieve superposition for a subject
+current_work/Bayesian Upgrade/bayesian_kernel.py::__init__(self) - Initialize kernel.
+current_work/Bayesian Upgrade/bayesian_kernel.py::_build_system_prompt(self) - Build system prompt section for Bayesian
+current_work/Bayesian Upgrade/bayesian_kernel.py::_calculate_confidence(distribution) - Calculate confidence from probability di
+current_work/Bayesian Upgrade/bayesian_kernel.py::_timestamp() - Get current ISO timestamp.
+current_work/Bayesian Upgrade/bayesian_kernel.py::add_evidence(self, variable, description, strength, source) - Add evidence to a belief state.
+current_work/Bayesian Upgrade/bayesian_kernel.py::create_belief_state(self, variable, prior, metadata) - Create new belief state for a variable.
+current_work/Bayesian Upgrade/bayesian_kernel.py::get_bayesian_kernel() - Get or create global Bayesian kernel ins
+current_work/Bayesian Upgrade/bayesian_kernel.py::get_belief_state(self, variable) - Get belief state for a variable.
+current_work/Bayesian Upgrade/bayesian_kernel.py::is_enabled(self) - Check if Bayesian reasoning is enabled.
+current_work/Bayesian Upgrade/bayesian_kernel.py::reset_bayesian_kernel() - Reset kernel instance (for testing).
+current_work/Bayesian Upgrade/bayesian_kernel.py::update_posterior(self, variable, new_posterior) - Update posterior belief using Bayes rule
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::__init__(self) - Initialize Subjective Logic adapter.
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::combine_opinions(self, opinion1, opinion2) - Combine two subjective logic opinions.
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::from_beta(self, alpha, beta) - Convert Beta distribution parameters to 
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::from_probability(self, probability, uncertainty) - Convert probability + uncertainty to sub
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::opinion_to_confidence(self, opinion) - Convert opinion to confidence score.
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::subjective_logic_enabled() - Check if Subjective Logic is enabled via
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::to_probability(self, belief, disbelief, uncertainty, base_rate) - Convert subjective logic opinion to prob
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::__init__(self) - 
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::__init__(self, n_models) - Initialize ensemble.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::__init__(self, n_samples, ood_threshold, temperature) - Initialize Bayesian uncertainty engine.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::_compute_aleatoric(self, model, x) - Compute aleatoric uncertainty.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::_compute_confidence(self, epistemic, aleatoric) - Compute calibrated confidence score.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::_compute_epistemic(self, model, x) - Compute epistemic uncertainty via MC dro
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::_temperature_scale(self, logits) - Apply temperature scaling for calibratio
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::add_model(self, model) - Add trained model to ensemble.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::compute_ece(self, n_bins) - Compute Expected Calibration Error.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::forward(self, x) - 
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::predict_with_uncertainty(self, x) - Ensemble prediction with epistemic uncer
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::quantify(self, model, x, return_samples) - Compute full Bayesian posterior for pred
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::set_ood_threshold(self, validation_epistemic, percentile) - Set OOD threshold based on validation se
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::update_calibration(self, prediction, actual) - Update calibration history for ECE compu
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::__init__(self, registry_path) - 
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::_assess_command_risk(self, context) - Assess risk of command execution
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::_assess_escalation_need(self, context) - Assess whether to escalate to user
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::_assess_file_edit_risk(self, context) - Assess risk of file edit using probabili
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::_check_deterministic_rules(self, action_type, context) - Check if any deterministic FOL rules app
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::_default_assessment(self, context) - Default assessment when specific model n
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::_load_registry(self) - Load governance rules from registry
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::evaluate_governance_action(self, action_type, context) - Main entry point for governance decision
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::evaluate_rule_with_probabilistic_predicate(self, rule_fol, context) - Evaluate hybrid rules containing probabi
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::__init__(self, registry_path, telemetry_path) - 
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::__post_init__(self) - 
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_apply_temperature_scaling(self, raw_prob, temperature) - Apply temperature scaling for calibratio
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_build_reasoning(self, evidence, raw_prob, calibrated_prob, subjective) - Build human-readable reasoning explanati
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_calculate_cascading_risk(self, references) - Calculate risk from cascading impact
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_calculate_confidence(self, evidence) - Calculate confidence based on evidence q
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_calculate_correction_adjustment(self, correction_count) - Calculate trust adjustment from user cor
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_calculate_ece_for_decisions(self, decisions) - Helper to calculate ECE for a list of de
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_calculate_file_type_risk(self, file_type) - Calculate risk based on file type
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_calculate_frequency_risk(self, frequency) - Calculate risk from edit frequency
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_calculate_location_risk(self, file_path) - Calculate risk based on file location
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_classify_risk(self, probability, subjective) - Classify risk level and determine action
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_decompose_subjective_logic(self, evidence) - Decompose into trust/disbelief/uncertain
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_ensure_telemetry_dir(self) - Ensure telemetry directory exists
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_get_default_calibration(self) - Default calibration parameters
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_get_default_registry(self) - Default configuration if registry not fo
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_get_default_thresholds(self) - Default threshold configuration
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_infer_file_type(self, file_path) - Infer file type from path and extension
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_load_registry(self) - Load probabilistic models from rule regi
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_log_decision(self, assessment, evidence, file_path) - Log decision to telemetry for learning
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::_weighted_combination(self, evidence) - Calculate weighted average of evidence
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::assess_file_compliance_risk(self, file_path, file_type, edit_frequency, user_correction_count, references_count) - Assess file compliance risk using weight
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::calculate_ece(self, decisions) - Calculate Expected Calibration Error.
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::get_threshold(self, threshold_name) - Get current threshold value
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::optimize_temperature(self, target_ece) - Optimize temperature parameter to minimi
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::record_outcome(self, decision_id, outcome, feedback) - Record outcome of a decision for learnin
+current_work/Bayesian Upgrade/hypergraph.py::__post_init__(self) - Set node type to BAYESIAN.
+current_work/Bayesian Upgrade/hypergraph.py::__post_init__(self) - Set node type to REASONING.
+current_work/Bayesian Upgrade/hypergraph.py::add_evidence(self, description, strength, source) - Add evidence to this belief node.
+current_work/Bayesian Upgrade/hypergraph.py::add_input_edge(self, source_node_id) - Add dependency edge from source node.
+current_work/Bayesian Upgrade/hypergraph.py::add_output_edge(self, target_node_id) - Add edge to target node.
+current_work/Bayesian Upgrade/hypergraph.py::create_node(self) - Create a node from this template.
+current_work/Bayesian Upgrade/hypergraph.py::is_ready(self) - Check if all dependencies are completed.
+current_work/Bayesian Upgrade/hypergraph.py::to_dict(self) - Convert node to dictionary.
+current_work/Bayesian Upgrade/hypergraph.py::update_posterior(self, new_posterior, uncertainty) - Update posterior belief distribution.
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::__init__(self, registry_path, telemetry_path, meta_learning_log) - 
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_adjust_thresholds(self, decisions) - Adjust thresholds to maintain target pre
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_apply_correlation_penalty(self, name1, name2, correlation) - Apply PAC-Bayesian correlation penalty t
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_calculate_correlation(self, values1, values2) - Calculate Pearson correlation coefficien
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_calculate_ece(self, decisions, use_new_params) - Calculate ECE for a set of decisions
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_detect_evidence_correlations(self, decisions) - Detect correlations between evidence sou
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_load_decisions(self, hours) - Load recent decisions from telemetry
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_load_registry(self) - Load current rule registry
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_log_to_meta_learning(self, ece_before, ece_after, temp_before, temp_after, threshold_adjustments, weight_updates) - Log calibration to meta-learning log
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_normalize_weights(self) - Ensure all weights sum to 1.0 in each mo
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_optimize_temperature(self, decisions) - Optimize temperature to minimize ECE
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_save_registry(self) - Save updated registry back to file
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::_update_evidence_weights(self, decisions) - Update evidence source weights based on 
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::run_calibration(self) - Main calibration routine - fully autonom
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::run_nightly_calibration() - Entry point for scheduled nightly calibr
+current_work/Bayesian Upgrade/learning/feedback_collector.py::__init__(self, registry_path, telemetry_path, feedback_log_path) - 
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_detect_systematic_pattern(self, event) - Detect if this feedback is part of a sys
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_infer_feedback_from_behavior(self, user_action, context) - Infer feedback from user behavior
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_load_feedback_history(self) - Load recent feedback history
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_load_registry(self) - Load current registry
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_log_feedback(self, event) - Log feedback event to telemetry
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_log_pattern_to_meta_learning(self, pattern, event) - Log detected pattern to meta-learning lo
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_micro_adjust_temperature(self, direction, magnitude) - Make small immediate temperature adjustm
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_micro_adjust_thresholds(self, direction, magnitude) - Make small immediate threshold adjustmen
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_parse_feedback(self, feedback_text) - Parse user feedback text into type
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_process_feedback(self, event) - Process feedback and make immediate micr
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_save_registry(self) - Save updated registry
+current_work/Bayesian Upgrade/learning/feedback_collector.py::_update_decision_outcome(self, decision_id, outcome) - Update outcome in original decision log
+current_work/Bayesian Upgrade/learning/feedback_collector.py::get_feedback_summary(self, days) - Generate summary of recent feedback.
+current_work/Bayesian Upgrade/learning/feedback_collector.py::record_explicit_feedback(self, decision_id, feedback, context) - Record explicit user feedback.
+current_work/Bayesian Upgrade/learning/feedback_collector.py::record_implicit_feedback(self, decision_id, user_action, decision_context) - Infer feedback from user behavior.
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::__init__(self, telemetry_path, report_dir) - 
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_analyze_thresholds(self, decisions) - Analyze threshold performance
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_breakdown_by_model(self, decisions) - Performance breakdown by model type
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_calculate_ece(self, decisions) - Calculate Expected Calibration Error
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_calculate_mce(self, decisions) - Calculate Maximum Calibration Error
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_calculate_metrics(self, decisions) - Calculate all calibration metrics
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_generate_recommendations(self, metrics, decisions) - Generate actionable recommendations
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_generate_reliability_diagram(self, decisions) - Generate ASCII reliability diagram
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_insufficient_data_report(self) - Report when insufficient data available
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::_load_decisions(self, days) - Load recent decisions
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::detect_calibration_drift(self) - Detect if calibration has drifted signif
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::generate_weekly_report() - Entry point for scheduled weekly report 
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::generate_weekly_report(self) - Generate comprehensive weekly calibratio
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_add_evidence() - Add evidence to belief state.
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_agent_execution_works_without_bayesian() - Agent execution succeeds when Bayesian i
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_bayesian_kernel_disabled_by_default() - Feature flag defaults to false (safe).
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_bayesian_kernel_enabled_provides_system_prompt() - When enabled, kernel provides system pro
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_bayesian_node_add_evidence() - Add evidence to Bayesian node.
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_bayesian_node_properties() - BayesianNode has correct properties.
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_bayesian_node_template_exists() - BAYESIAN_NODE_TEMPLATE is defined and us
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_bayesian_node_update_posterior() - Update posterior belief in node.
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_confidence_from_distribution() - Confidence calculated correctly from dis
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_create_bayesian_node_from_template() - Create Bayesian node using template.
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_create_belief_state_when_disabled() - Creating belief state when disabled rais
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_create_belief_state_when_enabled() - Creating belief state when enabled works
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_feature_flag_environment_variable() - Feature flag responds to environment var
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_get_bayesian_kernel_singleton() - get_bayesian_kernel() returns same insta
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_reasoning_node_template_exists() - REASONING_NODE_TEMPLATE is defined.
+current_work/Bayesian Upgrade/test_bayesian_kernel.py::test_update_posterior() - Update posterior belief.
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::__init__(self) - 
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::__init__(self, schemas) - 
 current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_calculate_confidence(self, data, schema) - Calculate extraction confidence based on
@@ -4052,6 +4198,9 @@ memory/cypher_templates.py::get_template_library() - Get singleton template libr
 memory/cypher_templates.py::list_templates(self, category) - List available templates.
 memory/dead_letter.py::__init__(self, redis_client, stream_key) - Initialize DLQ.
 memory/dead_letter.py::_parse_entry(self, entry_id, data) - Parse Redis stream entry to DeadLetterEn
+memory/dead_letter_queue.py::__init__(self, redis_client) - Initialize the Dead-Letter Queue.
+memory/dead_letter_queue.py::from_json(cls, json_str) - Deserialize from JSON.
+memory/dead_letter_queue.py::to_json(self) - Serialize to JSON for Redis storage.
 memory/extractor/agent_config_extractor.py::extract(self, input_path, output_root) - Extract agent configuration from input.
 memory/extractor/agent_config_extractor.py::extract_config(self, content, mode) - Extract configuration based on mode.
 memory/extractor/agent_config_extractor.py::extract_issues(self, content) - Extract known issues.
@@ -4624,13 +4773,6 @@ runtime/kernel_state.py::log_decision(self, intent, reasoning, confidence, outco
 runtime/kernel_state.py::log_escalation(self, category, issue, severity, trigger, resolution, action) - Log escalation (GODMODE Part 3.3).
 runtime/kernel_state.py::log_tool_execution(self, tool_id, params, status, result, error) - Log tool execution (GODMODE Part 7.1).
 runtime/kernel_state.py::summary(self) - Get a summary of kernel state for respon
-runtime/l_tools.py::_get_reflection_tool(tool_name) - Lazy import reflection tools to avoid ci
-runtime/l_tools.py::_get_research_tool(tool_name) - Lazy import research tools to avoid circ
-runtime/l_tools.py::_get_saga_tool(tool_name) - Lazy import saga tools to avoid circular
-runtime/l_tools.py::_get_symbolic_codegen() - Lazy import symbolic_codegen to avoid st
-runtime/l_tools.py::_get_symbolic_compute() - Lazy import symbolic_compute to avoid st
-runtime/l_tools.py::_get_symbolic_optimize() - Lazy import symbolic_optimize to avoid s
-runtime/l_tools.py::_missing() - 
 runtime/l_tools.py::get_tool_executor(tool_name) - Get executor function for a tool by name
 runtime/l_tools.py::list_available_tools() - List all available tool names.
 runtime/local_api.py::__init__(self, settings) - Initialize LocalAPI.
@@ -4728,7 +4870,6 @@ runtime/tool_registry.py::get_tool_executors() - Get all registered tool executo
 runtime/tool_registry.py::get_tool_snapshot() - Get a snapshot of all registered tools f
 runtime/tool_registry.py::get_tools_by_category(category) - Get all tool executors in a specific cat
 runtime/tool_registry.py::register_extension_tool_executors() - Register tools from extension modules (r
-runtime/tool_registry.py::register_legacy_tool_executors() - Bridge function: Register all tools from
 runtime/tool_registry.py::register_tool(name, category, priority) - Decorator to register a tool executor fu
 runtime/websocket_orchestrator.py::__init__(self) - 
 runtime/websocket_orchestrator.py::get_connected_agents(self) - Get list of currently connected agent ID
@@ -6926,6 +7067,9 @@ tests/runtime/test_packet_envelopes_invariants.py::test_task_envelope_assign_to(
 tests/runtime/test_packet_envelopes_invariants.py::test_task_envelope_basic_roundtrip() - Test TaskEnvelope wraps task correctly.
 tests/runtime/test_packet_envelopes_invariants.py::test_task_result_basic_roundtrip() - Test TaskResult creation and serializati
 tests/runtime/test_packet_envelopes_invariants.py::test_task_result_failed_state() - Test TaskResult with failed status.
+tests/runtime/test_slack_tools.py::mock_env_with_token(monkeypatch) - Set SLACK_BOT_TOKEN environment variable
+tests/runtime/test_slack_tools.py::mock_env_without_token(monkeypatch) - Remove SLACK_BOT_TOKEN environment varia
+tests/runtime/test_slack_tools.py::mock_slack_client() - Mock SlackAPIClient for testing.
 tests/runtime/test_tool_registry.py::clean_registry() - Clean the tool registry before each test
 tests/runtime/test_tool_registry.py::sync_tool() - 
 tests/runtime/test_tool_registry.py::test_get_tools_by_category(clean_registry) - Test filtering tools by category.

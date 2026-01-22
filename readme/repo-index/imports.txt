@@ -230,6 +230,7 @@
   core.commands.schemas
   core.compliance.audit_log
   core.compliance.audit_reporter
+  core.config
   core.decorators
   core.di.container
   core.event_type_registry
@@ -247,6 +248,7 @@
   core.governance.tool_risk_policy
   core.governance.validation
   core.kernel_wiring.packet_protocol_wiring
+  core.kernels.bayesian_kernel
   core.kernels.integrity
   core.kernels.kernelloader
   core.kernels.schemas
@@ -280,6 +282,7 @@
   core.schemas
   core.schemas.capabilities
   core.schemas.event_stream
+  core.schemas.hypergraph
   core.schemas.packet_envelope
   core.schemas.packet_envelope_v2
   core.schemas.research_factory_models
@@ -577,6 +580,7 @@
   runtime.kernel_config_loader
   runtime.kernel_loader
   runtime.kernel_state
+  runtime.l_tools
   runtime.long_plan_tool
   runtime.mcp_client
   runtime.mcp_server_registry
