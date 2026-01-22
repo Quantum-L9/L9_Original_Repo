@@ -1,11 +1,16 @@
-"""
+"""  
 L9 Memory Substrate - LangGraph DAG
-Version: 1.0.0
+Version: 1.2.0
 
-Implements the substrate processing pipeline as a LangGraph DAG:
-  intake_node → reasoning_node → memory_write_node → semantic_embed_node → checkpoint_node
+Implements the substrate processing pipeline as a LangGraph DAG with native execution:
+  intake_node → reasoning_node → memory_write_node → [conditional] → semantic_embed_node
+                                                                   ↘ extract_insights_node
 
-The DAG routes PacketEnvelopes through processing stages with state accumulation.
+The DAG routes PacketEnvelopes through processing stages with:
+- Native LangGraph execution (graph.ainvoke)
+- Conditional routing based on packet content
+- Dependency injection via config parameter
+- Duplicate packet detection
 
 # bound to memory-yaml2.0 structural layer (NOTE: YAML specifies Neo4j backend, but current implementation uses LangGraph DAG for entity_graph/relationship_traversal/event_timeline)
 """
@@ -137,7 +142,7 @@ def _default_state() -> SubstrateGraphState:
 
 
 async def intake_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: dict[str, Any] | None = None
 ) -> SubstrateGraphState:
     """
     Entry node: validates and normalizes the PacketEnvelope.
@@ -146,6 +151,9 @@ async def intake_node(
     - Ensures packet_id and timestamp are set
     - Prepares state for downstream processing
     """
+    # Extract dependencies from config
+    repository = config.get("configurable", {}).get("repository") if config else None
+    
     logger.debug("intake_node: Processing packet")
 
     envelope = state.get("envelope", {})
@@ -156,6 +164,21 @@ async def intake_node(
         errors.append("Missing required field: packet_type")
     if not envelope.get("payload"):
         errors.append("Missing required field: payload")
+    
+    # Check for duplicate packet (if packet_id is provided)
+    packet_id = envelope.get("packet_id")
+    if packet_id and repository:
+        try:
+            # Check if packet already exists
+            # Note: This requires repository to have a check_packet_exists method
+            # For now, we'll skip this check if the method doesn't exist
+            if hasattr(repository, "check_packet_exists"):
+                exists = await repository.check_packet_exists(packet_id)
+                if exists:
+                    errors.append(f"Duplicate packet: {packet_id} already processed")
+                    logger.warning(f"intake_node: Duplicate packet detected: {packet_id}")
+        except Exception as e:
+            logger.warning(f"intake_node: Failed to check for duplicate: {e}")
 
     # Ensure packet_id
     if not envelope.get("packet_id"):
@@ -184,7 +207,7 @@ async def intake_node(
 
 
 async def reasoning_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: dict[str, Any] | None = None
 ) -> SubstrateGraphState:
     """
     Reasoning node: generates StructuredReasoningBlock from packet.
@@ -194,6 +217,9 @@ async def reasoning_node(
     - Generates confidence scores
     - Determines memory write operations
     """
+    # Extract dependencies from config
+    repository = config.get("configurable", {}).get("repository") if config else None
+    
     logger.debug("reasoning_node: Generating reasoning block")
 
     envelope = state.get("envelope", {})
@@ -262,7 +288,7 @@ async def reasoning_node(
 
 
 async def memory_write_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: dict[str, Any] | None = None
 ) -> SubstrateGraphState:
     """
     Memory write node: persists packet and reasoning to database.
@@ -272,6 +298,9 @@ async def memory_write_node(
     - agent_memory_events
     - reasoning_traces (if reasoning block present)
     """
+    # Extract dependencies from config
+    repository = config.get("configurable", {}).get("repository") if config else None
+    
     logger.debug("memory_write_node: Writing to database")
 
     envelope = state.get("envelope", {})
@@ -333,13 +362,17 @@ async def memory_write_node(
 
 
 async def semantic_embed_node(
-    state: SubstrateGraphState, repository=None, semantic_service=None
+    state: SubstrateGraphState, config: dict[str, Any] | None = None
 ) -> SubstrateGraphState:
     """
     Semantic embedding node: generates and stores embedding for payload.
 
     Only embeds if payload contains text content suitable for semantic search.
     """
+    # Extract dependencies from config
+    repository = config.get("configurable", {}).get("repository") if config else None
+    semantic_service = config.get("configurable", {}).get("semantic_service") if config else None
+    
     logger.debug("semantic_embed_node: Processing embedding")
 
     envelope = state.get("envelope", {})
@@ -416,13 +449,16 @@ async def semantic_embed_node(
 
 
 async def checkpoint_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: dict[str, Any] | None = None
 ) -> SubstrateGraphState:
     """
     Checkpoint node: saves graph state for recovery.
 
     Final node in the DAG - persists state to graph_checkpoints.
     """
+    # Extract dependencies from config
+    repository = config.get("configurable", {}).get("repository") if config else None
+    
     logger.debug("checkpoint_node: Saving checkpoint")
 
     envelope = state.get("envelope", {})
@@ -472,7 +508,7 @@ async def checkpoint_node(
 
 
 async def extract_insights_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: dict[str, Any] | None = None
 ) -> SubstrateGraphState:
     """
     Extract insights from packet payload and reasoning block.
@@ -482,6 +518,9 @@ async def extract_insights_node(
     - Conclusion-like statements in text
     - Entity mentions and relationships
     """
+    # Extract dependencies from config
+    repository = config.get("configurable", {}).get("repository") if config else None
+    
     logger.debug("extract_insights_node: Extracting insights")
 
     envelope = state.get("envelope", {})
@@ -580,7 +619,7 @@ async def extract_insights_node(
 
 
 async def store_insights_node(
-    state: SubstrateGraphState, repository=None
+    state: SubstrateGraphState, config: dict[str, Any] | None = None
 ) -> SubstrateGraphState:
     """
     Store extracted insights and facts to database.
@@ -589,6 +628,9 @@ async def store_insights_node(
     - KnowledgeFacts to knowledge_facts table
     - Insights as specialized packets
     """
+    # Extract dependencies from config
+    repository = config.get("configurable", {}).get("repository") if config else None
+    
     logger.debug("store_insights_node: Storing insights and facts")
 
     insights = state.get("insights", [])
@@ -632,7 +674,7 @@ async def store_insights_node(
 
 
 async def world_model_trigger_node(
-    state: SubstrateGraphState, repository=None, world_model_service=None
+    state: SubstrateGraphState, config: dict[str, Any] | None = None
 ) -> SubstrateGraphState:
     """
     Trigger world model update based on extracted insights.
@@ -644,6 +686,10 @@ async def world_model_trigger_node(
     - Uses world_model.service.WorldModelService for DB-backed updates
     - Falls back to orchestrator if service not available
     """
+    # Extract dependencies from config
+    repository = config.get("configurable", {}).get("repository") if config else None
+    world_model_service = config.get("configurable", {}).get("world_model_service") if config else None
+    
     logger.debug("world_model_trigger_node: Checking for world model updates")
 
     insights = state.get("insights", [])
@@ -697,6 +743,45 @@ async def world_model_trigger_node(
 
 
 # =============================================================================
+# Conditional Routing Functions
+# =============================================================================
+
+
+def should_embed_content(state: SubstrateGraphState) -> str:
+    """
+    Determine if semantic embedding should be performed.
+    
+    Returns:
+        "embed" if content should be embedded, "skip_embed" otherwise
+    """
+    envelope = state.get("envelope", {})
+    packet_type = envelope.get("packet_type", "")
+    payload = envelope.get("payload", {})
+    
+    # Check if packet type or payload suggests semantic content
+    should_embed = (
+        "semantic" in packet_type.lower()
+        or "memory" in packet_type.lower()
+        or "text" in payload
+        or "content" in payload
+        or "description" in payload
+    )
+    
+    # Also check if content would be skipped by embedding filter
+    if should_embed:
+        text_content = (
+            payload.get("text") 
+            or payload.get("content") 
+            or payload.get("description") 
+            or ""
+        )
+        if _should_skip_embedding(str(text_content)):
+            should_embed = False
+    
+    return "embed" if should_embed else "skip_embed"
+
+
+# =============================================================================
 # Graph Builder
 # =============================================================================
 
@@ -726,12 +811,21 @@ def build_substrate_graph() -> StateGraph:
     graph.add_node("world_model_trigger_node", world_model_trigger_node)
     graph.add_node("checkpoint_node", checkpoint_node)
 
-    # Add edges (v1.1.0 extended pipeline)
+    # Add edges (v1.2.0 with conditional routing)
     graph.set_entry_point("intake_node")
     graph.add_edge("intake_node", "reasoning_node")
     graph.add_edge("reasoning_node", "memory_write_node")
-    graph.add_edge("reasoning_node", "semantic_embed_node")
-    graph.add_edge("memory_write_node", "extract_insights_node")
+    
+    # Conditional routing: only embed if content is suitable
+    graph.add_conditional_edges(
+        "memory_write_node",
+        should_embed_content,
+        {
+            "embed": "semantic_embed_node",
+            "skip_embed": "extract_insights_node",
+        }
+    )
+    
     graph.add_edge("semantic_embed_node", "extract_insights_node")
     graph.add_edge("extract_insights_node", "store_insights_node")
     graph.add_edge("store_insights_node", "world_model_trigger_node")
@@ -790,46 +884,39 @@ class SubstrateDAG:
             "errors": [],
         }
 
-        # Inject dependencies into node functions
-        # Note: LangGraph doesn't directly support dependency injection,
-        # so we use a wrapper pattern
+        # Prepare config with dependencies for LangGraph
+        config = {
+            "configurable": {
+                "repository": self._repository,
+                "semantic_service": self._semantic_service,
+                "world_model_service": self._world_model_service,
+            }
+        }
 
-        # Run each node manually with dependencies
-        state = initial_state
+        # Use LangGraph to execute the graph natively
+        try:
+            final_state = await self._graph.ainvoke(initial_state, config=config)
+        except Exception as e:
+            logger.error(f"DAG execution failed: {e}", exc_info=True)
+            return PacketWriteResult(
+                packet_id=envelope.packet_id,
+                written_tables=[],
+                status="error",
+                error_message=str(e),
+            )
 
-        state = await intake_node(state, repository=self._repository)
-        state = await reasoning_node(state, repository=self._repository)
-
-        # Parallel execution of memory_write and semantic_embed
-        # (simplified to sequential for now)
-        state = await memory_write_node(state, repository=self._repository)
-        state = await semantic_embed_node(
-            state, repository=self._repository, semantic_service=self._semantic_service
-        )
-
-        # Insight extraction pipeline (v1.1.0+)
-        state = await extract_insights_node(state, repository=self._repository)
-        state = await store_insights_node(state, repository=self._repository)
-        state = await world_model_trigger_node(
-            state,
-            repository=self._repository,
-            world_model_service=self._world_model_service,
-        )
-
-        state = await checkpoint_node(state, repository=self._repository)
-
-        # Build result
-        errors = state.get("errors", [])
+        # Build result from final state
+        errors = final_state.get("errors", [])
         if errors:
             return PacketWriteResult(
                 packet_id=envelope.packet_id,
-                written_tables=state.get("written_tables", []),
+                written_tables=final_state.get("written_tables", []),
                 status="error",
                 error_message="; ".join(errors),
             )
 
         return PacketWriteResult(
             packet_id=envelope.packet_id,
-            written_tables=state.get("written_tables", []),
+            written_tables=final_state.get("written_tables", []),
             status="ok",
         )
