@@ -33,10 +33,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
-from dataclasses import dataclass
+
+import structlog
 
 from core.auto_registry import AutoRegistry
 from core.governance.schemas import Policy

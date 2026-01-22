@@ -4,12 +4,12 @@ API → Agent Executor Integration Tests
 Tests the flow: HTTP Request → API Router → Agent Executor → Response
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
-
 # Mock external services before imports
 import sys
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # Ensure project root is in path
 project_root = Path(__file__).parent.parent.parent
@@ -25,10 +25,10 @@ if "api.db" not in sys.modules:
     api_db_module.init_db = lambda: None  # Mock function
     sys.modules["api.db"] = api_db_module
 
+from fastapi.testclient import TestClient
+
 # Now import server (it should work with the mocked db module)
 from api.server import app
-
-from fastapi.testclient import TestClient
 
 pytestmark = pytest.mark.integration
 

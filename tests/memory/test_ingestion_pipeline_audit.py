@@ -37,16 +37,12 @@ class TestDAGNodeCoverage:
 
     def test_all_eight_nodes_defined_as_functions(self):
         """Verify all 8 node functions are defined in substrate_dag.py."""
-        from memory.substrate_dag import (
-            intake_node,
-            reasoning_node,
-            memory_write_node,
-            semantic_embed_node,
-            extract_insights_node,
-            store_insights_node,
-            world_model_trigger_node,
-            checkpoint_node,
-        )
+        from memory.substrate_dag import (checkpoint_node,
+                                          extract_insights_node, intake_node,
+                                          memory_write_node, reasoning_node,
+                                          semantic_embed_node,
+                                          store_insights_node,
+                                          world_model_trigger_node)
 
         # All nodes should be async functions
         assert callable(intake_node)
@@ -61,6 +57,7 @@ class TestDAGNodeCoverage:
     def test_all_nodes_registered_in_graph(self):
         """Verify graph builder registers all 8 expected nodes."""
         import inspect
+
         from memory.substrate_dag import build_substrate_graph
 
         # Get source code to verify node registration
@@ -78,11 +75,14 @@ class TestDAGNodeCoverage:
         ]
 
         for node in expected_nodes:
-            assert f'graph.add_node("{node}"' in source, f"Missing node registration: {node}"
+            assert (
+                f'graph.add_node("{node}"' in source
+            ), f"Missing node registration: {node}"
 
     def test_graph_has_correct_edge_definitions(self):
         """Verify graph builder has expected edge definitions."""
         import inspect
+
         from memory.substrate_dag import build_substrate_graph
 
         source = inspect.getsource(build_substrate_graph)
@@ -95,12 +95,9 @@ class TestDAGNodeCoverage:
     @pytest.mark.asyncio
     async def test_substrate_dag_node_execution_flow(self):
         """Verify SubstrateDAG node execution without graph compilation."""
-        from memory.substrate_dag import (
-            intake_node,
-            reasoning_node,
-            memory_write_node,
-        )
         from core.schemas import PacketEnvelopeIn
+        from memory.substrate_dag import (intake_node, memory_write_node,
+                                          reasoning_node)
 
         packet = PacketEnvelopeIn(
             packet_type="test.audit.dag",
@@ -134,12 +131,9 @@ class TestDAGNodeCoverage:
     @pytest.mark.asyncio
     async def test_dag_state_accumulates_through_nodes(self):
         """Verify state is properly accumulated through DAG nodes."""
-        from memory.substrate_dag import (
-            intake_node,
-            reasoning_node,
-            SubstrateGraphState,
-        )
         from core.schemas import PacketEnvelopeIn
+        from memory.substrate_dag import (SubstrateGraphState, intake_node,
+                                          reasoning_node)
 
         packet = PacketEnvelopeIn(
             packet_type="test.state",
@@ -191,10 +185,8 @@ class TestGMP42EmbeddingFilter:
 
     def test_gmp42_skip_filter_blocks_error_messages(self):
         """Verify GMP-42 patterns are NOT embedded."""
-        from memory.substrate_dag import (
-            _should_skip_embedding,
-            SKIP_EMBEDDING_PATTERNS,
-        )
+        from memory.substrate_dag import (SKIP_EMBEDDING_PATTERNS,
+                                          _should_skip_embedding)
 
         for pattern in SKIP_EMBEDDING_PATTERNS:
             assert _should_skip_embedding(
@@ -241,7 +233,9 @@ class TestGMP42EmbeddingFilter:
         state = {
             "envelope": {
                 "packet_type": "chat.message",
-                "payload": {"text": "Sorry, I encountered a temporary error. Please try again."},
+                "payload": {
+                    "text": "Sorry, I encountered a temporary error. Please try again."
+                },
             },
             "errors": [],
             "written_tables": [],
@@ -283,6 +277,7 @@ class TestDualPipelineArchitecture:
     def test_substrate_dag_has_no_neo4j_node(self):
         """Verify SubstrateDAG does not have Neo4j sync node."""
         import inspect
+
         from memory.substrate_dag import build_substrate_graph
 
         # Check source code for node registrations
@@ -300,6 +295,7 @@ class TestDualPipelineArchitecture:
     def test_substrate_dag_has_insight_extraction(self):
         """Verify SubstrateDAG has insight extraction nodes."""
         import inspect
+
         from memory.substrate_dag import build_substrate_graph
 
         source = inspect.getsource(build_substrate_graph)
@@ -311,6 +307,7 @@ class TestDualPipelineArchitecture:
     def test_substrate_dag_has_reasoning_trace(self):
         """Verify SubstrateDAG generates reasoning traces."""
         import inspect
+
         from memory.substrate_dag import build_substrate_graph
 
         source = inspect.getsource(build_substrate_graph)
@@ -320,10 +317,10 @@ class TestDualPipelineArchitecture:
     @pytest.mark.asyncio
     async def test_ingest_packet_canonical_entrypoint(self):
         """Verify ingest_packet is the canonical entrypoint."""
-        from memory.ingestion import ingest_packet
-
         # Should be an async function
         import asyncio
+
+        from memory.ingestion import ingest_packet
 
         assert asyncio.iscoroutinefunction(ingest_packet)
 
@@ -346,15 +343,14 @@ class TestDualPipelineArchitecture:
         ]
 
         for feature in pipeline_features:
-            assert hasattr(IngestionPipeline, feature), f"IngestionPipeline missing: {feature}"
+            assert hasattr(
+                IngestionPipeline, feature
+            ), f"IngestionPipeline missing: {feature}"
 
         # SubstrateDAG features (reasoning, insights, world model)
-        from memory.substrate_dag import (
-            reasoning_node,
-            extract_insights_node,
-            store_insights_node,
-            world_model_trigger_node,
-        )
+        from memory.substrate_dag import (extract_insights_node,
+                                          reasoning_node, store_insights_node,
+                                          world_model_trigger_node)
 
         assert callable(reasoning_node)
         assert callable(extract_insights_node)
@@ -373,6 +369,7 @@ class TestTransactionAtomicity:
     def test_ingestion_pipeline_uses_transaction_context(self):
         """Verify IngestionPipeline wraps writes in transaction."""
         import inspect
+
         from memory.ingestion import IngestionPipeline
 
         source = inspect.getsource(IngestionPipeline.ingest)
@@ -392,9 +389,10 @@ class TestTransactionAtomicity:
     @pytest.mark.asyncio
     async def test_transaction_rollback_on_packet_error(self):
         """Verify transaction rolls back if packet insert fails."""
-        from memory.ingestion import IngestionPipeline
         from core.schemas import PacketEnvelopeIn
-        from memory.governance_gate import build_governance_context, governance_context
+        from memory.governance_gate import (build_governance_context,
+                                            governance_context)
+        from memory.ingestion import IngestionPipeline
 
         # Create mock repository that fails during transaction
         mock_repo = MagicMock()
@@ -434,12 +432,14 @@ class TestTransactionAtomicity:
         # Should report error status due to transaction failure
         assert result.status in ("error", "partial")
         assert (
-            "transaction" in (result.error_message or "").lower() or len(result.written_tables) == 0
+            "transaction" in (result.error_message or "").lower()
+            or len(result.written_tables) == 0
         )
 
     def test_transaction_commits_on_success(self):
         """Verify transaction commits when both writes succeed."""
         import inspect
+
         from memory.ingestion import IngestionPipeline
 
         source = inspect.getsource(IngestionPipeline.ingest)
@@ -466,6 +466,7 @@ class TestRLSCompliance:
     def test_set_session_scope_parameters(self):
         """Verify set_session_scope has correct parameters."""
         import inspect
+
         from memory.substrate_service import MemorySubstrateService
 
         sig = inspect.signature(MemorySubstrateService.set_session_scope)
@@ -479,6 +480,7 @@ class TestRLSCompliance:
     def test_rls_function_documented(self):
         """Verify RLS function l9_set_scope is referenced."""
         import inspect
+
         from memory.substrate_service import MemorySubstrateService
 
         source = inspect.getsource(MemorySubstrateService.set_session_scope)
@@ -508,10 +510,7 @@ class TestCrossSubstrateConsistency:
 
     def test_packet_id_used_across_tables(self):
         """Verify packet_id is the correlation key."""
-        from memory.substrate_models import (
-            PacketStoreRow,
-            AgentMemoryEventRow,
-        )
+        from memory.substrate_models import AgentMemoryEventRow, PacketStoreRow
 
         # PacketStoreRow has packet_id as primary
         assert "packet_id" in PacketStoreRow.model_fields
@@ -522,6 +521,7 @@ class TestCrossSubstrateConsistency:
     def test_neo4j_sync_is_best_effort(self):
         """Verify Neo4j sync failures don't block ingestion."""
         import inspect
+
         from memory.ingestion import IngestionPipeline
 
         source = inspect.getsource(IngestionPipeline.ingest)
@@ -537,6 +537,7 @@ class TestCrossSubstrateConsistency:
     def test_embedding_decoupled_from_core_writes(self):
         """Verify embedding preparation happens before transaction."""
         import inspect
+
         from memory.ingestion import IngestionPipeline
 
         source = inspect.getsource(IngestionPipeline.ingest)
@@ -557,14 +558,11 @@ class TestCrossSubstrateConsistency:
 
     def test_storage_tables_documented(self):
         """Verify all storage tables are modeled."""
-        from memory.substrate_models import (
-            PacketStoreRow,
-            AgentMemoryEventRow,
-            SemanticMemoryRow,
-            ReasoningTraceRow,
-            KnowledgeFactRow,
-            GraphCheckpointRow,
-        )
+        from memory.substrate_models import (AgentMemoryEventRow,
+                                             GraphCheckpointRow,
+                                             KnowledgeFactRow, PacketStoreRow,
+                                             ReasoningTraceRow,
+                                             SemanticMemoryRow)
 
         # All table DTOs should exist
         assert PacketStoreRow is not None
@@ -591,9 +589,7 @@ class TestSchemaCompliance:
 
     def test_packet_validator_validates_packet_type(self):
         """Verify PacketValidator checks packet_type."""
-        from memory.validators.packet_validator import (
-            ALLOWED_PACKET_TYPES,
-        )
+        from memory.validators.packet_validator import ALLOWED_PACKET_TYPES
 
         assert len(ALLOWED_PACKET_TYPES) > 0
         assert "event" in ALLOWED_PACKET_TYPES
@@ -607,8 +603,8 @@ class TestSchemaCompliance:
 
     def test_injection_detection(self):
         """Verify injection marker detection works."""
-        from memory.audit_utils import has_injection_markers
         from core.schemas import PacketEnvelopeIn
+        from memory.audit_utils import has_injection_markers
 
         # Clean packet
         clean = PacketEnvelopeIn(
@@ -679,15 +675,11 @@ class TestE2EIngestionFlow:
     @pytest.mark.asyncio
     async def test_full_dag_execution_e2e(self):
         """Test full DAG node execution without graph compilation."""
-        from memory.substrate_dag import (
-            intake_node,
-            reasoning_node,
-            memory_write_node,
-            extract_insights_node,
-            store_insights_node,
-            checkpoint_node,
-        )
         from core.schemas import PacketEnvelopeIn
+        from memory.substrate_dag import (checkpoint_node,
+                                          extract_insights_node, intake_node,
+                                          memory_write_node, reasoning_node,
+                                          store_insights_node)
 
         packet = PacketEnvelopeIn(
             packet_type="test.e2e",
@@ -727,9 +719,10 @@ class TestE2EIngestionFlow:
     @pytest.mark.asyncio
     async def test_ingestion_pipeline_validation(self):
         """Test IngestionPipeline validation."""
-        from memory.ingestion import IngestionPipeline
         from core.schemas import PacketEnvelopeIn
-        from memory.governance_gate import build_governance_context, governance_context
+        from memory.governance_gate import (build_governance_context,
+                                            governance_context)
+        from memory.ingestion import IngestionPipeline
 
         pipeline = IngestionPipeline()
 
@@ -776,6 +769,7 @@ class TestAuditSummary:
     def test_dag_alignment_category(self):
         """DAG Alignment audit category."""
         import inspect
+
         from memory.substrate_dag import build_substrate_graph
 
         source = inspect.getsource(build_substrate_graph)
@@ -785,10 +779,8 @@ class TestAuditSummary:
 
     def test_gmp42_category(self):
         """GMP-42 Filter audit category."""
-        from memory.substrate_dag import (
-            _should_skip_embedding,
-            SKIP_EMBEDDING_PATTERNS,
-        )
+        from memory.substrate_dag import (SKIP_EMBEDDING_PATTERNS,
+                                          _should_skip_embedding)
 
         assert len(SKIP_EMBEDDING_PATTERNS) >= 6
         assert _should_skip_embedding("")
@@ -816,18 +808,15 @@ class TestAuditSummary:
 
     def test_cross_substrate_category(self):
         """Cross-Substrate audit category."""
-        from memory.substrate_models import (
-            PacketStoreRow,
-            AgentMemoryEventRow,
-        )
+        from memory.substrate_models import AgentMemoryEventRow, PacketStoreRow
 
         assert "packet_id" in PacketStoreRow.model_fields
         assert "packet_id" in AgentMemoryEventRow.model_fields
 
     def test_schema_compliance_category(self):
         """Schema Compliance audit category."""
-        from memory.validators.packet_validator import PacketValidator
         from memory.audit_utils import prepare_packet_for_ingest
+        from memory.validators.packet_validator import PacketValidator
 
         assert PacketValidator is not None
         assert callable(prepare_packet_for_ingest)

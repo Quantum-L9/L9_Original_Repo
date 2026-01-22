@@ -41,19 +41,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ir_engine.ir_schema import (
-    IRGraph,
-    IRStatus,
-    IntentNode,
-    ConstraintNode,
-    ActionNode,
-    NodePriority,
-)
+import structlog
+
+from ir_engine.ir_schema import (ActionNode, ConstraintNode, IntentNode,
+                                 IRGraph, IRStatus, NodePriority)
 
 logger = structlog.get_logger(__name__)
 
@@ -143,9 +138,9 @@ class IRGenerator:
             "priority": intent.priority.value,
             "confidence": intent.confidence,
             "source_text": intent.source_text,
-            "parent_intent_id": str(intent.parent_intent_id)
-            if intent.parent_intent_id
-            else None,
+            "parent_intent_id": (
+                str(intent.parent_intent_id) if intent.parent_intent_id else None
+            ),
             "child_intent_ids": [str(c) for c in intent.child_intent_ids],
         }
 
@@ -173,9 +168,9 @@ class IRGenerator:
             "target": action.target,
             "parameters": action.parameters,
             "priority": action.priority.value,
-            "derived_from_intent": str(action.derived_from_intent)
-            if action.derived_from_intent
-            else None,
+            "derived_from_intent": (
+                str(action.derived_from_intent) if action.derived_from_intent else None
+            ),
             "constrained_by": [str(c) for c in action.constrained_by],
             "depends_on": [str(d) for d in action.depends_on],
             "estimated_duration_ms": action.estimated_duration_ms,

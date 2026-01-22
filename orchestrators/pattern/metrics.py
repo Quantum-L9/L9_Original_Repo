@@ -43,7 +43,7 @@ logger = structlog.get_logger(__name__)
 
 # Try to import prometheus_client, fallback to no-op if not available
 try:
-    from prometheus_client import Counter, Histogram, Gauge
+    from prometheus_client import Counter, Gauge, Histogram
 
     PROMETHEUS_AVAILABLE = True
 except ImportError:

@@ -11,7 +11,6 @@ GMP: security-remediation-phase1
 import subprocess
 
 
-
 class TestL9CLI:
     """Test suite for l9-cli tool."""
 

@@ -26,10 +26,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import re
 import json
+import re
 from pathlib import Path
 from typing import Dict, List
+
 from .base_extractor import BaseExtractor
 
 

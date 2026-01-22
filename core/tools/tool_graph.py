@@ -50,12 +50,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import re
-import structlog
 import os
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

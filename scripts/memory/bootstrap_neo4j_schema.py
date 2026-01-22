@@ -416,28 +416,24 @@ async def create_agent_hierarchy(driver: "AsyncDriver") -> dict:
 
     async with driver.session() as session:
         # Ensure igor agent exists
-        result = await session.run(
-            """
+        result = await session.run("""
             MERGE (igor:Agent {id: 'igor'})
             SET igor.designation = 'Principal',
                 igor.role = 'Founder & Principal',
                 igor.authority_level = 'SUPREME',
                 igor.tenant_id = 'l-cto'
             RETURN igor.id
-            """
-        )
+            """)
         if await result.single():
             stats["agents"] += 1
 
         # Create REPORTS_TO relationship
-        result = await session.run(
-            """
+        result = await session.run("""
             MATCH (l:Agent {id: 'L'})
             MATCH (igor:Agent {id: 'igor'})
             MERGE (l)-[:REPORTS_TO]->(igor)
             RETURN l.id
-            """
-        )
+            """)
         if await result.single():
             stats["reports_to"] += 1
 
@@ -460,8 +456,7 @@ async def create_agent_collaborations(driver: "AsyncDriver") -> dict:
         # Better approach: Create actual collaboration between L and any research agents
 
         # Check if research agents exist and create collaboration
-        result = await session.run(
-            """
+        result = await session.run("""
             MATCH (l:Agent {id: 'L'})
             OPTIONAL MATCH (peer:Agent)
             WHERE peer.id <> 'L' AND peer.id <> 'igor'
@@ -471,8 +466,7 @@ async def create_agent_collaborations(driver: "AsyncDriver") -> dict:
             WITH l, peer WHERE peer IS NOT NULL
             MERGE (l)-[:COLLABORATES_WITH]->(peer)
             RETURN count(*) as created
-            """
-        )
+            """)
         record = await result.single()
         if record:
             stats["collaborates_with"] = record["created"]
@@ -481,13 +475,11 @@ async def create_agent_collaborations(driver: "AsyncDriver") -> dict:
         # This prevents Neo4j "relationship type does not exist" warnings
         if stats["collaborates_with"] == 0:
             # Create and immediately match to register the type without leaving orphans
-            await session.run(
-                """
+            await session.run("""
                 MATCH (l:Agent {id: 'L'})
                 MERGE (placeholder:Agent {id: '_collaborator_placeholder', _placeholder: true})
                 MERGE (l)-[:COLLABORATES_WITH]->(placeholder)
-                """
-            )
+                """)
             stats["collaborates_with"] = 1
             stats["placeholder_created"] = True
             logger.info(

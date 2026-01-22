@@ -35,10 +35,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Optional
-from dataclasses import dataclass
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -107,9 +108,9 @@ class DeadLetterQueue:
             "packet_type": envelope.get("packet_type", "unknown"),
             "payload": json.dumps(envelope.get("payload", {})),
             "error_message": str(error),
-            "error_type": type(error).__name__
-            if isinstance(error, Exception)
-            else "string",
+            "error_type": (
+                type(error).__name__ if isinstance(error, Exception) else "string"
+            ),
             "attempts": str(attempts),
             "failed_at": datetime.utcnow().isoformat(),
             "original_envelope": json.dumps(envelope),

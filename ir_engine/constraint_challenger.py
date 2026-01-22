@@ -39,18 +39,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from typing import Any, Optional
 from uuid import UUID
 
+import structlog
 from openai import AsyncOpenAI
 
-from ir_engine.ir_schema import (
-    IRGraph,
-    ConstraintNode,
-    ConstraintType,
-    IRStatus,
-)
+from ir_engine.ir_schema import (ConstraintNode, ConstraintType, IRGraph,
+                                 IRStatus)
 
 logger = structlog.get_logger(__name__)
 

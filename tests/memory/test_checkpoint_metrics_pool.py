@@ -7,17 +7,15 @@ Tests for:
 - get_pool_stats_dict() function
 """
 
-import pytest
 from unittest.mock import patch
 
-from memory.checkpoint_metrics import (
-    record_pool_stats,
-    get_pool_stats_dict,
-    CHECKPOINT_POOL_SIZE,
-    CHECKPOINT_POOL_AVAILABLE,
-    CHECKPOINT_POOL_WAITING,
-    PROMETHEUS_AVAILABLE,
-)
+import pytest
+
+from memory.checkpoint_metrics import (CHECKPOINT_POOL_AVAILABLE,
+                                       CHECKPOINT_POOL_SIZE,
+                                       CHECKPOINT_POOL_WAITING,
+                                       PROMETHEUS_AVAILABLE,
+                                       get_pool_stats_dict, record_pool_stats)
 
 # ============================================================================
 # Pool Stats Recording Tests

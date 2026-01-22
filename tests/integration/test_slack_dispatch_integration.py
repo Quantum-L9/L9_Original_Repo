@@ -4,10 +4,11 @@ Slack Webhook → Task Dispatch Integration Tests
 Tests the flow: Slack Event → Adapter → Normalizer → Task Router
 """
 
-import pytest
-import hmac
 import hashlib
+import hmac
 import time
+
+import pytest
 
 pytestmark = pytest.mark.integration
 
@@ -53,7 +54,9 @@ class TestSlackDispatchIntegration:
         sig_basestring = f"v0:{timestamp}:{body.decode()}"
         signature = (
             "v0="
-            + hmac.new(signing_secret.encode(), sig_basestring.encode(), hashlib.sha256).hexdigest()
+            + hmac.new(
+                signing_secret.encode(), sig_basestring.encode(), hashlib.sha256
+            ).hexdigest()
         )
 
         is_valid, error = verifier.verify(body, timestamp, signature)

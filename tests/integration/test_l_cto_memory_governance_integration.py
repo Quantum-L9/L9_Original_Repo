@@ -13,8 +13,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # CRITICAL: Set path BEFORE any imports
@@ -29,13 +29,9 @@ os.environ.setdefault("PYTHONPATH", PROJECT_ROOT_STR)
 
 import pytest
 
-from core.governance.validation import (
-    validate_authority,
-    validate_safety,
-    audit_log,
-    get_audit_trail,
-    detect_drift,
-)
+from core.governance.validation import (audit_log, detect_drift,
+                                        get_audit_trail, validate_authority,
+                                        validate_safety)
 
 
 class TestMemoryGovernanceIntegration:
@@ -59,7 +55,9 @@ class TestMemoryGovernanceIntegration:
         assert safety_result["safe"] is True
 
         # Invalid action (authority)
-        authority_result = validate_authority(action="privilege_escalation", agent_id="l-cto")
+        authority_result = validate_authority(
+            action="privilege_escalation", agent_id="l-cto"
+        )
         assert authority_result["valid"] is False
 
         # Invalid action (safety)
@@ -92,7 +90,9 @@ class TestMemoryGovernanceIntegration:
         assert len(trail) >= 7
 
         # Check drift detection
-        drift = detect_drift(agent_id=agent_id, action="action_10", success=True, threshold=0.6)
+        drift = detect_drift(
+            agent_id=agent_id, action="action_10", success=True, threshold=0.6
+        )
 
         # Should not detect drift (5/7 = 71% success rate > 60%)
         assert drift is None or drift["drift_detected"] is False
@@ -111,10 +111,14 @@ class TestMemoryGovernanceIntegration:
 
         # Log mostly failures
         for i in range(10):
-            audit_log(agent_id=agent_id, action=f"action_{i}", success=(i < 2))  # Only 2/10 succeed
+            audit_log(
+                agent_id=agent_id, action=f"action_{i}", success=(i < 2)
+            )  # Only 2/10 succeed
 
         # Check drift
-        drift = detect_drift(agent_id=agent_id, action="action_10", success=False, threshold=0.6)
+        drift = detect_drift(
+            agent_id=agent_id, action="action_10", success=False, threshold=0.6
+        )
 
         assert drift is not None
         assert drift["drift_detected"] is True
@@ -163,10 +167,12 @@ class TestLCTOMemoryPacketStructure:
     def test_packet_envelope_has_required_fields(self):
         """Test PacketEnvelope has all required fields per spec."""
         # Ensure path is set
-        import sys
         import os
+        import sys
 
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        project_root = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
         from core.schemas import PacketEnvelopeIn, PacketMetadata
@@ -188,10 +194,12 @@ class TestLCTOMemoryPacketStructure:
         """Test packet metadata.agent matches task.agent_id."""
         # Import inside function - path should be set by conftest.py
         # But ensure it's set here too for safety
-        import sys
         import os
+        import sys
 
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        project_root = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
         from core.schemas import PacketEnvelopeIn, PacketMetadata

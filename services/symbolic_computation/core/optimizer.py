@@ -43,7 +43,8 @@ import sympy
 from sympy import expand, factor, simplify, sympify
 from sympy.simplify.cse_main import cse
 
-from services.symbolic_computation.config import SymbolicComputationConfig, get_config
+from services.symbolic_computation.config import (SymbolicComputationConfig,
+                                                  get_config)
 
 logger = structlog.get_logger(__name__)
 

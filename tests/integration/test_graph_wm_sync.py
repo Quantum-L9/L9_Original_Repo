@@ -15,9 +15,10 @@ Created: 2026-01-05
 GMP: GMP-UKG-3 (World Model Sync)
 """
 
-import pytest
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # =============================================================================
 # Test GraphToWorldModelSync Class
@@ -242,10 +243,10 @@ def test_get_status():
 
 def test_get_graph_wm_sync():
     """Test getting global instance."""
-    from core.integration.graph_to_wm_sync import get_graph_wm_sync, GraphToWorldModelSync
-
     # Clear any existing instance
     import core.integration.graph_to_wm_sync as module
+    from core.integration.graph_to_wm_sync import (GraphToWorldModelSync,
+                                                   get_graph_wm_sync)
 
     module._sync_service = None
 

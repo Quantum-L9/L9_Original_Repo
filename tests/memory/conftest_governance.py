@@ -27,8 +27,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
+from typing import Dict
+
 import pytest
-from typing import AsyncGenerator, Dict, Any
 
 # Set test API keys before importing app modules
 os.environ["MCP_API_KEY_L"] = "test-lcto-key-all-scopes"

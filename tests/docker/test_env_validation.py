@@ -10,6 +10,7 @@ Run with: pytest tests/docker/test_env_validation.py -v
 
 import os
 import re
+
 import pytest
 
 
@@ -108,7 +109,9 @@ class TestEnvironmentVariables:
                 assert value.isdigit(), f"{var} should be numeric, got: {value}"
 
                 port = int(value)
-                assert 1 <= port <= 65535, f"{var} should be valid port (1-65535), got: {port}"
+                assert (
+                    1 <= port <= 65535
+                ), f"{var} should be valid port (1-65535), got: {port}"
 
 
 class TestDockerNetworkConfig:

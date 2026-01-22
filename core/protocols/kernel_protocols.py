@@ -55,12 +55,8 @@ __dora_meta__ = {
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from core.kernels.schemas import (
-    KernelActivationResult,
-    KernelManifest,
-    KernelState,
-    KernelValidationResult,
-)
+from core.kernels.schemas import (KernelActivationResult, KernelManifest,
+                                  KernelState, KernelValidationResult)
 
 
 @runtime_checkable

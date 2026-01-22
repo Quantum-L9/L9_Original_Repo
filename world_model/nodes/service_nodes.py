@@ -40,10 +40,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any, Optional, TypedDict
 from uuid import uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

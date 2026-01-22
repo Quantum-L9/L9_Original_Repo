@@ -36,7 +36,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Any
+from typing import Any, List
 
 
 @dataclass
@@ -111,9 +111,9 @@ class GMPStageValidator:
                     passed=found,
                     expected=True,
                     actual=found,
-                    error_message=""
-                    if found
-                    else f"Missing required section: {section}",
+                    error_message=(
+                        "" if found else f"Missing required section: {section}"
+                    ),
                 )
             )
 
@@ -174,9 +174,11 @@ class GMPStageValidator:
                 phases_complete >= 7,
                 7,
                 phases_complete,
-                ""
-                if phases_complete >= 7
-                else f"Only {phases_complete}/7 phases marked complete",
+                (
+                    ""
+                    if phases_complete >= 7
+                    else f"Only {phases_complete}/7 phases marked complete"
+                ),
             )
         )
 
@@ -199,9 +201,11 @@ class GMPStageValidator:
                 "File surface scope compliance",
                 len(unauthorized) == 0,
                 "Only allowed files modified",
-                f"{len(unauthorized)} unauthorized files"
-                if unauthorized
-                else "All authorized",
+                (
+                    f"{len(unauthorized)} unauthorized files"
+                    if unauthorized
+                    else "All authorized"
+                ),
                 f"Unauthorized files: {unauthorized}" if unauthorized else "",
             )
         )

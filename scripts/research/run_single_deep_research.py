@@ -25,10 +25,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-import structlog
 import sys
 import time
+
 import httpx
+import structlog
 
 # Get API key directly from .env
 

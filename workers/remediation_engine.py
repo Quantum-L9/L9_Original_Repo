@@ -38,10 +38,11 @@ __dora_meta__ = {
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from uuid import uuid5, NAMESPACE_DNS
+from uuid import NAMESPACE_DNS, uuid5
 
 import structlog
 from pydantic import BaseModel, Field
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

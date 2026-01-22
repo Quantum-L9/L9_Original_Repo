@@ -4,9 +4,10 @@ WebSocket → Task Router Integration Tests
 Tests the flow: WS Message → Parser → Task Router → Handler
 """
 
-import pytest
 from unittest.mock import MagicMock
 from uuid import uuid4
+
+import pytest
 
 from core.schemas.ws_event_stream import EventMessage, EventType
 from orchestration.ws_task_router import WSTaskRouter
@@ -44,7 +45,9 @@ class TestWSTaskRoutingIntegration:
         router = WSTaskRouter()
 
         # Create a custom event type (not in default handlers)
-        message = EventMessage(type=EventType.CONTROL, agent_id="test-agent", payload={"data": {}})
+        message = EventMessage(
+            type=EventType.CONTROL, agent_id="test-agent", payload={"data": {}}
+        )
 
         # Should not raise
         result = router.route(message)

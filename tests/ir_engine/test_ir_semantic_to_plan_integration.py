@@ -24,13 +24,12 @@ Test Matrix:
 
 from __future__ import annotations
 
-
 import pytest
 
 from ir_engine.ir_schema import IRGraph, IRStatus
-from ir_engine.semantic_compiler import SemanticCompiler
+from ir_engine.ir_to_plan_adapter import ExecutionPlan, IRToPlanAdapter
 from ir_engine.ir_validator import IRValidator
-from ir_engine.ir_to_plan_adapter import IRToPlanAdapter, ExecutionPlan
+from ir_engine.semantic_compiler import SemanticCompiler
 
 
 class TestSemanticToPlanHappyPath:
@@ -60,7 +59,9 @@ class TestSemanticToPlanHappyPath:
         # Assert: Compilation produced content
         assert len(graph.intents) > 0, "Should have at least one intent"
         assert len(graph.actions) > 0, "Should have at least one action"
-        assert graph.status == IRStatus.COMPILED, "Status should be COMPILED after compilation"
+        assert (
+            graph.status == IRStatus.COMPILED
+        ), "Status should be COMPILED after compilation"
 
         # Act: Validate
         validation_result = validator.validate_and_update_status(graph)
@@ -190,7 +191,9 @@ class TestPlanGeneration:
         # The validated_graph fixture has a constraint "Must be unit tested"
         # which should appear in the action's constraints
         step_with_constraints = [s for s in plan.steps if s.constraints]
-        assert len(step_with_constraints) > 0, "At least one step should have constraints"
+        assert (
+            len(step_with_constraints) > 0
+        ), "At least one step should have constraints"
 
         # Find the constraint text
         all_constraints = []

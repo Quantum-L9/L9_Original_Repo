@@ -47,10 +47,7 @@ from uuid import uuid4
 import structlog
 
 # Use harvested models
-from memory.warming_models import (
-    GapSeverity,
-    KnowledgeGap,
-)
+from memory.warming_models import GapSeverity, KnowledgeGap
 
 logger = structlog.get_logger(__name__)
 

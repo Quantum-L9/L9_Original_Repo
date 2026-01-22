@@ -23,17 +23,13 @@ Author: Top Frontier AI Lab
 
 from __future__ import annotations
 
-import pytest
 from typing import Protocol, runtime_checkable
 
-from core.di.container import (
-    BindingNotFoundError,
-    CircularDependencyError,
-    DIContainer,
-    ResolutionError,
-    get_di_container,
-    reset_di_container,
-)
+import pytest
+
+from core.di.container import (BindingNotFoundError, DIContainer,
+                               ResolutionError, get_di_container,
+                               reset_di_container)
 
 
 # Test protocols and implementations

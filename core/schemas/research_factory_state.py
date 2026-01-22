@@ -42,15 +42,11 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-from core.schemas.research_factory_models import (
-    IntegrationResult,
-    ParsedObject,
-    QueryPlan,
-    ResearchJobSpec,
-    ResearchMetrics,
-    RetrievalBatch,
-    Superprompt,
-)
+from core.schemas.research_factory_models import (IntegrationResult,
+                                                  ParsedObject, QueryPlan,
+                                                  ResearchJobSpec,
+                                                  ResearchMetrics,
+                                                  RetrievalBatch, Superprompt)
 
 
 class PassStatus(str, Enum):

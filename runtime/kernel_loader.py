@@ -53,9 +53,10 @@ import hashlib
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Protocol, Tuple, TYPE_CHECKING
-import yaml
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol, Tuple
+
 import structlog
+import yaml
 
 if TYPE_CHECKING:
     pass
@@ -111,9 +112,7 @@ MINIMUM_KERNEL_COUNT = 4
 # =============================================================================
 
 try:
-    from runtime.kernel_config_loader import (
-        load_kernel_config,
-    )
+    from runtime.kernel_config_loader import load_kernel_config
 
     _USE_KERNEL_CONFIG = os.getenv("L9_USE_KERNEL_CONFIG", "true").lower() == "true"
 
@@ -1027,7 +1026,8 @@ def load_all_private_kernels(
     # Integrity check
     if check_integrity:
         try:
-            from core.kernels.integrity import check_kernel_integrity, IntegrityChange
+            from core.kernels.integrity import (IntegrityChange,
+                                                check_kernel_integrity)
 
             changes = check_kernel_integrity(base_path)
             if changes:

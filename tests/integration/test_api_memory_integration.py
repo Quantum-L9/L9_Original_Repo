@@ -4,12 +4,12 @@ API → Memory Substrate Integration Tests
 Tests the flow: HTTP Request → Memory Router → Substrate Service → Response
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
-from uuid import uuid4
-
 import sys
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
+
+import pytest
 
 # Ensure project root is in path
 project_root = Path(__file__).parent.parent.parent
@@ -25,10 +25,10 @@ if "api.db" not in sys.modules:
     api_db_module.init_db = lambda: None  # Mock function
     sys.modules["api.db"] = api_db_module
 
+from fastapi.testclient import TestClient
+
 # Now import server (it should work with the mocked db module)
 from api.server import app
-
-from fastapi.testclient import TestClient
 
 pytestmark = pytest.mark.integration
 
@@ -78,17 +78,23 @@ class TestAPIMemoryIntegration:
     def test_get_packet_endpoint(self, client):
         """GET /api/v1/memory/packet/{id} endpoint exists."""
         # Will fail if substrate not initialized, but endpoint should exist
-        response = client.get("/api/v1/memory/packet/00000000-0000-0000-0000-000000000000")
+        response = client.get(
+            "/api/v1/memory/packet/00000000-0000-0000-0000-000000000000"
+        )
         assert response.status_code in [404, 503, 500]  # Not 404 = endpoint exists
 
     def test_get_thread_endpoint(self, client):
         """GET /api/v1/memory/thread/{id} endpoint exists."""
-        response = client.get("/api/v1/memory/thread/00000000-0000-0000-0000-000000000000")
+        response = client.get(
+            "/api/v1/memory/thread/00000000-0000-0000-0000-000000000000"
+        )
         assert response.status_code in [200, 400, 503, 500]  # Not 404 = endpoint exists
 
     def test_get_lineage_endpoint(self, client):
         """GET /api/v1/memory/lineage/{id} endpoint exists."""
-        response = client.get("/api/v1/memory/lineage/00000000-0000-0000-0000-000000000000")
+        response = client.get(
+            "/api/v1/memory/lineage/00000000-0000-0000-0000-000000000000"
+        )
         assert response.status_code in [200, 400, 503, 500]  # Not 404 = endpoint exists
 
     def test_hybrid_search_endpoint(self, client):

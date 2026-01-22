@@ -28,9 +28,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict, Optional
 
+import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
@@ -169,9 +169,11 @@ async def cursor_task(
             decisions=result.decisions,
             errors=result.errors,
             reasoning_trace=result.reasoning_trace,
-            message="Task executed successfully"
-            if result.final_state.task_status == "completed"
-            else "Task failed",
+            message=(
+                "Task executed successfully"
+                if result.final_state.task_status == "completed"
+                else "Task failed"
+            ),
         )
     except Exception as e:
         logger.exception("Cursor task execution failed", error=str(e))
@@ -211,9 +213,11 @@ async def cursor_resume(
             decisions=result.decisions,
             errors=result.errors,
             reasoning_trace=result.reasoning_trace,
-            message="Thread resumed successfully"
-            if result.final_state.task_status == "completed"
-            else "Thread resume failed",
+            message=(
+                "Thread resumed successfully"
+                if result.final_state.task_status == "completed"
+                else "Thread resume failed"
+            ),
         )
     except ValueError as e:
         logger.warning(

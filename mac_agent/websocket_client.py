@@ -48,7 +48,6 @@ __dora_meta__ = {
 import asyncio
 import json
 import logging
-import structlog
 import os
 import platform
 import signal
@@ -58,6 +57,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
 from uuid import uuid4
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -376,8 +378,8 @@ class TaskExecutor:
             }
         except ImportError:
             # Fallback to subprocess if LocalAPI not available
-            import subprocess
             import shlex
+            import subprocess
 
             logger.warning("LocalAPI not available, using subprocess fallback")
             try:
@@ -487,9 +489,9 @@ class TaskExecutor:
         Returns:
             Result dict with status, output, error, exit_code
         """
+        import os as os_module
         import subprocess
         import tempfile
-        import os as os_module
 
         code = payload.get("code", "")
         timeout = payload.get("timeout", 30)
@@ -760,9 +762,11 @@ class MacAgentClient:
             # Notify callbacks
             for callback in self._on_connect_callbacks:
                 try:
-                    await callback() if asyncio.iscoroutinefunction(
-                        callback
-                    ) else callback()
+                    (
+                        await callback()
+                        if asyncio.iscoroutinefunction(callback)
+                        else callback()
+                    )
                 except Exception as e:
                     logger.error("[MacAgent] Connect callback error: %s", e)
 
@@ -796,9 +800,11 @@ class MacAgentClient:
                 # Notify disconnect callbacks
                 for callback in self._on_disconnect_callbacks:
                     try:
-                        await callback() if asyncio.iscoroutinefunction(
-                            callback
-                        ) else callback()
+                        (
+                            await callback()
+                            if asyncio.iscoroutinefunction(callback)
+                            else callback()
+                        )
                     except Exception as e:
                         logger.error("[MacAgent] Disconnect callback error: %s", e)
 
@@ -865,9 +871,11 @@ class MacAgentClient:
         # Notify callbacks
         for callback in self._on_task_callbacks:
             try:
-                await callback(data) if asyncio.iscoroutinefunction(
-                    callback
-                ) else callback(data)
+                (
+                    await callback(data)
+                    if asyncio.iscoroutinefunction(callback)
+                    else callback(data)
+                )
             except Exception as e:
                 logger.error("[MacAgent] Task callback error: %s", e)
 

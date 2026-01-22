@@ -25,9 +25,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import Any, Dict, Optional
+
 import requests
 import structlog
-from typing import Dict, Any, Optional
 
 logger = structlog.get_logger(__name__)
 

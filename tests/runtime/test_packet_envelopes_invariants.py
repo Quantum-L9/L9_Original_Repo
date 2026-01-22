@@ -10,7 +10,7 @@ Verifies:
 from uuid import UUID
 
 # Adapted imports to match actual repo schema path
-from core.schemas.tasks import TaskEnvelope, TaskResult, AgentTask, TaskStatus
+from core.schemas.tasks import AgentTask, TaskEnvelope, TaskResult, TaskStatus
 
 
 def test_agent_task_basic_roundtrip():

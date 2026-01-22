@@ -43,7 +43,8 @@ from typing import List, Optional
 import structlog
 from sympy import sympify
 
-from services.symbolic_computation.config import SymbolicComputationConfig, get_config
+from services.symbolic_computation.config import (SymbolicComputationConfig,
+                                                  get_config)
 from services.symbolic_computation.core.models import ValidationResult
 
 logger = structlog.get_logger(__name__)

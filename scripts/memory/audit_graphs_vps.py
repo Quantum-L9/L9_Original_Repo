@@ -32,12 +32,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import json
 import os
 import sys
-import json
-from pathlib import Path
-from typing import Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict
+
 import httpx
 
 # Add project root to path
@@ -239,12 +240,14 @@ async def audit_neo4j_via_api() -> Dict[str, Any]:
 
     if event_stats.get("success") and "data" in event_stats:
         results["events"] = {
-            "stats": event_stats.get("data", [{}])[0]
-            if event_stats.get("data")
-            else {},
-            "event_types": event_types.get("data", [])
-            if event_types.get("success") and "data" in event_types
-            else [],
+            "stats": (
+                event_stats.get("data", [{}])[0] if event_stats.get("data") else {}
+            ),
+            "event_types": (
+                event_types.get("data", [])
+                if event_types.get("success") and "data" in event_types
+                else []
+            ),
         }
     else:
         results["events_error"] = event_stats.get("error", "Query failed")

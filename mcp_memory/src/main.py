@@ -21,22 +21,23 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
+import asyncio
 import time
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from fastapi import FastAPI, HTTPException, Depends, Header, Request
+
+import asyncpg
+import structlog
+from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-import asyncpg
-from contextlib import asynccontextmanager
-import asyncio
-
-from fastapi import APIRouter
 from src.config import settings
-from src.db import init_db, close_db
-from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
-from src.routes import memory_unified as memory, health
+from src.db import close_db, init_db
+from src.mcp_server import MCPToolCall, get_mcp_tools, handle_tool_call
 from src.rate_limiter import RateLimiter
+from src.routes import health
+from src.routes import memory_unified as memory
+
 from core.decorators import must_stay_async
 
 # Configure structlog
@@ -314,7 +315,7 @@ async def verify_api_key(
     token = authorization.replace("Bearer ", "")
 
     # Determine caller from API key (with legacy fallback support)
-    from src.config import get_api_key_l, get_api_key_c
+    from src.config import get_api_key_c, get_api_key_l
 
     api_key_l = get_api_key_l()
     api_key_c = get_api_key_c()

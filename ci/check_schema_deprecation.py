@@ -49,12 +49,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import argparse
-import structlog
 import re
 import sys
 from datetime import datetime
 from pathlib import Path
 from typing import NamedTuple
+
+import structlog
 
 # =============================================================================
 # Configuration

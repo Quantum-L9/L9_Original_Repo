@@ -32,14 +32,21 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": ["semantic_memory"],
-        "imported_by": ["core.singleton_registry", "memory.retrieval", "memory.substrate_service", "tests.memory.test_frontier_memory_pipeline", "tests.memory.test_query_classifier"],
+        "imported_by": [
+            "core.singleton_registry",
+            "memory.retrieval",
+            "memory.substrate_service",
+            "tests.memory.test_frontier_memory_pipeline",
+            "tests.memory.test_query_classifier",
+        ],
     },
 }
 # ============================================================================
 
-import structlog
 import re
 from functools import lru_cache
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -312,6 +319,7 @@ def get_query_classifier() -> QueryClassifier:
     """Get singleton QueryClassifier instance. CACHED."""
     return QueryClassifier()
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -321,8 +329,27 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["caching", "debugging", "event-driven", "learning", "logging", "memory-substrate", "testing", "tracing", "utility"],
-    "keywords": ["agent", "classifier", "classify", "determine", "memory", "overrides", "pattern", "patterns"],
+    "tags": [
+        "caching",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "testing",
+        "tracing",
+        "utility",
+    ],
+    "keywords": [
+        "agent",
+        "classifier",
+        "classify",
+        "determine",
+        "memory",
+        "overrides",
+        "pattern",
+        "patterns",
+    ],
     "business_value": "Implements memory_spec_v3.0.yaml retrieval.query_classifier contract for entity_lookup, reasoning_trace, and temporal queries",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

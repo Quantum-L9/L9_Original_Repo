@@ -105,6 +105,7 @@ class TestAuthValidation:
         with patch.dict(os.environ, env, clear=True):
             # Need to reimport to pick up empty env
             import importlib
+
             import api.auth
 
             importlib.reload(api.auth)
@@ -132,6 +133,7 @@ class TestAuthValidation:
         with patch.dict(os.environ, {"L9_EXECUTOR_API_KEY": test_key}):
             # Reload module to pick up new env value
             import importlib
+
             import api.auth
 
             importlib.reload(api.auth)

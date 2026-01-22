@@ -32,14 +32,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 import os
 import sys
 from uuid import uuid4
 
-from memory.substrate_service import get_service
+import structlog
+
 from core.schemas import PacketEnvelopeIn
 from memory.ingestion import ingest_packet
+from memory.substrate_service import get_service
 
 logger = structlog.get_logger(__name__)
 

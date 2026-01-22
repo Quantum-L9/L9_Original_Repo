@@ -22,21 +22,10 @@ if str(TESTS_ROOT) not in sys.path:
     sys.path.insert(0, str(TESTS_ROOT))
 
 # Import mocks
-from mocks.kernel_mocks import (
-    KernelState,
-    load_kernels,
-)
-from mocks.memory_mocks import (
-    MockMemoryAdapter,
-    MockPostgresCursor,
-)
-from mocks.world_model_mocks import (
-    MockWorldModel,
-)
-from mocks.orchestrator_mocks import (
-    MockRedis,
-    MockToolRegistry,
-)
+from mocks.kernel_mocks import KernelState, load_kernels
+from mocks.memory_mocks import MockMemoryAdapter, MockPostgresCursor
+from mocks.orchestrator_mocks import MockRedis, MockToolRegistry
+from mocks.world_model_mocks import MockWorldModel
 
 # =============================================================================
 # Kernel Fixtures
@@ -200,7 +189,11 @@ async def async_world_model():
             self.edges.append((a, b, rel))
 
         async def get_edges(self, nid):
-            return [{"type": rel, "src": a, "dst": b} for (a, b, rel) in self.edges if a == nid]
+            return [
+                {"type": rel, "src": a, "dst": b}
+                for (a, b, rel) in self.edges
+                if a == nid
+            ]
 
     return AsyncMockWM()
 
@@ -308,8 +301,8 @@ def mock_tool_registry():
 # Slack Webhook Test Fixtures
 # =============================================================================
 
-import hmac
 import hashlib
+import hmac
 import time
 
 SLACK_TEST_SIGNING_SECRET = "test_slack_signing_secret_123"
@@ -347,7 +340,9 @@ def generate_slack_signature(body: str, timestamp: str, secret: str) -> str:
         Signature in format "v0=<hex_hash>"
     """
     sig_basestring = f"v0:{timestamp}:{body}"
-    signature = hmac.new(secret.encode(), sig_basestring.encode(), hashlib.sha256).hexdigest()
+    signature = hmac.new(
+        secret.encode(), sig_basestring.encode(), hashlib.sha256
+    ).hexdigest()
     return f"v0={signature}"
 
 

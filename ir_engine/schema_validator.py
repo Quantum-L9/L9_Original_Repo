@@ -48,11 +48,8 @@ import structlog
 import yaml
 from pydantic import ValidationError
 
-from ir_engine.meta_ir import (
-    MetaContract,
-    MetaContractValidationError,
-    MetaContractValidationResult,
-)
+from ir_engine.meta_ir import (MetaContract, MetaContractValidationError,
+                               MetaContractValidationResult)
 
 logger = structlog.get_logger(__name__)
 

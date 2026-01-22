@@ -26,12 +26,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Dict, Any
 import asyncio
+from typing import Any, Dict
+
+import structlog
+
+from core.decorators import must_stay_async
 
 from .interface import Upgrade
-from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 

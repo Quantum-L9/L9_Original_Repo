@@ -120,7 +120,8 @@ def _get_engine():
     """Get or create simulation engine singleton."""
     global _simulation_engine
     if _simulation_engine is None:
-        from simulation.simulation_engine import SimulationEngine, SimulationConfig
+        from simulation.simulation_engine import (SimulationConfig,
+                                                  SimulationEngine)
 
         _simulation_engine = SimulationEngine(config=SimulationConfig())
         logger.info("SimulationEngine singleton created")
@@ -149,11 +150,9 @@ async def run_simulation(
     Returns simulation results with score, metrics, and identified failure modes.
     """
     try:
-        from simulation.simulation_engine import (
-            SimulationConfig,
-            SimulationEngine,
-            SimulationMode,
-        )
+        from simulation.simulation_engine import (SimulationConfig,
+                                                  SimulationEngine,
+                                                  SimulationMode)
 
         # Map mode string to enum
         mode_map = {

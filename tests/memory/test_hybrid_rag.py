@@ -4,21 +4,16 @@ Tests for Hybrid RAG Pipeline (GMP-55)
 Tests the Vector-Graph Bridge that combines pgvector + Neo4j enrichment.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID
 
-from memory.hybrid_rag import (
-    EnrichmentStrategy,
-    VectorHit,
-    GraphEnrichment,
-    HybridSearchResult,
-    EntityExtractor,
-    GraphEnricher,
-    HybridRAGPipeline,
-    get_hybrid_rag_pipeline,
-    hybrid_search,
-)
+import pytest
+
+from memory.hybrid_rag import (EnrichmentStrategy, EntityExtractor,
+                               GraphEnricher, GraphEnrichment,
+                               HybridRAGPipeline, HybridSearchResult,
+                               VectorHit, get_hybrid_rag_pipeline,
+                               hybrid_search)
 
 
 class TestEnrichmentStrategy:
@@ -176,8 +171,18 @@ class TestGraphEnricher:
         mock_neo4j.is_available.return_value = True
         mock_neo4j.run_query = AsyncMock(
             return_value=[
-                {"id": "user-2", "type": "User", "name": "Bob", "relationship": "FOLLOWS"},
-                {"id": "user-3", "type": "User", "name": "Carol", "relationship": "FOLLOWS"},
+                {
+                    "id": "user-2",
+                    "type": "User",
+                    "name": "Bob",
+                    "relationship": "FOLLOWS",
+                },
+                {
+                    "id": "user-3",
+                    "type": "User",
+                    "name": "Carol",
+                    "relationship": "FOLLOWS",
+                },
             ]
         )
 
@@ -257,7 +262,12 @@ class TestHybridRAGPipeline:
         semantic = self._create_mock_semantic_service([mock_hit])
         neo4j = self._create_mock_neo4j(
             query_results=[
-                {"id": "related-1", "type": "GMP", "name": "GMP-55", "relationship": "REFERENCES"}
+                {
+                    "id": "related-1",
+                    "type": "GMP",
+                    "name": "GMP-55",
+                    "relationship": "REFERENCES",
+                }
             ]
         )
 

@@ -30,7 +30,7 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional, Any
+from typing import Any, Dict, List, Optional
 
 import yaml
 
@@ -233,7 +233,7 @@ class GMPReportValidator:
                 result.tier = match.group(3)
                 result.date = match.group(4)
                 result.status = match.group(5).strip()
-                
+
                 # Validate ID format
                 if len(match.group(1)) != 3:
                     result.warnings.append(
@@ -244,7 +244,7 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-                
+
                 # Validate tier
                 if result.tier not in VALID_TIERS:
                     result.errors.append(
@@ -255,7 +255,7 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-                
+
                 # Validate date
                 try:
                     datetime.strptime(result.date, "%Y-%m-%d")
@@ -268,7 +268,7 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-                
+
                 # Validate status
                 if result.status not in VALID_STATUSES:
                     result.warnings.append(
@@ -279,7 +279,7 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-                
+
                 # Validate task length
                 if len(result.task) > 80:
                     result.warnings.append(
@@ -291,7 +291,7 @@ class GMPReportValidator:
                         )
                     )
                 break
-        
+
         # If old format not found, try new multi-line format
         if not result.gmp_id:
             for i, line in enumerate(lines):
@@ -351,7 +351,9 @@ class GMPReportValidator:
                                 )
                             )
                 elif line.startswith("**Time:**"):
-                    time_match = re.search(r"\*\*Time:\*\*\s*(\d{1,2}:\d{2}\s*EST)", line)
+                    time_match = re.search(
+                        r"\*\*Time:\*\*\s*(\d{1,2}:\d{2}\s*EST)", line
+                    )
                     if time_match:
                         result.time = time_match.group(1)
                 elif line.startswith("**Status:**") and "|" not in line:
@@ -691,7 +693,9 @@ def print_result(result: ValidationResult, verbose: bool = False):
         task_ellipsis = "..." if len(result.task or "") > 50 else ""
         print(f"   ID: {result.gmp_id} | Task: {task_str}{task_ellipsis}")
         time_str = f" | Time: {result.time}" if result.time else ""
-        print(f"   Tier: {result.tier} | Date: {result.date}{time_str} | Status: {result.status}")
+        print(
+            f"   Tier: {result.tier} | Date: {result.date}{time_str} | Status: {result.status}"
+        )
 
     print(
         f"   TODOs: {result.todo_count} | Changes: {result.change_count} | Validations: {result.validation_count}"

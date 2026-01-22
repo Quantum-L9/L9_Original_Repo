@@ -5,12 +5,13 @@ Tests Postgres ↔ Neo4j consistency.
 """
 
 import os
+
 import pytest
 
 pytest.importorskip("asyncpg")
 
-from memory.graph_client import get_neo4j_client, close_neo4j_client
-from memory.substrate_service import init_service, close_service
+from memory.graph_client import close_neo4j_client, get_neo4j_client
+from memory.substrate_service import close_service, init_service
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
@@ -19,7 +20,9 @@ TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 async def substrate_service():
     """Provide a memory substrate service for integration tests."""
     if not TEST_DB_URL:
-        pytest.skip("TEST_DATABASE_URL or DATABASE_URL not set; skipping alignment tests.")
+        pytest.skip(
+            "TEST_DATABASE_URL or DATABASE_URL not set; skipping alignment tests."
+        )
     service = await init_service(TEST_DB_URL)
     yield service
     await close_service()

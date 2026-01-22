@@ -42,13 +42,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, Optional, TypeVar
 from uuid import UUID, uuid4
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

@@ -27,10 +27,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import re
 import sys
 from pathlib import Path
+
 import yaml
-import re
 
 SUBSYSTEM_PATHS = {
     "agents": "core/agents",

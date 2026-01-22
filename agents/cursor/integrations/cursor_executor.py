@@ -31,18 +31,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Optional
 from uuid import uuid4
+
+import structlog
 from pydantic import BaseModel, Field
 
-from agents.cursor.integrations.cursor_langgraph import (
-    CursorAgentState,
-)
 from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
-from memory.substrate_service import MemorySubstrateService
-from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
+from agents.cursor.integrations.cursor_langgraph import CursorAgentState
 from core.governance.approval_manager import ApprovalManager
+from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
+from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

@@ -35,11 +35,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Any, Optional
 from datetime import datetime
+from typing import Any, Optional
 
-from runtime.long_plan_tool import long_plan_execute_tool, long_plan_simulate_tool
+import structlog
+
 from core.decorators import must_stay_async
 from runtime.tool_registry import register_tool
 
@@ -47,9 +47,6 @@ from runtime.tool_registry import register_tool
 symbolic_compute = None
 symbolic_codegen = None
 symbolic_optimize = None
-
-
-
 
 
 logger = structlog.get_logger(__name__)
@@ -181,9 +178,11 @@ async def memory_get_packet(
             logger.info(f"Memory get_packet: id={packet_id} found=True")
             return {
                 "status": "success",
-                "packet": packet.model_dump()
-                if hasattr(packet, "model_dump")
-                else dict(packet),
+                "packet": (
+                    packet.model_dump()
+                    if hasattr(packet, "model_dump")
+                    else dict(packet)
+                ),
             }
         else:
             return {"status": "not_found", "packet_id": packet_id}
@@ -227,7 +226,9 @@ async def memory_query_packets(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="memory", priority=10, description="memory_search_by_thread tool")
+@register_tool(
+    category="memory", priority=10, description="memory_search_by_thread tool"
+)
 async def memory_search_by_thread(
     thread_id: str,
     limit: int = 50,
@@ -337,7 +338,9 @@ async def memory_get_events(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="memory", priority=10, description="memory_get_reasoning_traces tool")
+@register_tool(
+    category="memory", priority=10, description="memory_get_reasoning_traces tool"
+)
 async def memory_get_reasoning_traces(
     task_id: Optional[str] = None,
     limit: int = 20,
@@ -470,9 +473,9 @@ async def memory_embed_text(
             "status": "success",
             "text_length": len(text),
             "embedding_dims": len(embedding) if embedding else 0,
-            "embedding": embedding[:10]
-            if embedding
-            else None,  # Return first 10 dims as sample
+            "embedding": (
+                embedding[:10] if embedding else None
+            ),  # Return first 10 dims as sample
         }
     except Exception as e:
         logger.error(f"Memory embed_text failed: {e}")
@@ -605,7 +608,9 @@ async def memory_fetch_thread(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="memory", priority=10, description="memory_fetch_facts_api tool")
+@register_tool(
+    category="memory", priority=10, description="memory_fetch_facts_api tool"
+)
 async def memory_fetch_facts_api(
     subject: Optional[str] = None,
     predicate: Optional[str] = None,
@@ -826,7 +831,9 @@ async def git_commit(
 # EXECUTION TOOLS (High-Risk: Requires Igor Approval)
 
 
-@register_tool(category="automation", priority=10, description="mac_agent_exec_task tool")
+@register_tool(
+    category="automation", priority=10, description="mac_agent_exec_task tool"
+)
 async def mac_agent_exec_task(
     command: str,
     timeout: int = 30,
@@ -1016,7 +1023,9 @@ async def mcp_call_tool(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="mcp", priority=10, description="mcp_discover_and_register tool")
+@register_tool(
+    category="mcp", priority=10, description="mcp_discover_and_register tool"
+)
 async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
     """
     Discover all MCP tools from all servers and register them in Neo4j.
@@ -1028,8 +1037,8 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
         Dict with registration results
     """
     try:
+        from core.tools.tool_graph import ToolDefinition, ToolGraph
         from runtime.mcp_client import get_mcp_client
-        from core.tools.tool_graph import ToolGraph, ToolDefinition
 
         client = get_mcp_client()
 
@@ -1282,7 +1291,9 @@ async def redis_set_rate_limit(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="redis", priority=10, description="redis_increment_rate_limit tool")
+@register_tool(
+    category="redis", priority=10, description="redis_increment_rate_limit tool"
+)
 async def redis_increment_rate_limit(
     key: str,
     amount: int = 1,
@@ -1315,7 +1326,9 @@ async def redis_increment_rate_limit(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="redis", priority=10, description="redis_decrement_rate_limit tool")
+@register_tool(
+    category="redis", priority=10, description="redis_decrement_rate_limit tool"
+)
 async def redis_decrement_rate_limit(
     key: str,
     amount: int = 1,
@@ -1390,7 +1403,9 @@ async def memory_get_checkpoint(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="memory", priority=10, description="memory_trigger_world_model_update tool")
+@register_tool(
+    category="memory", priority=10, description="memory_trigger_world_model_update tool"
+)
 async def memory_trigger_world_model_update(
     insights: list[dict[str, Any]],
     **kwargs: Any,
@@ -1448,7 +1463,9 @@ async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
 # TOOL GRAPH ANALYSIS TOOLS (GMP-32 Batch 9)
 
 
-@register_tool(category="introspection", priority=10, description="tools_get_api_dependents tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_get_api_dependents tool"
+)
 async def tools_get_api_dependents(
     api_name: str,
     **kwargs: Any,
@@ -1478,7 +1495,9 @@ async def tools_get_api_dependents(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="introspection", priority=10, description="tools_get_dependencies tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_get_dependencies tool"
+)
 async def tools_get_dependencies(
     tool_name: str,
     **kwargs: Any,
@@ -1507,7 +1526,9 @@ async def tools_get_dependencies(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="introspection", priority=10, description="tools_get_blast_radius tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_get_blast_radius tool"
+)
 async def tools_get_blast_radius(
     api_name: str,
     **kwargs: Any,
@@ -1536,7 +1557,9 @@ async def tools_get_blast_radius(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="introspection", priority=10, description="tools_detect_circular_deps tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_detect_circular_deps tool"
+)
 async def tools_detect_circular_deps(**kwargs: Any) -> dict[str, Any]:
     """
     Detect circular dependencies in the tool graph.
@@ -1560,7 +1583,9 @@ async def tools_detect_circular_deps(**kwargs: Any) -> dict[str, Any]:
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="introspection", priority=10, description="tools_get_catalog tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_get_catalog tool"
+)
 async def tools_get_catalog(**kwargs: Any) -> dict[str, Any]:
     """
     Get L's complete tool catalog with metadata.
@@ -1587,7 +1612,9 @@ async def tools_get_catalog(**kwargs: Any) -> dict[str, Any]:
 # WORLD MODEL ADVANCED TOOLS (GMP-32 Batch 10)
 
 
-@register_tool(category="world_model", priority=10, description="world_model_restore tool")
+@register_tool(
+    category="world_model", priority=10, description="world_model_restore tool"
+)
 async def world_model_restore(
     snapshot_id: str,
     **kwargs: Any,
@@ -1618,7 +1645,9 @@ async def world_model_restore(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="world_model", priority=10, description="world_model_list_updates tool")
+@register_tool(
+    category="world_model", priority=10, description="world_model_list_updates tool"
+)
 async def world_model_list_updates(
     limit: int = 20,
     **kwargs: Any,
@@ -1653,7 +1682,9 @@ async def world_model_list_updates(
 
 
 @must_stay_async("callers use await")
-@register_tool(category="slack", priority=10, description="Send a message to a Slack channel or DM")
+@register_tool(
+    category="slack", priority=10, description="Send a message to a Slack channel or DM"
+)
 async def slack_send(
     channel: str,
     text: str,
@@ -1673,7 +1704,9 @@ async def slack_send(
     """
     try:
         import os
+
         import httpx
+
         from api.slack_client import SlackAPIClient, SlackClientError
 
         slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
@@ -1731,6 +1764,7 @@ async def llm_chat(
     """
     try:
         import os
+
         from openai import AsyncOpenAI
 
         api_key = os.getenv("OPENAI_API_KEY")
@@ -1777,7 +1811,9 @@ async def llm_chat(
 # SIMULATION TOOLS
 
 
-@register_tool(category="simulation", priority=10, description="simulation_execute tool")
+@register_tool(
+    category="simulation", priority=10, description="simulation_execute tool"
+)
 async def simulation_execute(
     graph_data: dict[str, Any],
     scenario_params: Optional[dict[str, Any]] = None,
@@ -1796,11 +1832,9 @@ async def simulation_execute(
         Dict with simulation results including score, metrics, failure_modes
     """
     try:
-        from simulation.simulation_engine import (
-            SimulationEngine,
-            SimulationConfig,
-            SimulationMode,
-        )
+        from simulation.simulation_engine import (SimulationConfig,
+                                                  SimulationEngine,
+                                                  SimulationMode)
 
         # Map mode string to enum
         mode_map = {
@@ -1841,7 +1875,9 @@ async def simulation_execute(
 # WORLD MODEL TOOLS
 
 
-@register_tool(category="world_model", priority=10, description="world_model_query tool")
+@register_tool(
+    category="world_model", priority=10, description="world_model_query tool"
+)
 async def world_model_query(
     query_type: str,
     params: Optional[dict[str, Any]] = None,
@@ -2302,7 +2338,9 @@ async def tools_list_all(
 
 
 @must_stay_async("callers use await")
-@register_tool(category="introspection", priority=10, description="tools_list_enabled tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_list_enabled tool"
+)
 async def tools_list_enabled(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2332,7 +2370,9 @@ async def tools_list_enabled(
 
 
 @must_stay_async("callers use await")
-@register_tool(category="introspection", priority=10, description="tools_get_metadata tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_get_metadata tool"
+)
 async def tools_get_metadata(
     tool_id: str,
     **kwargs: Any,
@@ -2374,7 +2414,9 @@ async def tools_get_metadata(
 
 
 @must_stay_async("callers use await")
-@register_tool(category="introspection", priority=10, description="tools_get_schema tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_get_schema tool"
+)
 async def tools_get_schema(
     tool_id: str,
     **kwargs: Any,
@@ -2405,7 +2447,9 @@ async def tools_get_schema(
 
 
 @must_stay_async("callers use await")
-@register_tool(category="introspection", priority=10, description="tools_get_by_type tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_get_by_type tool"
+)
 async def tools_get_by_type(
     tool_type: str,
     **kwargs: Any,
@@ -2420,7 +2464,7 @@ async def tools_get_by_type(
         Dict with matching tools
     """
     try:
-        from core.tools.base_registry import get_tool_registry, ToolType
+        from core.tools.base_registry import ToolType, get_tool_registry
 
         registry = get_tool_registry()
         try:
@@ -2442,7 +2486,9 @@ async def tools_get_by_type(
 
 
 @must_stay_async("callers use await")
-@register_tool(category="introspection", priority=10, description="tools_get_for_role tool")
+@register_tool(
+    category="introspection", priority=10, description="tools_get_for_role tool"
+)
 async def tools_get_for_role(
     role: str,
     **kwargs: Any,
@@ -2478,7 +2524,9 @@ async def tools_get_for_role(
 # WORLD MODEL OPERATIONS (Batch 5 - GMP-31)
 
 
-@register_tool(category="world_model", priority=10, description="world_model_get_entity tool")
+@register_tool(
+    category="world_model", priority=10, description="world_model_get_entity tool"
+)
 async def world_model_get_entity(
     entity_id: str,
     **kwargs: Any,
@@ -2502,9 +2550,11 @@ async def world_model_get_entity(
             logger.info(f"World model get_entity: id={entity_id} found=True")
             return {
                 "status": "success",
-                "entity": entity.model_dump()
-                if hasattr(entity, "model_dump")
-                else dict(entity),
+                "entity": (
+                    entity.model_dump()
+                    if hasattr(entity, "model_dump")
+                    else dict(entity)
+                ),
             }
         else:
             return {"status": "not_found", "entity_id": entity_id}
@@ -2513,7 +2563,9 @@ async def world_model_get_entity(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="world_model", priority=10, description="world_model_list_entities tool")
+@register_tool(
+    category="world_model", priority=10, description="world_model_list_entities tool"
+)
 async def world_model_list_entities(
     entity_type: Optional[str] = None,
     min_confidence: Optional[float] = None,
@@ -2557,7 +2609,9 @@ async def world_model_list_entities(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="world_model", priority=10, description="world_model_snapshot tool")
+@register_tool(
+    category="world_model", priority=10, description="world_model_snapshot tool"
+)
 async def world_model_snapshot(
     description: Optional[str] = None,
     **kwargs: Any,
@@ -2589,7 +2643,9 @@ async def world_model_snapshot(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="world_model", priority=10, description="world_model_list_snapshots tool")
+@register_tool(
+    category="world_model", priority=10, description="world_model_list_snapshots tool"
+)
 async def world_model_list_snapshots(
     limit: int = 20,
     **kwargs: Any,
@@ -2620,7 +2676,9 @@ async def world_model_list_snapshots(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="world_model", priority=10, description="world_model_send_insights tool")
+@register_tool(
+    category="world_model", priority=10, description="world_model_send_insights tool"
+)
 async def world_model_send_insights(
     insights: list[dict[str, Any]],
     **kwargs: Any,
@@ -2644,16 +2702,20 @@ async def world_model_send_insights(
         return {
             "status": "success",
             "insights_sent": len(insights),
-            "result": result.model_dump()
-            if hasattr(result, "model_dump")
-            else dict(result),
+            "result": (
+                result.model_dump() if hasattr(result, "model_dump") else dict(result)
+            ),
         }
     except Exception as e:
         logger.error(f"World model send_insights failed: {e}")
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="world_model", priority=10, description="world_model_get_state_version tool")
+@register_tool(
+    category="world_model",
+    priority=10,
+    description="world_model_get_state_version tool",
+)
 async def world_model_get_state_version(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2672,9 +2734,11 @@ async def world_model_get_state_version(
         logger.info("World model get_state_version")
         return {
             "status": "success",
-            "version": version.model_dump()
-            if hasattr(version, "model_dump")
-            else dict(version),
+            "version": (
+                version.model_dump()
+                if hasattr(version, "model_dump")
+                else dict(version)
+            ),
         }
     except Exception as e:
         logger.error(f"World model get_state_version failed: {e}")
@@ -2733,9 +2797,6 @@ async def kernel_read(
 # TOOL REGISTRY
 
 # Map tool names to executor functions
-
-
-
 
 
 def get_tool_executor(tool_name: str) -> Optional[Any]:

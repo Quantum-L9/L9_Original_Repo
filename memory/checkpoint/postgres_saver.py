@@ -35,17 +35,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from datetime import datetime
-from typing import Any, Optional, Dict, List
+from typing import Any, Dict, List, Optional
+
+import structlog
 
 # LangGraph checkpoint interface (if available)
 try:
-    from langgraph.checkpoint.base import (
-        BaseCheckpointSaver,
-        Checkpoint,
-        CheckpointMetadata,
-    )
+    from langgraph.checkpoint.base import (BaseCheckpointSaver, Checkpoint,
+                                           CheckpointMetadata)
 
     LANGGRAPH_AVAILABLE = True
 except ImportError:
@@ -55,8 +53,8 @@ except ImportError:
     Checkpoint = Dict[str, Any]
     CheckpointMetadata = Dict[str, Any]
 
-from memory.substrate_repository import SubstrateRepository, get_repository
 from core.decorators import must_stay_async
+from memory.substrate_repository import SubstrateRepository, get_repository
 
 logger = structlog.get_logger(__name__)
 
@@ -114,16 +112,24 @@ class L9PostgresSaver(BaseCheckpointSaver):
 
         # Convert checkpoint to graph_state dict
         graph_state = {
-            "checkpoint": checkpoint
-            if isinstance(checkpoint, dict)
-            else checkpoint.model_dump()
-            if hasattr(checkpoint, "model_dump")
-            else str(checkpoint),
-            "metadata": metadata
-            if isinstance(metadata, dict)
-            else metadata.model_dump()
-            if hasattr(metadata, "model_dump")
-            else str(metadata),
+            "checkpoint": (
+                checkpoint
+                if isinstance(checkpoint, dict)
+                else (
+                    checkpoint.model_dump()
+                    if hasattr(checkpoint, "model_dump")
+                    else str(checkpoint)
+                )
+            ),
+            "metadata": (
+                metadata
+                if isinstance(metadata, dict)
+                else (
+                    metadata.model_dump()
+                    if hasattr(metadata, "model_dump")
+                    else str(metadata)
+                )
+            ),
             "new_versions": new_versions,
         }
 

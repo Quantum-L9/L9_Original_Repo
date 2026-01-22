@@ -4,8 +4,9 @@ Research Graph → Tool Execution Integration Tests
 Tests the flow: Research Request → Graph State → Tool Call → Result
 """
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 pytestmark = pytest.mark.integration
 
@@ -24,11 +25,8 @@ class TestResearchToolIntegration:
     @pytest.mark.asyncio
     async def test_tool_execution_returns_result(self):
         """Tool execution returns structured result."""
-        from core.tools.base_registry import (
-            ToolRegistry,
-            ToolMetadata,
-            ToolType,
-        )
+        from core.tools.base_registry import (ToolMetadata, ToolRegistry,
+                                              ToolType)
 
         registry = ToolRegistry()
 

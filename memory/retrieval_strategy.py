@@ -41,16 +41,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID
 
+import structlog
+
 if TYPE_CHECKING:
-    from memory.substrate_repository import SubstrateRepository
     from memory.identity_tier import IdentityTierService
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -550,9 +551,9 @@ class StrategyBasedRetriever:
             {
                 "event_id": str(e.event_id),
                 "observation": e.observation,
-                "event_timestamp": e.event_timestamp.isoformat()
-                if e.event_timestamp
-                else None,
+                "event_timestamp": (
+                    e.event_timestamp.isoformat() if e.event_timestamp else None
+                ),
                 "entities": e.entities,
                 "severity": e.severity,
                 "strategy": RetrievalStrategy.TEMPORAL_RECALL.value,
@@ -602,9 +603,11 @@ class StrategyBasedRetriever:
                                 {
                                     "event_id": str(e.event_id),
                                     "observation": e.observation,
-                                    "event_timestamp": e.event_timestamp.isoformat()
-                                    if e.event_timestamp
-                                    else None,
+                                    "event_timestamp": (
+                                        e.event_timestamp.isoformat()
+                                        if e.event_timestamp
+                                        else None
+                                    ),
                                 }
                                 for e in episodes
                             ],

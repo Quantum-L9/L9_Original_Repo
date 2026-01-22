@@ -40,25 +40,18 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timedelta
-from typing import Optional, Dict, List, Tuple, Any
-from enum import Enum
 import uuid as uuid_module
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
-from pydantic import BaseModel, Field, ConfigDict
 import structlog
-from sqlalchemy import (
-    Column,
-    String,
-    Integer,
-    Float,
-    Boolean,
-    DateTime,
-    Index,
-    select,
-)
-from sqlalchemy.dialects.postgresql import ARRAY, UUID, JSONB
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import (Boolean, Column, DateTime, Float, Index, Integer,
+                        String, select)
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 from sqlalchemy.orm import declarative_base
 
 logger = structlog.get_logger(__name__)

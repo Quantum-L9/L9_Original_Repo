@@ -36,11 +36,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from functools import lru_cache
 from typing import Any, Dict
 
-from runtime.kernel_loader import load_kernel_stack, KernelStack
+import structlog
+
+from runtime.kernel_loader import KernelStack, load_kernel_stack
 
 logger = structlog.get_logger(__name__)
 

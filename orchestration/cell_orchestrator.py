@@ -43,12 +43,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional, Type
 from uuid import UUID, uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -222,8 +223,8 @@ class CellOrchestrator:
         try:
             from collaborative_cells.architect_cell import ArchitectCell
             from collaborative_cells.coder_cell import CoderCell
-            from collaborative_cells.reviewer_cell import ReviewerCell
             from collaborative_cells.reflection_cell import ReflectionCell
+            from collaborative_cells.reviewer_cell import ReviewerCell
 
             self._cell_registry["architect"] = ArchitectCell
             self._cell_registry["coder"] = CoderCell
@@ -412,9 +413,9 @@ class CellOrchestrator:
 
         task = {
             "code": code,
-            "review_type": context.get("review_type", "general")
-            if context
-            else "general",
+            "review_type": (
+                context.get("review_type", "general") if context else "general"
+            ),
         }
 
         result = await cell.execute(task, context or {})
@@ -454,9 +455,9 @@ class CellOrchestrator:
 
         task = {
             "history": history,
-            "analysis_type": context.get("analysis_type", "general")
-            if context
-            else "general",
+            "analysis_type": (
+                context.get("analysis_type", "general") if context else "general"
+            ),
         }
 
         result = await cell.execute(task, context or {})

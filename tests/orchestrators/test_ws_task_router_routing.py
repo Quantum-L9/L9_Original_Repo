@@ -8,9 +8,9 @@ Covers:
 - HEARTBEAT → None (no task)
 """
 
-from core.schemas.ws_event_stream import EventMessage, EventType
 from core.schemas.tasks import TaskEnvelope, TaskKind
-from orchestration.ws_task_router import route_event_to_task, RouterConfig
+from core.schemas.ws_event_stream import EventMessage, EventType
+from orchestration.ws_task_router import RouterConfig, route_event_to_task
 
 
 class TestWSTaskRouterRouting:

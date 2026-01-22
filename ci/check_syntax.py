@@ -33,12 +33,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
+import argparse
 import ast
 import re
-import argparse
+import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 import structlog
 

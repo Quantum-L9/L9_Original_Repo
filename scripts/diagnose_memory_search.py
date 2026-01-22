@@ -30,10 +30,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
 import json
-import urllib.request
+import os
 import ssl
+import urllib.request
 
 # SSL context for self-signed cert
 ssl_context = ssl.create_default_context()

@@ -12,28 +12,23 @@ Tests:
 Run: pytest tests/memory/test_substrate_dag_native.py -v
 """
 
-import pytest
-from typing import TypedDict
-from unittest.mock import MagicMock, AsyncMock
-from uuid import uuid4
 from datetime import datetime
+from typing import TypedDict
+from unittest.mock import AsyncMock, MagicMock
+from uuid import uuid4
 
-from langgraph.graph import StateGraph, END
+import pytest
+from langgraph.graph import END, StateGraph
 
-# Import from substrate_dag
-from memory.substrate_dag import (
-    _get_config_dependency,
-    _should_skip_embedding,
-    route_after_memory_write,
-    build_substrate_graph,
-    build_enrichment_graph,
-    SubstrateDAG,
-    intake_node,
-    reasoning_node,
-    semantic_embed_node,
-    SKIP_EMBEDDING_PATTERNS,
-)
 from core.schemas import PacketEnvelope
+# Import from substrate_dag
+from memory.substrate_dag import (SKIP_EMBEDDING_PATTERNS, SubstrateDAG,
+                                  _get_config_dependency,
+                                  _should_skip_embedding,
+                                  build_enrichment_graph,
+                                  build_substrate_graph, intake_node,
+                                  reasoning_node, route_after_memory_write,
+                                  semantic_embed_node)
 
 # =============================================================================
 # Test Fixtures
@@ -156,7 +151,10 @@ class TestSkipEmbedding:
 
     def test_dont_skip_valid_content(self):
         """Valid content should NOT be skipped."""
-        assert _should_skip_embedding("This is a valid piece of content worth embedding.") is False
+        assert (
+            _should_skip_embedding("This is a valid piece of content worth embedding.")
+            is False
+        )
         assert _should_skip_embedding("User asked about memory systems in L9.") is False
 
 
@@ -198,7 +196,9 @@ class TestRoutingFunction:
         state = {
             "envelope": {
                 "packet_type": "memory",
-                "payload": {"text": "Sorry, I encountered a temporary error. Please try again."},
+                "payload": {
+                    "text": "Sorry, I encountered a temporary error. Please try again."
+                },
             }
         }
         assert route_after_memory_write(state) == "skip_embed"

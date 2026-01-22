@@ -39,9 +39,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Optional
 
+import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
@@ -130,9 +130,9 @@ async def execute_command(
 
     Requires Igor authentication for approval and rollback commands.
     """
-    from core.commands.parser import parse_command, Command, NLPPrompt
-    from core.commands.intent_extractor import extract_intent, confirm_intent
     from core.commands.executor import CommandExecutor
+    from core.commands.intent_extractor import confirm_intent, extract_intent
+    from core.commands.parser import Command, NLPPrompt, parse_command
     from core.compliance.audit_log import AuditLogger
 
     logger.info(
@@ -330,7 +330,7 @@ async def parse_command_endpoint(
 
     Useful for debugging and testing command parsing.
     """
-    from core.commands.parser import parse_command, Command, NLPPrompt
+    from core.commands.parser import Command, NLPPrompt, parse_command
 
     parsed = parse_command(request.command_text)
 
@@ -358,8 +358,8 @@ async def extract_intent_endpoint(
 
     Useful for debugging and testing intent extraction.
     """
-    from core.commands.parser import parse_command, NLPPrompt
     from core.commands.intent_extractor import extract_intent
+    from core.commands.parser import NLPPrompt, parse_command
 
     parsed = parse_command(request.command_text)
 
@@ -382,9 +382,9 @@ async def extract_intent_endpoint(
         entities=intent.entities,
         ambiguities=intent.ambiguities,
         is_ambiguous=intent.is_ambiguous,
-        suggested_command=intent.suggested_command.dict()
-        if intent.suggested_command
-        else None,
+        suggested_command=(
+            intent.suggested_command.dict() if intent.suggested_command else None
+        ),
     )
 
 

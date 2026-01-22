@@ -35,11 +35,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
+
+import structlog
 
 from core.agents.selfreflection import BehaviorGap, ReflectionResult
 

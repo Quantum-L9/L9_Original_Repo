@@ -37,14 +37,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
+import hashlib
+import hmac
 import os
 import sys
-import hmac
-import hashlib
 import time
 from datetime import datetime
 from typing import Any
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -117,9 +119,11 @@ async def audit_slack_configuration() -> AuditResult:
         result.add_check(
             "signing_secret_configured",
             has_signing_secret,
-            "SLACK_SIGNING_SECRET is set"
-            if has_signing_secret
-            else "SLACK_SIGNING_SECRET missing",
+            (
+                "SLACK_SIGNING_SECRET is set"
+                if has_signing_secret
+                else "SLACK_SIGNING_SECRET missing"
+            ),
         )
 
         # Check 3: Bot token configured
@@ -128,9 +132,11 @@ async def audit_slack_configuration() -> AuditResult:
         result.add_check(
             "bot_token_configured",
             has_bot_token,
-            "SLACK_BOT_TOKEN is set (xoxb-...)"
-            if has_bot_token
-            else "SLACK_BOT_TOKEN missing or invalid",
+            (
+                "SLACK_BOT_TOKEN is set (xoxb-...)"
+                if has_bot_token
+                else "SLACK_BOT_TOKEN missing or invalid"
+            ),
         )
 
         # Check 4: Legacy flag status
@@ -151,9 +157,11 @@ async def audit_slack_configuration() -> AuditResult:
         result.add_check(
             "bot_user_id_configured",
             has_bot_user_id,
-            f"SLACK_BOT_USER_ID={bot_user_id}"
-            if has_bot_user_id
-            else "SLACK_BOT_USER_ID not set (optional)",
+            (
+                f"SLACK_BOT_USER_ID={bot_user_id}"
+                if has_bot_user_id
+                else "SLACK_BOT_USER_ID not set (optional)"
+            ),
         )
         if not has_bot_user_id:
             result.add_recommendation(
@@ -282,10 +290,8 @@ async def audit_slack_routing() -> AuditResult:
     result = AuditResult("Slack Routing")
 
     try:
-        from memory.slack_ingest import (
-            L9_ENABLE_LEGACY_SLACK_ROUTER,
-            _is_email_command,
-        )
+        from memory.slack_ingest import (L9_ENABLE_LEGACY_SLACK_ROUTER,
+                                         _is_email_command)
 
         # Check 1: Feature flag status
         result.add_check(
@@ -443,19 +449,19 @@ async def audit_slack_telemetry() -> AuditResult:
         result.add_check(
             "prometheus_available",
             PROMETHEUS_AVAILABLE,
-            "prometheus_client installed"
-            if PROMETHEUS_AVAILABLE
-            else "prometheus_client not installed",
+            (
+                "prometheus_client installed"
+                if PROMETHEUS_AVAILABLE
+                else "prometheus_client not installed"
+            ),
         )
 
         if PROMETHEUS_AVAILABLE:
-            from telemetry.slack_metrics import (
-                SLACK_REQUESTS_TOTAL,
-                SLACK_PROCESSING_DURATION,
-                SLACK_AIOS_CALL_DURATION,
-                SLACK_SIGNATURE_FAILURES,
-                SLACK_IDEMPOTENT_HITS,
-            )
+            from telemetry.slack_metrics import (SLACK_AIOS_CALL_DURATION,
+                                                 SLACK_IDEMPOTENT_HITS,
+                                                 SLACK_PROCESSING_DURATION,
+                                                 SLACK_REQUESTS_TOTAL,
+                                                 SLACK_SIGNATURE_FAILURES)
 
             # Check 2: Metrics defined
             metrics_defined = [
@@ -541,9 +547,11 @@ async def audit_slack_rate_limiting() -> AuditResult:
             result.add_check(
                 "redis_rate_limit_backend",
                 redis_available,
-                "Redis available for rate limiting"
-                if redis_available
-                else "Redis not available - rate limiting disabled",
+                (
+                    "Redis available for rate limiting"
+                    if redis_available
+                    else "Redis not available - rate limiting disabled"
+                ),
             )
             if not redis_available:
                 result.add_warning(
@@ -704,9 +712,11 @@ async def run_full_audit() -> dict[str, Any]:
         results[name] = result
 
         # Print results
-        status_icon = {"PASSED": "✅", "PASSED_WITH_WARNINGS": "⚠️", "FAILED": "❌"}.get(
-            result.status, "❓"
-        )
+        status_icon = {
+            "PASSED": "✅",
+            "PASSED_WITH_WARNINGS": "⚠️",
+            "FAILED": "❌",
+        }.get(result.status, "❓")
         print(f"Status: {status_icon} {result.status}")
 
         for check in result.checks:

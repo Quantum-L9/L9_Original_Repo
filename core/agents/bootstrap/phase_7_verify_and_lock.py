@@ -28,16 +28,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, TYPE_CHECKING
-from datetime import datetime
 import hashlib
+from datetime import datetime
+from typing import TYPE_CHECKING, Dict
 
 import structlog
 
 if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
+
     from .phase_1_load_kernels import KernelParsed
     from .phase_2_instantiate import BootstrapInstanceData
-    from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 
@@ -144,12 +145,10 @@ async def verify_and_lock(
     # Store audit in memory substrate if available
     if hasattr(substrate_service, "write_packet"):
         try:
-            from core.schemas import PacketEnvelopeIn
             from config.rls_config import get_rls_config
-            from memory.governance_gate import (
-                build_governance_context,
-                governance_context,
-            )
+            from core.schemas import PacketEnvelopeIn
+            from memory.governance_gate import (build_governance_context,
+                                                governance_context)
 
             # GMP-94: Bootstrap requires governance context for write_packet
             rls_config = get_rls_config()

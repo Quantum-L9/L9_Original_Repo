@@ -57,7 +57,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     from world_model.causal_graph import CausalGraph
@@ -437,12 +437,16 @@ class WorldModelState:
                 entity_id=entity_data["entity_id"],
                 entity_type=entity_data["entity_type"],
                 attributes=entity_data.get("attributes", {}),
-                created_at=datetime.fromisoformat(entity_data["created_at"])
-                if "created_at" in entity_data
-                else datetime.utcnow(),
-                updated_at=datetime.fromisoformat(entity_data["updated_at"])
-                if "updated_at" in entity_data
-                else datetime.utcnow(),
+                created_at=(
+                    datetime.fromisoformat(entity_data["created_at"])
+                    if "created_at" in entity_data
+                    else datetime.utcnow()
+                ),
+                updated_at=(
+                    datetime.fromisoformat(entity_data["updated_at"])
+                    if "updated_at" in entity_data
+                    else datetime.utcnow()
+                ),
                 version=entity_data.get("version", 1),
             )
 
@@ -455,9 +459,11 @@ class WorldModelState:
                 source_id=relation_data["source_id"],
                 target_id=relation_data["target_id"],
                 attributes=relation_data.get("attributes", {}),
-                created_at=datetime.fromisoformat(relation_data["created_at"])
-                if "created_at" in relation_data
-                else datetime.utcnow(),
+                created_at=(
+                    datetime.fromisoformat(relation_data["created_at"])
+                    if "created_at" in relation_data
+                    else datetime.utcnow()
+                ),
             )
 
     # =========================================================================

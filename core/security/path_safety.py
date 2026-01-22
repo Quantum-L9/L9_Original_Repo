@@ -34,13 +34,14 @@ __dora_meta__ = {
 
 import os
 import re
+import stat
 import unicodedata
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-import stat
 from typing import Iterable, Iterator
 from urllib.parse import unquote
+
 from core.decorators import must_stay_async
 
 _ABSOLUTE_DRIVE_RE = re.compile(r"^[a-zA-Z]:[\\/]")

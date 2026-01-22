@@ -11,18 +11,16 @@ Core infrastructure capabilities for PacketEnvelope:
 
 Usage:
     from core.packet_envelope import PacketEnvelopeUpgradeEngine
-    
+
     engine = PacketEnvelopeUpgradeEngine()
     await engine.activate_all_phases()
 """
 
-from core.packet_envelope.integration import (
-    PacketEnvelopeUpgradeEngine,
-    PacketEnvelopeAdapter,
-    PacketEnvelopeUpgradePhase,
-    UpgradeState,
-    validate_deployment,
-)
+from core.packet_envelope.integration import (PacketEnvelopeAdapter,
+                                              PacketEnvelopeUpgradeEngine,
+                                              PacketEnvelopeUpgradePhase,
+                                              UpgradeState,
+                                              validate_deployment)
 
 __all__ = [
     "PacketEnvelopeUpgradeEngine",
@@ -31,4 +29,3 @@ __all__ = [
     "UpgradeState",
     "validate_deployment",
 ]
-

@@ -25,10 +25,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod
 import logging
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 class BaseExtractor(ABC):

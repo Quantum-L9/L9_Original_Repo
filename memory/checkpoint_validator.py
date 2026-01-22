@@ -36,10 +36,11 @@ __dora_meta__ = {
 
 import hashlib
 import json
-import structlog
 from datetime import datetime
-from typing import Any, Dict, Optional, Tuple
 from enum import Enum
+from typing import Any, Dict, Optional, Tuple
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

@@ -8,9 +8,10 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -18,7 +19,7 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 try:
-    from agents.base_agent import BaseAgent, AgentConfig, AgentRole
+    from agents.base_agent import AgentConfig, AgentRole, BaseAgent
 except ImportError as e:
     pytest.skip(f"Could not import agents.base_agent: {e}", allow_module_level=True)
 

@@ -50,12 +50,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -1495,9 +1496,9 @@ class CausalMapper:
                 source_id=graph_node_id,
                 target_id=sim_node_id,
                 relation_type=CausalRelationType.CAUSES,
-                strength=CausalStrength.STRONG
-                if score > 0.7
-                else CausalStrength.MODERATE,
+                strength=(
+                    CausalStrength.STRONG if score > 0.7 else CausalStrength.MODERATE
+                ),
                 confidence=score,
             )
             if edge:

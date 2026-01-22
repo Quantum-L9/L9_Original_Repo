@@ -23,11 +23,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncpg
 import json
+from typing import Any, Dict, List, Optional
+
+import asyncpg
 import structlog
-from typing import List, Dict, Any, Optional
 from src.config import settings
+
 from memory.governance_gate import require_governance_context
 
 logger = structlog.get_logger(__name__)

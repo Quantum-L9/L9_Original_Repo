@@ -8,15 +8,13 @@ Verifies:
 4. /kernels/reload API endpoint works
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from core.kernels.kernelloader import (
-    reload_kernels,
-    load_kernels,
-    KERNEL_ORDER,
-)
+import pytest
+
+from core.kernels.kernelloader import (KERNEL_ORDER, load_kernels,
+                                       reload_kernels)
 
 # =============================================================================
 # Fixtures
@@ -121,9 +119,13 @@ class TestReloadKernelsFunction:
 
         assert result.success is True
         assert kernel_to_modify in result.modified_kernels
-        assert result.new_hashes[kernel_to_modify] != original_hashes.get(kernel_to_modify)
+        assert result.new_hashes[kernel_to_modify] != original_hashes.get(
+            kernel_to_modify
+        )
 
-    def test_reload_preserves_agent_state_on_success(self, mock_kernel_files, mock_agent):
+    def test_reload_preserves_agent_state_on_success(
+        self, mock_kernel_files, mock_agent
+    ):
         """reload_kernels() preserves agent state after successful reload."""
         load_kernels(mock_agent, base_path=mock_kernel_files)
         assert mock_agent.kernel_state == "ACTIVE"
@@ -143,7 +145,9 @@ class TestReloadKernelsFunction:
         assert len(result.new_hashes) > 0
         # Hashes should be the same since files weren't modified
         for kernel_path in KERNEL_ORDER:
-            assert result.previous_hashes.get(kernel_path) == result.new_hashes.get(kernel_path)
+            assert result.previous_hashes.get(kernel_path) == result.new_hashes.get(
+                kernel_path
+            )
 
 
 class TestReloadKernelsErrorHandling:
@@ -200,7 +204,9 @@ class TestKernelEvolutionLogging:
 
         # Mock the import inside the function by patching builtins
         original_import = (
-            __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
+            __builtins__.__import__
+            if hasattr(__builtins__, "__import__")
+            else __import__
         )
 
         def mock_import(name, *args, **kwargs):
@@ -231,7 +237,9 @@ class TestKernelEvolutionLogging:
 
         # Mock the import to return None for substrate
         original_import = (
-            __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
+            __builtins__.__import__
+            if hasattr(__builtins__, "__import__")
+            else __import__
         )
 
         def mock_import(name, *args, **kwargs):

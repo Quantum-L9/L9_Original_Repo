@@ -25,12 +25,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import List, Dict, Optional, Any
 from datetime import datetime
 from statistics import mean
+from typing import Any, Dict, List, Optional
 
-from .models import Span, AgentKPI, SpanStatus
+import structlog
+
+from .models import AgentKPI, Span, SpanStatus
 
 logger = structlog.get_logger(__name__)
 

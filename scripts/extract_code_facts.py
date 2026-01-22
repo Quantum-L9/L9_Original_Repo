@@ -46,10 +46,9 @@ __dora_meta__ = {
 
 import ast
 import sys
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime
-import json
+from pathlib import Path
+from typing import Any, Dict, List
 
 try:
     import yaml

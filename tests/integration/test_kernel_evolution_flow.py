@@ -9,24 +9,19 @@ Version: 1.0.0
 GMP: kernel_boot_frontier_phase1
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
-from core.agents.selfreflection import (
-    TaskExecutionContext,
-    BehaviorGap,
-    ReflectionResult,
-    detect_behavior_gaps,
-    analyze_task_execution,
-)
-from core.agents.kernelevolution import (
-    KernelUpdateProposal,
-    EvolutionPlan,
-    generate_proposal_from_gap,
-    create_evolution_plan,
-    generate_gmp_spec_from_plan,
-)
+import pytest
+
+from core.agents.kernelevolution import (EvolutionPlan, KernelUpdateProposal,
+                                         create_evolution_plan,
+                                         generate_gmp_spec_from_plan,
+                                         generate_proposal_from_gap)
+from core.agents.selfreflection import (BehaviorGap, ReflectionResult,
+                                        TaskExecutionContext,
+                                        analyze_task_execution,
+                                        detect_behavior_gaps)
 
 # =============================================================================
 # Fixtures
@@ -142,7 +137,9 @@ class TestGapDetection:
         gaps = detect_behavior_gaps(problematic_task_context)
 
         iteration_gaps = [
-            g for g in gaps if g.gap_type == "PERFORMANCE" and "iteration" in g.description.lower()
+            g
+            for g in gaps
+            if g.gap_type == "PERFORMANCE" and "iteration" in g.description.lower()
         ]
         assert len(iteration_gaps) == 1
         assert iteration_gaps[0].metadata.get("iterations") == 12
@@ -152,7 +149,9 @@ class TestGapDetection:
         gaps = detect_behavior_gaps(problematic_task_context)
 
         token_gaps = [
-            g for g in gaps if g.gap_type == "PERFORMANCE" and "token" in g.description.lower()
+            g
+            for g in gaps
+            if g.gap_type == "PERFORMANCE" and "token" in g.description.lower()
         ]
         assert len(token_gaps) == 1
         assert token_gaps[0].metadata.get("tokens_used") == 75000
@@ -290,7 +289,9 @@ class TestEvolutionPlan:
         plan = await create_evolution_plan(reflection)
 
         # With multiple HIGH severity gaps, impact should be HIGH
-        high_priority_count = sum(1 for p in plan.proposals if p.priority in ("HIGH", "CRITICAL"))
+        high_priority_count = sum(
+            1 for p in plan.proposals if p.priority in ("HIGH", "CRITICAL")
+        )
 
         if high_priority_count >= 2:
             assert plan.estimated_impact == "HIGH"
@@ -372,7 +373,9 @@ class TestFullEvolutionFlow:
         # Verify chain of custody
         assert plan.reflection_id == reflection.reflection_id
         for proposal in plan.proposals:
-            assert proposal.gaps_addressed[0] in [g.gap_id for g in reflection.gaps_detected]
+            assert proposal.gaps_addressed[0] in [
+                g.gap_id for g in reflection.gaps_detected
+            ]
 
     @pytest.mark.asyncio
     async def test_no_evolution_for_clean_execution(self, successful_task_context):
@@ -395,7 +398,8 @@ class TestExecutorIntegration:
     async def test_executor_runs_self_reflection(self):
         """Executor should run self-reflection after task completion."""
         try:
-            from core.agents.executor import AgentExecutorService, _has_self_reflection
+            from core.agents.executor import (AgentExecutorService,
+                                              _has_self_reflection)
 
             # Verify self-reflection is available
             assert _has_self_reflection is True

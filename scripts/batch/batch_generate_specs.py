@@ -41,16 +41,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
-import structlog
 import argparse
+import asyncio
 import os
+import random
 import sys
 import time
-import random
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List
-from dataclasses import dataclass
+
+import structlog
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))

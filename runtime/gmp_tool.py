@@ -33,8 +33,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict
+
+import structlog
 
 from runtime.gmp_worker import store_pending_task
 
@@ -94,8 +95,9 @@ async def gmp_run_tool(
 
     # Create task and store as pending (not in execution queue yet)
     try:
-        from runtime.task_queue import QueuedTask
         from uuid import uuid4
+
+        from runtime.task_queue import QueuedTask
 
         task_id = str(uuid4())
         task = QueuedTask(
@@ -116,9 +118,9 @@ async def gmp_run_tool(
             "task_id": task_id,
             "repo_root": repo_root,
             "caller": caller,
-            "gmp_preview": gmp_markdown[:200] + "..."
-            if len(gmp_markdown) > 200
-            else gmp_markdown,
+            "gmp_preview": (
+                gmp_markdown[:200] + "..." if len(gmp_markdown) > 200 else gmp_markdown
+            ),
             "status": "pending_igor_approval",
         }
 

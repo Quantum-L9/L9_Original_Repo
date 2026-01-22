@@ -274,9 +274,9 @@ class TestPostgresLayer:
                 SELECT 1 - (ARRAY[1,0,0]::vector(3) <=> ARRAY[1,0,0]::vector(3)) as similarity
             """)
             # Same vector should have similarity of 1.0
-            assert abs(result - 1.0) < 0.001, (
-                f"Same vector similarity should be 1.0, got {result}"
-            )
+            assert (
+                abs(result - 1.0) < 0.001
+            ), f"Same vector similarity should be 1.0, got {result}"
 
 
 # =============================================================================

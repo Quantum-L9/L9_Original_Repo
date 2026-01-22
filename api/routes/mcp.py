@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import structlog
-from fastapi import APIRouter, HTTPException, Header, Request
+from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import ValidationError
 
 logger = structlog.get_logger(__name__)
@@ -60,8 +60,8 @@ try:
     if str(mcp_path) not in sys.path:
         sys.path.insert(0, str(mcp_path))
 
-    from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
     from src.main import CallerIdentity, verify_api_key
+    from src.mcp_server import MCPToolCall, get_mcp_tools, handle_tool_call
     from src.routes import health as mcp_health
 
     _has_mcp = True
@@ -72,11 +72,9 @@ except ImportError as e:
 
 # Import governance context for memory operations
 try:
-    from memory.governance_gate import (
-        build_governance_context,
-        governance_context,
-    )
     from config.rls_config import get_rls_config
+    from memory.governance_gate import (build_governance_context,
+                                        governance_context)
 
     _has_governance = True
 except ImportError as e:
@@ -157,9 +155,11 @@ async def call_tool(request: Request, authorization: str = Header(None)):
             logger.error(
                 "MCP call: substrate_service unavailable",
                 tool_name=tool_name,
-                app_state_keys=list(vars(request.app.state).keys())
-                if hasattr(request.app, "state")
-                else [],
+                app_state_keys=(
+                    list(vars(request.app.state).keys())
+                    if hasattr(request.app, "state")
+                    else []
+                ),
             )
         else:
             logger.debug(

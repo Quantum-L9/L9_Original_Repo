@@ -30,7 +30,6 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-
 # Directories to skip
 SKIP_DIRS = {
     "__pycache__",

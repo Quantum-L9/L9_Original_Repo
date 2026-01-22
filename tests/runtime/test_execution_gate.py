@@ -7,8 +7,9 @@ for the kernel system (GODMODE Part 2).
 Version: 1.0.0
 """
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 
 class TestGuardedExecuteContract:
@@ -85,7 +86,9 @@ class TestGuardedExecuteContract:
         assert result["escalation"] == "SAFETY_KERNEL"
 
         # Should have logged escalation
-        assert any(e["category"] == "UNAUTHORIZED_TOOL" for e in agent.kernel_state.escalations)
+        assert any(
+            e["category"] == "UNAUTHORIZED_TOOL" for e in agent.kernel_state.escalations
+        )
 
 
 class TestSafetyScanning:
@@ -202,7 +205,9 @@ class TestToolAuthorization:
 
         custom_auth = {"memory_search": {"class": "RESTRICTED", "blocked": True}}
 
-        agent = self._create_mock_agent(boot_overlay={"tool_authorization_matrix": custom_auth})
+        agent = self._create_mock_agent(
+            boot_overlay={"tool_authorization_matrix": custom_auth}
+        )
 
         result = _get_tool_authorization(agent, "memory_search")
 
@@ -281,8 +286,8 @@ class TestEscalateToIgor:
 
     def test_escalate_to_igor_formats_message(self):
         """escalate_to_igor() produces formatted message."""
-        from runtime.kernel_state import KernelState
         from runtime.execution_gate import escalate_to_igor
+        from runtime.kernel_state import KernelState
 
         state = KernelState()
 
@@ -306,8 +311,8 @@ class TestEscalateToIgor:
 
     def test_escalate_to_igor_logs_escalation(self):
         """escalate_to_igor() logs the escalation."""
-        from runtime.kernel_state import KernelState
         from runtime.execution_gate import escalate_to_igor
+        from runtime.kernel_state import KernelState
 
         state = KernelState()
 
@@ -365,14 +370,11 @@ class TestPublicAPI:
 
     def test_all_exports_are_importable(self):
         """All __all__ exports are importable."""
-        from runtime.execution_gate import (
-            guarded_execute,
-            should_escalate_on_confidence,
-            escalate_to_igor,
-            select_mode_based_on_confidence,
-            DEFAULT_TOOL_AUTHORIZATION,
-            FORBIDDEN_PATTERNS,
-        )
+        from runtime.execution_gate import (DEFAULT_TOOL_AUTHORIZATION,
+                                            FORBIDDEN_PATTERNS,
+                                            escalate_to_igor, guarded_execute,
+                                            select_mode_based_on_confidence,
+                                            should_escalate_on_confidence)
 
         assert callable(guarded_execute)
         assert callable(should_escalate_on_confidence)

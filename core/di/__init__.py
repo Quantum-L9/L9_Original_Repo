@@ -21,15 +21,9 @@ Usage:
 Version: 1.0.0
 """
 
-from core.di.container import (
-    DIContainer,
-    DIContainerError,
-    CircularDependencyError,
-    BindingNotFoundError,
-    ResolutionError,
-    get_di_container,
-    reset_di_container,
-)
+from core.di.container import (BindingNotFoundError, CircularDependencyError,
+                               DIContainer, DIContainerError, ResolutionError,
+                               get_di_container, reset_di_container)
 
 __all__ = [
     "DIContainer",

@@ -14,8 +14,9 @@ GMP-95: PR #11 Fail-Closed Enforcement Tests
 
 from __future__ import annotations
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
 
 
 class TestTaskQueueFailClosed:
@@ -39,7 +40,9 @@ class TestTaskQueueFailClosed:
             task_queue._has_redis_client = False
 
             try:
-                with pytest.raises(RuntimeError, match="TaskQueue requires Redis client"):
+                with pytest.raises(
+                    RuntimeError, match="TaskQueue requires Redis client"
+                ):
                     task_queue.TaskQueue()
             finally:
                 task_queue._has_redis_client = original
@@ -54,7 +57,9 @@ class TestTaskQueueFailClosed:
             queue = TaskQueue()
 
             # Mock get_redis_client to return None (unavailable)
-            with patch("runtime.task_queue.get_redis_client", new_callable=AsyncMock) as mock_get:
+            with patch(
+                "runtime.task_queue.get_redis_client", new_callable=AsyncMock
+            ) as mock_get:
                 mock_get.return_value = None
 
                 with pytest.raises(RuntimeError, match="Redis unavailable"):
@@ -72,7 +77,9 @@ class TestTaskQueueFailClosed:
             mock_client = MagicMock()
             mock_client.is_available.return_value = False
 
-            with patch("runtime.task_queue.get_redis_client", new_callable=AsyncMock) as mock_get:
+            with patch(
+                "runtime.task_queue.get_redis_client", new_callable=AsyncMock
+            ) as mock_get:
                 mock_get.return_value = mock_client
 
                 with pytest.raises(RuntimeError, match="Redis unavailable"):
@@ -106,7 +113,9 @@ class TestTaskQueueFailClosed:
             # Mock Redis client that fails on enqueue
             mock_client = MagicMock()
             mock_client.is_available.return_value = True
-            mock_client.enqueue_task = AsyncMock(side_effect=Exception("Connection refused"))
+            mock_client.enqueue_task = AsyncMock(
+                side_effect=Exception("Connection refused")
+            )
 
             queue._redis_client = mock_client
             queue._redis_available = True
@@ -130,7 +139,9 @@ class TestTaskQueueFailClosed:
             # Mock Redis client that fails on dequeue
             mock_client = MagicMock()
             mock_client.is_available.return_value = True
-            mock_client.dequeue_task = AsyncMock(side_effect=Exception("Connection refused"))
+            mock_client.dequeue_task = AsyncMock(
+                side_effect=Exception("Connection refused")
+            )
 
             queue._redis_client = mock_client
             queue._redis_available = True
@@ -150,7 +161,9 @@ class TestTaskQueueFailClosed:
             # Mock Redis client that fails on queue_size
             mock_client = MagicMock()
             mock_client.is_available.return_value = True
-            mock_client.queue_size = AsyncMock(side_effect=Exception("Connection refused"))
+            mock_client.queue_size = AsyncMock(
+                side_effect=Exception("Connection refused")
+            )
 
             queue._redis_client = mock_client
             queue._redis_available = True

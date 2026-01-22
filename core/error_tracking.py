@@ -35,11 +35,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import traceback
 from datetime import datetime
 from typing import Any
 from uuid import uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

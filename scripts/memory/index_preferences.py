@@ -42,11 +42,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List
-import asyncio
+from typing import Any, Dict, List
+
 import structlog
 from dotenv import load_dotenv
 
@@ -75,8 +76,9 @@ async def query_preference_packets(
         List of dicts with preference data
     """
     try:
-        import asyncpg
         import json as json_lib
+
+        import asyncpg
 
         conn = await asyncpg.connect(database_url)
         try:
@@ -131,9 +133,11 @@ async def query_preference_packets(
                             "preference_text": preference_text,
                             "payload": payload,
                             "metadata": metadata,
-                            "created_at": row["created_at"].isoformat()
-                            if row["created_at"]
-                            else None,
+                            "created_at": (
+                                row["created_at"].isoformat()
+                                if row["created_at"]
+                                else None
+                            ),
                             "source": "preference_packet",
                         }
                     )
@@ -178,16 +182,20 @@ async def query_preference_packets(
 
                     preferences.append(
                         {
-                            "packet_id": str(row["source_packet"])
-                            if row["source_packet"]
-                            else None,
+                            "packet_id": (
+                                str(row["source_packet"])
+                                if row["source_packet"]
+                                else None
+                            ),
                             "user_id": row["subject"],
                             "preference_text": preference_text,
                             "payload": object_data,
                             "metadata": {},
-                            "created_at": row["created_at"].isoformat()
-                            if row["created_at"]
-                            else None,
+                            "created_at": (
+                                row["created_at"].isoformat()
+                                if row["created_at"]
+                                else None
+                            ),
                             "source": "knowledge_fact",
                             "fact_id": str(row["fact_id"]),
                         }
@@ -319,7 +327,7 @@ async def main(dry_run: bool = False, verbose: bool = False):
 
     # Initialize memory substrate service
     try:
-        from memory.substrate_service import init_service, close_service
+        from memory.substrate_service import close_service, init_service
 
         service = await init_service(DATABASE_URL)
         logger.info("Memory substrate service initialized")

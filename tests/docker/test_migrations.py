@@ -25,7 +25,9 @@ class TestMigrationFileStructure:
 
     def test_migrations_directory_exists(self):
         """Migrations directory must exist."""
-        assert MIGRATIONS_DIR.exists(), f"Migrations directory not found: {MIGRATIONS_DIR}"
+        assert (
+            MIGRATIONS_DIR.exists()
+        ), f"Migrations directory not found: {MIGRATIONS_DIR}"
 
     def test_migrations_have_sql_extension(self):
         """All migration files should have .sql extension (excludes docs like README)."""
@@ -154,7 +156,9 @@ class TestMigrationSQLSyntax:
 
             # Check if file contains at least one valid SQL keyword
             has_valid = any(kw in content for kw in valid_keywords)
-            assert has_valid, f"Migration file doesn't appear to contain SQL: {file.name}"
+            assert (
+                has_valid
+            ), f"Migration file doesn't appear to contain SQL: {file.name}"
 
     def test_migrations_have_schema_prefix(self):
         """

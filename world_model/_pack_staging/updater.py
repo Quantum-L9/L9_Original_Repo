@@ -30,18 +30,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
-from world_model.interfaces import (
-    IWorldModelUpdater,
-    Entity,
-    Relation,
-    UpdateOperation,
-    UpdateResult,
-)
-from world_model.state import WorldModelState
+from world_model.interfaces import (Entity, IWorldModelUpdater, Relation,
+                                    UpdateOperation, UpdateResult)
 from world_model.registry import WorldModelRegistry
+from world_model.state import WorldModelState
 
 
 @dataclass
@@ -177,7 +172,7 @@ class WorldModelUpdater(IWorldModelUpdater):
                 if not self.validate_operation(op):
                     return False
             return True
-        except:
+        except Exception:
             return False
 
     def validate_operation(self, operation: UpdateOperation) -> bool:

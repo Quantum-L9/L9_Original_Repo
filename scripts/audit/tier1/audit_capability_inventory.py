@@ -48,13 +48,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import json
-import inspect
 import ast
-from pathlib import Path
-from dataclasses import dataclass, asdict, field
-from typing import Optional, Dict, List, Any, Callable, get_type_hints
+import inspect
+import json
+from dataclasses import asdict, dataclass, field
 from enum import Enum
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, get_type_hints
+
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -289,9 +290,9 @@ def build_parameters_from_signature(func: Callable) -> List[ParameterSchema]:
                 type=param_type,
                 description=f"Parameter: {param_name}",
                 required=param.default == inspect.Parameter.empty,
-                default=param.default
-                if param.default != inspect.Parameter.empty
-                else None,
+                default=(
+                    param.default if param.default != inspect.Parameter.empty else None
+                ),
             )
         )
 

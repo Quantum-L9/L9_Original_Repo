@@ -15,10 +15,11 @@ Architecture Note:
 - This facade simplifies common workflows
 """
 
-import structlog
 from pathlib import Path
 from typing import Any, Dict, Optional
 from uuid import uuid4
+
+import structlog
 
 log = structlog.get_logger(__name__)
 
@@ -94,11 +95,9 @@ async def run_quick_research(
     Example:
         answer = await run_quick_research("What is LangGraph?")
     """
-    from services.research.tools.perplexity_client import (
-        PerplexityClient,
-        PerplexityModel,
-        PerplexityRequest,
-    )
+    from services.research.tools.perplexity_client import (PerplexityClient,
+                                                           PerplexityModel,
+                                                           PerplexityRequest)
 
     client = PerplexityClient()
 
@@ -156,10 +155,9 @@ def generate_superprompt(
     sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
     try:
-        from generate_readme_superprompt import (
-            extract_subsystem_facts,
-            generate_superprompt as _generate_superprompt,
-        )
+        from generate_readme_superprompt import extract_subsystem_facts
+        from generate_readme_superprompt import \
+            generate_superprompt as _generate_superprompt
 
         repo_root = Path(__file__).parent.parent.parent
 

@@ -33,14 +33,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Callable, Awaitable
+from typing import Any, Awaitable, Callable, Dict, Optional
 
-from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+import structlog
 from src.config import settings
+
 from core.decorators import must_stay_async
+from core.observability.circuit_breaker import (CircuitBreaker,
+                                                CircuitBreakerConfig)
 
 logger = structlog.get_logger(__name__)
 

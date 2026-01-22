@@ -39,7 +39,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from datetime import datetime
@@ -47,7 +46,10 @@ from typing import Any, AsyncGenerator, Optional
 from uuid import UUID, uuid4
 
 import asyncpg
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+import structlog
+
+from core.singleton_auto_registry import (register_singleton,
+                                          register_singleton_closer)
 
 
 async def _init_json_codecs(conn: asyncpg.Connection) -> None:
@@ -66,20 +68,12 @@ _current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
 )
 
 from core.schemas import PacketEnvelope, SemanticHit
-from memory.governance_gate import (
-    build_scope_project_filter,
-    require_governance_context,
-)
-from memory.substrate_models import (
-    AgentMemoryEventRow,
-    EpisodicEventRow,
-    GraphCheckpointRow,
-    KnowledgeFactRow,
-    PacketStoreRow,
-    ReasoningTraceRow,
-    SemanticFactRow,
-    StructuredReasoningBlock,
-)
+from memory.governance_gate import (build_scope_project_filter,
+                                    require_governance_context)
+from memory.substrate_models import (AgentMemoryEventRow, EpisodicEventRow,
+                                     GraphCheckpointRow, KnowledgeFactRow,
+                                     PacketStoreRow, ReasoningTraceRow,
+                                     SemanticFactRow, StructuredReasoningBlock)
 
 logger = structlog.get_logger(__name__)
 

@@ -52,8 +52,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, Optional, Protocol, runtime_checkable
 from enum import Enum
+from typing import Any, Dict, Optional, Protocol, runtime_checkable
 
 
 class SpanKind(str, Enum):

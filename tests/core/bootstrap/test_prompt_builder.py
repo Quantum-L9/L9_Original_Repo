@@ -12,12 +12,10 @@ Version: 1.0.0
 
 from unittest.mock import MagicMock
 
-from core.agents.prompt_builder import (
-    build_kernel_system_prompt,
-    build_runtime_prompt,
-    get_safety_prefix,
-    SAFETY_PREFIX,
-)
+from core.agents.prompt_builder import (SAFETY_PREFIX,
+                                        build_kernel_system_prompt,
+                                        build_runtime_prompt,
+                                        get_safety_prefix)
 
 
 class MockKernelAgent:
@@ -76,7 +74,9 @@ class TestBuildKernelSystemPrompt:
         """Should include safety prefix when kernels are active."""
         agent = MockKernelAgent(
             kernels={
-                "private/kernels/00_system/02_identity_kernel.yaml": {"identity": "I am L, the CTO"}
+                "private/kernels/00_system/02_identity_kernel.yaml": {
+                    "identity": "I am L, the CTO"
+                }
             },
             kernel_state="ACTIVE",
         )
@@ -148,7 +148,9 @@ class TestBuildKernelSystemPrompt:
         """Should allow disabling safety prefix (for testing only)."""
         agent = MockKernelAgent(
             kernels={
-                "private/kernels/00_system/02_identity_kernel.yaml": {"identity": "Test identity"}
+                "private/kernels/00_system/02_identity_kernel.yaml": {
+                    "identity": "Test identity"
+                }
             },
             kernel_state="ACTIVE",
         )
@@ -161,8 +163,12 @@ class TestBuildKernelSystemPrompt:
         """Should allow disabling individual sections."""
         agent = MockKernelAgent(
             kernels={
-                "private/kernels/00_system/02_identity_kernel.yaml": {"identity": "Test identity"},
-                "private/kernels/00_system/08_safety_kernel.yaml": {"safety": "Test safety"},
+                "private/kernels/00_system/02_identity_kernel.yaml": {
+                    "identity": "Test identity"
+                },
+                "private/kernels/00_system/08_safety_kernel.yaml": {
+                    "safety": "Test safety"
+                },
             },
             kernel_state="ACTIVE",
         )
@@ -271,7 +277,8 @@ class TestKernelExtractionEdgeCases:
     def test_no_matching_kernel_file(self):
         """Should handle missing kernel files gracefully."""
         agent = MockKernelAgent(
-            kernels={"some_other_path/kernel.yaml": {"data": "value"}}, kernel_state="ACTIVE"
+            kernels={"some_other_path/kernel.yaml": {"data": "value"}},
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent)
 
@@ -315,9 +322,15 @@ class TestMultipleKernels:
         """Should handle multiple kernel files."""
         agent = MockKernelAgent(
             kernels={
-                "private/kernels/00_system/01_master_kernel.yaml": {"master": "Master rules"},
-                "private/kernels/00_system/02_identity_kernel.yaml": {"identity": "L identity"},
-                "private/kernels/00_system/08_safety_kernel.yaml": {"safety": "Safety rules"},
+                "private/kernels/00_system/01_master_kernel.yaml": {
+                    "master": "Master rules"
+                },
+                "private/kernels/00_system/02_identity_kernel.yaml": {
+                    "identity": "L identity"
+                },
+                "private/kernels/00_system/08_safety_kernel.yaml": {
+                    "safety": "Safety rules"
+                },
                 "private/kernels/00_system/07_execution_kernel.yaml": {
                     "execution": "Execution rules"
                 },

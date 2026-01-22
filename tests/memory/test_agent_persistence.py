@@ -7,11 +7,12 @@ Verifies checkpoint management and state serialization.
 """
 
 import os
-import pytest
 from uuid import UUID, uuid4
 
+import pytest
+
 from memory.agent_persistence import AgentPersistenceService
-from memory.substrate_service import init_service, close_service
+from memory.substrate_service import close_service, init_service
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
@@ -20,7 +21,9 @@ TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
     if not TEST_DB_URL:
-        pytest.skip("TEST_DATABASE_URL or DATABASE_URL not set; skipping agent persistence tests.")
+        pytest.skip(
+            "TEST_DATABASE_URL or DATABASE_URL not set; skipping agent persistence tests."
+        )
     service = await init_service(TEST_DB_URL)
     yield service
     await close_service()
@@ -99,7 +102,9 @@ class TestAgentPersistenceService:
         agent_persistence_service: AgentPersistenceService,
     ):
         """Test restore_checkpoint returns None for non-existent agent."""
-        restored = await agent_persistence_service.restore_checkpoint("nonexistent_agent")
+        restored = await agent_persistence_service.restore_checkpoint(
+            "nonexistent_agent"
+        )
 
         # Should return None if no checkpoint exists
         assert restored is None
@@ -120,7 +125,9 @@ class TestAgentPersistenceService:
         )
 
         # List checkpoints
-        checkpoints = await agent_persistence_service.list_checkpoints(agent_id, limit=10)
+        checkpoints = await agent_persistence_service.list_checkpoints(
+            agent_id, limit=10
+        )
 
         assert isinstance(checkpoints, list)
         # Note: Implementation may return empty list if not fully implemented
@@ -191,7 +198,9 @@ class TestAgentPersistenceService:
         )
 
         # Validate integrity
-        is_valid = await agent_persistence_service.validate_checkpoint_integrity(checkpoint_id)
+        is_valid = await agent_persistence_service.validate_checkpoint_integrity(
+            checkpoint_id
+        )
 
         assert is_valid is True
 
@@ -203,7 +212,9 @@ class TestAgentPersistenceService:
         """Test validate_checkpoint_integrity with non-existent checkpoint."""
         fake_id = uuid4()
 
-        is_valid = await agent_persistence_service.validate_checkpoint_integrity(fake_id)
+        is_valid = await agent_persistence_service.validate_checkpoint_integrity(
+            fake_id
+        )
 
         assert is_valid is False
 

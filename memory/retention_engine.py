@@ -36,14 +36,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Optional, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, List, Optional
+
+import structlog
 
 if TYPE_CHECKING:
     from memory.agent_persistence import AgentPersistenceService
     from memory.substrate_repository import SubstrateRepository
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

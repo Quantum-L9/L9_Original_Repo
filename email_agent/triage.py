@@ -26,14 +26,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import Any, Dict, List
+
 import structlog
-from typing import Dict, Any, List
 
 logger = structlog.get_logger(__name__)
 
 try:
-    from email_agent.gmail_client import GmailClient
     from openai import OpenAI
+
+    from email_agent.gmail_client import GmailClient
 
     GMAIL_AVAILABLE = True
 except ImportError:

@@ -42,11 +42,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
-import os
-import json
 import argparse
+import json
+import os
+import sys
 from pathlib import Path
+
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -72,17 +73,18 @@ NEO4J_URL = os.getenv("NEO4J_URL", LOCAL_NEO4J_URL if USE_LOCAL else VPS_NEO4J_U
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "FVmgaD1diPcz41zRbYLLP0UzyGvAi4E")
 
+
 def query_neo4j(cypher: str) -> dict:
     """Execute a Cypher query against Neo4j."""
-    import urllib.request
     import base64
-    
+    import urllib.request
+
     url = f"{NEO4J_URL}/db/neo4j/tx/commit"
     data = json.dumps({"statements": [{"statement": cypher}]}).encode()
-    
+
     # Create auth header
     credentials = base64.b64encode(f"{NEO4J_USER}:{NEO4J_PASSWORD}".encode()).decode()
-    
+
     req = urllib.request.Request(
         url,
         data=data,
@@ -91,33 +93,34 @@ def query_neo4j(cypher: str) -> dict:
             "Authorization": f"Basic {credentials}",
         },
     )
-    
+
     try:
         with urllib.request.urlopen(req, timeout=30) as response:
             return json.loads(response.read().decode())
     except urllib.error.URLError as e:
         return {"error": str(e), "errors": [{"message": str(e)}]}
 
+
 def format_results(result: dict) -> str:
     """Format Neo4j results for display."""
     if "errors" in result and result["errors"]:
         return f"❌ Error: {result['errors'][0].get('message', 'Unknown error')}"
-    
+
     if "results" not in result or not result["results"]:
         return "No results"
-    
+
     data = result["results"][0]
     columns = data.get("columns", [])
     rows = data.get("data", [])
-    
+
     if not rows:
         return "No results"
-    
+
     # Format as table
     output = []
     output.append(" | ".join(columns))
     output.append("-" * (len(" | ".join(columns)) + 10))
-    
+
     for row_data in rows[:50]:  # Limit to 50 rows
         row = row_data.get("row", [])
         formatted_row = []
@@ -130,16 +133,15 @@ def format_results(result: dict) -> str:
                 cell = str(cell)[:50]
             formatted_row.append(cell)
         output.append(" | ".join(formatted_row))
-    
+
     if len(rows) > 50:
         output.append(f"... ({len(rows) - 50} more rows)")
-    
+
     return "\n".join(output)
 
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="Query L9's Neo4j graph database"
-    )
+    parser = argparse.ArgumentParser(description="Query L9's Neo4j graph database")
     parser.add_argument(
         "query",
         nargs="?",
@@ -186,7 +188,8 @@ def main():
         help="Output raw JSON",
     )
     parser.add_argument(
-        "--local", "-l",
+        "--local",
+        "-l",
         action="store_true",
         help="Use local Docker Neo4j (default: VPS via SSH tunnel)",
     )
@@ -195,12 +198,14 @@ def main():
         action="store_true",
         help="Use VPS Neo4j (requires SSH tunnel: ssh -L 7474:127.0.0.1:7474 root@157.180.73.53)",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Build query based on args
     if args.count_nodes:
-        cypher = "MATCH (n) RETURN labels(n) as type, count(*) as count ORDER BY count DESC"
+        cypher = (
+            "MATCH (n) RETURN labels(n) as type, count(*) as count ORDER BY count DESC"
+        )
     elif args.find_class:
         cypher = f"MATCH (c:RepoClass) WHERE c.name CONTAINS '{args.find_class}' RETURN c.name, c.file, c.lines LIMIT 20"
     elif args.find_file:
@@ -218,17 +223,20 @@ def main():
     else:
         parser.print_help()
         return 1
-    
+
     # Execute query
     result = query_neo4j(cypher)
-    
+
     if args.raw:
         # Raw JSON output to stdout for programmatic use
         sys.stdout.write(json.dumps(result, indent=2, default=str) + "\n")
     else:
-        logger.info("neo4j_query_result", query=cypher[:100], result=format_results(result))
-    
+        logger.info(
+            "neo4j_query_result", query=cypher[:100], result=format_results(result)
+        )
+
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -242,7 +250,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["agent-execution", "api", "auth", "cli", "filesystem", "intelligence", "logging", "messaging", "serialization"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "auth",
+        "cli",
+        "filesystem",
+        "intelligence",
+        "logging",
+        "messaging",
+        "serialization",
+    ],
     "keywords": ["cursor", "format", "neo4j", "query", "results"],
     "business_value": "File locations Class definitions Import relationships Tool registrations python scripts/cursor_neo4j",
     "last_modified": "2026-01-14T12:10:12Z",

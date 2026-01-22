@@ -31,14 +31,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Any, Optional, Callable
-from dataclasses import dataclass
 import json
 import logging
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional
 
 from world_model.interfaces import Entity, Relation
 from world_model.state import WorldModelState
-
 
 logger = logging.getLogger(__name__)
 

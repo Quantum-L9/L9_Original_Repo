@@ -28,16 +28,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Optional
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import TYPE_CHECKING, Optional
 
-import yaml
 import structlog
+import yaml
 
 if TYPE_CHECKING:
-    from .phase_2_instantiate import BootstrapInstanceData
     from memory.substrate_service import MemorySubstrateService
+
+    from .phase_2_instantiate import BootstrapInstanceData
 
 logger = structlog.get_logger(__name__)
 

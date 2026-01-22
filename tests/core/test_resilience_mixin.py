@@ -9,18 +9,16 @@ Tests for:
 - Dead letter queue on failure
 """
 
-import pytest
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
-from core.resilience.mixin import ResilienceMixin
-from core.observability.circuit_breaker import (
-    CircuitBreaker,
-    CircuitBreakerConfig,
-    CircuitOpenError,
-)
-from memory.substrate_dag_wrapper import RetryPolicy
+import pytest
 
+from core.observability.circuit_breaker import (CircuitBreaker,
+                                                CircuitBreakerConfig,
+                                                CircuitOpenError)
+from core.resilience.mixin import ResilienceMixin
+from memory.substrate_dag_wrapper import RetryPolicy
 
 # =============================================================================
 # Test Service Implementation

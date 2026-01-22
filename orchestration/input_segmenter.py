@@ -28,8 +28,8 @@ Harvested: 2026-01-19 from tokenizer/core/tokenizer/tokenizer.py
 from __future__ import annotations
 
 import re
-from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 import structlog
 
@@ -202,9 +202,9 @@ class InputSegmenter:
             "Segmented input",
             segment_count=result.segment_count,
             was_multi_part=result.was_multi_part,
-            input_preview=input_text[:50] + "..."
-            if len(input_text) > 50
-            else input_text,
+            input_preview=(
+                input_text[:50] + "..." if len(input_text) > 50 else input_text
+            ),
         )
 
         return result

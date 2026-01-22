@@ -22,20 +22,15 @@ Integration:
 - WorldModelService: DB-backed operations (v1.0.0+)
 """
 
-# Engine-based node (original)
-from world_model.nodes.update_world_model_node import (
-    update_world_model_node,
-    WorldModelNodeState,
-)
-
 # Service-based nodes (v1.0.0+ with DB persistence)
-from world_model.nodes.service_nodes import (
-    world_model_service_update_node,
-    world_model_snapshot_node,
-    world_model_query_node,
-    WorldModelGraphState,
-    create_insights_from_facts,
-)
+from world_model.nodes.service_nodes import (WorldModelGraphState,
+                                             create_insights_from_facts,
+                                             world_model_query_node,
+                                             world_model_service_update_node,
+                                             world_model_snapshot_node)
+# Engine-based node (original)
+from world_model.nodes.update_world_model_node import (WorldModelNodeState,
+                                                       update_world_model_node)
 
 __all__ = [
     # Engine-based

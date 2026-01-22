@@ -30,14 +30,15 @@ __dora_meta__ = {
 
 import statistics
 import time
-from typing import List, Optional, Dict, Any, TYPE_CHECKING
 from dataclasses import dataclass
 from datetime import datetime
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -208,12 +209,12 @@ class Evaluator:
             max_latency_ms=max(latencies) if latencies else 0,
             min_latency_ms=min(latencies) if latencies else 0,
             p95_latency_ms=p95_latency,
-            tool_accuracy=statistics.mean(tool_accuracy_scores)
-            if tool_accuracy_scores
-            else 1.0,
-            llm_as_judge_score=statistics.mean(llm_judge_scores)
-            if llm_judge_scores
-            else 0,
+            tool_accuracy=(
+                statistics.mean(tool_accuracy_scores) if tool_accuracy_scores else 1.0
+            ),
+            llm_as_judge_score=(
+                statistics.mean(llm_judge_scores) if llm_judge_scores else 0
+            ),
             error_count=errors,
         )
 

@@ -11,15 +11,12 @@ Tests:
 """
 
 import asyncio
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
-from core.schemas import (
-    PacketEnvelope,
-    PacketEnvelopeIn,
-    PacketWriteResult,
-)
+import pytest
+
+from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_models import EnrichmentResult, KnowledgeFact
 
 # =============================================================================
@@ -103,7 +100,10 @@ class TestCoreWritesEnrichmentDisabled:
         assert result.enrichment_status == "disabled"
         assert result.enrichment_facts_count == 0
         assert result.write_tier_used == "core_only"
-        assert "packet_store" in result.written_tables or mock_repository.insert_packet.called
+        assert (
+            "packet_store" in result.written_tables
+            or mock_repository.insert_packet.called
+        )
 
     @pytest.mark.asyncio
     async def test_enrichment_disabled_returns_disabled_status(
@@ -207,7 +207,10 @@ class TestEnrichmentFailureNonBlocking:
         assert result.enrichment_error == "DAG exploded"
         assert result.write_tier_used == "core_only"
         # Core tables still written
-        assert mock_repository.insert_packet.called or "packet_store" in result.written_tables
+        assert (
+            mock_repository.insert_packet.called
+            or "packet_store" in result.written_tables
+        )
 
     @pytest.mark.asyncio
     async def test_enrichment_failure_logged_with_error(

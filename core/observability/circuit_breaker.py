@@ -59,9 +59,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from typing import List, Tuple, Optional, TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum
+from typing import TYPE_CHECKING, List, Optional, Tuple
+
 import structlog
 
 if TYPE_CHECKING:

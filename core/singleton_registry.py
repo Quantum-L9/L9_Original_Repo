@@ -79,11 +79,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
-from typing import Any, Callable, Optional, Dict, List
-from enum import Enum
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -558,7 +559,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Redis Client (async getter)
     try:
-        from runtime.redis_client import get_redis_client, close_redis_client
+        from runtime.redis_client import close_redis_client, get_redis_client
 
         # Note: get_redis_client is async, but we register it directly
         # Callers should use registry.get_async() for async getters
@@ -576,7 +577,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Neo4j Graph Client (async getter)
     try:
-        from memory.graph_client import get_neo4j_client, close_neo4j_client
+        from memory.graph_client import close_neo4j_client, get_neo4j_client
 
         # Note: get_neo4j_client is async, but we register it directly
         # Callers should use registry.get_async() for async getters
@@ -594,7 +595,8 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Memory Substrate Repository
     try:
-        from memory.substrate_repository import get_repository, close_repository
+        from memory.substrate_repository import (close_repository,
+                                                 get_repository)
 
         registry.register(
             name="memory_substrate_repository",
@@ -611,7 +613,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Memory Substrate Service (async getter)
     try:
-        from memory.substrate_service import get_service, close_service
+        from memory.substrate_service import close_service, get_service
 
         # Note: get_service is async, but we register it directly
         # Callers should use registry.get_async() for async getters
@@ -797,10 +799,8 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # World Model Service
     try:
-        from world_model.service import (
-            get_world_model_service,
-            close_world_model_service,
-        )
+        from world_model.service import (close_world_model_service,
+                                         get_world_model_service)
 
         registry.register(
             name="world_model_service",
@@ -817,7 +817,8 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # World Model Engine
     try:
-        from world_model.engine import get_world_model_engine, reset_world_model_engine
+        from world_model.engine import (get_world_model_engine,
+                                        reset_world_model_engine)
 
         def close_world_model_engine():
             reset_world_model_engine()
@@ -841,7 +842,8 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Memory Client
     try:
-        from clients.memory_client import get_memory_client, close_memory_client
+        from clients.memory_client import (close_memory_client,
+                                           get_memory_client)
 
         registry.register(
             name="memory_client",
@@ -857,10 +859,8 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # World Model Client
     try:
-        from clients.world_model_client import (
-            get_world_model_client,
-            close_world_model_client,
-        )
+        from clients.world_model_client import (close_world_model_client,
+                                                get_world_model_client)
 
         registry.register(
             name="world_model_client",
@@ -969,7 +969,8 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Research Graph Runtime
     try:
-        from services.research.graph_runtime import get_runtime, shutdown_runtime
+        from services.research.graph_runtime import (get_runtime,
+                                                     shutdown_runtime)
 
         registry.register(
             name="research_graph_runtime",
@@ -986,10 +987,8 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Research Settings
     try:
-        from config.research_settings import (
-            get_research_settings,
-            reset_research_settings,
-        )
+        from config.research_settings import (get_research_settings,
+                                              reset_research_settings)
 
         def close_research_settings():
             reset_research_settings()
@@ -1013,9 +1012,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
     # Cursor Memory Kernel
     try:
         from agents.cursor.cursor_memory_kernel import (
-            create_cursor_memory_kernel,
-            get_active_kernel,
-        )
+            create_cursor_memory_kernel, get_active_kernel)
 
         def get_cursor_memory_kernel():
             # Try to get active kernel first, fallback to creating new one

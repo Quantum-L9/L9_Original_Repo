@@ -40,18 +40,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from pathlib import Path
 from typing import Any
 
+import structlog
 import yaml
 
-from core.governance.schemas import (
-    Policy,
-    PolicyEffect,
-    Condition,
-    ConditionOperator,
-)
+from core.governance.schemas import (Condition, ConditionOperator, Policy,
+                                     PolicyEffect)
 
 logger = structlog.get_logger(__name__)
 

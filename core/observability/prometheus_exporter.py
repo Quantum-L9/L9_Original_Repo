@@ -25,14 +25,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import Any, Dict, Optional
+
 import structlog
-from typing import Optional, Dict, Any
 
 logger = structlog.get_logger(__name__)
 
 # Try to import prometheus_client
 try:
-    from prometheus_client import Counter, Histogram, Gauge, Summary
+    from prometheus_client import Counter, Gauge, Histogram, Summary
 
     PROMETHEUS_AVAILABLE = True
 except ImportError:

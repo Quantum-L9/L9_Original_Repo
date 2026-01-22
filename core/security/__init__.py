@@ -9,21 +9,11 @@ Provides security primitives including:
 Version: 1.0.0
 """
 
-from .permission_graph import (
-    PermissionGraph,
-    grant_role,
-    revoke_role,
-    grant_permission,
-    can_access,
-    get_user_permissions,
-)
-from .path_safety import (
-    PathSafetyError,
-    resolve_base_dir,
-    safe_resolve_path,
-    safe_resolve_path_async,
-    validate_filename,
-)
+from .path_safety import (PathSafetyError, resolve_base_dir, safe_resolve_path,
+                          safe_resolve_path_async, validate_filename)
+from .permission_graph import (PermissionGraph, can_access,
+                               get_user_permissions, grant_permission,
+                               grant_role, revoke_role)
 
 __all__ = [
     "PermissionGraph",

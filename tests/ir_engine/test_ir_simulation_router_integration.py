@@ -33,23 +33,11 @@ from uuid import uuid4
 
 import pytest
 
-from ir_engine.ir_schema import (
-    IRGraph,
-    IRMetadata,
-    IRStatus,
-    IntentNode,
-    IntentType,
-    ConstraintNode,
-    ConstraintType,
-    ActionNode,
-    ActionType,
-)
-from ir_engine.simulation_router import (
-    SimulationRouter,
-    SimulationRequest,
-    SimulationResult,
-    RankedCandidate,
-)
+from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
+                                 ConstraintType, IntentNode, IntentType,
+                                 IRGraph, IRMetadata, IRStatus)
+from ir_engine.simulation_router import (RankedCandidate, SimulationRequest,
+                                         SimulationResult, SimulationRouter)
 
 
 class TestSimulationRequestCreation:

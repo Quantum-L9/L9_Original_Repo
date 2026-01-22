@@ -15,8 +15,9 @@ Created: 2026-01-05
 GMP: GMP-UKG-4 (Tool Pattern Extraction)
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # =============================================================================
 # Test ToolPatternExtractor Class
@@ -92,15 +93,30 @@ def test_extract_patterns_with_data():
     extractor = ToolPatternExtractor()
 
     audit_data = [
-        {"tool_name": "memory_read", "success": True, "duration_ms": 50, "cost_usd": 0.0},
-        {"tool_name": "memory_read", "success": True, "duration_ms": 60, "cost_usd": 0.0},
+        {
+            "tool_name": "memory_read",
+            "success": True,
+            "duration_ms": 50,
+            "cost_usd": 0.0,
+        },
+        {
+            "tool_name": "memory_read",
+            "success": True,
+            "duration_ms": 60,
+            "cost_usd": 0.0,
+        },
         {
             "tool_name": "web_search",
             "success": True,
             "duration_ms": 1200,
             "cost_usd": 0.005,
         },  # $0.005 per search
-        {"tool_name": "web_search", "success": False, "duration_ms": 500, "cost_usd": 0.002},
+        {
+            "tool_name": "web_search",
+            "success": False,
+            "duration_ms": 500,
+            "cost_usd": 0.002,
+        },
         {
             "tool_name": "llm_chat",
             "success": True,
@@ -280,13 +296,10 @@ def test_get_status():
 
 def test_get_tool_pattern_extractor():
     """Test getting global instance."""
-    from core.integration.tool_pattern_extractor import (
-        get_tool_pattern_extractor,
-        ToolPatternExtractor,
-    )
-
     # Clear any existing instance
     import core.integration.tool_pattern_extractor as module
+    from core.integration.tool_pattern_extractor import (
+        ToolPatternExtractor, get_tool_pattern_extractor)
 
     module._extractor = None
 

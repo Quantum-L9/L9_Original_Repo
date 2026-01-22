@@ -9,13 +9,10 @@ Tests:
 
 import pytest
 
-from memory.warming_models import (
-    GapSeverity,
-    PredictiveCacheConfig,
-    MemoryContext,
-)
 from memory.gap_detector import GapDetector
 from memory.predictive_cache import PredictiveCache
+from memory.warming_models import (GapSeverity, MemoryContext,
+                                   PredictiveCacheConfig)
 from memory.warming_service import create_warming_service
 
 # =============================================================================

@@ -15,8 +15,9 @@ Test categories:
 Version: 1.0.0 (GMP-11)
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # ============================================================================
 # Test: Structured Command Parsing (T1)
@@ -255,13 +256,8 @@ class TestConfirmationFlow:
     async def test_low_risk_no_confirmation(self):
         """Low-risk commands should not require confirmation."""
         from core.commands.intent_extractor import confirm_intent
-        from core.commands.schemas import (
-            Command,
-            CommandType,
-            IntentModel,
-            IntentType,
-            RiskLevel,
-        )
+        from core.commands.schemas import (Command, CommandType, IntentModel,
+                                           IntentType, RiskLevel)
 
         low_risk_command = Command(
             type=CommandType.ANALYZE,
@@ -287,13 +283,8 @@ class TestConfirmationFlow:
     async def test_high_risk_requires_confirmation(self):
         """High-risk commands should require confirmation."""
         from core.commands.intent_extractor import confirm_intent
-        from core.commands.schemas import (
-            Command,
-            CommandType,
-            IntentModel,
-            IntentType,
-            RiskLevel,
-        )
+        from core.commands.schemas import (Command, CommandType, IntentModel,
+                                           IntentType, RiskLevel)
 
         high_risk_command = Command(
             type=CommandType.PROPOSE_GMP,
@@ -435,7 +426,9 @@ class TestAuditLogger:
 
         # Mock substrate that works without memory.substrate_models import
         mock_substrate = AsyncMock()
-        mock_substrate.write_packet = AsyncMock(return_value=MagicMock(packet_id="pkt-123"))
+        mock_substrate.write_packet = AsyncMock(
+            return_value=MagicMock(packet_id="pkt-123")
+        )
 
         # Patch the import within the audit_log module
         with patch("core.compliance.audit_log.logger") as mock_logger:
@@ -484,8 +477,8 @@ class TestEndToEndFlow:
     @pytest.mark.asyncio
     async def test_full_analyze_flow(self):
         """Full flow: parse -> execute -> result for analyze command."""
-        from core.commands.parser import parse_command
         from core.commands.executor import execute_command
+        from core.commands.parser import parse_command
         from core.commands.schemas import Command
 
         # Parse
@@ -506,8 +499,8 @@ class TestEndToEndFlow:
     @pytest.mark.asyncio
     async def test_full_help_flow(self):
         """Full flow: parse -> execute -> result for help command."""
-        from core.commands.parser import parse_command
         from core.commands.executor import execute_command
+        from core.commands.parser import parse_command
         from core.commands.schemas import Command
 
         # Parse
@@ -527,8 +520,8 @@ class TestEndToEndFlow:
     @pytest.mark.asyncio
     async def test_nlp_to_intent_flow(self):
         """Full flow: NLP text -> intent extraction."""
-        from core.commands.parser import parse_command
         from core.commands.intent_extractor import extract_intent
+        from core.commands.parser import parse_command
         from core.commands.schemas import NLPPrompt
 
         # Parse NLP

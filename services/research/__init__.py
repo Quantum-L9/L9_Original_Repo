@@ -12,37 +12,22 @@ Provides:
 - /research API endpoint
 """
 
-from services.research.graph_state import (
-    ResearchGraphState,
-    ResearchStep,
-    Evidence,
-    create_initial_state,
-)
-from services.research.memory_adapter import (
-    ResearchMemoryAdapter,
-    get_memory_adapter,
-    init_memory_adapter,
-)
-from services.research.research_graph import (
-    build_research_graph,
-    run_research,
-)
-from services.research.graph_runtime import (
-    ResearchGraphRuntime,
-    get_runtime,
-    init_runtime,
-    shutdown_runtime,
-)
+from services.research.graph_persistence import (FindingType,
+                                                 GraphPersistenceConfig,
+                                                 ResearchFinding,
+                                                 ResearchGraphPersistence,
+                                                 create_graph_persistence,
+                                                 get_graph_persistence,
+                                                 init_graph_persistence)
+from services.research.graph_runtime import (ResearchGraphRuntime, get_runtime,
+                                             init_runtime, shutdown_runtime)
+from services.research.graph_state import (Evidence, ResearchGraphState,
+                                           ResearchStep, create_initial_state)
+from services.research.memory_adapter import (ResearchMemoryAdapter,
+                                              get_memory_adapter,
+                                              init_memory_adapter)
 from services.research.research_api import router as research_router
-from services.research.graph_persistence import (
-    ResearchGraphPersistence,
-    ResearchFinding,
-    FindingType,
-    GraphPersistenceConfig,
-    create_graph_persistence,
-    get_graph_persistence,
-    init_graph_persistence,
-)
+from services.research.research_graph import build_research_graph, run_research
 
 __all__ = [
     # State

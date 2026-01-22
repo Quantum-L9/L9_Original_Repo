@@ -39,10 +39,11 @@ import re
 import subprocess
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
+
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -265,9 +266,11 @@ def run_ruff(files: list[Path]) -> list[DeadCodeFinding]:
                     DeadCodeFinding(
                         file=item.get("filename", ""),
                         line=item.get("location", {}).get("row", 0),
-                        symbol=item.get("message", "").split("'")[1]
-                        if "'" in item.get("message", "")
-                        else "",
+                        symbol=(
+                            item.get("message", "").split("'")[1]
+                            if "'" in item.get("message", "")
+                            else ""
+                        ),
                         symbol_type=symbol_type,
                         confidence=0.98 if symbol_type == "import" else 0.95,
                         source="ruff",
@@ -547,9 +550,9 @@ def find_unwired_services(repo_root: Path) -> list[DeadCodeFinding]:
 
     # Service class patterns
     service_suffixes = ("Service", "Executor", "Pipeline", "Handler", "Manager")
-    service_classes: dict[
-        str, tuple[str, int, str]
-    ] = {}  # class_name -> (file, line, parent_class)
+    service_classes: dict[str, tuple[str, int, str]] = (
+        {}
+    )  # class_name -> (file, line, parent_class)
 
     # Enhanced pattern to capture parent class
     class_pattern = re.compile(
@@ -1390,9 +1393,9 @@ def find_unwired_event_handlers(repo_root: Path) -> list[DeadCodeFinding]:
     ]
 
     # Find all event handler functions
-    handlers: dict[
-        str, tuple[str, int, str, str]
-    ] = {}  # func_name -> (file, line, event_type, content)
+    handlers: dict[str, tuple[str, int, str, str]] = (
+        {}
+    )  # func_name -> (file, line, event_type, content)
 
     python_files = get_python_files(repo_root)
     for filepath in python_files:
@@ -1920,9 +1923,9 @@ def generate_sarif_output(
                     },
                     "defaultConfiguration": {"level": "warning"},
                     "properties": {
-                        "category": "wiring"
-                        if finding.source == "wiring_scan"
-                        else "dead_code"
+                        "category": (
+                            "wiring" if finding.source == "wiring_scan" else "dead_code"
+                        )
                     },
                 }
             )

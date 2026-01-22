@@ -54,7 +54,8 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, Any, Tuple
+from typing import Any, Dict, Tuple
+
 import structlog
 
 logger = structlog.get_logger(__name__)

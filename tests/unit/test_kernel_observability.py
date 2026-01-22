@@ -8,16 +8,12 @@ Verifies:
 4. Spans capture correct attributes
 """
 
-import pytest
 from datetime import datetime
 
-from core.observability.models import (
-    SpanKind,
-    SpanStatus,
-    KernelLifecycleSpan,
-    TraceContext,
-    Span,
-)
+import pytest
+
+from core.observability.models import (KernelLifecycleSpan, Span, SpanKind,
+                                       SpanStatus, TraceContext)
 
 # =============================================================================
 # SpanKind Tests

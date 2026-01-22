@@ -35,11 +35,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-import structlog
-import httpx
-from pathlib import Path
-from typing import Dict, Any, Optional, List
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import httpx
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -384,6 +385,7 @@ async def get_file_info(file_id: str) -> Dict[str, Any]:
         raise ValueError("SLACK_BOT_TOKEN not configured")
 
     import httpx
+
     from api.slack_client import SlackAPIClient
 
     # Create async client for this call

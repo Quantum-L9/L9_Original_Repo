@@ -30,10 +30,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from fastapi import FastAPI, APIRouter
-from typing import Optional, Dict, List
 from dataclasses import dataclass
+from typing import Dict, List, Optional
+
 import structlog
+from fastapi import APIRouter, FastAPI
 
 logger = structlog.get_logger(__name__)
 

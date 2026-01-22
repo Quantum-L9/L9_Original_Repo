@@ -26,9 +26,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import yaml
 from pathlib import Path
 from typing import Dict
+
+import yaml
+
 from .base_extractor import BaseExtractor
 
 

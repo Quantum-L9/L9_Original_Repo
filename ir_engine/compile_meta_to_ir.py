@@ -45,9 +45,7 @@ from typing import Any, Dict, List, Optional, Set
 import structlog
 import yaml
 
-from ir_engine.meta_ir import (
-    MetaContract,
-)
+from ir_engine.meta_ir import MetaContract
 
 logger = structlog.get_logger(__name__)
 
@@ -391,9 +389,11 @@ class MetaToIRCompiler:
             startup_phase=rw.startup_phase,
             depends_on=list(rw.depends_on),
             blocks_startup_on_failure=rw.blocks_startup_on_failure,
-            router_include=f"{module_id}_router"
-            if contract.external_surface.exposes_http_endpoint
-            else None,
+            router_include=(
+                f"{module_id}_router"
+                if contract.external_surface.exposes_http_endpoint
+                else None
+            ),
             lifespan_init=f"init_{module_id}" if rw.startup_phase == "early" else None,
         )
 

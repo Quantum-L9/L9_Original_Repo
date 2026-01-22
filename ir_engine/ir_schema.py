@@ -43,12 +43,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
+import structlog
 from pydantic import BaseModel, Field
 
 logger = structlog.get_logger(__name__)
