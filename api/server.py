@@ -1493,22 +1493,33 @@ async def lifespan(app: FastAPI):
     # Modern Slack routing uses AgentExecutorService (legacy router removed)
     agent_executor = getattr(app.state, "agent_executor", None)
 
+    # Allow minimal deployment without agent executor (L9_MINIMAL_MODE=true)
+    minimal_mode = os.environ.get("L9_MINIMAL_MODE", "false").lower() == "true"
+
     if agent_executor is None:
-        logger.critical(
-            "╔═══════════════════════════════════════════════════════════════╗\n"
-            "║  CRITICAL: Agent Executor Initialization Failed              ║\n"
-            "║                                                               ║\n"
-            "║  Slack routing requires AgentExecutorService to be initialized. ║\n"
-            "║                                                               ║\n"
-            "║  Options:                                                     ║\n"
-            "║  1. Fix agent_executor initialization (check logs above)     ║\n"
-            "║  2. Install missing dependencies: pip install -r requirements.txt ║\n"
-            "╚═══════════════════════════════════════════════════════════════╝"
-        )
-        raise RuntimeError(
-            "Agent Executor required for Slack routing but failed to initialize. "
-            "Fix initialization or check dependencies."
-        )
+        if minimal_mode:
+            logger.warning(
+                "Agent Executor not initialized (L9_MINIMAL_MODE=true). "
+                "Slack routing and agent features will be disabled."
+            )
+        else:
+            logger.critical(
+                "╔═══════════════════════════════════════════════════════════════╗\n"
+                "║  CRITICAL: Agent Executor Initialization Failed              ║\n"
+                "║                                                               ║\n"
+                "║  Slack routing requires AgentExecutorService to be initialized. ║\n"
+                "║                                                               ║\n"
+                "║  Options:                                                     ║\n"
+                "║  1. Fix agent_executor initialization (check logs above)     ║\n"
+                "║  2. Install missing dependencies: pip install -r requirements.txt ║\n"
+                "║  3. Set L9_MINIMAL_MODE=true to skip this check              ║\n"
+                "╚═══════════════════════════════════════════════════════════════╝"
+            )
+            raise RuntimeError(
+                "Agent Executor required for Slack routing but failed to initialize. "
+                "Fix initialization or check dependencies. "
+                "Set L9_MINIMAL_MODE=true to start in minimal mode."
+            )
     else:
         logger.info(
             "✓ Health Check PASSED: Agent Executor is available for Slack routing"
