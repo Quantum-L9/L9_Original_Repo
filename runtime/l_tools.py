@@ -41,6 +41,7 @@ from datetime import datetime
 
 from runtime.long_plan_tool import long_plan_execute_tool, long_plan_simulate_tool
 from core.decorators import must_stay_async
+from runtime.tool_registry import register_tool
 
 # Lazy import for symbolic tools (requires sympy)
 symbolic_compute = None
@@ -1661,6 +1662,7 @@ async def world_model_list_updates(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="slack", priority=10, description="Send a message to a Slack channel or DM")
 async def slack_send(
     channel: str,
     text: str,
