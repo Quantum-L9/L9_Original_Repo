@@ -58,6 +58,7 @@ from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from runtime.tool_registry import register_tool
 
 logger = structlog.get_logger(__name__)
 
