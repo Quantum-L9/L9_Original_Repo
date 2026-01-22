@@ -100,10 +100,15 @@ VALID_ACCOUNTS = list(ACCOUNTS.keys())
 # =============================================================================
 
 # Base data root - respect L9_DATA_ROOT env var for containers
-_data_root = os.environ.get("L9_DATA_ROOT", os.path.expanduser("~/.l9"))
-# Fallback to /app/data if home expansion fails (container without proper HOME)
-if _data_root.startswith("/." ) or _data_root == "/.l9":
+# Use /app/data in container environments (when /app exists), else use ~/.l9
+if os.environ.get("L9_DATA_ROOT"):
+    _data_root = os.environ["L9_DATA_ROOT"]
+elif os.path.isdir("/app/data"):
+    # Running in container - use container-safe path
     _data_root = "/app/data/.l9"
+else:
+    # Running locally - use home directory
+    _data_root = os.path.expanduser("~/.l9")
 GMAIL_DATA_ROOT = Path(_data_root) / "gmail"
 
 # File paths
