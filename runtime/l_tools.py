@@ -108,6 +108,7 @@ logger = structlog.get_logger(__name__)
 # MEMORY SUBSTRATE TOOLS
 
 
+@register_tool(category="memory", priority=10, description="memory_search tool")
 async def memory_search(
     query: str,
     segment: str = "all",
@@ -156,6 +157,7 @@ async def memory_search(
         return {"error": str(e), "hits": []}
 
 
+@register_tool(category="memory", priority=10, description="memory_write tool")
 async def memory_write(
     packet: dict[str, Any],
     segment: str,
@@ -205,6 +207,7 @@ async def memory_write(
 # MEMORY SUBSTRATE DIRECT ACCESS (Batch 1 - GMP-31)
 
 
+@register_tool(category="memory", priority=10, description="memory_get_packet tool")
 async def memory_get_packet(
     packet_id: str,
     **kwargs: Any,
@@ -239,6 +242,7 @@ async def memory_get_packet(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_query_packets tool")
 async def memory_query_packets(
     filters: dict[str, Any],
     limit: int = 50,
@@ -273,6 +277,7 @@ async def memory_query_packets(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_search_by_thread tool")
 async def memory_search_by_thread(
     thread_id: str,
     limit: int = 50,
@@ -310,6 +315,7 @@ async def memory_search_by_thread(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_search_by_type tool")
 async def memory_search_by_type(
     packet_type: str,
     limit: int = 50,
@@ -347,6 +353,7 @@ async def memory_search_by_type(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_get_events tool")
 async def memory_get_events(
     event_type: Optional[str] = None,
     limit: int = 50,
@@ -380,6 +387,7 @@ async def memory_get_events(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_get_reasoning_traces tool")
 async def memory_get_reasoning_traces(
     task_id: Optional[str] = None,
     limit: int = 20,
@@ -413,6 +421,7 @@ async def memory_get_reasoning_traces(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_get_facts tool")
 async def memory_get_facts(
     subject: str,
     limit: int = 20,
@@ -446,6 +455,7 @@ async def memory_get_facts(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_write_insight tool")
 async def memory_write_insight(
     insight: str,
     category: str,
@@ -483,6 +493,7 @@ async def memory_write_insight(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_embed_text tool")
 async def memory_embed_text(
     text: str,
     **kwargs: Any,
@@ -522,6 +533,7 @@ async def memory_embed_text(
 # MEMORY CLIENT API (Batch 2 - GMP-31)
 
 
+@register_tool(category="memory", priority=10, description="memory_hybrid_search tool")
 async def memory_hybrid_search(
     query: str,
     top_k: int = 10,
@@ -566,6 +578,7 @@ async def memory_hybrid_search(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_fetch_lineage tool")
 async def memory_fetch_lineage(
     packet_id: str,
     direction: str = "ancestors",
@@ -608,6 +621,7 @@ async def memory_fetch_lineage(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_fetch_thread tool")
 async def memory_fetch_thread(
     thread_id: str,
     limit: int = 100,
@@ -641,6 +655,7 @@ async def memory_fetch_thread(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_fetch_facts_api tool")
 async def memory_fetch_facts_api(
     subject: Optional[str] = None,
     predicate: Optional[str] = None,
@@ -681,6 +696,7 @@ async def memory_fetch_facts_api(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_fetch_insights tool")
 async def memory_fetch_insights(
     packet_id: Optional[str] = None,
     insight_type: Optional[str] = None,
@@ -720,6 +736,7 @@ async def memory_fetch_insights(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_gc_stats tool")
 async def memory_gc_stats(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -749,6 +766,7 @@ async def memory_gc_stats(
 # GOVERNANCE TOOLS (High-Risk: Requires Igor Approval)
 
 
+@register_tool(category="orchestration", priority=10, description="gmp_run tool")
 async def gmp_run(
     gmp_id: str,
     params: Optional[dict[str, Any]] = None,
@@ -803,6 +821,7 @@ async def gmp_run(
 # VERSION CONTROL TOOLS (High-Risk: Requires Igor Approval)
 
 
+@register_tool(category="git", priority=10, description="git_commit tool")
 async def git_commit(
     message: str,
     files: Optional[list[str]] = None,
@@ -857,6 +876,7 @@ async def git_commit(
 # EXECUTION TOOLS (High-Risk: Requires Igor Approval)
 
 
+@register_tool(category="automation", priority=10, description="mac_agent_exec_task tool")
 async def mac_agent_exec_task(
     command: str,
     timeout: int = 30,
@@ -898,6 +918,7 @@ async def mac_agent_exec_task(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="mcp", priority=10, description="mcp_list_servers tool")
 async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
     """
     List all configured MCP servers.
@@ -933,6 +954,7 @@ async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="mcp", priority=10, description="mcp_list_tools tool")
 async def mcp_list_tools(
     server_id: str,
     **kwargs: Any,
@@ -975,6 +997,7 @@ async def mcp_list_tools(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="mcp", priority=10, description="mcp_call_tool tool")
 async def mcp_call_tool(
     server_id: str,
     tool_name: str,
@@ -1043,6 +1066,7 @@ async def mcp_call_tool(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="mcp", priority=10, description="mcp_discover_and_register tool")
 async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
     """
     Discover all MCP tools from all servers and register them in Neo4j.
@@ -1142,6 +1166,7 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
 # MCP SERVER CONTROL TOOLS (GMP-32 Batch 6)
 
 
+@register_tool(category="mcp", priority=10, description="mcp_start_server tool")
 async def mcp_start_server(
     server_id: str,
     **kwargs: Any,
@@ -1177,6 +1202,7 @@ async def mcp_start_server(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="mcp", priority=10, description="mcp_stop_server tool")
 async def mcp_stop_server(
     server_id: str,
     **kwargs: Any,
@@ -1212,6 +1238,7 @@ async def mcp_stop_server(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="mcp", priority=10, description="mcp_stop_all_servers tool")
 async def mcp_stop_all_servers(**kwargs: Any) -> dict[str, Any]:
     """
     Stop all running MCP server processes.
@@ -1239,6 +1266,7 @@ async def mcp_stop_all_servers(**kwargs: Any) -> dict[str, Any]:
 # RATE LIMITING TOOLS (GMP-32 Batch 7)
 
 
+@register_tool(category="redis", priority=10, description="redis_get_rate_limit tool")
 async def redis_get_rate_limit(
     key: str,
     **kwargs: Any,
@@ -1268,6 +1296,7 @@ async def redis_get_rate_limit(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_set_rate_limit tool")
 async def redis_set_rate_limit(
     key: str,
     count: int,
@@ -1303,6 +1332,7 @@ async def redis_set_rate_limit(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_increment_rate_limit tool")
 async def redis_increment_rate_limit(
     key: str,
     amount: int = 1,
@@ -1335,6 +1365,7 @@ async def redis_increment_rate_limit(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_decrement_rate_limit tool")
 async def redis_decrement_rate_limit(
     key: str,
     amount: int = 1,
@@ -1371,6 +1402,7 @@ async def redis_decrement_rate_limit(
 # MEMORY ADVANCED TOOLS (GMP-32 Batch 8)
 
 
+@register_tool(category="memory", priority=10, description="memory_get_checkpoint tool")
 async def memory_get_checkpoint(
     agent_id: str = "L",
     **kwargs: Any,
@@ -1408,6 +1440,7 @@ async def memory_get_checkpoint(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_trigger_world_model_update tool")
 async def memory_trigger_world_model_update(
     insights: list[dict[str, Any]],
     **kwargs: Any,
@@ -1438,6 +1471,7 @@ async def memory_trigger_world_model_update(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="memory", priority=10, description="memory_health_check tool")
 async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
     """
     Check health of all memory substrate components.
@@ -1464,6 +1498,7 @@ async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
 # TOOL GRAPH ANALYSIS TOOLS (GMP-32 Batch 9)
 
 
+@register_tool(category="introspection", priority=10, description="tools_get_api_dependents tool")
 async def tools_get_api_dependents(
     api_name: str,
     **kwargs: Any,
@@ -1493,6 +1528,7 @@ async def tools_get_api_dependents(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="introspection", priority=10, description="tools_get_dependencies tool")
 async def tools_get_dependencies(
     tool_name: str,
     **kwargs: Any,
@@ -1521,6 +1557,7 @@ async def tools_get_dependencies(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="introspection", priority=10, description="tools_get_blast_radius tool")
 async def tools_get_blast_radius(
     api_name: str,
     **kwargs: Any,
@@ -1549,6 +1586,7 @@ async def tools_get_blast_radius(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="introspection", priority=10, description="tools_detect_circular_deps tool")
 async def tools_detect_circular_deps(**kwargs: Any) -> dict[str, Any]:
     """
     Detect circular dependencies in the tool graph.
@@ -1572,6 +1610,7 @@ async def tools_detect_circular_deps(**kwargs: Any) -> dict[str, Any]:
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="introspection", priority=10, description="tools_get_catalog tool")
 async def tools_get_catalog(**kwargs: Any) -> dict[str, Any]:
     """
     Get L's complete tool catalog with metadata.
@@ -1598,6 +1637,7 @@ async def tools_get_catalog(**kwargs: Any) -> dict[str, Any]:
 # WORLD MODEL ADVANCED TOOLS (GMP-32 Batch 10)
 
 
+@register_tool(category="world_model", priority=10, description="world_model_restore tool")
 async def world_model_restore(
     snapshot_id: str,
     **kwargs: Any,
@@ -1628,6 +1668,7 @@ async def world_model_restore(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="world_model", priority=10, description="world_model_list_updates tool")
 async def world_model_list_updates(
     limit: int = 20,
     **kwargs: Any,
@@ -1718,6 +1759,7 @@ async def slack_send(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="llm", priority=10, description="llm_chat tool")
 async def llm_chat(
     message: str,
     model: Optional[str] = None,
@@ -1785,6 +1827,7 @@ async def llm_chat(
 # SIMULATION TOOLS
 
 
+@register_tool(category="simulation", priority=10, description="simulation_execute tool")
 async def simulation_execute(
     graph_data: dict[str, Any],
     scenario_params: Optional[dict[str, Any]] = None,
@@ -1848,6 +1891,7 @@ async def simulation_execute(
 # WORLD MODEL TOOLS
 
 
+@register_tool(category="world_model", priority=10, description="world_model_query tool")
 async def world_model_query(
     query_type: str,
     params: Optional[dict[str, Any]] = None,
@@ -1905,6 +1949,7 @@ async def world_model_query(
 # NEO4J GRAPH TOOLS
 
 
+@register_tool(category="database", priority=10, description="neo4j_query tool")
 async def neo4j_query(
     cypher: str,
     params: Optional[dict[str, Any]] = None,
@@ -1959,6 +2004,7 @@ async def neo4j_query(
 # REDIS CACHE TOOLS
 
 
+@register_tool(category="redis", priority=10, description="redis_get tool")
 async def redis_get(
     key: str,
     **kwargs: Any,
@@ -1997,6 +2043,7 @@ async def redis_get(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_set tool")
 async def redis_set(
     key: str,
     value: str,
@@ -2038,6 +2085,7 @@ async def redis_set(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_keys tool")
 async def redis_keys(
     pattern: str = "*",
     **kwargs: Any,
@@ -2080,6 +2128,7 @@ async def redis_keys(
 # REDIS STATE MANAGEMENT (Batch 3 - GMP-31)
 
 
+@register_tool(category="redis", priority=10, description="redis_delete tool")
 async def redis_delete(
     key: str,
     **kwargs: Any,
@@ -2109,6 +2158,7 @@ async def redis_delete(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_enqueue_task tool")
 async def redis_enqueue_task(
     queue_name: str,
     task_data: dict[str, Any],
@@ -2142,6 +2192,7 @@ async def redis_enqueue_task(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_dequeue_task tool")
 async def redis_dequeue_task(
     queue_name: str,
     **kwargs: Any,
@@ -2171,6 +2222,7 @@ async def redis_dequeue_task(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_queue_size tool")
 async def redis_queue_size(
     queue_name: str,
     **kwargs: Any,
@@ -2200,6 +2252,7 @@ async def redis_queue_size(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_get_task_context tool")
 async def redis_get_task_context(
     task_id: str,
     **kwargs: Any,
@@ -2229,6 +2282,7 @@ async def redis_get_task_context(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="redis", priority=10, description="redis_set_task_context tool")
 async def redis_set_task_context(
     task_id: str,
     context: dict[str, Any],
@@ -2267,6 +2321,7 @@ async def redis_set_task_context(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="introspection", priority=10, description="tools_list_all tool")
 async def tools_list_all(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2297,6 +2352,7 @@ async def tools_list_all(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="introspection", priority=10, description="tools_list_enabled tool")
 async def tools_list_enabled(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2326,6 +2382,7 @@ async def tools_list_enabled(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="introspection", priority=10, description="tools_get_metadata tool")
 async def tools_get_metadata(
     tool_id: str,
     **kwargs: Any,
@@ -2367,6 +2424,7 @@ async def tools_get_metadata(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="introspection", priority=10, description="tools_get_schema tool")
 async def tools_get_schema(
     tool_id: str,
     **kwargs: Any,
@@ -2397,6 +2455,7 @@ async def tools_get_schema(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="introspection", priority=10, description="tools_get_by_type tool")
 async def tools_get_by_type(
     tool_type: str,
     **kwargs: Any,
@@ -2433,6 +2492,7 @@ async def tools_get_by_type(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="introspection", priority=10, description="tools_get_for_role tool")
 async def tools_get_for_role(
     role: str,
     **kwargs: Any,
@@ -2468,6 +2528,7 @@ async def tools_get_for_role(
 # WORLD MODEL OPERATIONS (Batch 5 - GMP-31)
 
 
+@register_tool(category="world_model", priority=10, description="world_model_get_entity tool")
 async def world_model_get_entity(
     entity_id: str,
     **kwargs: Any,
@@ -2502,6 +2563,7 @@ async def world_model_get_entity(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="world_model", priority=10, description="world_model_list_entities tool")
 async def world_model_list_entities(
     entity_type: Optional[str] = None,
     min_confidence: Optional[float] = None,
@@ -2545,6 +2607,7 @@ async def world_model_list_entities(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="world_model", priority=10, description="world_model_snapshot tool")
 async def world_model_snapshot(
     description: Optional[str] = None,
     **kwargs: Any,
@@ -2576,6 +2639,7 @@ async def world_model_snapshot(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="world_model", priority=10, description="world_model_list_snapshots tool")
 async def world_model_list_snapshots(
     limit: int = 20,
     **kwargs: Any,
@@ -2606,6 +2670,7 @@ async def world_model_list_snapshots(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="world_model", priority=10, description="world_model_send_insights tool")
 async def world_model_send_insights(
     insights: list[dict[str, Any]],
     **kwargs: Any,
@@ -2638,6 +2703,7 @@ async def world_model_send_insights(
         return {"error": str(e), "status": "error"}
 
 
+@register_tool(category="world_model", priority=10, description="world_model_get_state_version tool")
 async def world_model_get_state_version(
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2670,6 +2736,7 @@ async def world_model_get_state_version(
 
 
 @must_stay_async("callers use await")
+@register_tool(category="kernel", priority=10, description="kernel_read tool")
 async def kernel_read(
     kernel_name: str,
     property: str,
