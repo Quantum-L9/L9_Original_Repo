@@ -99,8 +99,12 @@ VALID_ACCOUNTS = list(ACCOUNTS.keys())
 # Legacy paths (backward compatibility)
 # =============================================================================
 
-# Base data root
-GMAIL_DATA_ROOT = Path(os.path.expanduser("~/.l9/gmail"))
+# Base data root - respect L9_DATA_ROOT env var for containers
+_data_root = os.environ.get("L9_DATA_ROOT", os.path.expanduser("~/.l9"))
+# Fallback to /app/data if home expansion fails (container without proper HOME)
+if _data_root.startswith("/." ) or _data_root == "/.l9":
+    _data_root = "/app/data/.l9"
+GMAIL_DATA_ROOT = Path(_data_root) / "gmail"
 
 # File paths
 TOKENS_FILE = GMAIL_DATA_ROOT / "tokens.json"
