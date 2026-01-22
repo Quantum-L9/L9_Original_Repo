@@ -8,6 +8,7 @@ AIOSResult::BaseModel @ core/agents/schemas.py
 AIOSResultType::str,Enum @ core/agents/schemas.py
 AIOSRuntime::Protocol @ core/agents/executor.py
 AIOSRuntime::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
+AOISCompliance::NodeVisitor @ scripts/refactoring/aios_validate.py
 APGeneratorError::Exception @ agents/codegenagent/ap_generator.py
 AcceptanceCriterion::BaseModel @ ir_engine/meta_ir.py
 AcceptanceSpec::BaseModel @ ir_engine/meta_ir.py
@@ -144,7 +145,9 @@ CausalStrength::str,Enum @ world_model/causal_mapper.py
 CellType::str,Enum @ orchestration/cell_orchestrator.py
 ChainStatus::str,Enum @ orchestration/orchestrator_kernel.py
 ChangeStatus::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+ChangeStatus::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 ChangeType::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ChangeType::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 ChangeType::str,Enum @ codegen/dev_layer/modules/code_planning.py
 ChannelConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 ChatRequest::BaseModel @ api/server.py
@@ -220,6 +223,7 @@ Condition::BaseModel @ core/governance/schemas.py
 ConditionOperator::str,Enum @ core/governance/schemas.py
 ConfidenceLevel::Enum @ runtime/response_tagger.py
 ConfirmationResult::BaseModel @ core/commands/schemas.py
+ConflictResolutionMode::str,Enum @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 ConflictResolutionMode::str,Enum @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConnectionStatus::str,Enum @ core/worldmodel/l9_schema.py
 ConsensusStrategy::str,Enum @ collaborative_cells/base_cell.py
@@ -230,6 +234,7 @@ ConsoleExporter::SpanExporter @ current_work/DONE/Observability/observability_ex
 ConsolidationRequest::BaseModel @ api/memory/router.py
 ConsolidationResponse::BaseModel @ api/memory/router.py
 ConstraintExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintNode::IRNodeBase @ ir_engine/ir_schema.py
 ConstraintStatus::str,Enum @ ir_engine/ir_schema.py
 ConstraintType::str,Enum @ ir_engine/ir_schema.py
@@ -268,6 +273,7 @@ DIContainerError::Exception @ core/di/container.py
 DatabaseType::str,Enum @ memory/saga.py
 DataclassFieldVisitor::NodeVisitor @ scripts/audit/find_dead_code.py
 DecisionMode::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+DecisionMode::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 DecisionType::str,Enum @ igor/DONE!/audit-memory/memory_governance_patterns.py
 DecisionType::str,Enum @ memory/governance_patterns.py
 DeleteExpiredMemoriesArgs::BaseModel @ mcp_memory/src/models.py
@@ -368,6 +374,7 @@ GMPExecutionResult::BaseModel @ agents/cursor/gmp_meta_learning.py
 GMPExecutionResult::BaseModel @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 GMPRunInput::BaseModel @ core/schemas/l_tools.py
 GMPRunInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
+GNNKernel::Module @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 GNNKernel::Module @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GapSeverity::str,Enum @ memory/warming_models.py
 GateDecision::str,Enum @ codegen/dev_layer/runtime/enforcement.py
@@ -424,6 +431,7 @@ HealthResponse::BaseModel @ api/routes/observability.py
 HealthStatus::BaseModel @ services/symbolic_computation/core/models.py
 HealthStatus::str,Enum @ scripts/audit/tier1/audit_infrastructure_health.py
 HeuristicExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicsResponse::BaseModel @ api/routes/gmp_learning.py
 HierarchicalSummarizationStrategy::ContextStrategy @ core/observability/context_strategies.py
 HierarchicalSummarizationStrategy::ContextStrategy @ current_work/DONE/Observability/observability_context_strategies.py
@@ -540,6 +548,7 @@ LImprovementLoopConfig::BaseModel @ orchestrators/pattern/interface.py
 LLMGenerationSpan::Span @ core/observability/models.py
 LLMGenerationSpan::Span @ current_work/DONE/Observability/observability_models.py
 Language::Enum @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+Language::Enum @ scripts/refactoring/bootstrap_refactor.py
 LearnedHeuristic::BaseModel @ agents/cursor/gmp_meta_learning.py
 LearnedHeuristic::BaseModel @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 LearnedHeuristicDB::Base @ agents/cursor/gmp_meta_learning.py
@@ -721,6 +730,7 @@ PatternConfigResponse::BaseModel @ api/routes/pattern.py
 PatternExecuteRequest::BaseModel @ api/routes/pattern.py
 PatternExecuteResponse::BaseModel @ api/routes/pattern.py
 PatternExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PerplexityModel::str,Enum @ igor/DONE!/audit-tools/services_research_tools_perplexity_client.py
 PerplexityModel::str,Enum @ services/research/tools/perplexity_client.py
 PerplexityTool::BaseTool @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
@@ -743,6 +753,7 @@ ProactiveRecallRequest::BaseModel @ mcp_memory/src/models.py
 ProactiveRecallResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 ProactiveRecallResponse::BaseModel @ mcp_memory/src/models.py
 ProactivityLevel::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+ProactivityLevel::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 ProcessedAnomaly::BaseModel @ workers/anomaly_response_monitor.py
 Prohibition::FlexibleModel @ core/kernels/schemas.py
 PromptDefensePolicy::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
@@ -750,6 +761,7 @@ PromptStyle::str,Enum @ agents/codegenagent/ap_generator.py
 ProtocolBinding::ABC @ core/packet_envelope/standardization.py
 ProtocolBinding::ABC @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 ProtocolExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PythonModuleHealthProbe::HealthProbe @ scripts/audit/tier1/audit_infrastructure_health.py
 QAAgent::BaseAgent @ agents/qa_agent.py
 Query::BaseModel @ core/schemas/research_factory_models.py
@@ -1131,6 +1143,7 @@ ViolationRecord::BaseModel @ workers/violation_tracker_service.py
 ViolationScanRequest::BaseModel @ api/routes/workers.py
 ViolationScanResponse::BaseModel @ api/routes/workers.py
 ViolationSeverity::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ViolationSeverity::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ViolationSeverity::str,Enum @ workers/violation_patterns.py
 ViolationTrackerServiceRequest::BaseModel @ workers/violation_tracker_service.py
 ViolationTrackerServiceResponse::BaseModel @ workers/violation_tracker_service.py
@@ -1158,4 +1171,4 @@ WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
 WorldModelUpdater::IWorldModelUpdater @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1154 classes with inheritance
+# Total: 1167 classes with inheritance

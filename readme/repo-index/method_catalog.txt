@@ -15,6 +15,11 @@ AIOSRuntime::async execute_reasoning(context) @ current_work/DONE/GMP Stage 2 - 
 AIOSRuntime::async health_check() @ core/aios/runtime.py
 AIOSRuntime::model() @ core/aios/runtime.py
 AIOSRuntime::temperature() @ core/aios/runtime.py
+AOISCompliance::__init__(filename) @ scripts/refactoring/aios_validate.py
+AOISCompliance::check_file() @ scripts/refactoring/aios_validate.py
+AOISCompliance::visit_AsyncFunctionDef(node) @ scripts/refactoring/aios_validate.py
+AOISCompliance::visit_FunctionDef(node) @ scripts/refactoring/aios_validate.py
+AOISCompliance::visit_ImportFrom(node) @ scripts/refactoring/aios_validate.py
 APGenerator::__init__(default_style, custom_templates) @ agents/codegenagent/ap_generator.py
 APGenerator::_extract_deliverables(meta) @ agents/codegenagent/ap_generator.py
 APGenerator::_extract_requirements(meta) @ agents/codegenagent/ap_generator.py
@@ -33,11 +38,17 @@ AccountConfig::tokens_file() @ email_agent/config.py
 ActionNode::add_constraint(constraint_id) @ ir_engine/ir_schema.py
 ActionNode::add_dependency(action_id) @ ir_engine/ir_schema.py
 ActionRegistry::__init__() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::__init__() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
 ActionRegistry::execute(action) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::execute(action) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
 ActionRegistry::has_action(action_type) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::has_action(action_type) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
 ActionRegistry::list_actions(category) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::list_actions(category) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
 ActionRegistry::register(action_type, description, category) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionRegistry::register(action_type, description, category) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
 ActionResult::__post_init__() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
+ActionResult::__post_init__() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py
 ActionToolOrchestrator::__init__(tool_registry, governance_engine) @ igor/DONE!/audit-tools/orchestrators_action_tool_orchestrator.py
 ActionToolOrchestrator::__init__(tool_registry, governance_engine) @ orchestrators/action_tool/orchestrator.py
 ActionToolOrchestrator::async _execute_with_retry(tool_id, arguments, max_retries) @ igor/DONE!/audit-tools/orchestrators_action_tool_orchestrator.py
@@ -298,21 +309,36 @@ AgentSelfModifyTool::async add_directive(agent_id, text, context, severity, igor
 AgentSelfModifyTool::async add_sop_step(agent_id, sop_name, step) @ core/tools/agent_self_modify.py
 AgentSelfModifyTool::async update_responsibility(agent_id, responsibility_title, new_description) @ core/tools/agent_self_modify.py
 AgentState::__post_init__() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentState::__post_init__() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentState::to_dict() @ agents/codegenagent/cursor_context_sync_engine.py
 AgentStateManager::__init__(agent_id, state_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::__init__(agent_id, state_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::action_history() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::action_history() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::confidence_threshold() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::confidence_threshold() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::confidence_threshold(value) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::confidence_threshold(value) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::get_state_summary() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::get_state_summary() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::last_reflection_timestamp() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::last_reflection_timestamp() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::last_reflection_timestamp(value) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::last_reflection_timestamp(value) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::load_state() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::load_state() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::performance_metrics() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::performance_metrics() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::record_action_outcome(action_record) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::record_action_outcome(action_record) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::save_state() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::save_state() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::trust_index() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::trust_index() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::trust_index(value) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::trust_index(value) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentStateManager::value_alignment_vector() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+AgentStateManager::value_alignment_vector() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 AgentTask::get_dedupe_key() @ core/agents/schemas.py
 AgentTask::get_thread_id() @ core/agents/schemas.py
 AgentTask::to_dict() @ core/schemas/tasks.py
@@ -423,6 +449,7 @@ ArtifactCompiler::__init__(output_dir) @ codegen/dev_layer/am_engine/compile.py
 ArtifactCompiler::compile_artifact(artifact_text, source_path, force_category) @ codegen/dev_layer/am_engine/compile.py
 ArtifactCompiler::compile_directory(input_dir, extensions) @ codegen/dev_layer/am_engine/compile.py
 ArtifactExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ArtifactExtractor::extract(text, schema) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 AsyncMockCursor::__init__() @ tests/conftest.py
 AsyncMockCursor::execute(q) @ tests/conftest.py
 AsyncMockCursor::fetchone() @ tests/conftest.py
@@ -550,8 +577,11 @@ AutomationExecutor::async _init_browser(headless) @ mac_agent/executor.py
 AutomationExecutor::async _take_screenshot(task_id, suffix) @ mac_agent/executor.py
 AutomationExecutor::async run_steps(steps, headless, task_id) @ mac_agent/executor.py
 AutomationExecutor::run_gui_fallback(steps) @ mac_agent/executor.py
+AutonomicSteering::__init__(neo4j_driver, coordinator) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 AutonomicSteering::__init__(neo4j_driver, coordinator) @ current_work/Neural-Symbolic Orchestration/governance.py
+AutonomicSteering::async _reallocate_to_shard(subgraph_id, target_shard, utility) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 AutonomicSteering::async _reallocate_to_shard(subgraph_id, target_shard, utility) @ current_work/Neural-Symbolic Orchestration/governance.py
+AutonomicSteering::async steer_resources() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 AutonomicSteering::async steer_resources() @ current_work/Neural-Symbolic Orchestration/governance.py
 AutonomyController::__init__(learning_engine) @ agents/cursor/gmp_meta_learning.py
 AutonomyController::__init__(learning_engine) @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
@@ -663,10 +693,15 @@ BoundaryEnforcer::reload_spec() @ core/boundary/enforcer.py
 BoundarySpec::__init__(raw_content, redaction_patterns, protected_fields) @ core/boundary/enforcer.py
 BoundarySpec::apply_redactions(text) @ core/boundary/enforcer.py
 CACodeChange::__init__(repo_root, governance_loader, confidence_threshold) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::__init__(repo_root, governance_loader, confidence_threshold) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 CACodeChange::apply_change(proposal) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::apply_change(proposal) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 CACodeChange::generate_commit_message(proposal) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::generate_commit_message(proposal) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 CACodeChange::propose_change(task, changes, rationale, confidence, change_type, tests_added) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::propose_change(task, changes, rationale, confidence, change_type, tests_added) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 CACodeChange::save_artifacts(proposal, output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+CACodeChange::save_artifacts(proposal, output_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 CGMPEngine::__init__(meta_loader, symbolic_engine, readme_generator, auto_generate_readme) @ agents/codegenagent/CodeGenAgent Engine.py
 CGMPEngine::__init__(meta_loader, symbolic_engine, readme_generator, auto_generate_readme) @ agents/codegenagent/c_gmp_engine.py
 CGMPEngine::_expand_template(section) @ agents/codegenagent/CodeGenAgent Engine.py
@@ -785,8 +820,11 @@ CallerIdentity::is_c() @ mcp_memory/src/main.py
 CallerIdentity::is_l() @ mcp_memory/src/main.py
 CallerIdentity::source() @ igor/DONE!/audit-memory/mcp_memory_src_main.py
 CallerIdentity::source() @ mcp_memory/src/main.py
+CanaryDeployment::__init__(neo4j_driver) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 CanaryDeployment::__init__(neo4j_driver) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+CanaryDeployment::deploy_canary(schema, canary_agents) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 CanaryDeployment::deploy_canary(schema, canary_agents) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+CanaryDeployment::promote_to_production(schema) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 CanaryDeployment::promote_to_production(schema) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 CandidateAnalyzer::__init__() @ codegen/symbolic/analyzer.py
 CandidateAnalyzer::_check_issues(expr, result) @ codegen/symbolic/analyzer.py
@@ -1162,22 +1200,36 @@ ComputationRequest::validate_variables(cls, v) @ _archived/symbolic_computation/
 ComputationRequest::validate_variables(cls, v) @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 ComputationRequest::validate_variables(cls, v) @ services/symbolic_computation/models.py
 ConceptExtractor::__init__(aggressive) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::__init__(aggressive) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::_calculate_confidence(name, context, category) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_calculate_confidence(name, context, category) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::_create_concept_from_match(file_path, content, match) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_create_concept_from_match(file_path, content, match) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::_determine_category(name, context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_determine_category(name, context) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::_extract_description(content, start_pos) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_extract_description(content, start_pos) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::_extract_from_headers(file_path, content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_extract_from_headers(file_path, content) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::_extract_from_yaml(file_path, content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_extract_from_yaml(file_path, content) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::_generate_id(file_path, concept_name) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_generate_id(file_path, concept_name) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::_read_file(file_path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::_read_file(file_path) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::extract_from_file(file_path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+ConceptExtractor::extract_from_file(file_path) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 Condition::evaluate(context) @ core/governance/schemas.py
 ConfigValidator::__init__() @ scripts/audit/audit_shared_core.py
 ConfigValidator::add_rule(rule) @ scripts/audit/audit_shared_core.py
 ConfigValidator::validate(config) @ scripts/audit/audit_shared_core.py
+ConflictSuperposition::__init__(redis_client) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 ConflictSuperposition::__init__(redis_client) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+ConflictSuperposition::async record_conflict(subject, beliefs) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 ConflictSuperposition::async record_conflict(subject, beliefs) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+ConflictSuperposition::async resolve_by_observer(subject, observer_requirements) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 ConflictSuperposition::async resolve_by_observer(subject, observer_requirements) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+ConflictSuperposition::get_superposition(subject) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 ConflictSuperposition::get_superposition(subject) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConsoleExporter::export(spans) @ core/observability/exporters.py
 ConsoleExporter::export(spans) @ current_work/DONE/Observability/observability_exporters.py
@@ -1201,22 +1253,35 @@ ConstraintChallenger::async challenge(graph, context) @ ir_engine/constraint_cha
 ConstraintChallenger::async challenge_multiple(graphs, context) @ ir_engine/constraint_challenger.py
 ConstraintChallenger::challenge_rule_based(graph) @ ir_engine/constraint_challenger.py
 ConstraintExtractor::_extract_id(text, prefix) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_id(text, prefix) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintExtractor::_extract_rationale(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_rationale(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintExtractor::_extract_rule(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_rule(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintExtractor::_extract_scope(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_scope(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintExtractor::_extract_severity(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::_extract_severity(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::extract(text, schema) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintNode::challenge(reason, alternative) @ ir_engine/ir_schema.py
 ConstraintNode::invalidate(reason) @ ir_engine/ir_schema.py
 ConstraintNode::verify() @ ir_engine/ir_schema.py
 ConstraintSet::to_dict() @ world_model/world_model_service.py
 ConstraintValidator::__init__(repo_root, governance_loader) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::__init__(repo_root, governance_loader) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ConstraintValidator::_check_dangerous_patterns(change) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::_check_dangerous_patterns(change) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ConstraintValidator::_check_file_edit_constraint(change) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::_check_file_edit_constraint(change) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ConstraintValidator::_check_test_constraint(change) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::_check_test_constraint(change) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ConstraintValidator::format_violations(result) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::format_violations(result) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ConstraintValidator::validate_batch(changes) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::validate_batch(changes) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ConstraintValidator::validate_change(change) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ConstraintValidator::validate_change(change) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ConstructEnhancer::__init__(perplexity_api_key, strict_validation) @ runtime/construct_enhancer.py
 ConstructEnhancer::analyze_gaps(spec) @ runtime/construct_enhancer.py
 ConstructEnhancer::async enhance_spec(spec, max_iterations) @ runtime/construct_enhancer.py
@@ -1247,9 +1312,13 @@ ConversationGraphMemory::async link_related_sessions(session_id_1, session_id_2,
 ConversationGraphMemory::async query_user_history(user_id, topic, time_range_days, limit) @ memory/graph_memory.py
 ConversationGraphMemory::async store_conversation(messages, user_id, session_id) @ memory/graph_memory.py
 ConversationGraphMemory::async store_message(content, role, user_id, session_id, previous_message_id, metadata) @ memory/graph_memory.py
+Coordinator::__init__(neo4j_driver, redis_client, schema_distiller) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 Coordinator::__init__(neo4j_driver, redis_client, schema_distiller) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+Coordinator::async detect_and_record_conflicts(subject) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 Coordinator::async detect_and_record_conflicts(subject) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+Coordinator::async promote_agent_l1_to_l2(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 Coordinator::async promote_agent_l1_to_l2(agent_id) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+Coordinator::async sync_agent_intuition(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 Coordinator::async sync_agent_intuition(agent_id) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 Counter::__init__() @ core/agents/bootstrap/bootstrap_metrics.py
 Counter::__init__() @ memory/checkpoint_metrics.py
@@ -1445,19 +1514,31 @@ DeploymentAutomationEngine::async run_phase_3_rollout() @ current_work/packetEnv
 DeploymentAutomationEngine::async run_phase_4_rollout() @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/deployment_automation.py
 DeploymentAutomationEngine::async run_phase_5_rollout() @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/deployment_automation.py
 DiffGenerator::__init__(repo_root) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::__init__(repo_root) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
 DiffGenerator::format_for_git(batch_diff) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::format_for_git(batch_diff) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
 DiffGenerator::format_for_review(batch_diff) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::format_for_review(batch_diff) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
 DiffGenerator::generate_batch_diff(changes) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::generate_batch_diff(changes) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
 DiffGenerator::generate_diff(file_path, original, modified) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::generate_diff(file_path, original, modified) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
 DiffGenerator::save_diff(batch_diff, output_path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
+DiffGenerator::save_diff(batch_diff, output_path) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py
 DirectLLMAgent::__init__(api_key, model, temperature, max_tokens) @ orchestrators/pattern/cell_adapter.py
 DirectLLMAgent::async invoke(role, prompt, input_data, context) @ orchestrators/pattern/cell_adapter.py
+DistributedIntuitionCache::__init__(redis_client, agent_id, ttl_seconds) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 DistributedIntuitionCache::__init__(redis_client, agent_id, ttl_seconds) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+DistributedIntuitionCache::async consolidate_intuition() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 DistributedIntuitionCache::async consolidate_intuition() @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+DistributedIntuitionCache::async update_from_learning(learning) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 DistributedIntuitionCache::async update_from_learning(learning) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DocumentClassifier::__init__(schemas) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+DocumentClassifier::__init__(schemas) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 DocumentClassifier::classify(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+DocumentClassifier::classify(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 DomainContextBuilder::build_domain_context(packet, domain) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py
 DomainPacketHandler::_enrich_mortgageos_payload(payload) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
 DomainPacketHandler::_enrich_plastos_payload(payload) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py
@@ -1831,17 +1912,28 @@ FileExtractor::_extract_by_pattern(text, pattern, language) @ codegen/codegenAge
 FileExtractor::_find_filename(content, language, index) @ codegen/codegenAgent Spec/run_codegen_superprompt.py
 FileExtractor::extract_files(response_text) @ codegen/codegenAgent Spec/run_codegen_superprompt.py
 FileScanner::__init__(root_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+FileScanner::__init__(root_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 FileScanner::get_file_info(file_path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+FileScanner::get_file_info(file_path) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 FileScanner::scan() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+FileScanner::scan() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 FileSnapshot::to_dict() @ agents/codegenagent/rollback_hook.py
 ForesightEngine::__init__(state_manager, memory_manager, action_registry, candidate_generator, outcome_simulator) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::__init__(state_manager, memory_manager, action_registry, candidate_generator, outcome_simulator) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 ForesightEngine::_get_timestamp() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::_get_timestamp() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 ForesightEngine::confidence_threshold() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::confidence_threshold() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 ForesightEngine::decide_and_act(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::decide_and_act(context) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 ForesightEngine::evaluate_candidates(context, candidates) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::evaluate_candidates(context, candidates) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 ForesightEngine::execute_action(action, confidence) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::execute_action(action, confidence) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 ForesightEngine::generate_candidates(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::generate_candidates(context) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 ForesightEngine::simulate_action(context, action) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+ForesightEngine::simulate_action(context, action) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 GMPIntegration::__init__(audit_name) @ scripts/audit/audit_shared_core.py
 GMPIntegration::add_todo(file_path, line_start, line_end, action, target, behavior, imports) @ scripts/audit/audit_shared_core.py
 GMPIntegration::generate_plan() @ scripts/audit/audit_shared_core.py
@@ -1908,10 +2000,15 @@ GMPWorker::async start() @ runtime/gmp_worker.py
 GMPWorker::async stop() @ current_work/DONE/GMP Stage 1 - Tools/gmp_worker.py
 GMPWorker::async stop() @ current_work/DONE/GMP Stage 2 - Tools & Memory/gmp_worker.py
 GMPWorker::async stop() @ runtime/gmp_worker.py
+GNNKernel::__init__(input_dim, hidden_dim, output_dim, num_layers, device) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 GNNKernel::__init__(input_dim, hidden_dim, output_dim, num_layers, device) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+GNNKernel::decode(latent) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 GNNKernel::decode(latent) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+GNNKernel::encode(data) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 GNNKernel::encode(data) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+GNNKernel::encode_reasoning(reasoning) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 GNNKernel::encode_reasoning(reasoning) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+GNNKernel::get_latent_patterns(encoded, threshold) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 GNNKernel::get_latent_patterns(encoded, threshold) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GapAnalysis::can_proceed() @ runtime/superprompt_emitter.py
 GapAnalysis::has_critical_gaps() @ runtime/superprompt_emitter.py
@@ -1987,13 +2084,21 @@ GovernanceEngineService::policies() @ core/governance/engine.py
 GovernanceEngineService::policy_count() @ core/governance/engine.py
 GovernanceEngineService::reload_policies(policy_dir) @ core/governance/engine.py
 GovernanceIntegration::__init__(repo_root, agent_id, memory_manager) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::__init__(repo_root, agent_id, memory_manager) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernanceIntegration::apply_code_change(proposal) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::apply_code_change(proposal) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernanceIntegration::decide_and_act(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::decide_and_act(context) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernanceIntegration::get_agent_state() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::get_agent_state() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernanceIntegration::get_full_status() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::get_full_status() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernanceIntegration::propose_code_change(task, changes, rationale, confidence) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::propose_code_change(task, changes, rationale, confidence) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernanceIntegration::reflect_on_actions(window) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::reflect_on_actions(window) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernanceIntegration::register_action(action_type, description) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
+GovernanceIntegration::register_action(action_type, description) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py
 GovernancePattern::from_packet_payload(cls, payload) @ igor/DONE!/audit-memory/memory_governance_patterns.py
 GovernancePattern::from_packet_payload(cls, payload) @ memory/governance_patterns.py
 GovernancePattern::to_packet_payload() @ igor/DONE!/audit-memory/memory_governance_patterns.py
@@ -2047,11 +2152,17 @@ HealthChecker::async check_health() @ core/protocols/observability_protocols.py
 HealthChecker::get_health_summary() @ core/protocols/observability_protocols.py
 HealthProbe::async check() @ scripts/audit/tier1/audit_infrastructure_health.py
 HeuristicExtractor::_extract_id(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_id(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicExtractor::_extract_rationale(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_rationale(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicExtractor::_extract_rule(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_rule(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicExtractor::_extract_severity(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_severity(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicExtractor::_extract_violations(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::_extract_violations(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::extract(text, schema) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicMatch::to_dict() @ world_model/world_model_service.py
 HierarchicalContextBuilder::__init__(repository, identity_service, allocation) @ memory/context_builder.py
 HierarchicalContextBuilder::_format_context(sections, format_type) @ memory/context_builder.py
@@ -2425,8 +2536,11 @@ KernelValidator::validate(data, file_path) @ core/protocols/kernel_protocols.py
 KernelValidator::validate_manifest(manifest) @ core/protocols/kernel_protocols.py
 KernelViolationError::__init__(message, constraint, value) @ tests/mocks/kernel_mocks.py
 KnowledgeHarvester::__init__(root_dir, output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+KnowledgeHarvester::__init__(root_dir, output_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 KnowledgeHarvester::_generate_summary(concepts, yaml_specs) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+KnowledgeHarvester::_generate_summary(concepts, yaml_specs) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 KnowledgeHarvester::harvest() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+KnowledgeHarvester::harvest() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 KnowledgeIngestor::__init__(state, config) @ world_model/knowledge_ingestor.py
 KnowledgeIngestor::_add_entity(data, result) @ world_model/knowledge_ingestor.py
 KnowledgeIngestor::_add_relation(data, result) @ world_model/knowledge_ingestor.py
@@ -2477,11 +2591,17 @@ L9CodeGenerator::generate_phase_4_validation() @ data/l9-phase0-to-6-execution.p
 L9CodeGenerator::generate_phase_5_verification() @ data/l9-phase0-to-6-execution.py
 L9CodeGenerator::generate_phase_6_finalize() @ data/l9-phase0-to-6-execution.py
 L9Compiler::__init__() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::__init__() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 L9Compiler::_calculate_confidence(data, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::_calculate_confidence(data, schema) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 L9Compiler::_hash_file(path) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::_hash_file(path) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 L9Compiler::_load_schemas() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::_load_schemas() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 L9Compiler::compile_directory(input_dir, output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::compile_directory(input_dir, output_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 L9Compiler::compile_document(doc_path, output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+L9Compiler::compile_document(doc_path, output_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 L9ExternalSystem::to_node_dict() @ core/worldmodel/l9_schema.py
 L9Infrastructure::to_node_dict() @ core/worldmodel/l9_schema.py
 L9MasterExecutor::__init__(lock_file, feature, auto_push) @ data/l9-phase0-to-6-execution.py
@@ -2505,32 +2625,60 @@ L9RetryablePostgresSaver::async put(config, checkpoint, metadata, new_versions) 
 L9RetryablePostgresSaver::get_pool_stats() @ memory/checkpoint/postgres_saver.py
 L9SpecGenerator::__init__(output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::__init__(output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::__init__(output_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::__init__(output_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::_build_acceptance_criteria(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::_build_acceptance_criteria(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_acceptance_criteria(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_acceptance_criteria(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::_build_agent_rules(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::_build_agent_rules(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_agent_rules(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_agent_rules(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::_build_context(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::_build_context(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_context(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_context(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::_build_definition_of_done(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::_build_definition_of_done(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_definition_of_done(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_definition_of_done(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::_build_task_description(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::_build_task_description(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::_build_task_description(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::_build_task_description(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::generate_cursor_prompt(plan, concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::generate_cursor_prompt(plan, concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::generate_cursor_prompt(plan, concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::generate_cursor_prompt(plan, concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::generate_from_file(concept_file, project_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::generate_from_file(concept_file, project_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::generate_from_file(concept_file, project_id) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::generate_from_file(concept_file, project_id) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::generate_plan_spec(concept, project_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::generate_plan_spec(concept, project_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::generate_plan_spec(concept, project_id) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::generate_plan_spec(concept, project_id) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9SpecGenerator::parse_concept(concept_file) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
 L9SpecGenerator::parse_concept(concept_file) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
+L9SpecGenerator::parse_concept(concept_file) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py
+L9SpecGenerator::parse_concept(concept_file) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py
 L9TextToCode::__init__(output_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::__init__(output_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9TextToCode::_build_generation_prompt(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::_build_generation_prompt(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9TextToCode::_find_compiler() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::_find_compiler() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9TextToCode::_find_superprompt() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::_find_superprompt() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9TextToCode::compile_governance(module_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::compile_governance(module_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9TextToCode::generate_code(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::generate_code(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9TextToCode::generate_from_file(concept_file) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::generate_from_file(concept_file) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9TextToCode::parse_concept(concept_file) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
+L9TextToCode::parse_concept(concept_file) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py
 L9Tool::to_node_dict() @ core/worldmodel/l9_schema.py
 LCTOAgent::__init__(agent_id, config, manifest) @ agents/l_cto.py
 LCTOAgent::__init__(agent_id, config, manifest) @ igor/DONE!/audit-tools/Current Config/agents_l_cto.py
@@ -2561,7 +2709,9 @@ LangGraphRouter::async _classify_node(state) @ orchestration/ws_task_router.py
 LangGraphRouter::async _create_task_node(state) @ orchestration/ws_task_router.py
 LangGraphRouter::async _load_context_node(state) @ orchestration/ws_task_router.py
 LangGraphRouter::async route(event, context) @ orchestration/ws_task_router.py
+LeanVerifier::__init__(neo4j_driver) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 LeanVerifier::__init__(neo4j_driver) @ current_work/Neural-Symbolic Orchestration/governance.py
+LeanVerifier::async verify_agent_logic(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 LeanVerifier::async verify_agent_logic(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 LearnedHeuristic::__hash__() @ agents/cursor/gmp_meta_learning.py
 LearnedHeuristic::__hash__() @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
@@ -2664,13 +2814,21 @@ MemoryAPI::async search(query, segment, agent_id, limit) @ current_work/DONE/Pha
 MemoryAPI::async semantic_search(embedding, segment, agent_id, limit) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
 MemoryAPI::async write(segment, content, agent_id, metadata, embedding, ttl_hours) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
 MemoryAdapter::__init__(memory_manager) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::__init__(memory_manager) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryAdapter::_detect_simple_patterns() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::_detect_simple_patterns() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryAdapter::_embed_context(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::_embed_context(context) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryAdapter::find_similar_contexts(context, limit) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::find_similar_contexts(context, limit) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryAdapter::get_action_history(action_type, limit) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::get_action_history(action_type, limit) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryAdapter::get_actions_for_context(context) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::get_actions_for_context(context) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryAdapter::get_recent_patterns(days) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::get_recent_patterns(days) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryAdapter::store_action_outcome(action_record) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
+MemoryAdapter::store_action_outcome(action_record) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py
 MemoryBridge::__init__(substrate_service) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
 MemoryBridge::async get_working_memory(key) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
 MemoryBridge::async initialize() @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py
@@ -2839,8 +2997,11 @@ MetaContract::to_generation_context() @ ir_engine/meta_ir.py
 MetaContract::validate_test_scope_rules() @ ir_engine/meta_ir.py
 MetaContractValidationResult::add_error(field, message) @ ir_engine/meta_ir.py
 MetaContractValidationResult::add_warning(field, message) @ ir_engine/meta_ir.py
+MetaEvolutionEngine::__init__(neo4j_driver, orchestrator) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 MetaEvolutionEngine::__init__(neo4j_driver, orchestrator) @ current_work/Neural-Symbolic Orchestration/governance.py
+MetaEvolutionEngine::async analyze_global_metrics() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 MetaEvolutionEngine::async analyze_global_metrics() @ current_work/Neural-Symbolic Orchestration/governance.py
+MetaEvolutionEngine::async propose_kernel_improvement() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 MetaEvolutionEngine::async propose_kernel_improvement() @ current_work/Neural-Symbolic Orchestration/governance.py
 MetaLoader::__init__(specs_dir, strict_validation) @ agents/codegenagent/meta_loader.py
 MetaLoader::detect_schema_format(meta) @ agents/codegenagent/meta_loader.py
@@ -3456,12 +3617,19 @@ PacketValidator::validate_packet(packet) @ codegen/extractions/domain_tensor_bri
 PathSafetyError::__str__() @ core/security/path_safety.py
 Pattern::to_dict() @ world_model/reflection_memory.py
 PatternExtractor::_extract_applicability(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_applicability(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PatternExtractor::_extract_constraints(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_constraints(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PatternExtractor::_extract_failure_modes(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_failure_modes(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PatternExtractor::_extract_id(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_id(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PatternExtractor::_extract_intent(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_intent(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PatternExtractor::_extract_name(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::_extract_name(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PatternExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::extract(text, schema) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PatternMatch::to_dict() @ world_model/world_model_service.py
 PatternMetrics::__init__(subsystem) @ orchestrators/pattern/metrics.py
 PatternMetrics::record_agent_result(role, status) @ orchestrators/pattern/metrics.py
@@ -3726,10 +3894,15 @@ ProtocolBinding::deserialize(data) @ current_work/packetEnvelope - Phase 2-5/pha
 ProtocolBinding::serialize(event) @ core/packet_envelope/standardization.py
 ProtocolBinding::serialize(event) @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 ProtocolExtractor::_extract_enforcement(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::_extract_enforcement(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ProtocolExtractor::_extract_id(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::_extract_id(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ProtocolExtractor::_extract_name(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::_extract_name(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ProtocolExtractor::_extract_steps(text) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::_extract_steps(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ProtocolExtractor::extract(text, schema) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::extract(text, schema) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PythonModuleHealthProbe::__init__(service_name, module, function, timeout) @ scripts/audit/tier1/audit_infrastructure_health.py
 PythonModuleHealthProbe::async check() @ scripts/audit/tier1/audit_infrastructure_health.py
 QAAgent::__init__(agent_id, config) @ agents/qa_agent.py
@@ -3740,24 +3913,43 @@ QAAgent::async review_test_results(test_output, expected_behavior) @ agents/qa_a
 QAAgent::async run(task, context) @ agents/qa_agent.py
 QAAgent::get_system_prompt() @ agents/qa_agent.py
 QCDashboard::__init__(harvested_dir) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::__init__(harvested_dir) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_approve_concept(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_approve_concept(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_batch_approve() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_batch_approve() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_clear_screen() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_clear_screen() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_edit_concept(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_edit_concept(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_export_summary() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_export_summary() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_generate_plan_specs() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_generate_plan_specs() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_load_concepts() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_load_concepts() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_load_reviews() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_load_reviews() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_reject_concept(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_reject_concept(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_review_concepts() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_review_concepts() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_save_review(review) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_save_review(review) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_show_approved() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_approved() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_show_concept(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_concept(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_show_header() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_header() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_show_menu() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_menu() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_show_rejected() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_rejected() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::_show_stats() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::_show_stats() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QCDashboard::run() @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
+QCDashboard::run() @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py
 QuantumSwarmLoader::__init__(symbolic_engine, max_parallel) @ orchestration/quantum_swarm_loader.py
 QuantumSwarmLoader::_load_capsule(capsule_path) @ orchestration/quantum_swarm_loader.py
 QuantumSwarmLoader::async _warmup_cache(expressions) @ orchestration/quantum_swarm_loader.py
@@ -3958,10 +4150,15 @@ RecoveryExecutor::async _execute_summarize(failure, action) @ core/observability
 RecoveryExecutor::async _execute_summarize(failure, action) @ current_work/DONE/Observability/observability_failures.py
 RecoveryExecutor::async execute_recovery(failure, recovery_actions) @ core/observability/failures.py
 RecoveryExecutor::async execute_recovery(failure, recovery_actions) @ current_work/DONE/Observability/observability_failures.py
+RecursiveSelfCoding::__init__(neo4j_driver, coordinator) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 RecursiveSelfCoding::__init__(neo4j_driver, coordinator) @ current_work/Neural-Symbolic Orchestration/governance.py
+RecursiveSelfCoding::async deploy_improvement(agent_id, improvement) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 RecursiveSelfCoding::async deploy_improvement(agent_id, improvement) @ current_work/Neural-Symbolic Orchestration/governance.py
+RecursiveSelfCoding::async propose_logic_improvement(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 RecursiveSelfCoding::async propose_logic_improvement(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
+RecursiveSelfCoding::async test_improvement(agent_id, improvement) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 RecursiveSelfCoding::async test_improvement(agent_id, improvement) @ current_work/Neural-Symbolic Orchestration/governance.py
+RecursiveSelfCoding::async verify_and_promote(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 RecursiveSelfCoding::async verify_and_promote(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 RedisCache::__init__(host, port, db, password, ttl_search_sec, ttl_governance_sec) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
 RedisCache::_make_key(prefix) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
@@ -4051,20 +4248,35 @@ RedisSubstrate::store_session(session_id, data, ttl) @ world_model/_pack_staging
 RedisSubstrate::subscribe_to_updates(callback) @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/redis_substrate.py
 RedisSubstrate::subscribe_to_updates(callback) @ world_model/_pack_staging/redis_substrate.py
 RefactoringBootstrap::__init__(project_root, language, verbose) @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::__init__(project_root, language, verbose) @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::_analyze_python() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_analyze_python() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::_analyze_typescript() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_analyze_typescript() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::_create_directories() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_create_directories() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::_setup_java_analysis() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_setup_java_analysis() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::_setup_python_analysis() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_setup_python_analysis() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::_setup_typescript_analysis() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_setup_typescript_analysis() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::_validate_project() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::_validate_project() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::bootstrap() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::bootstrap() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::create_refactoring_backlog() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::create_refactoring_backlog() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::generate_ai_workflow_config() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::generate_ai_workflow_config() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::generate_baseline_metrics() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::generate_baseline_metrics() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::setup_ci_validation() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::setup_ci_validation() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::setup_pre_commit_hooks() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::setup_pre_commit_hooks() @ scripts/refactoring/bootstrap_refactor.py
 RefactoringBootstrap::setup_static_analysis() @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+RefactoringBootstrap::setup_static_analysis() @ scripts/refactoring/bootstrap_refactor.py
 Reflection::from_dict(cls, data) @ world_model/reflection_memory.py
 Reflection::to_dict() @ world_model/reflection_memory.py
 ReflectionAgent::__init__(agent_id, config) @ agents/reflection_agent.py
@@ -4093,12 +4305,19 @@ ReflectionCell::async reflect_on_failure(failure_context, error_message, stack_t
 ReflectionCell::clear_history() @ collaborative_cells/reflection_cell.py
 ReflectionCell::get_reflection_history() @ collaborative_cells/reflection_cell.py
 ReflectionEngine::__init__(state_manager, memory_manager) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::__init__(state_manager, memory_manager) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
 ReflectionEngine::adjust_behavior(learning) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::adjust_behavior(learning) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
 ReflectionEngine::compare_expectation_vs_reality(expectation, actual) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::compare_expectation_vs_reality(expectation, actual) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
 ReflectionEngine::extract_learning(comparison, action_record) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::extract_learning(comparison, action_record) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
 ReflectionEngine::reflect_on_action(action_record) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::reflect_on_action(action_record) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
 ReflectionEngine::reflect_on_recent_actions(window) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::reflect_on_recent_actions(window) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
 ReflectionEngine::update_models(learning) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
+ReflectionEngine::update_models(learning) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py
 ReflectionMemory::__init__(max_reflections) @ world_model/reflection_memory.py
 ReflectionMemory::_evict_old_reflections() @ world_model/reflection_memory.py
 ReflectionMemory::_matches_task_filters(reflection, filters) @ world_model/reflection_memory.py
@@ -4162,11 +4381,17 @@ RepoGraphLoader::load_pydantic_models() @ scripts/memory/load_indexes_to_neo4j.p
 RepoGraphLoader::load_route_handlers() @ scripts/memory/load_indexes_to_neo4j.py
 RepoGraphLoader::print_summary() @ scripts/memory/load_indexes_to_neo4j.py
 ReportGenerator::__init__(agent_id) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::__init__(agent_id) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 ReportGenerator::_detect_breaking_changes(changes) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::_detect_breaking_changes(changes) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 ReportGenerator::_identify_risks(changes) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::_identify_risks(changes) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 ReportGenerator::format_commit_message(report) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::format_commit_message(report) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 ReportGenerator::format_report(report) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::format_report(report) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 ReportGenerator::generate_change_report(task, changes, rationale, confidence, change_type, tests_added, tests_passed, breaking_changes, risks, mitigation) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ReportGenerator::generate_change_report(task, changes, rationale, confidence, change_type, tests_added, tests_passed, breaking_changes, risks, mitigation) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 Reporter::__init__(audit_name, repo_root) @ scripts/audit/audit_shared_core.py
 Reporter::generate_html_template(title, summary, content) @ scripts/audit/audit_shared_core.py
 Reporter::to_html(html_content, filename) @ scripts/audit/audit_shared_core.py
@@ -4385,13 +4610,21 @@ ScenarioLoader::load_builtins() @ simulation/scenario_loader.py
 ScenarioLoader::load_from_directory() @ simulation/scenario_loader.py
 ScenarioLoader::load_from_file(path) @ simulation/scenario_loader.py
 ScenarioLoader::save_scenario(scenario, path) @ simulation/scenario_loader.py
+SchemaDistiller::__init__(neo4j_driver, gnn_kernel) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 SchemaDistiller::__init__(neo4j_driver, gnn_kernel) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+SchemaDistiller::_infer_node_label(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 SchemaDistiller::_infer_node_label(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+SchemaDistiller::_infer_properties(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 SchemaDistiller::_infer_properties(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+SchemaDistiller::_infer_relationships(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 SchemaDistiller::_infer_relationships(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+SchemaDistiller::_infer_schema_description(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 SchemaDistiller::_infer_schema_description(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+SchemaDistiller::_infer_schema_name(pattern) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 SchemaDistiller::_infer_schema_name(pattern) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+SchemaDistiller::discover_schemas(latent_patterns) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 SchemaDistiller::discover_schemas(latent_patterns) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
+SchemaDistiller::validate_schema(schema, agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
 SchemaDistiller::validate_schema(schema, agent_id) @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 SchemaIntrospector::__init__(postgres_pool, neo4j_client) @ memory/schema_introspection.py
 SchemaIntrospector::async get_neo4j_labels() @ memory/schema_introspection.py
@@ -5567,13 +5800,13 @@ TestEntityExtractor::async test_extract_from_metadata() @ tests/memory/test_hybr
 TestEntityExtractor::async test_extract_gmp_references() @ tests/memory/test_hybrid_rag.py
 TestEntityExtractor::async test_extract_slack_users() @ tests/memory/test_hybrid_rag.py
 TestEntityExtractor::async test_extract_uuid_patterns() @ tests/memory/test_hybrid_rag.py
-TestEnvSecretsClient::async test_delete_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
-TestEnvSecretsClient::async test_get_secret_caching(monkeypatch) @ tests/core/abstractions/test_secrets_protocols.py
-TestEnvSecretsClient::async test_get_secret_from_env(monkeypatch) @ tests/core/abstractions/test_secrets_protocols.py
-TestEnvSecretsClient::async test_get_secret_not_found() @ tests/core/abstractions/test_secrets_protocols.py
-TestEnvSecretsClient::async test_rotate_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
-TestEnvSecretsClient::async test_set_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
-TestEnvSecretsClient::test_protocol_compliance() @ tests/core/abstractions/test_secrets_protocols.py
+TestEnvSecretsClient::async test_delete_secret_not_supported() @ tests/core/protocols/test_secrets_protocols.py
+TestEnvSecretsClient::async test_get_secret_caching(monkeypatch) @ tests/core/protocols/test_secrets_protocols.py
+TestEnvSecretsClient::async test_get_secret_from_env(monkeypatch) @ tests/core/protocols/test_secrets_protocols.py
+TestEnvSecretsClient::async test_get_secret_not_found() @ tests/core/protocols/test_secrets_protocols.py
+TestEnvSecretsClient::async test_rotate_secret_not_supported() @ tests/core/protocols/test_secrets_protocols.py
+TestEnvSecretsClient::async test_set_secret_not_supported() @ tests/core/protocols/test_secrets_protocols.py
+TestEnvSecretsClient::test_protocol_compliance() @ tests/core/protocols/test_secrets_protocols.py
 TestEnvironmentVariables::test_api_port_is_numeric() @ tests/docker/test_env_validation.py
 TestEnvironmentVariables::test_database_url_format() @ tests/docker/test_env_validation.py
 TestEnvironmentVariables::test_database_url_not_localhost_in_docker() @ tests/docker/test_env_validation.py
@@ -5934,6 +6167,7 @@ TestIntegration::async test_end_to_end_codegen() @ services/symbolic_computation
 TestIntegration::async test_end_to_end_computation() @ _archived/symbolic_computation/test_symbolic_computation.py
 TestIntegration::async test_end_to_end_computation() @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 TestIntegration::async test_end_to_end_computation() @ services/symbolic_computation/test_symbolic_computation.py
+TestIntegration::async test_full_evolution_cycle() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestIntegration::async test_full_evolution_cycle() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 TestIntegration::async test_phase_2_activation() @ current_work/packetEnvelope - Phase 2-5/test_suite.py
 TestIntegration::async test_phase_3_activation() @ current_work/packetEnvelope - Phase 2-5/test_suite.py
@@ -7137,12 +7371,19 @@ TestTestResults::test_test_results_creation() @ tests/integration/test_recursive
 TestTestResults::test_test_results_to_dict() @ tests/integration/test_recursive_self_testing.py
 TestThreadSafety::test_concurrent_binding(container) @ tests/unit/di/test_container.py
 TestThreadSafety::test_concurrent_resolution(container) @ tests/unit/di/test_container.py
+TestTier1MemoryEvolution::async test_gnn_kernel_encoding() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier1MemoryEvolution::async test_gnn_kernel_encoding() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier1MemoryEvolution::async test_schema_discovery() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier1MemoryEvolution::async test_schema_discovery() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier2SwarmSync::async test_conflict_superposition() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier2SwarmSync::async test_conflict_superposition() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier2SwarmSync::async test_intuition_cache_update() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier2SwarmSync::async test_intuition_cache_update() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier2SwarmSync::async test_vector_pubsub_publish() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier2SwarmSync::async test_vector_pubsub_publish() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier3Governance::async test_agent_promotion() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier3Governance::async test_agent_promotion() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier3Governance::async test_utility_scoring() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier3Governance::async test_utility_scoring() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 TestTimeoutHandling::async test_mock_results_without_tensoraios() @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py
 TestTimestamps::test_decision_timestamp_format() @ tests/runtime/test_kernel_state.py
@@ -7648,7 +7889,9 @@ UpcasterConfig::to_dict() @ core/schemas/upcaster_registry.py
 UpcasterConfig::to_dict() @ current_work/DONE/AUTOWIRING/upcaster_registry.py
 UpdateRecord::to_dict() @ world_model/runtime.py
 UserCorrectionPattern::detect(context) @ core/agents/selfreflection.py
+UtilityScorer::__init__(neo4j_driver) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 UtilityScorer::__init__(neo4j_driver) @ current_work/Neural-Symbolic Orchestration/governance.py
+UtilityScorer::score_subgraph(subgraph_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 UtilityScorer::score_subgraph(subgraph_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 VPSRepoGraphLoader::__init__(dry_run, verbose) @ scripts/memory/load_indexes_to_neo4j_vps.py
 VPSRepoGraphLoader::async api_request(method, endpoint) @ scripts/memory/load_indexes_to_neo4j_vps.py
@@ -7708,9 +7951,13 @@ Validator::async process(data) @ igor/DONE!/audit-tools/orchestrators_action_too
 Validator::async process(data) @ orchestrators/action_tool/validator.py
 Validator::async validate_tool(tool_id, arguments, context) @ igor/DONE!/audit-tools/orchestrators_action_tool_validator.py
 Validator::async validate_tool(tool_id, arguments, context) @ orchestrators/action_tool/validator.py
+VectorPubSub::__init__(redis_client, max_buffer_size) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 VectorPubSub::__init__(redis_client, max_buffer_size) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+VectorPubSub::async publish(channel, vector, agent_id, reasoning) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 VectorPubSub::async publish(channel, vector, agent_id, reasoning) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+VectorPubSub::async subscribe(channel, callback) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 VectorPubSub::async subscribe(channel, callback) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
+VectorPubSub::get_recent_learnings(channel, limit) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 VectorPubSub::get_recent_learnings(channel, limit) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 VectorStore::async close() @ core/protocols/memory_protocols.py
 VectorStore::async delete_embedding(id) @ core/protocols/memory_protocols.py
@@ -8126,13 +8373,21 @@ WorldModelUpdater::validate_update(update) @ current_work/DONE/WORLD_MODEL STUB 
 WorldModelUpdater::validate_update(update) @ world_model/_pack_staging/updater.py
 WorldModelUpdater::validate_update(update) @ world_model/updater.py
 YAMLGenerator::_generate_example(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_generate_example(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 YAMLGenerator::_parse_architecture(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_architecture(content) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 YAMLGenerator::_parse_auditable_outputs(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_auditable_outputs(content) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 YAMLGenerator::_parse_data_flow(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_data_flow(content) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 YAMLGenerator::_parse_decision_points(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_decision_points(content) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 YAMLGenerator::_parse_expandability(content) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_parse_expandability(content) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 YAMLGenerator::_sanitize_name(name) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::_sanitize_name(name) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 YAMLGenerator::generate(concept) @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
+YAMLGenerator::generate(concept) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 _SchemaRegistry::__init__() @ core/schemas/schema_registry.py
 _SchemaRegistry::_compute_migration_path(from_version, to_version) @ core/schemas/schema_registry.py
 _SchemaRegistry::_register_builtin_upcasters() @ core/schemas/schema_registry.py
@@ -8147,4 +8402,4 @@ _SchemaRegistry::write_packet(packet) @ core/schemas/schema_registry.py
 _StubRateLimiter::async check_and_increment(key, limit) @ core/governance/rate_limit_policy.py
 _StubRateLimiter::async get_usage(key) @ core/governance/rate_limit_policy.py
 
-# Total: 8143 class methods
+# Total: 8398 class methods

@@ -390,6 +390,7 @@ async _read() @ current_work/DONE/Observability/observability_l9_integration.py
 async _read_config(key) @ orchestrators/evolution/apply_engine.py
 async _read_file(path) @ orchestrators/evolution/apply_engine.py
 async _read_responses() @ runtime/mcp_client.py
+async _reallocate_to_shard(subgraph_id, target_shard, utility) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async _reallocate_to_shard(subgraph_id, target_shard, utility) @ current_work/Neural-Symbolic Orchestration/governance.py
 async _redis_clear_user_failures(username) @ runtime/auth_rate_limiter.py
 async _redis_count_failures(ip_address, username) @ runtime/auth_rate_limiter.py
@@ -574,6 +575,7 @@ async analyze_execution_patterns() @ agents/cursor/gmp_meta_learning.py
 async analyze_execution_patterns() @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 async analyze_failure(failure_context, error, stack_trace) @ agents/reflection_agent.py
 async analyze_failure(request, authorization, _, agent) @ api/routes/reflection_agent.py
+async analyze_global_metrics() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async analyze_global_metrics() @ current_work/Neural-Symbolic Orchestration/governance.py
 async analyze_task_execution(context, patterns) @ core/agents/selfreflection.py
 async anonymize_aggregate(aggregate_data) @ core/packet_envelope/governance.py
@@ -855,6 +857,7 @@ async connect() @ memory/substrate_repository.py
 async connect() @ runtime/redis_client.py
 async consolidate(agent_id, conversation_text) @ core/memory/virtual_context.py
 async consolidate_graph_state(agent_id) @ core/memory/virtual_context.py
+async consolidate_intuition() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async consolidate_intuition() @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async consolidate_reflections(min_reflections) @ world_model/runtime.py
 async coordinate_tensor_calls(entities) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensor_coordinator.py
@@ -943,6 +946,7 @@ async delete_trash_embeddings() @ scripts/memory/delete_trash_via_service.py
 async delete_trash_embeddings(database_url, dry_run, verbose) @ scripts/memory/delete_trash_embeddings.py
 async delete_trash_embeddings_from_sql() @ scripts/memory/execute_cleanup_and_reindex.py
 async deliberate(task, initial_graph, context) @ ir_engine/deliberation_cell.py
+async deploy_improvement(agent_id, improvement) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async deploy_improvement(agent_id, improvement) @ current_work/Neural-Symbolic Orchestration/governance.py
 async deprecate_fact(fact_id, reason) @ memory/state_manager.py
 async deprecate_fact(fact_id, reason) @ memory/substrate_repository.py
@@ -955,6 +959,7 @@ async derive_lessons(session_history) @ collaborative_cells/reflection_cell.py
 async design(requirements, constraints, existing_systems) @ collaborative_cells/architect_cell.py
 async design_component(component_name, requirements, interfaces) @ agents/architect_agent/architect_agent_a.py
 async detect_all_gaps(mentioned_entities, entity_graph) @ memory/gap_detector.py
+async detect_and_record_conflicts(subject) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async detect_and_record_conflicts(subject) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async detect_anomalies(packet, historical_window) @ igor/DONE!/audit-memory/memory_insight_extraction.py
 async detect_anomalies(packet, historical_window) @ memory/insight_extraction.py
@@ -2174,12 +2179,16 @@ async process_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260
 async process_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py
 async process_sub_batch(packets) @ core/packet_envelope/scalability.py
 async process_sub_batch(packets) @ current_work/packetEnvelope - Phase 2-5/phase_4_scalability.py
+async promote_agent_l1_to_l2(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async promote_agent_l1_to_l2(agent_id) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async propose_alternatives(current_design, issue) @ agents/architect_agent/architect_agent_a.py
+async propose_kernel_improvement() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async propose_kernel_improvement() @ current_work/Neural-Symbolic Orchestration/governance.py
+async propose_logic_improvement(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async propose_logic_improvement(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 async prune_low_importance(batch_size, dry_run) @ memory/importance_manager.py
 async prune_session_context(agent_id, max_chunks) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
+async publish(channel, vector, agent_id, reasoning) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async publish(channel, vector, agent_id, reasoning) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async publish(event) @ core/coordination/event_queue.py
 async put(config, checkpoint, metadata, new_versions) @ memory/checkpoint/postgres_saver.py
@@ -2230,6 +2239,7 @@ async recall_task_history(num_tasks) @ igor/DONE!/audit-tools/services_research_
 async reconstruct_chain(packet_id, max_depth) @ memory/reasoning_replay.py
 async record_approval_feedback(request, req, _) @ api/routes/commands.py
 async record_compilation(expr, language, duration_ms, success) @ services/symbolic_computation/core/metrics.py
+async record_conflict(subject, beliefs) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async record_conflict(subject, beliefs) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async record_contradiction(subject, predicate, conflicting_objects, source_packet) @ memory/state_manager.py
 async record_evaluation(expr, backend, duration_ms, success, cache_hit) @ services/symbolic_computation/core/metrics.py
@@ -2343,6 +2353,7 @@ async research_to_code(topic, mode, domain) @ agents/research_agent_impl.py
 async reset(key) @ runtime/rate_limiter.py
 async reset_agent_state(preserve) @ memory/state_manager.py
 async reset_violation_count(lesson_id, _api_key) @ api/routes/workers.py
+async resolve_by_observer(subject, observer_requirements) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async resolve_by_observer(subject, observer_requirements) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async resolve_contradiction(fact_id, resolution, resolved_by) @ memory/state_manager.py
 async restore(snapshot_id) @ clients/world_model_client.py
@@ -2677,6 +2688,7 @@ async startup() @ workers/violation_patterns.py
 async startup() @ workers/violation_tracker_service.py
 async startup_health() @ api/server.py
 async startup_health() @ current_work/DONE/Slack-Debug-2/server.py
+async steer_resources() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async steer_resources() @ current_work/Neural-Symbolic Orchestration/governance.py
 async step1(context) @ tests/memory/test_saga.py
 async step1(context) @ tests/memory/test_saga.py
@@ -2734,6 +2746,7 @@ async submit_insights(request) @ api/world_model_api.py
 async submit_task(payload, _) @ api/agent_routes.py
 async submit_task_result(task_id, payload) @ api/webhook_mac_agent.py
 async subscribe(agent_id, handler) @ core/coordination/event_queue.py
+async subscribe(channel, callback) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async subscribe(channel, callback) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async substrate_service() @ tests/memory/test_substrate_alignment.py
 async suggest_improvements(blueprint, evaluation) @ orchestrators/meta/interface.py
@@ -2744,6 +2757,7 @@ async symbolic_codegen(expression, variables, language, function_name, compile) 
 async symbolic_compute(expression, variables, backend) @ core/tools/symbolic_tool.py
 async symbolic_compute(expression, variables, backend) @ igor/DONE!/audit-tools/core_tools_symbolic_tool.py
 async sync_agent(agent_id) @ core/integration/graph_to_wm_sync.py
+async sync_agent_intuition(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async sync_agent_intuition(agent_id) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async sync_all() @ core/integration/wm_to_graph_sync.py
 async sync_all_tool_embeddings() @ core/tools/tool_embeddings.py
@@ -2771,6 +2785,7 @@ async test_add_sop_step_not_found() @ tests/core/bootstrap/test_agent_self_modif
 async test_add_sop_step_success() @ tests/core/bootstrap/test_agent_self_modify.py
 async test_agent_graph_loader_cache() @ tests/core/bootstrap/test_graph_state.py
 async test_agent_graph_loader_exists_check() @ tests/core/bootstrap/test_graph_state.py
+async test_agent_promotion() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_agent_promotion() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 async test_agent_without_kernel_state() @ tests/unit/test_guarded_execution.py
 async test_agent_without_kernels_attribute() @ tests/unit/test_guarded_execution.py
@@ -2867,6 +2882,7 @@ async test_confidence_calculation(engine) @ codegen/extractions/domain_tensor_br
 async test_confidence_capped_at_95() @ tests/workers/test_anomaly_classifier.py
 async test_confidence_increases_with_matches() @ tests/workers/test_anomaly_classifier.py
 async test_config_passed_to_node() @ tests/memory/test_substrate_dag_native.py
+async test_conflict_superposition() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_conflict_superposition() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 async test_consolidate_graph_state_default_agent() @ tests/memory/test_consolidation_graph.py
 async test_consolidate_graph_state_exception_handling() @ tests/memory/test_consolidation_graph.py
@@ -2906,7 +2922,7 @@ async test_deduplication() @ tests/memory/test_hybrid_rag.py
 async test_default_retry_policy() @ tests/core/test_resilience_mixin.py
 async test_delete_entity_returns_bool(monkeypatch) @ tests/world_model/test_world_model_repository_basic.py
 async test_delete_old_checkpoints(agent_persistence_service) @ tests/memory/test_agent_persistence.py
-async test_delete_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
+async test_delete_secret_not_supported() @ tests/core/protocols/test_secrets_protocols.py
 async test_deployment_validation() @ tests/upgrades/test_packet_envelope_phases.py
 async test_depth_returns_stream_length() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_dequeue_raises_on_redis_failure() @ tests/runtime/test_fail_closed_task_queue.py
@@ -3116,6 +3132,7 @@ async test_full_checkpoint_lifecycle(retryable_saver, mock_repository, valid_con
 async test_full_cross_client_write_read_cycle() @ tests/memory/test_cross_client_consistency.py
 async test_full_dag_execution_e2e() @ tests/memory/test_ingestion_pipeline_audit.py
 async test_full_dag_flow() @ tests/test_memory_substrate_basic.py
+async test_full_evolution_cycle() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_full_evolution_cycle() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 async test_full_execution_flow_success(executor, mock_substrate_service, mock_aios_runtime) @ tests/integration/test_l_cto_end_to_end.py
 async test_full_flow() @ tests/cursor/test_gmp_meta_learning.py
@@ -3176,9 +3193,9 @@ async test_get_relevant_tools_raises_on_semantic_failure() @ tests/core/test_fai
 async test_get_relevant_tools_raises_without_registry() @ tests/core/test_fail_closed_registry.py
 async test_get_result_by_request_id(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_get_results_for_graph(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
-async test_get_secret_caching(monkeypatch) @ tests/core/abstractions/test_secrets_protocols.py
-async test_get_secret_from_env(monkeypatch) @ tests/core/abstractions/test_secrets_protocols.py
-async test_get_secret_not_found() @ tests/core/abstractions/test_secrets_protocols.py
+async test_get_secret_caching(monkeypatch) @ tests/core/protocols/test_secrets_protocols.py
+async test_get_secret_from_env(monkeypatch) @ tests/core/protocols/test_secrets_protocols.py
+async test_get_secret_not_found() @ tests/core/protocols/test_secrets_protocols.py
 async test_get_tool_context() @ tests/memory/test_tool_router.py
 async test_get_tool_router_singleton() @ tests/memory/test_tool_router.py
 async test_get_tools_for_task() @ tests/memory/test_tool_router.py
@@ -3186,6 +3203,7 @@ async test_get_warmed_context_returns_memory_context(sample_entity_graph) @ test
 async test_get_with_retry(retryable_saver, mock_repository, valid_config) @ tests/memory/test_checkpoint_retry.py
 async test_get_working_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_get_world_model_context() @ tests/integration/test_world_model.py
+async test_gnn_kernel_encoding() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_gnn_kernel_encoding() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 async test_governance_blocked(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_governance_blocks_and_logs_violations() @ tests/integration/test_l_cto_memory_governance_integration.py
@@ -3241,6 +3259,7 @@ async test_idempotent_replay_cached(adapter, sample_request, mock_substrate_serv
 async test_idempotent_replay_cached(adapter, sample_request, mock_substrate_service, mock_aios_client) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/tests/test_email_adapter.py
 async test_idempotent_replay_cached(adapter, sample_request, mock_substrate_service, mock_aios_client) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/tests/test_twilio_adapter.py
 async test_igor_high_impact_decision_escalation() @ tests/integration/test_cursor_langgraph_integration.py
+async test_improvement(agent_id, improvement) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async test_improvement(agent_id, improvement) @ current_work/Neural-Symbolic Orchestration/governance.py
 async test_inbound_packet_stored(mock_substrate_service) @ tests/api/test_slack_adapter.py
 async test_incremental_appends_actions(mock_openai_client, incremental_response, simple_valid_graph) @ tests/ir_engine/test_ir_semantic_incremental.py
@@ -3293,6 +3312,7 @@ async test_instrument_tool_registry_wraps_dispatch() @ tests/core/observability/
 async test_intake_node() @ tests/test_memory_substrate_basic.py
 async test_intake_node_missing_required() @ tests/test_memory_substrate_basic.py
 async test_intake_node_receives_config() @ tests/memory/test_substrate_dag_native.py
+async test_intuition_cache_update() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_intuition_cache_update() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 async test_invalid_agent_id_returns_error(executor) @ current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py
 async test_invalid_agent_id_returns_error(executor) @ tests/core/bootstrap/test_executor.py
@@ -3601,7 +3621,7 @@ async test_returns_error_when_pipeline_unavailable(codegen_agent) @ tests/agents
 async test_rls_connection_available_in_context() @ tests/memory/test_rls_isolation.py
 async test_rls_scope_set_in_transaction() @ tests/memory/test_rls_isolation.py
 async test_rollback_requires_igor() @ tests/integration/test_igor_commands.py
-async test_rotate_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
+async test_rotate_secret_not_supported() @ tests/core/protocols/test_secrets_protocols.py
 async test_route_by_domain(router) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
 async test_route_by_packet_kind(router, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py
 async test_route_with_no_engine_uses_stub(validated_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
@@ -3632,6 +3652,7 @@ async test_save_via_main_pipeline_handles_errors_gracefully() @ mcp_memory/tests
 async test_save_via_main_pipeline_handles_ttl_correctly() @ mcp_memory/tests/test_main_pipeline_integration.py
 async test_save_with_confidence() @ igor/DONE!/audit-memory/mcp_memory_tests_test_memory.py
 async test_save_with_confidence() @ mcp_memory/tests/test_memory.py
+async test_schema_discovery() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_schema_discovery() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 async test_scope_enforcement_cursor_cannot_read_l_private() @ tests/integration/test_cursor_langgraph_integration.py
 async test_search_empty_results() @ tests/memory/test_hybrid_rag.py
@@ -3666,7 +3687,7 @@ async test_service_initialization() @ tests/integration/test_world_model.py
 async test_service_metrics(sample_entity_graph) @ tests/memory/test_predictive_warming.py
 async test_session_learning_extraction() @ igor/DONE!/audit-memory/mcp_memory_tests_test_memory.py
 async test_session_learning_extraction() @ mcp_memory/tests/test_memory.py
-async test_set_secret_not_supported() @ tests/core/abstractions/test_secrets_protocols.py
+async test_set_secret_not_supported() @ tests/core/protocols/test_secrets_protocols.py
 async test_set_session_scope_executes_rls_call() @ tests/world_model/test_wm_scope.py
 async test_set_working_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_shared_tenant_isolation_works() @ tests/memory/test_cross_client_consistency.py
@@ -3777,6 +3798,7 @@ async test_upgrade_engine_phase_sequence() @ tests/upgrades/test_packet_envelope
 async test_upsert_entity_uses_pool_and_fetchrow(monkeypatch) @ tests/world_model/test_world_model_repository_basic.py
 async test_upsert_handles_missing_wm_service() @ tests/integration/test_graph_wm_sync.py
 async test_upsert_to_world_model_integration() @ tests/integration/test_graph_wm_sync.py
+async test_utility_scoring() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_utility_scoring() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 async test_valid_intents(codegen_agent, mock_pipeline_result) @ tests/agents/codegenagent/test_symbolic_verification.py
 async test_valid_packet_end_to_end(mock_services) @ igor/DONE!/L9 Memory Substrate Audit/test_memory_substrate_flow.py
@@ -3800,6 +3822,7 @@ async test_validation_does_not_mutate_task(mock_aios, mock_tool_registry, mock_s
 async test_validation_error_propagates_in_async() @ tests/memory/test_packet_validation_v2.py
 async test_validation_failure(controller, mock_packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py
 async test_validator_callable_from_async_context() @ tests/memory/test_packet_validation_v2.py
+async test_vector_pubsub_publish() @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_vector_pubsub_publish() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 async test_verify_lineage_integrity_valid(reasoning_replay_pipeline, memory_substrate_service) @ tests/memory/test_reasoning_replay.py
 async test_verify_returns_signature() @ tests/core/bootstrap/test_bootstrap_phases.py
@@ -3883,6 +3906,7 @@ async update_fact_importance(fact_id, new_importance, touch_access) @ memory/sub
 async update_from_insights(insights) @ orchestrators/world_model/interface.py
 async update_from_insights(insights) @ orchestrators/world_model/orchestrator.py
 async update_from_insights(insights, tenant_id, org_id, user_id, role) @ world_model/service.py
+async update_from_learning(learning) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 async update_from_learning(learning) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 async update_from_packet(packet) @ world_model/engine.py
 async update_from_packet(packet) @ world_model/runtime.py
@@ -3922,8 +3946,10 @@ async validate_upgrade(upgrade) @ orchestrators/evolution/interface.py
 async validate_upgrade(upgrade) @ orchestrators/evolution/orchestrator.py
 async validate_upgrade_deployment() @ api/routes/upgrades.py
 async validation_exception_handler(request, exc) @ mcp_memory/src/main.py
+async verify_agent_logic(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async verify_agent_logic(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 async verify_and_lock(instance, substrate_service, kernels) @ core/agents/bootstrap/phase_7_verify_and_lock.py
+async verify_and_promote(agent_id) @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async verify_and_promote(agent_id) @ current_work/Neural-Symbolic Orchestration/governance.py
 async verify_api_key(request, authorization) @ igor/DONE!/audit-memory/mcp_memory_src_main.py
 async verify_api_key(request, authorization) @ mcp_memory/src/main.py
@@ -3996,4 +4022,4 @@ async write_packet_to_substrate(packet) @ world_model/seed_loader.py
 async write_sync_output(agent_id, patch) @ agents/codegenagent/cursor_context_sync_engine.py
 async write_tests(code, framework) @ agents/coder_agent/coder_agent_b.py
 
-# Total: 3992 async functions
+# Total: 4018 async functions

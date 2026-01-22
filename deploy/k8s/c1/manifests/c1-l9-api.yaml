@@ -1,0 +1,197 @@
+# C1 L9 API - The actual L9 FastAPI application
+# Rollback: kubectl delete -f c1-l9-api.yaml
+#
+# This is the CORE L9 application (replaces generic orchestrator)
+# - FastAPI server (api.server:app)
+# - Agent executor
+# - Kernel loader
+# - Tool registry
+# - Slack/Email/Calendar adapters
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: l9-api
+  namespace: l9-c1
+  labels:
+    app: l9-api
+    com.l9.service: api
+    com.l9.version: "1.1.0"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: l9-api
+  template:
+    metadata:
+      labels:
+        app: l9-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: l9-service-account
+      containers:
+      - name: l9-api
+        image: ghcr.io/igor-beylin/l9-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        # PostgreSQL (Memory Substrate)
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: l9-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: l9-secrets
+              key: postgres-password
+        # DATABASE_URL and MEMORY_DSN constructed from secrets
+        # Format: postgresql://USER:PASSWORD@HOST:PORT/DB
+        - name: DATABASE_URL
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@l9-postgres:5432/l9_memory"
+        - name: MEMORY_DSN
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@l9-postgres:5432/l9_memory"
+        
+        # Neo4j (Knowledge Graph)
+        - name: NEO4J_URL
+          value: "bolt://l9-neo4j:7687"
+        - name: NEO4J_USER
+          valueFrom:
+            secretKeyRef:
+              name: l9-secrets
+              key: neo4j-user
+        - name: NEO4J_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: l9-secrets
+              key: neo4j-password
+        
+        # Redis (Task Queue, Caching)
+        - name: REDIS_HOST
+          value: "l9-redis"
+        - name: REDIS_PORT
+          value: "6379"
+        
+        # OpenAI
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: l9-secrets
+              key: openai-api-key
+              optional: true
+        - name: OPENAI_MODEL
+          value: "gpt-4-turbo"
+        
+        # Embedding Configuration
+        - name: EMBEDDING_PROVIDER
+          value: "openai"
+        - name: EMBEDDING_MODEL
+          value: "text-embedding-3-large"
+        
+        # Kernel System
+        - name: L9_USE_KERNELS
+          value: "true"
+        
+        # API Config
+        - name: API_HOST
+          value: "0.0.0.0"
+        - name: API_PORT
+          value: "8000"
+        - name: LOG_LEVEL
+          value: "INFO"
+        
+        # Feature Flags
+        - name: L9_ENABLE_LEGACY_CHAT
+          value: "false"
+        - name: L9_ENABLE_LEGACY_SLACK_ROUTER
+          value: "false"
+        
+        # Slack Adapter (optional - configure in secrets)
+        - name: SLACK_APP_ENABLED
+          value: "false"
+        
+        # Mac Agent
+        - name: MAC_AGENT_ENABLED
+          value: "false"
+        
+        # Pod Identity
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: SERVER_ID
+          value: "c1-hetzner"
+        
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "400m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"  # Reduced to fit 4 vCPU budget
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        # Startup probe for slow-starting services
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          failureThreshold: 30
+          periodSeconds: 10  # 5 minutes total before give up
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+      volumes:
+      - name: config
+        configMap:
+          name: l9-config
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: l9-api
+  namespace: l9-c1
+  labels:
+    app: l9-api
+spec:
+  type: ClusterIP
+  selector:
+    app: l9-api
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http

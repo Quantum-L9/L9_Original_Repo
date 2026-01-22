@@ -2314,6 +2314,224 @@ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::main() -
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::setup_ci_validation(self) - Create CI/CD validation pipeline
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::setup_pre_commit_hooks(self) - Configure pre-commit hooks for automatic
 current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::setup_static_analysis(self) - Deploy language-specific static analysis
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::__init__(self, neo4j_driver) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::__init__(self, neo4j_driver) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::__init__(self, neo4j_driver, coordinator) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::__init__(self, neo4j_driver, coordinator) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::__init__(self, neo4j_driver, orchestrator) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::score_subgraph(self, subgraph_id) - Calculate utility score for a subgraph
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::__init__(self, input_dim, hidden_dim, output_dim, num_layers, device) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::__init__(self, neo4j_driver) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::__init__(self, neo4j_driver, gnn_kernel) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::_infer_node_label(self, pattern) - Infer Neo4j node label
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::_infer_properties(self, pattern) - Infer node properties
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::_infer_relationships(self, pattern) - Infer relationships to existing nodes
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::_infer_schema_description(self, pattern) - Infer description from pattern character
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::_infer_schema_name(self, pattern) - Infer descriptive name from pattern
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::decode(self, latent) - Decode from latent space
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::deploy_canary(self, schema, canary_agents) - Deploy schema to canary agents and monit
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::discover_schemas(self, latent_patterns) - Discover new schemas from latent pattern
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::encode(self, data) - Encode interaction data into latent spac
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::encode_reasoning(self, reasoning) - Convert reasoning object to embedding ve
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::get_latent_patterns(self, encoded, threshold) - Extract meaningful patterns from latent 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::promote_to_production(self, schema) - Promote canary deployment to full produc
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::validate_schema(self, schema, agent_id) - Validate schema works on a specific agen
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::__init__(self, neo4j_driver, redis_client, schema_distiller) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::__init__(self, redis_client) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::__init__(self, redis_client, agent_id, ttl_seconds) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::__init__(self, redis_client, max_buffer_size) - 
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::get_cached_intuition(self, source_agent) - Get cached intuition
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::get_recent_learnings(self, channel, limit) - Get recent learning events from history
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::get_superposition(self, subject) - Retrieve superposition for a subject
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::mock_neo4j() - Fixture for mocked Neo4j driver
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::mock_redis() - Fixture for mocked Redis client
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::__init__(self) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::__init__(self, schemas) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_calculate_confidence(self, data, schema) - Calculate extraction confidence based on
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_applicability(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_constraints(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_enforcement(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_failure_modes(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_id(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_id(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_id(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_id(self, text, prefix) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_intent(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_name(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_name(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_rationale(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_rationale(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_rule(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_rule(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_scope(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_severity(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_severity(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_steps(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_extract_violations(self, text) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_hash_file(self, path) - Generate hash of file content.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::_load_schemas(self) - Load schema definitions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::classify(self, text) - Classify a document by scoring against a
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::compile_directory(self, input_dir, output_dir) - Compile all documents in a directory.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::compile_document(self, doc_path, output_dir) - Compile a single document into YAML arti
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::extract(self, text, schema) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::extract(self, text, schema) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::extract(self, text, schema) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::extract(self, text, schema) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::extract(self, text, schema) - Extract structured data based on schema.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::main() - Main entry point.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::__init__(self, repo_root, governance_loader, confidence_threshold) - Initialize CA code change orchestrator.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::apply_change(self, proposal) - Apply approved changes to files.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::generate_commit_message(self, proposal) - Generate a git commit message from the p
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::propose_change(self, task, changes, rationale, confidence, change_type, tests_added) - Propose a code change following P-CODE-0
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::save_artifacts(self, proposal, output_dir) - Save diff and report to files.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::__init__(self, repo_root, governance_loader) - Initialize constraint validator.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::_check_dangerous_patterns(self, change) - Check for dangerous code patterns.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::_check_file_edit_constraint(self, change) - Check C-FILES-001: Files must be edited,
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::_check_test_constraint(self, change) - Check C-TEST-001: Tests are required for
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::format_violations(self, result) - Format violations as human-readable text
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::validate_batch(self, changes) - Validate multiple changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::validate_change(self, change) - Validate a single change against all con
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::__init__(self, repo_root) - Initialize diff generator.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::format_for_git(self, batch_diff) - Format batch diff as git-compatible patc
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::format_for_review(self, batch_diff) - Format batch diff as markdown for human 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::generate_batch_diff(self, changes) - Generate diffs for multiple file changes
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::generate_diff(self, file_path, original, modified) - Generate a unified diff for a single fil
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::save_diff(self, batch_diff, output_path) - Save diff to file.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::__init__(self, agent_id) - Initialize report generator.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::_detect_breaking_changes(self, changes) - Detect if changes might break existing c
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::_identify_risks(self, changes) - Identify potential risks in changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::format_commit_message(self, report) - Generate a git commit message from the r
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::format_report(self, report) - Format report as markdown.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::generate_change_report(self, task, changes, rationale, confidence, change_type, tests_added, tests_passed, breaking_changes, risks, mitigation) - Generate a complete change report.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::__init__(self, repo_root, agent_id, memory_manager) - Initialize governance integration.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::apply_code_change(self, proposal) - Apply an approved code change.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::decide_and_act(self, context) - Execute foresight loop: decide and act.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::get_agent_state(self) - Get current agent state summary.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::get_full_status(self) - Get complete status of both governance l
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::propose_code_change(self, task, changes, rationale, confidence) - Propose a code change with full CA gover
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::reflect_on_actions(self, window) - Perform reflection on recent actions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::register_action(self, action_type, description) - Decorator to register an action.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::__init__(self) - Initialize the action registry.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::__post_init__(self) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::decorator(func) - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::execute(self, action) - Execute an action by type.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::has_action(self, action_type) - Check if an action is registered.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::list_actions(self, category) - List all registered actions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::register(self, action_type, description, category) - Decorator to register action handlers.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::__init__(self, agent_id, state_dir) - Initialize state manager.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::__post_init__(self) - Initialize default values.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::action_history(self) - Get action history.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::confidence_threshold(self) - Get current confidence threshold.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::confidence_threshold(self, value) - Set confidence threshold with bounds che
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::get_state_summary(self) - Get a summary of current state.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::last_reflection_timestamp(self) - Get last reflection timestamp.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::last_reflection_timestamp(self, value) - Set last reflection timestamp.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::load_state(self) - Load state from disk or create new.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::performance_metrics(self) - Get performance metrics.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::record_action_outcome(self, action_record) - Record action with outcome for reflectio
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::save_state(self) - Save state to disk.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::trust_index(self) - Get trust index.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::trust_index(self, value) - Set trust index with bounds checking.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::value_alignment_vector(self) - Get value alignment vector.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::__init__(self, state_manager, memory_manager, action_registry, candidate_generator, outcome_simulator) - Initialize foresight engine.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::_get_timestamp(self) - Get current timestamp.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::confidence_threshold(self) - Get current confidence threshold from st
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::decide_and_act(self, context) - Main foresight loop: Observe → Predict →
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::evaluate_candidates(self, context, candidates) - Evaluate and score each candidate.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::execute_action(self, action, confidence) - Execute action and record expectation fo
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::generate_candidates(self, context) - Generate candidate actions from context.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::simulate_action(self, context, action) - Simulate action outcome and calculate co
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::__init__(self, memory_manager) - Initialize memory adapter.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::_detect_simple_patterns(self) - Detect simple patterns from action cache
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::_embed_context(self, context) - Convert context to embedding vector.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::find_similar_contexts(self, context, limit) - Find similar past contexts using vector 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::get_action_history(self, action_type, limit) - Get history for a specific action type.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::get_actions_for_context(self, context) - Get actions that were taken in similar c
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::get_recent_patterns(self, days) - Get recent behavioral patterns.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::store_action_outcome(self, action_record) - Store action + outcome for future learni
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::__init__(self, state_manager, memory_manager) - Initialize reflection engine.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::adjust_behavior(self, learning) - Adjust confidence threshold based on per
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::compare_expectation_vs_reality(self, expectation, actual) - Compare expected vs actual outcomes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::extract_learning(self, comparison, action_record) - Derive insights from the comparison.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::reflect_on_action(self, action_record) - Execute the 7-step reflection protocol o
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::reflect_on_recent_actions(self, window) - Perform batch reflection on recent actio
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::update_models(self, learning) - Update confidence calibration and predic
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::__init__(self, aggressive) - Initialize the concept extractor.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::__init__(self, root_dir) - Initialize the file scanner.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::__init__(self, root_dir, output_dir) - Initialize the knowledge harvester.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_calculate_confidence(self, name, context, category) - Calculate extraction confidence.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_create_concept_from_match(self, file_path, content, match) - Create a concept from a regex match.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_determine_category(self, name, context) - Determine concept category based on keyw
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_extract_description(self, content, start_pos) - Extract description (first paragraph aft
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_extract_from_headers(self, file_path, content) - Extract concepts from markdown headers.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_extract_from_yaml(self, file_path, content) - Extract concepts from YAML structure.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_generate_example(self, concept) - Generate example use case.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_generate_id(self, file_path, concept_name) - Generate unique concept ID.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_generate_summary(self, concepts, yaml_specs) - Generate harvest summary report.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_parse_architecture(self, content) - Parse architecture components from conte
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_parse_auditable_outputs(self, content) - Parse auditable outputs from content.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_parse_data_flow(self, content) - Parse data flow from content.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_parse_decision_points(self, content) - Parse decision points from content.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_parse_expandability(self, content) - Parse expandability notes from content.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_read_file(self, file_path) - Read file content based on type.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::_sanitize_name(self, name) - Sanitize concept name.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::extract_from_file(self, file_path) - Extract concepts from a file.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::generate(self, concept) - Generate structured YAML from concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::get_file_info(self, file_path) - Get metadata about a file.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::harvest(self) - Run the complete harvesting pipeline.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::main() - CLI entry point.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::scan(self) - Scan directory and return list of proces
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::__init__(self, harvested_dir) - Initialize the QC dashboard.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_approve_concept(self, concept) - Approve a concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_batch_approve(self) - Batch approve high-confidence concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_clear_screen(self) - Clear the terminal screen.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_edit_concept(self, concept) - Edit concept YAML.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_export_summary(self) - Export summary report.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_generate_plan_specs(self) - Generate PLAN specs for approved concept
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_load_concepts(self) - Load all extracted concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_load_reviews(self) - Load existing reviews.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_reject_concept(self, concept) - Reject a concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_review_concepts(self) - Review concepts interactively.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_save_review(self, review) - Save a review.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_show_approved(self) - Show approved concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_show_concept(self, concept) - Display concept details.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_show_header(self) - Show dashboard header.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_show_menu(self) - Show main menu.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_show_rejected(self) - Show rejected concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::_show_stats(self) - Show concept statistics.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::main() - CLI entry point.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::run(self) - Run the interactive dashboard.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::__init__(self, output_dir) - Initialize the spec generator.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::_build_acceptance_criteria(self, concept) - Build acceptance criteria from concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::_build_agent_rules(self, concept) - Build agent rules (safety bounds).
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::_build_context(self, concept) - Build context information.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::_build_definition_of_done(self, concept) - Build definition of done.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::_build_task_description(self, concept) - Build task description from concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::generate_cursor_prompt(self, plan, concept) - Generate the complete Cursor prompt for 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::generate_from_file(self, concept_file, project_id) - Complete generation pipeline from concep
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::generate_plan_spec(self, concept, project_id) - Generate a PLAN_Vn spec from a concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::main() - CLI entry point.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::parse_concept(self, concept_file) - Parse a concept file (YAML or Markdown).
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::__init__(self, output_dir) - Initialize the spec generator.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::_build_acceptance_criteria(self, concept) - Build acceptance criteria from concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::_build_agent_rules(self, concept) - Build agent rules (safety bounds).
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::_build_context(self, concept) - Build context information.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::_build_definition_of_done(self, concept) - Build definition of done.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::_build_task_description(self, concept) - Build task description from concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::generate_cursor_prompt(self, plan, concept) - Generate the complete Cursor prompt for 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::generate_from_file(self, concept_file, project_id) - Complete generation pipeline from concep
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::generate_plan_spec(self, concept, project_id) - Generate a PLAN_Vn spec from a concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::main() - CLI entry point.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::parse_concept(self, concept_file) - Parse a concept file (YAML or Markdown).
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::__init__(self, output_dir) - Initialize the generator.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::_build_generation_prompt(self, concept) - Build the complete generation prompt.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::_find_compiler(self) - Find the compiler script.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::_find_superprompt(self) - Find the superprompt file.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::compile_governance(self, module_dir) - Extract governance artifacts from genera
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::generate_code(self, concept) - Generate Python code from concept using 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::generate_from_file(self, concept_file) - Complete generation pipeline from concep
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::main() - CLI entry point.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::parse_concept(self, concept_file) - Parse a concept file (YAML or Markdown).
 current_work/DONE/AUTOWIRING/agent_registry.py::_validate_agent_class(cls) - Validate that an object is an agent clas
 current_work/DONE/AUTOWIRING/agent_registry.py::build_agent_exports() - Build the __all__ list for agents/__init
 current_work/DONE/AUTOWIRING/agent_registry.py::decorator(cls) - 
@@ -4928,6 +5146,30 @@ scripts/migrate_substrate_models.py::main() -
 scripts/migrate_substrate_models.py::migrate_file(path, dry_run) - Migrate a single file.
 scripts/migrate_substrate_models.py::parse_imports(content) - Parse the substrate_models import statem
 scripts/migrate_substrate_models.py::should_skip(path) - Check if file should be skipped.
+scripts/refactoring/aios_validate.py::__init__(self, filename) - 
+scripts/refactoring/aios_validate.py::check_file(self) - Run compliance checks
+scripts/refactoring/aios_validate.py::main() - 
+scripts/refactoring/aios_validate.py::scan_directory(base_path) - Scan directory for AIOS compliance viola
+scripts/refactoring/aios_validate.py::should_skip(path) - Check if path should be skipped
+scripts/refactoring/aios_validate.py::visit_AsyncFunctionDef(self, node) - 
+scripts/refactoring/aios_validate.py::visit_FunctionDef(self, node) - 
+scripts/refactoring/aios_validate.py::visit_ImportFrom(self, node) - 
+scripts/refactoring/bootstrap_refactor.py::__init__(self, project_root, language, verbose) - 
+scripts/refactoring/bootstrap_refactor.py::_analyze_python(self) - Analyze Python codebase
+scripts/refactoring/bootstrap_refactor.py::_analyze_typescript(self) - Analyze TypeScript codebase
+scripts/refactoring/bootstrap_refactor.py::_create_directories(self) - Create configuration and report director
+scripts/refactoring/bootstrap_refactor.py::_setup_java_analysis(self) - Configure Java static analysis
+scripts/refactoring/bootstrap_refactor.py::_setup_python_analysis(self) - Configure Python linters and type checke
+scripts/refactoring/bootstrap_refactor.py::_setup_typescript_analysis(self) - Configure TypeScript linters and formatt
+scripts/refactoring/bootstrap_refactor.py::_validate_project(self) - Verify project structure is valid
+scripts/refactoring/bootstrap_refactor.py::bootstrap(self) - Execute complete bootstrap sequence
+scripts/refactoring/bootstrap_refactor.py::create_refactoring_backlog(self) - Generate prioritized refactoring candida
+scripts/refactoring/bootstrap_refactor.py::generate_ai_workflow_config(self) - Create AI-assisted refactoring workflow 
+scripts/refactoring/bootstrap_refactor.py::generate_baseline_metrics(self) - Capture current codebase metrics
+scripts/refactoring/bootstrap_refactor.py::main() - 
+scripts/refactoring/bootstrap_refactor.py::setup_ci_validation(self) - Create CI/CD validation pipeline
+scripts/refactoring/bootstrap_refactor.py::setup_pre_commit_hooks(self) - Configure pre-commit hooks for automatic
+scripts/refactoring/bootstrap_refactor.py::setup_static_analysis(self) - Deploy language-specific static analysis
 scripts/research/delegate_deep_research.py::extract_prompt_from_payload(payload_path) - Extract the prompt section from a payloa
 scripts/research/delegate_deep_research.py::extract_yaml_from_response(response) - Extract YAML spec from API response.
 scripts/research/extract_perplexity_pack.py::extract_files(content, output_dir) - Extract files from Perplexity multi-file
@@ -5410,7 +5652,6 @@ tests/conftest.py::slack_test_ids() - Provide test Slack IDs (channel, user, t
 tests/conftest.py::stale_slack_timestamp() - Provide timestamp > 300 seconds old (out
 tests/conftest.py::tool_registry(redis) - Provide a mock tool registry.
 tests/conftest.py::world_model() - Provide a mock world model.
-tests/core/abstractions/test_secrets_protocols.py::test_protocol_compliance(self) - Test that EnvSecretsClient implements Se
 tests/core/aios/test_runtime.py::test_runtime_initialization() - Contract: AIOSRuntime can be instantiate
 tests/core/bootstrap/conftest.py::__aiter__(self) - 
 tests/core/bootstrap/conftest.py::__init__(self) - 
@@ -5586,6 +5827,7 @@ tests/core/observability/test_observability_integration.py::test_substrate_expor
 tests/core/observability/test_observability_integration.py::test_trace_context_child(self) - Test creating child context.
 tests/core/observability/test_observability_integration.py::test_trace_context_creation(self) - Test TraceContext creation with defaults
 tests/core/observability/test_observability_integration.py::test_trace_context_to_headers(self) - Test W3C traceparent header generation.
+tests/core/protocols/test_secrets_protocols.py::test_protocol_compliance(self) - Test that EnvSecretsClient implements Se
 tests/core/schemas/test_content_hash_integrity.py::test_compute_content_hash_deterministic(self) - Same packet produces same hash every tim
 tests/core/schemas/test_content_hash_integrity.py::test_different_metadata_different_hashes(self) - Different metadata produces different ha
 tests/core/schemas/test_content_hash_integrity.py::test_different_payloads_different_hashes(self) - Different payloads produce different has

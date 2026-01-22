@@ -109,6 +109,7 @@
 | `world_model/service.py` | 729 | 1 | 2 | 13 |
 | `codegen/code-gen-files/extractor.py` | 726 | 4 | 16 | 5 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/long_plan_graph.py` | 726 | 1 | 1 | 8 |
+| `scripts/refactoring/bootstrap_refactor.py` | 725 | 3 | 16 | 0 |
 | `igor/DONE!/audit-memory/memory_retrieval.py` | 725 | 1 | 6 | 8 |
 | `current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py` | 725 | 3 | 16 | 0 |
 | `current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py` | 719 | 9 | 4 | 9 |
@@ -124,6 +125,7 @@
 | `clients/memory_client.py` | 701 | 6 | 3 | 16 |
 | `local_dashboard/app.py` | 697 | 0 | 0 | 3 |
 | `scripts/audit/tier1/audit_capability_inventory.py` | 697 | 7 | 7 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py` | 693 | 6 | 25 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py` | 693 | 6 | 25 | 0 |
 | `runtime/superprompt_emitter.py` | 692 | 7 | 17 | 2 |
 | `igor/DONE!/audit-memory/memory_substrate_service.py` | 692 | 1 | 1 | 18 |
@@ -277,6 +279,8 @@
 | `memory/warming_service.py` | 508 | 1 | 4 | 6 |
 | `core/integration/tool_pattern_extractor.py` | 507 | 1 | 6 | 8 |
 | `codegen/scripts/generate_spec.py` | 506 | 1 | 8 | 3 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py` | 506 | 3 | 11 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py` | 506 | 3 | 11 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py` | 506 | 3 | 11 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py` | 506 | 3 | 11 | 0 |
 | `tests/memory/test_unified_pipeline.py` | 505 | 10 | 9 | 13 |
@@ -361,6 +365,7 @@
 | `tests/integration/test_recursive_self_testing.py` | 455 | 7 | 19 | 4 |
 | `mcp_memory/src/models.py` | 455 | 49 | 0 | 0 |
 | `collaborative_cells/coder_cell.py` | 453 | 1 | 3 | 6 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py` | 453 | 2 | 20 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py` | 453 | 2 | 20 | 0 |
 | `world_model/_pack_staging/loader.py` | 451 | 1 | 12 | 0 |
 | `core/compliance/audit_log.py` | 450 | 1 | 1 | 5 |
@@ -401,6 +406,7 @@
 | `core/tools/research_tools.py` | 422 | 0 | 1 | 4 |
 | `tests/core/bootstrap/test_bootstrap_phases.py` | 422 | 13 | 3 | 20 |
 | `mac_agent/runner.py` | 422 | 0 | 3 | 2 |
+| `current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py` | 422 | 5 | 6 | 9 |
 | `core/observability/instrumentation.py` | 421 | 0 | 12 | 4 |
 | `core/worldmodel/l9_schema.py` | 421 | 13 | 7 | 0 |
 | `tests/unit/kernel/test_kernel_config_loader.py` | 421 | 0 | 29 | 0 |
@@ -413,6 +419,7 @@
 | `core/kernels/prompt_builder.py` | 418 | 0 | 8 | 0 |
 | `scripts/memory/index_preferences.py` | 418 | 0 | 0 | 3 |
 | `world_model/nodes/service_nodes.py` | 417 | 1 | 1 | 3 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py` | 416 | 9 | 34 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py` | 416 | 9 | 34 | 0 |
 | `tests/unit/adr/test_adr_tooling.py` | 415 | 0 | 20 | 0 |
 | `tests/memory/test_hierarchical_consolidation.py` | 415 | 8 | 23 | 6 |
@@ -475,6 +482,7 @@
 | `world_model/_pack_staging/registry.py` | 382 | 1 | 14 | 0 |
 | `scripts/gmp-validate-stage.py` | 382 | 2 | 11 | 0 |
 | `api/slack_adapter.py` | 382 | 3 | 6 | 0 |
+| `current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py` | 382 | 6 | 7 | 9 |
 | `current_work/DONE/GMP Stage 1 - Tools/gmp_worker.py` | 380 | 1 | 1 | 12 |
 | `runtime/rate_limiter.py` | 379 | 1 | 1 | 6 |
 | `_archived/symbolic_computation/test_symbolic_computation.py` | 379 | 7 | 13 | 11 |
@@ -569,6 +577,7 @@
 | `tests/integration/test_world_model.py` | 334 | 4 | 5 | 14 |
 | `current_work/DONE/Observability/observability_failures.py` | 334 | 3 | 3 | 6 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py` | 333 | 4 | 3 | 5 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py` | 331 | 3 | 9 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py` | 331 | 3 | 9 | 0 |
 | `tests/core/bootstrap/test_graph_state.py` | 329 | 0 | 10 | 3 |
 | `orchestration/quantum_swarm_loader.py` | 329 | 2 | 3 | 4 |
@@ -678,18 +687,23 @@
 | `tests/services/symbolic_computation/test_expression_evaluator.py` | 279 | 7 | 12 | 11 |
 | `api/routes/cursor.py` | 278 | 3 | 1 | 3 |
 | `igor/DONE!/audit-memory/mcp_memory_src_main.py` | 278 | 1 | 7 | 7 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py` | 277 | 4 | 7 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py` | 277 | 4 | 7 | 0 |
 | `current_work/DONE/Observability/observability_aggregation.py` | 277 | 2 | 8 | 0 |
 | `orchestrators/action_tool/orchestrator.py` | 276 | 1 | 1 | 3 |
 | `scripts/audit/run_dead_code_audit.py` | 276 | 0 | 2 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py` | 276 | 3 | 5 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py` | 276 | 2 | 7 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py` | 276 | 3 | 5 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py` | 276 | 2 | 7 | 0 |
 | `mcp_memory/src/config.py` | 275 | 2 | 3 | 0 |
 | `codegen/dev_layer/modules/code_planning.py` | 274 | 5 | 8 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py` | 274 | 1 | 3 | 3 |
 | `tests/memory/test_packet_envelope_immutability.py` | 273 | 2 | 14 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py` | 273 | 3 | 6 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py` | 273 | 3 | 6 | 0 |
 | `tests/core/bootstrap/test_prompt_defense.py` | 272 | 10 | 31 | 0 |
+| `current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py` | 272 | 3 | 16 | 0 |
 | `tests/core/schemas/test_content_hash_integrity.py` | 271 | 5 | 14 | 0 |
 | `orchestrators/pattern/metrics.py` | 271 | 1 | 9 | 0 |
 | `agents/cursor/cursor_neo4j_query.py` | 269 | 0 | 3 | 0 |
@@ -712,6 +726,7 @@
 | `data/l9-phase0-to-6-execution.py` | 261 | 3 | 13 | 0 |
 | `services/research/tools/tool_resolver.py` | 261 | 1 | 6 | 1 |
 | `scripts/memory/execute_cleanup_and_reindex.py` | 260 | 0 | 0 | 3 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py` | 260 | 4 | 8 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py` | 260 | 4 | 8 | 0 |
 | `services/research/agents/base_agent.py` | 260 | 1 | 5 | 3 |
 | `core/schemas/upcaster_registry.py` | 259 | 1 | 10 | 0 |
@@ -801,6 +816,7 @@
 | `codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py` | 220 | 6 | 2 | 0 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py` | 220 | 1 | 9 | 0 |
 | `tests/docker/test_migrations.py` | 218 | 3 | 9 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py` | 218 | 3 | 15 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py` | 218 | 3 | 15 | 0 |
 | `core/agents/bootstrap/phase_4_load_identity.py` | 217 | 0 | 0 | 1 |
 | `world_model/__init__.py` | 217 | 0 | 0 | 0 |
@@ -814,15 +830,18 @@
 | `scripts/memory/generate_delete_sql.py` | 213 | 0 | 1 | 2 |
 | `api/auth.py` | 213 | 1 | 2 | 1 |
 | `dev/tools/global_state_audit.py` | 213 | 1 | 5 | 0 |
+| `current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py` | 213 | 4 | 2 | 8 |
 | `igor/DONE!/audit-memory/memory_extractor_code_extractor.py` | 212 | 1 | 3 | 0 |
 | `igor/DONE!/audit-tools/runtime_mcp_tool.py` | 212 | 0 | 0 | 1 |
 | `current_work/DONE/GMP Stage 1 - Tools/mcp_tool.py` | 212 | 0 | 0 | 1 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_tool.py` | 212 | 0 | 0 | 1 |
 | `api/routes/worldmodel.py` | 211 | 0 | 1 | 5 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py` | 211 | 1 | 8 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py` | 211 | 1 | 8 | 0 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/bootstrap.py` | 211 | 0 | 0 | 3 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py` | 209 | 2 | 2 | 7 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/clients/email_adapter_client.py` | 209 | 2 | 2 | 7 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py` | 209 | 3 | 6 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py` | 209 | 3 | 6 | 0 |
 | `current_work/DONE/Observability/observability_exporters.py` | 209 | 6 | 7 | 6 |
 | `current_work/DONE/Observability/observability_init.py` | 209 | 0 | 0 | 0 |
@@ -853,6 +872,7 @@
 | `codegen/dev_layer/tests/test_e2e_diff_generation.py` | 201 | 4 | 6 | 0 |
 | `agents/cursor/scripts/cursor_check_mistakes.py` | 200 | 0 | 2 | 0 |
 | `orchestrators/reasoning/adapter_node.py` | 200 | 2 | 3 | 1 |
+| `current_work/__Continuous Improvement Loop/CONTINUOUS IMPROVEMENT LOOP SPECIFICATION v1.1/script.py` | 200 | 0 | 0 | 0 |
 | `tests/api/test_auth.py` | 199 | 1 | 8 | 0 |
 | `tools/adr/adr_validator.py` | 198 | 0 | 3 | 0 |
 | `config/rls_config.py` | 198 | 2 | 6 | 0 |
@@ -864,6 +884,7 @@
 | `scripts/memory/delete_trash_via_service.py` | 196 | 0 | 0 | 2 |
 | `tests/memory/test_ingestion_transaction.py` | 195 | 1 | 1 | 4 |
 | `scripts/research/run_single_deep_research.py` | 195 | 0 | 1 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py` | 195 | 1 | 8 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py` | 195 | 1 | 8 | 0 |
 | `core/schemas/universal_schema.py` | 194 | 0 | 1 | 0 |
 | `config/research_settings.py` | 194 | 2 | 2 | 0 |
@@ -909,6 +930,7 @@
 | `tests/memory/test_checkpoint_metrics_pool.py` | 169 | 5 | 14 | 0 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/approvals.py` | 169 | 1 | 1 | 3 |
 | `core/moduleregistry.py` | 168 | 3 | 6 | 0 |
+| `scripts/refactoring/aios_validate.py` | 168 | 1 | 8 | 0 |
 | `current_work/DONE/AUTOWIRING/auto_registry/moduleregistry.py` | 168 | 3 | 6 | 0 |
 | `tests/agents/codegenagent/test_c_gmp_engine.py` | 166 | 1 | 8 | 6 |
 | `codegen/symbolic/spec.py` | 166 | 5 | 2 | 0 |
@@ -954,6 +976,7 @@
 | `igor/DONE!/audit-memory/config_memory_substrate_settings.py` | 149 | 2 | 2 | 0 |
 | `tools/mac_protocol.py` | 148 | 4 | 2 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py` | 147 | 3 | 2 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py` | 147 | 2 | 7 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py` | 147 | 2 | 7 | 0 |
 | `core/decorators.py` | 145 | 0 | 5 | 0 |
 | `tests/agents/test_l_cto_memory_emission.py` | 145 | 1 | 0 | 4 |
@@ -1113,7 +1136,7 @@
 | `tests/test_memory_governance_gate.py` | 83 | 0 | 3 | 1 |
 | `tests/integration/test_api_agent_integration.py` | 83 | 1 | 6 | 0 |
 | `current_work/DONE/AUTOWIRING/test_policy_registry.py` | 83 | 0 | 4 | 0 |
-| `tests/core/abstractions/test_secrets_protocols.py` | 82 | 1 | 1 | 6 |
+| `tests/core/protocols/test_secrets_protocols.py` | 82 | 1 | 1 | 6 |
 | `tests/email_agent/test_email_triage.py` | 82 | 0 | 2 | 0 |
 | `agents/research_agent/__init__.py` | 82 | 0 | 0 | 0 |
 | `current_work/DONE/AUTOWIRING/test_event_type_registry.py` | 82 | 0 | 6 | 0 |
@@ -1164,6 +1187,7 @@
 | `tests/unit/test_tool_input_sanitizer.py` | 64 | 0 | 5 | 0 |
 | `tests/orchestrators/test_orchestrator_registry.py` | 64 | 0 | 5 | 0 |
 | `workers/__init__.py` | 64 | 0 | 0 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/__init__.py` | 64 | 0 | 0 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/__init__.py` | 64 | 0 | 0 | 0 |
 | `tests/world_model/test_wm_scope.py` | 63 | 1 | 2 | 3 |
 | `tests/world_model/test_wm_boot.py` | 63 | 0 | 6 | 0 |
@@ -1172,6 +1196,7 @@
 | `current_work/DONE/AUTOWIRING/test_upcaster_registry.py` | 60 | 1 | 5 | 0 |
 | `igor/DONE!/audit-tools/tools___init__.py` | 59 | 0 | 0 | 0 |
 | `tests/mcp_memory/test_mcp_server_governance.py` | 57 | 1 | 3 | 2 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/__init__.py` | 57 | 0 | 0 | 0 |
 | `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/__init__.py` | 57 | 0 | 0 | 0 |
 | `tests/memory/test_substrate_api.py` | 56 | 0 | 0 | 3 |
 | `igor/DONE!/audit-memory/tests_memory___init__.py` | 56 | 0 | 0 | 0 |
@@ -1189,5 +1214,5 @@
 | `mcp_memory/tests/test_search.py` | 52 | 0 | 0 | 2 |
 | `world_model/nodes/__init__.py` | 51 | 0 | 0 | 0 |
 
-# Total: 1183 Python files (>50 lines)
-# Total lines: 457,965
+# Total: 1208 Python files (>50 lines)
+# Total lines: 465,715

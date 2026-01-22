@@ -184,6 +184,10 @@ L9/
 │   │   ├── rate_limits.yaml
 │   │   ├── tool_approval_generated.yaml
 │   │   ├── tool_usage.yaml
+│   ├── refactoring/
+│   │   ├── aios-metrics.yaml
+│   │   ├── aios-refactoring-policy.yaml
+│   │   ├── mutation-config.yaml
 │   ├── schemas/
 │   │   ├── __init__.py
 │   │   ├── adr_schema.yaml
@@ -377,10 +381,10 @@ L9/
 │   ├── CURSOR-RUNBOOK.md
 │   ├── GOD-MODE-ORCHESTRATOR.md
 │   ├── GRACEFUL_DEGRADATION_VS_FAIL_LOUDLY.md
-│   ├── IMPL-Self-Reflection-Governance-Tracking.md
 │   ├── MCP-MEMORY-CAPSULE.md
 │   ├── Roadmap-2.md
-│   ├── ... (10 more files)
+│   ├── TOOLS-Explained.md
+│   ├── ... (3 more files)
 │   ├── architecture/
 │   │   ├── di-container-guide.md
 │   │   ├── migration-checklist.md
@@ -631,14 +635,14 @@ L9/
 │   ├── AGENTS-README.md
 │   ├── AUDIT_PacketEnvelope_PacketStore_Integration.md
 │   ├── CHECKPOINT-OPS-RUNBOOK.md
+│   ├── CI-MUTATION-TESTING.md
 │   ├── DEPLOYMENT_CANONICAL.md
 │   ├── Docker Infra.md
 │   ├── GIT-HOOKS.md
 │   ├── L9-Classes.md
 │   ├── L9-KERNEL-REFERENCE.md
 │   ├── MANIFEST.md
-│   ├── MEMORY-README.md
-│   ├── ... (10 more files)
+│   ├── ... (11 more files)
 │   ├── L-CTO/
 │   │   ├── L-CTO-ABILITIES.md
 │   │   ├── L-CTO-ARCHITECTURE.md
@@ -660,7 +664,7 @@ L9/
 │   │   ├── 0007-seven-phase-bootstrap.md
 │   │   ├── 0008-feature-flag-gating.md
 │   │   ├── 0009-circuit-breaker-resilience.md
-│   │   ├── ... (46 more files)
+│   │   ├── ... (47 more files)
 │   ├── diagrams/
 │   │   ├── 01-memory-substrate.mmd
 │   │   ├── 01-memory-substrate.png
@@ -776,6 +780,11 @@ L9/
 │   │   ├── cleanup_trash_embeddings_via_api.py
 │   │   ├── delete_trash_embeddings.py
 │   │   ├── ... (16 more files)
+│   ├── refactoring/
+│   │   ├── __init__.py
+│   │   ├── aios_validate.py
+│   │   ├── bootstrap_refactor.py
+│   │   ├── run_mutation_tests.sh
 │   ├── research/
 │   │   ├── delegate_deep_research.py
 │   │   ├── extract_perplexity_pack.py
@@ -885,11 +894,11 @@ L9/
 │   │   ├── test_moduleregistry.py
 │   │   ├── test_resilience_mixin.py
 │   │   ├── test_singleton_auto_registry.py
-│   │   ├── abstractions/
 │   │   ├── aios/
 │   │   ├── bootstrap/
 │   │   ├── governance/
 │   │   ├── observability/
+│   │   ├── protocols/
 │   │   ├── schemas/
 │   │   ├── security/
 │   │   └── tools/

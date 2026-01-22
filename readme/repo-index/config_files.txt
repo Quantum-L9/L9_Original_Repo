@@ -2943,6 +2943,9 @@ config/policies/protected_files.yaml
 config/policies/rate_limits.yaml
 config/policies/tool_approval_generated.yaml
 config/policies/tool_usage.yaml
+config/refactoring/aios-metrics.yaml
+config/refactoring/aios-refactoring-policy.yaml
+config/refactoring/mutation-config.yaml
 config/schemas/adr_schema.yaml
 config/settings.yaml
 config/subsystems/auth.yaml
@@ -2961,6 +2964,24 @@ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compile
 current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/examples/example_confidence_router.yaml
 current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/examples/example_confidence_router.yaml
 current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/specs/plan_proj_l9_core_task_confidence_router_0_1_0_v1.yaml
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/Dockerfile.orchestrator
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/docker-compose.yml
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_configmap_secrets.yaml
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_monitoring_prometheus_rules.yaml
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_namespace.yaml
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_neo4j_statefulset.yaml
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_network_policy.yaml
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_orchestrator_deployment.yaml
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_redis_statefulset.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/constraint.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/heuristic.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/interface.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/pattern.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/policy.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/schemas/protocol.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/examples/example_confidence_router.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/examples/example_confidence_router.yaml
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/specs/plan_proj_l9_core_task_confidence_router_0_1_0_v1.yaml
 current_work/DONE/AUTOWIRING/mcp_servers.yaml
 current_work/DONE/AUTOWIRING/pyproject.toml
 current_work/Neural-Symbolic Orchestration/Dockerfile.orchestrator
@@ -2975,6 +2996,7 @@ current_work/Neural-Symbolic Orchestration/k8s_redis_statefulset.yaml
 current_work/Repo-As-Agent/contract_hypergraph_engine.yaml
 current_work/Repo-As-Agent/saial_ledger_spec.yaml
 current_work/Repo-As-Agent/uplift_emergent_meta_and_contract_refiner.yaml
+current_work/__Continuous Improvement Loop/CONTINUOUS IMPROVEMENT LOOP SPECIFICATION v1.1/l9_enhanced_pipeline_v3.yaml
 current_work/l-cto-Setup/l-cto-yaml-files/INITIALIZATION_KERNEL_UNIFIED.yaml
 current_work/l-cto-Setup/l-cto-yaml-files/L-CTO.yaml
 current_work/l-cto-Setup/l-cto-yaml-files/L9 AGENT MANIFEST — L-CTO v1.0.yaml

@@ -208,12 +208,6 @@
 # copy
   copy
 # core
-  core.abstractions
-  core.abstractions.agent_protocols
-  core.abstractions.kernel_protocols
-  core.abstractions.memory_protocols
-  core.abstractions.observability_protocols
-  core.abstractions.secrets_protocols
   core.agents.agent_instance
   core.agents.bootstrap.phase1_loadkernels
   core.agents.executor
@@ -271,6 +265,12 @@
   core.packet_envelope.observability
   core.packet_envelope.scalability
   core.packet_envelope.standardization
+  core.protocols
+  core.protocols.agent_protocols
+  core.protocols.kernel_protocols
+  core.protocols.memory_protocols
+  core.protocols.observability_protocols
+  core.protocols.secrets_protocols
   core.registry.models
   core.resilience.mixin
   core.resilience.protocols
