@@ -392,10 +392,6 @@ async def memory_write_node(
     try:
         # Write packet
         packet = PacketEnvelope(**envelope)
-        # DEBUG: Trace project_id in memory_write_node
-        meta_dict = packet.metadata.model_dump() if packet.metadata else {}
-        logger.warning(f"DEBUG memory_write_node: packet.metadata.project_id={meta_dict.get('project_id')!r}")
-        logger.warning(f"DEBUG memory_write_node: full envelope JSON metadata={envelope.get('metadata')}")
         await repository.insert_packet(packet)
         written_tables.append("packet_store")
 
@@ -1074,11 +1070,8 @@ class SubstrateDAG:
             raise ValueError(f"envelope must be PacketEnvelope, got {type(envelope)}")
 
         # Prepare initial state (v2.0.0 - Native LangGraph Execution)
-        envelope_json = envelope.model_dump(mode="json")
-        # DEBUG: Trace project_id in DAG state
-        logger.warning(f"DEBUG DAG.run: envelope_json metadata.project_id={envelope_json.get('metadata', {}).get('project_id')!r}")
         initial_state: SubstrateGraphState = {
-            "envelope": envelope_json,
+            "envelope": envelope.model_dump(mode="json"),
             "reasoning_block": None,
             "written_tables": [],
             "embedding_id": None,

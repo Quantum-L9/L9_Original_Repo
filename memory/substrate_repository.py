@@ -266,11 +266,11 @@ class SubstrateRepository:
         importance_score,
     ) -> None:
         """Helper method to insert packet using provided connection."""
-        # DEBUG: Trace envelope JSON
-        envelope_json = envelope.model_dump(mode="json")
-        import json as json_module
-        full_json = json_module.dumps(envelope_json)
-        logger.warning(f"DEBUG insert_packet: FULL JSON length={len(full_json)}, first 500 chars={full_json[:500]!r}")
+        """Helper method to insert packet using provided connection."""
+        # GMP-C1-GOVERNANCE: Pass dict directly to asyncpg.
+        # The JSONB codec (line 57) will serialize it. DO NOT json.dumps() here
+        # as that causes double-serialization and breaks JSON path constraints.
+        envelope_dict = envelope.model_dump(mode="json")
         await conn.execute(
             """
             INSERT INTO packet_store (
@@ -294,16 +294,11 @@ class SubstrateRepository:
             """,
             envelope.packet_id,
             envelope.packet_type,
-            json.dumps(envelope_json),  # Use pre-computed dict for debug
+            envelope_dict,  # Pass dict, asyncpg codec handles serialization
             envelope.timestamp,
-            json.dumps(
-                {"agent": envelope.metadata.agent if envelope.metadata else None}
-            ),
-            json.dumps(
-                envelope.provenance.model_dump(mode="json")
-                if envelope.provenance
-                else None
-            ),
+            # routing and provenance are also JSONB - pass dicts, not json.dumps()
+            {"agent": envelope.metadata.agent if envelope.metadata else None},
+            (envelope.provenance.model_dump(mode="json") if envelope.provenance else None),
             thread_id,
             parent_ids,
             tags,
