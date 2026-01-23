@@ -1,0 +1,168 @@
+%% L9 Kernel & Runtime - DEEP GRANULAR IMPLEMENTATION DIAGRAM
+%% Shows actual kernel loading, integrity verification, and activation flow
+%% Version: 2.0 (Deep Implementation Level)
+%% Generated: 2026-01-20
+
+graph TB
+    subgraph "Kernel Loading Entry"
+        LOAD_REQ["KernelLoader.load_all()<br/>kernel_path='private/kernels'"]
+    end
+
+    subgraph "Kernel Discovery"
+        DISCOVER["Discover kernel files<br/>KERNEL_ORDER list"]
+        ORDER["01_master_kernel.yaml<br/>02_identity_kernel.yaml<br/>03_cognitive_kernel.yaml<br/>...<br/>10_packet_protocol_kernel.yaml"]
+        COUNT_CHECK{"Count ==<br/>REQUIRED_KERNEL_COUNT<br/>(10)?"}
+        COUNT_ERROR["KernelLoadError<br/>Missing kernels"]
+    end
+
+    subgraph "Integrity Verification"
+        HASH_CALC["Calculate SHA256 hash<br/>for each kernel file"]
+        HASH_FUNC["hashlib.sha256()<br/>file_content.encode()<br/>.hexdigest()"]
+        HASH_CHECK{"Hash matches<br/>expected?"}
+        TAMPER_DETECT["TAMPER DETECTED<br/>logger.critical()<br/>sys.exit(1)"]
+        HASH_OK["Integrity verified"]
+    end
+
+    subgraph "YAML Parsing"
+        YAML_LOAD["yaml.safe_load()<br/>kernel_file"]
+        YAML_ERROR["YAMLError<br/>Invalid syntax"]
+        YAML_SUCCESS["Kernel manifest dict"]
+    end
+
+    subgraph "Schema Validation"
+        VALIDATE["Validate KernelManifest<br/>required fields:<br/>- id<br/>- version<br/>- directives<br/>- constraints"]
+        VAL_ERROR["ValidationError<br/>Missing/invalid field"]
+        VAL_SUCCESS["KernelManifest object"]
+    end
+
+    subgraph "Kernel Manifest Structure"
+        MANIFEST["KernelManifest<br/>id: str<br/>version: str<br/>directives: List[str]<br/>constraints: Dict<br/>metadata: Dict"]
+        DIRECTIVES["directives:<br/>- 'You are L9'<br/>- 'Follow safety rules'<br/>- 'Respect boundaries'"]
+        CONSTRAINTS["constraints:<br/>max_tokens: 4000<br/>temperature: 0.7<br/>allowed_tools: [...]"]
+    end
+
+    subgraph "Kernel Activation"
+        ACTIVATE["KernelLoader.activate()<br/>agent: KernelAwareAgent"]
+        AGENT_CHECK{"Agent has<br/>kernels attr?"}
+        AGENT_ERROR["TypeError<br/>Not kernel-aware"]
+        ABSORB["agent.kernels[kernel_id]<br/>= manifest.dict()"]
+    end
+
+    subgraph "Kernel State Management"
+        STATE["KernelState enum<br/>PENDING<br/>LOADED<br/>ACTIVE<br/>FAILED"]
+        STATE_PENDING["PENDING<br/>Not yet loaded"]
+        STATE_LOADED["LOADED<br/>Parsed & validated"]
+        STATE_ACTIVE["ACTIVE<br/>Absorbed by agent"]
+        STATE_FAILED["FAILED<br/>Error occurred"]
+    end
+
+    subgraph "Observability Spans"
+        SPAN_CREATE["KernelLifecycleSpan.start()<br/>name='kernel_load'<br/>kernel_id='master'<br/>phase='load'"]
+        SPAN_FINISH["span.finish()<br/>status=OK/ERROR<br/>duration_ms"]
+        SPAN_EMIT["obs_service.emit_span()<br/>→ telemetry backend"]
+    end
+
+    subgraph "Error Handling & Fail-Safe"
+        TRY_LOAD["try:<br/>  load_kernel()"]
+        EXCEPT_IO["except IOError:<br/>  logger.critical()<br/>  raise KernelLoadError"]
+        EXCEPT_HASH["except HashMismatchError:<br/>  logger.critical()<br/>  sys.exit(1)"]
+        FAIL_SAFE["Fail-safe mode<br/>No kernels = no activation"]
+    end
+
+    subgraph "Kernel Registry"
+        REGISTRY["KernelRegistry<br/>loaded_kernels: Dict<br/>kernel_states: Dict"]
+        REG_ADD["registry.add()<br/>kernel_id → manifest"]
+        REG_GET["registry.get()<br/>kernel_id → manifest"]
+        REG_LIST["registry.list()<br/>→ all kernel_ids"]
+    end
+
+    subgraph "Hot Reload Support"
+        WATCH["FileSystemWatcher<br/>watch kernel_path"]
+        DETECT_CHANGE["Kernel file modified"]
+        RELOAD["reload_kernel()<br/>kernel_id"]
+        REVALIDATE["Re-run integrity check<br/>& validation"]
+    end
+
+    subgraph "Activation Result"
+        RESULT["KernelActivationResult<br/>success: bool<br/>activated_count: int<br/>failed_kernels: List<br/>errors: List"]
+        SUCCESS_RESULT["success=True<br/>activated_count=10<br/>failed_kernels=[]"]
+        FAILURE_RESULT["success=False<br/>activated_count=7<br/>failed_kernels=['safety']<br/>errors=['Hash mismatch']"]
+    end
+
+    %% Entry Flow
+    LOAD_REQ --> DISCOVER
+
+    %% Discovery
+    DISCOVER --> ORDER
+    ORDER --> COUNT_CHECK
+    COUNT_CHECK -.no.-> COUNT_ERROR
+    COUNT_CHECK -.yes.-> HASH_CALC
+
+    %% Integrity
+    HASH_CALC --> HASH_FUNC
+    HASH_FUNC --> HASH_CHECK
+    HASH_CHECK -.mismatch.-> TAMPER_DETECT
+    HASH_CHECK -.match.-> HASH_OK
+    HASH_OK --> YAML_LOAD
+
+    %% Parsing
+    YAML_LOAD -.error.-> YAML_ERROR
+    YAML_LOAD -.success.-> YAML_SUCCESS
+    YAML_SUCCESS --> VALIDATE
+
+    %% Validation
+    VALIDATE -.error.-> VAL_ERROR
+    VALIDATE -.success.-> VAL_SUCCESS
+    VAL_SUCCESS --> MANIFEST
+
+    %% Manifest
+    MANIFEST --> DIRECTIVES
+    MANIFEST --> CONSTRAINTS
+
+    %% State
+    VAL_SUCCESS --> STATE_LOADED
+    STATE_LOADED --> ACTIVATE
+
+    %% Activation
+    ACTIVATE --> AGENT_CHECK
+    AGENT_CHECK -.no.-> AGENT_ERROR
+    AGENT_CHECK -.yes.-> ABSORB
+    ABSORB --> STATE_ACTIVE
+
+    %% Registry
+    STATE_LOADED --> REG_ADD
+    REG_ADD --> REGISTRY
+    REGISTRY --> REG_GET
+    REGISTRY --> REG_LIST
+
+    %% Observability
+    HASH_CALC --> SPAN_CREATE
+    STATE_ACTIVE --> SPAN_FINISH
+    SPAN_FINISH --> SPAN_EMIT
+
+    %% Error Handling
+    LOAD_REQ --> TRY_LOAD
+    TRY_LOAD -.io error.-> EXCEPT_IO
+    TRY_LOAD -.hash error.-> EXCEPT_HASH
+    EXCEPT_HASH --> FAIL_SAFE
+
+    %% Hot Reload
+    WATCH --> DETECT_CHANGE
+    DETECT_CHANGE --> RELOAD
+    RELOAD --> REVALIDATE
+    REVALIDATE --> HASH_CHECK
+
+    %% Result
+    STATE_ACTIVE --> SUCCESS_RESULT
+    TAMPER_DETECT --> FAILURE_RESULT
+    SUCCESS_RESULT --> RESULT
+    FAILURE_RESULT --> RESULT
+
+    style LOAD_REQ fill:#4ecdc4
+    style TAMPER_DETECT fill:#ff6b6b
+    style HASH_OK fill:#95e1d3
+    style STATE_ACTIVE fill:#a8e6cf
+    style COUNT_ERROR fill:#ff6b6b
+    style AGENT_ERROR fill:#ff6b6b
+    style FAIL_SAFE fill:#ff6b6b
+    style SUCCESS_RESULT fill:#95e1d3

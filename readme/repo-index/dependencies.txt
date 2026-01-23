@@ -38,3 +38,4 @@ vulture>=2.11
 mypy>=1.10.0
 python-multipart
 urllib3<2
+mutmut>=2.4.5

@@ -1,0 +1,11 @@
+# C1 Namespace - Isolated from any future L9 migration
+# Rollback: kubectl delete namespace l9-c1
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: l9-c1
+  labels:
+    app: l9-aios
+    environment: production
+    server: c1-hetzner
+    managed-by: k3s
