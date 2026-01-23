@@ -61,6 +61,8 @@ core/tools/ -
 core/worldmodel/ - 
 current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ - 
 current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/ - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ - 
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/ - 
 current_work/DONE/AUTOWIRING/ - 
 dev/ - No module docstring
 dev/tools/ - No module docstring
@@ -95,6 +97,7 @@ private/security/ -
 runtime/ - 
 scripts/ - No module docstring
 scripts/memory/ - No module docstring
+scripts/refactoring/ - 
 services/ - 
 services/research/ - 
 services/research/agents/ - 

@@ -32,6 +32,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import structlog
+from runtime.tool_registry import register_tool
 from typing import Any, Dict, List, Optional, Union
 
 from services.symbolic_computation import (
@@ -253,6 +254,8 @@ class SymbolicComputationTool:
 # These are the functions wired into TOOL_EXECUTORS in runtime/l_tools.py
 
 
+@register_tool(category="symbolic", priority=10, description="symbolic_compute tool")
+@register_tool(category="symbolic", priority=10, description="symbolic_compute tool")
 async def symbolic_compute(
     expression: str,
     variables: Dict[str, Union[float, List[float]]],
@@ -281,6 +284,8 @@ async def symbolic_compute(
     )
 
 
+@register_tool(category="symbolic", priority=10, description="symbolic_codegen tool")
+@register_tool(category="symbolic", priority=10, description="symbolic_codegen tool")
 async def symbolic_codegen(
     expression: str,
     variables: List[str],

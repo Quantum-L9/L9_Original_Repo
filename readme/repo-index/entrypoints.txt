@@ -290,6 +290,12 @@ scripts/memory/seed_golden_strategies.py
 scripts/migrate_substrate_models.py
   Type: Script
   Has __main__ block: Yes
+scripts/refactoring/aios_validate.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/refactoring/bootstrap_refactor.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/research/delegate_deep_research.py
   Type: Script
   Has __main__ block: Yes
