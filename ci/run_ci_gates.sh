@@ -479,6 +479,39 @@ gate_13_substrate_api() {
 }
 
 # =============================================================================
+# GATE 14: ANTI-PATTERN REGRESSION TESTS
+# =============================================================================
+
+gate_14_anti_patterns() {
+    log_header "GATE 14: ANTI-PATTERN REGRESSION TESTS (GMP-58)"
+    
+    if [ ! -f "$REPO_ROOT/tests/ci/test_anti_patterns.py" ]; then
+        log_warn "Anti-pattern tests not found, skipping"
+        return 0
+    fi
+    
+    log_info "Running anti-pattern regression tests..."
+    log_info "  - Frozen model mutation (GMP-58)"
+    log_info "  - Hardcoded user paths"
+    log_info "  - Bare except blocks"
+    log_info "  - print() in core modules"
+    log_info "  - stdlib logging vs structlog"
+    
+    # Run pytest on anti-pattern tests (NON-BLOCKING until violations are fixed)
+    # TODO: Make this blocking once existing violations are cleaned up
+    if ! python3 -m pytest "$REPO_ROOT/tests/ci/test_anti_patterns.py" -v 2>&1 | grep -E "(PASSED|FAILED|Anti-Pattern Summary)"; then
+        log_warn "ANTI-PATTERN TESTS FAILED (non-blocking)"
+        log_warn "Existing violations detected - clean up recommended"
+        log_warn "Run: python3 -m pytest tests/ci/test_anti_patterns.py -v"
+        # Return 0 to make non-blocking
+        return 0
+    fi
+    
+    log_info "✅ Anti-pattern regression tests completed"
+    return 0
+}
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
@@ -532,6 +565,7 @@ main() {
     gate_11_agent_executor || exit 1
     gate_12_wiring_alignment || exit 1
     gate_13_substrate_api "${files[@]}" || exit 1
+    gate_14_anti_patterns || exit 1
     run_test_presence_check "$spec_file" "${files[@]}" || exit 1
     
     log_header "🎉 ALL CI GATES PASSED"
