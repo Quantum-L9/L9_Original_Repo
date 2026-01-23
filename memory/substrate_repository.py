@@ -266,6 +266,9 @@ class SubstrateRepository:
         importance_score,
     ) -> None:
         """Helper method to insert packet using provided connection."""
+        # DEBUG: Trace envelope JSON
+        envelope_json = envelope.model_dump(mode="json")
+        logger.warning(f"DEBUG insert_packet: envelope_json.metadata.project_id={envelope_json.get('metadata', {}).get('project_id')!r}")
         await conn.execute(
             """
             INSERT INTO packet_store (
@@ -289,7 +292,7 @@ class SubstrateRepository:
             """,
             envelope.packet_id,
             envelope.packet_type,
-            json.dumps(envelope.model_dump(mode="json")),
+            json.dumps(envelope_json),  # Use pre-computed dict for debug
             envelope.timestamp,
             json.dumps(
                 {"agent": envelope.metadata.agent if envelope.metadata else None}
