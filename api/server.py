@@ -2715,11 +2715,36 @@ async def lifespan(app: FastAPI):
             logger.warning(f"Error closing MCP Memory DB pool: {e}")
 
 
-# FastAPI App
+# FastAPI App with OpenAPI Configuration
+from api.openapi_config import get_openapi_config, get_security_schemes, SWAGGER_UI_PARAMETERS
+
 app = FastAPI(
-    title="L9 Phase 2 Secure AI OS",
+    **get_openapi_config(),
     lifespan=lifespan,
 )
+
+# Add security schemes to OpenAPI schema
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    openapi_schema = app.openapi()
+    openapi_schema["components"]["securitySchemes"] = get_security_schemes()
+    
+    # Apply security to all endpoints by default
+    for path in openapi_schema["paths"]:
+        for method in openapi_schema["paths"][path]:
+            if method in ["get", "post", "put", "delete", "patch"]:
+                # Skip health endpoints from requiring auth in docs
+                if "health" not in path:
+                    openapi_schema["paths"][path][method]["security"] = [
+                        {"ApiKeyAuth": []}
+                    ]
+    
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 
 # =============================================================================
