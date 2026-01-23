@@ -55,6 +55,9 @@ COPY agents/ ./agents/
 COPY services/ ./services/
 COPY tools/ ./tools/
 COPY workers/ ./workers/
+COPY orchestrators/ ./orchestrators/
+COPY telemetry/ ./telemetry/
+COPY world_model/ ./world_model/
 COPY private/ ./private/
 
 # Create necessary directories
