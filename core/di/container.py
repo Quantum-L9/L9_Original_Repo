@@ -334,14 +334,15 @@ class DIContainer:
 
                     # Handle string annotations (from __future__ import annotations)
                     if isinstance(annotation, str):
-                        # Try to resolve string annotation from factory's globals
+                        # Try to resolve string annotation using get_type_hints (safer than eval)
                         try:
+                            from typing import get_type_hints
                             if inspect.isclass(factory):
-                                annotation = eval(
-                                    annotation, factory.__init__.__globals__
-                                )
+                                hints = get_type_hints(factory.__init__, globalns=factory.__init__.__globals__, localns=None)
+                                annotation = hints.get(param.name, annotation)
                             else:
-                                annotation = eval(annotation, factory.__globals__)
+                                hints = get_type_hints(factory, globalns=factory.__globals__, localns=None)
+                                annotation = hints.get(param.name, annotation)
                         except Exception as e:
                             logger.debug(
                                 "di_container.skipping_unresolvable_annotation",
@@ -384,6 +385,85 @@ class DIContainer:
         """
         with self._lock:
             return interface in self._bindings or interface in self._singletons
+
+    def get_optional(self, interface: Type[T]) -> Optional[T]:
+        """
+        Resolve dependency optionally (returns None if not registered).
+
+        Useful for optional dependencies that may not be available in all
+        deployment configurations.
+
+        Args:
+            interface: Interface type to resolve
+
+        Returns:
+            Instance implementing the interface, or None if not registered
+
+        Example:
+            persistence = container.get_optional(AgentPersistenceService)
+            if persistence:
+                await persistence.save_state(agent)
+        """
+        try:
+            return self.resolve(interface)
+        except BindingNotFoundError:
+            logger.debug(
+                "di_container.optional_dependency_not_found",
+                interface=interface.__name__,
+            )
+            return None
+        except Exception as e:
+            logger.warning(
+                "di_container.optional_dependency_resolution_failed",
+                interface=interface.__name__,
+                error=str(e),
+            )
+            return None
+
+    def list_registrations(self) -> Dict[str, Dict[str, Any]]:
+        """
+        List all registered services with metadata.
+
+        Returns detailed information about all registered bindings including
+        lifecycle type, instantiation status, and instance type.
+
+        Returns:
+            Dictionary mapping interface names to registration metadata
+
+        Example:
+            >>> registrations = container.list_registrations()
+            >>> print(f"Registered: {len(registrations)} services")
+            >>> for name, info in registrations.items():
+            ...     print(f"{name}: {info['lifecycle']}")
+        """
+        with self._lock:
+            registrations = {}
+
+            for interface in self._bindings.keys():
+                is_singleton = interface in self._singleton_bindings
+                is_instantiated = interface in self._singletons
+
+                metadata = {
+                    "interface": interface.__name__,
+                    "lifecycle": "singleton" if is_singleton else "transient",
+                    "instantiated": is_instantiated,
+                }
+
+                # Add instance type if instantiated
+                if is_instantiated:
+                    instance = self._singletons[interface]
+                    metadata["instance_type"] = type(instance).__name__
+
+                registrations[interface.__name__] = metadata
+
+            logger.debug(
+                "di_container.registrations_listed",
+                total_count=len(registrations),
+                singleton_count=len(self._singleton_bindings),
+                instantiated_count=len(self._singletons),
+            )
+
+            return registrations
 
     def clear_singletons(self) -> None:
         """
