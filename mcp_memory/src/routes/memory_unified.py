@@ -218,9 +218,10 @@ async def _save_via_main_pipeline(
     # Map MCP scope to DB scope
     db_scope = map_mcp_scope_to_db_scope(scope)
 
-    # GMP-C1-GOVERNANCE: Do NOT hardcode project_id here.
-    # Let enforce_governance_metadata() inject it from governance context.
-    # Previously this was set to "l9" which conflicts with L9_PROJECT_ID env var.
+    # GMP-C1-GOVERNANCE: Get project_id from governance context (not hardcoded).
+    # This ensures RLS isolation uses the correct project_id per environment.
+    ctx = require_governance_context("mcp_memory._save_via_main_pipeline")
+    project_id = ctx.project_id
 
     # Calculate TTL based on duration
     ttl = None
@@ -230,16 +231,16 @@ async def _save_via_main_pipeline(
         ttl = datetime.utcnow() + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
 
     # Build metadata dict (not PacketMetadata model - that's for envelope metadata)
-    # GMP-C1-GOVERNANCE: Do NOT include project_id or scope here.
-    # enforce_governance_metadata() will inject them from governance context.
     envelope_metadata = {
         "creator": creator,
         "source": source,
         "caller": caller_id,
         "agent": "l-cto" if caller_id == "L" else "cursor",
         "user_id": user_id,
+        "project_id": project_id,  # GMP-C1-GOVERNANCE: from governance context
         "importance": importance,
         "duration": duration,
+        "scope": scope,  # MCP scope preserved
         "db_scope": db_scope,  # DB scope for filtering
         **(metadata or {}),
     }
@@ -253,13 +254,13 @@ async def _save_via_main_pipeline(
     # Create PacketEnvelopeIn for main ingestion pipeline
     # Note: 'agent' is already in envelope_metadata, don't pass it twice
     # PacketEnvelopeIn expects dict for metadata/provenance, not Pydantic models
-    # GMP-C1-GOVERNANCE: Do NOT include project_id or scope in payload.
-    # enforce_governance_metadata() will inject them from governance context.
     packet_in = PacketEnvelopeIn(
         packet_type=f"memory.{kind}",  # e.g., "memory.preference", "memory.lesson"
         payload={
             "content": content,
             "kind": kind,
+            "scope": scope,
+            "project_id": project_id,  # GMP-C1-GOVERNANCE: from governance context
         },
         metadata={
             "schema_version": "2.0.0",
