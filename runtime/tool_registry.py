@@ -182,66 +182,6 @@ def get_tool_snapshot() -> dict:
     return tool_executor_registry.snapshot()
 
 
-def register_legacy_tool_executors() -> int:
-    """
-    Bridge function: Register all tools from legacy TOOL_EXECUTORS dict.
-
-    This allows the existing l_tools.py TOOL_EXECUTORS to be discovered
-    by the new auto-registration system without refactoring every tool.
-
-    Returns:
-        Number of tools registered
-    """
-    try:
-        from runtime.l_tools import TOOL_EXECUTORS
-    except ImportError as e:
-        logger.warning("legacy_tool_import_failed", error=str(e))
-        return 0
-
-    registered = 0
-    for tool_name, executor_func in TOOL_EXECUTORS.items():
-        try:
-            # Determine category from tool name prefix
-            if tool_name.startswith("memory_"):
-                category = "memory"
-            elif tool_name.startswith("redis_"):
-                category = "redis"
-            elif tool_name.startswith("mcp_"):
-                category = "mcp"
-            elif tool_name.startswith("tools_"):
-                category = "introspection"
-            elif tool_name.startswith("world_model_"):
-                category = "world_model"
-            elif tool_name.startswith("simulation_"):
-                category = "simulation"
-            elif tool_name.startswith("neo4j_"):
-                category = "database"
-            elif tool_name.startswith("kernel_"):
-                category = "kernel"
-            elif tool_name in ("gmp_run", "git_commit", "mac_agent_exec_task"):
-                category = "execution"
-            else:
-                category = "general"
-
-            # Register with the new registry using register_instance()
-            tool_executor_registry.register_instance(
-                component_id=tool_name,
-                component=executor_func,
-                priority=0,
-                tags=[category, "legacy"],
-                category=category,
-                source="legacy_bridge",
-            )
-            registered += 1
-        except Exception as e:
-            logger.debug("legacy_tool_skip", tool=tool_name, error=str(e))
-
-    logger.info(
-        "legacy_tools_registered",
-        count=registered,
-        total=len(TOOL_EXECUTORS),
-    )
-    return registered
 
 
 def register_extension_tool_executors() -> int:

@@ -35,6 +35,7 @@ __dora_meta__ = {
 from typing import Any, Optional
 
 import structlog
+from runtime.tool_registry import register_tool
 
 logger = structlog.get_logger(__name__)
 
