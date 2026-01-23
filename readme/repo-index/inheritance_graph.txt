@@ -8,6 +8,7 @@ AIOSResult::BaseModel @ core/agents/schemas.py
 AIOSResultType::str,Enum @ core/agents/schemas.py
 AIOSRuntime::Protocol @ core/agents/executor.py
 AIOSRuntime::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
+AOISCompliance::NodeVisitor @ scripts/refactoring/aios_validate.py
 APGeneratorError::Exception @ agents/codegenagent/ap_generator.py
 AcceptanceCriterion::BaseModel @ ir_engine/meta_ir.py
 AcceptanceSpec::BaseModel @ ir_engine/meta_ir.py
@@ -62,8 +63,12 @@ AnomalyProcessRequest::BaseModel @ api/routes/workers.py
 AnomalyProcessResponse::BaseModel @ api/routes/workers.py
 AnomalyResponseMonitorRequest::BaseModel @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitorResponse::BaseModel @ workers/anomaly_response_monitor.py
+AnomalySeverity::str,Enum @ adapters/tensorglobe_bridge/anomaly_guard.py
 AnomalySeverity::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
+AnomalySeverity::str,Enum @ domain_tensor_bridge/anomaly_handler.py
 AnomalySeverity::str,Enum @ workers/anomaly_classifier.py
+AnomalySignal::BaseModel @ adapters/tensorglobe_bridge/schemas.py
+AnomalyType::str,Enum @ adapters/tensorglobe_bridge/anomaly_guard.py
 AnomalyType::str,Enum @ workers/anomaly_classifier.py
 AnonymizationStrategy::Enum @ core/packet_envelope/governance.py
 AnonymizationStrategy::Enum @ current_work/packetEnvelope - Phase 2-5/phase_5_governance.py
@@ -106,6 +111,7 @@ BatchRequest::BaseModel @ api/memory/router.py
 BatchRequest::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
 BatchResponse::BaseModel @ api/memory/router.py
 BatchResponse::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
+BayesianNode::HypergraphNode @ current_work/Bayesian Upgrade/hypergraph.py
 BehavioralKernelData::FlexibleModel @ core/kernels/schemas.py
 BindingNotFoundError::DIContainerError @ core/di/container.py
 Blueprint::BaseModel @ orchestrators/meta/interface.py
@@ -144,7 +150,9 @@ CausalStrength::str,Enum @ world_model/causal_mapper.py
 CellType::str,Enum @ orchestration/cell_orchestrator.py
 ChainStatus::str,Enum @ orchestration/orchestrator_kernel.py
 ChangeStatus::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+ChangeStatus::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 ChangeType::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ChangeType::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 ChangeType::str,Enum @ codegen/dev_layer/modules/code_planning.py
 ChannelConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 ChatRequest::BaseModel @ api/server.py
@@ -220,6 +228,8 @@ Condition::BaseModel @ core/governance/schemas.py
 ConditionOperator::str,Enum @ core/governance/schemas.py
 ConfidenceLevel::Enum @ runtime/response_tagger.py
 ConfirmationResult::BaseModel @ core/commands/schemas.py
+ConflictResolutionMode::str,Enum @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+ConflictResolutionMode::str,Enum @ current_work/01-21-2026/swarm_sync.py
 ConflictResolutionMode::str,Enum @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConnectionStatus::str,Enum @ core/worldmodel/l9_schema.py
 ConsensusStrategy::str,Enum @ collaborative_cells/base_cell.py
@@ -230,6 +240,7 @@ ConsoleExporter::SpanExporter @ current_work/DONE/Observability/observability_ex
 ConsolidationRequest::BaseModel @ api/memory/router.py
 ConsolidationResponse::BaseModel @ api/memory/router.py
 ConstraintExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintNode::IRNodeBase @ ir_engine/ir_schema.py
 ConstraintStatus::str,Enum @ ir_engine/ir_schema.py
 ConstraintType::str,Enum @ ir_engine/ir_schema.py
@@ -268,6 +279,7 @@ DIContainerError::Exception @ core/di/container.py
 DatabaseType::str,Enum @ memory/saga.py
 DataclassFieldVisitor::NodeVisitor @ scripts/audit/find_dead_code.py
 DecisionMode::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+DecisionMode::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
 DecisionType::str,Enum @ igor/DONE!/audit-memory/memory_governance_patterns.py
 DecisionType::str,Enum @ memory/governance_patterns.py
 DeleteExpiredMemoriesArgs::BaseModel @ mcp_memory/src/models.py
@@ -308,9 +320,11 @@ ErrorEvent::BaseModel @ igor/DONE!/audit-memory/core_schemas_ws_event_stream.py
 ErrorPolicy::BaseModel @ ir_engine/meta_ir.py
 ErrorStrategy::str,Enum @ ir_engine/meta_ir.py
 EscalationConfig::BaseModel @ ir_engine/meta_ir.py
+EscalationLevel::str,Enum @ domain_tensor_bridge/governance_bridge.py
 EscalationReason::str,Enum @ agents/codegenagent/compliance_auditor.py
 EscalationRequired::Exception @ codegen/dev_layer/runtime/enforcement.py
 EscalationTriggerType::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
+EscalationTriggerType::str,Enum @ domain_tensor_bridge/escalation_handler.py
 EvaluateRequest::BaseModel @ services/symbolic_computation/api/routes.py
 EvaluationCriteria::BaseModel @ orchestrators/meta/interface.py
 EvaluationError::SymbolicComputationError @ _archived/symbolic_computation/exceptions.py
@@ -327,6 +341,7 @@ EventType::Enum @ current_work/packetEnvelope - Phase 2-5/phase_3_standardizatio
 EventType::str,Enum @ core/schemas/ws_event_stream.py
 EventType::str,Enum @ igor/DONE!/audit-memory/core_schemas_ws_event_stream.py
 Evidence::TypedDict @ services/research/graph_state.py
+EvidenceStrength::str,Enum @ current_work/Bayesian Upgrade/bayesian_kernel.py
 EvolutionOrchestrator::IEvolutionOrchestrator @ orchestrators/evolution/orchestrator.py
 EvolutionOrchestratorRequest::BaseModel @ orchestrators/evolution/interface.py
 EvolutionOrchestratorResponse::BaseModel @ orchestrators/evolution/interface.py
@@ -356,6 +371,7 @@ FailureSignal::BaseModel @ current_work/DONE/Observability/observability_models.
 FailureType::str,Enum @ agents/codegenagent/telemetry_codegen.py
 FailuresListResponse::BaseModel @ api/routes/observability.py
 FeatureFlag::Enum @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/feature_flags.py
+FeedbackType::Enum @ current_work/Bayesian Upgrade/learning/feedback_collector.py
 FetchAndEnrichRequest::BaseModel @ api/memory/router.py
 FileSnapshot::BaseModel @ core/governance/cmts.py
 FindingType::str,Enum @ services/research/graph_persistence.py
@@ -368,6 +384,8 @@ GMPExecutionResult::BaseModel @ agents/cursor/gmp_meta_learning.py
 GMPExecutionResult::BaseModel @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 GMPRunInput::BaseModel @ core/schemas/l_tools.py
 GMPRunInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
+GNNKernel::Module @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+GNNKernel::Module @ current_work/01-21-2026/neural_substrate.py
 GNNKernel::Module @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GapSeverity::str,Enum @ memory/warming_models.py
 GateDecision::str,Enum @ codegen/dev_layer/runtime/enforcement.py
@@ -391,6 +409,7 @@ GovernanceBlockPattern::GapDetectionPattern @ core/agents/selfreflection.py
 GovernanceCheckSpan::Span @ core/observability/models.py
 GovernanceCheckSpan::Span @ current_work/DONE/Observability/observability_models.py
 GovernanceDecision::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
+GovernanceDecision::str,Enum @ domain_tensor_bridge/governance_bridge.py
 GovernanceHarmonizationConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 GovernancePattern::BaseModel @ igor/DONE!/audit-memory/memory_governance_patterns.py
 GovernancePattern::BaseModel @ memory/governance_patterns.py
@@ -424,6 +443,7 @@ HealthResponse::BaseModel @ api/routes/observability.py
 HealthStatus::BaseModel @ services/symbolic_computation/core/models.py
 HealthStatus::str,Enum @ scripts/audit/tier1/audit_infrastructure_health.py
 HeuristicExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicsResponse::BaseModel @ api/routes/gmp_learning.py
 HierarchicalSummarizationStrategy::ContextStrategy @ core/observability/context_strategies.py
 HierarchicalSummarizationStrategy::ContextStrategy @ current_work/DONE/Observability/observability_context_strategies.py
@@ -540,6 +560,7 @@ LImprovementLoopConfig::BaseModel @ orchestrators/pattern/interface.py
 LLMGenerationSpan::Span @ core/observability/models.py
 LLMGenerationSpan::Span @ current_work/DONE/Observability/observability_models.py
 Language::Enum @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+Language::Enum @ scripts/refactoring/bootstrap_refactor.py
 LearnedHeuristic::BaseModel @ agents/cursor/gmp_meta_learning.py
 LearnedHeuristic::BaseModel @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 LearnedHeuristicDB::Base @ agents/cursor/gmp_meta_learning.py
@@ -646,7 +667,9 @@ NodeKind::str,Enum @ orchestrators/pattern/interface.py
 NodePriority::str,Enum @ ir_engine/ir_schema.py
 NodeResult::BaseModel @ orchestrators/pattern/interface.py
 NodeResultResponse::BaseModel @ api/routes/pattern.py
+NodeStatus::str,Enum @ current_work/Bayesian Upgrade/hypergraph.py
 NodeStatus::str,Enum @ orchestrators/pattern/interface.py
+NodeType::str,Enum @ current_work/Bayesian Upgrade/hypergraph.py
 OAuthHandler::BaseHTTPRequestHandler @ email_agent/oauth_server.py
 ObservabilityConfig::BaseModel @ orchestrators/pattern/interface.py
 ObservabilityService::Protocol @ core/protocols/observability_protocols.py
@@ -721,6 +744,7 @@ PatternConfigResponse::BaseModel @ api/routes/pattern.py
 PatternExecuteRequest::BaseModel @ api/routes/pattern.py
 PatternExecuteResponse::BaseModel @ api/routes/pattern.py
 PatternExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PerplexityModel::str,Enum @ igor/DONE!/audit-tools/services_research_tools_perplexity_client.py
 PerplexityModel::str,Enum @ services/research/tools/perplexity_client.py
 PerplexityTool::BaseTool @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
@@ -743,6 +767,7 @@ ProactiveRecallRequest::BaseModel @ mcp_memory/src/models.py
 ProactiveRecallResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 ProactiveRecallResponse::BaseModel @ mcp_memory/src/models.py
 ProactivityLevel::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+ProactivityLevel::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 ProcessedAnomaly::BaseModel @ workers/anomaly_response_monitor.py
 Prohibition::FlexibleModel @ core/kernels/schemas.py
 PromptDefensePolicy::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
@@ -750,6 +775,7 @@ PromptStyle::str,Enum @ agents/codegenagent/ap_generator.py
 ProtocolBinding::ABC @ core/packet_envelope/standardization.py
 ProtocolBinding::ABC @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 ProtocolExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PythonModuleHealthProbe::HealthProbe @ scripts/audit/tier1/audit_infrastructure_health.py
 QAAgent::BaseAgent @ agents/qa_agent.py
 Query::BaseModel @ core/schemas/research_factory_models.py
@@ -768,6 +794,7 @@ ReasoningExecuteRequest::BaseModel @ api/routes/reasoning.py
 ReasoningExecuteResponse::BaseModel @ api/routes/reasoning.py
 ReasoningFeedbackConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 ReasoningMode::str,Enum @ orchestrators/reasoning/interface.py
+ReasoningNode::HypergraphNode @ current_work/Bayesian Upgrade/hypergraph.py
 ReasoningNodeState::TypedDict @ orchestrators/reasoning/adapter_node.py
 ReasoningOrchestrator::IReasoningOrchestrator @ orchestrators/reasoning/orchestrator.py
 ReasoningPhase::str,Enum @ memory/warming_models.py
@@ -837,6 +864,7 @@ RetryConfig::BaseModel @ ir_engine/meta_ir.py
 RetryExhaustedError::Exception @ core/resilience/retry.py
 ReviewerCell::BaseCell @ collaborative_cells/reviewer_cell.py
 Risk::str,Enum @ scripts/audit/tier1/audit_capability_inventory.py
+RiskLevel::Enum @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
 RiskLevel::str,Enum @ core/commands/schemas.py
 RiskLevel::str,Enum @ scripts/audit/categorize_dead_code.py
 RiskModel::BaseModel @ orchestrators/pattern/interface.py
@@ -1039,9 +1067,16 @@ TemporalQueryRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.
 TemporalQueryRequest::BaseModel @ mcp_memory/src/models.py
 TemporalQueryResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 TemporalQueryResponse::BaseModel @ mcp_memory/src/models.py
+TensorOperation::str,Enum @ adapters/tensorglobe_bridge/schemas.py
+TensorRequest::BaseModel @ adapters/tensorglobe_bridge/schemas.py
+TensorRequestPacket::PacketEnvelope @ adapters/tensorglobe_bridge/schemas.py
+TensorResponse::BaseModel @ adapters/tensorglobe_bridge/schemas.py
+TensorResponsePacket::PacketEnvelope @ adapters/tensorglobe_bridge/schemas.py
+TensorResult::BaseModel @ adapters/tensorglobe_bridge/schemas.py
 TestIntegration::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestIntegration::TestCase @ world_model/_pack_staging/test_integration.py
 TestModel::BaseModel @ tests/memory/test_agent_persistence.py
+TestModel::Module @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
 TestOrchestration::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestOrchestration::TestCase @ world_model/_pack_staging/test_integration.py
 TestQueries::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
@@ -1131,6 +1166,7 @@ ViolationRecord::BaseModel @ workers/violation_tracker_service.py
 ViolationScanRequest::BaseModel @ api/routes/workers.py
 ViolationScanResponse::BaseModel @ api/routes/workers.py
 ViolationSeverity::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ViolationSeverity::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ViolationSeverity::str,Enum @ workers/violation_patterns.py
 ViolationTrackerServiceRequest::BaseModel @ workers/violation_tracker_service.py
 ViolationTrackerServiceResponse::BaseModel @ workers/violation_tracker_service.py
@@ -1158,4 +1194,4 @@ WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
 WorldModelUpdater::IWorldModelUpdater @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1154 classes with inheritance
+# Total: 1190 classes with inheritance

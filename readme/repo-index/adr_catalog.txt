@@ -1,6 +1,6 @@
 # L9 Architecture Decision Record (ADR) Catalog
-# Generated: 2026-01-21
-# Total: 55 ADRs
+# Generated: 2026-01-23
+# Total: 56 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH
 # ============================================================================
@@ -65,6 +65,7 @@
 0052 | Accepted | Dependency Injection and Inversion (DI/DIP) Foundation | readme/adr/0052-di-dip-foundation.md
 0053 | Accepted | Kernel Configuration Externalization | readme/adr/0053-kernel-config-externalization.md
 0054 | Proposed | Loop Stage Protocol | readme/adr/0054-loop-stage-protocol.md
+0055 | Accepted | Fail-Loudly vs Graceful Degradation Policy | readme/adr/0055-fail-loudly-vs-graceful-degradation.md
 
 # ============================================================================
 # AI QUICK REFERENCE - KEY DO NOT's
@@ -78,3 +79,4 @@
 # DO NOT place before docstring (ADR-0014)
 # do not implement | `# DEPRECATED - DO NOT IMPLEMENT` | (ADR-0037)
 # DO NOT IMPLEMENT (ADR-0037)
+# Do NOT catch and return None (ADR-0055)

@@ -1,0 +1,116 @@
+# Example Module Block (Module-Spec v2.6 format)
+# This demonstrates a complete module specification
+
+schema_version: "2.6"
+
+metadata:
+  module_id: "email_processor"
+  name: "Email Processing Module"
+  tier: 2
+  description: "Process incoming emails, extract content, and route to appropriate handlers"
+  version: "1.0.0"
+  system: "L9"
+  language: "python"
+  runtime: "python>=3.11"
+
+ownership:
+  team: "platform"
+  primary_contact: "platform@l9.ai"
+  escalation_path: "Igor"
+
+runtime_wiring:
+  service: "api"
+  startup_phase: "normal"
+  depends_on:
+    - "database.service"
+    - "tool_registry"
+  blocks_startup_on_failure: false
+
+runtime_contract:
+  async_mode: true
+  max_concurrent_requests: 100
+  timeout_seconds: 30
+
+external_surface:
+  exposes_http_endpoint: true
+  exposes_webhook: true
+  exposes_tool: true
+  callable_from:
+    - "internal"
+    - "webhook"
+
+dependency_contract:
+  touches_db: true
+  db_tables:
+    - "emails"
+    - "email_attachments"
+  touches_tools: true
+  tool_dependencies:
+    - "sentiment_analyzer"
+    - "entity_extractor"
+
+dependencies:
+  python_packages:
+    - "email-validator>=2.0.0"
+    - "beautifulsoup4>=4.12.0"
+  external_services:
+    - name: "smtp_server"
+      required: true
+
+packet_contract:
+  emits:
+    - "email.received"
+    - "email.processed"
+    - "email.error"
+  consumes:
+    - "email.inbound"
+
+packet_expectations:
+  emit_format: "PacketEnvelope"
+  consume_format: "PacketEnvelope"
+
+idempotency:
+  idempotent: true
+  idempotency_key: "email_id"
+
+error_policy:
+  retry_strategy: "exponential_backoff"
+  max_retries: 3
+  fallback_behavior: "log_and_alert"
+
+observability:
+  logging_level: "INFO"
+  metrics_enabled: true
+  tracing_enabled: true
+  health_check_endpoint: "/health"
+
+runtime_touchpoints:
+  startup_hook: true
+  shutdown_hook: true
+  health_check: true
+
+tier_expectations:
+  tier: 2
+  uptime_target: "99.9%"
+  response_time_p95_ms: 500
+
+test_scope:
+  unit_tests: true
+  integration_tests: true
+  coverage_target: 85
+
+acceptance:
+  criteria:
+    - "All emails processed within 30 seconds"
+    - "No data loss"
+    - "Proper error handling for malformed emails"
+
+global_invariants_ack:
+  acknowledged: true
+  invariants:
+    - "All database writes are transactional"
+    - "All external calls have timeouts"
+
+spec_confidence:
+  confidence_score: 95
+  gaps: []

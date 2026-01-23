@@ -73,12 +73,9 @@ class DoraLegacyMigrator:
             dict_start = block_str.index("{")
             dict_str = block_str[dict_start:]
 
-            # Safely evaluate the dict
-            # First, fix Python booleans for JSON
-            dict_str_json = dict_str.replace("True", "true").replace("False", "false")
-
-            # Try to parse as JSON-like (it's close enough)
-            data = eval(dict_str)  # Safe here since we control the file
+            # Safely evaluate the dict using ast.literal_eval (safer than eval)
+            import ast
+            data = ast.literal_eval(dict_str)
             return data
         except Exception as e:
             print(f"⚠️  Could not parse legacy block: {e}")

@@ -1444,22 +1444,33 @@ async def lifespan(app: FastAPI):
     # Modern Slack routing uses AgentExecutorService (legacy router removed)
     agent_executor = getattr(app.state, "agent_executor", None)
 
+    # Allow minimal deployment without agent executor (L9_MINIMAL_MODE=true)
+    minimal_mode = os.environ.get("L9_MINIMAL_MODE", "false").lower() == "true"
+
     if agent_executor is None:
-        logger.critical(
-            "╔═══════════════════════════════════════════════════════════════╗\n"
-            "║  CRITICAL: Agent Executor Initialization Failed              ║\n"
-            "║                                                               ║\n"
-            "║  Slack routing requires AgentExecutorService to be initialized. ║\n"
-            "║                                                               ║\n"
-            "║  Options:                                                     ║\n"
-            "║  1. Fix agent_executor initialization (check logs above)     ║\n"
-            "║  2. Install missing dependencies: pip install -r requirements.txt ║\n"
-            "╚═══════════════════════════════════════════════════════════════╝"
-        )
-        raise RuntimeError(
-            "Agent Executor required for Slack routing but failed to initialize. "
-            "Fix initialization or check dependencies."
-        )
+        if minimal_mode:
+            logger.warning(
+                "Agent Executor not initialized (L9_MINIMAL_MODE=true). "
+                "Slack routing and agent features will be disabled."
+            )
+        else:
+            logger.critical(
+                "╔═══════════════════════════════════════════════════════════════╗\n"
+                "║  CRITICAL: Agent Executor Initialization Failed              ║\n"
+                "║                                                               ║\n"
+                "║  Slack routing requires AgentExecutorService to be initialized. ║\n"
+                "║                                                               ║\n"
+                "║  Options:                                                     ║\n"
+                "║  1. Fix agent_executor initialization (check logs above)     ║\n"
+                "║  2. Install missing dependencies: pip install -r requirements.txt ║\n"
+                "║  3. Set L9_MINIMAL_MODE=true to skip this check              ║\n"
+                "╚═══════════════════════════════════════════════════════════════╝"
+            )
+            raise RuntimeError(
+                "Agent Executor required for Slack routing but failed to initialize. "
+                "Fix initialization or check dependencies. "
+                "Set L9_MINIMAL_MODE=true to start in minimal mode."
+            )
     else:
         logger.info(
             "✓ Health Check PASSED: Agent Executor is available for Slack routing"
@@ -2653,11 +2664,36 @@ async def lifespan(app: FastAPI):
             logger.warning(f"Error closing MCP Memory DB pool: {e}")
 
 
-# FastAPI App
+# FastAPI App with OpenAPI Configuration
+from api.openapi_config import get_openapi_config, get_security_schemes, SWAGGER_UI_PARAMETERS
+
 app = FastAPI(
-    title="L9 Phase 2 Secure AI OS",
+    **get_openapi_config(),
     lifespan=lifespan,
 )
+
+# Add security schemes to OpenAPI schema
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    openapi_schema = app.openapi()
+    openapi_schema["components"]["securitySchemes"] = get_security_schemes()
+    
+    # Apply security to all endpoints by default
+    for path in openapi_schema["paths"]:
+        for method in openapi_schema["paths"][path]:
+            if method in ["get", "post", "put", "delete", "patch"]:
+                # Skip health endpoints from requiring auth in docs
+                if "health" not in path:
+                    openapi_schema["paths"][path][method]["security"] = [
+                        {"ApiKeyAuth": []}
+                    ]
+    
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 
 # =============================================================================
