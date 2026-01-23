@@ -1,0 +1,105 @@
+# L9 Pre-Commit Hooks Configuration
+# Enforces ADR compliance and code quality standards
+#
+# Installation:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Usage:
+#   pre-commit run --all-files  # Run on all files
+#   pre-commit run              # Run on staged files
+
+repos:
+  # Standard formatting and linting
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        exclude: ^(l9_private/kernels|readme|_archived)/
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+        exclude: ^(l9_private/kernels|readme|_archived)/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.14
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        exclude: ^(l9_private/kernels|readme|_archived)/
+
+  # ADR Compliance Checks
+  - repo: local
+    hooks:
+      - id: adr-compliance-check
+        name: ADR Compliance Check
+        entry: python tools/adr/adr_compliance_check_enhanced.py
+        language: python
+        pass_filenames: false
+        types: [python]
+        stages: [commit]
+
+      - id: enforce-structlog
+        name: Enforce structlog (ADR-0019)
+        entry: bash -c 'if grep -r "import logging" --include="*.py" --exclude-dir={l9_private,readme,_archived} .; then echo "❌ Use structlog.get_logger() per ADR-0019"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        types: [python]
+
+      - id: enforce-type-checking
+        name: Enforce TYPE_CHECKING (ADR-0002)
+        entry: python tools/adr/check_type_checking.py
+        language: python
+        types: [python]
+        exclude: ^(l9_private/kernels|readme|_archived|tests)/
+
+      - id: enforce-dora-metadata
+        name: Enforce DORA Metadata (ADR-0014)
+        entry: python tools/adr/check_dora_metadata.py
+        language: python
+        types: [python]
+        exclude: ^(l9_private/kernels|readme|_archived|tests|__init__|scripts)/
+
+  # Security and quality
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+
+  # Type checking (optional, can be slow)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-all]
+        exclude: ^(l9_private/kernels|readme|_archived|tests)/
+        args: [--ignore-missing-imports, --no-strict-optional]
+
+# Global settings
+default_language_version:
+  python: python3.11
+
+# Files to exclude globally
+exclude: |
+  (?x)^(
+      l9_private/kernels/.*|
+      readme/.*|
+      _archived/.*|
+      \.git/.*|
+      \.venv/.*|
+      venv/.*|
+      __pycache__/.*|
+      .*\.egg-info/.*
+  )$

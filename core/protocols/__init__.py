@@ -64,6 +64,16 @@ from core.protocols.agent_protocols import (
     ToolExecutor,
 )
 
+# Service protocols (ADR-0026)
+from core.protocols.service_protocols import (
+    CacheService,
+    GovernanceService,
+    LLMService,
+    MemoryService,
+    ToolRegistry,
+    WorldModelService,
+)
+
 __all__ = [
     # Kernel protocols
     "KernelValidator",
@@ -96,6 +106,13 @@ __all__ = [
     "AgentRegistry",
     "AgentContext",
     "AgentState",
+    # Service protocols (ADR-0026)
+    "MemoryService",
+    "LLMService",
+    "ToolRegistry",
+    "GovernanceService",
+    "WorldModelService",
+    "CacheService",
 ]
 
 __version__ = "1.0.0"

@@ -22,3 +22,88 @@ mypy_path = "."
 ignore_missing_imports = true
 warn_return_any = false
 warn_unused_ignores = false
+
+# ============================================================================
+# Ruff Configuration - ADR Enforcement
+# ============================================================================
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    "l9_private/kernels",
+    "readme",
+    "_archived",
+    ".venv",
+    "venv",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+# Select rules to enforce
+select = [
+    "F",     # Pyflakes (undefined names, unused imports)
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "I",     # isort (import sorting)
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "A",     # flake8-builtins
+    "C4",    # flake8-comprehensions
+    "TCH",   # flake8-type-checking (ADR-0002)
+    "RUF",   # Ruff-specific rules
+]
+
+# Ignore specific rules
+ignore = [
+    "E402",  # Module level import not at top (DORA metadata pattern - ADR-0014)
+    "F841",  # Unused variable (future-proofing)
+    "E501",  # Line too long (handled by Black)
+    "N802",  # Function name should be lowercase (allow Protocol methods)
+    "N806",  # Variable in function should be lowercase (allow TypeVars)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"tests/**/*.py" = ["F401", "F811"]  # Allow test fixtures
+"**/test_*.py" = ["F401", "F811"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["l9", "core", "agents", "memory", "runtime", "api", "tools"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.flake8-type-checking]
+# ADR-0002: Enforce TYPE_CHECKING for type-only imports
+runtime-evaluated-base-classes = ["pydantic.BaseModel", "typing.Protocol"]
+
+# ============================================================================
+# Black Configuration
+# ============================================================================
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+exclude = '''
+/(
+    \.git
+  | __pycache__
+  | l9_private/kernels
+  | readme
+  | _archived
+  | \.venv
+  | venv
+)/
+'''
+
+# ============================================================================
+# isort Configuration
+# ============================================================================
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = ["l9_private/kernels", "readme", "_archived", ".venv", "venv"]
+known_first_party = ["l9", "core", "agents", "memory", "runtime", "api", "tools"]
