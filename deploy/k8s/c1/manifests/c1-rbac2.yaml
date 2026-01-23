@@ -1,0 +1,104 @@
+---
+# ServiceAccount for L9 API (core orchestrator)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: l9-service-account
+  namespace: l9-c1
+  labels:
+    app: l9-api
+
+---
+# Namespace-scoped Role: what the L9 API is allowed to see in l9-c1
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: l9-api-role
+  namespace: l9-c1
+rules:
+  # Read-only access to ConfigMaps in its own namespace
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+
+  # Read-only access to Secrets it depends on (env, credentials)
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get"]
+
+  # Read-only access to Services (for service discovery / health)
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+
+  # Read-only visibility into Pods (for introspection / debugging)
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+
+---
+# Bind L9 API ServiceAccount to its namespace Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: l9-api-rolebinding
+  namespace: l9-c1
+subjects:
+  - kind: ServiceAccount
+    name: l9-service-account
+    namespace: l9-c1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: l9-api-role
+
+---
+# ServiceAccount for Prometheus (cluster-wide read-only monitoring)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: l9-prometheus-sa
+  namespace: l9-c1
+  labels:
+    app: prometheus
+
+---
+# ClusterRole: minimal read-only for scraping and basic discovery
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: l9-prometheus-readonly
+rules:
+  # Read all core metrics-bearing objects
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/proxy
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+
+  # Read Ingress if you ever enable HTTP ingress metrics
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+
+  # Read annotations / labels for discovery
+  - nonResourceURLs: ["/metrics", "/metrics/*"]
+    verbs: ["get"]
+
+---
+# Bind Prometheus SA to cluster-wide read-only role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: l9-prometheus-readonly-binding
+subjects:
+  - kind: ServiceAccount
+    name: l9-prometheus-sa
+    namespace: l9-c1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: l9-prometheus-readonly

@@ -2022,32 +2022,39 @@ class SubstrateRepository:
         if not fact_ids:
             return 0
 
-        links_created = 0
-
+        # Batch insert using executemany for better performance
         async with self.acquire() as conn:
-            for fact_id in fact_ids:
-                try:
-                    link_id = uuid4()
-                    await conn.execute(
-                        """
-                        INSERT INTO episodic_semantic_links (
-                            link_id, event_id, fact_id, relationship_type, strength
-                        ) VALUES ($1, $2, $3, $4, $5)
-                        ON CONFLICT (event_id, fact_id) DO UPDATE
-                        SET relationship_type = EXCLUDED.relationship_type,
-                            strength = EXCLUDED.strength
-                        """,
-                        link_id,
-                        event_id,
-                        fact_id,
-                        relationship_type,
-                        strength,
-                    )
-                    links_created += 1
-                except Exception as e:
-                    logger.warning(
-                        f"Failed to link event {event_id} to fact {fact_id}: {e}"
-                    )
+            # Prepare batch data
+            batch_data = [
+                (
+                    uuid4(),  # link_id
+                    event_id,
+                    fact_id,
+                    relationship_type,
+                    strength,
+                )
+                for fact_id in fact_ids
+            ]
+            
+            try:
+                # Batch insert with ON CONFLICT
+                await conn.executemany(
+                    """
+                    INSERT INTO episodic_semantic_links (
+                        link_id, event_id, fact_id, relationship_type, strength
+                    ) VALUES ($1, $2, $3, $4, $5)
+                    ON CONFLICT (event_id, fact_id) DO UPDATE
+                    SET relationship_type = EXCLUDED.relationship_type,
+                        strength = EXCLUDED.strength
+                    """,
+                    batch_data,
+                )
+                links_created = len(fact_ids)
+            except Exception as e:
+                logger.warning(
+                    f"Failed to link event {event_id} to facts: {e}"
+                )
+                links_created = 0
 
         logger.debug(f"Linked event {event_id} to {links_created} facts")
         return links_created

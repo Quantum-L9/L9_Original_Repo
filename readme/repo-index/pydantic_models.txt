@@ -556,10 +556,8 @@ ToolExecuteRequest @ api/tools/router.py - Request model for tool execution.
 ToolExecuteRequest @ igor/DONE!/audit-tools/api_tools_router.py - Request model for tool execution.
 ToolExecuteResponse @ api/tools/router.py - Response model for tool execution.
 ToolExecuteResponse @ igor/DONE!/audit-tools/api_tools_router.py - Response model for tool execution.
-ToolMetadata @ core/tools/base_registry.py - Metadata for a registered tool.
 ToolMetadata @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py - Metadata for a registered tool.
 ToolMetadata @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py - Metadata for a registered tool.
-ToolSchema @ core/tools/base_registry.py - JSON Schema for tool parameters (OpenAI function c
 ToolSchema @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py - JSON Schema for tool parameters (OpenAI function c
 ToolSchema @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py - JSON Schema for tool parameters (OpenAI function c
 TraceContext @ core/observability/models.py - W3C-compatible trace context.
@@ -598,4 +596,4 @@ WorldModelQueryInput @ igor/DONE!/audit-tools/core_schemas_l_tools.py - Input sc
 WorldModelRequest @ orchestrators/world_model/interface.py - Request to world_model orchestrator.
 WorldModelResponse @ orchestrators/world_model/interface.py - Response from world_model orchestrator.
 
-# Total: 594 Pydantic models
+# Total: 592 Pydantic models
