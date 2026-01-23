@@ -1,0 +1,352 @@
+#!/usr/bin/env python3
+"""
+L9 N+1 Query Detection Script
+
+Detects potential N+1 query patterns in Python code by analyzing:
+- Database queries inside loops
+- Async database calls in list comprehensions
+- Sequential queries that could be batched
+
+Usage:
+    python scripts/check_n_plus_1.py [files...]
+    python scripts/check_n_plus_1.py --all
+    python scripts/check_n_plus_1.py --changed  # Git changed files only
+
+Exit codes:
+    0 - No issues found
+    1 - Potential N+1 patterns detected
+    2 - Script error
+"""
+
+import argparse
+import ast
+import re
+import subprocess
+import sys
+from pathlib import Path
+from typing import List, Tuple, Optional
+
+
+class N1DetectorVisitor(ast.NodeVisitor):
+    """AST visitor to detect N+1 query patterns"""
+
+    def __init__(self, filename: str):
+        self.filename = filename
+        self.issues: List[Tuple[int, str, str]] = []
+        self.in_loop = False
+        self.loop_line = 0
+
+    def visit_For(self, node: ast.For) -> None:
+        """Visit for loop"""
+        old_in_loop = self.in_loop
+        old_loop_line = self.loop_line
+        
+        self.in_loop = True
+        self.loop_line = node.lineno
+        
+        # Visit loop body
+        self.generic_visit(node)
+        
+        self.in_loop = old_in_loop
+        self.loop_line = old_loop_line
+
+    def visit_While(self, node: ast.While) -> None:
+        """Visit while loop"""
+        old_in_loop = self.in_loop
+        old_loop_line = self.loop_line
+        
+        self.in_loop = True
+        self.loop_line = node.lineno
+        
+        # Visit loop body
+        self.generic_visit(node)
+        
+        self.in_loop = old_in_loop
+        self.loop_line = old_loop_line
+
+    def visit_Call(self, node: ast.Call) -> None:
+        """Visit function call"""
+        # Check if this is a database query call
+        if self._is_db_query(node):
+            if self.in_loop:
+                self.issues.append((
+                    node.lineno,
+                    "potential_n_plus_1",
+                    f"Database query inside loop (loop starts at line {self.loop_line})"
+                ))
+        
+        self.generic_visit(node)
+
+    def visit_ListComp(self, node: ast.ListComp) -> None:
+        """Visit list comprehension"""
+        # Check for database queries in list comprehension
+        for generator in node.generators:
+            # Mark as in loop for the comprehension body
+            old_in_loop = self.in_loop
+            old_loop_line = self.loop_line
+            
+            self.in_loop = True
+            self.loop_line = node.lineno
+            
+            # Visit the element expression
+            self.visit(node.elt)
+            
+            self.in_loop = old_in_loop
+            self.loop_line = old_loop_line
+
+    def _is_db_query(self, node: ast.Call) -> bool:
+        """Check if a call is a database query"""
+        # Pattern 1: conn.fetch_one(...), conn.fetch_all(...), conn.execute(...)
+        if isinstance(node.func, ast.Attribute):
+            method_name = node.func.attr
+            if method_name in ('fetch_one', 'fetch_all', 'fetch', 'execute', 'executemany'):
+                return True
+        
+        # Pattern 2: await db.query(...), await session.query(...)
+        if isinstance(node.func, ast.Attribute):
+            if node.func.attr in ('query', 'get', 'filter', 'all', 'first'):
+                return True
+        
+        return False
+
+
+def check_file_ast(filepath: Path) -> List[Tuple[int, str, str]]:
+    """
+    Check a Python file for N+1 patterns using AST analysis
+    
+    Args:
+        filepath: Path to Python file
+        
+    Returns:
+        List of (line_number, issue_type, description) tuples
+    """
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            source = f.read()
+        
+        tree = ast.parse(source, filename=str(filepath))
+        visitor = N1DetectorVisitor(str(filepath))
+        visitor.visit(tree)
+        
+        return visitor.issues
+    except SyntaxError as e:
+        print(f"⚠️  Syntax error in {filepath}: {e}", file=sys.stderr)
+        return []
+    except Exception as e:
+        print(f"⚠️  Error analyzing {filepath}: {e}", file=sys.stderr)
+        return []
+
+
+def check_file_regex(filepath: Path) -> List[Tuple[int, str, str]]:
+    """
+    Check a Python file for N+1 patterns using regex (fallback)
+    
+    Args:
+        filepath: Path to Python file
+        
+    Returns:
+        List of (line_number, issue_type, description) tuples
+    """
+    issues = []
+    
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        in_loop = False
+        loop_line = 0
+        indent_level = 0
+        
+        for i, line in enumerate(lines, 1):
+            stripped = line.lstrip()
+            current_indent = len(line) - len(stripped)
+            
+            # Detect loop start
+            if re.match(r'(for|while)\s+', stripped):
+                in_loop = True
+                loop_line = i
+                indent_level = current_indent
+            
+            # Detect loop end (dedent)
+            elif in_loop and stripped and current_indent <= indent_level:
+                in_loop = False
+            
+            # Detect database query in loop
+            if in_loop:
+                if re.search(r'\.(fetch_one|fetch_all|fetch|execute|executemany)\s*\(', line):
+                    issues.append((
+                        i,
+                        "potential_n_plus_1",
+                        f"Database query inside loop (loop starts at line {loop_line})"
+                    ))
+                elif re.search(r'await\s+.*\.(query|get|filter|all|first)\s*\(', line):
+                    issues.append((
+                        i,
+                        "potential_n_plus_1",
+                        f"Database query inside loop (loop starts at line {loop_line})"
+                    ))
+    
+    except Exception as e:
+        print(f"⚠️  Error analyzing {filepath}: {e}", file=sys.stderr)
+    
+    return issues
+
+
+def get_changed_files() -> List[Path]:
+    """Get list of changed Python files from git"""
+    try:
+        result = subprocess.run(
+            ['git', 'diff', '--name-only', '--cached', 'HEAD'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        files = []
+        for line in result.stdout.strip().split('\n'):
+            if line.endswith('.py'):
+                path = Path(line)
+                if path.exists():
+                    files.append(path)
+        
+        return files
+    except subprocess.CalledProcessError:
+        print("⚠️  Not a git repository or git not available", file=sys.stderr)
+        return []
+
+
+def get_all_python_files(root: Path) -> List[Path]:
+    """Get all Python files in repository"""
+    exclude_dirs = {
+        '__pycache__', '.git', '.venv', 'venv', 'env',
+        'node_modules', '.pytest_cache', '.mypy_cache',
+        'build', 'dist', '.eggs'
+    }
+    
+    files = []
+    for path in root.rglob('*.py'):
+        # Skip excluded directories
+        if any(excluded in path.parts for excluded in exclude_dirs):
+            continue
+        files.append(path)
+    
+    return files
+
+
+def format_issue(filepath: Path, line: int, issue_type: str, description: str) -> str:
+    """Format an issue for display"""
+    return f"{filepath}:{line} [{issue_type}] {description}"
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Detect potential N+1 query patterns in Python code"
+    )
+    parser.add_argument(
+        'files',
+        nargs='*',
+        help='Files to check (default: changed files)'
+    )
+    parser.add_argument(
+        '--all',
+        action='store_true',
+        help='Check all Python files in repository'
+    )
+    parser.add_argument(
+        '--changed',
+        action='store_true',
+        help='Check only git changed files (default)'
+    )
+    parser.add_argument(
+        '--method',
+        choices=['ast', 'regex', 'both'],
+        default='ast',
+        help='Detection method (default: ast)'
+    )
+    parser.add_argument(
+        '--strict',
+        action='store_true',
+        help='Exit with error code if any issues found'
+    )
+    
+    args = parser.parse_args()
+    
+    # Determine which files to check
+    if args.files:
+        files = [Path(f) for f in args.files]
+    elif args.all:
+        files = get_all_python_files(Path.cwd())
+    else:
+        files = get_changed_files()
+        if not files:
+            print("ℹ️  No changed Python files to check")
+            return 0
+    
+    if not files:
+        print("ℹ️  No files to check")
+        return 0
+    
+    print(f"🔍 Checking {len(files)} file(s) for N+1 query patterns...\n")
+    
+    total_issues = 0
+    files_with_issues = 0
+    
+    for filepath in files:
+        if not filepath.exists():
+            print(f"⚠️  File not found: {filepath}", file=sys.stderr)
+            continue
+        
+        # Run detection
+        issues = []
+        
+        if args.method in ('ast', 'both'):
+            issues.extend(check_file_ast(filepath))
+        
+        if args.method in ('regex', 'both'):
+            regex_issues = check_file_regex(filepath)
+            # Deduplicate if using both methods
+            if args.method == 'both':
+                existing_lines = {issue[0] for issue in issues}
+                issues.extend([i for i in regex_issues if i[0] not in existing_lines])
+            else:
+                issues.extend(regex_issues)
+        
+        if issues:
+            files_with_issues += 1
+            total_issues += len(issues)
+            
+            print(f"⚠️  {filepath}")
+            for line, issue_type, description in sorted(issues):
+                print(f"    Line {line}: {description}")
+            print()
+    
+    # Summary
+    if total_issues > 0:
+        print(f"❌ Found {total_issues} potential N+1 pattern(s) in {files_with_issues} file(s)")
+        print()
+        print("💡 Tips:")
+        print("   - Use ANY() operator for batch queries: WHERE id = ANY($1)")
+        print("   - Use executemany() for batch inserts")
+        print("   - Fetch related data with JOINs or separate batch queries")
+        print("   - See docs/DATABASE_BEST_PRACTICES.md for examples")
+        
+        if args.strict:
+            return 1
+        else:
+            print()
+            print("ℹ️  Run with --strict to fail CI on N+1 patterns")
+            return 0
+    else:
+        print("✅ No N+1 query patterns detected")
+        return 0
+
+
+if __name__ == '__main__':
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("\n⚠️  Interrupted by user", file=sys.stderr)
+        sys.exit(2)
+    except Exception as e:
+        print(f"❌ Error: {e}", file=sys.stderr)
+        sys.exit(2)

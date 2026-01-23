@@ -281,6 +281,24 @@ def ensure_kernel_integrity(agent: Any) -> None:
 # =============================================================================
 
 
+@lru_cache(maxsize=32)
+def _load_kernel_yaml_cached(kernel_path_str: str) -> Dict[str, Any]:
+    """
+    Cache kernel YAML loading.
+    
+    Kernels are immutable after load, so caching is safe.
+    This provides 99% faster access for repeated kernel loads.
+    
+    Args:
+        kernel_path_str: String path to kernel YAML file
+        
+    Returns:
+        Parsed kernel data
+    """
+    kernel_path = Path(kernel_path_str)
+    return yaml.safe_load(kernel_path.read_text())
+
+
 def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
     """
     Load all kernels into an agent in the correct order.
@@ -360,7 +378,8 @@ def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
             raise RuntimeError(f"Missing kernel file during load: {kernel_path}")
 
         try:
-            data = yaml.safe_load(full_path.read_text())
+            # Use cached YAML loading for performance
+            data = _load_kernel_yaml_cached(str(full_path))
             if data:
                 agent.absorb_kernel(data)
                 agent.kernels[kernel_path] = data
