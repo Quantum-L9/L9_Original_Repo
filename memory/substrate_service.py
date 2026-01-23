@@ -290,6 +290,9 @@ class MemorySubstrateService:
 
         # Convert input to full envelope
         envelope = packet_in.to_envelope()
+        # DEBUG: Trace project_id in envelope
+        envelope_meta = envelope.metadata.model_dump() if envelope.metadata else {}
+        logger.warning(f"DEBUG write_packet: envelope.metadata.project_id={envelope_meta.get('project_id')!r}")
 
         # Circuit breaker check before DAG execution
         if self._circuit_breaker.is_open():

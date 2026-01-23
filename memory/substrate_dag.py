@@ -1070,8 +1070,11 @@ class SubstrateDAG:
             raise ValueError(f"envelope must be PacketEnvelope, got {type(envelope)}")
 
         # Prepare initial state (v2.0.0 - Native LangGraph Execution)
+        envelope_json = envelope.model_dump(mode="json")
+        # DEBUG: Trace project_id in DAG state
+        logger.warning(f"DEBUG DAG.run: envelope_json metadata.project_id={envelope_json.get('metadata', {}).get('project_id')!r}")
         initial_state: SubstrateGraphState = {
-            "envelope": envelope.model_dump(mode="json"),
+            "envelope": envelope_json,
             "reasoning_block": None,
             "written_tables": [],
             "embedding_id": None,
