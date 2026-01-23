@@ -128,7 +128,7 @@ async def save_memory_handler(
         scope: MCP scope ('developer', 'l-private', 'global')
         caller_id: "L" or "C" (from API key)
         creator: "L-CTO" or "Cursor-IDE" (server-enforced)
-        source: "l9-kernel" or "cursor-ide" (server-enforced)
+        source: "l9-kernel" or "cursor" (server-enforced)
         substrate_service: REQUIRED MemorySubstrateService instance
 
     Returns:
@@ -218,12 +218,9 @@ async def _save_via_main_pipeline(
     # Map MCP scope to DB scope
     db_scope = map_mcp_scope_to_db_scope(scope)
 
-    # Determine project_id
-    project_id = None
-    if metadata:
-        project_id = metadata.get("project_id")
-    if project_id is None:
-        project_id = "l9" if scope != "global" else None
+    # GMP-C1-GOVERNANCE: Do NOT hardcode project_id here.
+    # Let enforce_governance_metadata() inject it from governance context.
+    # Previously this was set to "l9" which conflicts with L9_PROJECT_ID env var.
 
     # Calculate TTL based on duration
     ttl = None
@@ -233,16 +230,16 @@ async def _save_via_main_pipeline(
         ttl = datetime.utcnow() + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
 
     # Build metadata dict (not PacketMetadata model - that's for envelope metadata)
+    # GMP-C1-GOVERNANCE: Do NOT include project_id or scope here.
+    # enforce_governance_metadata() will inject them from governance context.
     envelope_metadata = {
         "creator": creator,
         "source": source,
         "caller": caller_id,
-        "agent": "l-cto" if caller_id == "L" else "cursor-ide",
+        "agent": "l-cto" if caller_id == "L" else "cursor",
         "user_id": user_id,
-        "project_id": project_id,
         "importance": importance,
         "duration": duration,
-        "scope": scope,  # MCP scope preserved
         "db_scope": db_scope,  # DB scope for filtering
         **(metadata or {}),
     }
@@ -250,19 +247,19 @@ async def _save_via_main_pipeline(
     # Build provenance
     provenance = PacketProvenance(
         source=source,
-        source_agent="l-cto" if caller_id == "L" else "cursor-ide",
+        source_agent="l-cto" if caller_id == "L" else "cursor",
     )
 
     # Create PacketEnvelopeIn for main ingestion pipeline
     # Note: 'agent' is already in envelope_metadata, don't pass it twice
     # PacketEnvelopeIn expects dict for metadata/provenance, not Pydantic models
+    # GMP-C1-GOVERNANCE: Do NOT include project_id or scope in payload.
+    # enforce_governance_metadata() will inject them from governance context.
     packet_in = PacketEnvelopeIn(
         packet_type=f"memory.{kind}",  # e.g., "memory.preference", "memory.lesson"
         payload={
             "content": content,
             "kind": kind,
-            "scope": scope,
-            "project_id": project_id,
         },
         metadata={
             "schema_version": "2.0.0",
