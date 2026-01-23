@@ -1,0 +1,183 @@
+%% L9 Memory Substrate - DEEP GRANULAR IMPLEMENTATION DIAGRAM
+%% Shows actual SQL queries, function calls, error paths, and data flows
+%% Version: 2.0 (Deep Implementation Level)
+%% Generated: 2026-01-20
+
+graph TB
+    subgraph "API Entry Point"
+        API_CALL["POST /memory/write<br/>PacketEnvelopeIn"]
+        API_SEARCH["POST /memory/search<br/>SemanticSearchRequest"]
+    end
+
+    subgraph "MemorySubstrateService"
+        WRITE_METHOD["async write_packet()<br/>→ PacketWriteResult"]
+        SEARCH_METHOD["async semantic_search()<br/>→ SemanticSearchResult"]
+        CIRCUIT["CircuitBreaker<br/>max_failures=5<br/>timeout=30s"]
+    end
+
+    subgraph "Governance Gate"
+        GOV_CHECK["enforce_packet_governance()<br/>Check: content_hash<br/>Check: routing.agent_id"]
+        GOV_POLICY["PolicyRegistry.evaluate()<br/>resource='memory.write'<br/>action='write'"]
+        GOV_DENY["❌ PolicyEffect.DENY<br/>→ raise GovernanceError"]
+        GOV_ALLOW["✅ PolicyEffect.ALLOW<br/>→ continue"]
+    end
+
+    subgraph "Packet Validation"
+        VALIDATOR["PacketValidator.validate()<br/>Check: packet_id UUID<br/>Check: content not empty<br/>Check: routing present"]
+        VAL_ERROR["❌ PacketValidationError<br/>→ return 400"]
+        VAL_SUCCESS["✅ ValidationResult<br/>→ continue"]
+    end
+
+    subgraph "DAG Processing"
+        DAG_PROC["SubstrateDAG.process()<br/>Build dependency graph<br/>Topological sort"]
+        DAG_CYCLE["❌ Cycle detected<br/>→ raise DAGCycleError"]
+        DAG_ORDER["✅ Execution order<br/>→ [packet_ids]"]
+    end
+
+    subgraph "Packet Builder"
+        BUILDER["PacketBuilder.build()<br/>Generate content_hash<br/>SHA256(content)"]
+        HASH["content_hash =<br/>hashlib.sha256()<br/>.hexdigest()"]
+    end
+
+    subgraph "Embedding Generation"
+        EMBED_CHECK{"Has<br/>embedding?"}
+        EMBED_GEN["OpenAIEmbeddingProvider<br/>model='text-embedding-3-small'<br/>dimensions=1536"]
+        EMBED_API["await openai.embeddings.create()<br/>input=content<br/>→ vector[1536]"]
+        EMBED_CACHE["Check embedding_cache<br/>key=content_hash"]
+        EMBED_SKIP["Skip embedding<br/>generation"]
+    end
+
+    subgraph "PostgreSQL Write - SubstrateRepository"
+        PG_CONN["async with pool.acquire()<br/>→ asyncpg.Connection"]
+        RLS_SET["await conn.execute()<br/>SELECT l9_set_scope()<br/>$1=tenant_id<br/>$2=org_id<br/>$3=user_id"]
+        
+        SQL_INSERT["await conn.execute()<br/>INSERT INTO packet_store<br/>(packet_id, packet_type,<br/>envelope, timestamp, routing,<br/>provenance, thread_id,<br/>parent_ids, tags, ttl,<br/>content_hash, session_id,<br/>scope, content, embedding)<br/>VALUES ($1...$15)<br/>ON CONFLICT (packet_id)<br/>DO UPDATE SET..."]
+        
+        SQL_CONFLICT["ON CONFLICT<br/>→ UPDATE existing"]
+        SQL_SUCCESS["✅ INSERT 1<br/>→ packet_id"]
+    end
+
+    subgraph "Semantic Memory Write"
+        SEM_WRITE["await conn.execute()<br/>INSERT INTO semantic_memory<br/>(embedding_id, agent_id,<br/>vector, payload,<br/>created_at, scope)<br/>VALUES ($1, $2,<br/>$3::vector, $4, $5, $6)"]
+        PGVECTOR["pgvector extension<br/>vector(1536)<br/>→ indexed"]
+    end
+
+    subgraph "Knowledge Facts Extraction"
+        FACT_EXTRACT["Extract triplets<br/>(subject, predicate, object)"]
+        FACT_INSERT["await conn.execute()<br/>INSERT INTO knowledge_facts<br/>(fact_id, subject,<br/>predicate, object::jsonb,<br/>confidence, source_packet)<br/>VALUES ($1...$6)<br/>ON CONFLICT<br/>(source_packet, subject,<br/>predicate)<br/>DO UPDATE SET..."]
+    end
+
+    subgraph "Semantic Search Flow"
+        QUERY_CLASS["QueryClassifier<br/>classify(query)<br/>→ QueryType"]
+        QUERY_EMBED["Generate query embedding<br/>await embed_provider<br/>.embed(query)"]
+        
+        SQL_SEARCH["await conn.fetch()<br/>SELECT embedding_id,<br/>payload,<br/>vector <=> $1::vector<br/>AS distance<br/>FROM semantic_memory<br/>WHERE agent_id = $2<br/>ORDER BY distance<br/>LIMIT $3"]
+        
+        PGVECTOR_OP["pgvector operator<br/><=> cosine distance<br/>Uses HNSW index"]
+        
+        RESULTS["SemanticSearchResult<br/>hits: List[SemanticHit]<br/>total_count: int"]
+    end
+
+    subgraph "Error Handling & Retry"
+        TRY_BLOCK["try:<br/>  await write_packet()"]
+        EXCEPT_PG["except asyncpg.Error:<br/>  logger.error()<br/>  record_memory_write()<br/>  raise"]
+        EXCEPT_VAL["except ValidationError:<br/>  return 400"]
+        RETRY["@retry(max_attempts=3,<br/>backoff=exponential)"]
+    end
+
+    subgraph "Telemetry & Observability"
+        METRICS["record_memory_write()<br/>labels: agent_id,<br/>packet_type, status"]
+        HEALTH["set_memory_substrate_health()<br/>status: healthy/degraded"]
+        AUDIT["Audit log to<br/>agent_memory_events"]
+    end
+
+    subgraph "Circuit Breaker States"
+        CB_CLOSED["CLOSED<br/>Normal operation"]
+        CB_OPEN["OPEN<br/>Fail fast<br/>→ 503"]
+        CB_HALF["HALF_OPEN<br/>Test recovery"]
+    end
+
+    %% API Flow
+    API_CALL --> WRITE_METHOD
+    API_SEARCH --> SEARCH_METHOD
+
+    %% Write Flow
+    WRITE_METHOD --> CIRCUIT
+    CIRCUIT -.healthy.-> GOV_CHECK
+    CIRCUIT -.unhealthy.-> CB_OPEN
+
+    %% Governance
+    GOV_CHECK --> GOV_POLICY
+    GOV_POLICY -.deny.-> GOV_DENY
+    GOV_POLICY -.allow.-> GOV_ALLOW
+    GOV_ALLOW --> VALIDATOR
+
+    %% Validation
+    VALIDATOR -.invalid.-> VAL_ERROR
+    VALIDATOR -.valid.-> VAL_SUCCESS
+    VAL_SUCCESS --> DAG_PROC
+
+    %% DAG
+    DAG_PROC -.cycle.-> DAG_CYCLE
+    DAG_PROC -.valid.-> DAG_ORDER
+    DAG_ORDER --> BUILDER
+
+    %% Building
+    BUILDER --> HASH
+    HASH --> EMBED_CHECK
+
+    %% Embedding
+    EMBED_CHECK -.no embedding.-> EMBED_CACHE
+    EMBED_CACHE -.cache miss.-> EMBED_GEN
+    EMBED_GEN --> EMBED_API
+    EMBED_API --> PG_CONN
+    EMBED_CHECK -.has embedding.-> EMBED_SKIP
+    EMBED_SKIP --> PG_CONN
+    EMBED_CACHE -.cache hit.-> PG_CONN
+
+    %% PostgreSQL Write
+    PG_CONN --> RLS_SET
+    RLS_SET --> SQL_INSERT
+    SQL_INSERT -.conflict.-> SQL_CONFLICT
+    SQL_INSERT -.success.-> SQL_SUCCESS
+    SQL_CONFLICT --> SQL_SUCCESS
+
+    %% Parallel Writes
+    SQL_SUCCESS --> SEM_WRITE
+    SQL_SUCCESS --> FACT_EXTRACT
+    SEM_WRITE --> PGVECTOR
+    FACT_EXTRACT --> FACT_INSERT
+
+    %% Search Flow
+    SEARCH_METHOD --> QUERY_CLASS
+    QUERY_CLASS --> QUERY_EMBED
+    QUERY_EMBED --> SQL_SEARCH
+    SQL_SEARCH --> PGVECTOR_OP
+    PGVECTOR_OP --> RESULTS
+
+    %% Error Handling
+    WRITE_METHOD --> TRY_BLOCK
+    TRY_BLOCK -.pg error.-> EXCEPT_PG
+    TRY_BLOCK -.validation error.-> EXCEPT_VAL
+    WRITE_METHOD --> RETRY
+
+    %% Telemetry
+    SQL_SUCCESS --> METRICS
+    METRICS --> HEALTH
+    SQL_SUCCESS --> AUDIT
+
+    %% Circuit Breaker
+    CB_CLOSED -.5 failures.-> CB_OPEN
+    CB_OPEN -.timeout.-> CB_HALF
+    CB_HALF -.success.-> CB_CLOSED
+    CB_HALF -.failure.-> CB_OPEN
+
+    style WRITE_METHOD fill:#4ecdc4
+    style SQL_INSERT fill:#ffe66d
+    style GOV_CHECK fill:#ff6b6b
+    style EMBED_API fill:#95e1d3
+    style SQL_SEARCH fill:#a8e6cf
+    style CB_OPEN fill:#ff6b6b
+    style GOV_DENY fill:#ff6b6b
+    style VAL_ERROR fill:#ff6b6b
+    style DAG_CYCLE fill:#ff6b6b

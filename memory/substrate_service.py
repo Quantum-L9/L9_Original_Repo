@@ -163,6 +163,9 @@ class MemorySubstrateService:
         self._saga_executor: Optional[SagaExecutor] = None
         self._saga_patterns: Optional[SagaPatterns] = None
 
+        # Initialize Dead-Letter Queue (lazy initialization)
+        self._dlq: Optional[Any] = None
+
         logger.info("MemorySubstrateService initialized")
 
     def _require_rls_context(self, operation: str) -> Any:
@@ -339,7 +342,7 @@ class MemorySubstrateService:
                         result.error_message or "DAG returned error status"
                     )
             except Exception as dag_error:
-                # DAG threw exception - record failure and re-raise
+                # DAG threw exception - record failure
                 self._circuit_breaker.record_failure(str(dag_error))
                 logger.error(
                     "memory_substrate_dag_exception",
@@ -347,6 +350,22 @@ class MemorySubstrateService:
                     error=str(dag_error),
                     circuit_state=self._circuit_breaker.get_state(),
                 )
+                
+                # Push to Dead-Letter Queue for later reprocessing
+                if hasattr(self, '_dlq') and self._dlq:
+                    try:
+                        await self._dlq.push(packet_in, str(dag_error))
+                        logger.info(
+                            "memory_substrate_packet_queued_for_retry",
+                            packet_id=str(envelope.packet_id),
+                        )
+                    except Exception as dlq_error:
+                        logger.error(
+                            "dlq_push_failed",
+                            packet_id=str(envelope.packet_id),
+                            error=str(dlq_error),
+                        )
+                
                 raise
 
         # Record Prometheus metrics for memory write (result is defined in both branches)

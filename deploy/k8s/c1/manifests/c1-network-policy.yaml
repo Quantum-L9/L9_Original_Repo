@@ -1,0 +1,169 @@
+# C1 Network Policies - Isolate database traffic, restrict external access
+# Rollback: kubectl delete -f c1-network-policy.yaml
+#
+# Security principle: Default deny, explicit allow
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: l9-c1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+# Allow internal namespace traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-namespace-internal
+  namespace: l9-c1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: l9-c1
+---
+# PostgreSQL: Only allow from L9 API and MCP Memory
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-ingress
+  namespace: l9-c1
+spec:
+  podSelector:
+    matchLabels:
+      app: l9-postgres
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: l9-api
+    - podSelector:
+        matchLabels:
+          app: l9-mcp-memory
+    ports:
+    - protocol: TCP
+      port: 5432
+---
+# Neo4j: Only allow from L9 API
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: neo4j-ingress
+  namespace: l9-c1
+spec:
+  podSelector:
+    matchLabels:
+      app: l9-neo4j
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: l9-api
+    ports:
+    - protocol: TCP
+      port: 7687
+    - protocol: TCP
+      port: 7474
+---
+# Redis: Only allow from L9 API and MCP Memory
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-ingress
+  namespace: l9-c1
+spec:
+  podSelector:
+    matchLabels:
+      app: l9-redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: l9-api
+    - podSelector:
+        matchLabels:
+          app: l9-mcp-memory
+    ports:
+    - protocol: TCP
+      port: 6379
+---
+# L9 API: Allow external traffic (NodePort)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: l9-api-ingress
+  namespace: l9-c1
+spec:
+  podSelector:
+    matchLabels:
+      app: l9-api
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 8000
+---
+# MCP Memory: Allow external traffic (NodePort)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mcp-memory-ingress
+  namespace: l9-c1
+spec:
+  podSelector:
+    matchLabels:
+      app: l9-mcp-memory
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 9002
+---
+# Prometheus: Allow scraping from all pods + external
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: prometheus-ingress
+  namespace: l9-c1
+spec:
+  podSelector:
+    matchLabels:
+      app: prometheus
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 9090
+---
+# Grafana: Allow external traffic (NodePort)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: grafana-ingress
+  namespace: l9-c1
+spec:
+  podSelector:
+    matchLabels:
+      app: grafana
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 3000
