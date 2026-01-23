@@ -55,6 +55,7 @@ COPY agents/ ./agents/
 COPY services/ ./services/
 COPY tools/ ./tools/
 COPY workers/ ./workers/
+COPY private/ ./private/
 
 # Create necessary directories
 RUN mkdir -p /app/logs /app/data && \
