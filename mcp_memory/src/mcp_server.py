@@ -23,10 +23,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List
+import os
+from datetime import UTC
+from typing import Any
 
 import structlog
 from pydantic import BaseModel, ValidationError
+
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -35,15 +38,15 @@ logger = structlog.get_logger(__name__)
 class MCPTool(BaseModel):
     name: str
     description: str
-    inputSchema: Dict[str, Any]
+    inputSchema: dict[str, Any]
 
 
 class MCPToolCall(BaseModel):
     name: str
-    arguments: Dict[str, Any]
+    arguments: dict[str, Any]
 
 
-def get_mcp_tools() -> List[MCPTool]:
+def get_mcp_tools() -> list[MCPTool]:
     return [
         MCPTool(
             name="save_memory",
@@ -457,7 +460,7 @@ async def handle_tool_call(
     user_id: str,
     caller: Any = None,
     substrate_service: Any = None,  # Optional: MemorySubstrateService for main pipeline
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Handle MCP tool call with caller-enforced governance.
 
     Args:
@@ -476,20 +479,33 @@ async def handle_tool_call(
 
     from src.db import execute
     from src.models import (  # Graph (Neo4j) tool args; Cache (Redis) tool args
-        ApplyDecayArgs, CacheGetArgs, CacheGetSessionContextArgs, CacheSetArgs,
-        CompoundMemoriesArgs, DeleteExpiredMemoriesArgs,
-        ExtractSessionLearningsArgs, GetContextArgs, GetMemoryStatsArgs,
-        GetProactiveSuggestionsArgs, GraphGetContextArgs, GraphGetEntityArgs,
-        GraphQueryArgs, QueryTemporalArgs, SaveMemoryArgs,
-        SaveMemoryWithConfidenceArgs, SearchMemoryArgs)
+        ApplyDecayArgs,
+        CacheGetArgs,
+        CacheGetSessionContextArgs,
+        CacheSetArgs,
+        CompoundMemoriesArgs,
+        DeleteExpiredMemoriesArgs,
+        ExtractSessionLearningsArgs,
+        GetContextArgs,
+        GetMemoryStatsArgs,
+        GetProactiveSuggestionsArgs,
+        GraphGetContextArgs,
+        GraphGetEntityArgs,
+        GraphQueryArgs,
+        QueryTemporalArgs,
+        SaveMemoryArgs,
+        SaveMemoryWithConfidenceArgs,
+        SearchMemoryArgs,
+    )
 
     # Extract caller metadata for enforcement
     caller_id = caller.caller_id if caller else "unknown"
     creator = caller.creator if caller else "unknown"
     source = caller.source if caller else "unknown"
 
-    # Determine project_id (default: 'l9' for developer/l-private scope)
-    project_id = "l9"  # Default for L9 repo
+    # GMP-JSONB-GOV-FIX: Get project_id from env var (not hardcoded)
+    # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
+    project_id = os.getenv("L9_PROJECT_ID", "l9")
 
     # Track execution time for audit
     start_time = time.time()
@@ -587,6 +603,7 @@ async def handle_tool_call(
                 # L can explicitly request l-private, but default includes it
                 pass  # Don't auto-add, respect explicit request
 
+            # GMP-JSONB-GOV-FIX: Pass project_id from env var for project isolation
             result = await search_memory_handler(
                 user_id=user_id,
                 query=validated_args.query,
@@ -601,6 +618,7 @@ async def handle_tool_call(
                 ),
                 duration=validated_args.duration or "all",
                 caller_id=caller_id,  # Perplexity: pass caller for audit logging
+                project_id=project_id,  # From env: L9_PROJECT_ID
             )
         elif tool.name == "get_memory_stats":
             from src.routes.memory_unified import get_memory_stats
@@ -924,7 +942,7 @@ async def handle_tool_call(
                         CURSOR_SESSION_NAMESPACE = uuid.UUID(
                             "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
                         )
-                        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                        today = datetime.now(UTC).strftime("%Y-%m-%d")
                         session_id = str(
                             uuid.uuid5(
                                 CURSOR_SESSION_NAMESPACE, f"cursor-session-{today}"
