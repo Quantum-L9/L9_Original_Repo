@@ -155,7 +155,7 @@ class TestGenerator:
         tests.append(f'''
 def test_{func_name}_happy_path():
     """Test {func_name} with valid inputs."""
-    # TODO: Add appropriate test inputs
+    # TODO(GMP-109): Add appropriate test inputs
     # result = {func_name}(...)
     # assert result is not None
     pass
@@ -165,7 +165,7 @@ def test_{func_name}_happy_path():
         tests.append(f'''
 def test_{func_name}_edge_cases():
     """Test {func_name} with edge case inputs."""
-    # TODO: Test with None, empty, boundary values
+    # TODO(GMP-110): Test with None, empty, boundary values
     pass
 ''')
 
@@ -175,7 +175,7 @@ def test_{func_name}_edge_cases():
                 tests.append(f'''
 def test_{func_name}_error_handling():
     """Test {func_name} handles errors gracefully."""
-    # TODO: Test error conditions
+    # TODO(GMP-111): Test error conditions
     pass
 ''')
                 break
@@ -195,7 +195,7 @@ def test_{func_name}_error_handling():
         tests.append(f'''
 def test_{class_name.lower()}_instantiation():
     """Test {class_name} can be instantiated."""
-    # TODO: Add appropriate constructor arguments
+    # TODO(GMP-112): Add appropriate constructor arguments
     # instance = {class_name}(...)
     # assert instance is not None
     pass
@@ -208,7 +208,7 @@ def test_{class_name.lower()}_instantiation():
                     tests.append(f'''
 def test_{class_name.lower()}_{node.name}():
     """Test {class_name}.{node.name} method."""
-    # TODO: Add test implementation
+    # TODO(GMP-113): Add test implementation
     pass
 ''')
 
@@ -255,7 +255,7 @@ def test_module_import():
 @pytest.mark.asyncio
 async def test_integration_with_{dep_name}():
     """Test integration with {dependency}."""
-    # TODO: Test interaction between module and {dependency}
+    # TODO(GMP-114): Test interaction between module and {dependency}
     pass
 '''
 
@@ -265,7 +265,7 @@ async def test_integration_with_{dep_name}():
 @pytest.mark.asyncio
 async def test_async_flow():
     """Test async operations complete successfully."""
-    # TODO: Test async function calls and await patterns
+    # TODO(GMP-115): Test async function calls and await patterns
     pass
 '''
 
@@ -274,7 +274,7 @@ async def test_async_flow():
         return '''
 def test_error_handling():
     """Test that errors are handled gracefully."""
-    # TODO: Test error conditions and recovery
+    # TODO(GMP-116): Test error conditions and recovery
     pass
 '''
 

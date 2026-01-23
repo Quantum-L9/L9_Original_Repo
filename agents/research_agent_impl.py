@@ -996,7 +996,7 @@ Output ONLY valid YAML, no explanations."""
 
         # This would call the CodeGenAgent
         # For now, return placeholder
-        # TODO: Integrate with agents.codegenagent.CodeGenAgent
+        # TODO(GMP-122): Integrate with agents.codegenagent.CodeGenAgent
 
         return CodeResult(
             output_dir=Path("codegen/extractions/"),

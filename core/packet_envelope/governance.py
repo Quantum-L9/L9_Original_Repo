@@ -152,7 +152,7 @@ class RetentionManager:
             "timestamp": datetime.utcnow().isoformat(),
         }
 
-        # TODO: Query all aggregates, check expiration
+        # TODO(GMP-101): Query all aggregates, check expiration
         # For now, return empty stats
 
         return stats
@@ -313,18 +313,18 @@ class ErasureEngine:
     @must_stay_async("callers use await")
     async def _fetch_aggregate(self, aggregate_id: str) -> Dict:
         """Fetch aggregate data"""
-        # TODO: Query data store
+        # TODO(GMP-102): Query data store
         return {"id": aggregate_id, "created_at": datetime.utcnow().isoformat()}
 
     @must_stay_async("callers use await")
     async def _find_cascading_deletes(self, aggregate_id: str) -> List[str]:
         """Find aggregates dependent on this one (lineage, relationships)"""
-        # TODO: Query relationships, lineage
+        # TODO(GMP-103): Query relationships, lineage
         return []
 
     def _sign_proof(self, data_hash: str) -> str:
         """HMAC sign proof"""
-        # TODO: Use configured signing key
+        # TODO(GMP-104): Use configured signing key
         return hashlib.sha256(data_hash.encode()).hexdigest()
 
     @must_stay_async("callers use await")
@@ -516,7 +516,7 @@ class ComplianceExporter:
         """
         Export GDPR Subject Access Request data
         """
-        # TODO: Query all aggregates with user_id
+        # TODO(GMP-105): Query all aggregates with user_id
 
         events = await self.audit_log.export_audit_trail(user_id, start_date, end_date)
 

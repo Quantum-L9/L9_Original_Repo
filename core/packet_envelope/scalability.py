@@ -225,13 +225,13 @@ class BatchIngestionEngine:
     @must_stay_async("callers use await")
     async def _check_idempotency(self, key: str) -> Optional[BatchIngestResult]:
         """Check if batch already processed"""
-        # TODO: Check cache
+        # TODO(GMP-106): Check cache
         return None
 
     @must_stay_async("callers use await")
     async def _cache_result(self, key: str, result: BatchIngestResult):
         """Cache result for idempotency"""
-        # TODO: Store in cache (Redis/Memcached)
+        # TODO(GMP-107): Store in cache (Redis/Memcached)
         pass
 
 
@@ -436,7 +436,7 @@ class StreamConsumer:
     @must_stay_async("future await planned")
     async def _fetch_events(self, from_offset: int, batch_size: int) -> List[Event]:
         """Fetch events from event store"""
-        # TODO: Implement event store query
+        # TODO(GMP-108): Implement event store query
         return []
 
     @must_stay_async("callers use await")
