@@ -22,6 +22,27 @@ Created: 2026-01-16
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Wm To Graph Sync",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T00:39:37Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "wm_to_graph_sync",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL"],
+        "memory_layers": [],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import os
 from datetime import datetime
@@ -31,6 +52,7 @@ import structlog
 
 if TYPE_CHECKING:
     from world_model.causal_mapper import CausalMapper
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -65,6 +87,7 @@ class WMToGraphSync:
         self._running = False
         self._task: asyncio.Task | None = None
 
+    @must_stay_async("callers use await")
     async def start(self) -> None:
         """Start periodic sync."""
         if not self.enabled:
@@ -308,3 +331,47 @@ async def stop_wm_graph_sync() -> None:
     global _wm_graph_sync
     if _wm_graph_sync:
         await _wm_graph_sync.stop()
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-029",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "core", "event-driven", "foundation", "logging", "service"],
+    "keywords": [
+        "all",
+        "causal",
+        "decisions",
+        "edges",
+        "graph",
+        "label",
+        "links",
+        "memory",
+    ],
+    "business_value": "Implements WMToGraphSync for wm to graph sync functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

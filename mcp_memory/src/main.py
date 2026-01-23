@@ -1,7 +1,29 @@
 """FastAPI MCP Memory Server."""
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Main",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "api_gateway",
+    "module_name": "main",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /", "GET /health", "GET /mcp/tools", "POST /mcp/call"],
+        "datasources": ["OpenAI API", "PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["tests.memory.test_governance_invariants"],
+    },
+}
+# ============================================================================
+
 import structlog
 import time
+from dataclasses import dataclass
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
@@ -15,6 +37,7 @@ from src.db import init_db, close_db
 from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
 from src.routes import memory_unified as memory, health
 from src.rate_limiter import RateLimiter
+from core.decorators import must_stay_async
 
 # Configure structlog
 # Use structlog log levels (no need for logging module)
@@ -55,8 +78,36 @@ FAILED_AUTH_LIMIT = 5  # Max failed auth attempts before block
 FAILED_AUTH_BLOCK_SECONDS = 300  # Block for 5 minutes after too many failures
 
 
+def is_non_dev_environment(env: str) -> bool:
+    """Return True when env is not a development-like environment."""
+    normalized = (env or "").strip().lower()
+    return normalized not in {"dev", "development", "local", "test", "testing"}
+
+
+def should_fail_hardening_disabled(env: str, hardening_enabled: bool) -> bool:
+    """Decide if startup must fail when hardening is disabled in non-dev."""
+    return (not hardening_enabled) and is_non_dev_environment(env)
+
+
+@must_stay_async("callers use await")
+async def should_fail_hardening_disabled_async(
+    env: str, hardening_enabled: bool
+) -> bool:
+    """Async wrapper for hardening-disabled startup decision."""
+    return should_fail_hardening_disabled(env, hardening_enabled)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if await should_fail_hardening_disabled_async(
+        settings.MCP_ENV, settings.GOVERNANCE_HARDENING_ENABLED
+    ):
+        message = (
+            "Governance hardening disabled in non-dev environment. "
+            "Set GOVERNANCE_HARDENING_ENABLED=True or use MCP_ENV=development."
+        )
+        logger.critical(message, mcp_env=settings.MCP_ENV)
+        raise RuntimeError(message)
     logger.info("Initializing database...")
     await init_db()
     logger.info("✓ Database initialized")
@@ -169,19 +220,32 @@ def get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
+@dataclass(frozen=True)
 class CallerIdentity:
-    """Caller identity determined from API key.
+    """Caller identity determined from API key (MCP Memory Server).
+
+    NOTE: This is separate from api/auth.py CallerIdentity which handles
+    main L9 API auth. The two serve different purposes:
+    - This class: MCP Memory Server auth (includes user_id for memory ops)
+    - api/auth.py: Main L9 API auth (includes allowed_scopes for routes)
 
     See: mcp_memory/memory-setup-instructions.md for governance spec.
     - L: L-CTO kernel (full read/write/delete for shared userid)
     - C: Cursor IDE (read all, write/delete own memories only)
     """
 
-    def __init__(self, caller_id: str, user_id: str):
-        self.caller_id = caller_id  # "L" or "C"
-        self.user_id = user_id  # Shared userid
-        self.is_l = caller_id == "L"
-        self.is_c = caller_id == "C"
+    caller_id: str  # "L" or "C"
+    user_id: str  # Shared userid (L_CTO_USER_ID)
+
+    @property
+    def is_l(self) -> bool:
+        """True if caller is L-CTO."""
+        return self.caller_id == "L"
+
+    @property
+    def is_c(self) -> bool:
+        """True if caller is Cursor."""
+        return self.caller_id == "C"
 
     @property
     def creator(self) -> str:
@@ -275,6 +339,7 @@ async def verify_api_key(
 
 
 @app.get("/")
+@must_stay_async("FastAPI/ASGI route handler")
 async def root():
     return {
         "status": "L9 MCP Memory Server",
@@ -289,6 +354,7 @@ async def health_check():
 
 
 @app.get("/mcp/tools")
+@must_stay_async("FastAPI/ASGI route handler")
 async def list_tools(
     request: Request, caller: CallerIdentity = Depends(verify_api_key)
 ):
@@ -345,33 +411,25 @@ def create_authenticated_memory_router() -> APIRouter:
     return authenticated_router
 
 
-if settings.GOVERNANCE_HARDENING_ENABLED:
-    # Governance mode: ALL memory routes require authentication
-    logger.info(
-        "Governance hardening ENABLED",
-        enforcement_mode=settings.GOVERNANCE_ENFORCEMENT_MODE,
-    )
-    auth_memory_router = create_authenticated_memory_router()
-    app.include_router(auth_memory_router, prefix="/memory", tags=["memory"])
-    app.include_router(auth_memory_router, prefix="/api/v1/memory", tags=["memory"])
-else:
-    # Legacy mode: Memory routes do not require authentication (DEPRECATED)
-    # This mode will be removed in a future release
-    logger.warning(
-        "Governance hardening DISABLED - memory routes are unauthenticated. "
-        "Set GOVERNANCE_HARDENING_ENABLED=True to enforce authentication."
-    )
-    app.include_router(memory.router, prefix="/memory", tags=["memory"])
-    app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
+logger.info(
+    "Governance hardening status",
+    enabled=settings.GOVERNANCE_HARDENING_ENABLED,
+    enforcement_mode=settings.GOVERNANCE_ENFORCEMENT_MODE,
+)
+auth_memory_router = create_authenticated_memory_router()
+app.include_router(auth_memory_router, prefix="/memory", tags=["memory"])
+app.include_router(auth_memory_router, prefix="/api/v1/memory", tags=["memory"])
 
 
 @app.exception_handler(HTTPException)
+@must_stay_async("FastAPI/ASGI route handler")
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions with proper status codes."""
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
 @app.exception_handler(ValidationError)
+@must_stay_async("FastAPI/ASGI route handler")
 async def validation_exception_handler(request: Request, exc: ValidationError):
     """Handle Pydantic validation errors."""
     logger.warning("Validation error", errors=exc.errors())
@@ -381,6 +439,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 
 @app.exception_handler(asyncpg.PostgresError)
+@must_stay_async("FastAPI/ASGI route handler")
 async def postgres_exception_handler(request: Request, exc: asyncpg.PostgresError):
     """Handle PostgreSQL database errors."""
     logger.error(
@@ -393,6 +452,7 @@ async def postgres_exception_handler(request: Request, exc: asyncpg.PostgresErro
 
 
 @app.exception_handler(Exception)
+@must_stay_async("FastAPI/ASGI route handler")
 async def general_exception_handler(request: Request, exc: Exception):
     """Catch-all for unexpected exceptions."""
     logger.exception("Unhandled exception", exc_info=exc)
@@ -408,3 +468,61 @@ if __name__ == "__main__":
         port=settings.MCP_PORT,
         log_level=settings.LOG_LEVEL.lower(),
     )
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MCP-INTE-005",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "memory.migration_runner",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "caching",
+        "debugging",
+        "endpoint",
+        "event-driven",
+        "integration",
+        "logging",
+    ],
+    "keywords": [
+        "api",
+        "authenticated",
+        "caller",
+        "check",
+        "client",
+        "create",
+        "creator",
+        "general",
+    ],
+    "business_value": "Implements CallerIdentity for main functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

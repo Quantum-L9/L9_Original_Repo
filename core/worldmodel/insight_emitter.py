@@ -10,6 +10,31 @@ Version: 1.0.0 (GMP-18)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Insight Emitter",
+    "module_version": "1.0.0 (GMP-18)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "insight_emitter",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "core.agents.executor",
+            "core.worldmodel.__init__",
+            "tests.integration.test_world_model",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
@@ -51,7 +76,7 @@ class Insight(BaseModel):
 class InsightEmitter:
     """
     Emits world model insights from agent events.
-    
+
     Used to track state changes and create an audit trail
     of L9 system operations.
     """
@@ -59,7 +84,7 @@ class InsightEmitter:
     def __init__(self, substrate_service: Optional[Any] = None):
         """
         Initialize InsightEmitter.
-        
+
         Args:
             substrate_service: Memory substrate for storing insights
         """
@@ -105,14 +130,14 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for a tool call.
-        
+
         Args:
             tool_name: Name of the tool called
             agent_id: Agent that called the tool
             success: Whether the call succeeded
             duration_ms: Call duration in milliseconds
             error: Error message if failed
-            
+
         Returns:
             The created Insight
         """
@@ -146,13 +171,13 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for an approval status change.
-        
+
         Args:
             task_id: Task being approved/rejected
             new_status: New approval status
             approved_by: Who made the decision
             reason: Reason for the decision
-            
+
         Returns:
             The created Insight
         """
@@ -184,13 +209,13 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for a memory write operation.
-        
+
         Args:
             segment_name: Memory segment written to
             content_type: Type of content written
             agent_id: Agent that performed the write
             size_bytes: Size of content written
-            
+
         Returns:
             The created Insight
         """
@@ -226,12 +251,12 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for a kernel update.
-        
+
         Args:
             kernel_name: Name of the kernel updated
             changes: List of changes made
             updated_by: Who updated the kernel
-            
+
         Returns:
             The created Insight
         """
@@ -265,13 +290,13 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for a repository push.
-        
+
         Args:
             repo_name: Repository name
             branch: Branch pushed to
             commits: List of commit SHAs
             pushed_by: Who pushed
-            
+
         Returns:
             The created Insight
         """
@@ -305,12 +330,12 @@ class InsightEmitter:
     ) -> Insight:
         """
         Emit insight for infrastructure status change.
-        
+
         Args:
             infra_name: Infrastructure component name
             old_status: Previous status
             new_status: New status
-            
+
         Returns:
             The created Insight
         """
@@ -341,10 +366,10 @@ _global_emitter: Optional[InsightEmitter] = None
 def get_insight_emitter(substrate_service: Optional[Any] = None) -> InsightEmitter:
     """Get or create the global InsightEmitter instance."""
     global _global_emitter
-    
+
     if _global_emitter is None:
         _global_emitter = InsightEmitter(substrate_service)
-    
+
     return _global_emitter
 
 
@@ -358,3 +383,56 @@ __all__ = [
     "get_insight_emitter",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-082",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas"],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "pydantic",
+        "schema",
+    ],
+    "keywords": [
+        "agent",
+        "approval",
+        "called",
+        "changed",
+        "emitter",
+        "infrastructure",
+        "insight",
+        "insights",
+    ],
+    "business_value": "Provides insight emitter components including Insight, InsightEmitter",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

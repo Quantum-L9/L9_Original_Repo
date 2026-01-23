@@ -7,6 +7,27 @@ API endpoints for Cursor IDE integration with LangGraph executor.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "cursor",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /test", "POST /task", "POST /resume"],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Dict, Optional
 
@@ -14,10 +35,22 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(tags=["cursor"])
+
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/cursor",
+    tags=["cursor"],
+    display_name="Cursor Executor",
+    dependencies=["cursor_executor"],
+)
 
 
 # =============================================================================
@@ -81,6 +114,7 @@ class CursorResumeRequest(BaseModel):
 
 
 @router.get("/test")
+@must_stay_async("FastAPI/ASGI route handler")
 async def cursor_test(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -98,16 +132,18 @@ async def cursor_task(
 ):
     """
     Execute a Cursor task via LangGraph executor.
-    
+
     Creates a new task or continues an existing thread.
     """
-    logger.info("Cursor task request", task=request.task[:50], project_id=request.project_id)
-    
+    logger.info(
+        "Cursor task request", task=request.task[:50], project_id=request.project_id
+    )
+
     executor = get_cursor_executor(http_request)
-    
+
     try:
         from agents.cursor.integrations.cursor_executor import CursorTaskSpec
-        
+
         # Build task spec
         task_spec = CursorTaskSpec(
             task=request.task,
@@ -116,16 +152,16 @@ async def cursor_task(
             selection=request.selection,
             initial_state=None,  # Will be created by executor
         )
-        
+
         # Execute task
         result = await executor.run_task(task_spec)
-        
+
         logger.info(
             "Cursor task completed",
             thread_id=result.thread_id,
             status=result.final_state.task_status,
         )
-        
+
         return CursorTaskResponse(
             success=result.final_state.task_status == "completed",
             thread_id=result.thread_id,
@@ -133,7 +169,9 @@ async def cursor_task(
             decisions=result.decisions,
             errors=result.errors,
             reasoning_trace=result.reasoning_trace,
-            message="Task executed successfully" if result.final_state.task_status == "completed" else "Task failed",
+            message="Task executed successfully"
+            if result.final_state.task_status == "completed"
+            else "Task failed",
         )
     except Exception as e:
         logger.exception("Cursor task execution failed", error=str(e))
@@ -149,24 +187,23 @@ async def cursor_resume(
 ):
     """
     Resume a Cursor thread from last checkpoint.
-    
+
     Restores state from checkpoint and continues execution.
     """
     logger.info("Cursor resume request", thread_id=request.thread_id)
-    
+
     executor = get_cursor_executor(http_request)
-    
+
     try:
-        
         # Resume thread
         result = await executor.resume_thread(request.thread_id)
-        
+
         logger.info(
             "Cursor thread resumed",
             thread_id=result.thread_id,
             status=result.final_state.task_status,
         )
-        
+
         return CursorTaskResponse(
             success=result.final_state.task_status == "completed",
             thread_id=result.thread_id,
@@ -174,12 +211,67 @@ async def cursor_resume(
             decisions=result.decisions,
             errors=result.errors,
             reasoning_trace=result.reasoning_trace,
-            message="Thread resumed successfully" if result.final_state.task_status == "completed" else "Thread resume failed",
+            message="Thread resumed successfully"
+            if result.final_state.task_status == "completed"
+            else "Thread resume failed",
         )
     except ValueError as e:
-        logger.warning("Cursor resume failed: thread not found", thread_id=request.thread_id, error=str(e))
+        logger.warning(
+            "Cursor resume failed: thread not found",
+            thread_id=request.thread_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=404, detail=f"Thread not found: {e}")
     except Exception as e:
         logger.exception("Cursor resume execution failed", error=str(e))
         raise HTTPException(status_code=500, detail=f"Resume execution error: {e}")
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-025",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "agents.cursor.integrations.cursor_executor",
+        "api.auth",
+        "core.decorators",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "rest-api",
+    ],
+    "keywords": ["cursor", "executor", "resume", "router", "task", "test"],
+    "business_value": "Provides cursor components including CursorTaskRequest, CursorTaskResponse, CursorResumeRequest",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

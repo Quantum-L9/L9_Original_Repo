@@ -10,6 +10,27 @@ Verification of complete pipeline:
 Tests Tiers 1-3 (NIST AI RMF Measure-1).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Test Integration",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T23:45:01Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "testing",
+    "module_name": "test_integration",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import unittest
 
 from world_model.loader import WorldModelLoader
@@ -349,3 +370,54 @@ class TestIntegration(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-026",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "batch-processing",
+        "caching",
+        "event-driven",
+        "learning",
+        "mocking",
+        "test",
+        "testing",
+    ],
+    "keywords": [
+        "attribute",
+        "batch",
+        "consistency",
+        "count",
+        "create",
+        "entity",
+        "filter",
+        "full",
+    ],
+    "business_value": "Provides test integration components including TestYAMLLoading, TestStateUpdates, TestQueries",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

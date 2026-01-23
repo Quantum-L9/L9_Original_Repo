@@ -1,0 +1,76 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Tools"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-20T00:30:00Z"
+# updated_at: "2026-01-20T00:30:00Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "tools"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+subsystem_config_v1:
+  metadata:
+    name: tools
+    domain: tool_registry_and_dispatch
+    criticality: high
+    agents_involved: [ArchitectAgent, ToolRegistryAgent, QAAgent]
+  
+  goals:
+    - "Maintain a registry of all available tools with metadata"
+    - "Enforce capability-based access control for tool invocation"
+    - "Support dynamic tool registration and discovery"
+    - "Track tool usage metrics and performance"
+  
+  constraints:
+    - "No tool execution without capability check"
+    - "High-risk tools require Igor approval"
+    - "All tool calls must be logged to memory"
+    - "Protected tools cannot be modified without KERNEL GMP"
+  
+  pipeline:
+    stages:
+      - {name: "Requirements", description: "Define tool interface and capabilities"}
+      - {name: "Architecture", description: "Design registry structure and dispatch flow"}
+      - {name: "Frontier Review", description: "Compare against tool design patterns"}
+      - {name: "TODO Plan", description: "Implementation plan for tool changes"}
+      - {name: "Architect Approval", description: "Review tool design"}
+      - {name: "L Improvement Loop", description: "Optimize tool interface"}
+      - {name: "ME Approval", description: "Final approval for tool changes"}
+      - {name: "Implementation", description: "Implement tool registration/dispatch"}
+      - {name: "Test Validation", description: "Test tool invocation and access control"}
+      - {name: "Mutation & Tracking", description: "Apply changes to registry"}
+      - {name: "Final Validation", description: "Verify tool functionality"}
+  
+  approval_model:
+    levels:
+      - {name: "auto_qa", criteria: ["test_coverage_pct >= 80", "no_capability_violations"], sla_minutes: 0}
+      - {name: "auto_architect", criteria: ["test_coverage_pct >= 80", "risk_score <= 20"], sla_minutes: 5}
+      - {name: "manual_human", criteria: ["risk_score > 20", "high_risk_tool"], sla_minutes: 30}
+  
+  memory_model:
+    segments:
+      - {name: "tool_definitions", writes: ["N1", "N2", "N6"]}
+      - {name: "tool_invocations", writes: ["N8"]}
+      - {name: "tool_metrics", writes: ["N7", "N9"]}
+      - {name: "approval_artifacts", writes: ["N5", "N5_L_IMPROVEMENT_LOOP", "N5_ME_APPROVAL"]}
+  
+  risk_model:
+    assessment_dimensions: [capability_scope, side_effects, reversibility]
+    high_risk_triggers:
+      - "Tool modifies external state"
+      - "Tool accesses credentials or secrets"
+      - "Tool performs destructive operations"
+      - "Tool bypasses governance gates"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "configuration", "foundation", "tool-config", "utility"]
+# keywords: ["tools", "registry", "dispatch", "subsystem_config_v1"]
+# last_modified: "2026-01-20T00:30:00Z"
+# ============================================================================

@@ -22,13 +22,46 @@ Changelog:
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Retrieval Pipeline",
+    "module_version": "1.3.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "retrieval",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "api.memory.router",
+            "core.agents.adaptive_prompting",
+            "core.singleton_registry",
+            "memory.__init__",
+            "tests.memory.test_e2e_memory_audit",
+            "tests.memory.test_retrieval_audit",
+        ],
+    },
+}
+# ============================================================================
 
 import math
 import structlog
 from datetime import datetime
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
+    from memory.substrate_semantic import SemanticService
 
 from core.schemas import SemanticHit, SemanticSearchResult
 from memory.substrate_models import KnowledgeFactRow, PacketStoreRow
@@ -156,11 +189,11 @@ class RetrievalPipeline:
         self._semantic_service = semantic_service
         logger.info("RetrievalPipeline initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_semantic_service(self, service) -> None:
+    def set_semantic_service(self, service: "SemanticService") -> None:
         """Set or update the semantic service reference."""
         self._semantic_service = service
 
@@ -296,12 +329,12 @@ class RetrievalPipeline:
                         "packet_id": str(r["packet_id"]),
                         "packet_type": r["packet_type"],
                         "score": float(r["rank"]) if r["rank"] else 0.0,
-                        "timestamp": r["timestamp"].isoformat()
-                        if r["timestamp"]
-                        else None,
-                        "payload": r["envelope"].get("payload", {})
-                        if r["envelope"]
-                        else {},
+                        "timestamp": (
+                            r["timestamp"].isoformat() if r["timestamp"] else None
+                        ),
+                        "payload": (
+                            r["envelope"].get("payload", {}) if r["envelope"] else {}
+                        ),
                     }
                     for r in rows
                 ]
@@ -462,9 +495,11 @@ class RetrievalPipeline:
                     "embedding_id": str(hit.embedding_id),
                     "packet_id": packet_id,
                     "payload": hit.payload,
-                    "packet": matching_packet.model_dump(mode="json")
-                    if matching_packet
-                    else None,
+                    "packet": (
+                        matching_packet.model_dump(mode="json")
+                        if matching_packet
+                        else None
+                    ),
                     "source": "semantic",
                 }
             )
@@ -502,9 +537,11 @@ class RetrievalPipeline:
                     "embedding_id": None,
                     "packet_id": packet_id,
                     "payload": kw_hit.get("payload", {}),
-                    "packet": matching_packet.model_dump(mode="json")
-                    if matching_packet
-                    else None,
+                    "packet": (
+                        matching_packet.model_dump(mode="json")
+                        if matching_packet
+                        else None
+                    ),
                     "source": "keyword",
                 }
             )
@@ -549,9 +586,9 @@ class RetrievalPipeline:
             "semantic_hits": len(semantic_hits),
             "keyword_hits": len(keyword_results),
             "filtered_count": len(filtered_packets),
-            "fusion_type": "4-way_rrf_cross_encoder"
-            if cross_encoder_used
-            else "3-way_rrf",
+            "fusion_type": (
+                "4-way_rrf_cross_encoder" if cross_encoder_used else "3-way_rrf"
+            ),
             "cross_encoder_used": cross_encoder_used,
             "cross_encoder_time_ms": cross_encoder_time_ms,
             "results": combined,
@@ -702,9 +739,9 @@ class RetrievalPipeline:
                 {
                     "packet_id": str(current_id),
                     "packet_type": packet.packet_type,
-                    "timestamp": packet.timestamp.isoformat()
-                    if packet.timestamp
-                    else None,
+                    "timestamp": (
+                        packet.timestamp.isoformat() if packet.timestamp else None
+                    ),
                     "depth": depth,
                 }
             )
@@ -1236,12 +1273,20 @@ class RetrievalPipeline:
 
 
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="retrieval_pipeline",
+    lifecycle="lazy",
+    description="Memory retrieval pipeline for semantic and graph-based search",
+)
 def get_retrieval_pipeline() -> RetrievalPipeline:
     """Get or create the retrieval pipeline singleton. CACHED."""
     return RetrievalPipeline()
 
 
-def init_retrieval_pipeline(repository, semantic_service=None) -> RetrievalPipeline:
+def init_retrieval_pipeline(
+    repository: "SubstrateRepository",
+    semantic_service: Optional["SemanticService"] = None,
+) -> RetrievalPipeline:
     """Initialize the retrieval pipeline with dependencies."""
     pipeline = get_retrieval_pipeline()
     pipeline.set_repository(repository)
@@ -1340,3 +1385,64 @@ async def get_governance_patterns(
     except Exception as e:
         logger.error(f"Failed to retrieve governance patterns: {e}")
         return []
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-031",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.schemas",
+        "memory.cross_encoder_reranker",
+        "memory.governance_gate",
+        "memory.query_classifier",
+        "memory.retrieval_ranking",
+    ],
+    "tags": [
+        "async",
+        "caching",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "queue",
+        "serialization",
+    ],
+    "keywords": [
+        "added",
+        "apply",
+        "chain",
+        "cross",
+        "decay",
+        "encoder",
+        "facts",
+        "fetch",
+    ],
+    "business_value": "Implements RetrievalPipeline for retrieval functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,5 +1,3 @@
-# CodeGen????
-
 """
 L9 Research Factory API Routes
 ==============================
@@ -15,15 +13,54 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Factory",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-21T12:00:00Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "factory",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "GET /health",
+            "POST /validate",
+            "POST /extract",
+            "POST /extract-file",
+            "GET /templates",
+            "GET /templates/{template_name}",
+        ],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server", "tests.api.test_factory_path_safety"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
+from api.routes.registry import router_registry
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/factory", tags=["research-factory"])
+
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/factory"
+    tags=["research-factory"],
+    module_id="factory",
+    display_name="Research Factory",
+)
 
 
 # =============================================================================
@@ -131,6 +168,7 @@ class PathSafetyConfig(BaseModel):
 
 
 @router.get("/health", response_model=HealthResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def factory_health() -> HealthResponse:
     """
     Health check for the Research Factory.
@@ -159,7 +197,11 @@ async def factory_health() -> HealthResponse:
 
 
 def _safe_output_dir(output_dir: str) -> str:
-    from core.security.path_safety import PathSafetyError, resolve_base_dir, safe_resolve_path
+    from core.security.path_safety import (
+        PathSafetyError,
+        resolve_base_dir,
+        safe_resolve_path,
+    )
 
     base_root = resolve_base_dir()
     try:
@@ -170,6 +212,7 @@ def _safe_output_dir(output_dir: str) -> str:
 
 
 @router.post("/validate", response_model=ValidateResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def validate_schema(body: ValidateRequest) -> ValidateResponse:
     """
     Validate a schema without extracting.
@@ -350,6 +393,7 @@ async def extract_agent_file(
 
 
 @router.get("/templates", response_model=TemplatesResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def list_templates() -> TemplatesResponse:
     """
     List available extraction templates.
@@ -390,6 +434,7 @@ async def list_templates() -> TemplatesResponse:
 
 
 @router.get("/templates/{template_name}")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_template(template_name: str) -> dict[str, Any]:
     """
     Get content of a specific template.
@@ -429,11 +474,68 @@ async def get_template(template_name: str) -> dict[str, Any]:
 # =============================================================================
 
 
+@must_stay_async("health endpoint")
 async def startup():
     """Called on app startup."""
     logger.info("Research Factory routes initialized")
 
 
+@must_stay_async("health endpoint")
 async def shutdown():
     """Called on app shutdown."""
     logger.info("Research Factory routes shutting down")
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-021",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.security.path_safety"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "config",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "rest-api",
+    ],
+    "keywords": [
+        "agent",
+        "extract",
+        "factory",
+        "health",
+        "safety",
+        "schema",
+        "shutdown",
+        "startup",
+    ],
+    "business_value": "POST /factory/extract - Extract agent from schema POST /factory/validate - Validate schema without extracting GET /factory/templates - List available templates GET /factory/health - Health check Versi",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

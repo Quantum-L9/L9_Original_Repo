@@ -12,11 +12,41 @@ All operations are async-safe and use logging (no print statements).
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Housekeeping Engine",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-13T15:36:11Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "housekeeping",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "api.memory.router",
+            "api.server",
+            "core.singleton_registry",
+            "memory.__init__",
+        ],
+    },
+}
+# ============================================================================
 
 import structlog
 from datetime import datetime, timedelta
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -29,7 +59,7 @@ class HousekeepingEngine:
     and unreferenced memory artifacts.
     """
 
-    def __init__(self, repository=None):
+    def __init__(self, repository: Optional["SubstrateRepository"] = None):
         """
         Initialize housekeeping engine.
 
@@ -46,7 +76,7 @@ class HousekeepingEngine:
         }
         logger.info("HousekeepingEngine initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -155,12 +185,10 @@ class HousekeepingEngine:
 
         async with self._repository.acquire() as conn:
             # Delete expired packets
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 DELETE FROM packet_store
                 WHERE ttl IS NOT NULL AND ttl < NOW()
-                """
-            )
+                """)
 
             # Parse count from result
             count = int(result.split()[-1]) if result else 0
@@ -185,8 +213,7 @@ class HousekeepingEngine:
         async with self._repository.acquire() as conn:
             # Find packets with parent_ids referencing non-existent packets
             # Clear orphan references rather than deleting packets
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 UPDATE packet_store p
                 SET parent_ids = ARRAY(
                     SELECT unnest(p.parent_ids)
@@ -199,8 +226,7 @@ class HousekeepingEngine:
                     SELECT 1 FROM unnest(p.parent_ids) AS parent_id
                     WHERE parent_id NOT IN (SELECT packet_id FROM packet_store)
                 )
-                """
-            )
+                """)
 
             count = int(result.split()[-1]) if result else 0
 
@@ -274,38 +300,32 @@ class HousekeepingEngine:
 
         async with self._repository.acquire() as conn:
             # Clean orphan semantic embeddings
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 DELETE FROM semantic_memory sm
                 WHERE EXISTS (
                     SELECT 1 FROM jsonb_extract_path_text(sm.payload::jsonb, 'packet_id') AS pid
                     WHERE pid IS NOT NULL 
                     AND pid::uuid NOT IN (SELECT packet_id FROM packet_store)
                 )
-                """
-            )
+                """)
             embed_count = int(result.split()[-1]) if result else 0
             total_cleaned += embed_count
 
             # Clean orphan memory events
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 DELETE FROM agent_memory_events
                 WHERE packet_id IS NOT NULL
                 AND packet_id NOT IN (SELECT packet_id FROM packet_store)
-                """
-            )
+                """)
             event_count = int(result.split()[-1]) if result else 0
             total_cleaned += event_count
 
             # Clean orphan knowledge facts
-            result = await conn.execute(
-                """
+            result = await conn.execute("""
                 DELETE FROM knowledge_facts
                 WHERE source_packet IS NOT NULL
                 AND source_packet NOT IN (SELECT packet_id FROM packet_store)
-                """
-            )
+                """)
             fact_count = int(result.split()[-1]) if result else 0
             total_cleaned += fact_count
 
@@ -381,8 +401,7 @@ class HousekeepingEngine:
             )
 
             # Count orphan references
-            orphan_refs = await conn.fetchval(
-                """
+            orphan_refs = await conn.fetchval("""
                 SELECT COUNT(*) FROM packet_store p
                 WHERE parent_ids IS NOT NULL 
                 AND array_length(parent_ids, 1) > 0
@@ -390,8 +409,7 @@ class HousekeepingEngine:
                     SELECT 1 FROM unnest(p.parent_ids) AS parent_id
                     WHERE parent_id NOT IN (SELECT packet_id FROM packet_store)
                 )
-                """
-            )
+                """)
 
             # Count total packets
             total_packets = await conn.fetchval("SELECT COUNT(*) FROM packet_store")
@@ -419,14 +437,75 @@ class HousekeepingEngine:
 # Singleton / Factory
 # =============================================================================
 
+
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="housekeeping_engine",
+    lifecycle="lazy",
+    description="Memory housekeeping engine for cleanup and optimization",
+)
 def get_housekeeping_engine() -> HousekeepingEngine:
     """Get or create the housekeeping engine singleton. CACHED."""
     return HousekeepingEngine()
 
 
-def init_housekeeping_engine(repository) -> HousekeepingEngine:
+def init_housekeeping_engine(repository: "SubstrateRepository") -> HousekeepingEngine:
     """Initialize the housekeeping engine with a repository."""
     engine = get_housekeeping_engine()
     engine.set_repository(repository)
     return engine
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-028",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "caching",
+        "debugging",
+        "engine",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "artifacts",
+        "cleanup",
+        "engine",
+        "evict",
+        "expired",
+        "full",
+        "housekeeping",
+        "memory",
+    ],
+    "business_value": "TTL eviction for expired packets Tag-based garbage collection Orphan packet cleanup (parentless, dangling references) Artifact orphan cleanup All operations are async-safe and use logging (no print st",
+    "last_modified": "2026-01-13T15:36:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

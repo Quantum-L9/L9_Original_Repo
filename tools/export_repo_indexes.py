@@ -10,6 +10,27 @@ migrations, feature flags, tests, and telemetry catalogs.
 Works with distributed API architectures (memory APIs, agent routers, VPS-facing, local-dev).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Enhanced L9 Repository Index Generator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "tools",
+    "module_name": "export_repo_indexes",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL", "Redis"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import structlog
 import sys
@@ -26,18 +47,27 @@ _REPO_ROOT = os.getenv("L9_REPO_ROOT", "/Users/ib-mac/Projects/L9")
 REPO_DIR = _REPO_ROOT
 REPO_INDEX_DIR = os.path.join(_REPO_ROOT, "readme/repo-index")
 DROPBOX_EXPORT_DIR = os.getenv(
-    "L9_DROPBOX_EXPORT_DIR",
-    "/Users/ib-mac/Dropbox/Repo_Dropbox_IB/L9-index-export"
+    "L9_DROPBOX_EXPORT_DIR", "/Users/ib-mac/Dropbox/Repo_Dropbox_IB/L9-index-export"
 )
 ICLOUD_EXPORT_DIR = os.getenv(
     "L9_ICLOUD_EXPORT_DIR",
-    "/Users/ib-mac/Library/Mobile Documents/com~apple~CloudDocs/00-LLM-00/L9-repo-index"
+    "/Users/ib-mac/Library/Mobile Documents/com~apple~CloudDocs/00-LLM-00/L9-repo-index",
 )
 
 # Directories to skip
 SKIP_DIRS = {
-    ".git", "__pycache__", ".venv", "venv", ".cursor", ".dora", ".secrets",
-    "l9/venv", "secrets", ".DS_Store", "node_modules", ".pytest_cache",
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    ".cursor",
+    ".dora",
+    ".secrets",
+    "l9/venv",
+    "secrets",
+    ".DS_Store",
+    "node_modules",
+    ".pytest_cache",
 }
 
 
@@ -84,6 +114,7 @@ def is_ignored(rel_path, patterns, is_dir=False):
 # ORIGINAL GENERATORS (kept for compatibility)
 # =============================================================================
 
+
 def generate_tree():
     """Generate tree.txt using actual directory structure, respecting .gitignore."""
     lines = []
@@ -118,7 +149,13 @@ def generate_tree():
             lines.append(f"{prefix}{connector}{d}/")
             extension = "    " if is_last else "│   "
             new_rel_prefix = os.path.join(rel_path_prefix, d) if rel_path_prefix else d
-            walk_dir(os.path.join(path, d), prefix + extension, max_depth, current_depth + 1, new_rel_prefix)
+            walk_dir(
+                os.path.join(path, d),
+                prefix + extension,
+                max_depth,
+                current_depth + 1,
+                new_rel_prefix,
+            )
 
     lines.append("L9/")
     walk_dir(REPO_DIR, "", max_depth=3, current_depth=0, rel_path_prefix="")
@@ -152,12 +189,18 @@ def generate_api_surfaces():
                             if routers:
                                 rel_path = os.path.relpath(fpath, REPO_DIR)
                                 for router in routers:
-                                    api_surfaces[surface_name].append(f"  {rel_path}::{router}")
+                                    api_surfaces[surface_name].append(
+                                        f"  {rel_path}::{router}"
+                                    )
                             callables = callable_pattern.findall(content)
-                            if callables and ("handler" in fname or "interface" in fname):
+                            if callables and (
+                                "handler" in fname or "interface" in fname
+                            ):
                                 rel_path = os.path.relpath(fpath, REPO_DIR)
                                 for callable_name in callables[:3]:
-                                    api_surfaces[surface_name].append(f"  {rel_path}::{callable_name}()")
+                                    api_surfaces[surface_name].append(
+                                        f"  {rel_path}::{callable_name}()"
+                                    )
                     except Exception:
                         pass
     if api_surfaces:
@@ -174,13 +217,23 @@ def generate_entrypoints():
     """Identify app entrypoints with useful metadata."""
     entrypoints = []
     gitignore_patterns = load_gitignore_patterns()
-    fastapi_pattern = re.compile(r'app\s*=\s*FastAPI\s*\([^)]*title\s*=\s*["\']([^"\']+)["\']', re.DOTALL)
+    fastapi_pattern = re.compile(
+        r'app\s*=\s*FastAPI\s*\([^)]*title\s*=\s*["\']([^"\']+)["\']', re.DOTALL
+    )
     uvicorn_pattern = re.compile(r"uvicorn\.run\s*\([^)]*\)", re.DOTALL)
     main_block_pattern = re.compile(r'if\s+__name__\s*==\s*["\']__main__["\']\s*:')
 
     for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not is_ignored(
-            os.path.relpath(os.path.join(root, d), REPO_DIR), gitignore_patterns, is_dir=True)]
+        dirs[:] = [
+            d
+            for d in dirs
+            if d not in SKIP_DIRS
+            and not is_ignored(
+                os.path.relpath(os.path.join(root, d), REPO_DIR),
+                gitignore_patterns,
+                is_dir=True,
+            )
+        ]
         for fname in files:
             if not fname.endswith(".py"):
                 continue
@@ -193,22 +246,40 @@ def generate_entrypoints():
             try:
                 with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
-                    entry_info = {"path": rel_path, "type": None, "title": None, "port": None, "host": None, "has_main": False, "routes": []}
+                    entry_info = {
+                        "path": rel_path,
+                        "type": None,
+                        "title": None,
+                        "port": None,
+                        "host": None,
+                        "has_main": False,
+                        "routes": [],
+                    }
                     if re.search(r"\bapp\s*=\s*FastAPI\s*\(", content):
                         entry_info["type"] = "FastAPI"
                         fastapi_match = fastapi_pattern.search(content)
                         if fastapi_match:
                             entry_info["title"] = fastapi_match.group(1)
-                        route_pattern = re.compile(r'@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)\s*\(["\']([^"\']+)["\']')
+                        route_pattern = re.compile(
+                            r'@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)\s*\(["\']([^"\']+)["\']'
+                        )
                         routes = route_pattern.findall(content)
-                        entry_info["routes"] = [f"{method.upper()} {path}" for method, path in routes[:15]]
-                        include_pattern = re.compile(r'\.include_router\s*\([^,]+,\s*prefix\s*=\s*["\']([^"\']+)["\']')
+                        entry_info["routes"] = [
+                            f"{method.upper()} {path}" for method, path in routes[:15]
+                        ]
+                        include_pattern = re.compile(
+                            r'\.include_router\s*\([^,]+,\s*prefix\s*=\s*["\']([^"\']+)["\']'
+                        )
                         includes = include_pattern.findall(content)
                         if includes:
-                            entry_info["routes"].extend([f"ROUTER {prefix}/*" for prefix in includes[:5]])
+                            entry_info["routes"].extend(
+                                [f"ROUTER {prefix}/*" for prefix in includes[:5]]
+                            )
                     uvicorn_match = uvicorn_pattern.search(content)
                     if uvicorn_match:
-                        host_match = re.search(r'host\s*=\s*["\']([^"\']+)["\']', content)
+                        host_match = re.search(
+                            r'host\s*=\s*["\']([^"\']+)["\']', content
+                        )
                         port_match = re.search(r"port\s*=\s*(\d+)", content)
                         if host_match:
                             entry_info["host"] = host_match.group(1)
@@ -233,7 +304,9 @@ def generate_entrypoints():
                             for route in entry_info["routes"][:10]:
                                 lines_out.append(f"    - {route}")
                             if len(entry_info["routes"]) > 10:
-                                lines_out.append(f"    ... and {len(entry_info['routes']) - 10} more")
+                                lines_out.append(
+                                    f"    ... and {len(entry_info['routes']) - 10} more"
+                                )
                         if entry_info["has_main"] and entry_info["type"] != "FastAPI":
                             lines_out.append("  Has __main__ block: Yes")
                         entrypoints.append("\n".join(lines_out))
@@ -249,7 +322,9 @@ def generate_entrypoints():
 def generate_env_refs():
     """Extract environment variable references."""
     env_vars = set()
-    getenv_pattern = re.compile(r'os\.(?:getenv|environ)\.get\(["\']([A-Za-z_][A-Za-z0-9_]*)["\']')
+    getenv_pattern = re.compile(
+        r'os\.(?:getenv|environ)\.get\(["\']([A-Za-z_][A-Za-z0-9_]*)["\']'
+    )
     environ_pattern = re.compile(r'os\.environ\[["\']([A-Za-z_][A-Za-z0-9_]*)["\']')
     dotenv_pattern = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=", re.MULTILINE)
     for root, dirs, files in os.walk(REPO_DIR):
@@ -362,8 +437,12 @@ def generate_function_signatures():
                                 args = [arg.arg for arg in node.args.args]
                                 signature = f"{node.name}({', '.join(args)})"
                                 docstring = ast.get_docstring(node) or ""
-                                docstring = docstring.split("\n")[0][:40] if docstring else ""
-                                functions.append(f"{rel_path}::{signature} - {docstring}")
+                                docstring = (
+                                    docstring.split("\n")[0][:40] if docstring else ""
+                                )
+                                functions.append(
+                                    f"{rel_path}::{signature} - {docstring}"
+                                )
                 except Exception:
                     pass
     if functions:
@@ -373,12 +452,23 @@ def generate_function_signatures():
 
 def generate_config_files():
     """List all configuration files."""
-    config_patterns = [".yaml", ".yml", ".json", ".toml", ".ini", ".cfg", "Dockerfile", "docker-compose"]
+    config_patterns = [
+        ".yaml",
+        ".yml",
+        ".json",
+        ".toml",
+        ".ini",
+        ".cfg",
+        "Dockerfile",
+        "docker-compose",
+    ]
     config_files = []
     for root, dirs, files in os.walk(REPO_DIR):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for fname in files:
-            if any(fname.endswith(ext) or fname.startswith(ext) for ext in config_patterns):
+            if any(
+                fname.endswith(ext) or fname.startswith(ext) for ext in config_patterns
+            ):
                 rel_path = os.path.relpath(os.path.join(root, fname), REPO_DIR)
                 config_files.append(rel_path)
     if config_files:
@@ -399,7 +489,11 @@ def generate_module_architecture():
             try:
                 with open(init_file, "r", encoding="utf-8", errors="ignore") as f:
                     docstring = f.read(500)
-                    docstring = docstring.split('"""')[1] if '"""' in docstring else "No module docstring"
+                    docstring = (
+                        docstring.split('"""')[1]
+                        if '"""' in docstring
+                        else "No module docstring"
+                    )
                     docstring = docstring.split("\n")[0][:60]
                     architecture.append(f"{rel_path}/ - {docstring}")
             except Exception:
@@ -412,6 +506,7 @@ def generate_module_architecture():
 # =============================================================================
 # EXISTING WIRING & CATALOG GENERATORS
 # =============================================================================
+
 
 def generate_wiring_map():
     """Generate high-level wiring/execution spine map."""
@@ -525,11 +620,21 @@ def generate_agent_catalog():
                 try:
                     with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read(2000)
-                        class_match = re.search(r'class\s+(\w+).*?(?:"""(.*?)"""|\'\'\'(.*?)\'\'\')', content, re.DOTALL)
+                        class_match = re.search(
+                            r'class\s+(\w+).*?(?:"""(.*?)"""|\'\'\'(.*?)\'\'\')',
+                            content,
+                            re.DOTALL,
+                        )
                         if class_match:
                             class_name = class_match.group(1)
-                            docstring = (class_match.group(2) or class_match.group(3) or "").strip()
-                            docstring = docstring.split("\n")[0][:80] if docstring else "No docstring"
+                            docstring = (
+                                class_match.group(2) or class_match.group(3) or ""
+                            ).strip()
+                            docstring = (
+                                docstring.split("\n")[0][:80]
+                                if docstring
+                                else "No docstring"
+                            )
                             lines.append(f"- **{class_name}** (`{fname}`)")
                             lines.append(f"  - {docstring}")
                             lines.append("")
@@ -545,6 +650,7 @@ def generate_agent_catalog():
                 try:
                     with open(fpath, "r", encoding="utf-8") as f:
                         import yaml
+
                         data = yaml.safe_load(f)
                         if data:
                             agent_id = data.get("agent_id") or data.get("id", fname)
@@ -557,28 +663,32 @@ def generate_agent_catalog():
                             lines.append("")
                 except Exception:
                     pass
-    lines.extend([
-        "", "## Agent Layers", "",
-        "```",
-        "                    ┌─────────────┐",
-        "                    │   IGOR      │  (Human authority)",
-        "                    └──────┬──────┘",
-        "                           │ escalation",
-        "                    ┌──────▼──────┐",
-        "                    │   L (CTO)   │  (AI OS core agent)",
-        "                    └──────┬──────┘",
-        "            ┌──────────────┼──────────────┐",
-        "            ▼              ▼              ▼",
-        "     ┌────────────┐ ┌────────────┐ ┌────────────┐",
-        "     │ Research   │ │ Architect  │ │ Coder      │",
-        "     │ Agents     │ │ Agents     │ │ Agents     │",
-        "     └────────────┘ └────────────┘ └────────────┘",
-        "```",
-        "",
-        "## Authority Hierarchy",
-        "",
-        "Igor > L (CTO) > Research agents > Mac agent",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Agent Layers",
+            "",
+            "```",
+            "                    ┌─────────────┐",
+            "                    │   IGOR      │  (Human authority)",
+            "                    └──────┬──────┘",
+            "                           │ escalation",
+            "                    ┌──────▼──────┐",
+            "                    │   L (CTO)   │  (AI OS core agent)",
+            "                    └──────┬──────┘",
+            "            ┌──────────────┼──────────────┐",
+            "            ▼              ▼              ▼",
+            "     ┌────────────┐ ┌────────────┐ ┌────────────┐",
+            "     │ Research   │ │ Architect  │ │ Coder      │",
+            "     │ Agents     │ │ Agents     │ │ Agents     │",
+            "     └────────────┘ └────────────┘ └────────────┘",
+            "```",
+            "",
+            "## Authority Hierarchy",
+            "",
+            "Igor > L (CTO) > Research agents > Mac agent",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -600,22 +710,27 @@ def generate_kernel_catalog():
                 try:
                     with open(fpath, "r", encoding="utf-8") as f:
                         import yaml
+
                         data = yaml.safe_load(f)
                         if data:
-                            kernel_id = data.get("kernel_id", fname.replace(".yaml", ""))
+                            kernel_id = data.get(
+                                "kernel_id", fname.replace(".yaml", "")
+                            )
                             name = data.get("name", kernel_id)
                             version = data.get("version", "1.0")
                             purpose = data.get("purpose", data.get("description", ""))
                             if isinstance(purpose, str):
                                 purpose = purpose.split("\n")[0][:100]
-                            lines.extend([
-                                f"### {fname}",
-                                f"- **ID**: {kernel_id}",
-                                f"- **Name**: {name}",
-                                f"- **Version**: {version}",
-                                f"- **Purpose**: {purpose}",
-                                "",
-                            ])
+                            lines.extend(
+                                [
+                                    f"### {fname}",
+                                    f"- **ID**: {kernel_id}",
+                                    f"- **Name**: {name}",
+                                    f"- **Version**: {version}",
+                                    f"- **Purpose**: {purpose}",
+                                    "",
+                                ]
+                            )
                 except Exception:
                     pass
     lines.extend(["", "## Kernel Loading (7-Phase Bootstrap)", ""])
@@ -686,13 +801,19 @@ def generate_orchestrator_catalog():
     for name, description in orchestrators:
         orch_dir = os.path.join(REPO_DIR, "orchestrators", name)
         if os.path.isdir(orch_dir):
-            files = [f for f in os.listdir(orch_dir) if f.endswith(".py") and not f.startswith("__")]
-            lines.extend([
-                f"### {name}/",
-                f"**Purpose:** {description}",
-                f"**Files:** {', '.join(files)}",
-                "",
-            ])
+            files = [
+                f
+                for f in os.listdir(orch_dir)
+                if f.endswith(".py") and not f.startswith("__")
+            ]
+            lines.extend(
+                [
+                    f"### {name}/",
+                    f"**Purpose:** {description}",
+                    f"**Files:** {', '.join(files)}",
+                    "",
+                ]
+            )
     return "\n".join(lines)
 
 
@@ -768,6 +889,7 @@ def generate_singleton_registry():
 # =============================================================================
 # NEW GENERATORS (v2.0) - Agent Init, Memory, Governance, Migrations, etc.
 # =============================================================================
+
 
 def generate_bootstrap_phases():
     """Generate catalog of 7-phase agent initialization ceremony."""
@@ -1019,34 +1141,40 @@ def generate_migration_catalog():
                         first_lines = f.read(500)
                         # Extract comment if exists
                         comment_match = re.search(r"--\s*(.+)", first_lines)
-                        purpose = comment_match.group(1)[:60] if comment_match else "Schema migration"
+                        purpose = (
+                            comment_match.group(1)[:60]
+                            if comment_match
+                            else "Schema migration"
+                        )
                         lines.append(f"| `{fname}` | {purpose} |")
                 except Exception:
                     lines.append(f"| `{fname}` | Schema migration |")
-    lines.extend([
-        "",
-        "## Key Tables Created",
-        "",
-        "| Migration | Tables |",
-        "|-----------|--------|",
-        "| 0001 | packet_store, agent_memory_events |",
-        "| 0002 | semantic_memory (pgvector), reasoning_traces |",
-        "| 0003 | tasks |",
-        "| 0004 | world_model_entities |",
-        "| 0005 | knowledge_facts |",
-        "| 0006 | world_model_updates |",
-        "| 0007 | world_model_snapshots |",
-        "| 0008 | Enhanced: user_preferences, lessons, sops, rules |",
-        "| 0009 | feedback_events, reflection_store enhancements |",
-        "| 0011 | tool_audit_log |",
-        "",
-        "## Running Migrations",
-        "",
-        "Migrations run automatically in `api/server.py::lifespan()`:",
-        "```python",
-        "await run_migrations()  # Applies all pending .sql files",
-        "```",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Key Tables Created",
+            "",
+            "| Migration | Tables |",
+            "|-----------|--------|",
+            "| 0001 | packet_store, agent_memory_events |",
+            "| 0002 | semantic_memory (pgvector), reasoning_traces |",
+            "| 0003 | tasks |",
+            "| 0004 | world_model_entities |",
+            "| 0005 | knowledge_facts |",
+            "| 0006 | world_model_updates |",
+            "| 0007 | world_model_snapshots |",
+            "| 0008 | Enhanced: user_preferences, lessons, sops, rules |",
+            "| 0009 | feedback_events, reflection_store enhancements |",
+            "| 0011 | tool_audit_log |",
+            "",
+            "## Running Migrations",
+            "",
+            "Migrations run automatically in `api/server.py::lifespan()`:",
+            "```python",
+            "await run_migrations()  # Applies all pending .sql files",
+            "```",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -1063,7 +1191,7 @@ def generate_feature_flags():
         "|------|---------|---------|----------|",
     ]
     # Scan for L9_ENABLE_* and L9_USE_* patterns
-    flag_pattern = re.compile(r'(L9_(?:ENABLE|USE|NEW)_[A-Z_]+)')
+    flag_pattern = re.compile(r"(L9_(?:ENABLE|USE|NEW)_[A-Z_]+)")
     flags_found = set()
     for root, dirs, files in os.walk(REPO_DIR):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
@@ -1088,7 +1216,10 @@ def generate_feature_flags():
         "L9_GRAPH_WM_SYNC": ("Graph to World Model sync", "true"),
         "L9_TOOL_PATTERN_EXTRACTION": ("Tool pattern extraction job", "true"),
         "L9_OBSERVABILITY": ("Five-tier observability pack", "true"),
-        "L9_STAGE3_MODULES": ("Tool Audit, Event Queue, Virtual Context, Evaluator", "true"),
+        "L9_STAGE3_MODULES": (
+            "Tool Audit, Event Queue, Virtual Context, Evaluator",
+            "true",
+        ),
         "L9_STAGE4_CONSOLIDATION": ("Periodic memory consolidation", "true"),
         "SLACK_APP_ENABLED": ("Slack Events API integration", "true"),
         "MAC_AGENT_ENABLED": ("Mac Agent task execution", "true"),
@@ -1099,21 +1230,23 @@ def generate_feature_flags():
             desc, default = flag_descriptions.get(flag, ("Feature flag", "false"))
             lines.append(f"| `{flag}` | {desc} | `{default}` | {location} |")
             seen_flags.add(flag)
-    lines.extend([
-        "",
-        "## Flag Usage Pattern",
-        "",
-        "```python",
-        "import os",
-        "",
-        "if os.getenv('L9_NEW_AGENT_INIT', 'true').lower() == 'true':",
-        "    # Use new 7-phase bootstrap",
-        "    await bootstrap_agent(config, substrate)",
-        "else:",
-        "    # Legacy initialization",
-        "    agent = create_agent_legacy(config)",
-        "```",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Flag Usage Pattern",
+            "",
+            "```python",
+            "import os",
+            "",
+            "if os.getenv('L9_NEW_AGENT_INIT', 'true').lower() == 'true':",
+            "    # Use new 7-phase bootstrap",
+            "    await bootstrap_agent(config, substrate)",
+            "else:",
+            "    # Legacy initialization",
+            "    agent = create_agent_legacy(config)",
+            "```",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -1127,7 +1260,13 @@ def generate_test_catalog():
         "## Test Directory Structure",
         "",
     ]
-    test_dirs = ["tests/core", "tests/integration", "tests/memory", "tests/telemetry", "tests/api"]
+    test_dirs = [
+        "tests/core",
+        "tests/integration",
+        "tests/memory",
+        "tests/telemetry",
+        "tests/api",
+    ]
     total_tests = 0
     total_files = 0
     for test_dir_rel in test_dirs:
@@ -1150,25 +1289,27 @@ def generate_test_catalog():
                         except Exception:
                             lines.append(f"- `{rel_path}` (? tests)")
             lines.append("")
-    lines.extend([
-        "## Summary",
-        "",
-        f"- **Total test files**: {total_files}",
-        f"- **Total test functions**: {total_tests}",
-        "",
-        "## Running Tests",
-        "",
-        "```bash",
-        "# All tests",
-        "pytest tests/",
-        "",
-        "# Specific module",
-        "pytest tests/core/agents/test_executor.py",
-        "",
-        "# With coverage",
-        "pytest tests/ --cov=. --cov-report=html",
-        "```",
-    ])
+    lines.extend(
+        [
+            "## Summary",
+            "",
+            f"- **Total test files**: {total_files}",
+            f"- **Total test functions**: {total_tests}",
+            "",
+            "## Running Tests",
+            "",
+            "```bash",
+            "# All tests",
+            "pytest tests/",
+            "",
+            "# Specific module",
+            "pytest tests/core/agents/test_executor.py",
+            "",
+            "# With coverage",
+            "pytest tests/ --cov=. --cov-report=html",
+            "```",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -1285,6 +1426,7 @@ def generate_deployment_manifest():
 # NEW GENERATORS (v2.1) - Full Neo4j Graph Support
 # =============================================================================
 
+
 def generate_inheritance_graph():
     """Generate class inheritance relationships for Neo4j (Class)-[:EXTENDS]->(Parent)."""
     lines = [
@@ -1313,15 +1455,19 @@ def generate_inheritance_graph():
                                     elif isinstance(base, ast.Attribute):
                                         parents.append(f"{base.attr}")
                                 if parents:
-                                    inheritance.append(f"{node.name}::{','.join(parents)} @ {rel_path}")
+                                    inheritance.append(
+                                        f"{node.name}::{','.join(parents)} @ {rel_path}"
+                                    )
                 except Exception:
                     pass
     if inheritance:
         lines.extend(sorted(inheritance))
-        lines.extend([
-            "",
-            f"# Total: {len(inheritance)} classes with inheritance",
-        ])
+        lines.extend(
+            [
+                "",
+                f"# Total: {len(inheritance)} classes with inheritance",
+            ]
+        )
         return "\n".join(lines)
     return "No inheritance relationships found."
 
@@ -1349,19 +1495,35 @@ def generate_method_catalog():
                             if isinstance(node, ast.ClassDef):
                                 class_name = node.name
                                 for item in node.body:
-                                    if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                                        args = [arg.arg for arg in item.args.args if arg.arg != 'self']
-                                        is_async = "async " if isinstance(item, ast.AsyncFunctionDef) else ""
-                                        signature = f"{is_async}{item.name}({', '.join(args)})"
-                                        methods.append(f"{class_name}::{signature} @ {rel_path}")
+                                    if isinstance(
+                                        item, (ast.FunctionDef, ast.AsyncFunctionDef)
+                                    ):
+                                        args = [
+                                            arg.arg
+                                            for arg in item.args.args
+                                            if arg.arg != "self"
+                                        ]
+                                        is_async = (
+                                            "async "
+                                            if isinstance(item, ast.AsyncFunctionDef)
+                                            else ""
+                                        )
+                                        signature = (
+                                            f"{is_async}{item.name}({', '.join(args)})"
+                                        )
+                                        methods.append(
+                                            f"{class_name}::{signature} @ {rel_path}"
+                                        )
                 except Exception:
                     pass
     if methods:
         lines.extend(sorted(methods))
-        lines.extend([
-            "",
-            f"# Total: {len(methods)} class methods",
-        ])
+        lines.extend(
+            [
+                "",
+                f"# Total: {len(methods)} class methods",
+            ]
+        )
         return "\n".join(lines)
     return "No class methods found."
 
@@ -1378,11 +1540,13 @@ def generate_route_handlers():
     routes = []
     route_pattern = re.compile(
         r'@(?:app|router)\.(?:api_route|get|post|put|delete|patch|websocket|options|head)\s*\(\s*["\']([^"\']+)["\']',
-        re.MULTILINE
+        re.MULTILINE,
     )
-    method_pattern = re.compile(r'@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)')
-    func_pattern = re.compile(r'(?:async\s+)?def\s+(\w+)\s*\(')
-    
+    method_pattern = re.compile(
+        r"@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)"
+    )
+    func_pattern = re.compile(r"(?:async\s+)?def\s+(\w+)\s*\(")
+
     for root, dirs, files in os.walk(REPO_DIR):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for fname in files:
@@ -1393,17 +1557,25 @@ def generate_route_handlers():
                         content = f.read()
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         # Find all route decorators
-                        for match in re.finditer(r'@(?:app|router)\.(get|post|put|delete|patch|websocket)\s*\(\s*["\']([^"\']+)["\'].*?\n(?:@.*?\n)*\s*(?:async\s+)?def\s+(\w+)', content, re.DOTALL):
+                        for match in re.finditer(
+                            r'@(?:app|router)\.(get|post|put|delete|patch|websocket)\s*\(\s*["\']([^"\']+)["\'].*?\n(?:@.*?\n)*\s*(?:async\s+)?def\s+(\w+)',
+                            content,
+                            re.DOTALL,
+                        ):
                             method, path, func = match.groups()
-                            routes.append(f"{method.upper()} {path} → {func}() @ {rel_path}")
+                            routes.append(
+                                f"{method.upper()} {path} → {func}() @ {rel_path}"
+                            )
                 except Exception:
                     pass
     if routes:
         lines.extend(sorted(routes))
-        lines.extend([
-            "",
-            f"# Total: {len(routes)} route handlers",
-        ])
+        lines.extend(
+            [
+                "",
+                f"# Total: {len(routes)} route handlers",
+            ]
+        )
         return "\n".join(lines)
     return "No route handlers found."
 
@@ -1430,22 +1602,41 @@ def generate_file_metrics():
                         content = f.read()
                         tree = ast.parse(content)
                         rel_path = os.path.relpath(fpath, REPO_DIR)
-                        line_count = len(content.split('\n'))
-                        class_count = sum(1 for node in ast.walk(tree) if isinstance(node, ast.ClassDef))
-                        func_count = sum(1 for node in ast.walk(tree) if isinstance(node, ast.FunctionDef))
-                        async_count = sum(1 for node in ast.walk(tree) if isinstance(node, ast.AsyncFunctionDef))
+                        line_count = len(content.split("\n"))
+                        class_count = sum(
+                            1
+                            for node in ast.walk(tree)
+                            if isinstance(node, ast.ClassDef)
+                        )
+                        func_count = sum(
+                            1
+                            for node in ast.walk(tree)
+                            if isinstance(node, ast.FunctionDef)
+                        )
+                        async_count = sum(
+                            1
+                            for node in ast.walk(tree)
+                            if isinstance(node, ast.AsyncFunctionDef)
+                        )
                         if line_count > 50:  # Only include substantial files
-                            metrics.append((line_count, f"| `{rel_path}` | {line_count} | {class_count} | {func_count} | {async_count} |"))
+                            metrics.append(
+                                (
+                                    line_count,
+                                    f"| `{rel_path}` | {line_count} | {class_count} | {func_count} | {async_count} |",
+                                )
+                            )
                 except Exception:
                     pass
     # Sort by line count descending (biggest files first)
     metrics.sort(key=lambda x: x[0], reverse=True)
     lines.extend([m[1] for m in metrics])
-    lines.extend([
-        "",
-        f"# Total: {len(metrics)} Python files (>50 lines)",
-        f"# Total lines: {sum(m[0] for m in metrics):,}",
-    ])
+    lines.extend(
+        [
+            "",
+            f"# Total: {len(metrics)} Python files (>50 lines)",
+            f"# Total lines: {sum(m[0] for m in metrics):,}",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -1476,19 +1667,31 @@ def generate_pydantic_models():
                                         base_name = base.id
                                     elif isinstance(base, ast.Attribute):
                                         base_name = base.attr
-                                    if base_name in ("BaseModel", "BaseSettings", "BaseConfig"):
+                                    if base_name in (
+                                        "BaseModel",
+                                        "BaseSettings",
+                                        "BaseConfig",
+                                    ):
                                         docstring = ast.get_docstring(node) or ""
-                                        docstring = docstring.split("\n")[0][:50] if docstring else ""
-                                        models.append(f"{node.name} @ {rel_path} - {docstring}")
+                                        docstring = (
+                                            docstring.split("\n")[0][:50]
+                                            if docstring
+                                            else ""
+                                        )
+                                        models.append(
+                                            f"{node.name} @ {rel_path} - {docstring}"
+                                        )
                                         break
                 except Exception:
                     pass
     if models:
         lines.extend(sorted(models))
-        lines.extend([
-            "",
-            f"# Total: {len(models)} Pydantic models",
-        ])
+        lines.extend(
+            [
+                "",
+                f"# Total: {len(models)} Pydantic models",
+            ]
+        )
         return "\n".join(lines)
     return "No Pydantic models found."
 
@@ -1513,10 +1716,10 @@ def generate_dynamic_tool_catalog():
     tool_patterns = [
         re.compile(r'name\s*[=:]\s*["\'](\w+)["\']'),
         re.compile(r'tool_id\s*[=:]\s*["\'](\w+)["\']'),
-        re.compile(r'class\s+(\w+Tool)\s*\('),
-        re.compile(r'def\s+(execute_\w+)\s*\('),
+        re.compile(r"class\s+(\w+Tool)\s*\("),
+        re.compile(r"def\s+(execute_\w+)\s*\("),
     ]
-    
+
     for tool_dir in tool_dirs:
         if os.path.isdir(tool_dir):
             for root, dirs, files in os.walk(tool_dir):
@@ -1525,7 +1728,9 @@ def generate_dynamic_tool_catalog():
                     if fname.endswith(".py") and not fname.startswith("__"):
                         fpath = os.path.join(root, fname)
                         try:
-                            with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                            with open(
+                                fpath, "r", encoding="utf-8", errors="ignore"
+                            ) as f:
                                 content = f.read()
                                 rel_path = os.path.relpath(fpath, REPO_DIR)
                                 for pattern in tool_patterns:
@@ -1533,25 +1738,45 @@ def generate_dynamic_tool_catalog():
                                     for match in matches:
                                         if not match.startswith("_"):
                                             # Determine category from path
-                                            category = "internal" if "internal" in rel_path else "core"
+                                            category = (
+                                                "internal"
+                                                if "internal" in rel_path
+                                                else "core"
+                                            )
                                             # Check for risk indicators
                                             risk = "low"
-                                            if any(kw in content.lower() for kw in ["delete", "write", "execute", "shell", "git"]):
+                                            if any(
+                                                kw in content.lower()
+                                                for kw in [
+                                                    "delete",
+                                                    "write",
+                                                    "execute",
+                                                    "shell",
+                                                    "git",
+                                                ]
+                                            ):
                                                 risk = "high"
-                                            elif any(kw in content.lower() for kw in ["create", "update", "modify"]):
+                                            elif any(
+                                                kw in content.lower()
+                                                for kw in ["create", "update", "modify"]
+                                            ):
                                                 risk = "medium"
-                                            tools.append(f"| `{match}` | {category} | {risk} | {rel_path} |")
+                                            tools.append(
+                                                f"| `{match}` | {category} | {risk} | {rel_path} |"
+                                            )
                         except Exception:
                             pass
-    
+
     if tools:
         lines.append("| Tool | Category | Risk | File |")
         lines.append("|------|----------|------|------|")
         lines.extend(sorted(set(tools)))
-        lines.extend([
-            "",
-            f"# Total: {len(set(tools))} tool definitions found",
-        ])
+        lines.extend(
+            [
+                "",
+                f"# Total: {len(set(tools))} tool definitions found",
+            ]
+        )
         return "\n".join(lines)
     return "No tools found in core/tools/."
 
@@ -1577,17 +1802,23 @@ def generate_async_function_map():
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
                             if isinstance(node, ast.AsyncFunctionDef):
-                                args = [arg.arg for arg in node.args.args if arg.arg != 'self']
+                                args = [
+                                    arg.arg
+                                    for arg in node.args.args
+                                    if arg.arg != "self"
+                                ]
                                 signature = f"async {node.name}({', '.join(args)})"
                                 async_funcs.append(f"{signature} @ {rel_path}")
                 except Exception:
                     pass
     if async_funcs:
         lines.extend(sorted(async_funcs))
-        lines.extend([
-            "",
-            f"# Total: {len(async_funcs)} async functions",
-        ])
+        lines.extend(
+            [
+                "",
+                f"# Total: {len(async_funcs)} async functions",
+            ]
+        )
         return "\n".join(lines)
     return "No async functions found."
 
@@ -1612,7 +1843,10 @@ def generate_decorator_catalog():
                         tree = ast.parse(f.read())
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
-                            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                            if isinstance(
+                                node,
+                                (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef),
+                            ):
                                 for decorator in node.decorator_list:
                                     dec_name = ""
                                     if isinstance(decorator, ast.Name):
@@ -1636,12 +1870,125 @@ def generate_decorator_catalog():
             count = len(files_list)
             examples = ", ".join(sorted(set(files_list))[:3])
             lines.append(f"| `{dec_name}` | {count} | {examples} |")
-        lines.extend([
-            "",
-            f"# Total: {len(decorators)} unique decorators",
-        ])
+        lines.extend(
+            [
+                "",
+                f"# Total: {len(decorators)} unique decorators",
+            ]
+        )
         return "\n".join(lines)
     return "No decorators found."
+
+
+def generate_adr_catalog():
+    """Generate catalog of Architecture Decision Records (ADRs)."""
+    from datetime import datetime
+
+    lines = [
+        "# L9 Architecture Decision Record (ADR) Catalog",
+        f"# Generated: {datetime.now().strftime('%Y-%m-%d')}",
+    ]
+
+    adr_dir = os.path.join(REPO_DIR, "readme", "adr")
+    if not os.path.isdir(adr_dir):
+        return "# No ADR directory found at readme/adr/"
+
+    # Collect ADRs
+    adrs = []
+    do_not_rules = []
+
+    for fname in sorted(os.listdir(adr_dir)):
+        if fname.endswith(".md") and fname[0].isdigit():
+            fpath = os.path.join(adr_dir, fname)
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    content = f.read()
+
+                    # Extract ADR number from filename (e.g., "0024" from "0024-resilience-mixin-pattern.md")
+                    adr_num = fname.split("-")[0]
+
+                    # Extract title from first line: "# ADR 0024: <Title>"
+                    title = "Unknown"
+                    title_match = re.search(
+                        r"^#\s+ADR\s+\d+:\s*(.+)$", content, re.MULTILINE
+                    )
+                    if title_match:
+                        title = title_match.group(1).strip()
+
+                    # Extract status from "## Status\n<status>" section
+                    status = "Unknown"
+                    status_match = re.search(
+                        r"##\s*Status\s*\n+([A-Za-z]+)", content, re.MULTILINE
+                    )
+                    if status_match:
+                        status = status_match.group(1).strip()
+
+                    rel_path = f"readme/adr/{fname}"
+                    adrs.append((adr_num, status, title, rel_path))
+
+                    # Extract "DO NOT" rules from content for quick reference
+                    do_not_matches = re.findall(
+                        r"DO NOT[^.!?\n]{10,80}", content, re.IGNORECASE
+                    )
+                    for rule in do_not_matches[:2]:  # Max 2 per ADR
+                        # Clean up the rule text
+                        rule_clean = rule.strip()
+                        if rule_clean and len(rule_clean) > 15:
+                            do_not_rules.append((adr_num, rule_clean))
+
+            except Exception:
+                pass
+
+    # Add total count
+    lines.append(f"# Total: {len(adrs)} ADRs")
+    lines.append("#")
+    lines.append("# Format: ADR_NUMBER | STATUS | TITLE | PATH")
+    lines.append("# " + "=" * 76)
+    lines.append("")
+
+    # Group ADRs by range
+    foundation = [(n, s, t, p) for n, s, t, p in adrs if int(n) <= 13]
+    core = [(n, s, t, p) for n, s, t, p in adrs if 14 <= int(n) <= 23]
+    advanced = [(n, s, t, p) for n, s, t, p in adrs if int(n) >= 24]
+
+    if foundation:
+        lines.append("# FOUNDATION (0001-0013)")
+        for adr_num, status, title, path in foundation:
+            lines.append(f"{adr_num} | {status} | {title} | {path}")
+        lines.append("")
+
+    if core:
+        lines.append("# CORE PATTERNS (0014-0023)")
+        for adr_num, status, title, path in core:
+            lines.append(f"{adr_num} | {status} | {title} | {path}")
+        lines.append("")
+
+    if advanced:
+        lines.append("# ADVANCED PATTERNS (0024+)")
+        for adr_num, status, title, path in advanced:
+            lines.append(f"{adr_num} | {status} | {title} | {path}")
+        lines.append("")
+
+    # Add AI Quick Reference section with DO NOT rules
+    if do_not_rules:
+        lines.append("# " + "=" * 76)
+        lines.append("# AI QUICK REFERENCE - KEY DO NOT's")
+        lines.append("# " + "=" * 76)
+        lines.append("")
+
+        # Deduplicate and sort by ADR number
+        seen = set()
+        unique_rules = []
+        for adr_num, rule in sorted(do_not_rules, key=lambda x: int(x[0])):
+            rule_key = rule.lower()[:50]
+            if rule_key not in seen:
+                seen.add(rule_key)
+                unique_rules.append((adr_num, rule))
+
+        for adr_num, rule in unique_rules:
+            lines.append(f"# {rule} (ADR-{adr_num})")
+
+    return "\n".join(lines)
 
 
 def main():
@@ -1672,42 +2019,94 @@ def main():
         "architecture.txt": ("🏗️  Module architecture", generate_module_architecture),
         "tree.txt": ("📊 Directory structure", generate_tree),
         # NEW: Agent initialization & memory (critical for understanding)
-        "bootstrap_phases.txt": ("🚀 Agent bootstrap phases (7-phase)", generate_bootstrap_phases),
-        "memory_architecture.txt": ("🧠 Memory architecture", generate_memory_architecture),
-        "governance_model.txt": ("🔐 Governance & approval model", generate_governance_model),
+        "bootstrap_phases.txt": (
+            "🚀 Agent bootstrap phases (7-phase)",
+            generate_bootstrap_phases,
+        ),
+        "memory_architecture.txt": (
+            "🧠 Memory architecture",
+            generate_memory_architecture,
+        ),
+        "governance_model.txt": (
+            "🔐 Governance & approval model",
+            generate_governance_model,
+        ),
         # Agent/orchestration layer
         "agent_catalog.txt": ("🤖 Agent catalog", generate_agent_catalog),
-        "kernel_catalog.txt": ("🧬 Kernel catalog (10 kernels)", generate_kernel_catalog),
-        "orchestrator_catalog.txt": ("🎭 Orchestrator catalog", generate_orchestrator_catalog),
+        "kernel_catalog.txt": (
+            "🧬 Kernel catalog (10 kernels)",
+            generate_kernel_catalog,
+        ),
+        "orchestrator_catalog.txt": (
+            "🎭 Orchestrator catalog",
+            generate_orchestrator_catalog,
+        ),
         "tool_catalog.txt": ("🔧 Tool catalog", generate_tool_catalog),
         # Events and schemas
         "event_types.txt": ("📨 Event types & packet kinds", generate_event_types),
-        "singleton_registry.txt": ("📦 Singleton registry", generate_singleton_registry),
+        "singleton_registry.txt": (
+            "📦 Singleton registry",
+            generate_singleton_registry,
+        ),
         # NEW: Infrastructure & operations
         "migration_catalog.txt": ("🗄️  Migration catalog", generate_migration_catalog),
         "feature_flags.txt": ("🏳️  Feature flags", generate_feature_flags),
         "test_catalog.txt": ("🧪 Test catalog", generate_test_catalog),
-        "telemetry_endpoints.txt": ("📈 Telemetry & observability", generate_telemetry_endpoints),
-        "deployment_manifest.txt": ("🚢 Deployment manifest", generate_deployment_manifest),
+        "telemetry_endpoints.txt": (
+            "📈 Telemetry & observability",
+            generate_telemetry_endpoints,
+        ),
+        "deployment_manifest.txt": (
+            "🚢 Deployment manifest",
+            generate_deployment_manifest,
+        ),
         # API and code structure
         "api_surfaces.txt": ("🌐 API surfaces", generate_api_surfaces),
         "entrypoints.txt": ("🚪 Entry points", generate_entrypoints),
-        "class_definitions.txt": ("📋 Classes & data models", generate_class_definitions),
-        "function_signatures.txt": ("⚙️  Function signatures (ALL)", generate_function_signatures),
+        "class_definitions.txt": (
+            "📋 Classes & data models",
+            generate_class_definitions,
+        ),
+        "function_signatures.txt": (
+            "⚙️  Function signatures (ALL)",
+            generate_function_signatures,
+        ),
         # Configuration and dependencies
         "config_files.txt": ("⚙️  Configuration files", generate_config_files),
         "dependencies.txt": ("📦 Dependencies", generate_dependencies),
         "env_refs.txt": ("🔐 Environment variables", generate_env_refs),
         "imports.txt": ("📚 Python imports", generate_imports),
         # NEW v2.1: Neo4j Graph Support (relationships for queries)
-        "inheritance_graph.txt": ("🧬 Inheritance graph (Neo4j EXTENDS)", generate_inheritance_graph),
-        "method_catalog.txt": ("🔍 Method catalog (Neo4j HAS_METHOD)", generate_method_catalog),
-        "route_handlers.txt": ("🛤️  Route handlers (Neo4j HANDLED_BY)", generate_route_handlers),
-        "file_metrics.txt": ("📏 File metrics (lines, complexity)", generate_file_metrics),
-        "pydantic_models.txt": ("📐 Pydantic models (API schemas)", generate_pydantic_models),
-        "dynamic_tool_catalog.txt": ("🔧 Dynamic tool catalog (scanned)", generate_dynamic_tool_catalog),
-        "async_function_map.txt": ("⚡ Async function map", generate_async_function_map),
+        "inheritance_graph.txt": (
+            "🧬 Inheritance graph (Neo4j EXTENDS)",
+            generate_inheritance_graph,
+        ),
+        "method_catalog.txt": (
+            "🔍 Method catalog (Neo4j HAS_METHOD)",
+            generate_method_catalog,
+        ),
+        "route_handlers.txt": (
+            "🛤️  Route handlers (Neo4j HANDLED_BY)",
+            generate_route_handlers,
+        ),
+        "file_metrics.txt": (
+            "📏 File metrics (lines, complexity)",
+            generate_file_metrics,
+        ),
+        "pydantic_models.txt": (
+            "📐 Pydantic models (API schemas)",
+            generate_pydantic_models,
+        ),
+        "dynamic_tool_catalog.txt": (
+            "🔧 Dynamic tool catalog (scanned)",
+            generate_dynamic_tool_catalog,
+        ),
+        "async_function_map.txt": (
+            "⚡ Async function map",
+            generate_async_function_map,
+        ),
         "decorator_catalog.txt": ("🏷️  Decorator catalog", generate_decorator_catalog),
+        "adr_catalog.txt": ("📜 ADR catalog", generate_adr_catalog),
     }
 
     logger.info("\n📝 Generating indexes...\n")
@@ -1718,12 +2117,12 @@ def main():
         try:
             content = generator()
             size = len(content.encode("utf-8"))
-            
+
             # Write to local repo (required - must succeed)
             repo_file = os.path.join(REPO_INDEX_DIR, filename)
             with open(repo_file, "w", encoding="utf-8") as f:
                 f.write(content)
-            
+
             # Write to Dropbox (optional - continue on error)
             try:
                 dropbox_file = os.path.join(DROPBOX_EXPORT_DIR, filename)
@@ -1731,7 +2130,7 @@ def main():
                     f.write(content)
             except Exception as e:
                 logger.debug(f"Dropbox export failed for {filename}: {e}")
-            
+
             # Write to iCloud (optional - continue on error)
             try:
                 icloud_file = os.path.join(ICLOUD_EXPORT_DIR, filename)
@@ -1739,7 +2138,7 @@ def main():
                     f.write(content)
             except Exception as e:
                 logger.debug(f"iCloud export failed for {filename}: {e}")
-            
+
             results[filename] = size
             logger.info(f"✅ ({size:,} bytes)")
         except Exception as e:
@@ -1773,3 +2172,57 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TOO-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "ast",
+        "async",
+        "auth",
+        "authorization",
+        "caching",
+        "config",
+        "dataclass",
+        "debugging",
+        "event-driven",
+    ],
+    "keywords": [
+        "agent",
+        "api",
+        "architecture",
+        "async",
+        "bootstrap",
+        "catalog",
+        "decorator",
+        "definitions",
+    ],
+    "business_value": "Utility module for export repo indexes",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

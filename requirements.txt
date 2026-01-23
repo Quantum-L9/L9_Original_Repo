@@ -40,7 +40,7 @@ aiofiles>=23.2.0
 typing-extensions>=4.9.0
 
 # Slack
-slack-sdk>=3.26.0
+# slack-sdk removed - using httpx-based async client (api/slack_client.py)
 
 # Twilio (SMS/Voice)
 twilio>=8.10.0
@@ -81,3 +81,6 @@ mypy>=1.10.0
 python-multipart
 # Pin urllib3 to avoid LibreSSL warning on macOS
 urllib3<2
+
+# Mutation Testing
+mutmut>=2.4.5

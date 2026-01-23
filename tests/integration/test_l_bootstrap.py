@@ -19,9 +19,7 @@ import os
 from uuid import uuid4
 
 # Add project root to path
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
@@ -36,7 +34,7 @@ except ImportError:
         sys.path.insert(0, memory_path)
 
 from core.agents.executor import AgentExecutorService, _generate_tasks_from_query
-from core.agents.schemas import AgentTask, TaskKind, AIOSResult, AIOSResultType
+from core.agents.schemas import AgentTask, AgentType, AIOSResult, AIOSResultType
 from core.governance.approvals import ApprovalManager
 from core.tools.tool_graph import ToolGraph, ToolDefinition
 from orchestration.long_plan_graph import extract_tasks_from_plan
@@ -47,7 +45,6 @@ from tests.core.agents.test_executor import (
     MockSubstrateService,
     MockAgentRegistry,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -151,9 +148,7 @@ def executor(
 
 
 @pytest.mark.asyncio
-async def test_tool_execution(
-    executor: AgentExecutorService, mock_tool_registry: MockToolRegistry
-):
+async def test_tool_execution(executor: AgentExecutorService, mock_tool_registry: MockToolRegistry):
     """
     Test 1: Execute 3+ non-destructive tools successfully.
 
@@ -161,7 +156,7 @@ async def test_tool_execution(
     """
     # Create task that will trigger tool calls
     task = AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="l9-standard-v1",
         source_id="test-principal",
         payload={"message": "Execute test tools"},
@@ -252,7 +247,7 @@ async def test_approval_gate_block(
 
     # Create task that will trigger gmp_run tool call
     task = AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="l9-standard-v1",
         source_id="test-principal",
         payload={"message": "Run GMP"},
@@ -321,7 +316,7 @@ async def test_approval_gate_allow(
 
     # Create task
     task = AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="l9-standard-v1",
         source_id="test-principal",
         payload={"message": "Run approved GMP"},
@@ -398,9 +393,7 @@ async def test_long_plan_execution(mock_substrate: MockSubstrateService):
                     {"task_id": f"gmp-{i}", "summary": {"gmp_preview": f"GMP {i}"}}
                     for i in range(3)
                 ],
-                "pending_git_commits": [
-                    {"message": f"Commit {i}", "files": []} for i in range(2)
-                ],
+                "pending_git_commits": [{"message": f"Commit {i}", "files": []} for i in range(2)],
             },
         )
     )
@@ -463,9 +456,7 @@ async def test_reactive_dispatch():
 
 
 @pytest.mark.asyncio
-async def test_memory_binding(
-    executor: AgentExecutorService, mock_substrate: MockSubstrateService
-):
+async def test_memory_binding(executor: AgentExecutorService, mock_substrate: MockSubstrateService):
     """
     Test 6: Task context loaded, result persisted, and queryable.
 
@@ -584,7 +575,7 @@ async def test_error_handling(executor: AgentExecutorService):
     """
     # Create invalid task (missing required fields)
     invalid_task = AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="",  # Invalid: empty agent_id
         source_id="test-principal",
         payload={"message": "Invalid task"},
@@ -602,7 +593,7 @@ async def test_error_handling(executor: AgentExecutorService):
 
     # Verify executor still functional (can execute another task)
     valid_task = AgentTask(
-        kind=TaskKind.QUERY,
+        agent_type=AgentType.ANALYST,
         agent_id="l9-standard-v1",
         source_id="test-principal",
         payload={"message": "Valid task"},

@@ -18,6 +18,27 @@ Requirements:
     - Email agent router must be importable
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Smoke Email",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:23:43Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "tests",
+    "module_name": "smoke_email",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Gmail API", "PostgreSQL"],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 import sys
@@ -59,9 +80,7 @@ class MockGmailClient:
         """Mock draft_email - returns fake draft ID."""
         return "draft_123"
 
-    def send_email(
-        self, to: str, subject: str, body: str, attachments=None
-    ) -> Dict[str, Any]:
+    def send_email(self, to: str, subject: str, body: str, attachments=None) -> Dict[str, Any]:
         """Mock send_email - returns fake result."""
         return {"message_id": "sent_123", "thread_id": "thread_123"}
 
@@ -127,9 +146,9 @@ async def test_email_query_ingestion():
 
                 # Verify ingestion calls
                 action_calls = tracker.find_by_action("email.query")
-                assert len(action_calls) == 2, (
-                    f"Expected 2 ingestion calls, got {len(action_calls)}"
-                )
+                assert (
+                    len(action_calls) == 2
+                ), f"Expected 2 ingestion calls, got {len(action_calls)}"
 
                 # Verify pre and post phases
                 phases = [c["payload"]["phase"] for c in action_calls]
@@ -138,9 +157,7 @@ async def test_email_query_ingestion():
 
                 # Verify trace_id consistency
                 trace_calls = tracker.find_by_trace_id(trace_id)
-                assert len(trace_calls) == 2, (
-                    "Trace ID not consistent across ingestions"
-                )
+                assert len(trace_calls) == 2, "Trace ID not consistent across ingestions"
 
                 return True, ""
 
@@ -173,9 +190,7 @@ async def test_email_get_ingestion():
                 assert "pre" in phases and "post" in phases
 
                 # Verify message_id is in payload
-                pre_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "pre"
-                )
+                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
                 assert pre_call["payload"]["message_id"] == "msg_test_123"
 
                 return True, ""
@@ -211,15 +226,9 @@ async def test_email_draft_ingestion():
                 assert len(action_calls) == 2
 
                 # Verify sensitive content is NOT in payload (only length)
-                pre_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "pre"
-                )
-                assert "body" not in pre_call["payload"], (
-                    "Body content should not be ingested"
-                )
-                assert "body_length" in pre_call["payload"], (
-                    "Body length should be ingested"
-                )
+                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
+                assert "body" not in pre_call["payload"], "Body content should not be ingested"
+                assert "body_length" in pre_call["payload"], "Body length should be ingested"
 
                 return True, ""
 
@@ -252,9 +261,7 @@ async def test_email_send_ingestion():
                 action_calls = tracker.find_by_action("email.send")
                 assert len(action_calls) == 2
 
-                post_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "post"
-                )
+                post_call = next(c for c in action_calls if c["payload"]["phase"] == "post")
                 assert post_call["payload"]["status"] == "success"
                 assert post_call["payload"]["send_mode"] == "direct"
 
@@ -285,9 +292,7 @@ async def test_email_reply_ingestion():
                 action_calls = tracker.find_by_action("email.reply")
                 assert len(action_calls) == 2
 
-                pre_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "pre"
-                )
+                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
                 assert pre_call["payload"]["original_message_id"] == "msg_original"
 
                 return True, ""
@@ -321,9 +326,7 @@ async def test_email_forward_ingestion():
                 action_calls = tracker.find_by_action("email.forward")
                 assert len(action_calls) == 2
 
-                post_call = next(
-                    c for c in action_calls if c["payload"]["phase"] == "post"
-                )
+                post_call = next(c for c in action_calls if c["payload"]["phase"] == "post")
                 assert post_call["payload"]["to"] == "forward@example.com"
 
                 return True, ""
@@ -425,3 +428,57 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TES-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "client",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "messaging",
+        "mocking",
+        "operations",
+        "test",
+    ],
+    "keywords": [
+        "action",
+        "all",
+        "clear",
+        "client",
+        "draft",
+        "email",
+        "fail",
+        "failing",
+    ],
+    "business_value": "1. Mocks the GmailClient to avoid real API calls 2. Calls email endpoints 3. Verifies memory ingestion was called with correct trace_id python tests/smoke_email.py Memory system must be importable (no",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

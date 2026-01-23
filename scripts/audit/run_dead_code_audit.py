@@ -23,6 +23,27 @@ Usage:
 Version: 2.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Consolidated Runner",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "run_dead_code_audit",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import subprocess
 import sys
 import time
@@ -65,14 +86,14 @@ def run_phase(phase_num: int, verbose: bool = False) -> tuple[bool, str]:
     """Run a single phase and return (success, output)."""
     phase = PHASES[phase_num - 1]
     script_path = AUDIT_DIR / phase["script"]
-    
+
     if not script_path.exists():
         return False, f"Script not found: {script_path}"
-    
+
     cmd = [sys.executable, str(script_path)]
     if verbose:
         cmd.append("--verbose")
-    
+
     try:
         result = subprocess.run(
             cmd,
@@ -81,11 +102,11 @@ def run_phase(phase_num: int, verbose: bool = False) -> tuple[bool, str]:
             text=True,
             timeout=300,  # 5 minute timeout per phase
         )
-        
+
         output = result.stdout
         if result.stderr:
             output += f"\nSTDERR:\n{result.stderr}"
-        
+
         return result.returncode == 0, output
     except subprocess.TimeoutExpired:
         return False, "Timeout after 300s"
@@ -95,8 +116,10 @@ def run_phase(phase_num: int, verbose: bool = False) -> tuple[bool, str]:
 
 def main():
     import argparse
-    
-    parser = argparse.ArgumentParser(description="L9 Dead Code Audit - Consolidated Runner")
+
+    parser = argparse.ArgumentParser(
+        description="L9 Dead Code Audit - Consolidated Runner"
+    )
     parser.add_argument(
         "--quick",
         action="store_true",
@@ -109,21 +132,23 @@ def main():
         help="Run specific phase only",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Verbose output",
     )
     parser.add_argument(
-        "--quiet", "-q",
+        "--quiet",
+        "-q",
         action="store_true",
         help="Minimal output (for startup)",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Ensure reports directory exists
     REPORTS_DIR.mkdir(exist_ok=True)
-    
+
     # Determine which phases to run
     if args.phase:
         phases_to_run = [args.phase]
@@ -131,33 +156,33 @@ def main():
         phases_to_run = [1, 2, 3]
     else:
         phases_to_run = [1, 2, 3, 4]
-    
+
     if not args.quiet:
         print("=" * 60)
         print("L9 DEAD CODE AUDIT - CONSOLIDATED RUNNER")
         print("=" * 60)
-    
+
     start_time = time.time()
     results = []
-    
+
     for phase_num in phases_to_run:
         phase = PHASES[phase_num - 1]
-        
+
         if not args.quiet:
             print(f"\n{'─' * 60}")
             print(f"▶ {phase['name']}")
             print(f"  {phase['description']}")
             print(f"{'─' * 60}")
-        
+
         success, output = run_phase(phase_num, verbose=args.verbose)
         results.append((phase_num, success, output))
-        
+
         if args.verbose or not args.quiet:
             # Show last 10 lines of output
             lines = output.strip().split("\n")
             for line in lines[-10:]:
                 print(f"  {line}")
-        
+
         if success:
             if not args.quiet:
                 print(f"  ✅ {phase['name']} complete → {phase['output']}")
@@ -166,26 +191,26 @@ def main():
             if not args.quick:
                 # Stop on failure for full run
                 break
-    
+
     elapsed = time.time() - start_time
-    
+
     # Summary
     if not args.quiet:
         print("\n" + "=" * 60)
         print("SUMMARY")
         print("=" * 60)
-        
+
         passed = sum(1 for _, success, _ in results if success)
         total = len(results)
-        
+
         for phase_num, success, _ in results:
             phase = PHASES[phase_num - 1]
             status = "✅" if success else "❌"
             print(f"  {status} {phase['name']}")
-        
+
         print(f"\nResult: {passed}/{total} phases passed")
         print(f"Time: {elapsed:.1f}s")
-        
+
         if passed == total:
             print("\n🎉 Dead code audit complete!")
             if 4 in phases_to_run:
@@ -199,10 +224,52 @@ def main():
             print(f"✅ Dead code audit: {passed}/{total} phases ({elapsed:.1f}s)")
         else:
             print(f"⚠️  Dead code audit: {passed}/{total} phases ({elapsed:.1f}s)")
-    
+
     # Exit code: 0 if all passed, 1 if any failed
     return 0 if all(success for _, success, _ in results) else 1
 
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "cli",
+        "filesystem",
+        "operations",
+        "scripts",
+        "static-analysis",
+        "subprocess",
+        "testing",
+    ],
+    "keywords": ["consolidated", "phase", "runner"],
+    "business_value": "Utility module for run dead code audit",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

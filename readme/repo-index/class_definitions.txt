@@ -1,3 +1,29 @@
+_archived/symbolic_computation/config.py::Config - Pydantic configuration.
+_archived/symbolic_computation/config.py::SymbolicComputationConfig - Configuration settings for symbolic computation.
+_archived/symbolic_computation/core.py::CodeGenerator - Code generator for symbolic expressions.
+_archived/symbolic_computation/core.py::ExpressionCache - Thread-safe expression cache using LRU strategy.
+_archived/symbolic_computation/core.py::ExpressionEvaluator - High-performance symbolic expression evaluator.
+_archived/symbolic_computation/core.py::SymbolicComputation - Main interface for symbolic computation operations.
+_archived/symbolic_computation/exceptions.py::CacheError - Exception raised when cache operations fail.
+_archived/symbolic_computation/exceptions.py::CodeGenerationError - Exception raised when code generation fails.
+_archived/symbolic_computation/exceptions.py::EvaluationError - Exception raised when expression evaluation fails.
+_archived/symbolic_computation/exceptions.py::SymbolicComputationError - Base exception for symbolic computation errors.
+_archived/symbolic_computation/exceptions.py::ValidationError - Exception raised when input validation fails.
+_archived/symbolic_computation/logger.py::StructuredLogger - Custom logger with structured JSON output.
+_archived/symbolic_computation/models.py::BackendType - Supported computational backends.
+_archived/symbolic_computation/models.py::CodeGenRequest - Request model for code generation.
+_archived/symbolic_computation/models.py::CodeGenResult - Result model for code generation.
+_archived/symbolic_computation/models.py::CodeLanguage - Supported code generation languages.
+_archived/symbolic_computation/models.py::ComputationRequest - Request model for symbolic computation.
+_archived/symbolic_computation/models.py::ComputationResult - Result model for symbolic computation.
+_archived/symbolic_computation/test_symbolic_computation.py::TestCodeGenerator - Test CodeGenerator class.
+_archived/symbolic_computation/test_symbolic_computation.py::TestExpressionEvaluator - Test ExpressionEvaluator class.
+_archived/symbolic_computation/test_symbolic_computation.py::TestIntegration - Integration tests.
+_archived/symbolic_computation/test_symbolic_computation.py::TestModels - Test Pydantic models.
+_archived/symbolic_computation/test_symbolic_computation.py::TestPerformance - Performance tests.
+_archived/symbolic_computation/test_symbolic_computation.py::TestSymbolicComputation - Test SymbolicComputation main interface.
+_archived/symbolic_computation/test_symbolic_computation.py::TestUtilities - Test utility functions.
+_archived/symbolic_computation/utils.py::ExpressionOptimizer - Advanced expression optimization utilities.
 agents/architect_agent/architect_agent_a.py::ArchitectAgentA - Primary architect agent for system design.
 agents/architect_agent/architect_agent_b.py::ArchitectAgentB - Challenger architect agent for design validation.
 agents/base_agent.py::AgentConfig - Configuration for an agent.
@@ -5,6 +31,8 @@ agents/base_agent.py::AgentMessage - A message to/from an agent.
 agents/base_agent.py::AgentResponse - Response from an agent.
 agents/base_agent.py::AgentRole - Agent roles in the system.
 agents/base_agent.py::BaseAgent - Abstract base class for all L9 agents.
+agents/codegenagent/CodeGenAgent Engine.py::CGMPEngine - Code Generation and Mathematical Processing Engine.
+agents/codegenagent/CodeGenAgent Engine.py::CGMPEngineError - Exception raised when code generation fails.
 agents/codegenagent/ap_generator.py::APGenerator - GMP Prompt Generator.
 agents/codegenagent/ap_generator.py::APGeneratorError - Exception raised when prompt generation fails.
 agents/codegenagent/ap_generator.py::GMPPromptBlock - Structured GMP prompt block.
@@ -71,6 +99,15 @@ agents/cursor/cursor_memory_kernel.py::Lesson - A lesson loaded from memory.
 agents/cursor/cursor_memory_kernel.py::SessionState - Current session state from memory.
 agents/cursor/cursor_memory_kernel.py::TodoItem - A tracked TODO item.
 agents/cursor/extractors/cursor_action_extractor.py::CursorActionExtractor - Extracts and reconstructs all files from chat history.
+agents/cursor/gmp_meta_learning.py::AutonomyController - Manages autonomy level graduation and feature flag enforceme
+agents/cursor/gmp_meta_learning.py::AutonomyGraduationMetrics - Tracks metrics for autonomy level graduation.
+agents/cursor/gmp_meta_learning.py::AutonomyLevel - Graduated autonomy levels in GMP v2.0.
+agents/cursor/gmp_meta_learning.py::AutonomyMetricsDB - Stores autonomy graduation metrics in PostgreSQL.
+agents/cursor/gmp_meta_learning.py::GMPExecutionHistoryDB - Stores execution history in PostgreSQL.
+agents/cursor/gmp_meta_learning.py::GMPExecutionResult - Results from a completed GMP execution.
+agents/cursor/gmp_meta_learning.py::GMPMetaLearningEngine - Processes GMP execution history to extract patterns and gene
+agents/cursor/gmp_meta_learning.py::LearnedHeuristic - A heuristic pattern learned from prior executions.
+agents/cursor/gmp_meta_learning.py::LearnedHeuristicDB - Stores learned heuristics in PostgreSQL.
 agents/cursor/integrations/cursor_executor.py::CursorExecutor - High-level executor for Cursor tasks.
 agents/cursor/integrations/cursor_executor.py::CursorResult - Result of Cursor task execution.
 agents/cursor/integrations/cursor_executor.py::CursorTaskSpec - Task specification for Cursor executor.
@@ -85,73 +122,23 @@ agents/cursor/integrations/cursor_langgraph.py::CursorPlanningNode - Planning no
 agents/l_cto.py::LCTOAgent - L - The CTO Agent for Igor.
 agents/qa_agent.py::QAAgent - Quality assurance agent.
 agents/reflection_agent.py::ReflectionAgent - Meta-reasoning agent for self-improvement.
-agents/research_agent.py::CodeResult - Result from code generation.
-agents/research_agent.py::DiscoveryResult - Result from deep research (Deep Workflows style).
-agents/research_agent.py::PerplexityClient - Client for Perplexity API with retry logic.
-agents/research_agent.py::PromptVariation - Represents a single prompt variation for multi-perspective s
-agents/research_agent.py::ResearchAgent - Unified research-to-code agent.
-agents/research_agent.py::ResearchResponse - Structured response from Perplexity API.
-agents/research_agent.py::ResearchTask - Research task specification.
-agents/research_agent.py::ResponseProcessor - Extracts structured insights from Perplexity responses.
-agents/research_agent.py::SpecResult - Result from spec generation.
-agents/research_agent.py::SynthesisEngine - Aggregates multi-prompt research findings.
-agents/research_agent.py::SynthesisResult - Result from fast synthesis (Super-Prompt Pack style).
-api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterAdapter - Calendar Adapter Adapter
-api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterContext - Execution context.
-api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterRequest - Inbound request schema.
-api/adapters/calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterResponse - Response schema.
-api/adapters/calendar_adapter/clients/calendar_adapter_client.py::CalendarAdapterClient - External API client for Calendar Adapter.
-api/adapters/calendar_adapter/clients/calendar_adapter_client.py::CalendarAdapterClientConfig - Client configuration.
-api/adapters/calendar_adapter/config.py::CalendarAdapterConfig - Configuration for Calendar Adapter.
-api/adapters/calendar_adapter/schemas.py::CalendarAdapterContext - Execution context for Calendar Adapter.
-api/adapters/calendar_adapter/schemas.py::CalendarAdapterRequest - Inbound request schema for Calendar Adapter.
-api/adapters/calendar_adapter/schemas.py::CalendarAdapterResponse - Response schema for Calendar Adapter.
-api/adapters/calendar_adapter/schemas.py::Config - No docstring
-api/adapters/calendar_adapter/schemas.py::Config - No docstring
-api/adapters/calendar_adapter/schemas.py::PacketPayload - Standard packet payload structure.
-api/adapters/calendar_adapter/services/calendar_adapter_service.py::CalendarAdapterService - Service layer for Calendar Adapter.
-api/adapters/calendar_adapter/tests/test_calendar_adapter.py::TestAcceptanceNegative - Negative acceptance criteria tests.
-api/adapters/calendar_adapter/tests/test_calendar_adapter.py::TestAcceptancePositive - Positive acceptance criteria tests.
-api/adapters/calendar_adapter/tests/test_calendar_adapter.py::TestErrorHandling - Error handling and compensating action tests.
-api/adapters/calendar_adapter/tests/test_calendar_adapter_integration.py::TestRoutes - Route-level integration tests.
-api/adapters/email_adapter/adapters/email_adapter_adapter.py::EmailAdapterAdapter - Email Adapter Adapter
-api/adapters/email_adapter/adapters/email_adapter_adapter.py::EmailAdapterContext - Execution context.
-api/adapters/email_adapter/adapters/email_adapter_adapter.py::EmailAdapterRequest - Inbound request schema.
-api/adapters/email_adapter/adapters/email_adapter_adapter.py::EmailAdapterResponse - Response schema.
-api/adapters/email_adapter/clients/email_adapter_client.py::EmailAdapterClient - External API client for Email Adapter.
-api/adapters/email_adapter/clients/email_adapter_client.py::EmailAdapterClientConfig - Client configuration.
-api/adapters/email_adapter/config.py::EmailAdapterConfig - Configuration for Email Adapter.
-api/adapters/email_adapter/schemas.py::Config - No docstring
-api/adapters/email_adapter/schemas.py::Config - No docstring
-api/adapters/email_adapter/schemas.py::EmailAdapterContext - Execution context for Email Adapter.
-api/adapters/email_adapter/schemas.py::EmailAdapterRequest - Inbound request schema for Email Adapter.
-api/adapters/email_adapter/schemas.py::EmailAdapterResponse - Response schema for Email Adapter.
-api/adapters/email_adapter/schemas.py::PacketPayload - Standard packet payload structure.
-api/adapters/email_adapter/services/email_adapter_service.py::EmailAdapterService - Service layer for Email Adapter.
-api/adapters/email_adapter/tests/test_email_adapter.py::TestAcceptanceNegative - Negative acceptance criteria tests.
-api/adapters/email_adapter/tests/test_email_adapter.py::TestAcceptancePositive - Positive acceptance criteria tests.
-api/adapters/email_adapter/tests/test_email_adapter.py::TestErrorHandling - Error handling and compensating action tests.
-api/adapters/email_adapter/tests/test_email_adapter_integration.py::TestRoutes - Route-level integration tests.
-api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py::TwilioAdapterAdapter - Twilio Adapter Adapter
-api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py::TwilioAdapterContext - Execution context.
-api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py::TwilioAdapterRequest - Inbound request schema.
-api/adapters/twilio_adapter/adapters/twilio_adapter_adapter.py::TwilioAdapterResponse - Response schema.
-api/adapters/twilio_adapter/clients/twilio_adapter_client.py::TwilioAdapterClient - External API client for Twilio Adapter.
-api/adapters/twilio_adapter/clients/twilio_adapter_client.py::TwilioAdapterClientConfig - Client configuration.
-api/adapters/twilio_adapter/config.py::TwilioAdapterConfig - Configuration for Twilio Adapter.
-api/adapters/twilio_adapter/schemas.py::Config - No docstring
-api/adapters/twilio_adapter/schemas.py::Config - No docstring
-api/adapters/twilio_adapter/schemas.py::PacketPayload - Standard packet payload structure.
-api/adapters/twilio_adapter/schemas.py::TwilioAdapterContext - Execution context for Twilio Adapter.
-api/adapters/twilio_adapter/schemas.py::TwilioAdapterRequest - Inbound request schema for Twilio Adapter.
-api/adapters/twilio_adapter/schemas.py::TwilioAdapterResponse - Response schema for Twilio Adapter.
-api/adapters/twilio_adapter/services/twilio_adapter_service.py::TwilioAdapterService - Service layer for Twilio Adapter.
-api/adapters/twilio_adapter/tests/test_twilio_adapter.py::TestAcceptanceNegative - Negative acceptance criteria tests.
-api/adapters/twilio_adapter/tests/test_twilio_adapter.py::TestAcceptancePositive - Positive acceptance criteria tests.
-api/adapters/twilio_adapter/tests/test_twilio_adapter.py::TestErrorHandling - Error handling and compensating action tests.
-api/adapters/twilio_adapter/tests/test_twilio_adapter_integration.py::TestRoutes - Route-level integration tests.
+agents/research_agent_impl.py::CodeResult - Result from code generation.
+agents/research_agent_impl.py::DiscoveryResult - Result from deep research (Deep Workflows style).
+agents/research_agent_impl.py::PerplexityClient - Compatibility wrapper around the production PerplexityClient
+agents/research_agent_impl.py::PromptVariation - Represents a single prompt variation for multi-perspective s
+agents/research_agent_impl.py::ResearchAgent - Unified research-to-code agent.
+agents/research_agent_impl.py::ResearchResponse - Structured response from Perplexity API.
+agents/research_agent_impl.py::ResearchTask - Research task specification.
+agents/research_agent_impl.py::ResponseProcessor - Extracts structured insights from Perplexity responses.
+agents/research_agent_impl.py::SpecResult - Result from spec generation.
+agents/research_agent_impl.py::SynthesisEngine - Aggregates multi-prompt research findings.
+agents/research_agent_impl.py::SynthesisResult - Result from fast synthesis (Super-Prompt Pack style).
 api/agent_routes.py::ExecuteTaskRequest - Request model for /execute endpoint.
 api/agent_routes.py::ExecuteTaskResponse - Response model for /execute endpoint.
+api/agent_routes.py::SegmentPreviewRequest - Request model for segment preview.
+api/agent_routes.py::SegmentPreviewResponse - Response model for segment preview.
+api/agent_routes.py::SegmentResult - Result for a single segment in multi-part execution.
+api/auth.py::CallerIdentity - No docstring
 api/e2e_slack_audit.py::AuditResult - Container for audit results.
 api/memory/cache.py::CacheResponse - Standard cache response.
 api/memory/cache.py::CacheSetRequest - Request model for cache set operations.
@@ -173,6 +160,8 @@ api/memory/router.py::PacketResponse - Response model for packet ingestion.
 api/memory/router.py::ReasoningReplayRequest - Request model for reasoning replay.
 api/memory/router.py::ReasoningReplayResponse - Response model for reasoning replay.
 api/memory/router.py::SagaResponse - Response model for saga operations.
+api/memory/router.py::WarmRequest - Request for memory warming.
+api/memory/router.py::WarmResponse - Response from memory warming.
 api/routes/commands.py::ApprovalFeedbackRequest - Request to record approval/rejection feedback.
 api/routes/commands.py::ApprovalFeedbackResponse - Response from approval feedback.
 api/routes/commands.py::CommandExecuteRequest - Request to execute an Igor command.
@@ -195,17 +184,54 @@ api/routes/gmp_learning.py::AnalyticsResponse - No docstring
 api/routes/gmp_learning.py::AutonomyLevelResponse - No docstring
 api/routes/gmp_learning.py::GraduationStatusResponse - No docstring
 api/routes/gmp_learning.py::HeuristicsResponse - No docstring
+api/routes/observability.py::CircuitBreakerStatus - Status of a circuit breaker.
+api/routes/observability.py::CircuitBreakersResponse - Response for circuit breakers endpoint.
+api/routes/observability.py::FailureResponse - Response for a single failure signal.
+api/routes/observability.py::FailuresListResponse - Response for failures list endpoint.
+api/routes/observability.py::HealthResponse - Response for observability health endpoint.
+api/routes/observability.py::SREMetricsResponse - Response for SRE metrics endpoint.
+api/routes/observability.py::SpanSummary - Summary of a span for API response.
+api/routes/observability.py::SpansListResponse - Response for spans list endpoint.
+api/routes/pattern.py::MasterExecuteRequest - Request model for multi-subsystem execution.
+api/routes/pattern.py::MasterExecuteResponse - Response model for multi-subsystem execution.
 api/routes/pattern.py::NodeResultResponse - Response model for a single node result.
 api/routes/pattern.py::PatternConfigResponse - Response model for pattern configuration.
 api/routes/pattern.py::PatternExecuteRequest - Request model for pattern execution.
 api/routes/pattern.py::PatternExecuteResponse - Response model for pattern execution.
 api/routes/reasoning.py::ReasoningExecuteRequest - Request model for reasoning execution.
 api/routes/reasoning.py::ReasoningExecuteResponse - Response model for reasoning execution.
+api/routes/reflection_agent.py::AnalyzeFailureRequest - Request model for failure analysis.
+api/routes/reflection_agent.py::AnalyzeFailureResponse - Response model for failure analysis.
+api/routes/reflection_agent.py::CompareApproachesRequest - Request model for approach comparison.
+api/routes/reflection_agent.py::CompareApproachesResponse - Response model for approach comparison.
+api/routes/reflection_agent.py::ExtractPatternsRequest - Request model for pattern extraction.
+api/routes/reflection_agent.py::ExtractPatternsResponse - Response model for pattern extraction.
+api/routes/reflection_agent.py::GenerateImprovementsRequest - Request model for improvement generation.
+api/routes/reflection_agent.py::GenerateImprovementsResponse - Response model for improvement generation.
+api/routes/reflection_agent.py::LessonsLearnedResponse - Response model for lessons learned.
+api/routes/reflection_agent.py::ReflectRequest - Request model for reflection task.
+api/routes/reflection_agent.py::ReflectResponse - Response model for reflection result.
+api/routes/registry.py::RouterDefinition - Definition for an auto-registered router.
+api/routes/registry.py::RouterRegistry - Auto-registry for FastAPI routers.
 api/routes/research.py::ResearchExecuteRequest - Request model for research swarm execution.
 api/routes/research.py::ResearchExecuteResponse - Response model for research swarm execution.
+api/routes/research_agent.py::DiscoverRequest - Request model for deep research.
+api/routes/research_agent.py::DiscoverResponse - Response model for discovery result.
+api/routes/research_agent.py::GenerateSpecRequest - Request model for spec generation.
+api/routes/research_agent.py::GenerateSpecResponse - Response model for spec generation.
+api/routes/research_agent.py::ResearchToCodeRequest - Request model for end-to-end pipeline.
+api/routes/research_agent.py::ResearchToCodeResponse - Response model for end-to-end pipeline.
+api/routes/research_agent.py::SynthesizeRequest - Request model for fast synthesis.
+api/routes/research_agent.py::SynthesizeResponse - Response model for synthesis result.
 api/routes/simulation.py::SimulationMetricsResponse - Simulation metrics.
 api/routes/simulation.py::SimulationRequest - Request to run a simulation.
 api/routes/simulation.py::SimulationResponse - Response from simulation execution.
+api/routes/workers.py::AnomalyProcessRequest - Request to process telemetry events for anomalies.
+api/routes/workers.py::AnomalyProcessResponse - Response from anomaly processing.
+api/routes/workers.py::ViolationCountsResponse - Response with violation counts per lesson.
+api/routes/workers.py::ViolationScanRequest - Request to scan content for violations.
+api/routes/workers.py::ViolationScanResponse - Response from violation scan.
+api/routes/workers.py::WorkersHealthResponse - Health status of all workers.
 api/server.py::ChatRequest - No docstring
 api/server.py::ChatResponse - No docstring
 api/server.py::CursorGraphDeps - No docstring
@@ -226,7 +252,6 @@ api/vps_executor.py::CompositeTask - No docstring
 api/vps_executor.py::MemoryHealthTask - No docstring
 api/vps_executor.py::ShellTask - No docstring
 api/webhook_mac_agent.py::TaskResultRequest - Request model for task result submission.
-api/webhook_slack.py::EventDedupeCache - Thread-safe LRU cache for event deduplication.
 api/world_model_api.py::EntityListResponse - List of entities response.
 api/world_model_api.py::EntityResponse - Entity data response.
 api/world_model_api.py::InsightInput - Single insight for world model update.
@@ -268,6 +293,32 @@ codegen/Perplexity-Search-Pack/autonomous-research-agent.py::ResearchResponse - 
 codegen/Perplexity-Search-Pack/autonomous-research-agent.py::ResponseProcessor - Extracts structured insights from Perplexity responses
 codegen/Perplexity-Search-Pack/autonomous-research-agent.py::SynthesisEngine - Aggregates multi-prompt research findings
 codegen/Perplexity-Search-Pack/autonomous-research-agent.py::SynthesisReport - Aggregated research synthesis
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_config.py::Config - Pydantic configuration.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_config.py::SymbolicComputationConfig - Configuration settings for symbolic computation.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py::CodeGenerator - Code generator for symbolic expressions.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py::ExpressionCache - Thread-safe expression cache using LRU strategy.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py::ExpressionEvaluator - High-performance symbolic expression evaluator.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py::SymbolicComputation - Main interface for symbolic computation operations.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::CacheError - Exception raised when cache operations fail.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::CodeGenerationError - Exception raised when code generation fails.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::EvaluationError - Exception raised when expression evaluation fails.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::SymbolicComputationError - Base exception for symbolic computation errors.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::ValidationError - Exception raised when input validation fails.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_logger.py::StructuredLogger - Custom logger with structured JSON output.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::BackendType - Supported computational backends.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::CodeGenRequest - Request model for code generation.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::CodeGenResult - Result model for code generation.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::CodeLanguage - Supported code generation languages.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::ComputationRequest - Request model for symbolic computation.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::ComputationResult - Result model for symbolic computation.
+codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_utils.py::ExpressionOptimizer - Advanced expression optimization utilities.
+codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestCodeGenerator - Test CodeGenerator class.
+codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestExpressionEvaluator - Test ExpressionEvaluator class.
+codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestIntegration - Integration tests.
+codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestModels - Test Pydantic models.
+codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestPerformance - Performance tests.
+codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestSymbolicComputation - Test SymbolicComputation main interface.
+codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestUtilities - Test utility functions.
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterAdapter - Calendar Adapter Adapter
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterContext - Execution context.
 codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/adapters/calendar_adapter_adapter.py::CalendarAdapterRequest - Inbound request schema.
@@ -544,6 +595,7 @@ core/agents/schemas.py::AIOSResult - Result from AIOS reasoning call.
 core/agents/schemas.py::AIOSResultType - Type of AIOS result.
 core/agents/schemas.py::AgentConfig - Configuration for an agent instance.
 core/agents/schemas.py::AgentTask - Defines the work to be done by an agent.
+core/agents/schemas.py::AgentType - Enterprise agent classification for multi-agent routing.
 core/agents/schemas.py::DuplicateTaskResponse - Response when a duplicate task is detected.
 core/agents/schemas.py::ExecutionResult - Final result of agent task execution.
 core/agents/schemas.py::ExecutorState - State machine states for the executor loop.
@@ -561,6 +613,11 @@ core/agents/selfreflection.py::TaskExecutionContext - Context from a completed t
 core/agents/selfreflection.py::TokenOverusePattern - Detects excessive token usage.
 core/agents/selfreflection.py::UserCorrectionPattern - Detects when user corrections indicate behavioral gaps.
 core/aios/runtime.py::AIOSRuntime - AIOS Runtime for agent reasoning.
+core/auto_registry.py::AutoRegistry - Generic auto-discovery and registration system for L9 compon
+core/auto_registry.py::ComponentNotFoundError - Raised when a requested component is not found in the regist
+core/auto_registry.py::DuplicateRegistrationError - Raised when attempting to register a component with a duplic
+core/auto_registry.py::RegistryError - Base exception for registry errors.
+core/auto_registry.py::ValidationError - Raised when a component fails validation.
 core/boundary/enforcer.py::BoundaryEnforcer - Stateful boundary enforcer with caching and configuration.
 core/boundary/enforcer.py::BoundarySpec - Parsed PRIVATE_BOUNDARY specification.
 core/commands/executor.py::CommandExecutor - Executes Igor commands by routing to appropriate handlers.
@@ -579,26 +636,28 @@ core/coordination/event_queue.py::Event - Event in the async coordination system
 core/coordination/event_queue.py::EventKind - Event types in the coordination system
 core/coordination/event_queue.py::EventQueue - Async message queue for agent coordination
 core/coordination/event_queue.py::EventRouter - Routes events to correct handlers based on rules
+core/di/container.py::BindingNotFoundError - Raised when no binding exists for requested type.
+core/di/container.py::CircularDependencyError - Raised when circular dependency is detected.
+core/di/container.py::DIContainer - Lightweight dependency injection container for L9.
+core/di/container.py::DIContainerError - Base exception for DI container errors.
+core/di/container.py::ResolutionError - Raised when dependency resolution fails.
 core/evaluation/evaluator.py::EvaluationExample - Single evaluation case
 core/evaluation/evaluator.py::EvaluationResult - Result of evaluation run
 core/evaluation/evaluator.py::EvaluationSet - Collection of evaluation examples
 core/evaluation/evaluator.py::Evaluator - Evaluation service for agent performance
 core/evaluation/evaluator.py::RegressionError - Raised when eval results regress beyond thresholds
-core/gmp/meta_learning_engine.py::AutonomyController - Manages autonomy level graduation and feature flag enforceme
-core/gmp/meta_learning_engine.py::AutonomyGraduationMetrics - Tracks metrics for autonomy level graduation.
-core/gmp/meta_learning_engine.py::AutonomyLevel - Graduated autonomy levels in GMP v2.0.
-core/gmp/meta_learning_engine.py::AutonomyMetricsDB - Stores autonomy graduation metrics in PostgreSQL.
-core/gmp/meta_learning_engine.py::GMPExecutionHistoryDB - Stores execution history in PostgreSQL.
-core/gmp/meta_learning_engine.py::GMPExecutionResult - Results from a completed GMP execution.
-core/gmp/meta_learning_engine.py::GMPMetaLearningEngine - Processes GMP execution history to extract patterns and gene
-core/gmp/meta_learning_engine.py::LearnedHeuristic - A heuristic pattern learned from prior executions.
-core/gmp/meta_learning_engine.py::LearnedHeuristicDB - Stores learned heuristics in PostgreSQL.
+core/event_type_registry.py::EventTypeConfig - Configuration for an event type.
 core/governance/approval_gate.py::EscalationResult - Result of escalation to Igor.
 core/governance/approval_manager.py::ApprovalDecision - Decision on an approval request
 core/governance/approval_manager.py::ApprovalManager - Manages Igor approval workflow for high-risk tool executions
 core/governance/approval_manager.py::ApprovalRequest - Request for Igor approval of high-risk operation
 core/governance/approval_manager.py::ApprovalStatus - Approval request status
 core/governance/approvals.py::ApprovalManager - Manages approval of high-risk tasks.
+core/governance/cmts.py::CMTSService - Code Mutation Tracking System Service.
+core/governance/cmts.py::FileSnapshot - Snapshot of a file before/after mutation.
+core/governance/cmts.py::MutationQuery - Query parameters for searching mutations.
+core/governance/cmts.py::MutationRecord - Record of a single code mutation.
+core/governance/cmts.py::MutationStatus - Status of a code mutation.
 core/governance/credentials_policy.py::CredentialRecord - Record of a credential's rotation status.
 core/governance/credentials_policy.py::CredentialRotationPolicy - Credential rotation policy enforcer.
 core/governance/credentials_policy.py::CredentialsPolicy - Executable credentials policy enforcer.
@@ -615,15 +674,28 @@ core/governance/mistake_prevention.py::MistakePrevention - Executable mistake pr
 core/governance/mistake_prevention.py::MistakeRule - A mistake prevention rule.
 core/governance/mistake_prevention.py::Severity - Severity levels for mistake rules.
 core/governance/mistake_prevention.py::Violation - A detected mistake violation.
+core/governance/policy_generator.py::PolicyFileSpec - Specification for a complete policy file.
+core/governance/policy_generator.py::PolicyGenerator - Generates YAML governance policies from templates.
+core/governance/policy_generator.py::PolicySpec - Specification for a single policy.
+core/governance/policy_generator.py::ScopeAccessSpec - Specification for scope access matrix entry.
+core/governance/policy_registry.py::PolicySource - Configuration for a governance policy source.
 core/governance/quick_fixes.py::FixResult - Result of applying a fix.
 core/governance/quick_fixes.py::QuickFix - A quick fix pattern.
 core/governance/quick_fixes.py::QuickFixEngine - Executable quick-fix engine with auto-remediation.
+core/governance/rate_limit_policy.py::RateLimitConfig - Configuration for a single rate limit.
+core/governance/rate_limit_policy.py::RateLimitDep - FastAPI dependency for rate limiting.
+core/governance/rate_limit_policy.py::RateLimitExceeded - Exception raised when rate limit is exceeded.
+core/governance/rate_limit_policy.py::RateLimitPolicy - Unified rate limit policy service.
+core/governance/rate_limit_policy.py::RateLimitResult - Result of a rate limit check.
+core/governance/rate_limit_policy.py::RateLimitSettings - Global rate limit settings.
+core/governance/rate_limit_policy.py::_StubRateLimiter - Stub rate limiter when real one isn't available.
 core/governance/schemas.py::Condition - A condition that must be met for a policy to apply.
 core/governance/schemas.py::ConditionOperator - Operators for policy conditions.
 core/governance/schemas.py::EvaluationRequest - Request to evaluate governance policies for an action.
 core/governance/schemas.py::EvaluationResult - Result of governance policy evaluation.
 core/governance/schemas.py::Policy - A governance policy defining access control rules.
 core/governance/schemas.py::PolicyEffect - Effect of a policy when matched.
+core/governance/session_startup.py::ADRLoadResult - Result of loading Architecture Decision Records.
 core/governance/session_startup.py::KernelReadinessResult - Result of kernel readiness check.
 core/governance/session_startup.py::PreflightResult - Result of a preflight check.
 core/governance/session_startup.py::SessionStartup - Executable session startup protocol.
@@ -769,9 +841,42 @@ core/packet_envelope/standardization.py::HTTPBinaryBinding - HTTP Protocol Bindi
 core/packet_envelope/standardization.py::HTTPStructuredBinding - HTTP Protocol Binding (Structured Content Mode)
 core/packet_envelope/standardization.py::ProtocolBinding - Abstract base for protocol bindings
 core/packet_envelope/standardization.py::SchemaRegistry - Event schema registry
+core/protocols/agent_protocols.py::ActivatableAgent - Protocol for agents that can be activated with kernels.
+core/protocols/agent_protocols.py::AgentContext - Protocol for agent execution context.
+core/protocols/agent_protocols.py::AgentOrchestrator - Protocol for agent orchestration and coordination.
+core/protocols/agent_protocols.py::AgentRegistry - Protocol for agent discovery and registration.
+core/protocols/agent_protocols.py::AgentState - Agent state enumeration.
+core/protocols/agent_protocols.py::StateManager - Protocol for agent state management.
+core/protocols/agent_protocols.py::ToolExecutor - Protocol for tool execution interface.
+core/protocols/kernel_protocols.py::IntegrityVerifier - Protocol for kernel file integrity verification.
+core/protocols/kernel_protocols.py::KernelActivator - Protocol for kernel activation operations.
+core/protocols/kernel_protocols.py::KernelAwareAgent - Protocol for agents that can be kernel-activated.
+core/protocols/kernel_protocols.py::KernelDiscovery - Protocol for kernel file discovery.
+core/protocols/kernel_protocols.py::KernelStateManager - Protocol for kernel lifecycle state management.
+core/protocols/kernel_protocols.py::KernelValidator - Protocol for kernel YAML validation.
+core/protocols/memory_protocols.py::CacheClient - Protocol for key-value cache operations.
+core/protocols/memory_protocols.py::GraphClient - Protocol for graph database operations.
+core/protocols/memory_protocols.py::IngestionPipeline - Protocol for memory ingestion and processing.
+core/protocols/memory_protocols.py::MemoryRepository - Protocol for high-level memory CRUD operations.
+core/protocols/memory_protocols.py::RetrievalStrategy - Protocol for memory retrieval and ranking.
+core/protocols/memory_protocols.py::VectorStore - Protocol for vector similarity search operations.
+core/protocols/observability_protocols.py::HealthChecker - Protocol for system health monitoring.
+core/protocols/observability_protocols.py::LogExporter - Protocol for structured log export.
+core/protocols/observability_protocols.py::MetricsCollector - Protocol for metrics collection and aggregation.
+core/protocols/observability_protocols.py::ObservabilityService - Protocol for unified observability service.
+core/protocols/observability_protocols.py::SpanEmitter - Protocol for distributed tracing span emission.
+core/protocols/observability_protocols.py::SpanKind - Span kind enumeration.
+core/protocols/observability_protocols.py::SpanStatus - Span status enumeration.
+core/protocols/observability_protocols.py::TraceContext - Protocol for trace context propagation.
+core/protocols/secrets_protocols.py::SecretsClient - Protocol for secrets management operations.
+core/protocols/secrets_protocols.py::SecretsError - Base exception for secrets operations.
+core/resilience/mixin.py::ResilienceMixin - Mixin providing standard retry + circuit breaker + DLQ behav
+core/resilience/protocols.py::ResilientService - Protocol for services that support resilience patterns.
 core/resilience/retry.py::AsyncRetryConfig - Configuration for async retry behavior.
 core/resilience/retry.py::RetryExhaustedError - Raised when all retry attempts have been exhausted.
 core/retrievers/substrate_retriever.py::SubstrateRetriever - LangChain retriever wrapper over MemorySubstrateService.sema
+core/runtimes/react_runtime.py::ReActRuntime - ReAct (Reason + Act) runtime for agent task execution.
+core/runtimes/react_runtime.py::ReActStep - Single step in ReAct loop.
 core/schemas/capabilities.py::AgentCapabilities - Complete capability set for an agent.
 core/schemas/capabilities.py::Capability - Single capability for a tool.
 core/schemas/capabilities.py::ToolName - Enumeration of L9 tools that can be capability-gated.
@@ -857,41 +962,17 @@ core/schemas/tests/test_research_factory.py::TestResearchFactoryNodes - Test Lan
 core/schemas/tests/test_research_factory.py::TestResearchJobSpec - Test ResearchJobSpec model.
 core/schemas/tests/test_research_factory.py::TestResearchMetrics - Test ResearchMetrics model.
 core/schemas/tests/test_research_factory.py::TestResearchState - Test ResearchState model.
+core/schemas/upcaster_registry.py::UpcasterConfig - Configuration for a schema upcaster.
 core/schemas/ws_event_stream.py::AgentHeartbeat - Periodic heartbeat message from connected agents.
 core/schemas/ws_event_stream.py::ErrorEvent - Error reporting structure for WebSocket communication.
 core/schemas/ws_event_stream.py::EventMessage - Canonical event structure for L9's internal EventStream.
 core/schemas/ws_event_stream.py::EventType - High-level event categories for WebSocket communication.
 core/security/path_safety.py::PathSafetyError - Raised when a user-controlled path fails safety validation.
 core/security/permission_graph.py::PermissionGraph - RBAC permission graph backed by Neo4j.
+core/singleton_auto_registry.py::SingletonServiceConfig - Configuration for a singleton service.
 core/singleton_registry.py::SingletonEntry - Registry entry for a singleton instance.
 core/singleton_registry.py::SingletonLifecycle - Singleton initialization lifecycle.
 core/singleton_registry.py::SingletonRegistry - Centralized registry for L9 singleton instances.
-core/symbolic_computation/config.py::Config - Pydantic configuration.
-core/symbolic_computation/config.py::SymbolicComputationConfig - Configuration settings for symbolic computation.
-core/symbolic_computation/core.py::CodeGenerator - Code generator for symbolic expressions.
-core/symbolic_computation/core.py::ExpressionCache - Thread-safe expression cache using LRU strategy.
-core/symbolic_computation/core.py::ExpressionEvaluator - High-performance symbolic expression evaluator.
-core/symbolic_computation/core.py::SymbolicComputation - Main interface for symbolic computation operations.
-core/symbolic_computation/exceptions.py::CacheError - Exception raised when cache operations fail.
-core/symbolic_computation/exceptions.py::CodeGenerationError - Exception raised when code generation fails.
-core/symbolic_computation/exceptions.py::EvaluationError - Exception raised when expression evaluation fails.
-core/symbolic_computation/exceptions.py::SymbolicComputationError - Base exception for symbolic computation errors.
-core/symbolic_computation/exceptions.py::ValidationError - Exception raised when input validation fails.
-core/symbolic_computation/logger.py::StructuredLogger - Custom logger with structured JSON output.
-core/symbolic_computation/models.py::BackendType - Supported computational backends.
-core/symbolic_computation/models.py::CodeGenRequest - Request model for code generation.
-core/symbolic_computation/models.py::CodeGenResult - Result model for code generation.
-core/symbolic_computation/models.py::CodeLanguage - Supported code generation languages.
-core/symbolic_computation/models.py::ComputationRequest - Request model for symbolic computation.
-core/symbolic_computation/models.py::ComputationResult - Result model for symbolic computation.
-core/symbolic_computation/test_symbolic_computation.py::TestCodeGenerator - Test CodeGenerator class.
-core/symbolic_computation/test_symbolic_computation.py::TestExpressionEvaluator - Test ExpressionEvaluator class.
-core/symbolic_computation/test_symbolic_computation.py::TestIntegration - Integration tests.
-core/symbolic_computation/test_symbolic_computation.py::TestModels - Test Pydantic models.
-core/symbolic_computation/test_symbolic_computation.py::TestPerformance - Performance tests.
-core/symbolic_computation/test_symbolic_computation.py::TestSymbolicComputation - Test SymbolicComputation main interface.
-core/symbolic_computation/test_symbolic_computation.py::TestUtilities - Test utility functions.
-core/symbolic_computation/utils.py::ExpressionOptimizer - Advanced expression optimization utilities.
 core/testing/test_agent.py::TestAgent - Agent that generates and executes tests for code proposals.
 core/testing/test_agent.py::TestAgentResult - Result of test agent execution.
 core/testing/test_executor.py::TestExecutor - Executes tests in a sandbox environment.
@@ -899,13 +980,6 @@ core/testing/test_executor.py::TestResult - Result of a single test.
 core/testing/test_executor.py::TestResults - Results of a test run.
 core/testing/test_generator.py::TestGenerator - Generates tests from code proposals.
 core/tools/agent_self_modify.py::AgentSelfModifyTool - Allow agents to modify their own graph state.
-core/tools/base_registry.py::Config - No docstring
-core/tools/base_registry.py::Config - No docstring
-core/tools/base_registry.py::RateLimitWindow - Sliding window rate limiter.
-core/tools/base_registry.py::ToolMetadata - Metadata for a registered tool.
-core/tools/base_registry.py::ToolRegistry - In-memory registry of available tools.
-core/tools/base_registry.py::ToolSchema - JSON Schema for tool parameters (OpenAI function calling com
-core/tools/base_registry.py::ToolType - Types of available tools.
 core/tools/memory_tools.py::MemorySearchResult - Result from memory search
 core/tools/memory_tools.py::MemorySegment - Memory segments available for agent queries
 core/tools/memory_tools.py::MemoryWriteResult - Result from memory write
@@ -938,6 +1012,256 @@ core/worldmodel/l9_schema.py::L9Tool - Tool entity in the L9 world model.
 core/worldmodel/l9_schema.py::ToolCategory - Categories of tools.
 core/worldmodel/l9_schema.py::ToolRiskLevel - Risk levels for tools.
 core/worldmodel/service.py::WorldModelService - Service for L9 world model operations.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ArtifactExtractor - Base class for extracting structured data from documents.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ConstraintExtractor - Extracts constraint definitions from documents.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::DocumentClassifier - Classifies documents based on schema hints.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::HeuristicExtractor - Extracts heuristic/judgment rules.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::L9Compiler - Main compiler that orchestrates the compilation process.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::PatternExtractor - Extracts architectural pattern definitions.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ProtocolExtractor - Extracts protocol/workflow definitions.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::Schema - Schema definition for artifact classification.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::SourceMetadata - Metadata about the source document.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::CACodeChange - Orchestrates code changes with full governance.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::ChangeProposal - A proposed code change with all metadata.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::ChangeStatus - Status of a proposed change.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ConstraintValidator - Validate changes against governance constraints.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ValidationResult - Result of constraint validation.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::Violation - Represents a constraint violation.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ViolationSeverity - Severity levels for constraint violations.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::BatchDiff - Represents diffs for multiple files.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::DiffGenerator - Generate diffs for code changes.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::FileDiff - Represents a diff for a single file.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ChangeReport - Structured report for code changes.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ChangeType - Types of code changes.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ReportGenerator - Generate reports for code changes.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::GovernanceIntegration - Unified governance integration for L9.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::ActionRegistry - Simple registry for executable actions.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::ActionResult - Result of an action execution.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::AgentState - Canonical agent state structure (I-AGENT_STATE-001).
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::AgentStateManager - Manages agent state with persistence.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::ProactivityLevel - Agent proactivity levels.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::CandidateAction - A candidate action with predicted outcome.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::DecisionMode - Decision modes for the foresight engine.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::ForesightDecision - Result of foresight decision-making.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::ForesightEngine - Implements the Foresight Engine pattern.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::MemoryAdapter - Adapter to connect governance to existing memory substrate.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::ReflectionEngine - Implements the Reflection Loop protocol (P-REFLECT-001).
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::ReflectionResult - Result of reflecting on an action.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ConceptExtractor - Extracts concepts from files using aggressive pattern matchi
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ConceptYAML - Structured YAML representation of a concept.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ExtractedConcept - A concept extracted from a file.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::FileScanner - Scans directories and finds processable files.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::KnowledgeHarvester - Main orchestrator for knowledge harvesting.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::YAMLGenerator - Generates structured YAML from extracted concepts.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::ConceptReview - Review status for a concept.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::QCDashboard - Interactive dashboard for concept review.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::ConceptSpec - Parsed concept specification.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::L9SpecGenerator - Generates PLAN_Vn specs for CA from concepts.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::PlanSpec - PLAN_Vn specification for CA.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::ConceptSpec - Parsed concept specification.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::L9SpecGenerator - Generates PLAN_Vn specs for CA from concepts.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::PlanSpec - PLAN_Vn specification for CA.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::ConceptSpec - Parsed concept specification.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::GenerationResult - Result of code generation.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::L9TextToCode - Main text-to-code generator.
+current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::Language - No docstring
+current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::RefactoringBootstrap - Main orchestrator for refactoring pipeline setup
+current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::ToolConfig - Configuration for refactoring tools
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestIntegration - Integration tests - all tiers together
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier1MemoryEvolution - Test Tier 1: Differentiable Memory
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier2SwarmSync - Test Tier 2: Swarm Synchronicity
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier3Governance - Test Tier 3: Meta-Cognitive Governance
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::AutonomicSteering - Autonomic Resource Steering
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::LeanVerifier - Lean theorem prover integration for formal verification
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::MetaEvolutionEngine - Meta-Evolution Engine
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::RecursiveSelfCoding - Recursive Self-Coding Engine
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::UtilityScorer - Scores graph subregions by reasoning density
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::CanaryDeployment - Canary deployment system for schema mutations
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::GNNKernel - Graph Neural Network Kernel for latent pattern discovery
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::SchemaDistiller - Schema Distillation Engine
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::AgentLearning - Represents a learning event from an agent
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::ConflictResolutionMode - How to resolve conflicts between agents
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::ConflictSuperposition - Stores disagreements between agents as probability distribut
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::Coordinator - Swarm Coordinator
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::DistributedIntuitionCache - Local intuition cache for agents
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::VectorPubSub - Vector Pub/Sub system using Redis
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestIntegration - Integration tests - all tiers together
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier1MemoryEvolution - Test Tier 1: Differentiable Memory
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier2SwarmSync - Test Tier 2: Swarm Synchronicity
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier3Governance - Test Tier 3: Meta-Cognitive Governance
+current_work/01-21-2026/governance.py::AutonomicSteering - Autonomic Resource Steering
+current_work/01-21-2026/governance.py::LeanVerifier - Lean theorem prover integration for formal verification
+current_work/01-21-2026/governance.py::MetaEvolutionEngine - Meta-Evolution Engine
+current_work/01-21-2026/governance.py::RecursiveSelfCoding - Recursive Self-Coding Engine
+current_work/01-21-2026/governance.py::UtilityScorer - Scores graph subregions by reasoning density
+current_work/01-21-2026/neural_substrate.py::CanaryDeployment - Canary deployment system for schema mutations
+current_work/01-21-2026/neural_substrate.py::GNNKernel - Graph Neural Network Kernel for latent pattern discovery
+current_work/01-21-2026/neural_substrate.py::SchemaDistiller - Schema Distillation Engine
+current_work/01-21-2026/swarm_sync.py::AgentLearning - Represents a learning event from an agent
+current_work/01-21-2026/swarm_sync.py::ConflictResolutionMode - How to resolve conflicts between agents
+current_work/01-21-2026/swarm_sync.py::ConflictSuperposition - Stores disagreements between agents as probability distribut
+current_work/01-21-2026/swarm_sync.py::Coordinator - Swarm Coordinator
+current_work/01-21-2026/swarm_sync.py::DistributedIntuitionCache - Local intuition cache for agents
+current_work/01-21-2026/swarm_sync.py::VectorPubSub - Vector Pub/Sub system using Redis
+current_work/Bayesian Upgrade/bayesian_kernel.py::BayesianKernel - Bayesian Reasoning Kernel for L9.
+current_work/Bayesian Upgrade/bayesian_kernel.py::BeliefState - Represents current belief about a variable.
+current_work/Bayesian Upgrade/bayesian_kernel.py::EvidenceStrength - Classification of evidence strength.
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::SubjectiveLogicAdapter - Adapter between Bayesian probabilities and Subjective Logic 
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::BayesianUncertainty - Complete Bayesian uncertainty quantification.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::DeepEnsemble - Deep ensemble for implicit Bayesian inference.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::TestModel - No docstring
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::GovernanceDecision - Result of governance evaluation
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::HybridInferenceKernel - Upgraded Universal Kernel with probabilistic reasoning.
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::CursorProbabilisticEngine - Lightweight probabilistic reasoning engine for Cursor govern
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::Evidence - Single piece of evidence for probabilistic inference
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::ProbabilisticAssessment - Complete assessment from probabilistic model
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::RiskLevel - Risk classification levels
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::SubjectiveLogic - Subjective logic decomposition (Trust/Disbelief/Uncertainty)
+current_work/Bayesian Upgrade/hypergraph.py::BayesianNode - Bayesian belief state tracking node.
+current_work/Bayesian Upgrade/hypergraph.py::Evidence - Evidence item with strength assessment.
+current_work/Bayesian Upgrade/hypergraph.py::HypergraphNode - Base node in L9 hypergraph (directed acyclic graph).
+current_work/Bayesian Upgrade/hypergraph.py::NodeStatus - Node execution status.
+current_work/Bayesian Upgrade/hypergraph.py::NodeTemplate - Template for creating nodes of specific types.
+current_work/Bayesian Upgrade/hypergraph.py::NodeType - Node type enumeration.
+current_work/Bayesian Upgrade/hypergraph.py::ReasoningNode - Reasoning step node in task graph.
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::AutoCalibrator - Autonomous calibration system - no manual intervention requi
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::CalibrationReport - Report generated from calibration run
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackCollector - Collects and processes user feedback on governance decisions
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackEvent - Single feedback event
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackType - Types of user feedback
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::CalibrationDashboard - Monitoring and visualization for probabilistic governance.
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::CalibrationMetrics - Calibration quality metrics
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ArtifactExtractor - Base class for extracting structured data from documents.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ConstraintExtractor - Extracts constraint definitions from documents.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::DocumentClassifier - Classifies documents based on schema hints.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::HeuristicExtractor - Extracts heuristic/judgment rules.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::L9Compiler - Main compiler that orchestrates the compilation process.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::PatternExtractor - Extracts architectural pattern definitions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ProtocolExtractor - Extracts protocol/workflow definitions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::Schema - Schema definition for artifact classification.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::SourceMetadata - Metadata about the source document.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::CACodeChange - Orchestrates code changes with full governance.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::ChangeProposal - A proposed code change with all metadata.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::ChangeStatus - Status of a proposed change.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ConstraintValidator - Validate changes against governance constraints.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ValidationResult - Result of constraint validation.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::Violation - Represents a constraint violation.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ViolationSeverity - Severity levels for constraint violations.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::BatchDiff - Represents diffs for multiple files.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::DiffGenerator - Generate diffs for code changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::FileDiff - Represents a diff for a single file.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ChangeReport - Structured report for code changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ChangeType - Types of code changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ReportGenerator - Generate reports for code changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::GovernanceIntegration - Unified governance integration for L9.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::ActionRegistry - Simple registry for executable actions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::ActionResult - Result of an action execution.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::AgentState - Canonical agent state structure (I-AGENT_STATE-001).
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::AgentStateManager - Manages agent state with persistence.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::ProactivityLevel - Agent proactivity levels.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::CandidateAction - A candidate action with predicted outcome.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::DecisionMode - Decision modes for the foresight engine.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::ForesightDecision - Result of foresight decision-making.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::ForesightEngine - Implements the Foresight Engine pattern.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::MemoryAdapter - Adapter to connect governance to existing memory substrate.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::ReflectionEngine - Implements the Reflection Loop protocol (P-REFLECT-001).
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::ReflectionResult - Result of reflecting on an action.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ConceptExtractor - Extracts concepts from files using aggressive pattern matchi
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ConceptYAML - Structured YAML representation of a concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ExtractedConcept - A concept extracted from a file.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::FileScanner - Scans directories and finds processable files.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::KnowledgeHarvester - Main orchestrator for knowledge harvesting.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::YAMLGenerator - Generates structured YAML from extracted concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::ConceptReview - Review status for a concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::QCDashboard - Interactive dashboard for concept review.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::ConceptSpec - Parsed concept specification.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::L9SpecGenerator - Generates PLAN_Vn specs for CA from concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::PlanSpec - PLAN_Vn specification for CA.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::ConceptSpec - Parsed concept specification.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::L9SpecGenerator - Generates PLAN_Vn specs for CA from concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::PlanSpec - PLAN_Vn specification for CA.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::ConceptSpec - Parsed concept specification.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::GenerationResult - Result of code generation.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::L9TextToCode - Main text-to-code generator.
+current_work/DONE/AUTOWIRING/auto_registry.py::AutoRegistry - Generic auto-discovery and registration system for L9 compon
+current_work/DONE/AUTOWIRING/auto_registry.py::ComponentNotFoundError - Raised when a requested component is not found in the regist
+current_work/DONE/AUTOWIRING/auto_registry.py::DuplicateRegistrationError - Raised when attempting to register a component with a duplic
+current_work/DONE/AUTOWIRING/auto_registry.py::RegistryError - Base exception for registry errors.
+current_work/DONE/AUTOWIRING/auto_registry.py::ValidationError - Raised when a component fails validation.
+current_work/DONE/AUTOWIRING/auto_registry/auto_registry.py::AutoDiscovery - Auto-discovery utilities for finding components by conventio
+current_work/DONE/AUTOWIRING/auto_registry/auto_registry.py::AutoRegistry - Generic auto-registry for L9 components.
+current_work/DONE/AUTOWIRING/auto_registry/auto_registry.py::ComponentMetadata - Metadata for auto-registered components.
+current_work/DONE/AUTOWIRING/auto_registry/moduleregistry.py::ModuleDefinition - No docstring
+current_work/DONE/AUTOWIRING/auto_registry/moduleregistry.py::ModuleRegistry - In-memory module registry (runtime truth).
+current_work/DONE/AUTOWIRING/auto_registry/moduleregistry.py::ModuleStatus - No docstring
+current_work/DONE/AUTOWIRING/auto_registry/registry.py::RouterDefinition - Definition for an auto-registered router.
+current_work/DONE/AUTOWIRING/auto_registry/registry.py::RouterRegistry - Auto-registry for FastAPI routers.
+current_work/DONE/AUTOWIRING/event_type_registry.py::EventTypeConfig - Configuration for an event type.
+current_work/DONE/AUTOWIRING/mcp_server_registry.py::MCPServerConfig - Configuration for an MCP server.
+current_work/DONE/AUTOWIRING/policy_registry.py::PolicySource - Configuration for a governance policy source.
+current_work/DONE/AUTOWIRING/singleton_auto_registry.py::SingletonServiceConfig - Configuration for a singleton service.
+current_work/DONE/AUTOWIRING/test_agent_registry.py::ArchitectAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::ArchitectAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::ArchitectAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::ArchitectAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::ArchitectAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::ArchitectAgentB - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::ArchitectAgentB - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::CoderAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::CoderAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::CoderAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::CoderAgentA - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::MyCustomAgent - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::QAAgent - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::ReflectionAgent - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::TestAgent - No docstring
+current_work/DONE/AUTOWIRING/test_agent_registry.py::TestArchitectAgent - No docstring
+current_work/DONE/AUTOWIRING/test_cell_registry.py::MyTestCell - No docstring
+current_work/DONE/AUTOWIRING/test_upcaster_registry.py::MockSchemaRegistry - No docstring
+current_work/DONE/AUTOWIRING/upcaster_registry.py::UpcasterConfig - Configuration for a schema upcaster.
+current_work/DONE/GMP Stage 1 - Tools/agent_instance.py::AgentInstance - Represents a running agent instance.
+current_work/DONE/GMP Stage 1 - Tools/capabilities.py::AgentCapabilities - Complete capability set for an agent.
+current_work/DONE/GMP Stage 1 - Tools/capabilities.py::Capability - Single capability for a tool.
+current_work/DONE/GMP Stage 1 - Tools/capabilities.py::ToolName - Enumeration of L9 tools that can be capability-gated.
+current_work/DONE/GMP Stage 1 - Tools/gmp_worker.py::GMPWorker - Worker for processing GMP runs.
+current_work/DONE/GMP Stage 1 - Tools/long_plan_graph.py::LongPlanState - State for long plan execution DAG.
+current_work/DONE/GMP Stage 1 - Tools/mcp_client.py::MCPClient - MCP client for connecting to MCP servers.
+current_work/DONE/GMP Stage 1 - Tools/mcp_client.py::ToolMeta - Metadata for an MCP tool.
+current_work/DONE/GMP Stage 1 - Tools/server.py::ChatRequest - No docstring
+current_work/DONE/GMP Stage 1 - Tools/server.py::ChatResponse - No docstring
+current_work/DONE/GMP Stage 1 - Tools/server.py::StubAIOSRuntime - Stub AIOS runtime - returns direct responses.
+current_work/DONE/GMP Stage 1 - Tools/server.py::StubAgentRegistry - Stub agent registry with default agent.
+current_work/DONE/GMP Stage 1 - Tools/server.py::StubToolRegistry - Stub tool registry - no tools available.
+current_work/DONE/GMP Stage 1 - Tools/tool_graph.py::ToolDefinition - Definition of a tool for graph registration.
+current_work/DONE/GMP Stage 1 - Tools/tool_graph.py::ToolGraph - Tool dependency graph backed by Neo4j.
+current_work/DONE/GMP Stage 2 - Tools & Memory/agent_instance.py::AgentInstance - Represents a running agent instance.
+current_work/DONE/GMP Stage 2 - Tools & Memory/approvals.py::ApprovalManager - Manages approval of high-risk tasks.
+current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py::AIOSRuntime - Protocol for AIOS runtime interface.
+current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py::AgentExecutorService - Service for executing agent tasks.
+current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py::AgentRegistryProtocol - Protocol for agent registry interface.
+current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py::SubstrateServiceProtocol - Protocol for memory substrate service interface.
+current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py::ToolRegistryProtocol - Protocol for tool registry interface.
+current_work/DONE/GMP Stage 2 - Tools & Memory/gmp_worker.py::GMPWorker - Worker for processing GMP runs.
+current_work/DONE/GMP Stage 2 - Tools & Memory/long_plan_graph.py::LongPlanState - State for long plan execution DAG.
+current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py::MCPClient - MCP client for connecting to MCP servers.
+current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py::ToolMeta - Metadata for an MCP tool.
+current_work/DONE/GMP Stage 2 - Tools & Memory/redis_client.py::RedisClient - Production Redis client with connection pooling.
+current_work/DONE/GMP Stage 2 - Tools & Memory/task_queue.py::QueuedTask - A task waiting in the queue.
+current_work/DONE/GMP Stage 2 - Tools & Memory/task_queue.py::TaskQueue - Production task queue with Redis backend and in-memory fallb
+current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py::MockAIOSRuntime - Contract-grade mock AIOS runtime.
+current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py::MockAgentRegistry - Mock agent registry for testing.
+current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py::MockSubstrateService - Contract-grade mock substrate service.
+current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py::MockToolRegistry - Contract-grade mock tool registry.
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_graph.py::ToolDefinition - Definition of a tool for graph registration.
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_graph.py::ToolGraph - Tool dependency graph backed by Neo4j.
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py::Config - No docstring
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py::Config - No docstring
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py::RateLimitWindow - Sliding window rate limiter.
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py::ToolMetadata - Metadata for a registered tool.
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py::ToolRegistry - In-memory registry of available tools.
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py::ToolSchema - JSON Schema for tool parameters (OpenAI function calling com
+current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py::ToolType - Types of available tools.
+current_work/DONE/GMP Stage 2 - Tools & Memory/websocket_orchestrator.py::WebSocketOrchestrator - Manages live WebSocket connections from L9 agents.
 current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py::AutonomyController - Manages autonomy level graduation and feature flag enforceme
 current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py::AutonomyGraduationMetrics - Tracks metrics for autonomy level graduation.
 current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py::AutonomyLevel - Graduated autonomy levels in GMP v2.0.
@@ -947,6 +1271,42 @@ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py::GMPExe
 current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py::GMPMetaLearningEngine - Processes GMP execution history to extract patterns and gene
 current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py::LearnedHeuristic - A heuristic pattern learned from prior executions.
 current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py::LearnedHeuristicDB - Stores learned heuristics in PostgreSQL.
+current_work/DONE/Observability/observability_aggregation.py::KPITracker - Tracks KPI history for trending and alerting.
+current_work/DONE/Observability/observability_aggregation.py::MetricsAggregator - Aggregates spans into SRE metrics and KPIs.
+current_work/DONE/Observability/observability_config.py::Config - No docstring
+current_work/DONE/Observability/observability_config.py::ObservabilitySettings - Central configuration for observability subsystem.
+current_work/DONE/Observability/observability_context_strategies.py::AdaptiveStrategySelector - Select optimal strategy based on task characteristics.
+current_work/DONE/Observability/observability_context_strategies.py::ContextStrategy - Base class for context window strategies.
+current_work/DONE/Observability/observability_context_strategies.py::HierarchicalSummarizationStrategy - Summarize older context, keep recent turns full (good for lo
+current_work/DONE/Observability/observability_context_strategies.py::HybridStrategy - Combine RAG + summarization + recency (best quality, highest
+current_work/DONE/Observability/observability_context_strategies.py::NaiveTruncationStrategy - Keep recent messages until budget exhausted (simple, lossy).
+current_work/DONE/Observability/observability_context_strategies.py::RAGStrategy - Retrieve relevant chunks from knowledge base (good for knowl
+current_work/DONE/Observability/observability_context_strategies.py::RecencyBiasedWindowStrategy - Prioritize recent messages with some historical anchors (rec
+current_work/DONE/Observability/observability_exporters.py::AsyncSpanExporter - Base class for async span exporters.
+current_work/DONE/Observability/observability_exporters.py::CompositeExporter - Export to multiple backends simultaneously.
+current_work/DONE/Observability/observability_exporters.py::ConsoleExporter - Export spans to console (stdout).
+current_work/DONE/Observability/observability_exporters.py::JSONFileExporter - Export spans to JSON Lines file.
+current_work/DONE/Observability/observability_exporters.py::SpanExporter - Abstract base class for span exporters.
+current_work/DONE/Observability/observability_exporters.py::SubstrateExporter - Export spans to L9 Memory Substrate.
+current_work/DONE/Observability/observability_failures.py::FailureDetector - Detects failures from spans and signals.
+current_work/DONE/Observability/observability_failures.py::RecoveryAction - Available recovery actions.
+current_work/DONE/Observability/observability_failures.py::RecoveryExecutor - Executes recovery actions for failures.
+current_work/DONE/Observability/observability_models.py::AgentKPI - Agent performance KPI.
+current_work/DONE/Observability/observability_models.py::AgentTrajectorySpan - Root span for complete agent task execution.
+current_work/DONE/Observability/observability_models.py::ContextAssemblySpan - Span for context window assembly.
+current_work/DONE/Observability/observability_models.py::FailureClass - Classification of failures.
+current_work/DONE/Observability/observability_models.py::FailureSignal - Signal indicating a failure event.
+current_work/DONE/Observability/observability_models.py::GovernanceCheckSpan - Span for governance policy check.
+current_work/DONE/Observability/observability_models.py::LLMGenerationSpan - Span for LLM generation.
+current_work/DONE/Observability/observability_models.py::RAGRetrievalSpan - Span for RAG retrieval.
+current_work/DONE/Observability/observability_models.py::RemediationAction - Action to remediate a failure.
+current_work/DONE/Observability/observability_models.py::SREMetric - SRE-level metric.
+current_work/DONE/Observability/observability_models.py::Span - Core span model.
+current_work/DONE/Observability/observability_models.py::SpanKind - Kind of span.
+current_work/DONE/Observability/observability_models.py::SpanStatus - Span execution status.
+current_work/DONE/Observability/observability_models.py::ToolCallSpan - Span for tool invocation.
+current_work/DONE/Observability/observability_models.py::TraceContext - W3C-compatible trace context.
+current_work/DONE/Observability/observability_service.py::ObservabilityService - Main service for observability subsystem.
 current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py::MemoryAPI - Public API for agents to read/write memory.
 current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py::Neo4jBackend - Neo4j backend for memory graph.
 current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py::PostgresBackend - PostgreSQL backend with pgvector for memory storage.
@@ -973,134 +1333,45 @@ current_work/DONE/Slack-Debug-2/server.py::LChatResponse - Response from L-CTO a
 current_work/DONE/Slack-Debug-2/server.py::StubAIOSRuntime - Stub AIOS runtime - returns direct responses.
 current_work/DONE/Slack-Debug-2/server.py::StubAgentRegistry - Stub agent registry with default agent.
 current_work/DONE/Slack-Debug-2/server.py::StubToolRegistry - Stub tool registry - no tools available.
-current_work/GMP Stage 1 - Tools/agent_instance.py::AgentInstance - Represents a running agent instance.
-current_work/GMP Stage 1 - Tools/capabilities.py::AgentCapabilities - Complete capability set for an agent.
-current_work/GMP Stage 1 - Tools/capabilities.py::Capability - Single capability for a tool.
-current_work/GMP Stage 1 - Tools/capabilities.py::ToolName - Enumeration of L9 tools that can be capability-gated.
-current_work/GMP Stage 1 - Tools/gmp_worker.py::GMPWorker - Worker for processing GMP runs.
-current_work/GMP Stage 1 - Tools/long_plan_graph.py::LongPlanState - State for long plan execution DAG.
-current_work/GMP Stage 1 - Tools/mcp_client.py::MCPClient - MCP client for connecting to MCP servers.
-current_work/GMP Stage 1 - Tools/mcp_client.py::ToolMeta - Metadata for an MCP tool.
-current_work/GMP Stage 1 - Tools/server.py::ChatRequest - No docstring
-current_work/GMP Stage 1 - Tools/server.py::ChatResponse - No docstring
-current_work/GMP Stage 1 - Tools/server.py::StubAIOSRuntime - Stub AIOS runtime - returns direct responses.
-current_work/GMP Stage 1 - Tools/server.py::StubAgentRegistry - Stub agent registry with default agent.
-current_work/GMP Stage 1 - Tools/server.py::StubToolRegistry - Stub tool registry - no tools available.
-current_work/GMP Stage 1 - Tools/tool_graph.py::ToolDefinition - Definition of a tool for graph registration.
-current_work/GMP Stage 1 - Tools/tool_graph.py::ToolGraph - Tool dependency graph backed by Neo4j.
-current_work/GMP Stage 2 - Tools & Memory/agent_instance.py::AgentInstance - Represents a running agent instance.
-current_work/GMP Stage 2 - Tools & Memory/approvals.py::ApprovalManager - Manages approval of high-risk tasks.
-current_work/GMP Stage 2 - Tools & Memory/executor.py::AIOSRuntime - Protocol for AIOS runtime interface.
-current_work/GMP Stage 2 - Tools & Memory/executor.py::AgentExecutorService - Service for executing agent tasks.
-current_work/GMP Stage 2 - Tools & Memory/executor.py::AgentRegistryProtocol - Protocol for agent registry interface.
-current_work/GMP Stage 2 - Tools & Memory/executor.py::SubstrateServiceProtocol - Protocol for memory substrate service interface.
-current_work/GMP Stage 2 - Tools & Memory/executor.py::ToolRegistryProtocol - Protocol for tool registry interface.
-current_work/GMP Stage 2 - Tools & Memory/gmp_worker.py::GMPWorker - Worker for processing GMP runs.
-current_work/GMP Stage 2 - Tools & Memory/long_plan_graph.py::LongPlanState - State for long plan execution DAG.
-current_work/GMP Stage 2 - Tools & Memory/mcp_client.py::MCPClient - MCP client for connecting to MCP servers.
-current_work/GMP Stage 2 - Tools & Memory/mcp_client.py::ToolMeta - Metadata for an MCP tool.
-current_work/GMP Stage 2 - Tools & Memory/redis_client.py::RedisClient - Production Redis client with connection pooling.
-current_work/GMP Stage 2 - Tools & Memory/task_queue.py::QueuedTask - A task waiting in the queue.
-current_work/GMP Stage 2 - Tools & Memory/task_queue.py::TaskQueue - Production task queue with Redis backend and in-memory fallb
-current_work/GMP Stage 2 - Tools & Memory/test_executor.py::MockAIOSRuntime - Contract-grade mock AIOS runtime.
-current_work/GMP Stage 2 - Tools & Memory/test_executor.py::MockAgentRegistry - Mock agent registry for testing.
-current_work/GMP Stage 2 - Tools & Memory/test_executor.py::MockSubstrateService - Contract-grade mock substrate service.
-current_work/GMP Stage 2 - Tools & Memory/test_executor.py::MockToolRegistry - Contract-grade mock tool registry.
-current_work/GMP Stage 2 - Tools & Memory/tool_graph.py::ToolDefinition - Definition of a tool for graph registration.
-current_work/GMP Stage 2 - Tools & Memory/tool_graph.py::ToolGraph - Tool dependency graph backed by Neo4j.
-current_work/GMP Stage 2 - Tools & Memory/tool_registry.py::Config - No docstring
-current_work/GMP Stage 2 - Tools & Memory/tool_registry.py::Config - No docstring
-current_work/GMP Stage 2 - Tools & Memory/tool_registry.py::RateLimitWindow - Sliding window rate limiter.
-current_work/GMP Stage 2 - Tools & Memory/tool_registry.py::ToolMetadata - Metadata for a registered tool.
-current_work/GMP Stage 2 - Tools & Memory/tool_registry.py::ToolRegistry - In-memory registry of available tools.
-current_work/GMP Stage 2 - Tools & Memory/tool_registry.py::ToolSchema - JSON Schema for tool parameters (OpenAI function calling com
-current_work/GMP Stage 2 - Tools & Memory/tool_registry.py::ToolType - Types of available tools.
-current_work/GMP Stage 2 - Tools & Memory/websocket_orchestrator.py::WebSocketOrchestrator - Manages live WebSocket connections from L9 agents.
-current_work/Observability/observability_aggregation.py::KPITracker - Tracks KPI history for trending and alerting.
-current_work/Observability/observability_aggregation.py::MetricsAggregator - Aggregates spans into SRE metrics and KPIs.
-current_work/Observability/observability_config.py::Config - No docstring
-current_work/Observability/observability_config.py::ObservabilitySettings - Central configuration for observability subsystem.
-current_work/Observability/observability_context_strategies.py::AdaptiveStrategySelector - Select optimal strategy based on task characteristics.
-current_work/Observability/observability_context_strategies.py::ContextStrategy - Base class for context window strategies.
-current_work/Observability/observability_context_strategies.py::HierarchicalSummarizationStrategy - Summarize older context, keep recent turns full (good for lo
-current_work/Observability/observability_context_strategies.py::HybridStrategy - Combine RAG + summarization + recency (best quality, highest
-current_work/Observability/observability_context_strategies.py::NaiveTruncationStrategy - Keep recent messages until budget exhausted (simple, lossy).
-current_work/Observability/observability_context_strategies.py::RAGStrategy - Retrieve relevant chunks from knowledge base (good for knowl
-current_work/Observability/observability_context_strategies.py::RecencyBiasedWindowStrategy - Prioritize recent messages with some historical anchors (rec
-current_work/Observability/observability_exporters.py::AsyncSpanExporter - Base class for async span exporters.
-current_work/Observability/observability_exporters.py::CompositeExporter - Export to multiple backends simultaneously.
-current_work/Observability/observability_exporters.py::ConsoleExporter - Export spans to console (stdout).
-current_work/Observability/observability_exporters.py::JSONFileExporter - Export spans to JSON Lines file.
-current_work/Observability/observability_exporters.py::SpanExporter - Abstract base class for span exporters.
-current_work/Observability/observability_exporters.py::SubstrateExporter - Export spans to L9 Memory Substrate.
-current_work/Observability/observability_failures.py::FailureDetector - Detects failures from spans and signals.
-current_work/Observability/observability_failures.py::RecoveryAction - Available recovery actions.
-current_work/Observability/observability_failures.py::RecoveryExecutor - Executes recovery actions for failures.
-current_work/Observability/observability_models.py::AgentKPI - Agent performance KPI.
-current_work/Observability/observability_models.py::AgentTrajectorySpan - Root span for complete agent task execution.
-current_work/Observability/observability_models.py::ContextAssemblySpan - Span for context window assembly.
-current_work/Observability/observability_models.py::FailureClass - Classification of failures.
-current_work/Observability/observability_models.py::FailureSignal - Signal indicating a failure event.
-current_work/Observability/observability_models.py::GovernanceCheckSpan - Span for governance policy check.
-current_work/Observability/observability_models.py::LLMGenerationSpan - Span for LLM generation.
-current_work/Observability/observability_models.py::RAGRetrievalSpan - Span for RAG retrieval.
-current_work/Observability/observability_models.py::RemediationAction - Action to remediate a failure.
-current_work/Observability/observability_models.py::SREMetric - SRE-level metric.
-current_work/Observability/observability_models.py::Span - Core span model.
-current_work/Observability/observability_models.py::SpanKind - Kind of span.
-current_work/Observability/observability_models.py::SpanStatus - Span execution status.
-current_work/Observability/observability_models.py::ToolCallSpan - Span for tool invocation.
-current_work/Observability/observability_models.py::TraceContext - W3C-compatible trace context.
-current_work/Observability/observability_service.py::ObservabilityService - Main service for observability subsystem.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_config.py::Config - Pydantic configuration.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_config.py::SymbolicComputationConfig - Configuration settings for symbolic computation.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py::CodeGenerator - Code generator for symbolic expressions.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py::ExpressionCache - Thread-safe expression cache using LRU strategy.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py::ExpressionEvaluator - High-performance symbolic expression evaluator.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py::SymbolicComputation - Main interface for symbolic computation operations.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::CacheError - Exception raised when cache operations fail.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::CodeGenerationError - Exception raised when code generation fails.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::EvaluationError - Exception raised when expression evaluation fails.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::SymbolicComputationError - Base exception for symbolic computation errors.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py::ValidationError - Exception raised when input validation fails.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_logger.py::StructuredLogger - Custom logger with structured JSON output.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::BackendType - Supported computational backends.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::CodeGenRequest - Request model for code generation.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::CodeGenResult - Result model for code generation.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::CodeLanguage - Supported code generation languages.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::ComputationRequest - Request model for symbolic computation.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py::ComputationResult - Result model for symbolic computation.
-current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_utils.py::ExpressionOptimizer - Advanced expression optimization utilities.
-current_work/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestCodeGenerator - Test CodeGenerator class.
-current_work/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestExpressionEvaluator - Test ExpressionEvaluator class.
-current_work/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestIntegration - Integration tests.
-current_work/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestModels - Test Pydantic models.
-current_work/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestPerformance - Performance tests.
-current_work/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestSymbolicComputation - Test SymbolicComputation main interface.
-current_work/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py::TestUtilities - Test utility functions.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/loader.py::WorldModelLoader - Loader for World Model specifications from YAML files.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/neo4j_substrate.py::Neo4jConfig - Neo4j connection config.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/neo4j_substrate.py::Neo4jSubstrate - Neo4j graph-native persistence layer for World Model.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/orchestrator.py::ConsistencyMode - Consistency guarantees.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/orchestrator.py::SubstrateOrchestrator - Orchestrates multi-layer persistence.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/postgres_substrate.py::PostgresConfig - PostgreSQL connection config.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/postgres_substrate.py::PostgresSubstrate - PostgreSQL-backed persistence layer for World Model.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/query_engine.py::QueryContext - Context for query execution.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/query_engine.py::QueryEngine - Executes declarative queries on World Model state.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/redis_substrate.py::RedisConfig - Redis connection config.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/redis_substrate.py::RedisSubstrate - Redis-backed cache layer for World Model.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/registry.py::WorldModelRegistry - Registry for World Model type definitions and schemas.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/state.py::WorldModelState - Central in-memory state container for the World Model.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestIntegration - End-to-end integration tests.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestOrchestration - Test multi-substrate orchestration (mock only).
-current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestQueries - Test query execution.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestStateUpdates - Test state mutation via updates.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestYAMLLoading - Test YAML specification loading.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/updater.py::UpdateOperation - Single update operation extracted from packet.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/updater.py::UpdateResult - Result of applying updates.
-current_work/WORLD_MODEL STUB IMPLEMENTATION/updater.py::WorldModelUpdater - Applies updates to World Model state.
-current_work/_memory routing pipeline audit - manus/substrate_dag_wrapper.py::SubstrateDagOrchestrator - Orchestrator for SubstrateDAG packet ingestion.
-current_work/memory routing pipeline audit - manus/substrate_dag_wrapper.py::SubstrateDagOrchestrator - Orchestrator for SubstrateDAG packet ingestion.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/loader.py::WorldModelLoader - Loader for World Model specifications from YAML files.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/neo4j_substrate.py::Neo4jConfig - Neo4j connection config.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/neo4j_substrate.py::Neo4jSubstrate - Neo4j graph-native persistence layer for World Model.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/orchestrator.py::ConsistencyMode - Consistency guarantees.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/orchestrator.py::SubstrateOrchestrator - Orchestrates multi-layer persistence.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/postgres_substrate.py::PostgresConfig - PostgreSQL connection config.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/postgres_substrate.py::PostgresSubstrate - PostgreSQL-backed persistence layer for World Model.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/query_engine.py::QueryContext - Context for query execution.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/query_engine.py::QueryEngine - Executes declarative queries on World Model state.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/redis_substrate.py::RedisConfig - Redis connection config.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/redis_substrate.py::RedisSubstrate - Redis-backed cache layer for World Model.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/registry.py::WorldModelRegistry - Registry for World Model type definitions and schemas.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/state.py::WorldModelState - Central in-memory state container for the World Model.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestIntegration - End-to-end integration tests.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestOrchestration - Test multi-substrate orchestration (mock only).
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestQueries - Test query execution.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestStateUpdates - Test state mutation via updates.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py::TestYAMLLoading - Test YAML specification loading.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py::UpdateOperation - Single update operation extracted from packet.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py::UpdateResult - Result of applying updates.
+current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py::WorldModelUpdater - Applies updates to World Model state.
+current_work/Neural-Symbolic Orchestration/governance.py::AutonomicSteering - Autonomic Resource Steering
+current_work/Neural-Symbolic Orchestration/governance.py::LeanVerifier - Lean theorem prover integration for formal verification
+current_work/Neural-Symbolic Orchestration/governance.py::MetaEvolutionEngine - Meta-Evolution Engine
+current_work/Neural-Symbolic Orchestration/governance.py::RecursiveSelfCoding - Recursive Self-Coding Engine
+current_work/Neural-Symbolic Orchestration/governance.py::UtilityScorer - Scores graph subregions by reasoning density
+current_work/Neural-Symbolic Orchestration/neural_substrate.py::CanaryDeployment - Canary deployment system for schema mutations
+current_work/Neural-Symbolic Orchestration/neural_substrate.py::GNNKernel - Graph Neural Network Kernel for latent pattern discovery
+current_work/Neural-Symbolic Orchestration/neural_substrate.py::SchemaDistiller - Schema Distillation Engine
+current_work/Neural-Symbolic Orchestration/swarm_sync.py::AgentLearning - Represents a learning event from an agent
+current_work/Neural-Symbolic Orchestration/swarm_sync.py::ConflictResolutionMode - How to resolve conflicts between agents
+current_work/Neural-Symbolic Orchestration/swarm_sync.py::ConflictSuperposition - Stores disagreements between agents as probability distribut
+current_work/Neural-Symbolic Orchestration/swarm_sync.py::Coordinator - Swarm Coordinator
+current_work/Neural-Symbolic Orchestration/swarm_sync.py::DistributedIntuitionCache - Local intuition cache for agents
+current_work/Neural-Symbolic Orchestration/swarm_sync.py::VectorPubSub - Vector Pub/Sub system using Redis
+current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py::TestIntegration - Integration tests - all tiers together
+current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py::TestTier1MemoryEvolution - Test Tier 1: Differentiable Memory
+current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py::TestTier2SwarmSync - Test Tier 2: Swarm Synchronicity
+current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py::TestTier3Governance - Test Tier 3: Meta-Cognitive Governance
 current_work/packetEnvelope - Phase 2-5/integration.py::PacketEnvelopeAdapter - Adapter layer for backward compatibility
 current_work/packetEnvelope - Phase 2-5/integration.py::PacketEnvelopeUpgradeEngine - Unified upgrade engine for PacketEnvelope
 current_work/packetEnvelope - Phase 2-5/integration.py::PacketEnvelopeUpgradePhase - Upgrade phase tracking
@@ -1155,6 +1426,11 @@ current_work/packetEnvelope - Phase 2-5/test_suite.py::TestPhase2Observability -
 current_work/packetEnvelope - Phase 2-5/test_suite.py::TestPhase3Standardization - Test Phase 3 CloudEvents standardization
 current_work/packetEnvelope - Phase 2-5/test_suite.py::TestPhase4Scalability - Test Phase 4 scalability features
 current_work/packetEnvelope - Phase 2-5/test_suite.py::TestPhase5Governance - Test Phase 5 governance features
+data/l9-phase0-to-6-execution.py::L9CodeGenerator - No docstring
+data/l9-phase0-to-6-execution.py::L9MasterExecutor - No docstring
+data/l9-phase0-to-6-execution.py::Phase0Lock - No docstring
+data/l9-phase0-to-pr-example.py::Phase0Orchestrator - Orchestrates Phase 0 TODO LOCK → Draft PR with CI-validated 
+data/l9-phase0-to-pr.py::Phase0Orchestrator - Orchestrates Phase 0 TODO LOCK → Draft PR with CI-validated 
 dev/tools/global_state_audit.py::GlobalStateVisitor - No docstring
 email_agent/config.py::AccountConfig - Configuration for a Gmail account.
 email_agent/gmail_client.py::GmailClient - Gmail API client wrapper with multi-account support.
@@ -1167,213 +1443,213 @@ email_agent/router.py::QueryRequest - Request model for email query.
 email_agent/router.py::ReplyRequest - Request model for replying to email.
 email_agent/router.py::SendRequest - Request model for sending email.
 graph_adapter/packet_node_adapter.py::PacketNodeAdapter - Wraps a node function, ensuring its input/output are logged 
-igor/01-07-2026/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreaker - Circuit breaker for memory batch operations.
-igor/01-07-2026/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreakerConfig - Configuration for circuit breaker.
-igor/01-07-2026/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreakerState - Circuit breaker states.
-igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py::DeriveType - Packet derivation type enumeration.
-igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py::PacketLineage - Lineage tracking for packet provenance.
-igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py::PacketValidationError - Raised when packet validation fails.
-igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py::PacketValidator - Validates PacketEnvelope V2.0 compliance.
-igor/01-07-2026/L9 Memory Substrate Audit/query_injection.py::QueryInjectionDetector - Detects and prevents query injection attempts.
-igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py::AlignmentReport - Report of cross-substrate alignment status.
-igor/01-07-2026/L9 Memory Substrate Audit/substrate_alignment.py::SubstrateAlignmentChecker - Checks alignment and referential integrity across memory sub
-igor/01-07-2026/L9 Memory Substrate Audit/test_memory_substrate_flow.py::TestMemoryEndToEnd - Integration tests for complete memory flow.
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/agent_q_strategy_selector.py::StrategySelector - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyFeedbackMetadata - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyFeedbackPayload - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyRequestMetadata - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyRequestPayload - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyResponseMetadata - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyResponsePayload - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::IStrategyMemoryService - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyCandidate - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyFeedback - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyMemoryService - No docstring
-igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyRetrievalRequest - No docstring
-igor/01-09-2025/tokenizer/core/tokenizer/assembler.py::AgendaAssembler - Assembles validated tasks into ordered agendas
-igor/01-09-2025/tokenizer/core/tokenizer/classifier.py::TaskClassifier - Classifies parsed tokens into tasks with proper routing
-igor/01-09-2025/tokenizer/core/tokenizer/task.py::Agenda - Collection of ordered tasks with metadata
-igor/01-09-2025/tokenizer/core/tokenizer/task.py::Task - Atomic task object - the fundamental unit of L9 task process
-igor/01-09-2025/tokenizer/core/tokenizer/task.py::TaskIntent - Task intent types
-igor/01-09-2025/tokenizer/core/tokenizer/task.py::TaskModule - Target modules for task routing
-igor/01-09-2025/tokenizer/core/tokenizer/task.py::TaskPriority - Task priority levels
-igor/01-09-2025/tokenizer/core/tokenizer/tokenizer.py::Tokenizer - Main tokenizer class - converts human input to validated tas
-igor/01-09-2025/tokenizer/core/tokenizer/validator.py::TaskValidator - Validates tasks to ensure they are complete, safe, and execu
-igor/audit-memory/api_memory_router.py::BatchRequest - Request model for batch packet ingestion.
-igor/audit-memory/api_memory_router.py::BatchResponse - Response model for batch operations.
-igor/audit-memory/api_memory_router.py::CompactResponse - Response model for compact operation.
-igor/audit-memory/api_memory_router.py::PacketRequest - Request model for packet ingestion.
-igor/audit-memory/api_memory_router.py::PacketResponse - Response model for packet ingestion.
-igor/audit-memory/config_memory_substrate_settings.py::Config - No docstring
-igor/audit-memory/config_memory_substrate_settings.py::MemorySubstrateSettings - Configuration for the Memory Substrate module.
-igor/audit-memory/core_schemas_event_stream.py::AgentHandshake - Agent handshake message for registration and capability decl
-igor/audit-memory/core_schemas_event_stream.py::CapabilityViolation - Capability enforcement violation event.
-igor/audit-memory/core_schemas_event_stream.py::HandshakeResponse - Response to an agent handshake.
-igor/audit-memory/core_schemas_event_stream.py::HandshakeStatus - Status of agent handshake.
-igor/audit-memory/core_schemas_event_stream.py::SecurityEvent - Security audit log event.
-igor/audit-memory/core_schemas_event_stream.py::SecurityEventType - Types of security events.
-igor/audit-memory/core_schemas_packet_envelope.py::PacketConfidence - Confidence score and rationale for a packet.
-igor/audit-memory/core_schemas_packet_envelope.py::PacketEnvelope - Canonical event container used by the Memory Substrate.
-igor/audit-memory/core_schemas_packet_envelope.py::PacketEnvelopeIn - Input structure used for writes.
-igor/audit-memory/core_schemas_packet_envelope.py::PacketKind - Kind of packet for routing/classification.
-igor/audit-memory/core_schemas_packet_envelope.py::PacketMetadata - Metadata attached to a packet envelope.
-igor/audit-memory/core_schemas_packet_envelope.py::PacketProvenance - Provenance information for packet traceability.
-igor/audit-memory/core_schemas_packet_envelope.py::PacketWriteResult - Returned after DAG processing for a packet write.
-igor/audit-memory/core_schemas_packet_envelope.py::SemanticHit - Single semantic search result.
-igor/audit-memory/core_schemas_packet_envelope.py::SemanticSearchRequest - Request to search semantic memory.
-igor/audit-memory/core_schemas_packet_envelope.py::SemanticSearchResult - Top-k semantic hits.
-igor/audit-memory/core_schemas_packet_envelope.py::SimpleContent - Simple text content wrapper.
-igor/audit-memory/core_schemas_packet_envelope.py::StructuredReasoningBlock - Structured reasoning output from LLM.
-igor/audit-memory/core_schemas_packet_envelope.py::TokenUsage - Token usage tracking for LLM calls.
-igor/audit-memory/core_schemas_tests_test_packet_envelope.py::TestConfidenceValidation - Test confidence score validation.
-igor/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketEnvelopeImmutability - Test that PacketEnvelope is immutable (frozen).
-igor/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketEnvelopeIn - Test PacketEnvelopeIn input model.
-igor/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketEnvelopeOptional - Test optional fields.
-igor/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketEnvelopeRequired - Test required fields.
-igor/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketWriteResult - Test PacketWriteResult model.
-igor/audit-memory/core_schemas_tests_test_packet_envelope.py::TestSemanticSearch - Test semantic search models.
-igor/audit-memory/core_schemas_ws_event_stream.py::AgentHeartbeat - Periodic heartbeat message from connected agents.
-igor/audit-memory/core_schemas_ws_event_stream.py::ErrorEvent - Error reporting structure for WebSocket communication.
-igor/audit-memory/core_schemas_ws_event_stream.py::EventMessage - Canonical event structure for L9's internal EventStream.
-igor/audit-memory/core_schemas_ws_event_stream.py::EventType - High-level event categories for WebSocket communication.
-igor/audit-memory/mcp_memory_src_config.py::Config - No docstring
-igor/audit-memory/mcp_memory_src_config.py::Settings - No docstring
-igor/audit-memory/mcp_memory_src_main.py::CallerIdentity - Caller identity determined from API key.
-igor/audit-memory/mcp_memory_src_mcp_server.py::MCPTool - No docstring
-igor/audit-memory/mcp_memory_src_mcp_server.py::MCPToolCall - No docstring
-igor/audit-memory/mcp_memory_src_models.py::CompoundResult - No docstring
-igor/audit-memory/mcp_memory_src_models.py::ContextInjectionRequest - Request for auto context injection before a task.
-igor/audit-memory/mcp_memory_src_models.py::ContextInjectionResponse - Context memories to inject into system prompt.
-igor/audit-memory/mcp_memory_src_models.py::MemoryResponse - No docstring
-igor/audit-memory/mcp_memory_src_models.py::MemoryStatsResponse - No docstring
-igor/audit-memory/mcp_memory_src_models.py::ProactiveRecallRequest - Request for proactive memory suggestions based on patterns.
-igor/audit-memory/mcp_memory_src_models.py::ProactiveRecallResponse - Proactive suggestions surfaced from memory.
-igor/audit-memory/mcp_memory_src_models.py::SaveMemoryRequest - No docstring
-igor/audit-memory/mcp_memory_src_models.py::SaveMemoryWithConfidenceRequest - Save memory with explicit confidence scoring.
-igor/audit-memory/mcp_memory_src_models.py::SearchMemoryRequest - No docstring
-igor/audit-memory/mcp_memory_src_models.py::SearchMemoryResponse - No docstring
-igor/audit-memory/mcp_memory_src_models.py::SessionLearningRequest - Request to extract learnings from a session.
-igor/audit-memory/mcp_memory_src_models.py::SessionLearningResponse - Learnings extracted and stored from session.
-igor/audit-memory/mcp_memory_src_models.py::TemporalQueryRequest - Request for temporal memory queries.
-igor/audit-memory/mcp_memory_src_models.py::TemporalQueryResponse - Temporal query results showing memory evolution.
-igor/audit-memory/memory_checkpoint_manager.py::CheckpointManager - Simple manager for saving/loading checkpoints per agent.
-igor/audit-memory/memory_extractor_agent_config_extractor.py::AgentConfigExtractor - Extracts agent configuration (preferences, SOPs, roles).
-igor/audit-memory/memory_extractor_base_extractor.py::BaseExtractor - Base class for all extractors.
-igor/audit-memory/memory_extractor_code_extractor.py::CodeExtractor - Extracts code files from chat logs.
-igor/audit-memory/memory_extractor_cursor_action_extractor.py::CursorActionExtractor - Extracts and reconstructs all files from chat history.
-igor/audit-memory/memory_extractor_memory_extractor.py::MemoryExtractor - Extracts structured memory for Supabase.
-igor/audit-memory/memory_extractor_module_schema_extractor.py::ModuleSchemaExtractor - Extracts L9 module schema definitions.
-igor/audit-memory/memory_governance_patterns.py::DecisionType - Type of governance decision.
-igor/audit-memory/memory_governance_patterns.py::GovernancePattern - A governance pattern capturing Igor's approval/rejection dec
-igor/audit-memory/memory_graph_client.py::Neo4jClient - Production Neo4j client with connection management.
-igor/audit-memory/memory_housekeeping.py::HousekeepingEngine - Memory housekeeping engine for garbage collection and hygien
-igor/audit-memory/memory_index_syncer.py::IndexSyncer - Lightweight index/extension checker.
-igor/audit-memory/memory_ingestion.py::IngestionPipeline - PacketEnvelope ingestion pipeline.
-igor/audit-memory/memory_insight_extraction.py::InsightExtractionPipeline - Heuristic insight extraction from packet content.
-igor/audit-memory/memory_migration_runner.py::MigrationRunner - Runs database migrations automatically and idempotently.
-igor/audit-memory/memory_retrieval.py::RetrievalPipeline - Memory retrieval pipeline with hybrid search capabilities.
-igor/audit-memory/memory_state_manager.py::MemoryStateManager - High-level state manager for agent / graph state.
-igor/audit-memory/memory_substrate_graph.py::SubstrateDAG - Wrapper for executing the substrate DAG with injected depend
-igor/audit-memory/memory_substrate_graph.py::SubstrateGraphState - State passed through the LangGraph DAG.
-igor/audit-memory/memory_substrate_models.py::AgentMemoryEventRow - DTO for agent_memory_events table.
-igor/audit-memory/memory_substrate_models.py::Config - No docstring
-igor/audit-memory/memory_substrate_models.py::ExtractedInsight - An insight extracted from packet reasoning.
-igor/audit-memory/memory_substrate_models.py::GraphCheckpointRow - DTO for graph_checkpoints table.
-igor/audit-memory/memory_substrate_models.py::KnowledgeFact - A knowledge fact extracted from packet processing.
-igor/audit-memory/memory_substrate_models.py::KnowledgeFactRow - DTO for knowledge_facts table.
-igor/audit-memory/memory_substrate_models.py::PacketConfidence - Confidence score and rationale for a packet.
-igor/audit-memory/memory_substrate_models.py::PacketEnvelope - Canonical envelope for substrate writes and reasoning traces
-igor/audit-memory/memory_substrate_models.py::PacketEnvelopeIn - Input model for packet submission (allows partial fields).
-igor/audit-memory/memory_substrate_models.py::PacketLineage - Lineage information for packet genealogy tracking (v1.1.0).
-igor/audit-memory/memory_substrate_models.py::PacketMetadata - Metadata attached to a packet envelope.
-igor/audit-memory/memory_substrate_models.py::PacketProvenance - Provenance information for packet traceability.
-igor/audit-memory/memory_substrate_models.py::PacketStoreRow - DTO for packet_store table (v1.1.0 extended).
-igor/audit-memory/memory_substrate_models.py::PacketWriteResult - Result of writing a PacketEnvelope.
-igor/audit-memory/memory_substrate_models.py::ReasoningTraceRow - DTO for reasoning_traces table.
-igor/audit-memory/memory_substrate_models.py::SemanticHit - Single semantic search result.
-igor/audit-memory/memory_substrate_models.py::SemanticMemoryRow - DTO for semantic_memory table.
-igor/audit-memory/memory_substrate_models.py::SemanticSearchRequest - Request to search semantic memory.
-igor/audit-memory/memory_substrate_models.py::SemanticSearchResult - Top-k semantic hits.
-igor/audit-memory/memory_substrate_models.py::StructuredReasoningBlock - Structured reasoning block for capturing inference traces.
-igor/audit-memory/memory_substrate_models.py::SubstrateState - State object passed through the LangGraph DAG.
-igor/audit-memory/memory_substrate_repository.py::SubstrateRepository - Repository for memory substrate database operations.
-igor/audit-memory/memory_substrate_semantic.py::EmbeddingProvider - Abstract base class for embedding providers.
-igor/audit-memory/memory_substrate_semantic.py::OpenAIEmbeddingProvider - OpenAI embedding provider using text-embedding-3-large.
-igor/audit-memory/memory_substrate_semantic.py::SemanticService - Service for semantic operations on the memory substrate.
-igor/audit-memory/memory_substrate_semantic.py::StubEmbeddingProvider - Stub embedding provider for testing without API calls.
-igor/audit-memory/memory_substrate_service.py::MemorySubstrateService - Main service class for the Memory Substrate.
-igor/audit-memory/memory_timeline_service.py::TimelineService - Read-only service for reconstructing an agent's memory timel
-igor/audit-memory/memory_validators_packet_validator.py::PacketValidationError - Raised when a packet fails custom validation.
-igor/audit-memory/memory_validators_packet_validator.py::PacketValidator - Static helpers for validating PacketEnvelopeIn instances.
-igor/audit-memory/orchestrators_memory_housekeeping.py::Housekeeping - Housekeeping for Memory Orchestrator.
-igor/audit-memory/orchestrators_memory_interface.py::IMemoryOrchestrator - Interface for Memory Orchestrator.
-igor/audit-memory/orchestrators_memory_interface.py::MemoryOperation - Memory operation types.
-igor/audit-memory/orchestrators_memory_interface.py::MemoryRequest - Request to memory orchestrator.
-igor/audit-memory/orchestrators_memory_interface.py::MemoryResponse - Response from memory orchestrator.
-igor/audit-memory/orchestrators_memory_orchestrator.py::MemoryOrchestrator - Memory Orchestrator implementation.
-igor/audit-memory/tests_memory_test_memory_adapter_basic.py::FakeResponse - Fake httpx response for testing.
-igor/audit-memory/tests_memory_test_packet_envelope.py::TestPacketEnvelopeRoundtrip - No docstring
-igor/audit-memory/tests_mocks_memory_mocks.py::MockBlobStore - Mock blob storage for large content.
-igor/audit-memory/tests_mocks_memory_mocks.py::MockMemoryAdapter - Mock Memory Adapter for testing.
-igor/audit-memory/tests_mocks_memory_mocks.py::MockPostgresCursor - Mock PostgreSQL cursor for testing.
-igor/audit-tools/Current Config/agents_l_cto.py::LCTOAgent - L - The CTO Agent for Igor.
-igor/audit-tools/Current Config/runtime_kernel_loader.py::KernelAwareAgent - Protocol for agents that can absorb kernels.
-igor/audit-tools/Current Config/runtime_kernel_loader.py::KernelStack - Lightweight context object for the 10-kernel stack.
-igor/audit-tools/api_tools_router.py::ToolExecuteRequest - Request model for tool execution.
-igor/audit-tools/api_tools_router.py::ToolExecuteResponse - Response model for tool execution.
-igor/audit-tools/core_schemas_capabilities.py::AgentCapabilities - Complete capability set for an agent.
-igor/audit-tools/core_schemas_capabilities.py::Capability - Single capability for a tool.
-igor/audit-tools/core_schemas_capabilities.py::ToolName - Enumeration of L9 tools that can be capability-gated.
-igor/audit-tools/core_schemas_l_tools.py::GMPRunInput - Input schema for GMP run tool (high-risk, requires approval)
-igor/audit-tools/core_schemas_l_tools.py::GitCommitInput - Input schema for git commit tool (high-risk, requires approv
-igor/audit-tools/core_schemas_l_tools.py::KernelReadInput - Input schema for kernel read.
-igor/audit-tools/core_schemas_l_tools.py::MCPCallToolInput - Input schema for MCP tool call.
-igor/audit-tools/core_schemas_l_tools.py::MacAgentExecInput - Input schema for Mac agent execution (high-risk, requires ap
-igor/audit-tools/core_schemas_l_tools.py::MemorySearchInput - Input schema for memory search tool.
-igor/audit-tools/core_schemas_l_tools.py::MemoryWriteInput - Input schema for memory write tool.
-igor/audit-tools/core_schemas_l_tools.py::WorldModelQueryInput - Input schema for world model query.
-igor/audit-tools/core_tools_registry_adapter.py::ExecutorToolRegistry - Tool registry adapter for AgentExecutorService.
-igor/audit-tools/core_tools_registry_adapter.py::RiskLevel - Risk levels for tools.
-igor/audit-tools/core_tools_registry_adapter.py::ToolExecutor - Protocol for tool executors.
-igor/audit-tools/core_tools_symbolic_tool.py::SymbolicComputationTool - L9 Tool wrapper for symbolic computation.
-igor/audit-tools/core_tools_tool_graph.py::ToolDefinition - Definition of a tool for graph registration.
-igor/audit-tools/core_tools_tool_graph.py::ToolGraph - Tool dependency graph backed by Neo4j.
-igor/audit-tools/orchestrators_action_tool_interface.py::ActionToolRequest - Request to action_tool orchestrator.
-igor/audit-tools/orchestrators_action_tool_interface.py::ActionToolResponse - Response from action_tool orchestrator.
-igor/audit-tools/orchestrators_action_tool_interface.py::IActionToolOrchestrator - Interface for ActionTool Orchestrator.
-igor/audit-tools/orchestrators_action_tool_interface.py::ToolSafetyLevel - Tool safety levels.
-igor/audit-tools/orchestrators_action_tool_orchestrator.py::ActionToolOrchestrator - ActionTool Orchestrator implementation.
-igor/audit-tools/orchestrators_action_tool_validator.py::ValidationResult - Result of tool validation.
-igor/audit-tools/orchestrators_action_tool_validator.py::Validator - Validator for ActionTool Orchestrator.
-igor/audit-tools/services_research_tools_perplexity_client.py::PerplexityClient - Production Perplexity API client.
-igor/audit-tools/services_research_tools_perplexity_client.py::PerplexityModel - Available Perplexity models with use cases.
-igor/audit-tools/services_research_tools_perplexity_client.py::PerplexityRequest - Structured Perplexity API request.
-igor/audit-tools/services_research_tools_perplexity_client.py::PerplexityResponse - Structured Perplexity API response.
-igor/audit-tools/services_research_tools_perplexity_client.py::SearchContextSize - Search context size - controls how much web content is retri
-igor/audit-tools/services_research_tools_tool_registry.py::Config - No docstring
-igor/audit-tools/services_research_tools_tool_registry.py::Config - No docstring
-igor/audit-tools/services_research_tools_tool_registry.py::RateLimitWindow - Sliding window rate limiter.
-igor/audit-tools/services_research_tools_tool_registry.py::ToolMetadata - Metadata for a registered tool.
-igor/audit-tools/services_research_tools_tool_registry.py::ToolRegistry - In-memory registry of available tools.
-igor/audit-tools/services_research_tools_tool_registry.py::ToolSchema - JSON Schema for tool parameters (OpenAI function calling com
-igor/audit-tools/services_research_tools_tool_registry.py::ToolType - Types of available tools.
-igor/audit-tools/services_research_tools_tool_resolver.py::ToolResolver - Tool resolver with RBAC and rate limiting.
-igor/audit-tools/services_research_tools_tool_wrappers.py::BaseTool - Base class for all tools.
-igor/audit-tools/services_research_tools_tool_wrappers.py::HTTPTool - Generic HTTP request tool.
-igor/audit-tools/services_research_tools_tool_wrappers.py::MockSearchTool - Mock search tool for testing.
-igor/audit-tools/services_research_tools_tool_wrappers.py::PerplexityTool - Perplexity AI search tool.
-igor/audit-tools/services_symbolic_computation_tools_symbolic_tool.py::SymPyTool - L9 Agent Tool for symbolic computation.
-igor/audit-tools/tests_integration_test_research_tool_integration.py::TestResearchToolIntegration - Test research graph to tool execution integration.
-igor/audit-tools/tests_orchestrators_test_action_tool_orchestrator.py::TestActionToolOrchestrator - Tests for ActionToolOrchestrator.
-igor/audit-tools/tests_test_tool_registry.py::TestDefaultTools - Tests for default tool initialization.
-igor/audit-tools/tests_test_tool_registry.py::TestToolMetadata - Tests for ToolMetadata model.
-igor/audit-tools/tests_test_tool_registry.py::TestToolRegistry - Tests for ToolRegistry class.
-igor/audit-tools/tests_test_tool_registry.py::TestToolResolver - Tests for ToolResolver class.
-igor/audit-tools/tools_cursor_client.py::CursorClient - Client for Cursor remote API.
-igor/audit-tools/tools_mac_protocol.py::Config - No docstring
-igor/audit-tools/tools_mac_protocol.py::Config - No docstring
-igor/audit-tools/tools_mac_protocol.py::MacMessage - Mac protocol message schema.
-igor/audit-tools/tools_mac_protocol.py::MacResponse - Mac protocol response schema.
+igor/DONE!/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreaker - Circuit breaker for memory batch operations.
+igor/DONE!/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreakerConfig - Configuration for circuit breaker.
+igor/DONE!/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreakerState - Circuit breaker states.
+igor/DONE!/L9 Memory Substrate Audit/packet_validator.py::DeriveType - Packet derivation type enumeration.
+igor/DONE!/L9 Memory Substrate Audit/packet_validator.py::PacketLineage - Lineage tracking for packet provenance.
+igor/DONE!/L9 Memory Substrate Audit/packet_validator.py::PacketValidationError - Raised when packet validation fails.
+igor/DONE!/L9 Memory Substrate Audit/packet_validator.py::PacketValidator - Validates PacketEnvelope V2.0 compliance.
+igor/DONE!/L9 Memory Substrate Audit/query_injection.py::QueryInjectionDetector - Detects and prevents query injection attempts.
+igor/DONE!/L9 Memory Substrate Audit/substrate_alignment.py::AlignmentReport - Report of cross-substrate alignment status.
+igor/DONE!/L9 Memory Substrate Audit/substrate_alignment.py::SubstrateAlignmentChecker - Checks alignment and referential integrity across memory sub
+igor/DONE!/L9 Memory Substrate Audit/test_memory_substrate_flow.py::TestMemoryEndToEnd - Integration tests for complete memory flow.
+igor/DONE!/Memory - Strategic Memory/Harvested Files/agent_q_strategy_selector.py::StrategySelector - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyFeedbackMetadata - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyFeedbackPayload - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyRequestMetadata - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyRequestPayload - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyResponseMetadata - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py::StrategyResponsePayload - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::IStrategyMemoryService - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyCandidate - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyFeedback - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyMemoryService - No docstring
+igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py::StrategyRetrievalRequest - No docstring
+igor/DONE!/audit-memory/api_memory_router.py::BatchRequest - Request model for batch packet ingestion.
+igor/DONE!/audit-memory/api_memory_router.py::BatchResponse - Response model for batch operations.
+igor/DONE!/audit-memory/api_memory_router.py::CompactResponse - Response model for compact operation.
+igor/DONE!/audit-memory/api_memory_router.py::PacketRequest - Request model for packet ingestion.
+igor/DONE!/audit-memory/api_memory_router.py::PacketResponse - Response model for packet ingestion.
+igor/DONE!/audit-memory/config_memory_substrate_settings.py::Config - No docstring
+igor/DONE!/audit-memory/config_memory_substrate_settings.py::MemorySubstrateSettings - Configuration for the Memory Substrate module.
+igor/DONE!/audit-memory/core_schemas_event_stream.py::AgentHandshake - Agent handshake message for registration and capability decl
+igor/DONE!/audit-memory/core_schemas_event_stream.py::CapabilityViolation - Capability enforcement violation event.
+igor/DONE!/audit-memory/core_schemas_event_stream.py::HandshakeResponse - Response to an agent handshake.
+igor/DONE!/audit-memory/core_schemas_event_stream.py::HandshakeStatus - Status of agent handshake.
+igor/DONE!/audit-memory/core_schemas_event_stream.py::SecurityEvent - Security audit log event.
+igor/DONE!/audit-memory/core_schemas_event_stream.py::SecurityEventType - Types of security events.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::PacketConfidence - Confidence score and rationale for a packet.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::PacketEnvelope - Canonical event container used by the Memory Substrate.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::PacketEnvelopeIn - Input structure used for writes.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::PacketKind - Kind of packet for routing/classification.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::PacketMetadata - Metadata attached to a packet envelope.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::PacketProvenance - Provenance information for packet traceability.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::PacketWriteResult - Returned after DAG processing for a packet write.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::SemanticHit - Single semantic search result.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::SemanticSearchRequest - Request to search semantic memory.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::SemanticSearchResult - Top-k semantic hits.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::SimpleContent - Simple text content wrapper.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::StructuredReasoningBlock - Structured reasoning output from LLM.
+igor/DONE!/audit-memory/core_schemas_packet_envelope.py::TokenUsage - Token usage tracking for LLM calls.
+igor/DONE!/audit-memory/core_schemas_tests_test_packet_envelope.py::TestConfidenceValidation - Test confidence score validation.
+igor/DONE!/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketEnvelopeImmutability - Test that PacketEnvelope is immutable (frozen).
+igor/DONE!/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketEnvelopeIn - Test PacketEnvelopeIn input model.
+igor/DONE!/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketEnvelopeOptional - Test optional fields.
+igor/DONE!/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketEnvelopeRequired - Test required fields.
+igor/DONE!/audit-memory/core_schemas_tests_test_packet_envelope.py::TestPacketWriteResult - Test PacketWriteResult model.
+igor/DONE!/audit-memory/core_schemas_tests_test_packet_envelope.py::TestSemanticSearch - Test semantic search models.
+igor/DONE!/audit-memory/core_schemas_ws_event_stream.py::AgentHeartbeat - Periodic heartbeat message from connected agents.
+igor/DONE!/audit-memory/core_schemas_ws_event_stream.py::ErrorEvent - Error reporting structure for WebSocket communication.
+igor/DONE!/audit-memory/core_schemas_ws_event_stream.py::EventMessage - Canonical event structure for L9's internal EventStream.
+igor/DONE!/audit-memory/core_schemas_ws_event_stream.py::EventType - High-level event categories for WebSocket communication.
+igor/DONE!/audit-memory/mcp_memory_src_config.py::Config - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_config.py::Settings - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_main.py::CallerIdentity - Caller identity determined from API key.
+igor/DONE!/audit-memory/mcp_memory_src_mcp_server.py::MCPTool - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_mcp_server.py::MCPToolCall - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_models.py::CompoundResult - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_models.py::ContextInjectionRequest - Request for auto context injection before a task.
+igor/DONE!/audit-memory/mcp_memory_src_models.py::ContextInjectionResponse - Context memories to inject into system prompt.
+igor/DONE!/audit-memory/mcp_memory_src_models.py::MemoryResponse - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_models.py::MemoryStatsResponse - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_models.py::ProactiveRecallRequest - Request for proactive memory suggestions based on patterns.
+igor/DONE!/audit-memory/mcp_memory_src_models.py::ProactiveRecallResponse - Proactive suggestions surfaced from memory.
+igor/DONE!/audit-memory/mcp_memory_src_models.py::SaveMemoryRequest - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_models.py::SaveMemoryWithConfidenceRequest - Save memory with explicit confidence scoring.
+igor/DONE!/audit-memory/mcp_memory_src_models.py::SearchMemoryRequest - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_models.py::SearchMemoryResponse - No docstring
+igor/DONE!/audit-memory/mcp_memory_src_models.py::SessionLearningRequest - Request to extract learnings from a session.
+igor/DONE!/audit-memory/mcp_memory_src_models.py::SessionLearningResponse - Learnings extracted and stored from session.
+igor/DONE!/audit-memory/mcp_memory_src_models.py::TemporalQueryRequest - Request for temporal memory queries.
+igor/DONE!/audit-memory/mcp_memory_src_models.py::TemporalQueryResponse - Temporal query results showing memory evolution.
+igor/DONE!/audit-memory/memory_checkpoint_manager.py::CheckpointManager - Simple manager for saving/loading checkpoints per agent.
+igor/DONE!/audit-memory/memory_extractor_agent_config_extractor.py::AgentConfigExtractor - Extracts agent configuration (preferences, SOPs, roles).
+igor/DONE!/audit-memory/memory_extractor_base_extractor.py::BaseExtractor - Base class for all extractors.
+igor/DONE!/audit-memory/memory_extractor_code_extractor.py::CodeExtractor - Extracts code files from chat logs.
+igor/DONE!/audit-memory/memory_extractor_cursor_action_extractor.py::CursorActionExtractor - Extracts and reconstructs all files from chat history.
+igor/DONE!/audit-memory/memory_extractor_memory_extractor.py::MemoryExtractor - Extracts structured memory for Supabase.
+igor/DONE!/audit-memory/memory_extractor_module_schema_extractor.py::ModuleSchemaExtractor - Extracts L9 module schema definitions.
+igor/DONE!/audit-memory/memory_governance_patterns.py::DecisionType - Type of governance decision.
+igor/DONE!/audit-memory/memory_governance_patterns.py::GovernancePattern - A governance pattern capturing Igor's approval/rejection dec
+igor/DONE!/audit-memory/memory_graph_client.py::Neo4jClient - Production Neo4j client with connection management.
+igor/DONE!/audit-memory/memory_housekeeping.py::HousekeepingEngine - Memory housekeeping engine for garbage collection and hygien
+igor/DONE!/audit-memory/memory_index_syncer.py::IndexSyncer - Lightweight index/extension checker.
+igor/DONE!/audit-memory/memory_ingestion.py::IngestionPipeline - PacketEnvelope ingestion pipeline.
+igor/DONE!/audit-memory/memory_insight_extraction.py::InsightExtractionPipeline - Heuristic insight extraction from packet content.
+igor/DONE!/audit-memory/memory_migration_runner.py::MigrationRunner - Runs database migrations automatically and idempotently.
+igor/DONE!/audit-memory/memory_retrieval.py::RetrievalPipeline - Memory retrieval pipeline with hybrid search capabilities.
+igor/DONE!/audit-memory/memory_state_manager.py::MemoryStateManager - High-level state manager for agent / graph state.
+igor/DONE!/audit-memory/memory_substrate_graph.py::SubstrateDAG - Wrapper for executing the substrate DAG with injected depend
+igor/DONE!/audit-memory/memory_substrate_graph.py::SubstrateGraphState - State passed through the LangGraph DAG.
+igor/DONE!/audit-memory/memory_substrate_models.py::AgentMemoryEventRow - DTO for agent_memory_events table.
+igor/DONE!/audit-memory/memory_substrate_models.py::Config - No docstring
+igor/DONE!/audit-memory/memory_substrate_models.py::ExtractedInsight - An insight extracted from packet reasoning.
+igor/DONE!/audit-memory/memory_substrate_models.py::GraphCheckpointRow - DTO for graph_checkpoints table.
+igor/DONE!/audit-memory/memory_substrate_models.py::KnowledgeFact - A knowledge fact extracted from packet processing.
+igor/DONE!/audit-memory/memory_substrate_models.py::KnowledgeFactRow - DTO for knowledge_facts table.
+igor/DONE!/audit-memory/memory_substrate_models.py::PacketConfidence - Confidence score and rationale for a packet.
+igor/DONE!/audit-memory/memory_substrate_models.py::PacketEnvelope - Canonical envelope for substrate writes and reasoning traces
+igor/DONE!/audit-memory/memory_substrate_models.py::PacketEnvelopeIn - Input model for packet submission (allows partial fields).
+igor/DONE!/audit-memory/memory_substrate_models.py::PacketLineage - Lineage information for packet genealogy tracking (v1.1.0).
+igor/DONE!/audit-memory/memory_substrate_models.py::PacketMetadata - Metadata attached to a packet envelope.
+igor/DONE!/audit-memory/memory_substrate_models.py::PacketProvenance - Provenance information for packet traceability.
+igor/DONE!/audit-memory/memory_substrate_models.py::PacketStoreRow - DTO for packet_store table (v1.1.0 extended).
+igor/DONE!/audit-memory/memory_substrate_models.py::PacketWriteResult - Result of writing a PacketEnvelope.
+igor/DONE!/audit-memory/memory_substrate_models.py::ReasoningTraceRow - DTO for reasoning_traces table.
+igor/DONE!/audit-memory/memory_substrate_models.py::SemanticHit - Single semantic search result.
+igor/DONE!/audit-memory/memory_substrate_models.py::SemanticMemoryRow - DTO for semantic_memory table.
+igor/DONE!/audit-memory/memory_substrate_models.py::SemanticSearchRequest - Request to search semantic memory.
+igor/DONE!/audit-memory/memory_substrate_models.py::SemanticSearchResult - Top-k semantic hits.
+igor/DONE!/audit-memory/memory_substrate_models.py::StructuredReasoningBlock - Structured reasoning block for capturing inference traces.
+igor/DONE!/audit-memory/memory_substrate_models.py::SubstrateState - State object passed through the LangGraph DAG.
+igor/DONE!/audit-memory/memory_substrate_repository.py::SubstrateRepository - Repository for memory substrate database operations.
+igor/DONE!/audit-memory/memory_substrate_semantic.py::EmbeddingProvider - Abstract base class for embedding providers.
+igor/DONE!/audit-memory/memory_substrate_semantic.py::OpenAIEmbeddingProvider - OpenAI embedding provider using text-embedding-3-large.
+igor/DONE!/audit-memory/memory_substrate_semantic.py::SemanticService - Service for semantic operations on the memory substrate.
+igor/DONE!/audit-memory/memory_substrate_semantic.py::StubEmbeddingProvider - Stub embedding provider for testing without API calls.
+igor/DONE!/audit-memory/memory_substrate_service.py::MemorySubstrateService - Main service class for the Memory Substrate.
+igor/DONE!/audit-memory/memory_timeline_service.py::TimelineService - Read-only service for reconstructing an agent's memory timel
+igor/DONE!/audit-memory/memory_validators_packet_validator.py::PacketValidationError - Raised when a packet fails custom validation.
+igor/DONE!/audit-memory/memory_validators_packet_validator.py::PacketValidator - Static helpers for validating PacketEnvelopeIn instances.
+igor/DONE!/audit-memory/orchestrators_memory_housekeeping.py::Housekeeping - Housekeeping for Memory Orchestrator.
+igor/DONE!/audit-memory/orchestrators_memory_interface.py::IMemoryOrchestrator - Interface for Memory Orchestrator.
+igor/DONE!/audit-memory/orchestrators_memory_interface.py::MemoryOperation - Memory operation types.
+igor/DONE!/audit-memory/orchestrators_memory_interface.py::MemoryRequest - Request to memory orchestrator.
+igor/DONE!/audit-memory/orchestrators_memory_interface.py::MemoryResponse - Response from memory orchestrator.
+igor/DONE!/audit-memory/orchestrators_memory_orchestrator.py::MemoryOrchestrator - Memory Orchestrator implementation.
+igor/DONE!/audit-memory/tests_memory_test_memory_adapter_basic.py::FakeResponse - Fake httpx response for testing.
+igor/DONE!/audit-memory/tests_memory_test_packet_envelope.py::TestPacketEnvelopeRoundtrip - No docstring
+igor/DONE!/audit-memory/tests_mocks_memory_mocks.py::MockBlobStore - Mock blob storage for large content.
+igor/DONE!/audit-memory/tests_mocks_memory_mocks.py::MockMemoryAdapter - Mock Memory Adapter for testing.
+igor/DONE!/audit-memory/tests_mocks_memory_mocks.py::MockPostgresCursor - Mock PostgreSQL cursor for testing.
+igor/DONE!/audit-tools/Current Config/agents_l_cto.py::LCTOAgent - L - The CTO Agent for Igor.
+igor/DONE!/audit-tools/Current Config/runtime_kernel_loader.py::KernelAwareAgent - Protocol for agents that can absorb kernels.
+igor/DONE!/audit-tools/Current Config/runtime_kernel_loader.py::KernelStack - Lightweight context object for the 10-kernel stack.
+igor/DONE!/audit-tools/api_tools_router.py::ToolExecuteRequest - Request model for tool execution.
+igor/DONE!/audit-tools/api_tools_router.py::ToolExecuteResponse - Response model for tool execution.
+igor/DONE!/audit-tools/core_schemas_capabilities.py::AgentCapabilities - Complete capability set for an agent.
+igor/DONE!/audit-tools/core_schemas_capabilities.py::Capability - Single capability for a tool.
+igor/DONE!/audit-tools/core_schemas_capabilities.py::ToolName - Enumeration of L9 tools that can be capability-gated.
+igor/DONE!/audit-tools/core_schemas_l_tools.py::GMPRunInput - Input schema for GMP run tool (high-risk, requires approval)
+igor/DONE!/audit-tools/core_schemas_l_tools.py::GitCommitInput - Input schema for git commit tool (high-risk, requires approv
+igor/DONE!/audit-tools/core_schemas_l_tools.py::KernelReadInput - Input schema for kernel read.
+igor/DONE!/audit-tools/core_schemas_l_tools.py::MCPCallToolInput - Input schema for MCP tool call.
+igor/DONE!/audit-tools/core_schemas_l_tools.py::MacAgentExecInput - Input schema for Mac agent execution (high-risk, requires ap
+igor/DONE!/audit-tools/core_schemas_l_tools.py::MemorySearchInput - Input schema for memory search tool.
+igor/DONE!/audit-tools/core_schemas_l_tools.py::MemoryWriteInput - Input schema for memory write tool.
+igor/DONE!/audit-tools/core_schemas_l_tools.py::WorldModelQueryInput - Input schema for world model query.
+igor/DONE!/audit-tools/core_tools_registry_adapter.py::ExecutorToolRegistry - Tool registry adapter for AgentExecutorService.
+igor/DONE!/audit-tools/core_tools_registry_adapter.py::RiskLevel - Risk levels for tools.
+igor/DONE!/audit-tools/core_tools_registry_adapter.py::ToolExecutor - Protocol for tool executors.
+igor/DONE!/audit-tools/core_tools_symbolic_tool.py::SymbolicComputationTool - L9 Tool wrapper for symbolic computation.
+igor/DONE!/audit-tools/core_tools_tool_graph.py::ToolDefinition - Definition of a tool for graph registration.
+igor/DONE!/audit-tools/core_tools_tool_graph.py::ToolGraph - Tool dependency graph backed by Neo4j.
+igor/DONE!/audit-tools/orchestrators_action_tool_interface.py::ActionToolRequest - Request to action_tool orchestrator.
+igor/DONE!/audit-tools/orchestrators_action_tool_interface.py::ActionToolResponse - Response from action_tool orchestrator.
+igor/DONE!/audit-tools/orchestrators_action_tool_interface.py::IActionToolOrchestrator - Interface for ActionTool Orchestrator.
+igor/DONE!/audit-tools/orchestrators_action_tool_interface.py::ToolSafetyLevel - Tool safety levels.
+igor/DONE!/audit-tools/orchestrators_action_tool_orchestrator.py::ActionToolOrchestrator - ActionTool Orchestrator implementation.
+igor/DONE!/audit-tools/orchestrators_action_tool_validator.py::ValidationResult - Result of tool validation.
+igor/DONE!/audit-tools/orchestrators_action_tool_validator.py::Validator - Validator for ActionTool Orchestrator.
+igor/DONE!/audit-tools/services_research_tools_perplexity_client.py::PerplexityClient - Production Perplexity API client.
+igor/DONE!/audit-tools/services_research_tools_perplexity_client.py::PerplexityModel - Available Perplexity models with use cases.
+igor/DONE!/audit-tools/services_research_tools_perplexity_client.py::PerplexityRequest - Structured Perplexity API request.
+igor/DONE!/audit-tools/services_research_tools_perplexity_client.py::PerplexityResponse - Structured Perplexity API response.
+igor/DONE!/audit-tools/services_research_tools_perplexity_client.py::SearchContextSize - Search context size - controls how much web content is retri
+igor/DONE!/audit-tools/services_research_tools_tool_registry.py::Config - No docstring
+igor/DONE!/audit-tools/services_research_tools_tool_registry.py::Config - No docstring
+igor/DONE!/audit-tools/services_research_tools_tool_registry.py::RateLimitWindow - Sliding window rate limiter.
+igor/DONE!/audit-tools/services_research_tools_tool_registry.py::ToolMetadata - Metadata for a registered tool.
+igor/DONE!/audit-tools/services_research_tools_tool_registry.py::ToolRegistry - In-memory registry of available tools.
+igor/DONE!/audit-tools/services_research_tools_tool_registry.py::ToolSchema - JSON Schema for tool parameters (OpenAI function calling com
+igor/DONE!/audit-tools/services_research_tools_tool_registry.py::ToolType - Types of available tools.
+igor/DONE!/audit-tools/services_research_tools_tool_resolver.py::ToolResolver - Tool resolver with RBAC and rate limiting.
+igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py::BaseTool - Base class for all tools.
+igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py::HTTPTool - Generic HTTP request tool.
+igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py::MockSearchTool - Mock search tool for testing.
+igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py::PerplexityTool - Perplexity AI search tool.
+igor/DONE!/audit-tools/services_symbolic_computation_tools_symbolic_tool.py::SymPyTool - L9 Agent Tool for symbolic computation.
+igor/DONE!/audit-tools/tests_integration_test_research_tool_integration.py::TestResearchToolIntegration - Test research graph to tool execution integration.
+igor/DONE!/audit-tools/tests_orchestrators_test_action_tool_orchestrator.py::TestActionToolOrchestrator - Tests for ActionToolOrchestrator.
+igor/DONE!/audit-tools/tests_test_tool_registry.py::TestDefaultTools - Tests for default tool initialization.
+igor/DONE!/audit-tools/tests_test_tool_registry.py::TestToolMetadata - Tests for ToolMetadata model.
+igor/DONE!/audit-tools/tests_test_tool_registry.py::TestToolRegistry - Tests for ToolRegistry class.
+igor/DONE!/audit-tools/tests_test_tool_registry.py::TestToolResolver - Tests for ToolResolver class.
+igor/DONE!/audit-tools/tools_cursor_client.py::CursorClient - Client for Cursor remote API.
+igor/DONE!/audit-tools/tools_mac_protocol.py::Config - No docstring
+igor/DONE!/audit-tools/tools_mac_protocol.py::Config - No docstring
+igor/DONE!/audit-tools/tools_mac_protocol.py::MacMessage - Mac protocol message schema.
+igor/DONE!/audit-tools/tools_mac_protocol.py::MacResponse - Mac protocol response schema.
+igor/DONE!/tokenizer/core/tokenizer/assembler.py::AgendaAssembler - Assembles validated tasks into ordered agendas
+igor/DONE!/tokenizer/core/tokenizer/classifier.py::TaskClassifier - Classifies parsed tokens into tasks with proper routing
+igor/DONE!/tokenizer/core/tokenizer/task.py::Agenda - Collection of ordered tasks with metadata
+igor/DONE!/tokenizer/core/tokenizer/task.py::Task - Atomic task object - the fundamental unit of L9 task process
+igor/DONE!/tokenizer/core/tokenizer/task.py::TaskIntent - Task intent types
+igor/DONE!/tokenizer/core/tokenizer/task.py::TaskModule - Target modules for task routing
+igor/DONE!/tokenizer/core/tokenizer/task.py::TaskPriority - Task priority levels
+igor/DONE!/tokenizer/core/tokenizer/tokenizer.py::Tokenizer - Main tokenizer class - converts human input to validated tas
+igor/DONE!/tokenizer/core/tokenizer/validator.py::TaskValidator - Validates tasks to ensure they are complete, safe, and execu
 ir_engine/compile_meta_to_ir.py::DependencyEdge - A single dependency edge in the module graph.
 ir_engine/compile_meta_to_ir.py::GenerationTarget - A single file to be generated.
 ir_engine/compile_meta_to_ir.py::MetaToIRCompiler - Compiles MetaContract to ModuleIR.
@@ -1478,7 +1754,7 @@ mac_agent/websocket_client.py::TaskExecutor - Task executor for Mac Agent.
 mcp_memory/src/audit.py::AuditLogger - Audit logger with circuit breaker and file fallback.
 mcp_memory/src/config.py::Config - No docstring
 mcp_memory/src/config.py::Settings - No docstring
-mcp_memory/src/main.py::CallerIdentity - Caller identity determined from API key.
+mcp_memory/src/main.py::CallerIdentity - Caller identity determined from API key (MCP Memory Server).
 mcp_memory/src/mcp_server.py::MCPTool - No docstring
 mcp_memory/src/mcp_server.py::MCPToolCall - No docstring
 mcp_memory/src/models.py::ApplyDecayArgs - Validation model for apply_decay tool arguments.
@@ -1556,6 +1832,7 @@ memory/agent_persistence.py::Checkpoint - Represents an agent checkpoint.
 memory/audit_utils.py::AuditReport - Report from packet audit/pre-processing.
 memory/checkpoint/cursor_checkpoint_manager.py::CursorCheckpointManager - Dual checkpoint manager per Decision 3 + Decision 6.
 memory/checkpoint/postgres_saver.py::L9PostgresSaver - LangGraph-compatible checkpoint saver using L9's graph_check
+memory/checkpoint/postgres_saver.py::L9RetryablePostgresSaver - L9PostgresSaver with automatic retry + exponential backoff.
 memory/checkpoint_manager.py::CheckpointManager - Simple manager for saving/loading checkpoints per agent.
 memory/checkpoint_metrics.py::CheckpointMetrics - Helper class for checkpoint metric instrumentation.
 memory/checkpoint_metrics.py::Counter - No docstring
@@ -1574,11 +1851,16 @@ memory/cross_encoder_reranker.py::RerankingResult - Result from cross-encoder re
 memory/cypher_templates.py::CypherTemplate - A parameterized Cypher query template.
 memory/cypher_templates.py::CypherTemplateCategory - Categories for Cypher templates.
 memory/cypher_templates.py::CypherTemplateLibrary - Library for managing and executing parameterized Cypher temp
+memory/dead_letter.py::DeadLetterEntry - Entry in the dead letter queue.
+memory/dead_letter.py::DeadLetterQueue - Redis Stream-based dead letter queue for failed packets.
+memory/dead_letter_queue.py::DLQEntry - A single entry in the Dead-Letter Queue.
+memory/dead_letter_queue.py::DeadLetterQueue - Redis-backed Dead-Letter Queue for failed packet ingestions.
 memory/extractor/agent_config_extractor.py::AgentConfigExtractor - Extracts agent configuration (preferences, SOPs, roles).
 memory/extractor/base_extractor.py::BaseExtractor - Base class for all extractors.
 memory/extractor/code_extractor.py::CodeExtractor - Extracts code files from chat logs.
 memory/extractor/memory_extractor.py::MemoryExtractor - Extracts structured memory for Supabase.
 memory/extractor/module_schema_extractor.py::ModuleSchemaExtractor - Extracts L9 module schema definitions.
+memory/gap_detector.py::GapDetector - Detects knowledge gaps in entity graphs for predictive cache
 memory/governance_gate.py::MemoryGovernanceContext - Immutable governance context for memory operations.
 memory/governance_patterns.py::DecisionType - Type of governance decision.
 memory/governance_patterns.py::GovernancePattern - A governance pattern capturing Igor's approval/rejection dec
@@ -1617,9 +1899,12 @@ memory/index_syncer.py::IndexSyncer - Lightweight index/extension checker.
 memory/ingestion.py::IngestionPipeline - PacketEnvelope ingestion pipeline.
 memory/insight_extraction.py::InsightExtractionPipeline - Heuristic insight extraction from packet content.
 memory/migration_runner.py::MigrationRunner - Runs database migrations automatically and idempotently.
+memory/neo4j_strategy_memory.py::Neo4jStrategyMemoryService - Production Neo4j-backed Strategy Memory Service.
+memory/neo4j_strategy_memory.py::StrategyMemoryConfig - Configuration for Neo4j Strategy Memory Service.
 memory/neural_decay_scheduler.py::DecayConfig - Configuration for neural decay calculation.
 memory/neural_decay_scheduler.py::DecayResult - Result of a decay calculation run.
 memory/neural_decay_scheduler.py::NeuralDecayScheduler - Neural decay scheduler for memory importance adjustment.
+memory/predictive_cache.py::PredictiveCache - Redis-backed predictive cache for knowledge graph entities.
 memory/query_classifier.py::QueryClassifier - Classifies queries into retrieval patterns for adaptive weig
 memory/reasoning_replay.py::ReasoningChain - Represents a reconstructed reasoning chain.
 memory/reasoning_replay.py::ReasoningReplayPipeline - Reasoning replay pipeline for decision chain reconstruction.
@@ -1666,6 +1951,7 @@ memory/substrate_alignment.py::AlignmentReport - Report from cross-substrate ali
 memory/substrate_alignment.py::SubstrateAlignmentChecker - Verifies cross-substrate consistency.
 memory/substrate_dag.py::SubstrateDAG - Wrapper for executing the substrate DAG with injected depend
 memory/substrate_dag.py::SubstrateGraphState - State passed through the LangGraph DAG.
+memory/substrate_dag_wrapper.py::RetryPolicy - Retry configuration for DAG ingestion.
 memory/substrate_dag_wrapper.py::SubstrateDagOrchestrator - Orchestrator for SubstrateDAG packet ingestion.
 memory/substrate_models.py::AgentMemoryEventRow - DTO for agent_memory_events table.
 memory/substrate_models.py::Config - No docstring
@@ -1675,7 +1961,7 @@ memory/substrate_models.py::EpisodicSemanticLinkRow - DTO for episodic_semantic_
 memory/substrate_models.py::ExtractedInsight - An insight extracted from packet reasoning.
 memory/substrate_models.py::GraphCheckpointRow - DTO for graph_checkpoints table.
 memory/substrate_models.py::KnowledgeFact - A knowledge fact extracted from packet processing.
-memory/substrate_models.py::KnowledgeFactRow - DTO for knowledge_facts table.
+memory/substrate_models.py::KnowledgeFactRow - DTO for knowledge_facts table (v2.0 - all columns from migra
 memory/substrate_models.py::MemorySegment - L9 memory organization - 4 canonical segments.
 memory/substrate_models.py::PacketStoreRow - DTO for packet_store table (v2.0 - all columns from migratio
 memory/substrate_models.py::ReasoningTraceRow - DTO for reasoning_traces table.
@@ -1706,12 +1992,16 @@ memory/warming_models.py::PredictiveCacheConfig - No docstring
 memory/warming_models.py::ReasoningPhase - Phases of the reasoning cycle.
 memory/warming_models.py::SubgraphEntry - Represents a cached subgraph entry.
 memory/warming_models.py::ThinkingOutput - Output from thinking phase.
+memory/warming_service.py::MemoryWarmingService - Orchestrates predictive memory warming for AI agent operatin
 orchestration/cell_orchestrator.py::CellOrchestrator - Orchestrates multi-cell workflows and provides glue interfac
 orchestration/cell_orchestrator.py::CellStep - A step in a cell workflow.
 orchestration/cell_orchestrator.py::CellType - Types of collaborative cells.
 orchestration/cell_orchestrator.py::CellWorkflow - A workflow of cell executions.
 orchestration/cell_orchestrator.py::WorkflowResult - Result of workflow execution.
 orchestration/cell_orchestrator.py::WorkflowStatus - Status of a workflow.
+orchestration/input_segmenter.py::InputSegmenter - Segments multi-part user input into atomic directives.
+orchestration/input_segmenter.py::SegmentResult - Result of segmentation with metadata.
+orchestration/input_segmenter.py::SegmenterConfig - Configuration for input segmentation.
 orchestration/long_plan_graph.py::LongPlanState - State for long plan execution DAG.
 orchestration/orchestrator_kernel.py::ChainStatus - Status of an execution chain.
 orchestration/orchestrator_kernel.py::ChainStep - A step in an execution chain.
@@ -1809,6 +2099,10 @@ orchestrators/pattern/interface.py::PipelineStatus - Overall pipeline execution 
 orchestrators/pattern/interface.py::RiskModel - Risk assessment model.
 orchestrators/pattern/interface.py::SubsystemConfig - Full subsystem configuration loaded from YAML.
 orchestrators/pattern/interface.py::SubsystemMetadata - Metadata for a subsystem.
+orchestrators/pattern/master_orchestrator.py::MasterConfig - Master configuration for all subsystems.
+orchestrators/pattern/master_orchestrator.py::MasterExecutionResult - Result of executing all subsystems.
+orchestrators/pattern/master_orchestrator.py::MasterOrchestrator - Orchestrates multiple subsystems using the same pattern pipe
+orchestrators/pattern/master_orchestrator.py::SubsystemEntry - Entry for a subsystem in master config.
 orchestrators/pattern/metrics.py::PatternMetrics - Metrics helper for pattern orchestrator.
 orchestrators/pattern/orchestrator.py::AgentProtocol - Protocol for agent invocation.
 orchestrators/pattern/orchestrator.py::PatternOrchestrator - Universal orchestrator for N-node architecture pipelines.
@@ -1833,6 +2127,20 @@ orchestrators/world_model/orchestrator.py::WorldModelOrchestrator - WorldModel O
 orchestrators/world_model/scheduler.py::WorldModelScheduler - Scheduler for WorldModel Orchestrator.
 orchestrators/ws_bridge.py::WSBridgeConfig - Phase 3: Configuration for the WS bridge.
 orchestrators/ws_bridge.py::WSEventRouter - Phase 3: Extensible event router with handler registration.
+readme/harvested/perplexity-refactor-2026-01-20/controller_profile_protocol.py::ControllerProfile - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/execution_profile_protocol.py::ExecutionProfile - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/executor_config.py::ExecutorConfig - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/loop_stage_protocol.py::LoopContext - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/loop_stage_protocol.py::LoopStage - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/memory_facade.py::MemorySubstrateService - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py::GraphHydrationPolicy - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py::MemoryWarmPolicy - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py::PromptDefensePolicy - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py::ReflectionPolicy - No docstring
+runtime/auth_rate_limiter.py::AuthAttemptResult - Result of checking auth rate limit.
+runtime/auth_rate_limiter.py::AuthRateLimitConfig - Configuration for auth rate limiting.
+runtime/auth_rate_limiter.py::AuthRateLimiter - Authentication-specific rate limiter.
+runtime/background_tasks.py::BackgroundTaskRegistry - Auto-register and manage background tasks.
 runtime/construct_enhancer.py::BatchEnhancementResult - Result of batch enhancement operation.
 runtime/construct_enhancer.py::BatchEnhancer - Enhances multiple specifications in batch.
 runtime/construct_enhancer.py::ConstructEnhancer - Enhances incomplete specifications using LLM (Perplexity).
@@ -1849,6 +2157,7 @@ runtime/local_api.py::LocalAPI - Safe local API for shell commands and file oper
 runtime/mcp_client.py::MCPClient - MCP client for connecting to MCP servers.
 runtime/mcp_client.py::MCPServerProcess - Manages a single MCP server subprocess.
 runtime/mcp_client.py::ToolMeta - Metadata for an MCP tool.
+runtime/mcp_server_registry.py::MCPServerConfig - Configuration for an MCP server.
 runtime/rate_limiter.py::RateLimiter - Production rate limiter with Redis backend and in-memory fal
 runtime/redis_client.py::RedisClient - Production Redis client with connection pooling.
 runtime/response_renderer.py::ResponseBuilder - Builder pattern for constructing responses.
@@ -1866,7 +2175,7 @@ runtime/superprompt_emitter.py::SpecPatcher - Applies enrichment patches to YAML
 runtime/superprompt_emitter.py::SuperPrompt - A structured prompt for LLM enrichment.
 runtime/superprompt_emitter.py::SuperPromptEmitter - Generates enrichment prompts from gap analysis.
 runtime/task_queue.py::QueuedTask - A task waiting in the queue.
-runtime/task_queue.py::TaskQueue - Production task queue with Redis backend and in-memory fallb
+runtime/task_queue.py::TaskQueue - Production task queue with Redis backend enforcement.
 runtime/websocket_orchestrator.py::WebSocketOrchestrator - Manages live WebSocket connections from L9 agents.
 scripts/audit/audit_api_signatures.py::AuditResult - Result of API signature audit.
 scripts/audit/audit_api_signatures.py::SeverityLevel - No docstring
@@ -1893,6 +2202,17 @@ scripts/audit/find_dead_code.py::DataclassFieldVisitor - Extract dataclass field
 scripts/audit/find_dead_code.py::DeadCodeFinding - A single dead code finding.
 scripts/audit/generate_gmp_todos.py::FixResult - Result of a single fix operation.
 scripts/audit/generate_gmp_todos.py::GMPReport - Completed GMP Report.
+scripts/audit/inject_dora_complete.py::ClassInfo - Information about a discovered class.
+scripts/audit/inject_dora_complete.py::DoraCompleteInjector - Contract-compliant DORA block injection engine.
+scripts/audit/inject_dora_complete.py::DoraTraceBlock - DORA Block - L9_TRACE_TEMPLATE (runtime trace).
+scripts/audit/inject_dora_complete.py::FooterMeta - Footer Meta - Extended metadata that header references.
+scripts/audit/inject_dora_complete.py::HeaderMeta - Header Meta - 14 mandatory fields per contract.
+scripts/audit/inject_dora_multiformat_complete.py::DoraMultiFormatInjector - Contract-compliant multi-format DORA block injection engine.
+scripts/audit/inject_dora_multiformat_complete.py::DoraTraceBlock - DORA Block - L9_TRACE_TEMPLATE.
+scripts/audit/inject_dora_multiformat_complete.py::FooterMeta - Footer Meta - Extended metadata.
+scripts/audit/inject_dora_multiformat_complete.py::HeaderMeta - Header Meta - 14 mandatory fields per contract.
+scripts/audit/migrate_dora_legacy.py::DoraLegacyMigrator - Migrates legacy __dora_block__ to three-block format.
+scripts/audit/migrate_dora_legacy.py::DoraMultiFormatMigrator - Migrates legacy l9_dora to three-block format in YAML/JSON/M
 scripts/audit/resolve_dead_code_refs.py::FalsePositiveDetector - Detect and filter false positive dead code findings.
 scripts/audit/resolve_dead_code_refs.py::ResolutionResult - Result of false positive resolution.
 scripts/audit/resolve_dead_code_refs.py::ResolvedFinding - A finding after false positive resolution.
@@ -1926,22 +2246,51 @@ scripts/audit/tier1/audit_infrastructure_health.py::InfrastructureReport - Compl
 scripts/audit/tier1/audit_infrastructure_health.py::PythonModuleHealthProbe - Python module import + instantiation probe.
 scripts/audit/tier1/audit_infrastructure_health.py::StartupSequence - Startup initialization order.
 scripts/audit/tier1/audit_infrastructure_health.py::TCPHealthProbe - TCP connectivity health probe.
+scripts/audit/validate_dora_complete.py::DoraCompleteValidator - Contract-compliant DORA block validator.
+scripts/audit/validate_dora_complete.py::ValidationResult - Result of validating a single file.
 scripts/audit/verify_wiring_alignment.py::PathReference - A path reference found in a file.
 scripts/audit/verify_wiring_alignment.py::VerificationResult - Result of wiring alignment verification.
 scripts/batch/batch_generate_specs.py::BatchConfig - Batch processing configuration
 scripts/batch/batch_generate_specs.py::BatchSpecGenerator - Orchestrates batch spec generation
 scripts/batch/batch_generate_specs.py::PerplexityBatchClient - Async Perplexity client with rate limiting and retry
 scripts/batch/batch_generate_specs.py::TokenBucketLimiter - Token bucket rate limiter for API calls
+scripts/extract_code_facts.py::CodeFactExtractor - Extract code facts using Python AST.
+scripts/generate_gmp_report.py::ChangeItem - A change made during implementation.
+scripts/generate_gmp_report.py::GMPReportData - All data needed to generate a GMP report.
+scripts/generate_gmp_report.py::GMPReportGenerator - Generates canonical GMP reports.
+scripts/generate_gmp_report.py::PhaseStatus - Status of a GMP phase.
+scripts/generate_gmp_report.py::TodoItem - A single TODO item from Phase 0.
+scripts/generate_gmp_report.py::ValidationResult - A validation gate result.
+scripts/generate_readme_superprompt.py::ClassInfo - Enhanced class information.
+scripts/generate_readme_superprompt.py::FieldInfo - Pydantic/dataclass field information.
+scripts/generate_readme_superprompt.py::FunctionInfo - Enhanced function information.
+scripts/generate_readme_superprompt.py::RouteInfo - API route information.
+scripts/generate_readme_superprompt.py::SubsystemFacts - All extracted facts from a subsystem.
+scripts/generate_readme_superprompt.py::TypeInfo - Type annotation information.
+scripts/generate_subsystem_readmes.py::ClassInfo - No docstring
+scripts/generate_subsystem_readmes.py::FunctionInfo - No docstring
+scripts/generate_subsystem_readmes.py::SubsystemFacts - No docstring
 scripts/gmp-validate-stage.py::GMPStageValidator - Validates GMP stage execution against canonical requirements
 scripts/gmp-validate-stage.py::ValidationResult - Result of a single validation check.
 scripts/memory/load_indexes_to_neo4j.py::RepoGraphLoader - Loads L9 repository indexes into Neo4j graph database.
 scripts/memory/load_indexes_to_neo4j_vps.py::VPSRepoGraphLoader - Loads L9 repository indexes into VPS Neo4j via HTTP API.
+scripts/refactoring/aios_validate.py::AOISCompliance - Verify AIOS architectural patterns
+scripts/refactoring/bootstrap_refactor.py::Language - No docstring
+scripts/refactoring/bootstrap_refactor.py::RefactoringBootstrap - Main orchestrator for refactoring pipeline setup
+scripts/refactoring/bootstrap_refactor.py::ToolConfig - Configuration for refactoring tools
+scripts/validate_gmp_report.py::GMPReportValidator - Validates GMP reports against the contract.
+scripts/validate_gmp_report.py::ValidationIssue - A single validation issue.
+scripts/validate_gmp_report.py::ValidationResult - Result of validating a report.
 scripts/workspace/init_workspace.py::InitResult - Complete workspace initialization result.
 services/mac_tasks.py::MacTask - Mac task dataclass.
 services/research/agents/base_agent.py::BaseAgent - Base class for all research agents.
 services/research/agents/critic_agent.py::CriticAgent - Critic Agent - Evaluates research quality.
 services/research/agents/planner_agent.py::PlannerAgent - Planner Agent - Decomposes research goals into steps.
 services/research/agents/researcher_agent.py::ResearcherAgent - Researcher Agent - Gathers evidence and information.
+services/research/graph_persistence.py::FindingType - Types of research findings.
+services/research/graph_persistence.py::GraphPersistenceConfig - Configuration for Research Graph Persistence.
+services/research/graph_persistence.py::ResearchFinding - A typed research finding for Neo4j persistence.
+services/research/graph_persistence.py::ResearchGraphPersistence - Persists research findings as typed Neo4j graph nodes.
 services/research/graph_runtime.py::ResearchGraphRuntime - Runtime for managing research graph execution.
 services/research/graph_state.py::Evidence - Evidence gathered by a researcher.
 services/research/graph_state.py::ResearchGraphState - Shared state across all research graph nodes.
@@ -2041,6 +2390,22 @@ tests/agents/codegenagent/test_symbolic_verification.py::TestPipelineAvailabilit
 tests/agents/codegenagent/test_symbolic_verification.py::TestRealSymbolicPipeline - Integration tests with real sympy (when available).
 tests/agents/codegenagent/test_symbolic_verification.py::TestSymbolicVerificationMocked - Tests with mocked pipeline (no sympy required).
 tests/agents/codegenagent/test_symbolic_verification.py::TestSymbolicVerificationResult - Tests for SymbolicVerificationResult dataclass.
+tests/agents/test_agent_registry.py::ArchitectAgentA - No docstring
+tests/agents/test_agent_registry.py::ArchitectAgentA - No docstring
+tests/agents/test_agent_registry.py::ArchitectAgentA - No docstring
+tests/agents/test_agent_registry.py::ArchitectAgentA - No docstring
+tests/agents/test_agent_registry.py::ArchitectAgentA - No docstring
+tests/agents/test_agent_registry.py::ArchitectAgentB - No docstring
+tests/agents/test_agent_registry.py::ArchitectAgentB - No docstring
+tests/agents/test_agent_registry.py::CoderAgentA - No docstring
+tests/agents/test_agent_registry.py::CoderAgentA - No docstring
+tests/agents/test_agent_registry.py::CoderAgentA - No docstring
+tests/agents/test_agent_registry.py::CoderAgentA - No docstring
+tests/agents/test_agent_registry.py::MyCustomAgent - No docstring
+tests/agents/test_agent_registry.py::QAAgent - No docstring
+tests/agents/test_agent_registry.py::ReflectionAgent - No docstring
+tests/agents/test_agent_registry.py::TestAgent - No docstring
+tests/agents/test_agent_registry.py::TestArchitectAgent - No docstring
 tests/agents/test_l_cto_memory_emission.py::TestLCTOMemoryEmission - Test L-CTO agent memory emission.
 tests/api/test_agent_auth.py::TestAgentExecuteAuth - Tests for /agent/execute endpoint authentication.
 tests/api/test_agent_auth.py::TestAgentTaskAuth - Tests for /agent/task endpoint authentication.
@@ -2063,7 +2428,7 @@ tests/api/test_slack_adapter.py::TestSignatureVerification - Test Slack signatur
 tests/api/test_slack_adapter.py::TestSlackAdapterIntegration - Integration tests for full Slack flow.
 tests/api/test_slack_adapter.py::TestSlackMetrics - Test Prometheus metrics recording.
 tests/api/test_slack_adapter.py::TestSlackReply - Test Slack reply posting.
-tests/api/test_websocket_auth.py::TestWebSocketAuthHelper - Tests for verify_websocket_auth helper function.
+tests/api/test_websocket_auth.py::TestWebSocketAuthHelper - Tests for verify_ws_token helper function (unified auth).
 tests/codegen/test_codegen_pipeline.py::TestFileEmission - Test file emission in dry-run mode.
 tests/codegen/test_codegen_pipeline.py::TestFullPipeline - Test complete pipeline from spec to files.
 tests/codegen/test_codegen_pipeline.py::TestIRCompilation - Test MetaContract to IR compilation.
@@ -2075,6 +2440,7 @@ tests/codegen/test_sample_schemas.py::TestModuleSpecTemplate - Test Module-Spec-
 tests/codegen/test_sample_schemas.py::TestSampleSchemas - Test loading sample schemas from codegen/schemas/samples.
 tests/codegen/test_sample_schemas.py::TestSchemaToContract - Integration tests for schema loading and contract creation.
 tests/codegen/test_sample_schemas.py::TestSchemaValidator - Test SchemaValidator functionality.
+tests/collaborative_cells/test_cell_registry.py::MyTestCell - Test cell for unit tests.
 tests/conftest.py::AsyncMockCursor - No docstring
 tests/conftest.py::AsyncMockMemory - No docstring
 tests/conftest.py::AsyncMockRedis - No docstring
@@ -2134,6 +2500,7 @@ tests/core/observability/test_observability_integration.py::TestMetricsAggregati
 tests/core/observability/test_observability_integration.py::TestObservabilityConfig - Tests for observability configuration.
 tests/core/observability/test_observability_integration.py::TestObservabilityModels - Tests for observability data models.
 tests/core/observability/test_observability_integration.py::TestObservabilityService - Tests for ObservabilityService.
+tests/core/protocols/test_secrets_protocols.py::TestEnvSecretsClient - Test suite for EnvSecretsClient.
 tests/core/schemas/test_content_hash_integrity.py::TestContentHashComputation - Test content hash computation.
 tests/core/schemas/test_content_hash_integrity.py::TestHashAlgorithmProperties - Test properties of the hashing algorithm.
 tests/core/schemas/test_content_hash_integrity.py::TestUpcastingWithContentHash - Test that upcasting adds content hash.
@@ -2146,6 +2513,24 @@ tests/core/schemas/test_schema_registry.py::TestReadPacket - Test reading raw di
 tests/core/schemas/test_schema_registry.py::TestSchemaRegistryProperties - Test SchemaRegistry properties and state.
 tests/core/schemas/test_schema_registry.py::TestUpcasting - Test upcasting from older versions to latest.
 tests/core/schemas/test_schema_registry.py::TestVersionDetection - Test version detection from raw packet dicts.
+tests/core/schemas/test_upcaster_registry.py::MockSchemaRegistry - No docstring
+tests/core/test_fail_closed_executor.py::TestExecutorFailClosed - Tests for AgentExecutorService fail-closed behavior.
+tests/core/test_fail_closed_registry.py::TestRegistryAdapterFailClosed - Tests for ExecutorToolRegistry fail-closed behavior.
+tests/core/test_resilience_mixin.py::TestCircuitBreakerIntegration - Test circuit breaker behavior.
+tests/core/test_resilience_mixin.py::TestDeadLetterQueue - Test DLQ behavior on retry exhaustion.
+tests/core/test_resilience_mixin.py::TestEdgeCases - Test edge cases and boundary conditions.
+tests/core/test_resilience_mixin.py::TestResilientServiceProtocol - Test ResilientService protocol compliance.
+tests/core/test_resilience_mixin.py::TestRetryBehavior - Test retry on transient failures.
+tests/core/test_resilience_mixin.py::TestService - Test service using the mixin.
+tests/core/test_resilience_mixin.py::TestSuccessPath - Test successful operation execution.
+tests/cursor/test_gmp_meta_learning.py::TestAutonomyControllerLogic - Tests for AutonomyController business logic (no DB).
+tests/cursor/test_gmp_meta_learning.py::TestAutonomyGraduationMetrics - Tests for AutonomyGraduationMetrics model.
+tests/cursor/test_gmp_meta_learning.py::TestAutonomyLevel - Tests for AutonomyLevel enum.
+tests/cursor/test_gmp_meta_learning.py::TestCorrelation - Tests for correlation calculation.
+tests/cursor/test_gmp_meta_learning.py::TestEngineIntegration - Integration tests requiring actual database (skipped by defa
+tests/cursor/test_gmp_meta_learning.py::TestGMPExecutionResult - Tests for GMPExecutionResult model.
+tests/cursor/test_gmp_meta_learning.py::TestGraduationCriteria - Tests for graduation prerequisite logic.
+tests/cursor/test_gmp_meta_learning.py::TestLearnedHeuristic - Tests for LearnedHeuristic model.
 tests/docker/test_env_validation.py::TestDockerNetworkConfig - Validate Docker-specific networking configuration.
 tests/docker/test_env_validation.py::TestEnvironmentVariables - Validate environment configuration.
 tests/docker/test_env_validation.py::TestRequiredVariables - Ensure required variables are present.
@@ -2166,14 +2551,6 @@ tests/email_agent/test_email_router.py::TestConfig - Config module tests.
 tests/email_agent/test_email_router.py::TestEndpoints - Test each endpoint's basic functionality.
 tests/email_agent/test_email_router.py::TestMemoryIngestion - Pre/post events ingested to memory.
 tests/email_agent/test_email_router.py::TestRequestValidation - Request model validation.
-tests/gmp/test_meta_learning.py::TestAutonomyControllerLogic - Tests for AutonomyController business logic (no DB).
-tests/gmp/test_meta_learning.py::TestAutonomyGraduationMetrics - Tests for AutonomyGraduationMetrics model.
-tests/gmp/test_meta_learning.py::TestAutonomyLevel - Tests for AutonomyLevel enum.
-tests/gmp/test_meta_learning.py::TestCorrelation - Tests for correlation calculation.
-tests/gmp/test_meta_learning.py::TestEngineIntegration - Integration tests requiring actual database (skipped by defa
-tests/gmp/test_meta_learning.py::TestGMPExecutionResult - Tests for GMPExecutionResult model.
-tests/gmp/test_meta_learning.py::TestGraduationCriteria - Tests for graduation prerequisite logic.
-tests/gmp/test_meta_learning.py::TestLearnedHeuristic - Tests for LearnedHeuristic model.
 tests/integration/test_api_agent_integration.py::TestAPIAgentIntegration - Test API to Agent Executor integration.
 tests/integration/test_api_memory_integration.py::TestAPIMemoryIntegration - Test API to Memory Substrate integration.
 tests/integration/test_closed_loop_learning.py::TestAdaptivePrompting - Test adaptive context generation.
@@ -2279,9 +2656,22 @@ tests/ir_engine/test_ir_validation_and_status.py::TestSchemaValidation - Test sc
 tests/ir_engine/test_ir_validation_and_status.py::TestStrictMode - Test strict mode validation.
 tests/ir_engine/test_ir_validation_and_status.py::TestValidateAndUpdateStatus - Test validate_and_update_status method.
 tests/ir_engine/test_ir_validation_and_status.py::TestValidationResult - Test IRValidationResult methods.
+tests/mcp_memory/test_mcp_server_governance.py::DummyCaller - No docstring
 tests/memory/test_agent_persistence.py::TestAgentPersistenceService - Tests for AgentPersistenceService.
 tests/memory/test_agent_persistence.py::TestModel - No docstring
 tests/memory/test_agent_persistence.py::TestObject - No docstring
+tests/memory/test_checkpoint_metrics_pool.py::TestGetPoolStatsDict - Test get_pool_stats_dict function.
+tests/memory/test_checkpoint_metrics_pool.py::TestModuleExports - Test module exports are correct.
+tests/memory/test_checkpoint_metrics_pool.py::TestPoolStatsIntegration - Integration tests for pool stats workflow.
+tests/memory/test_checkpoint_metrics_pool.py::TestPrometheusGauges - Test Prometheus gauge definitions.
+tests/memory/test_checkpoint_metrics_pool.py::TestRecordPoolStats - Test record_pool_stats function.
+tests/memory/test_checkpoint_retry.py::TestExecuteWithRetry - Test _execute_with_retry method.
+tests/memory/test_checkpoint_retry.py::TestGetPoolStats - Test get_pool_stats() method.
+tests/memory/test_checkpoint_retry.py::TestL9RetryablePostgresSaverInit - Test L9RetryablePostgresSaver initialization.
+tests/memory/test_checkpoint_retry.py::TestListCheckpoints - Test list() method implementation.
+tests/memory/test_checkpoint_retry.py::TestRetryableGet - Test get() with retry.
+tests/memory/test_checkpoint_retry.py::TestRetryableIntegration - Integration-style tests for L9RetryablePostgresSaver.
+tests/memory/test_checkpoint_retry.py::TestRetryablePut - Test put() with retry.
 tests/memory/test_consolidation.py::TestConsolidationPipeline - Tests for ConsolidationPipeline.
 tests/memory/test_cross_client_consistency.py::TestBidirectionalDeveloperScope - Test that both L and C can read/write developer scope.
 tests/memory/test_cross_client_consistency.py::TestCrossClientIntegration - Integration tests for full cross-client memory flow.
@@ -2291,6 +2681,12 @@ tests/memory/test_cross_client_consistency.py::TestScopeIsolationQuery - Test th
 tests/memory/test_cypher_templates.py::TestCypherTemplateLibrary - Test CypherTemplateLibrary functionality.
 tests/memory/test_cypher_templates.py::TestDefaultTemplates - Test that default templates have proper structure.
 tests/memory/test_cypher_templates.py::TestSingletonFactory - Test singleton factory functions.
+tests/memory/test_dag_orchestrator_resilience.py::TestCircuitBreakerIntegration - Test circuit breaker behavior.
+tests/memory/test_dag_orchestrator_resilience.py::TestCombinedResilience - Test all resilience features working together.
+tests/memory/test_dag_orchestrator_resilience.py::TestDeadLetterQueueIntegration - Test DLQ integration.
+tests/memory/test_dag_orchestrator_resilience.py::TestDeadLetterQueueUnit - Unit tests for DeadLetterQueue class.
+tests/memory/test_dag_orchestrator_resilience.py::TestRetryBehavior - Test retry on transient failures.
+tests/memory/test_dag_orchestrator_resilience.py::TestRetryPolicy - Test RetryPolicy configuration.
 tests/memory/test_e2e_memory_audit.py::AuditResult - Container for audit results.
 tests/memory/test_embedding_filter.py::TestShouldSkipEmbedding - Tests for _should_skip_embedding filter function.
 tests/memory/test_frontier_memory_pipeline.py::TestActiveEncoder - Tests for Active Memory Encoder (GMP-80-A7).
@@ -2358,6 +2754,10 @@ tests/memory/test_packet_validation_v2.py::TestPacketTypeValidation - Test packe
 tests/memory/test_packet_validation_v2.py::TestPacketValidationErrorTyped - Test the typed PacketValidationError exception.
 tests/memory/test_packet_validation_v2.py::TestProvenanceValidation - Test provenance field validation (v2.0.0 fields).
 tests/memory/test_packet_validation_v2.py::TestTTLValidation - Test TTL validation.
+tests/memory/test_predictive_warming.py::TestGapDetector - Tests for GapDetector class.
+tests/memory/test_predictive_warming.py::TestMemoryWarmingService - Tests for MemoryWarmingService class.
+tests/memory/test_predictive_warming.py::TestPredictiveCache - Tests for PredictiveCache class.
+tests/memory/test_predictive_warming.py::TestPredictiveWarmingIntegration - Integration tests for the full warming pipeline.
 tests/memory/test_query_classifier.py::TestQueryClassifier - Tests for QueryClassifier pattern classification.
 tests/memory/test_retrieval_audit.py::TestReciprocalRankFusion - Tests for reciprocal rank fusion algorithm.
 tests/memory/test_retrieval_audit.py::TestTemporalDecay - Tests for temporal decay function.
@@ -2371,6 +2771,23 @@ tests/memory/test_saga.py::TestSagaContext - Test SagaContext functionality.
 tests/memory/test_saga.py::TestSagaExecutor - Test SagaExecutor functionality.
 tests/memory/test_saga.py::TestSagaPatterns - Test SagaPatterns high-level API.
 tests/memory/test_saga.py::TestSagaResult - Test SagaResult functionality.
+tests/memory/test_strategy_memory.py::TestExponentialSmoothing - Tests for performance score exponential smoothing.
+tests/memory/test_strategy_memory.py::TestFactoryFunction - Tests for create_neo4j_strategy_memory factory.
+tests/memory/test_strategy_memory.py::TestGraphSignature - Tests for graph signature computation.
+tests/memory/test_strategy_memory.py::TestHybridScoring - Tests for hybrid scoring algorithm.
+tests/memory/test_strategy_memory.py::TestIStrategyMemoryServiceContract - Test that implementations satisfy the interface contract.
+tests/memory/test_strategy_memory.py::TestRecordNewStrategy - Tests for record_new_strategy method.
+tests/memory/test_strategy_memory.py::TestRetrieveStrategies - Tests for retrieve_strategies method.
+tests/memory/test_strategy_memory.py::TestStubImplementation - Tests for the stub StrategyMemoryService.
+tests/memory/test_strategy_memory.py::TestUpdateStrategyOutcome - Tests for update_strategy_outcome method.
+tests/memory/test_strategy_memory_integration.py::MockPlan - No docstring
+tests/memory/test_strategy_memory_integration.py::MockPlan - No docstring
+tests/memory/test_strategy_memory_integration.py::MockStep - No docstring
+tests/memory/test_strategy_memory_integration.py::MockStep - No docstring
+tests/memory/test_strategy_memory_integration.py::TestAutoCaptureIntegration - Integration tests for Phase 1 auto-capture functionality.
+tests/memory/test_strategy_memory_integration.py::TestGoldenStrategySeeding - Tests for golden strategy seeding script.
+tests/memory/test_strategy_memory_integration.py::TestStrategyMemoryIntegration - Integration tests for Strategy Memory with real Neo4j.
+tests/memory/test_strategy_memory_integration.py::TestStrategyMemoryPerformance - Performance benchmarks for Strategy Memory.
 tests/memory/test_substrate_alignment.py::TestCircuitBreakerIntegration - Tests for circuit breaker in batch endpoint.
 tests/memory/test_substrate_alignment.py::TestQueryInjectionPrevention - Tests for query injection detection.
 tests/memory/test_substrate_alignment.py::TestSubstrateAlignment - Cross-substrate alignment tests.
@@ -2417,6 +2834,8 @@ tests/mocks/orchestrator_mocks.py::MockToolRegistry - Mock Tool Registry for tes
 tests/mocks/world_model_mocks.py::MockEdge - A mock edge in the world model graph.
 tests/mocks/world_model_mocks.py::MockNode - A mock node in the world model graph.
 tests/mocks/world_model_mocks.py::MockWorldModel - Mock World Model for testing.
+tests/orchestration/test_input_segmenter.py::TestInputSegmenter - Test InputSegmenter functionality.
+tests/orchestration/test_input_segmenter.py::TestSegmentIntegration - Test integration with TaskRouter.
 tests/orchestrators/test_action_tool_orchestrator.py::TestActionToolOrchestrator - Tests for ActionToolOrchestrator.
 tests/orchestrators/test_pattern_orchestrator.py::TestCellAgentAdapter - Tests for CellAgentAdapter.
 tests/orchestrators/test_pattern_orchestrator.py::TestFactoryFunctions - Tests for factory functions.
@@ -2437,6 +2856,7 @@ tests/runtime/test_execution_gate.py::TestModeSelection - Test mode selection ba
 tests/runtime/test_execution_gate.py::TestPublicAPI - Test public API exports.
 tests/runtime/test_execution_gate.py::TestSafetyScanning - Test pre-execution safety scanning (GODMODE Part 3).
 tests/runtime/test_execution_gate.py::TestToolAuthorization - Test tool authorization matrix.
+tests/runtime/test_fail_closed_task_queue.py::TestTaskQueueFailClosed - Tests for TaskQueue fail-closed behavior.
 tests/runtime/test_kernel_state.py::TestDecisionLogging - Test decision logging (GODMODE Part 7.1).
 tests/runtime/test_kernel_state.py::TestEscalationLogging - Test escalation logging (GODMODE Part 3.3).
 tests/runtime/test_kernel_state.py::TestKernelStateCreation - Test KernelState instantiation and factory function.
@@ -2455,6 +2875,8 @@ tests/scripts/test_factory_extract_cli.py::Result - No docstring
 tests/scripts/test_factory_extract_cli.py::UniversalExtractor - No docstring
 tests/scripts/test_factory_extract_cli.py::metadata - No docstring
 tests/scripts/test_factory_extract_cli.py::system - No docstring
+tests/services/research/test_graph_persistence.py::TestFindingTypeClassification - Test the _classify_finding_type method.
+tests/services/research/test_graph_persistence.py::TestResearchGraphPersistence - Tests for ResearchGraphPersistence class.
 tests/services/symbolic_computation/test_c_gmp_engine.py::TestCGMPEngine - Test CGMPEngine class.
 tests/services/symbolic_computation/test_code_generator.py::TestCCodeGeneration - Tests for C code generation.
 tests/services/symbolic_computation/test_code_generator.py::TestCodeCompilation - Tests for code compilation.
@@ -2497,6 +2919,12 @@ tests/telemetry/test_memory_metrics.py::TestRecordMemoryWrite - Tests for record
 tests/telemetry/test_memory_metrics.py::TestRecordToolInvocation - Tests for record_tool_invocation function.
 tests/telemetry/test_memory_metrics.py::TestSetMemorySubstrateHealth - Tests for set_memory_substrate_health function.
 tests/telemetry/test_memory_metrics.py::TestUpdatePacketStoreSize - Tests for update_packet_store_size function.
+tests/test_code_facts_extraction.py::TestAICollaborationScopes - Test that AI collaboration scopes are consistent.
+tests/test_code_facts_extraction.py::TestCodeMapAndMetaConsistency - Test that CODE-MAP.yaml and README.meta.yaml are in sync.
+tests/test_code_facts_extraction.py::TestCodeMapValidity - Test that CODE-MAP.yaml is well-formed.
+tests/test_code_facts_extraction.py::TestInvariantCoverage - Test that invariants are defined for key concepts.
+tests/test_code_facts_extraction.py::TestMetaYamlValidity - Test that README.meta.yaml files are well-formed.
+tests/test_code_facts_extraction.py::TestProtectedFileEnforcement - Test that protected files are properly defined.
 tests/test_imports.py::TestCoreImports - Verify core modules can be imported.
 tests/test_imports.py::TestMemoryImports - Verify memory system modules can be imported.
 tests/test_imports.py::TestModuleAttributes - Verify expected attributes exist on modules.
@@ -2526,12 +2954,33 @@ tests/test_tool_registry.py::TestDefaultTools - Tests for default tool initializ
 tests/test_tool_registry.py::TestToolMetadata - Tests for ToolMetadata model.
 tests/test_tool_registry.py::TestToolRegistry - Tests for ToolRegistry class.
 tests/test_tool_registry.py::TestToolResolver - Tests for ToolResolver class.
+tests/tools/test_l9_cli.py::TestL9CLI - Test suite for l9-cli tool.
+tests/unit/di/test_container.py::CacheClient - Test cache client protocol.
+tests/unit/di/test_container.py::CircularA - Test class for circular dependency detection.
+tests/unit/di/test_container.py::CircularB - Test class for circular dependency detection.
+tests/unit/di/test_container.py::Logger - Test logger protocol.
+tests/unit/di/test_container.py::MockCacheClient - Mock cache client implementation.
+tests/unit/di/test_container.py::MockLogger - Mock logger implementation.
+tests/unit/di/test_container.py::MockService - Mock service with dependencies.
+tests/unit/di/test_container.py::NestedService - No docstring
+tests/unit/di/test_container.py::SelfRef - No docstring
+tests/unit/di/test_container.py::Service - Test service protocol with dependencies.
+tests/unit/di/test_container.py::TestCircularDependencyDetection - Test circular dependency detection.
+tests/unit/di/test_container.py::TestContainerRepr - Test container string representation.
+tests/unit/di/test_container.py::TestContainerState - Test container state management.
+tests/unit/di/test_container.py::TestDependencyInjection - Test automatic dependency injection.
+tests/unit/di/test_container.py::TestErrorHandling - Test error handling and reporting.
+tests/unit/di/test_container.py::TestGlobalContainer - Test global container instance.
+tests/unit/di/test_container.py::TestSingletonLifecycle - Test singleton lifecycle management.
+tests/unit/di/test_container.py::TestThreadSafety - Test thread safety of container operations.
+tests/unit/di/test_container.py::TestTransientLifecycle - Test transient lifecycle management.
 tests/unit/test_guarded_execution.py::AgentWithoutKernelState - No docstring
 tests/unit/test_guarded_execution.py::AgentWithoutKernels - No docstring
 tests/unit/test_guarded_execution.py::MockKernelAwareAgent - Mock agent with kernel state.
 tests/unit/test_guarded_execution.py::MockToolRegistry - Mock tool registry with dispatch_tool_call.
 tests/unit/test_guarded_execution.py::TestAuditTrailEmission - Tests for audit trail emission with kernel metadata.
 tests/unit/test_guarded_execution.py::TestExecutorGuardedIntegration - Tests for executor integration with guarded execution.
+tests/unit/test_guarded_execution.py::TestExecutorKernelEnforcement - Tests for executor fail-closed kernel enforcement.
 tests/unit/test_guarded_execution.py::TestGovernanceEngineIntegration - Tests for governance engine integration with guarded executi
 tests/unit/test_guarded_execution.py::TestGuardedExecute - Tests for ExecutorToolRegistry.guarded_execute.
 tests/unit/test_guarded_execution.py::TestGuardedExecuteEdgeCases - Edge case tests for guarded execution.
@@ -2570,6 +3019,16 @@ tests/upgrades/test_packet_envelope_phases.py::TestPhase2Observability - Tests f
 tests/upgrades/test_packet_envelope_phases.py::TestPhase3Standardization - Tests for Phase 3 CloudEvents standardization
 tests/upgrades/test_packet_envelope_phases.py::TestPhase4Scalability - Tests for Phase 4 scalability features
 tests/upgrades/test_packet_envelope_phases.py::TestPhase5Governance - Tests for Phase 5 governance features
+tests/workers/test_anomaly_classifier.py::TestAnomalyClassifierInit - Test AnomalyClassifier initialization.
+tests/workers/test_anomaly_classifier.py::TestClassificationRules - Test classification rule matching.
+tests/workers/test_anomaly_classifier.py::TestConfidenceScoring - Test confidence score calculation.
+tests/workers/test_anomaly_classifier.py::TestHealthCheck - Test classifier health check.
+tests/workers/test_anomaly_classifier.py::TestRecommendedActions - Test recommended action generation.
+tests/workers/test_violation_tracker.py::TestViolationCounting - Test violation count tracking.
+tests/workers/test_violation_tracker.py::TestViolationRecord - Test ViolationRecord model.
+tests/workers/test_violation_tracker.py::TestViolationTrackerProcess - Test ViolationTrackerService.process().
+tests/workers/test_violation_tracker.py::TestViolationTrackerServiceInit - Test ViolationTrackerService initialization.
+tests/world_model/test_wm_scope.py::FakeConnection - No docstring
 tests/world_model/test_world_model_repository_basic.py::FakeConnection - No docstring
 tests/world_model/test_world_model_repository_basic.py::FakePool - No docstring
 tests/world_model/test_world_model_repository_basic.py::TestWorldModelRepositoryBasic - No docstring
@@ -2577,7 +3036,6 @@ tools/mac_protocol.py::Config - No docstring
 tools/mac_protocol.py::Config - No docstring
 tools/mac_protocol.py::MacMessage - Mac protocol message schema.
 tools/mac_protocol.py::MacResponse - Mac protocol response schema.
-wiring-audit-perplexity/validate_wiring_alignment.py::WiringValidator - No docstring
 workers/anomaly_classifier.py::AnomalyClassifier - Anomaly Classifier Service.
 workers/anomaly_classifier.py::AnomalyClassifierRequest - Input request for AnomalyClassifier.
 workers/anomaly_classifier.py::AnomalyClassifierResponse - Output response from AnomalyClassifier.
@@ -2657,6 +3115,8 @@ world_model/knowledge_ingestor.py::SourceType - Types of knowledge sources.
 world_model/loader.py::WorldModelLoader - Loader for World Model specifications.
 world_model/nodes/service_nodes.py::WorldModelGraphState - State schema for World Model LangGraph nodes.
 world_model/nodes/update_world_model_node.py::WorldModelNodeState - State schema for World Model LangGraph nodes.
+world_model/query_engine.py::QueryContext - Context for query execution.
+world_model/query_engine.py::QueryEngine - Executes declarative queries on World Model state.
 world_model/reflection_memory.py::Improvement - A proposed or implemented improvement.
 world_model/reflection_memory.py::Pattern - A recognized pattern.
 world_model/reflection_memory.py::Reflection - A stored reflection.

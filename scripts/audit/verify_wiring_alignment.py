@@ -21,6 +21,27 @@ Wiring Invariant:
     3. Listed in readme/repo-index/file_metrics.txt
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Verify Wiring Alignment",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "verify_wiring_alignment",
+    "type": "dataclass",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import re
 import json
 import argparse
@@ -369,3 +390,57 @@ def main() -> int:
 
 if __name__ == "__main__":
     exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-008",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "caching",
+        "cli",
+        "dataclass",
+        "filesystem",
+        "metrics",
+        "operations",
+        "scripts",
+        "serialization",
+        "testing",
+    ],
+    "keywords": [
+        "alignment",
+        "canonical",
+        "extract",
+        "files",
+        "green",
+        "json",
+        "paths",
+        "print",
+    ],
+    "business_value": "Provides verify wiring alignment components including PathReference, VerificationResult",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

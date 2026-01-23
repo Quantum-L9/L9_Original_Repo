@@ -22,12 +22,34 @@ GMP: GMP-UKG-3 (World Model Sync)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Graph To Wm Sync",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "graph_to_wm_sync",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL"],
+        "memory_layers": [],
+        "imported_by": ["api.server", "tests.integration.test_graph_wm_sync"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import os
 from datetime import datetime
 from typing import Any
 
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -82,6 +104,7 @@ class GraphToWorldModelSync:
         self._last_sync: datetime | None = None
         self._sync_count = 0
 
+    @must_stay_async("callers use await")
     async def start(self) -> None:
         """Start the periodic sync task."""
         if not self.enabled:
@@ -285,6 +308,10 @@ class GraphToWorldModelSync:
         """Upsert entity to World Model."""
         try:
             from world_model.service import WorldModelService
+            from config.rls_config import get_rls_config
+
+            # GMP-94: World Model operations require RLS scope
+            rls_config = get_rls_config()
 
             service = WorldModelService()
             # Include name in attributes since WorldModelService doesn't have a name param
@@ -294,6 +321,10 @@ class GraphToWorldModelSync:
                 entity_type=entity["entity_type"],
                 entity_id=entity["entity_id"],
                 attributes=attributes,
+                tenant_id=rls_config.tenant_uuid,
+                org_id=rls_config.org_uuid,
+                user_id=rls_config.user_uuid,
+                role="system",
             )
 
         except ImportError:
@@ -349,3 +380,57 @@ async def stop_graph_wm_sync() -> None:
     global _sync_service
     if _sync_service:
         await _sync_service.stop()
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-027",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.graph_state", "core.decorators"],
+    "tags": [
+        "async",
+        "auth",
+        "core",
+        "debugging",
+        "foundation",
+        "graph-db",
+        "logging",
+        "service",
+        "streaming",
+    ],
+    "keywords": [
+        "agent",
+        "graph",
+        "model",
+        "service",
+        "start",
+        "state",
+        "status",
+        "stop",
+    ],
+    "business_value": "World Model has real-time view of L's graph state Agent entity in WM has attributes matching Neo4j Changes via AgentSelfModifyTool appear in WM Neo4j Graph State → GraphToWorldModelSync → World Model ",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

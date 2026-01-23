@@ -109,13 +109,27 @@ from memory.audit_utils import (
     normalize_payload,
 )
 
-# Strategy Memory (Phase 0)
+# Governance Gate (single enforcement layer)
+from memory.governance_gate import (
+    MemoryGovernanceContext,
+    build_governance_context,
+    ensure_governance_context,
+    governance_context,
+    require_governance_context,
+)
+
+# Strategy Memory (Phase 0-1: GMP-102)
 from memory.strategymemory import (
     IStrategyMemoryService,
     StrategyMemoryService,
     StrategyCandidate,
     StrategyRetrievalRequest,
     StrategyFeedback,
+)
+from memory.neo4j_strategy_memory import (
+    Neo4jStrategyMemoryService,
+    StrategyMemoryConfig,
+    create_neo4j_strategy_memory,
 )
 
 # Cypher Templates (GMP-55: Parameterized queries)
@@ -206,11 +220,6 @@ from memory.substrate_alignment import (
 
 # Governance Gate (GMP-68)
 from memory.governance_gate import (
-    MemoryGovernanceContext,
-    build_governance_context,
-    governance_context,
-    require_governance_context,
-    ensure_governance_context,
     enforce_packet_governance,
     build_scope_project_filter,
 )
@@ -331,12 +340,15 @@ __all__ = [
     "redact_pii",
     "normalize_text",
     "normalize_payload",
-    # Strategy Memory
+    # Strategy Memory (Phase 0-1: GMP-102)
     "IStrategyMemoryService",
     "StrategyMemoryService",
     "StrategyCandidate",
     "StrategyRetrievalRequest",
     "StrategyFeedback",
+    "Neo4jStrategyMemoryService",
+    "StrategyMemoryConfig",
+    "create_neo4j_strategy_memory",
     # Cypher Templates (GMP-55)
     "CypherTemplate",
     "CypherTemplateCategory",

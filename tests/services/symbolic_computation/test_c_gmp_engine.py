@@ -74,7 +74,7 @@ code:
         """Test template expansion."""
         section = {
             "content": "Hello {{name}}, value is {{value}}",
-            "substitutions": {"name": "World", "value": 42}
+            "substitutions": {"name": "World", "value": 42},
         }
 
         result = engine._expand_template(section)
@@ -91,7 +91,7 @@ code:
             "expression": "x + y",
             "variables": ["x", "y"],
             "language": "C",
-            "function_name": "add_func"
+            "function_name": "add_func",
         }
 
         result = await engine._expand_mathematical(section)
@@ -130,8 +130,7 @@ code:
     async def test_generate_batch_parallel(self, temp_dir, engine):
         """Test batch generation in parallel."""
         results = await engine.generate_batch(
-            ["template_spec.yaml", "math_spec.yaml"],
-            parallel=True
+            ["template_spec.yaml", "math_spec.yaml"], parallel=True
         )
 
         assert len(results) == 2
@@ -142,10 +141,7 @@ code:
     @pytest.mark.asyncio
     async def test_generate_batch_sequential(self, temp_dir, engine):
         """Test batch generation sequentially."""
-        results = await engine.generate_batch(
-            ["template_spec.yaml"],
-            parallel=False
-        )
+        results = await engine.generate_batch(["template_spec.yaml"], parallel=False)
 
         assert len(results) == 1
 
@@ -159,8 +155,3 @@ code:
         engine._generated_files.append({"test": "file"})
         engine.clear_generated()
         assert len(engine._generated_files) == 0
-
-
-
-
-

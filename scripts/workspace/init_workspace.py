@@ -18,6 +18,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Init Workspace",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T09:35:29Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "init_workspace",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import sys
 from dataclasses import dataclass
@@ -35,7 +56,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 @dataclass
 class InitResult:
     """Complete workspace initialization result."""
-    
+
     status: str  # READY, DEGRADED, BLOCKED
     startup_status: str
     mistakes_loaded: int
@@ -49,30 +70,30 @@ class InitResult:
 def init_workspace(workspace_root: Path, verbose: bool = False) -> InitResult:
     """
     Initialize workspace by loading all governance modules.
-    
+
     Args:
         workspace_root: Path to workspace root
         verbose: Print detailed output
-        
+
     Returns:
         InitResult with complete status
     """
     start_time = datetime.utcnow()
     errors: list[str] = []
     warnings: list[str] = []
-    
+
     if verbose:
         logger.info(f"\n🚀 Initializing L9 workspace: {workspace_root}\n")
-    
+
     # ─────────────────────────────────────────────────────────────
     # 1. Session Startup (preflight + mandatory files)
     # ─────────────────────────────────────────────────────────────
     try:
         from core.governance import create_session_startup
-        
+
         startup = create_session_startup(workspace_root)
         startup_result = startup.execute()
-        
+
         if verbose:
             logger.info(f"📋 Session Startup: {startup_result.status}")
             logger.info(f"   Files loaded: {len(startup_result.files_loaded)}")
@@ -82,97 +103,101 @@ def init_workspace(workspace_root: Path, verbose: bool = False) -> InitResult:
             if startup_result.warnings:
                 for w in startup_result.warnings:
                     logger.info(f"   ⚠️  {w}")
-        
+
         errors.extend(startup_result.errors)
         warnings.extend(startup_result.warnings)
         startup_status = startup_result.status
-        
+
     except Exception as e:
         errors.append(f"Session Startup FAILED: {e}")
         startup_status = "BLOCKED"
         if verbose:
             logger.info(f"❌ Session Startup FAILED: {e}")
-    
+
     # ─────────────────────────────────────────────────────────────
     # 2. Mistake Prevention (load critical rules)
     # ─────────────────────────────────────────────────────────────
     mistakes_loaded = 0
     try:
         from core.governance import create_mistake_prevention
-        
+
         mistake_engine = create_mistake_prevention()
         mistakes_loaded = len(mistake_engine.rules)
-        
+
         if verbose:
             logger.info(f"\n🛡️  Mistake Prevention: {mistakes_loaded} rules loaded")
             for rule in mistake_engine.rules[:3]:
                 logger.info(f"   • {rule.id}: {rule.name}")
             if mistakes_loaded > 3:
                 logger.info(f"   ... and {mistakes_loaded - 3} more")
-                
+
     except Exception as e:
         errors.append(f"Mistake Prevention FAILED: {e}")
         if verbose:
             logger.info(f"❌ Mistake Prevention FAILED: {e}")
-    
+
     # ─────────────────────────────────────────────────────────────
     # 3. Quick Fixes (load remediation patterns)
     # ─────────────────────────────────────────────────────────────
     quickfixes_loaded = 0
     try:
         from core.governance import create_quick_fix_engine
-        
+
         quickfix_engine = create_quick_fix_engine()
         quickfixes_loaded = len(quickfix_engine.fixes)
-        
+
         if verbose:
             logger.info(f"\n🔧 Quick Fix Engine: {quickfixes_loaded} fixes loaded")
             for fix in quickfix_engine.fixes[:3]:
                 logger.info(f"   • {fix.id}: {fix.problem[:40]}...")
             if quickfixes_loaded > 3:
                 logger.info(f"   ... and {quickfixes_loaded - 3} more")
-                
+
     except Exception as e:
         warnings.append(f"Quick Fix Engine FAILED: {e}")
         if verbose:
             logger.info(f"⚠️  Quick Fix Engine FAILED: {e}")
-    
+
     # ─────────────────────────────────────────────────────────────
     # 4. Credentials Policy (load secret patterns)
     # ─────────────────────────────────────────────────────────────
     credentials_patterns = 0
     try:
         from core.governance import create_credentials_policy
-        
+
         credentials_policy = create_credentials_policy()
         credentials_patterns = len(credentials_policy.patterns)
-        
+
         if verbose:
-            logger.info(f"\n🔐 Credentials Policy: {credentials_patterns} patterns loaded")
+            logger.info(
+                f"\n🔐 Credentials Policy: {credentials_patterns} patterns loaded"
+            )
             for pattern in credentials_policy.patterns[:3]:
                 logger.info(f"   • {pattern.secret_type.value}: {pattern.name}")
             if credentials_patterns > 3:
                 logger.info(f"   ... and {credentials_patterns - 3} more")
-                
+
     except Exception as e:
         warnings.append(f"Credentials Policy FAILED: {e}")
         if verbose:
             logger.info(f"⚠️  Credentials Policy FAILED: {e}")
-    
+
     # ─────────────────────────────────────────────────────────────
     # 5. Determine final status
     # ─────────────────────────────────────────────────────────────
-    critical_errors = [e for e in errors if "CRITICAL" in e or "BLOCKED" in e or "FAILED" in e]
-    
+    critical_errors = [
+        e for e in errors if "CRITICAL" in e or "BLOCKED" in e or "FAILED" in e
+    ]
+
     if critical_errors or startup_status == "BLOCKED":
         status = "BLOCKED"
     elif warnings or startup_status == "DEGRADED":
         status = "DEGRADED"
     else:
         status = "READY"
-    
+
     duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
-    
+
     return InitResult(
         status=status,
         startup_status=startup_status,
@@ -187,8 +212,10 @@ def init_workspace(workspace_root: Path, verbose: bool = False) -> InitResult:
 
 def print_banner(result: InitResult) -> None:
     """Print final status banner."""
-    status_icon = {"READY": "✅", "DEGRADED": "⚠️", "BLOCKED": "❌"}.get(result.status, "❓")
-    
+    status_icon = {"READY": "✅", "DEGRADED": "⚠️", "BLOCKED": "❌"}.get(
+        result.status, "❓"
+    )
+
     logger.info("\n" + "═" * 60)
     logger.info(f"  {status_icon} L9 WORKSPACE INITIALIZATION: {result.status}")
     logger.info("═" * 60)
@@ -204,25 +231,27 @@ def print_banner(result: InitResult) -> None:
   
   Duration: {result.duration_ms}ms
 """)
-    
+
     if result.errors:
         logger.info("  ❌ Errors:")
         for e in result.errors:
             logger.info(f"     • {e}")
         logger.info()
-    
+
     if result.warnings:
         logger.info("  ⚠️  Warnings:")
         for w in result.warnings:
             logger.info(f"     • {w}")
         logger.info()
-    
+
     if result.status == "READY":
         logger.info("  🎯 READY FOR WORK - Python governance enforcement ACTIVE\n")
     elif result.status == "DEGRADED":
         logger.info("  ⚠️  DEGRADED - Some systems unavailable, proceed with caution\n")
     else:
-        logger.info("  🛑 BLOCKED - Critical systems failed, resolve before proceeding\n")
+        logger.info(
+            "  🛑 BLOCKED - Critical systems failed, resolve before proceeding\n"
+        )
 
 
 def main() -> int:
@@ -243,31 +272,34 @@ Exit Codes:
         """,
     )
     parser.add_argument(
-        "--workspace", "-w",
+        "--workspace",
+        "-w",
         type=Path,
         default=PROJECT_ROOT,
         help="Workspace root path (default: L9 project root)",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Print detailed output",
     )
     parser.add_argument(
-        "--quiet", "-q",
+        "--quiet",
+        "-q",
         action="store_true",
         help="Only print final status line",
     )
-    
+
     args = parser.parse_args()
-    
+
     result = init_workspace(args.workspace, verbose=args.verbose)
-    
+
     if args.quiet:
         logger.info(f"{result.status}")
     else:
         print_banner(result)
-    
+
     # Return exit code based on status
     return {"READY": 0, "DEGRADED": 1, "BLOCKED": 2}.get(result.status, 2)
 
@@ -275,3 +307,45 @@ Exit Codes:
 if __name__ == "__main__":
     sys.exit(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-004",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.governance"],
+    "tags": [
+        "cli",
+        "dataclass",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "operations",
+        "scripts",
+        "security",
+    ],
+    "keywords": ["banner", "print", "workspace"],
+    "business_value": "Implements InitResult for init workspace functionality",
+    "last_modified": "2026-01-17T09:35:29Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

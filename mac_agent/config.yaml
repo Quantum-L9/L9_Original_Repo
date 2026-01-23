@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Config"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2025-12-09T01:02:49Z"
+# updated_at: "2025-12-11T13:28:19Z"
+# layer: "integration"
+# domain: "mac_integration"
+# file_name: "config"
+# type: "config"
+# status: "active"
+# ============================================================================
+
 # Mac Agent Configuration
 
 # VPS connection
@@ -12,3 +27,10 @@ gui_safety: true
 browser_headless: false
 screenshot_dir: "~/Desktop/l9_screenshots"
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "config", "configuration", "integration", "mac-integration"]
+# keywords: ["auth_token", "browser_headless", "config", "gui_safety", "poll_interval", "screenshot_dir"]
+# last_modified: "2025-12-11T13:28:19Z"
+# ============================================================================

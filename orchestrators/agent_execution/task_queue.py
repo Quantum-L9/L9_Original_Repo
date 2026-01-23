@@ -7,6 +7,31 @@ File-based task queue for Mac Agent execution only.
 This module handles ONLY mac_task types. Email tasks are handled separately.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Task Queue",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "task_queue",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "api.webhook_mac_agent",
+            "mac_agent.runner",
+            "memory.slack_ingest",
+        ],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
@@ -127,7 +152,7 @@ def enqueue_mac_task(
 def enqueue_mac_task_dict(task_dict: Dict[str, Any]) -> str:
     """
     Enqueue a Mac task from task router (file-based storage).
-    
+
     This function ONLY accepts mac_task type. Email tasks must use separate routing.
 
     Args:
@@ -233,7 +258,9 @@ def get_next_task() -> Optional[Dict[str, Any]]:
         in_progress_file = IN_PROGRESS_DIR / task_file.name
         shutil.move(str(task_file), str(in_progress_file))
 
-        logger.info(f"Retrieved mac_task {task_dict.get('task_id')} from {task_file.name}")
+        logger.info(
+            f"Retrieved mac_task {task_dict.get('task_id')} from {task_file.name}"
+        )
         return task_dict
 
     except Exception as e:
@@ -325,9 +352,62 @@ def list_tasks() -> List[Dict]:
 def enqueue_task(task_dict: Dict[str, Any]) -> str:
     """
     DEPRECATED: Use enqueue_mac_task_dict() instead.
-    
+
     This function exists for backward compatibility but only accepts mac_task.
     Email tasks must use separate routing.
     """
     return enqueue_mac_task_dict(task_dict)
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-027",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.ingestion"],
+    "tags": [
+        "api",
+        "dataclass",
+        "event-driven",
+        "filesystem",
+        "intelligence",
+        "logging",
+        "orchestration",
+        "queue",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "complete",
+        "completed",
+        "enqueue",
+        "execution",
+        "mac",
+        "mark",
+        "module",
+    ],
+    "business_value": "This module handles ONLY mac_task types. Email tasks are handled separately.",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

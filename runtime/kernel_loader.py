@@ -17,7 +17,40 @@ Features:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "THE CHOKE POINT",
+    "module_version": "2.1.0 - Consolidated from private_loader.py",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "kernel_loader",
+    "type": "service",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL"],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "agents.l_cto",
+            "core.kernel_wiring.behavioral_wiring",
+            "core.kernel_wiring.cognitive_wiring",
+            "core.kernel_wiring.developer_wiring",
+            "core.kernel_wiring.execution_wiring",
+            "core.kernel_wiring.identity_wiring",
+            "core.kernel_wiring.master_wiring",
+            "core.kernel_wiring.memory_wiring",
+            "core.kernel_wiring.packet_protocol_wiring",
+            "core.kernel_wiring.safety_wiring",
+        ],
+    },
+}
+# ============================================================================
+
 import hashlib
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, Tuple, TYPE_CHECKING
@@ -25,7 +58,7 @@ import yaml
 import structlog
 
 if TYPE_CHECKING:
-    from runtime.kernel_state import KernelState
+    pass
 
 logger = structlog.get_logger(__name__)
 
@@ -40,6 +73,13 @@ KERNEL_EXTENSIONS = (".yaml", ".yml")
 # =============================================================================
 # Kernel Load Order (explicit sequence)
 # =============================================================================
+
+# NOTE: Kernel configuration is now externalized to config/kernel_discovery.yaml
+# These hard-coded values are maintained for backward compatibility only
+# and will be removed on 2026-02-03.
+#
+# To use externalized config, set L9_USE_KERNEL_CONFIG=true (default)
+# To use hard-coded config, set L9_USE_KERNEL_CONFIG=false
 
 KERNEL_ORDER = [
     "private/kernels/00_system/01_master_kernel.yaml",
@@ -65,6 +105,44 @@ REQUIRED_KERNELS = {
 
 # Minimum kernel count for valid operation
 MINIMUM_KERNEL_COUNT = 4
+
+# =============================================================================
+# Externalized Configuration Loading
+# =============================================================================
+
+try:
+    from runtime.kernel_config_loader import (
+        load_kernel_config,
+    )
+
+    _USE_KERNEL_CONFIG = os.getenv("L9_USE_KERNEL_CONFIG", "true").lower() == "true"
+
+    if _USE_KERNEL_CONFIG:
+        # Load configuration from config/kernel_discovery.yaml
+        _kernel_config = load_kernel_config()
+        KERNEL_ORDER = _kernel_config["kernel_order"]
+        REQUIRED_KERNELS = _kernel_config["required_kernels"]
+        MINIMUM_KERNEL_COUNT = _kernel_config["minimum_kernel_count"]
+        logger.info(
+            "kernel_loader.config_loaded",
+            action="loaded_externalized_config",
+            kernel_count=len(KERNEL_ORDER),
+            source="config/kernel_discovery.yaml",
+        )
+    else:
+        logger.warning(
+            "kernel_loader.config_fallback",
+            action="using_hardcoded_config",
+            message="L9_USE_KERNEL_CONFIG=false, using hard-coded KERNEL_ORDER",
+        )
+except Exception as e:
+    logger.warning(
+        "kernel_loader.config_load_failed",
+        action="config_load_failed",
+        error=str(e),
+        message="Falling back to hard-coded KERNEL_ORDER",
+    )
+    # Keep using hard-coded values above
 
 
 # =============================================================================
@@ -220,7 +298,7 @@ def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
         RuntimeError: If kernel loading fails
     """
     # Import KernelState (lazy to avoid circular imports)
-    from runtime.kernel_state import KernelState, create_kernel_state
+    from runtime.kernel_state import create_kernel_state
 
     if base_path is None:
         # Default to repo root (runtime/ is one level down from root)
@@ -278,8 +356,8 @@ def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
         full_path = base_path / kernel_path
 
         if not full_path.exists():
-            logger.warning("kernel_loader.missing: %s", kernel_path)
-            continue
+            logger.error("kernel_loader.missing: %s", kernel_path)
+            raise RuntimeError(f"Missing kernel file during load: {kernel_path}")
 
         try:
             data = yaml.safe_load(full_path.read_text())
@@ -944,8 +1022,7 @@ def load_all_private_kernels(
     base = Path(base_path)
 
     if not base.exists():
-        logger.warning(f"Kernel base path does not exist: {base_path}")
-        return []
+        raise RuntimeError(f"Kernel base path does not exist: {base_path}")
 
     # Integrity check
     if check_integrity:
@@ -1355,3 +1432,62 @@ __all__ = [
     "verify_kernel_activation",
     "require_kernel_activation",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-010",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.kernels.integrity",
+        "memory.graph_client",
+        "memory.substrate_service",
+        "runtime.kernel_state",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "authorization",
+        "caching",
+        "config",
+        "debugging",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "absorb",
+        "activation",
+        "agent",
+        "all",
+        "apply",
+        "aware",
+        "boot",
+        "cached",
+    ],
+    "business_value": "This is the ONLY way kernels enter the system. If this file isn't used → kernels are not real. Version: 2.1.0 - Consolidated from private_loader.py Agent kernel absorption (load_kernels) KernelStack l",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

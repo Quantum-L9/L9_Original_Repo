@@ -58,6 +58,27 @@ Cursor Memory Client — Access L9 Memory Substrate via MCP Tools
     Session UUID: Date-based (same ID for entire day)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor Memory Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-14T12:08:12Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "cursor_memory_client",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": ["working_memory", "semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import json
 import argparse
@@ -114,7 +135,7 @@ if env_path.exists():
             key, _, value = line.partition("=")
             os.environ.setdefault(key.strip(), value.strip())
 
-# PRODUCTION: VPS (default). Set L9_API_URL=http://127.0.0.1:8000 for local Docker
+# PRODUCTION: VPS (always). Local Docker testing requires explicit override.
 L9_API_URL = os.getenv("L9_API_URL", "https://l9.quantumaipartners.com")
 # MCP_API_KEY_C is the correct key for Cursor (not L9_EXECUTOR_API_KEY)
 # Fallback chain: MCP_API_KEY_C -> L9_EXECUTOR_API_KEY (legacy)
@@ -124,7 +145,6 @@ L9_EXECUTOR_API_KEY = os.getenv("MCP_API_KEY_C") or os.getenv("L9_EXECUTOR_API_K
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
-
 
 # =============================================================================
 # MCP Client (Primary - MCP Server ONLY)
@@ -1662,3 +1682,57 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "agent-execution",
+        "api",
+        "auth",
+        "cache",
+        "caching",
+        "cli",
+        "event-driven",
+        "filesystem",
+        "intelligence",
+        "messaging",
+    ],
+    "keywords": [
+        "api",
+        "cache",
+        "check",
+        "client",
+        "close",
+        "cmd",
+        "compute",
+        "cursor",
+    ],
+    "business_value": "Utility module for cursor memory client",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

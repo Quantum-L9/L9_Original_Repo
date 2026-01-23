@@ -1,0 +1,103 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Protected Files Policy"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-19T22:00:00Z"
+# updated_at: "2026-01-19T22:00:00Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "protected_files"
+# type: "policy"
+# status: "active"
+# ============================================================================
+
+# L9 Governance - Protected Files Policy
+# =======================================
+# Single source of truth for protected file definitions.
+#
+# GMP-104: Consolidates PROTECTED_BY_LCTO and SUBSYSTEM_PROTECTED from
+# .github/scripts/validate-protected-files.py into declarative policy.
+#
+# Protected files can only be modified by:
+#   - L (CTO): LCTO-controlled surfaces
+#   - Igor (Boss): Any file (with audit trail)
+#   - Cursor (IDE): Non-protected files only
+
+protected_files:
+  # ==========================================================================
+  # LCTO-CONTROLLED FILES
+  # ==========================================================================
+  # Core infrastructure that L (CTO) controls directly.
+  # Changes require explicit L approval and architectural review.
+  lcto_controlled:
+    - path: runtime/websocket_orchestrator.py
+      reason: "Real-time communication core"
+      owner: L
+      
+    - path: runtime/kernel_loader.py
+      reason: "Governance kernel loading"
+      owner: L
+      
+    - path: docker-compose.yml
+      reason: "Infrastructure orchestration"
+      owner: L
+      
+    - path: runtime/redis_client.py
+      reason: "State management core"
+      owner: L
+      
+    - path: core/agents/executor.py
+      reason: "Agent execution engine"
+      owner: L
+
+  # ==========================================================================
+  # SUBSYSTEM-PROTECTED FILES
+  # ==========================================================================
+  # Files protected by subsystem ownership.
+  # Changes require subsystem owner approval.
+  
+  subsystems:
+    agents:
+      owner: L
+      files:
+        - core/agents/executor.py
+        - core/agents/registry.py
+        - core/agents/__init__.py
+        
+    memory:
+      owner: L
+      files:
+        - memory/substrate_service.py
+        - memory/substrate_dag.py
+        - memory/__init__.py
+        
+    tools:
+      owner: L
+      files:
+        - core/tools/registry_adapter.py
+        - core/tools/tool_graph.py
+        - core/tools/__init__.py
+
+  # ==========================================================================
+  # APPROVAL REQUIREMENTS
+  # ==========================================================================
+  approval_requirements:
+    lcto_controlled:
+      - Get approval from L (CTO)
+      - Open an issue documenting the change
+      - Include risk assessment and rollback plan
+      
+    subsystem:
+      - Get approval from subsystem owner
+      - Include test coverage for changes
+      - Document API changes if any
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["configuration", "foundation", "policy", "security", "protected-files"]
+# keywords: ["lcto", "protected", "subsystem", "ownership"]
+# last_modified: "2026-01-19T22:00:00Z"
+# ============================================================================

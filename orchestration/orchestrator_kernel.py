@@ -25,12 +25,34 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Orchestrator Kernel",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "orchestrator_kernel",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["orchestration.__init__", "orchestration.unified_controller"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Optional
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -513,6 +535,7 @@ class OrchestratorKernel:
     # Phase Implementations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _phase_ingest(
         self,
         task: str,
@@ -571,6 +594,7 @@ class OrchestratorKernel:
 
         return graph
 
+    @must_stay_async("callers use await")
     async def _phase_validate(self, graph: Any) -> None:
         """
         Phase 3: VALIDATE - Validate IR structure and completeness.
@@ -656,6 +680,7 @@ class OrchestratorKernel:
             "failure_modes": sim_result.failure_modes,
         }
 
+    @must_stay_async("callers use await")
     async def _phase_plan(self, graph: Any) -> Any:
         """
         Phase 6: PLAN - Convert IR to execution plan.
@@ -674,6 +699,7 @@ class OrchestratorKernel:
 
         return plan
 
+    @must_stay_async("callers use await")
     async def _phase_execute(
         self,
         plan: Any,
@@ -1002,3 +1028,58 @@ class OrchestratorKernel:
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
         return int((datetime.utcnow() - start).total_seconds() * 1000)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-036",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "intelligence",
+        "logging",
+        "messaging",
+        "metrics",
+    ],
+    "keywords": [
+        "active",
+        "chain",
+        "chains",
+        "change",
+        "client",
+        "create",
+        "deterministic",
+        "execute",
+    ],
+    "business_value": "Provides orchestrator kernel components including ChainStatus, KernelPhase, ChainStep",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

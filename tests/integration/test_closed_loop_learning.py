@@ -10,7 +10,6 @@ Tests:
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-
 # =============================================================================
 # Test Adaptive Prompting (uses core.agents which doesn't have memory import at top)
 # =============================================================================
@@ -201,9 +200,7 @@ class TestApprovalManagerPatternWriting:
 
         mock_governance_patterns = MagicMock()
         mock_governance_patterns.DecisionType = MagicMock()
-        mock_governance_patterns.extract_conditions_from_reason = MagicMock(
-            return_value=[]
-        )
+        mock_governance_patterns.extract_conditions_from_reason = MagicMock(return_value=[])
 
         with patch.dict(
             "sys.modules",

@@ -35,8 +35,7 @@ neo4j/data/
 
 # --- Editor / Agent tooling (Mac-local only, symlinks to Dropbox) ---
 .cursor-commands/
-.cursor/commands
-.cursor/rules
+.cursor/
 .dora/
 
 # --- Igor's working files (local only) ---
@@ -44,6 +43,9 @@ neo4j/data/
 
 # --- Development agents (not ready for production) ---
 agents/codegenagent/
+
+# --- Perplexity Research Results (ephemeral, reviewed weekly) ---
+agents/cursor/perplexity_research_results/
 
 # --- Documentation (local only) ---
 /docs/
@@ -93,11 +95,15 @@ docker-compose.override.yml
 docker-compose.local.dev.yml
 docs/docker-compose.yaml
 
-# Secrets (NEVER commit)
-secrets/
+# Secrets (NEVER commit) - root level only, not core/secrets/
+/secrets/
 
 # Backup/reference files (local only)
 Repo-Files/
+VPS-Repo-Files/
+
+# Perplexity research outputs (ephemeral)
+wiring-audit-perplexity/
 
 # Local reports (generated / archive)
 reports/GMP Reports/
@@ -123,3 +129,5 @@ codegen/
 tests/agents/codegenagent/
 tests/codegen/email_agent/private_auth/
 email_agent/private_auth/
+reports/
+*.tfvars

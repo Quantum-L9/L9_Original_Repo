@@ -13,6 +13,31 @@ The pipeline flow:
     pass_5_integrate_results → END
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Research Factory Nodes",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "research_factory_nodes",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.schemas.__init__",
+            "core.schemas.tests.test_research_factory",
+            "core.schemas.universal_schema",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Callable, Optional
@@ -27,9 +52,9 @@ from core.schemas.research_factory_models import (
     ValidationStatus,
 )
 from core.schemas.research_factory_state import ResearchState
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
-
 
 # =============================================================================
 # Type Aliases for Pluggable Backends
@@ -38,12 +63,12 @@ logger = structlog.get_logger(__name__)
 RetrievalBackend = Callable[[str], list[dict[str, Any]]]
 ExtractionBackend = Callable[[dict[str, Any]], tuple[dict[str, Any], float]]
 
-
 # =============================================================================
 # Pass 1: Plan Queries
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_1_plan_queries(state: ResearchState) -> ResearchState:
     """
     Pass 1 — Derive research plan from job specification.
@@ -122,6 +147,7 @@ async def pass_1_plan_queries(state: ResearchState) -> ResearchState:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_2_build_superprompts(state: ResearchState) -> ResearchState:
     """
     Pass 2 — Construct optimized prompts from query plan.
@@ -190,6 +216,7 @@ Format: JSON with keys [results, metadata, sources]
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_3_execute_retrieval(
     state: ResearchState, retrieval_backend: Optional[RetrievalBackend] = None
 ) -> ResearchState:
@@ -257,6 +284,7 @@ async def pass_3_execute_retrieval(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_4_extract_results(
     state: ResearchState, extraction_backend: Optional[ExtractionBackend] = None
 ) -> ResearchState:
@@ -334,6 +362,7 @@ async def pass_4_extract_results(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def pass_5_integrate_results(state: ResearchState) -> ResearchState:
     """
     Pass 5 — Persist output to hypergraph and world model.
@@ -441,3 +470,61 @@ def build_research_graph():
     graph.add_edge("pass_5_integrate_results", END)
 
     return graph.compile()
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "core.schemas.research_factory_models",
+        "core.schemas.research_factory_state",
+    ],
+    "tags": [
+        "async",
+        "batch-processing",
+        "core",
+        "foundation",
+        "logging",
+        "metrics",
+        "mocking",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "build",
+        "execute",
+        "extract",
+        "factory",
+        "graph",
+        "integrate",
+        "langgraph",
+        "nodes",
+    ],
+    "business_value": "Implements the 5-pass structured research pipeline as LangGraph node functions.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

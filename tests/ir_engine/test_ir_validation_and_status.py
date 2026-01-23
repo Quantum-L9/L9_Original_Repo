@@ -440,9 +440,7 @@ class TestValidateAndUpdateStatus:
 
         # Find status change event
         status_events = [
-            e
-            for e in simple_valid_graph.processing_log
-            if e["event"] == "status_changed"
+            e for e in simple_valid_graph.processing_log if e["event"] == "status_changed"
         ]
         assert len(status_events) > 0
 

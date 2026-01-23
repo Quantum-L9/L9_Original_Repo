@@ -63,6 +63,9 @@ help:
 	@echo "  make ci-code SPEC=x.yaml FILES='a.py'           Validate code"
 	@echo "  make ci-all-specs                               Validate ALL specs"
 	@echo ""
+	@echo "$(YELLOW)Cursor:$(NC)"
+	@echo "  make cursor-start  Run Cursor session startup"
+	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
 	@echo "  make clean         Clean Python cache and build artifacts"
 	@echo "  make env-check     Validate environment variables"
@@ -202,4 +205,11 @@ clean:
 env-check:
 	@echo "$(GREEN)Checking environment variables...$(NC)"
 	@./scripts/check_env.sh
+
+# =============================================================================
+# Cursor
+# =============================================================================
+
+cursor-start:
+	@./scripts/cursor-start-session
 

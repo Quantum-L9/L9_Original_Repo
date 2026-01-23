@@ -16,6 +16,27 @@ Usage:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Verify Memory Spec V3",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-13T18:30:12Z",
+    "updated_at": "2026-01-13T16:13:17Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "verify_memory_spec_v3",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import ast
 import re
@@ -24,7 +45,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 
 # =============================================================================
 # Configuration
@@ -42,17 +62,17 @@ DEPRECATED_SPEC_PATTERNS = [
     "*-wirein-*.yaml",
 ]
 
-
 # =============================================================================
 # Spec Loader
 # =============================================================================
+
 
 def load_spec() -> dict[str, Any]:
     """Load and parse the memory spec v3.0."""
     if not SPEC_FILE.exists():
         print(f"❌ CRITICAL: Spec file not found: {SPEC_FILE}")
         sys.exit(1)
-    
+
     with open(SPEC_FILE) as f:
         return yaml.safe_load(f)
 
@@ -61,16 +81,17 @@ def load_spec() -> dict[str, Any]:
 # Check 1: No Duplicate Specs
 # =============================================================================
 
+
 def check_no_duplicate_specs(verbose: bool = False) -> tuple[bool, list[str]]:
     """Ensure memory_spec_v3.0.yaml is the ONLY active spec."""
     issues = []
-    
+
     # Check for deprecated spec files
     for pattern in DEPRECATED_SPEC_PATTERNS:
         matches = list(MEMORY_DIR.glob(pattern))
         for match in matches:
             issues.append(f"Deprecated spec found: {match.name}")
-    
+
     # Check tests directory for old wire-in files
     tests_dir = REPO_ROOT / "tests"
     if tests_dir.exists():
@@ -78,14 +99,14 @@ def check_no_duplicate_specs(verbose: bool = False) -> tuple[bool, list[str]]:
             matches = list(tests_dir.glob(pattern))
             for match in matches:
                 issues.append(f"Old wire-in test file: {match.relative_to(REPO_ROOT)}")
-    
+
     # Check for stale comment bindings in code
     binding_pattern = re.compile(r"#\s*bound to memory-yaml")
     for py_file in MEMORY_DIR.glob("*.py"):
         content = py_file.read_text()
         if binding_pattern.search(content):
             issues.append(f"Stale v2.0 binding comment in: {py_file.name}")
-    
+
     passed = len(issues) == 0
     return passed, issues
 
@@ -94,10 +115,11 @@ def check_no_duplicate_specs(verbose: bool = False) -> tuple[bool, list[str]]:
 # Check 2: Required Modules Exist
 # =============================================================================
 
+
 def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]:
     """Verify all modules referenced in spec exist."""
     issues = []
-    
+
     # Extract module references from memory_layers
     memory_layers = spec.get("memory_layers", {})
     for layer_name, layer_config in memory_layers.items():
@@ -105,10 +127,12 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
         if module:
             module_path = MEMORY_DIR / module
             if not module_path.exists():
-                issues.append(f"Layer '{layer_name}' references missing module: {module}")
+                issues.append(
+                    f"Layer '{layer_name}' references missing module: {module}"
+                )
             elif verbose:
                 print(f"  ✓ {layer_name} → {module}")
-    
+
     # Extract module references from pipelines
     pipelines = spec.get("pipelines", {})
     for pipeline_name, pipeline_config in pipelines.items():
@@ -116,17 +140,21 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
         if entrypoint:
             entrypoint_path = MEMORY_DIR / entrypoint
             if not entrypoint_path.exists():
-                issues.append(f"Pipeline '{pipeline_name}' references missing entrypoint: {entrypoint}")
+                issues.append(
+                    f"Pipeline '{pipeline_name}' references missing entrypoint: {entrypoint}"
+                )
             elif verbose:
                 print(f"  ✓ {pipeline_name} → {entrypoint}")
-        
+
         # Check binding modules
         binding = pipeline_config.get("binding", {})
         for bind_name, bind_module in binding.items():
             bind_path = MEMORY_DIR / bind_module
             if not bind_path.exists():
-                issues.append(f"Pipeline '{pipeline_name}' binding '{bind_name}' references missing: {bind_module}")
-    
+                issues.append(
+                    f"Pipeline '{pipeline_name}' binding '{bind_name}' references missing: {bind_module}"
+                )
+
     # Check query_classifier module
     retrieval = pipelines.get("retrieval", {})
     query_classifier = retrieval.get("query_classifier", {})
@@ -137,7 +165,7 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
             issues.append(f"Query classifier references missing module: {qc_module}")
         elif verbose:
             print(f"  ✓ query_classifier → {qc_module}")
-    
+
     passed = len(issues) == 0
     return passed, issues
 
@@ -146,41 +174,44 @@ def check_required_modules(spec: dict, verbose: bool = False) -> tuple[bool, lis
 # Check 3: Required Methods Exist
 # =============================================================================
 
+
 def extract_class_methods(file_path: Path) -> dict[str, list[str]]:
     """Extract all method names from classes in a Python file."""
     methods_by_class: dict[str, list[str]] = {}
-    
+
     try:
         content = file_path.read_text()
         tree = ast.parse(content)
     except (SyntaxError, FileNotFoundError):
         return methods_by_class
-    
+
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
             class_methods = []
             for item in node.body:
-                if isinstance(item, ast.FunctionDef) or isinstance(item, ast.AsyncFunctionDef):
+                if isinstance(item, ast.FunctionDef) or isinstance(
+                    item, ast.AsyncFunctionDef
+                ):
                     class_methods.append(item.name)
             methods_by_class[node.name] = class_methods
-    
+
     return methods_by_class
 
 
 def extract_function_names(file_path: Path) -> list[str]:
     """Extract all top-level function names from a Python file."""
     functions = []
-    
+
     try:
         content = file_path.read_text()
         tree = ast.parse(content)
     except (SyntaxError, FileNotFoundError):
         return functions
-    
+
     for node in ast.iter_child_nodes(tree):
         if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
             functions.append(node.name)
-    
+
     return functions
 
 
@@ -193,25 +224,25 @@ def parse_method_signature(sig: str) -> str:
 def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]:
     """Verify all required_methods from spec are implemented."""
     issues = []
-    
+
     memory_layers = spec.get("memory_layers", {})
-    
+
     for layer_name, layer_config in memory_layers.items():
         module_name = layer_config.get("module")
         if not module_name:
             continue
-        
+
         module_path = MEMORY_DIR / module_name
         if not module_path.exists():
             continue  # Already reported in module check
-        
+
         # Get all methods in this module
         class_methods = extract_class_methods(module_path)
         top_functions = extract_function_names(module_path)
         all_methods = set(top_functions)
         for methods in class_methods.values():
             all_methods.update(methods)
-        
+
         # Check responsibilities
         responsibilities = layer_config.get("responsibilities", {})
         for resp_name, resp_config in responsibilities.items():
@@ -226,24 +257,24 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
                         )
                     elif verbose:
                         print(f"  ✓ {layer_name}.{resp_name} → {method_name}")
-    
+
     # Check pipeline-specific modules (reasoning_replay, consolidation)
     pipelines = spec.get("pipelines", {})
     for pipeline_name, pipeline_config in pipelines.items():
         entrypoint = pipeline_config.get("entrypoint")
         if not entrypoint:
             continue
-        
+
         entrypoint_path = MEMORY_DIR / entrypoint
         if not entrypoint_path.exists():
             continue
-        
+
         class_methods = extract_class_methods(entrypoint_path)
         top_functions = extract_function_names(entrypoint_path)
         all_methods = set(top_functions)
         for methods in class_methods.values():
             all_methods.update(methods)
-        
+
         # Check responsibilities in pipeline
         responsibilities = pipeline_config.get("responsibilities", {})
         for resp_name, resp_config in responsibilities.items():
@@ -258,7 +289,7 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
                         )
                     elif verbose:
                         print(f"  ✓ {pipeline_name}.{resp_name} → {method_name}")
-    
+
     passed = len(issues) == 0
     return passed, issues
 
@@ -267,19 +298,20 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
 # Check 4: Feature Flags Defined
 # =============================================================================
 
+
 def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]:
     """Verify feature flags are defined in code (optional - informational)."""
     issues = []
     warnings = []
-    
+
     feature_flags = spec.get("feature_flags", {})
     if not feature_flags:
         return True, []
-    
+
     # Search for flag usage in codebase
     for flag_name, flag_config in feature_flags.items():
         found = False
-        
+
         # Check memory directory
         for py_file in MEMORY_DIR.glob("**/*.py"):
             content = py_file.read_text()
@@ -288,7 +320,7 @@ def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[s
                 if verbose:
                     print(f"  ✓ {flag_name} found in {py_file.name}")
                 break
-        
+
         # Check core directory
         if not found:
             core_dir = REPO_ROOT / "core"
@@ -298,17 +330,21 @@ def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[s
                     if flag_name in content:
                         found = True
                         if verbose:
-                            print(f"  ✓ {flag_name} found in {py_file.relative_to(REPO_ROOT)}")
+                            print(
+                                f"  ✓ {flag_name} found in {py_file.relative_to(REPO_ROOT)}"
+                            )
                         break
-        
+
         if not found:
             # Not an error, just informational
-            warnings.append(f"Feature flag '{flag_name}' not found in code (may be future)")
-    
+            warnings.append(
+                f"Feature flag '{flag_name}' not found in code (may be future)"
+            )
+
     if verbose and warnings:
         for w in warnings:
             print(f"  ⚠ {w}")
-    
+
     # Feature flags not found is not a failure - they may be planned
     return True, []
 
@@ -317,15 +353,16 @@ def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[s
 # Check 5: Contracts Validation (Lightweight)
 # =============================================================================
 
+
 def check_contracts(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]:
     """Basic validation that contract targets exist."""
     issues = []
-    
+
     pipelines = spec.get("pipelines", {})
-    
+
     for pipeline_name, pipeline_config in pipelines.items():
         contracts = pipeline_config.get("contracts", [])
-        
+
         for contract in contracts:
             if isinstance(contract, dict):
                 # Handle must_call
@@ -340,9 +377,11 @@ def check_contracts(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]
                             module_path = MEMORY_DIR / module
                             if module_path.exists():
                                 all_methods = set(extract_function_names(module_path))
-                                for methods in extract_class_methods(module_path).values():
+                                for methods in extract_class_methods(
+                                    module_path
+                                ).values():
                                     all_methods.update(methods)
-                                
+
                                 if method not in all_methods:
                                     issues.append(
                                         f"Pipeline '{pipeline_name}' contract must_call "
@@ -350,7 +389,7 @@ def check_contracts(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]
                                     )
                                 elif verbose:
                                     print(f"  ✓ Contract {pipeline_name} → {must_call}")
-    
+
     passed = len(issues) == 0
     return passed, issues
 
@@ -359,6 +398,7 @@ def check_contracts(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]
 # Main Verification
 # =============================================================================
 
+
 def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bool:
     """Run all verification checks."""
     print("=" * 60)
@@ -366,10 +406,10 @@ def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bo
     print("=" * 60)
     print(f"Spec file: {SPEC_FILE.relative_to(REPO_ROOT)}")
     print()
-    
+
     spec = load_spec()
     all_passed = True
-    
+
     # Check 1: No duplicates
     print("▶ Check 1: No Duplicate Specs")
     passed, issues = check_no_duplicate_specs(verbose)
@@ -381,7 +421,7 @@ def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bo
             print(f"    - {issue}")
         all_passed = False
     print()
-    
+
     # Check 2: Required modules
     print("▶ Check 2: Required Modules Exist")
     passed, issues = check_required_modules(spec, verbose)
@@ -393,7 +433,7 @@ def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bo
             print(f"    - {issue}")
         all_passed = False
     print()
-    
+
     # Check 3: Required methods
     print("▶ Check 3: Required Methods Implemented")
     passed, issues = check_required_methods(spec, verbose)
@@ -405,13 +445,13 @@ def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bo
             print(f"    - {issue}")
         # Don't fail on missing methods - spec may be aspirational
     print()
-    
+
     # Check 4: Feature flags
     print("▶ Check 4: Feature Flags (Informational)")
     passed, issues = check_feature_flags(spec, verbose)
     print("  ℹ️  INFO - Feature flag check complete")
     print()
-    
+
     # Check 5: Contracts
     print("▶ Check 5: Contract Validation")
     passed, issues = check_contracts(spec, verbose)
@@ -422,7 +462,7 @@ def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bo
         for issue in issues:
             print(f"    - {issue}")
     print()
-    
+
     # Summary
     print("=" * 60)
     if all_passed:
@@ -432,19 +472,70 @@ def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bo
         print("❌ VERIFICATION FAILED")
         print("   See issues above")
     print("=" * 60)
-    
+
     return all_passed
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Verify memory spec v3.0 implementation")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Show detailed output")
-    parser.add_argument("--fix-suggestions", action="store_true", help="Show fix suggestions")
+    parser = argparse.ArgumentParser(
+        description="Verify memory spec v3.0 implementation"
+    )
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Show detailed output"
+    )
+    parser.add_argument(
+        "--fix-suggestions", action="store_true", help="Show fix suggestions"
+    )
     args = parser.parse_args()
-    
-    success = run_verification(verbose=args.verbose, fix_suggestions=args.fix_suggestions)
+
+    success = run_verification(
+        verbose=args.verbose, fix_suggestions=args.fix_suggestions
+    )
     sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["ast", "cli", "config", "filesystem", "operations", "scripts", "testing"],
+    "keywords": [
+        "check",
+        "contracts",
+        "duplicate",
+        "extract",
+        "feature",
+        "flags",
+        "function",
+        "load",
+    ],
+    "business_value": "Utility module for verify memory spec v3",
+    "last_modified": "2026-01-13T16:13:17Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

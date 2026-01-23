@@ -28,6 +28,34 @@ Version: 2.0.0 (full runtime implementation per README_RUNTIMES.md)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Runtime",
+    "module_version": "2.0.0 (full runtime implementation per README_RUNTIMES.md)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "runtime",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "api.server",
+            "tests.smoke_test",
+            "tests.smoke_test_root",
+            "world_model.__init__",
+            "world_model.runtime",
+            "world_model.world_model_service",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import fnmatch
 import structlog
@@ -49,8 +77,10 @@ if TYPE_CHECKING:
     from world_model.causal_mapper import CausalMapper
     from world_model.reflection_memory import ReflectionMemory
     from world_model.seed_loader import SeedLoader
+    from world_model.service import WorldModelService
     from simulation.simulation_engine import SimulationEngine
     from memory.substrate_service import MemorySubstrateService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -109,6 +139,12 @@ class RuntimeConfig:
     seed_directory: Optional[str] = None  # Custom seed directory
     auto_load_seeds: bool = True  # Load seeds on startup
 
+    # RLS / tenant scoping
+    tenant_id: Optional[str] = None
+    org_id: Optional[str] = None
+    user_id: Optional[str] = None
+    role: str = "end_user"
+
     # Simulation settings
     simulation_timeout_ms: int = 60000  # Simulation timeout
     simulation_parallel: bool = True  # Enable parallel simulation
@@ -130,6 +166,7 @@ class PacketSource:
     source_id: str = "memory_substrate"
     source_type: str = "stub"  # stub, memory_substrate, file, queue
 
+    @must_stay_async("callers use await")
     async def fetch_packets(
         self,
         packet_types: Optional[frozenset[str]] = None,
@@ -163,6 +200,22 @@ class MemorySubstratePacketSource(PacketSource):
     source_id: str = "memory_substrate"
     source_type: str = "memory_substrate"
     substrate_service: Optional["MemorySubstrateService"] = None
+    tenant_id: Optional[str] = None
+    org_id: Optional[str] = None
+    user_id: Optional[str] = None
+    role: str = "end_user"
+
+    @staticmethod
+    def _ensure_scope(
+        tenant_id: Optional[str],
+        org_id: Optional[str],
+        user_id: Optional[str],
+    ) -> None:
+        if not tenant_id or not org_id or not user_id:
+            raise RuntimeError(
+                "RLS scope required for MemorySubstratePacketSource "
+                "(tenant_id, org_id, user_id)."
+            )
 
     async def fetch_packets(
         self,
@@ -175,6 +228,8 @@ class MemorySubstratePacketSource(PacketSource):
             return []
 
         try:
+            self._ensure_scope(self.tenant_id, self.org_id, self.user_id)
+
             # Query packets from substrate
             # Filter by packet types if specified
             type_filter = list(packet_types) if packet_types else None
@@ -183,6 +238,10 @@ class MemorySubstratePacketSource(PacketSource):
                 packet_types=type_filter,
                 limit=limit,
                 since=since,
+                tenant_id=self.tenant_id,
+                org_id=self.org_id,
+                user_id=self.user_id,
+                role=self.role,
             )
 
             # Convert to dicts
@@ -347,7 +406,32 @@ class WorldModelRuntime:
         # Substrate service (passed in to avoid creating duplicate with stub embeddings)
         self._substrate_service: Optional["MemorySubstrateService"] = substrate_service
 
-        logger.info("WorldModelRuntime initialized (v2.0.0)")
+        # World Model Service for DB-backed entity persistence (wired via set_world_model_service)
+        self._world_model_service: Optional["WorldModelService"] = None
+
+        if isinstance(self._packet_source, MemorySubstratePacketSource):
+            self._packet_source.tenant_id = self._config.tenant_id
+            self._packet_source.org_id = self._config.org_id
+            self._packet_source.user_id = self._config.user_id
+            self._packet_source.role = self._config.role
+
+        logger.info("WorldModelRuntime initialized (v2.1.0 with DB sync)")
+
+    def set_world_model_service(self, service: "WorldModelService") -> None:
+        """
+        Set WorldModelService for DB-backed entity persistence.
+
+        When set, entities ingested via update_from_packets() are
+        automatically synced to PostgreSQL after in-memory ingestion.
+
+        Args:
+            service: WorldModelService instance
+        """
+        self._world_model_service = service
+        # Wire to ingestor if already initialized
+        if self._ingestor:
+            self._ingestor.set_world_model_service(service)
+        logger.info("WorldModelService attached to runtime for DB sync")
 
     # ==========================================================================
     # Seed Library Loading
@@ -418,6 +502,11 @@ class WorldModelRuntime:
                 # Ensure ingestor is initialized
                 if not self._ingestor:
                     self._ingestor = KnowledgeIngestor(state=self._state)
+                    # Wire DB sync if service available
+                    if self._world_model_service:
+                        self._ingestor.set_world_model_service(
+                            self._world_model_service
+                        )
 
                 self._seed_loader = SeedLoader(
                     substrate=substrate,
@@ -471,6 +560,7 @@ class WorldModelRuntime:
             "errors": errors,
         }
 
+    @must_stay_async("callers use await")
     async def _index_patterns_and_heuristics(self) -> None:
         """Build indices for patterns and heuristics."""
         self._pattern_index.clear()
@@ -507,6 +597,7 @@ class WorldModelRuntime:
                 self._heuristic_index[category] = []
             self._heuristic_index[category].append(entity_id)
 
+    @must_stay_async("callers use await")
     async def _load_reflection_seeds(self, seed_dir: Optional[str]) -> int:
         """Load reflection memory seeds if available."""
         if not seed_dir:
@@ -780,6 +871,11 @@ class WorldModelRuntime:
                     from world_model.knowledge_ingestor import KnowledgeIngestor
 
                     self._ingestor = KnowledgeIngestor(state=self._state)
+                    # Wire DB sync if service available
+                    if self._world_model_service:
+                        self._ingestor.set_world_model_service(
+                            self._world_model_service
+                        )
 
                 # Process via ingestor
                 from world_model.knowledge_ingestor import SourceType
@@ -795,6 +891,17 @@ class WorldModelRuntime:
                     source_type=source_type,
                     source_id=packet.get("packet_id", str(uuid4())),
                 )
+
+                # Sync entities to DB if service available (GMP-WIRE: Pipeline unification)
+                if self._world_model_service:
+                    sync_result = await self._ingestor.sync_to_db(
+                        tenant_id=self._config.tenant_id,
+                        org_id=self._config.org_id,
+                        user_id=self._config.user_id,
+                        role=self._config.role,
+                    )
+                    if sync_result.get("errors"):
+                        logger.warning(f"DB sync partial: {sync_result['errors']}")
 
                 affected_entities = [
                     f"entity_{i}" for i in range(result.entities_added)
@@ -823,6 +930,7 @@ class WorldModelRuntime:
     # Pattern-Based Queries
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def query(
         self,
         pattern: QueryPattern | dict[str, Any],
@@ -1186,6 +1294,7 @@ class WorldModelRuntime:
     # Reflection Consolidation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def consolidate_reflections(
         self,
         min_reflections: Optional[int] = None,
@@ -1860,11 +1969,20 @@ async def create_runtime_with_substrate(
         await runtime.load_seed_library()
         await runtime.run_forever()  # Polls substrate continuously
     """
-    # Create packet source wired to substrate
+    # GMP-94: World Model runtime requires RLS scope for packet fetching
+    from config.rls_config import get_rls_config
+
+    rls_config = get_rls_config()
+
+    # Create packet source wired to substrate with RLS scope
     packet_source = MemorySubstratePacketSource(
         source_id="memory_substrate",
         source_type="memory_substrate",
         substrate_service=substrate_service,
+        tenant_id=rls_config.tenant_uuid,
+        org_id=rls_config.org_uuid,
+        user_id=rls_config.user_uuid,
+        role="system",
     )
 
     # Create engine if not provided
@@ -1883,7 +2001,9 @@ async def create_runtime_with_substrate(
         substrate_service=substrate_service,
     )
 
-    logger.info("Created WorldModelRuntime with MemorySubstratePacketSource and substrate_service")
+    logger.info(
+        "Created WorldModelRuntime with MemorySubstratePacketSource and substrate_service"
+    )
     return runtime
 
 
@@ -1918,3 +2038,62 @@ async def get_or_create_runtime(
             )
 
     return _global_runtime
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-010",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "memory.substrate_repository",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "code-quality",
+        "config",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "filesystem",
+    ],
+    "keywords": [
+        "apply",
+        "build",
+        "consolidate",
+        "create",
+        "engine",
+        "entity",
+        "fetch",
+        "forever",
+    ],
+    "business_value": "Provides runtime components including RuntimeMode, RuntimeConfig, PacketSource",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

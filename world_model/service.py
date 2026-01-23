@@ -17,6 +17,38 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service Layer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "service",
+    "type": "service",
+    "status": "draft",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "api.server",
+            "api.world_model_api",
+            "core.integration.graph_to_wm_sync",
+            "core.integration.tool_pattern_extractor",
+            "core.singleton_registry",
+            "memory.substrate_dag",
+            "memory.substrate_service",
+            "world_model.__init__",
+            "world_model.nodes.service_nodes",
+        ],
+    },
+}
+# ============================================================================
 
 import structlog
 from datetime import datetime
@@ -72,7 +104,14 @@ class WorldModelService:
     # Entity Operations
     # =========================================================================
 
-    async def get_entity(self, entity_id: str) -> Optional[dict[str, Any]]:
+    async def get_entity(
+        self,
+        entity_id: str,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> Optional[dict[str, Any]]:
         """
         Retrieve entity by ID.
 
@@ -82,7 +121,13 @@ class WorldModelService:
         Returns:
             Entity dict if found, None otherwise
         """
-        entity = await self._repository.get_entity(entity_id)
+        entity = await self._repository.get_entity(
+            entity_id=entity_id,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
+        )
         if entity:
             return entity.to_dict()
         return None
@@ -93,6 +138,10 @@ class WorldModelService:
         min_confidence: Optional[float] = None,
         limit: int = 100,
         offset: int = 0,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> list[dict[str, Any]]:
         """
         List entities with optional filtering.
@@ -111,6 +160,10 @@ class WorldModelService:
             min_confidence=min_confidence,
             limit=limit,
             offset=offset,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
         )
         return [e.to_dict() for e in entities]
 
@@ -120,6 +173,10 @@ class WorldModelService:
         attributes: dict[str, Any],
         entity_type: str = "unknown",
         confidence: float = 1.0,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> dict[str, Any]:
         """
         Insert or update entity.
@@ -138,11 +195,22 @@ class WorldModelService:
             attributes=attributes,
             entity_type=entity_type,
             confidence=confidence,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
         )
         self._state_version += 1
         return entity.to_dict()
 
-    async def delete_entity(self, entity_id: str) -> bool:
+    async def delete_entity(
+        self,
+        entity_id: str,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> bool:
         """
         Delete entity by ID.
 
@@ -152,7 +220,13 @@ class WorldModelService:
         Returns:
             True if deleted
         """
-        deleted = await self._repository.delete_entity(entity_id)
+        deleted = await self._repository.delete_entity(
+            entity_id=entity_id,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
+        )
         if deleted:
             self._state_version += 1
         return deleted
@@ -164,6 +238,10 @@ class WorldModelService:
     async def update_from_insights(
         self,
         insights: list[dict[str, Any]],
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> dict[str, Any]:
         """
         Update world model from extracted insights.
@@ -252,6 +330,10 @@ class WorldModelService:
                         attributes=attributes,
                         entity_type=insight_type,
                         confidence=confidence,
+                        tenant_id=tenant_id,
+                        org_id=org_id,
+                        user_id=user_id,
+                        role=role,
                     )
                     affected_entities.append(entity_id)
 
@@ -265,6 +347,10 @@ class WorldModelService:
                     source_packet=source_packet,
                     state_version_before=version_before,
                     state_version_after=self._state_version + 1,
+                    tenant_id=tenant_id,
+                    org_id=org_id,
+                    user_id=user_id,
+                    role=role,
                 )
 
                 updates_applied += 1
@@ -300,6 +386,10 @@ class WorldModelService:
         self,
         description: Optional[str] = None,
         created_by: str = "system",
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> dict[str, Any]:
         """
         Create a snapshot of current world model state.
@@ -312,7 +402,13 @@ class WorldModelService:
             Snapshot dict with snapshot_id
         """
         # Get all entities
-        entities = await self._repository.list_entities(limit=10000)
+        entities = await self._repository.list_entities(
+            limit=10000,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
+        )
         entity_count = len(entities)
 
         # Serialize state
@@ -330,13 +426,24 @@ class WorldModelService:
             relation_count=0,  # Relations not yet implemented
             description=description,
             created_by=created_by,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
         )
 
         logger.info(f"Created snapshot: {snapshot.snapshot_id}")
 
         return snapshot.to_dict()
 
-    async def restore_from_snapshot(self, snapshot_id: UUID) -> dict[str, Any]:
+    async def restore_from_snapshot(
+        self,
+        snapshot_id: UUID,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> dict[str, Any]:
         """
         Restore world model state from a snapshot.
 
@@ -348,7 +455,13 @@ class WorldModelService:
         Returns:
             Restore result dict
         """
-        snapshot = await self._repository.load_snapshot(snapshot_id)
+        snapshot = await self._repository.load_snapshot(
+            snapshot_id=snapshot_id,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
+        )
 
         if not snapshot:
             return {
@@ -368,6 +481,10 @@ class WorldModelService:
                     attributes=entity_data.get("attributes", {}),
                     entity_type=entity_data.get("entity_type", "unknown"),
                     confidence=entity_data.get("confidence", 1.0),
+                    tenant_id=tenant_id,
+                    org_id=org_id,
+                    user_id=user_id,
+                    role=role,
                 )
                 restored_count += 1
 
@@ -392,19 +509,37 @@ class WorldModelService:
                 "error": str(e),
             }
 
-    async def get_latest_snapshot(self) -> Optional[dict[str, Any]]:
+    async def get_latest_snapshot(
+        self,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> Optional[dict[str, Any]]:
         """
         Get the most recent snapshot.
 
         Returns:
             Snapshot dict if any exist
         """
-        snapshot = await self._repository.get_latest_snapshot()
+        snapshot = await self._repository.get_latest_snapshot(
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
+        )
         if snapshot:
             return snapshot.to_dict()
         return None
 
-    async def list_snapshots(self, limit: int = 20) -> list[dict[str, Any]]:
+    async def list_snapshots(
+        self,
+        limit: int = 20,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> list[dict[str, Any]]:
         """
         List recent snapshots.
 
@@ -414,14 +549,26 @@ class WorldModelService:
         Returns:
             List of snapshot dicts (newest first)
         """
-        snapshots = await self._repository.list_snapshots(limit=limit)
+        snapshots = await self._repository.list_snapshots(
+            limit=limit,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
+        )
         return [s.to_dict() for s in snapshots]
 
     # =========================================================================
     # State Version
     # =========================================================================
 
-    async def get_state_version(self) -> int:
+    async def get_state_version(
+        self,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> int:
         """
         Get current state version.
 
@@ -429,18 +576,34 @@ class WorldModelService:
             Current state version
         """
         # Sync with database version
-        db_version = await self._repository.get_state_version()
+        db_version = await self._repository.get_state_version(
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
+        )
         self._state_version = max(self._state_version, db_version)
         return self._state_version
 
-    async def get_entity_count(self) -> int:
+    async def get_entity_count(
+        self,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> int:
         """
         Get total entity count.
 
         Returns:
             Number of entities
         """
-        return await self._repository.get_entity_count()
+        return await self._repository.get_entity_count(
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
+        )
 
     # =========================================================================
     # Update History
@@ -452,6 +615,10 @@ class WorldModelService:
         min_confidence: Optional[float] = None,
         since: Optional[datetime] = None,
         limit: int = 100,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
     ) -> list[dict[str, Any]]:
         """
         List recent updates to the world model.
@@ -470,6 +637,10 @@ class WorldModelService:
             min_confidence=min_confidence,
             since=since,
             limit=limit,
+            tenant_id=tenant_id,
+            org_id=org_id,
+            user_id=user_id,
+            role=role,
         )
         return [u.to_dict() for u in updates]
 
@@ -481,6 +652,11 @@ class WorldModelService:
 _service: Optional[WorldModelService] = None
 
 
+@register_singleton(
+    name="world_model_service",
+    lifecycle="lazy",
+    description="World model service layer",
+)
 def get_world_model_service() -> WorldModelService:
     """Get or create singleton service."""
     global _service
@@ -498,3 +674,55 @@ async def close_world_model_service():
         await close_pool()
         _service = None
         logger.info("WorldModelService closed")
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-002",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "learning",
+        "logging",
+        "rest-api",
+        "service",
+        "testing",
+        "world-model",
+    ],
+    "keywords": [
+        "close",
+        "count",
+        "create",
+        "delete",
+        "entities",
+        "entity",
+        "insights",
+        "latest",
+    ],
+    "business_value": "This service replaces in-memory storage with Postgres-backed persistence. WorldModelOS.yaml → service_layer world_model_layer.yaml → coordination Version: 1.0.0",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -11,6 +11,31 @@ Flow:
          ↳ (if approved) → finalize_node → store_insights → END
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Research Graph",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "research_services",
+    "module_name": "research_graph",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "services.research.__init__",
+            "services.research.graph_runtime",
+            "tests.test_research_graph",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Literal
@@ -27,12 +52,12 @@ from services.research.agents import PlannerAgent, ResearcherAgent, CriticAgent
 from services.research.memory_adapter import get_memory_adapter
 from services.research.tools import get_tool_registry
 from services.research.insight_extractor import InsightExtractorAgent
+from services.research.graph_persistence import get_graph_persistence
 
 # Memory client for substrate writes
 from clients.memory_client import get_memory_client, PacketWriteResult
 
 logger = structlog.get_logger(__name__)
-
 
 # =============================================================================
 # Node Implementations
@@ -100,6 +125,11 @@ async def research_node(state: ResearchGraphState) -> ResearchGraphState:
         # Set tool registry
         registry = get_tool_registry()
         researcher.set_tool_registry(registry)
+
+        # Set graph persistence for Neo4j finding storage
+        graph_persistence = get_graph_persistence()
+        if graph_persistence:
+            researcher.set_graph_persistence(graph_persistence)
 
         plan = state.get("plan", [])
         evidence: list[Evidence] = list(state.get("evidence", []))
@@ -515,3 +545,55 @@ async def run_research(
             "query": query,
             "thread_id": state["thread_id"],
         }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "logging",
+        "operations",
+        "research-services",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "build",
+        "critic",
+        "finalize",
+        "graph",
+        "insights",
+        "memory",
+        "merge",
+    ],
+    "business_value": "Utility module for research graph",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

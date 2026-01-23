@@ -18,6 +18,37 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "WebSocket Event Stream",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "ws_event_stream",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.schemas.__init__",
+            "orchestration.unified_controller",
+            "orchestration.ws_task_router",
+            "orchestrators.ws_bridge",
+            "runtime.websocket_orchestrator",
+            "tests.integration.test_ws_task_routing_integration",
+            "tests.orchestrators.test_ws_task_router_routing",
+            "tests.runtime.test_websocket_orchestrator_basic",
+            "tests.runtime.test_ws_protocol_static",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional
@@ -192,3 +223,57 @@ __all__ = [
     "AgentHeartbeat",
     "ErrorEvent",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-069",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "data-models",
+        "enum",
+        "event-driven",
+        "foundation",
+        "messaging",
+        "monitoring",
+        "pydantic",
+        "realtime",
+        "streaming",
+    ],
+    "keywords": [
+        "agent",
+        "event",
+        "heartbeat",
+        "specific",
+        "stream",
+        "structure",
+        "types",
+        "websocket",
+    ],
+    "business_value": "Provides ws event stream components including EventType, EventMessage, AgentHeartbeat",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

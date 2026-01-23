@@ -34,7 +34,6 @@ from fastapi.testclient import TestClient
 from email_agent.router import router, QueryRequest, GetRequest
 from email_agent.config import VALID_ACCOUNTS
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -74,8 +73,14 @@ def mock_gmail_client():
         }
         mock_client.draft_email.return_value = "draft-123"
         mock_client.send_email.return_value = {"message_id": "msg-123", "thread_id": "thread-123"}
-        mock_client.reply_to_email.return_value = {"message_id": "msg-456", "thread_id": "thread-123"}
-        mock_client.forward_email.return_value = {"message_id": "msg-789", "thread_id": "thread-456"}
+        mock_client.reply_to_email.return_value = {
+            "message_id": "msg-456",
+            "thread_id": "thread-123",
+        }
+        mock_client.forward_email.return_value = {
+            "message_id": "msg-789",
+            "thread_id": "thread-456",
+        }
         mock.return_value = mock_client
         yield mock
 
@@ -111,7 +116,9 @@ class TestAuthEnforcement:
     def test_no_auth_returns_401(self, client, endpoint):
         """Request without API key returns 401."""
         response = client.post(endpoint, json={"query": "test"})
-        assert response.status_code == 401, f"Expected 401 for {endpoint}, got {response.status_code}"
+        assert (
+            response.status_code == 401
+        ), f"Expected 401 for {endpoint}, got {response.status_code}"
 
     @pytest.mark.parametrize(
         "endpoint",
@@ -129,7 +136,9 @@ class TestAuthEnforcement:
         )
         assert response.status_code == 401
 
-    def test_valid_api_key_passes_auth(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_valid_api_key_passes_auth(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Request with valid API key passes auth check."""
         response = client.post(
             "/email/igor/query",
@@ -148,7 +157,9 @@ class TestAuthEnforcement:
 class TestAccountRouting:
     """Account path parameter validation."""
 
-    def test_igor_account_accepted(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_igor_account_accepted(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Igor account is valid."""
         response = client.post(
             "/email/igor/query",
@@ -178,7 +189,9 @@ class TestAccountRouting:
         # FastAPI path validation returns 422
         assert response.status_code == 422
 
-    def test_gmail_client_receives_account(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_gmail_client_receives_account(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """GmailClient is initialized with correct account."""
         client.post(
             "/email/igor/query",
@@ -204,7 +217,9 @@ class TestMemoryIngestion:
     """Pre/post events ingested to memory."""
 
     @pytest.mark.asyncio
-    async def test_query_ingests_pre_post(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    async def test_query_ingests_pre_post(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Query endpoint ingests pre and post events."""
         response = client.post(
             "/email/igor/query",
@@ -230,7 +245,9 @@ class TestMemoryIngestion:
         assert post_call.kwargs["payload"]["status"] == "success"
 
     @pytest.mark.asyncio
-    async def test_action_includes_account(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    async def test_action_includes_account(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Action name includes account for tracing."""
         client.post(
             "/email/l/query",
@@ -250,7 +267,9 @@ class TestMemoryIngestion:
 class TestEndpoints:
     """Test each endpoint's basic functionality."""
 
-    def test_query_returns_messages(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_query_returns_messages(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Query endpoint returns messages array."""
         mock_gmail_client.return_value.list_messages.return_value = [
             {"id": "1", "subject": "Test 1"},
@@ -282,7 +301,9 @@ class TestEndpoints:
         assert "message" in data
         assert "trace_id" in data
 
-    def test_draft_returns_draft_id(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_draft_returns_draft_id(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Draft endpoint returns draft ID."""
         response = client.post(
             "/email/igor/draft",
@@ -295,7 +316,9 @@ class TestEndpoints:
         assert data["draft_id"] == "draft-123"
         assert data["status"] == "success"
 
-    def test_send_returns_message_id(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_send_returns_message_id(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Send endpoint returns message ID."""
         response = client.post(
             "/email/igor/send",
@@ -308,7 +331,9 @@ class TestEndpoints:
         assert data["status"] == "success"
         assert "message_id" in data
 
-    def test_send_requires_fields_for_direct(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_send_requires_fields_for_direct(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Direct send requires to, subject, body."""
         response = client.post(
             "/email/igor/send",
@@ -319,7 +344,9 @@ class TestEndpoints:
         assert response.status_code == 400
         assert "required" in response.json()["detail"].lower()
 
-    def test_reply_returns_success(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_reply_returns_success(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Reply endpoint returns success."""
         response = client.post(
             "/email/igor/reply",
@@ -331,7 +358,9 @@ class TestEndpoints:
         data = response.json()
         assert data["status"] == "success"
 
-    def test_forward_returns_success(self, client, auth_headers, mock_gmail_client, mock_memory_ingest):
+    def test_forward_returns_success(
+        self, client, auth_headers, mock_gmail_client, mock_memory_ingest
+    ):
         """Forward endpoint returns success."""
         response = client.post(
             "/email/igor/forward",

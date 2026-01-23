@@ -9,6 +9,31 @@ Supports multi-account mode via account parameter.
 Version: 2.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Client",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-18T03:13:40Z",
+    "layer": "integration",
+    "domain": "email_integration",
+    "module_name": "client",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Gmail API"],
+        "memory_layers": [],
+        "imported_by": [
+            "email_agent.__init__",
+            "mac_agent.runner",
+            "memory.slack_ingest",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Dict, Any, Optional
 from datetime import datetime
@@ -343,3 +368,45 @@ def execute_email_task(
             "screenshots": [],
             "data": {"error": str(e)},
         }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "EMA-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "adapter",
+        "api",
+        "email-integration",
+        "integration",
+        "logging",
+        "messaging",
+    ],
+    "keywords": ["account", "agent", "client", "email", "execute", "module", "task"],
+    "business_value": "This module provides execute_email_task() function for Mac Agent integration. Uses gmail_client.py for actual Gmail operations. Supports multi-account mode via account parameter. Version: 2.0.0",
+    "last_modified": "2026-01-18T03:13:40Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

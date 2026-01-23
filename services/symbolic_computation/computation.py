@@ -5,6 +5,27 @@ Implements high-performance symbolic-to-numeric conversion using SymPy utilities
 Provides production-ready interfaces for AI agents to perform mathematical computations.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Computation",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "symbolic_computation",
+    "module_name": "computation",
+    "type": "service",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import time
 from typing import Dict, List, Union, Any, Callable
@@ -42,10 +63,7 @@ class ExpressionCache:
 
     @lru_cache(maxsize=128)
     def get_lambdified(
-        self,
-        expression: str,
-        variables: tuple,
-        backend: str
+        self, expression: str, variables: tuple, backend: str
     ) -> Callable:
         """
         Get or create lambdified function with caching.
@@ -100,10 +118,7 @@ class ExpressionEvaluator:
             "cache_misses": 0,
         }
 
-    async def evaluate(
-        self,
-        request: ComputationRequest
-    ) -> ComputationResult:
+    async def evaluate(self, request: ComputationRequest) -> ComputationResult:
         """
         Evaluate symbolic expression asynchronously.
 
@@ -118,9 +133,7 @@ class ExpressionEvaluator:
         try:
             # Get or create lambdified function
             func = self._cache.get_lambdified(
-                request.expression,
-                tuple(request.variables),
-                request.backend.value
+                request.expression, tuple(request.variables), request.backend.value
             )
 
             # Extract values in correct order
@@ -140,11 +153,11 @@ class ExpressionEvaluator:
 
             return ComputationResult(
                 success=True,
-                result=float(result) if hasattr(result, '__float__') else result,
+                result=float(result) if hasattr(result, "__float__") else result,
                 expression_str=request.expression,
                 backend_used=request.backend,
                 execution_time_ms=execution_time,
-                metadata={"metrics": self._metrics.copy()}
+                metadata={"metrics": self._metrics.copy()},
             )
 
         except Exception as e:
@@ -158,13 +171,10 @@ class ExpressionEvaluator:
                 backend_used=request.backend,
                 execution_time_ms=execution_time,
                 error_message=str(e),
-                metadata={"metrics": self._metrics.copy()}
+                metadata={"metrics": self._metrics.copy()},
             )
 
-    def evaluate_sync(
-        self,
-        request: ComputationRequest
-    ) -> ComputationResult:
+    def evaluate_sync(self, request: ComputationRequest) -> ComputationResult:
         """
         Synchronous version of evaluate.
 
@@ -193,10 +203,7 @@ class CodeGenerator:
         """Initialize code generator."""
         self._generated_count = 0
 
-    async def generate(
-        self,
-        request: CodeGenRequest
-    ) -> CodeGenResult:
+    async def generate(self, request: CodeGenRequest) -> CodeGenResult:
         """
         Generate code from symbolic expression.
 
@@ -221,11 +228,13 @@ class CodeGenerator:
                     autowrap,
                     expr,
                     args=syms,
-                    backend='cython',
-                    tempdir='/tmp/sympy_autowrap'
+                    backend="cython",
+                    tempdir="/tmp/sympy_autowrap",
                 )
 
-                logger.info(f"Compiled function using autowrap: {request.function_name}")
+                logger.info(
+                    f"Compiled function using autowrap: {request.function_name}"
+                )
 
                 return CodeGenResult(
                     success=True,
@@ -235,8 +244,8 @@ class CodeGenerator:
                     compilation_output="Cython compilation successful",
                     metadata={
                         "function": request.function_name,
-                        "variables": request.variables
-                    }
+                        "variables": request.variables,
+                    },
                 )
 
             else:
@@ -246,7 +255,7 @@ class CodeGenerator:
                     (request.function_name, expr),
                     request.language.value,
                     header=True,
-                    empty=False
+                    empty=False,
                 )
 
                 # Extract source code
@@ -269,8 +278,8 @@ class CodeGenerator:
                     metadata={
                         "function": request.function_name,
                         "variables": request.variables,
-                        "generated_count": self._generated_count
-                    }
+                        "generated_count": self._generated_count,
+                    },
                 )
 
         except Exception as e:
@@ -281,13 +290,10 @@ class CodeGenerator:
                 source_code=None,
                 language=request.language,
                 compiled=False,
-                error_message=str(e)
+                error_message=str(e),
             )
 
-    def generate_sync(
-        self,
-        request: CodeGenRequest
-    ) -> CodeGenResult:
+    def generate_sync(self, request: CodeGenRequest) -> CodeGenResult:
         """
         Synchronous version of generate.
 
@@ -308,11 +314,7 @@ class SymbolicComputation:
     capabilities for AI agents.
     """
 
-    def __init__(
-        self,
-        cache_size: int = 128,
-        enable_metrics: bool = True
-    ):
+    def __init__(self, cache_size: int = 128, enable_metrics: bool = True):
         """
         Initialize symbolic computation engine.
 
@@ -330,7 +332,7 @@ class SymbolicComputation:
         self,
         expression: str,
         variables: Dict[str, Union[float, List[float]]],
-        backend: str = "numpy"
+        backend: str = "numpy",
     ) -> ComputationResult:
         """
         Compute symbolic expression with given variable values.
@@ -347,7 +349,7 @@ class SymbolicComputation:
             expression=expression,
             variables=list(variables.keys()),
             backend=BackendType(backend),
-            values=variables
+            values=variables,
         )
 
         return await self.evaluator.evaluate(request)
@@ -358,7 +360,7 @@ class SymbolicComputation:
         variables: List[str],
         language: str = "C",
         function_name: str = "generated_func",
-        compile: bool = False
+        compile: bool = False,
     ) -> CodeGenResult:
         """
         Generate code from symbolic expression.
@@ -378,7 +380,7 @@ class SymbolicComputation:
             variables=variables,
             language=CodeLanguage(language),
             function_name=function_name,
-            compile=compile
+            compile=compile,
         )
 
         return await self.codegen.generate(request)
@@ -392,25 +394,70 @@ class SymbolicComputation:
         """
         try:
             # Test basic computation
-            test_result = await self.compute(
-                "x + 1",
-                {"x": 1.0},
-                backend="numpy"
-            )
+            test_result = await self.compute("x + 1", {"x": 1.0}, backend="numpy")
 
             return {
                 "status": "healthy" if test_result.success else "degraded",
                 "evaluator_metrics": self.evaluator.get_metrics(),
                 "cache_size": 128,
-                "test_computation": test_result.success
+                "test_computation": test_result.success,
             }
 
         except Exception as e:
             logger.error(f"Health check failed: {str(e)}")
-            return {
-                "status": "unhealthy",
-                "error": str(e)
-            }
+            return {"status": "unhealthy", "error": str(e)}
 
 
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-020",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "caching",
+        "debugging",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+        "service",
+        "symbolic-computation",
+        "testing",
+    ],
+    "keywords": [
+        "cache",
+        "check",
+        "computation",
+        "compute",
+        "evaluate",
+        "evaluator",
+        "expression",
+        "generate",
+    ],
+    "business_value": "Implements high-performance symbolic-to-numeric conversion using SymPy utilities.",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -10,6 +10,27 @@ This registry is runtime truth derived from server wiring and health checks.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Module Registry",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-09T01:22:11Z",
+    "updated_at": "2026-01-08T22:15:53Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "moduleregistry",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.routes.modules", "api.server"],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
@@ -102,3 +123,45 @@ class ModuleRegistry:
         return {"count": len(modules), "modules": modules}
 
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-002",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["core", "dataclass", "foundation", "logging"],
+    "keywords": [
+        "definition",
+        "module",
+        "register",
+        "registry",
+        "runtime",
+        "snapshot",
+        "status",
+        "they",
+    ],
+    "business_value": "This is NOT the YAML `specs/MODULE_REGISTRY.yaml` (which is a design/spec artifact).",
+    "last_modified": "2026-01-08T22:15:53Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -21,6 +21,27 @@ Loads:
     - file_metrics.txt → File nodes with metrics
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "L9 Repository Graph Loader",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-09T01:57:28Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "load_indexes_to_neo4j",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import re
 import sys
@@ -38,6 +59,7 @@ INDEX_DIR = REPO_DIR / "readme" / "repo-index"
 # Try to import Neo4j
 try:
     from neo4j import GraphDatabase, basic_auth
+
     HAS_NEO4J = True
 except ImportError:
     HAS_NEO4J = False
@@ -56,7 +78,11 @@ class RepoGraphLoader:
         dry_run: bool = False,
         verbose: bool = False,
     ):
-        self.uri = uri or os.getenv("NEO4J_URL") or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        self.uri = (
+            uri
+            or os.getenv("NEO4J_URL")
+            or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        )
         self.user = user or os.getenv("NEO4J_USER", "neo4j")
         self.password = password or os.getenv("NEO4J_PASSWORD")
         self.database = database
@@ -125,7 +151,7 @@ class RepoGraphLoader:
     def clear_repo_graph(self):
         """Clear existing repository graph nodes."""
         logger.info("Clearing existing repo graph...")
-        
+
         queries = [
             "MATCH (n:RepoFile) DETACH DELETE n",
             "MATCH (n:RepoClass) DETACH DELETE n",
@@ -134,16 +160,16 @@ class RepoGraphLoader:
             "MATCH (n:RepoRoute) DETACH DELETE n",
             "MATCH (n:RepoPydanticModel) DETACH DELETE n",
         ]
-        
+
         for query in queries:
             self._run_query(query)
-        
+
         logger.info("Repo graph cleared")
 
     def create_indexes(self):
         """Create Neo4j indexes for faster queries."""
         logger.info("Creating indexes...")
-        
+
         indexes = [
             "CREATE INDEX repo_file_path IF NOT EXISTS FOR (f:RepoFile) ON (f.path)",
             "CREATE INDEX repo_class_name IF NOT EXISTS FOR (c:RepoClass) ON (c.name)",
@@ -151,10 +177,10 @@ class RepoGraphLoader:
             "CREATE INDEX repo_method_name IF NOT EXISTS FOR (m:RepoMethod) ON (m.name)",
             "CREATE INDEX repo_route_path IF NOT EXISTS FOR (r:RepoRoute) ON (r.path)",
         ]
-        
+
         for index_query in indexes:
             self._run_query(index_query)
-        
+
         logger.info("Indexes created")
 
     def load_file_metrics(self):
@@ -165,14 +191,17 @@ class RepoGraphLoader:
             return
 
         logger.info("Loading file metrics...")
-        
+
         with open(metrics_file, "r") as f:
             for line in f:
                 # Parse: | `path/to/file.py` | 100 | 5 | 10 | 3 |
-                match = re.match(r'\|\s*`([^`]+)`\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|', line)
+                match = re.match(
+                    r"\|\s*`([^`]+)`\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|",
+                    line,
+                )
                 if match:
                     path, lines, classes, functions, async_funcs = match.groups()
-                    
+
                     query = """
                     MERGE (f:RepoFile {path: $path})
                     SET f.lines = $lines,
@@ -181,15 +210,18 @@ class RepoGraphLoader:
                         f.async_count = $async_funcs,
                         f.name = $name
                     """
-                    
-                    self._run_query(query, {
-                        "path": path,
-                        "lines": int(lines),
-                        "classes": int(classes),
-                        "functions": int(functions),
-                        "async_funcs": int(async_funcs),
-                        "name": Path(path).name,
-                    })
+
+                    self._run_query(
+                        query,
+                        {
+                            "path": path,
+                            "lines": int(lines),
+                            "classes": int(classes),
+                            "functions": int(functions),
+                            "async_funcs": int(async_funcs),
+                            "name": Path(path).name,
+                        },
+                    )
                     self.stats["files"] += 1
 
         logger.info("File metrics loaded", count=self.stats["files"])
@@ -202,14 +234,14 @@ class RepoGraphLoader:
             return
 
         logger.info("Loading class definitions...")
-        
+
         with open(classes_file, "r") as f:
             for line in f:
                 # Parse: path/to/file.py::ClassName - Docstring
-                match = re.match(r'^([^:]+)::(\w+)\s*-\s*(.*)$', line.strip())
+                match = re.match(r"^([^:]+)::(\w+)\s*-\s*(.*)$", line.strip())
                 if match:
                     path, class_name, docstring = match.groups()
-                    
+
                     query = """
                     MERGE (c:RepoClass {name: $name, file: $file})
                     SET c.docstring = $docstring
@@ -217,12 +249,15 @@ class RepoGraphLoader:
                     MERGE (f:RepoFile {path: $file})
                     MERGE (f)-[:CONTAINS]->(c)
                     """
-                    
-                    self._run_query(query, {
-                        "name": class_name,
-                        "file": path,
-                        "docstring": docstring[:200] if docstring else "",
-                    })
+
+                    self._run_query(
+                        query,
+                        {
+                            "name": class_name,
+                            "file": path,
+                            "docstring": docstring[:200] if docstring else "",
+                        },
+                    )
                     self.stats["classes"] += 1
 
         logger.info("Class definitions loaded", count=self.stats["classes"])
@@ -235,29 +270,32 @@ class RepoGraphLoader:
             return
 
         logger.info("Loading inheritance graph...")
-        
+
         with open(inheritance_file, "r") as f:
             for line in f:
                 # Parse: ChildClass::Parent1,Parent2 @ path/to/file.py
-                match = re.match(r'^(\w+)::([^@]+)\s*@\s*(.+)$', line.strip())
+                match = re.match(r"^(\w+)::([^@]+)\s*@\s*(.+)$", line.strip())
                 if match:
                     child, parents_str, path = match.groups()
-                    parents = [p.strip() for p in parents_str.split(',')]
-                    
+                    parents = [p.strip() for p in parents_str.split(",")]
+
                     for parent in parents:
-                        if parent and parent not in ('object', 'ABC', 'Protocol'):
+                        if parent and parent not in ("object", "ABC", "Protocol"):
                             query = """
                             MERGE (child:RepoClass {name: $child})
                             SET child.file = $file
                             MERGE (parent:RepoClass {name: $parent})
                             MERGE (child)-[:EXTENDS]->(parent)
                             """
-                            
-                            self._run_query(query, {
-                                "child": child,
-                                "parent": parent,
-                                "file": path,
-                            })
+
+                            self._run_query(
+                                query,
+                                {
+                                    "child": child,
+                                    "parent": parent,
+                                    "file": path,
+                                },
+                            )
                             self.stats["extends"] += 1
 
         logger.info("Inheritance graph loaded", count=self.stats["extends"])
@@ -270,14 +308,16 @@ class RepoGraphLoader:
             return
 
         logger.info("Loading method catalog...")
-        
+
         with open(methods_file, "r") as f:
             for line in f:
                 # Parse: ClassName::method_name(args) @ path/to/file.py
-                match = re.match(r'^(\w+)::(async\s+)?(\w+)\(([^)]*)\)\s*@\s*(.+)$', line.strip())
+                match = re.match(
+                    r"^(\w+)::(async\s+)?(\w+)\(([^)]*)\)\s*@\s*(.+)$", line.strip()
+                )
                 if match:
                     class_name, is_async, method_name, args, path = match.groups()
-                    
+
                     query = """
                     MERGE (c:RepoClass {name: $class_name})
                     MERGE (m:RepoMethod {name: $method_name, class: $class_name})
@@ -286,14 +326,17 @@ class RepoGraphLoader:
                         m.file = $file
                     MERGE (c)-[:HAS_METHOD]->(m)
                     """
-                    
-                    self._run_query(query, {
-                        "class_name": class_name,
-                        "method_name": method_name,
-                        "args": args,
-                        "is_async": bool(is_async),
-                        "file": path,
-                    })
+
+                    self._run_query(
+                        query,
+                        {
+                            "class_name": class_name,
+                            "method_name": method_name,
+                            "args": args,
+                            "is_async": bool(is_async),
+                            "file": path,
+                        },
+                    )
                     self.stats["methods"] += 1
                     self.stats["has_method"] += 1
 
@@ -307,28 +350,34 @@ class RepoGraphLoader:
             return
 
         logger.info("Loading route handlers...")
-        
+
         with open(routes_file, "r") as f:
             for line in f:
                 # Parse: GET /api/health → handler_func() @ path/to/file.py
-                match = re.match(r'^(GET|POST|PUT|DELETE|PATCH|WEBSOCKET)\s+(\S+)\s*→\s*(\w+)\(\)\s*@\s*(.+)$', line.strip())
+                match = re.match(
+                    r"^(GET|POST|PUT|DELETE|PATCH|WEBSOCKET)\s+(\S+)\s*→\s*(\w+)\(\)\s*@\s*(.+)$",
+                    line.strip(),
+                )
                 if match:
                     method, path, handler, file_path = match.groups()
-                    
+
                     query = """
                     MERGE (r:RepoRoute {method: $method, path: $path})
                     SET r.full_path = $full_path
                     MERGE (f:RepoFunction {name: $handler, file: $file})
                     MERGE (r)-[:HANDLED_BY]->(f)
                     """
-                    
-                    self._run_query(query, {
-                        "method": method,
-                        "path": path,
-                        "full_path": f"{method} {path}",
-                        "handler": handler,
-                        "file": file_path,
-                    })
+
+                    self._run_query(
+                        query,
+                        {
+                            "method": method,
+                            "path": path,
+                            "full_path": f"{method} {path}",
+                            "handler": handler,
+                            "file": file_path,
+                        },
+                    )
                     self.stats["routes"] += 1
                     self.stats["handled_by"] += 1
 
@@ -342,25 +391,27 @@ class RepoGraphLoader:
             return
 
         logger.info("Loading function signatures...")
-        
+
         # Only load first 500 to avoid timeout - methods are more important
         count = 0
         max_funcs = 500
-        
+
         with open(funcs_file, "r") as f:
             for line in f:
                 if count >= max_funcs:
                     break
-                    
+
                 # Parse: path/to/file.py::function_name(args) - docstring
-                match = re.match(r'^([^:]+)::(\w+)\(([^)]*)\)\s*-\s*(.*)$', line.strip())
+                match = re.match(
+                    r"^([^:]+)::(\w+)\(([^)]*)\)\s*-\s*(.*)$", line.strip()
+                )
                 if match:
                     path, func_name, args, docstring = match.groups()
-                    
+
                     # Skip private functions and test functions
-                    if func_name.startswith('_') or func_name.startswith('test_'):
+                    if func_name.startswith("_") or func_name.startswith("test_"):
                         continue
-                    
+
                     query = """
                     MERGE (f:RepoFunction {name: $name, file: $file})
                     SET f.args = $args,
@@ -369,13 +420,16 @@ class RepoGraphLoader:
                     MERGE (file:RepoFile {path: $file})
                     MERGE (file)-[:CONTAINS]->(f)
                     """
-                    
-                    self._run_query(query, {
-                        "name": func_name,
-                        "file": path,
-                        "args": args,
-                        "docstring": docstring[:100] if docstring else "",
-                    })
+
+                    self._run_query(
+                        query,
+                        {
+                            "name": func_name,
+                            "file": path,
+                            "args": args,
+                            "docstring": docstring[:100] if docstring else "",
+                        },
+                    )
                     self.stats["functions"] += 1
                     count += 1
 
@@ -389,14 +443,14 @@ class RepoGraphLoader:
             return
 
         logger.info("Loading Pydantic models...")
-        
+
         with open(models_file, "r") as f:
             for line in f:
                 # Parse: ModelName @ path/to/file.py - docstring
-                match = re.match(r'^(\w+)\s*@\s*([^\s-]+)\s*-?\s*(.*)$', line.strip())
+                match = re.match(r"^(\w+)\s*@\s*([^\s-]+)\s*-?\s*(.*)$", line.strip())
                 if match:
                     model_name, path, docstring = match.groups()
-                    
+
                     query = """
                     MERGE (m:RepoPydanticModel {name: $name})
                     SET m.file = $file,
@@ -405,12 +459,15 @@ class RepoGraphLoader:
                     MERGE (f:RepoFile {path: $file})
                     MERGE (f)-[:CONTAINS]->(m)
                     """
-                    
-                    self._run_query(query, {
-                        "name": model_name,
-                        "file": path,
-                        "docstring": docstring[:100] if docstring else "",
-                    })
+
+                    self._run_query(
+                        query,
+                        {
+                            "name": model_name,
+                            "file": path,
+                            "docstring": docstring[:100] if docstring else "",
+                        },
+                    )
                     self.stats["pydantic_models"] += 1
 
         logger.info("Pydantic models loaded", count=self.stats["pydantic_models"])
@@ -423,7 +480,7 @@ class RepoGraphLoader:
         try:
             self.clear_repo_graph()
             self.create_indexes()
-            
+
             # Load in order of importance
             self.load_file_metrics()
             self.load_class_definitions()
@@ -432,10 +489,10 @@ class RepoGraphLoader:
             self.load_route_handlers()
             self.load_pydantic_models()
             self.load_function_signatures()
-            
+
             logger.info("=== Neo4j Load Complete ===")
             logger.info("Stats", **self.stats)
-            
+
             return True
         finally:
             self.close()
@@ -456,7 +513,7 @@ class RepoGraphLoader:
         logger.info(f"  HAS_METHOD rels: {self.stats['has_method']:,}")
         logger.info(f"  HANDLED_BY rels: {self.stats['handled_by']:,}")
         logger.info("=" * 60)
-        
+
         if self.dry_run:
             logger.info("⚠️  DRY RUN - no data was loaded to Neo4j")
         else:
@@ -516,7 +573,7 @@ def main():
     elif args.local and not uri:
         uri = "bolt://localhost:7687"
         logger.info("Using local Docker Neo4j")
-    
+
     loader = RepoGraphLoader(
         uri=uri,
         database=args.database,
@@ -533,3 +590,56 @@ def main():
 if __name__ == "__main__":
     main()
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-002",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "cli",
+        "debugging",
+        "filesystem",
+        "graph-db",
+        "loader",
+        "logging",
+        "memory-substrate",
+        "metrics",
+    ],
+    "keywords": [
+        "all",
+        "catalog",
+        "clear",
+        "close",
+        "connect",
+        "create",
+        "definitions",
+        "function",
+    ],
+    "business_value": "Implements RepoGraphLoader for load indexes to neo4j functionality",
+    "last_modified": "2026-01-09T01:57:28Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

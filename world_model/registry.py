@@ -23,6 +23,37 @@ Integration:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Registry",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "registry",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model._pack_staging.loader",
+            "world_model._pack_staging.query_engine",
+            "world_model._pack_staging.updater",
+            "world_model.engine",
+            "world_model.loader",
+            "world_model.query_engine",
+            "world_model.runtime",
+            "world_model.updater",
+        ],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
@@ -424,3 +455,47 @@ class WorldModelRegistry:
     def relation_type_count(self) -> int:
         """Number of registered relation types."""
         return len(self._relation_types)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-008",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["config", "dataclass", "learning", "rest-api", "world-model"],
+    "keywords": [
+        "count",
+        "definitions",
+        "entity",
+        "kernel",
+        "model",
+        "reasoning",
+        "register",
+        "registry",
+    ],
+    "business_value": "Entity type definitions Relation type definitions Schema validation rules Type inheritance hierarchy WorldModelLoader: populates registry from specs WorldModelUpdater: validates against registry Reaso",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

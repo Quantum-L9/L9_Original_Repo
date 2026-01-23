@@ -28,6 +28,27 @@ primary entrypoint when starting a new or upgraded workspace.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Init Workspace New",
+    "module_version": "9.0.0 (Suite 6)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T09:35:29Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "init_workspace_NEW",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import os
 import subprocess
@@ -38,11 +59,11 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-
 # ---------------------------------------------------------------------------
 # Utility: Logging (simple stdout logger; in-governance code will use
 # governance_logger, but this script must also be usable standalone).
 # ---------------------------------------------------------------------------
+
 
 def _log(msg: str, *, level: str = "INFO", verbose: bool = True) -> None:
     if not verbose and level == "INFO":
@@ -53,6 +74,7 @@ def _log(msg: str, *, level: str = "INFO", verbose: bool = True) -> None:
 # ---------------------------------------------------------------------------
 # Core helpers
 # ---------------------------------------------------------------------------
+
 
 def ensure_cursor_commands_symlink(
     *,
@@ -84,12 +106,7 @@ def ensure_cursor_commands_symlink(
         candidates.append(Path(env_target).expanduser())
 
     # Legacy default from audit: Dropbox/Cursor Governance/GlobalCommands
-    candidates.append(
-        Path.home()
-        / "Dropbox"
-        / "Cursor Governance"
-        / "GlobalCommands"
-    )
+    candidates.append(Path.home() / "Dropbox" / "Cursor Governance" / "GlobalCommands")
 
     # Fallback: a GlobalCommands directory inside workspace
     candidates.append(cwd / "GlobalCommands")
@@ -143,8 +160,7 @@ def ensure_cursor_commands_symlink(
                 )
             else:
                 _log(
-                    f"Removing existing entry at {link_path} "
-                    "to replace with symlink.",
+                    f"Removing existing entry at {link_path} to replace with symlink.",
                     verbose=verbose,
                 )
             if link_path.is_dir() and not link_path.is_symlink():
@@ -156,9 +172,13 @@ def ensure_cursor_commands_symlink(
                         level="ERROR",
                         verbose=verbose,
                     )
-                    return False, {}, (
-                        f"Existing non-symlink directory {link_path} detected. "
-                        "Clean or move it before running this script."
+                    return (
+                        False,
+                        {},
+                        (
+                            f"Existing non-symlink directory {link_path} detected. "
+                            "Clean or move it before running this script."
+                        ),
                     )
                 # After manual cleanup, remove dir
                 link_path.rmdir()
@@ -191,7 +211,9 @@ def run_env_manager(
     Assumes env-manager.py lives in `.cursor-commands/environment/env-manager.py`
     once the symlink is in place.
     """
-    env_manager_path = workspace_root / ".cursor-commands" / "environment" / "env-manager.py"
+    env_manager_path = (
+        workspace_root / ".cursor-commands" / "environment" / "env-manager.py"
+    )
 
     if not env_manager_path.exists():
         msg = f"env-manager.py not found at {env_manager_path}"
@@ -288,6 +310,7 @@ def run_setup_new_workspace_yaml(
 # Main orchestration
 # ---------------------------------------------------------------------------
 
+
 def start_new_workspace(
     *,
     workspace_root: Path,
@@ -343,13 +366,17 @@ def start_new_workspace(
     if not ok:
         return False, data, err
 
-    _log("Workspace initialization sequence completed (or staged in dry-run).", verbose=verbose)
+    _log(
+        "Workspace initialization sequence completed (or staged in dry-run).",
+        verbose=verbose,
+    )
     return True, data, ""
 
 
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -414,3 +441,55 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "auth",
+        "cli",
+        "filesystem",
+        "logging",
+        "operations",
+        "profiling",
+        "scripts",
+        "subprocess",
+    ],
+    "keywords": [
+        "commands",
+        "cursor",
+        "ensure",
+        "env",
+        "manager",
+        "setup",
+        "start",
+        "symlink",
+    ],
+    "business_value": "This script is intended to be part of the Spaces pack and used as the primary entrypoint when starting a new or upgraded workspace.",
+    "last_modified": "2026-01-17T09:35:29Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

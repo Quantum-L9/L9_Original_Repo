@@ -11,6 +11,27 @@ Usage:
   python tests/memory/run_all_memory_tests.py -k governance  # Filter by keyword
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Run All Memory Tests",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T15:23:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "run_all_memory_tests",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import subprocess
 import sys
 import time
@@ -60,9 +81,7 @@ TEST_FILES = [
 ]
 
 
-def run_all_tests(
-    verbose: bool = False, fast: bool = False, keyword: str = None
-) -> int:
+def run_all_tests(verbose: bool = False, fast: bool = False, keyword: str = None) -> int:
     """
     Run all memory tests using pytest.
 
@@ -140,3 +159,45 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TES-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "cli",
+        "filesystem",
+        "memory-substrate",
+        "operations",
+        "subprocess",
+        "testing",
+    ],
+    "keywords": ["all", "memory", "tests"],
+    "business_value": "Utility module for run all memory tests",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

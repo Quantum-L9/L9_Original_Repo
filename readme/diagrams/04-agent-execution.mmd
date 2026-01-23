@@ -1,0 +1,106 @@
+%% L9 Agent Execution Architecture
+%% Subsystem: Agent Lifecycle & LLM Integration
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Agent Request"
+        REQUEST[Agent Task Request]
+        PARAMS[Task Parameters]
+    end
+
+    subgraph "Agent Executor"
+        EXECUTOR[AgentExecutor<br/>executor.py]
+        INSTANCE[AgentInstance<br/>agent_instance.py]
+        LIFECYCLE[Lifecycle Manager]
+    end
+
+    subgraph "Prompt Construction"
+        BUILDER[PromptBuilder<br/>prompt_builder.py]
+        KERNEL_CTX[Kernel Context]
+        MEMORY_CTX[Memory Context]
+        TOOL_CTX[Tool Context]
+    end
+
+    subgraph "BaseAgent"
+        BASE[BaseAgent<br/>base_agent.py]
+        VALIDATE[Input Validation]
+        EXECUTE[Execute Logic]
+        FORMAT[Output Formatting]
+    end
+
+    subgraph "LLM Integration"
+        LLM_CALL[LLM Call Handler]
+        RETRY[Retry Logic]
+        RATE_LIMIT[Rate Limiter]
+        CACHE[Response Cache]
+    end
+
+    subgraph "Tool Execution"
+        TOOL_INVOKE[Tool Invocation]
+        TOOL_GATE[Tool Governance Gate]
+        TOOL_RESULT[Tool Result Handler]
+    end
+
+    subgraph "External Services"
+        OPENAI[OpenAI API]
+        ANTHROPIC[Anthropic API]
+        CUSTOM_LLM[Custom LLM]
+    end
+
+    subgraph "Memory & State"
+        AGENT_MEM[(Agent Memory)]
+        CONV_STATE[(Conversation State)]
+        RESULT_CACHE[(Result Cache)]
+    end
+
+    %% Request Flow
+    REQUEST --> EXECUTOR
+    PARAMS --> EXECUTOR
+
+    %% Executor to Instance
+    EXECUTOR --> INSTANCE
+    INSTANCE --> LIFECYCLE
+    LIFECYCLE --> BASE
+
+    %% BaseAgent Flow
+    BASE --> VALIDATE
+    VALIDATE --> EXECUTE
+    EXECUTE --> FORMAT
+
+    %% Prompt Building
+    EXECUTE --> BUILDER
+    BUILDER --> KERNEL_CTX
+    BUILDER --> MEMORY_CTX
+    BUILDER --> TOOL_CTX
+
+    %% LLM Call
+    BUILDER --> LLM_CALL
+    LLM_CALL --> RETRY
+    RETRY --> RATE_LIMIT
+    RATE_LIMIT --> CACHE
+
+    %% External LLM
+    CACHE -.cache miss.-> OPENAI
+    CACHE -.cache miss.-> ANTHROPIC
+    CACHE -.cache miss.-> CUSTOM_LLM
+
+    %% Tool Execution
+    EXECUTE --> TOOL_INVOKE
+    TOOL_INVOKE --> TOOL_GATE
+    TOOL_GATE --> TOOL_RESULT
+    TOOL_RESULT --> EXECUTE
+
+    %% Memory Integration
+    MEMORY_CTX -.reads.-> AGENT_MEM
+    EXECUTE -.updates.-> CONV_STATE
+    FORMAT -.stores.-> RESULT_CACHE
+
+    %% Result Flow
+    FORMAT --> EXECUTOR
+    EXECUTOR --> REQUEST
+
+    style EXECUTOR fill:#4ecdc4
+    style BASE fill:#ffe66d
+    style BUILDER fill:#95e1d3
+    style LLM_CALL fill:#a8e6cf
+    style TOOL_GATE fill:#ff6b6b

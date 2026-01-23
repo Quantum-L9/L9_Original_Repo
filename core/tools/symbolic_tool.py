@@ -10,7 +10,29 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Symbolic Tool",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "symbolic_tool",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["runtime.l_tools"],
+    },
+}
+# ============================================================================
+
 import structlog
+from runtime.tool_registry import register_tool
 from typing import Any, Dict, List, Optional, Union
 
 from services.symbolic_computation import (
@@ -28,7 +50,7 @@ _symbolic_engine: Optional[SymbolicComputation] = None
 def get_symbolic_engine() -> SymbolicComputation:
     """
     Get or create the symbolic computation engine singleton.
-    
+
     Returns:
         SymbolicComputation engine instance
     """
@@ -45,14 +67,14 @@ def get_symbolic_engine() -> SymbolicComputation:
 class SymbolicComputationTool:
     """
     L9 Tool wrapper for symbolic computation.
-    
+
     Provides async methods that match L9 tool executor patterns.
     """
-    
+
     def __init__(self):
         """Initialize the tool wrapper."""
         self._engine = get_symbolic_engine()
-    
+
     async def compute(
         self,
         expression: str,
@@ -62,12 +84,12 @@ class SymbolicComputationTool:
     ) -> Dict[str, Any]:
         """
         Compute a symbolic expression with given variable values.
-        
+
         Args:
             expression: Mathematical expression (e.g., "x**2 + sin(x)")
             variables: Variable values (e.g., {"x": 1.0})
             backend: Computational backend ("numpy", "math", "mpmath", "sympy")
-            
+
         Returns:
             Dict with computation result
         """
@@ -77,14 +99,14 @@ class SymbolicComputationTool:
                 variables=variables,
                 backend=backend,
             )
-            
+
             logger.info(
                 "symbolic_compute_complete",
                 expression=expression[:50],
                 success=result.success,
                 execution_time_ms=round(result.execution_time_ms, 2),
             )
-            
+
             return {
                 "status": "success" if result.success else "error",
                 "result": result.result,
@@ -94,14 +116,14 @@ class SymbolicComputationTool:
                 "error": result.error_message,
                 "metadata": result.metadata,
             }
-            
+
         except Exception as e:
             logger.error("symbolic_compute_failed", error=str(e))
             return {
                 "status": "error",
                 "error": str(e),
             }
-    
+
     async def generate_code(
         self,
         expression: str,
@@ -113,14 +135,14 @@ class SymbolicComputationTool:
     ) -> Dict[str, Any]:
         """
         Generate code from a symbolic expression.
-        
+
         Args:
             expression: Mathematical expression
             variables: List of variable names
             language: Target language ("C", "Fortran", "Python", "Cython")
             function_name: Name for generated function
             compile: Whether to compile the code
-            
+
         Returns:
             Dict with generated code
         """
@@ -132,7 +154,7 @@ class SymbolicComputationTool:
                 function_name=function_name,
                 compile=compile,
             )
-            
+
             logger.info(
                 "symbolic_codegen_complete",
                 function_name=function_name,
@@ -140,7 +162,7 @@ class SymbolicComputationTool:
                 success=result.success,
                 compiled=result.compiled,
             )
-            
+
             return {
                 "status": "success" if result.success else "error",
                 "source_code": result.source_code,
@@ -150,23 +172,23 @@ class SymbolicComputationTool:
                 "error": result.error_message,
                 "metadata": result.metadata,
             }
-            
+
         except Exception as e:
             logger.error("symbolic_codegen_failed", error=str(e))
             return {
                 "status": "error",
                 "error": str(e),
             }
-    
+
     async def health_check(self) -> Dict[str, Any]:
         """
         Check health of symbolic computation engine.
-        
+
         Returns:
             Health status dict
         """
         return await self._engine.health_check()
-    
+
     def optimize(
         self,
         expression: str,
@@ -175,23 +197,23 @@ class SymbolicComputationTool:
     ) -> Dict[str, Any]:
         """
         Optimize a symbolic expression for faster evaluation.
-        
+
         Args:
             expression: Mathematical expression
             strategies: Optimization strategies ("simplify", "expand", "factor", "cse")
-            
+
         Returns:
             Dict with original and optimized expressions
         """
         strategies = strategies or ["simplify"]
-        
+
         try:
             # Use sympy optimization functions
             from sympy import sympify, simplify, expand, factor, cse
-            
+
             expr = sympify(expression)
             optimized = expr
-            
+
             for strategy in strategies:
                 if strategy == "simplify":
                     optimized = simplify(optimized)
@@ -204,20 +226,20 @@ class SymbolicComputationTool:
                     replacements, reduced = cse(optimized)
                     if reduced:
                         optimized = reduced[0]
-            
+
             logger.info(
                 "symbolic_optimize_complete",
                 expression=expression[:50],
                 strategies=strategies,
             )
-            
+
             return {
                 "status": "success",
                 "original": expression,
                 "optimized": str(optimized),
                 "strategies_applied": strategies,
             }
-            
+
         except Exception as e:
             logger.error("symbolic_optimize_failed", error=str(e))
             return {
@@ -232,6 +254,8 @@ class SymbolicComputationTool:
 # These are the functions wired into TOOL_EXECUTORS in runtime/l_tools.py
 
 
+@register_tool(category="symbolic", priority=10, description="symbolic_compute tool")
+@register_tool(category="symbolic", priority=10, description="symbolic_compute tool")
 async def symbolic_compute(
     expression: str,
     variables: Dict[str, Union[float, List[float]]],
@@ -240,14 +264,14 @@ async def symbolic_compute(
 ) -> Dict[str, Any]:
     """
     Compute a symbolic expression with given variable values.
-    
+
     This is an L9 tool executor function.
-    
+
     Args:
         expression: Mathematical expression (e.g., "x**2 + sin(x)")
         variables: Variable values (e.g., {"x": 1.0})
         backend: Computational backend ("numpy", "math", "mpmath", "sympy")
-        
+
     Returns:
         Dict with computation result
     """
@@ -260,6 +284,8 @@ async def symbolic_compute(
     )
 
 
+@register_tool(category="symbolic", priority=10, description="symbolic_codegen tool")
+@register_tool(category="symbolic", priority=10, description="symbolic_codegen tool")
 async def symbolic_codegen(
     expression: str,
     variables: List[str],
@@ -270,16 +296,16 @@ async def symbolic_codegen(
 ) -> Dict[str, Any]:
     """
     Generate code from a symbolic expression.
-    
+
     This is an L9 tool executor function.
-    
+
     Args:
         expression: Mathematical expression
         variables: List of variable names
         language: Target language ("C", "Fortran", "Python", "Cython")
         function_name: Name for generated function
         compile: Whether to compile the code
-        
+
     Returns:
         Dict with generated code
     """
@@ -301,13 +327,13 @@ def symbolic_optimize(
 ) -> Dict[str, Any]:
     """
     Optimize a symbolic expression for faster evaluation.
-    
+
     This is an L9 tool executor function.
-    
+
     Args:
         expression: Mathematical expression
         strategies: Optimization strategies ("simplify", "expand", "factor", "cse")
-        
+
     Returns:
         Dict with original and optimized expressions
     """
@@ -318,3 +344,55 @@ def symbolic_optimize(
         **kwargs,
     )
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-020",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "adapter",
+        "async",
+        "caching",
+        "foundation",
+        "logging",
+        "messaging",
+        "metrics",
+        "tool-registry",
+    ],
+    "keywords": [
+        "check",
+        "codegen",
+        "computation",
+        "compute",
+        "engine",
+        "generate",
+        "health",
+        "optimize",
+    ],
+    "business_value": "Provides compute and codegen tool functions for L-CTO and agents. Version: 1.0.0",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

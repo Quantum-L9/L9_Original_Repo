@@ -34,8 +34,34 @@ Error handling:
   - Memory persistence fails: Log error, still return 200 to Slack
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Slack Ingest",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "slack_ingest",
+    "type": "engine",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "OpenAI API", "Slack API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "api.e2e_slack_audit",
+            "api.routes.slack",
+            "tests.api.test_e2e_slack_audit",
+            "tests.api.test_slack_adapter",
+        ],
+    },
+}
+# ============================================================================
+
 import httpx
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import structlog
 from time import time as current_time
 
@@ -44,6 +70,9 @@ from api.slack_client import SlackAPIClient, SlackClientError
 from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
 from config.settings import settings
+
+# Input segmenter for multi-part directive support (harvested from tokenizer)
+from orchestration.input_segmenter import get_segmenter
 
 # Optional telemetry - gracefully degrade if module not available
 try:
@@ -55,10 +84,18 @@ try:
     )
 except ImportError:
     # Stub functions when telemetry not available
-    def record_aios_call(*args, **kwargs): pass
-    def record_idempotent_hit(*args, **kwargs): pass
-    def record_packet_write_error(*args, **kwargs): pass
-    def record_slack_reply_error(*args, **kwargs): pass
+    def record_aios_call(*args, **kwargs):
+        pass
+
+    def record_idempotent_hit(*args, **kwargs):
+        pass
+
+    def record_packet_write_error(*args, **kwargs):
+        pass
+
+    def record_slack_reply_error(*args, **kwargs):
+        pass
+
 
 logger = structlog.get_logger(__name__)
 
@@ -79,8 +116,9 @@ logger = structlog.get_logger(__name__)
 # Feature flag for legacy Slack routing
 # When False, route Slack messages through AgentTask + AgentExecutorService
 # When True, use legacy AIOS /chat endpoint
-L9_ENABLE_LEGACY_SLACK_ROUTER = getattr(settings, "l9_enable_legacy_slack_router", False)
-
+L9_ENABLE_LEGACY_SLACK_ROUTER = getattr(
+    settings, "l9_enable_legacy_slack_router", False
+)
 
 # =============================================================================
 # L-CTO Agent Handler (ported from webhook_slack.py)
@@ -121,7 +159,7 @@ async def handle_slack_with_l_agent(
         # Import here to avoid circular imports
         from core.agents.schemas import (
             AgentTask,
-            TaskKind,
+            AgentType,
             ExecutionResult,
             DuplicateTaskResponse,
         )
@@ -135,7 +173,7 @@ async def handle_slack_with_l_agent(
         # Construct AgentTask for L-CTO with DAG-retrieved context
         task = AgentTask(
             agent_id="l-cto",
-            kind=TaskKind.CONVERSATION,
+            agent_type=AgentType.ASSISTANT,
             source_id="slack",
             thread_identifier=thread_uuid,
             payload={
@@ -188,18 +226,19 @@ async def handle_slack_with_l_agent(
 # =============================================================================
 
 
-def _process_file_attachments(files: list) -> list:
+async def _process_file_attachments(files: list) -> list:
     """
-    Process Slack file attachments (download, OCR, PDF parsing).
-    
+    Process Slack file attachments (download, OCR, PDF parsing) - async.
+
     Returns list of file artifact dicts with name, type, path, content.
     """
     if not files:
         return []
-    
+
     try:
         from services.slack_files import process_file_attachments
-        return process_file_attachments(files)
+
+        return await process_file_attachments(files)
     except ImportError:
         logger.debug("slack_files service not available")
         return []
@@ -223,12 +262,12 @@ async def _handle_mac_command(
 ) -> Optional[Dict[str, Any]]:
     """
     Handle !mac commands - route to Mac agent task queue.
-    
+
     Returns response dict if handled, None if not a !mac command.
     """
     if not text.strip().lower().startswith("!mac"):
         return None
-    
+
     command = text.replace("!mac", "", 1).replace("!MAC", "", 1).strip()
     if not command:
         await slack_client.post_message(
@@ -237,19 +276,21 @@ async def _handle_mac_command(
             thread_ts=thread_ts,
         )
         return {"ok": True, "handled": "mac_empty"}
-    
+
     try:
         from orchestrators.agent_execution.task_queue import enqueue_mac_task
-        
+
         # Enhance command context with file artifacts if present
         enhanced_command = command
         if file_artifacts:
             file_context = "\n\n[File attachments available:"
             for artifact in file_artifacts:
-                file_context += f"\n- {artifact['name']} ({artifact['type']}) at {artifact['path']}"
+                file_context += (
+                    f"\n- {artifact['name']} ({artifact['type']}) at {artifact['path']}"
+                )
             file_context += "]"
             enhanced_command = command + file_context
-        
+
         task_id = enqueue_mac_task(
             source="slack",
             channel=channel_id,
@@ -257,7 +298,7 @@ async def _handle_mac_command(
             command=enhanced_command,
             attachments=file_artifacts if file_artifacts else None,
         )
-        
+
         file_msg = (
             f" ({len(file_artifacts)} file{'s' if len(file_artifacts) != 1 else ''})"
             if file_artifacts
@@ -268,7 +309,7 @@ async def _handle_mac_command(
             text=f"📨 Mac task queued (id={task_id}){file_msg}. I'll post the result here when it's done.",
             thread_ts=thread_ts,
         )
-        
+
         logger.info(
             "slack_mac_command_queued",
             task_id=task_id,
@@ -276,7 +317,7 @@ async def _handle_mac_command(
             channel_id=channel_id,
         )
         return {"ok": True, "handled": "mac", "task_id": task_id}
-        
+
     except ImportError:
         logger.debug("mac_tasks service not available")
         await slack_client.post_message(
@@ -314,15 +355,15 @@ def _is_email_command(text: str) -> bool:
         "forward email",
     ]
     text_lower = text.strip().lower()
-    
+
     # Check if text starts with any email keyword
     if any(text_lower.startswith(kw.lower()) for kw in email_keywords):
         return True
-    
+
     # Check for email action phrases
     if any(kw in text_lower for kw in ["send email to", "reply to", "forward to"]):
         return True
-    
+
     return False
 
 
@@ -341,16 +382,16 @@ async def _route_to_mac_task(
 ) -> Optional[Dict[str, Any]]:
     """
     Route message to Mac Agent task planner for structured execution.
-    
+
     Returns response dict if routed, None if routing not applicable/failed.
     """
     try:
         from orchestration.slack_task_router import route_slack_message
         from orchestrators.agent_execution.task_queue import enqueue_mac_task_dict
-        
+
         # Route message + artifacts to mac_task structure
         task_dict = route_slack_message(text, file_artifacts, user_id)
-        
+
         # Ensure it's a mac_task (safety check)
         if task_dict.get("type") != "mac_task":
             logger.warning(
@@ -358,24 +399,24 @@ async def _route_to_mac_task(
                 f"Fixing to mac_task."
             )
             task_dict["type"] = "mac_task"
-        
+
         # Store channel in metadata for result posting
         if "metadata" not in task_dict:
             task_dict["metadata"] = {}
         task_dict["metadata"]["channel"] = channel_id
-        
+
         # Enqueue mac_task
         task_id = enqueue_mac_task_dict(task_dict)
-        
+
         # Respond in Slack
         response_msg = f"Task accepted and queued (ID: {task_id}). I'll let you know when it's done."
-        
+
         await slack_client.post_message(
             channel=channel_id,
             text=response_msg,
             thread_ts=thread_ts,
         )
-        
+
         logger.info(
             "slack_mac_task_routed",
             task_id=task_id,
@@ -383,7 +424,7 @@ async def _route_to_mac_task(
             channel_id=channel_id,
         )
         return {"ok": True, "handled": "mac_task_routed", "task_id": task_id}
-        
+
     except ImportError as e:
         logger.debug("mac task routing services not available", error=str(e))
         return None
@@ -402,16 +443,16 @@ async def _route_to_email_task(
 ) -> Optional[Dict[str, Any]]:
     """
     Route message to Email Agent task planner for structured execution.
-    
+
     Returns response dict if routed, None if routing not applicable/failed.
     """
     try:
         from orchestration.email_task_router import route_email_task
         from email_agent.client import execute_email_task
-        
+
         # Route message + artifacts to email_task structure
         task_dict = route_email_task(text, file_artifacts, user_id)
-        
+
         # Ensure it's an email_task (safety check)
         if task_dict.get("type") != "email_task":
             logger.warning(
@@ -419,28 +460,28 @@ async def _route_to_email_task(
                 f"Fixing to email_task."
             )
             task_dict["type"] = "email_task"
-        
+
         # Store channel in metadata for result posting
         if "metadata" not in task_dict:
             task_dict["metadata"] = {}
         task_dict["metadata"]["channel"] = channel_id
-        
+
         # Execute email task directly (email_agent doesn't use file-based queue)
         result = execute_email_task(task_dict)
-        
+
         # Respond in Slack
         if result.get("status") == "success":
             response_msg = "📧 Email task completed successfully."
         else:
             error = result.get("data", {}).get("error", "Unknown error")
             response_msg = f"📧 Email task failed: {error}"
-        
+
         await slack_client.post_message(
             channel=channel_id,
             text=response_msg,
             thread_ts=thread_ts,
         )
-        
+
         logger.info(
             "slack_email_task_routed",
             user_id=user_id,
@@ -448,7 +489,7 @@ async def _route_to_email_task(
             status=result.get("status"),
         )
         return {"ok": True, "handled": "email_task_executed", "result": result}
-        
+
     except ImportError as e:
         logger.debug("email task routing services not available", error=str(e))
         return None
@@ -510,7 +551,7 @@ async def handle_slack_events(
     event = payload.get("event", {})
     event_subtype = event.get("subtype")
     bot_id = event.get("bot_id")
-    
+
     if event_subtype == "bot_message" or bot_id:
         logger.debug(
             "slack_ignoring_bot_message",
@@ -543,7 +584,9 @@ async def handle_slack_events(
             record_idempotent_hit(team_id=team_id)
             return {"ok": True, "deduplicated": True}
     except Exception as e:
-        logger.error("slack_dedupe_check", error=str(e), event_id=event_id, is_duplicate=False)
+        logger.error(
+            "slack_dedupe_check", error=str(e), event_id=event_id, is_duplicate=False
+        )
         # Continue processing; dedupe is opportunistic
 
     # Retrieve memory context
@@ -638,7 +681,9 @@ async def handle_slack_events(
                         f"Detected intent: `{intent.intent_type.value}`"
                     )
                     if intent.ambiguities:
-                        command_response += f"\nAmbiguities: {', '.join(intent.ambiguities)}"
+                        command_response += (
+                            f"\nAmbiguities: {', '.join(intent.ambiguities)}"
+                        )
                 else:
                     # Forward to regular AIOS flow with intent context
                     # (intent will be used for context enrichment)
@@ -686,7 +731,9 @@ async def handle_slack_events(
 
             result = await substrate_service.write_packet(inbound_packet_in)
             logger.debug(
-                "slack_command_packet_stored", event_id=event_id, packet_id=result.packet_id
+                "slack_command_packet_stored",
+                event_id=event_id,
+                packet_id=result.packet_id,
             )
         except Exception as e:
             logger.error(
@@ -705,13 +752,19 @@ async def handle_slack_events(
                 reply_broadcast=False,
             )
             slack_ts = slack_response_obj.get("ts")
-            logger.info("slack_command_reply_posted", event_id=event_id, slack_ts=slack_ts)
+            logger.info(
+                "slack_command_reply_posted", event_id=event_id, slack_ts=slack_ts
+            )
         except SlackClientError as e:
             slack_error = str(e)
-            logger.error("slack_command_post_error", event_id=event_id, error=slack_error)
+            logger.error(
+                "slack_command_post_error", event_id=event_id, error=slack_error
+            )
         except Exception as e:
             slack_error = str(e)
-            logger.error("slack_command_post_exception", event_id=event_id, error=slack_error)
+            logger.error(
+                "slack_command_post_exception", event_id=event_id, error=slack_error
+            )
 
         # Store outbound packet
         try:
@@ -740,9 +793,11 @@ async def handle_slack_events(
 
             result = await substrate_service.write_packet(outbound_packet_in)
             logger.debug(
-                "slack_command_outbound_stored", event_id=event_id, packet_id=result.packet_id
+                "slack_command_outbound_stored",
+                event_id=event_id,
+                packet_id=result.packet_id,
             )
-            
+
             # Index conversation for preferences and corrections
             try:
                 await _index_slack_conversation(
@@ -766,14 +821,14 @@ async def handle_slack_events(
     # =========================================================================
     # When L9_ENABLE_LEGACY_SLACK_ROUTER=False, route through L-CTO agent
     # This provides: DM handling, file attachments, !mac commands, email routing
-    
+
     # Extract additional event details for enhanced handling
     files = payload.get("event", {}).get("files", [])
     channel_type = payload.get("event", {}).get("channel_type", "")
     is_dm = channel_type == "im" or (channel_id and channel_id.startswith("D"))
-    
+
     # Process file attachments if present
-    file_artifacts = _process_file_attachments(files) if files else []
+    file_artifacts = await _process_file_attachments(files) if files else []
     if file_artifacts:
         logger.info(
             "slack_file_attachments_processed",
@@ -781,10 +836,10 @@ async def handle_slack_events(
             channel_id=channel_id,
             user_id=user_id,
         )
-    
+
     # Detect email commands
     is_email_command = _is_email_command(text)
-    
+
     # === !mac Command Handling ===
     if text.strip().lower().startswith("!mac"):
         mac_result = await _handle_mac_command(
@@ -797,10 +852,10 @@ async def handle_slack_events(
         )
         if mac_result:
             return mac_result
-    
+
     # === L-CTO Agent Routing (when legacy flag is False) ===
     should_use_l_agent = is_dm or "l9" in text.lower() or event_type == "app_mention"
-    
+
     if not L9_ENABLE_LEGACY_SLACK_ROUTER and should_use_l_agent and text.strip():
         try:
             # Use app reference passed from router
@@ -810,16 +865,72 @@ async def handle_slack_events(
                     "thread_context": thread_context,
                     "semantic_hits": semantic_hits,
                 }
-                reply, status = await handle_slack_with_l_agent(
-                    app=app,
-                    text=text,
-                    thread_uuid=str(thread_uuid),
-                    team_id=team_id,
-                    channel_id=channel_id,
-                    user_id=user_id,
-                    context=dag_context,
-                )
-                
+
+                # === Multi-Part Directive Support (harvested from tokenizer) ===
+                # Segment input to handle compound directives like:
+                # "Deploy RIL, test ToT, sync Supabase"
+                segmenter = get_segmenter()
+                segment_result = segmenter.segment(text)
+
+                if segment_result.segment_count > 1:
+                    # Multi-part: process each segment
+                    logger.info(
+                        "slack_multi_part_directive",
+                        segment_count=segment_result.segment_count,
+                        segments=segment_result.segments,
+                    )
+
+                    replies: List[Tuple[str, str]] = []
+                    for i, segment in enumerate(segment_result.segments):
+                        segment_reply, segment_status = await handle_slack_with_l_agent(
+                            app=app,
+                            text=segment,
+                            thread_uuid=str(thread_uuid),
+                            team_id=team_id,
+                            channel_id=channel_id,
+                            user_id=user_id,
+                            context={
+                                **dag_context,
+                                "segment_index": i,
+                                "total_segments": segment_result.segment_count,
+                                "from_multi_part": True,
+                            },
+                        )
+                        replies.append((segment_reply, segment_status))
+
+                    # Combine replies for multi-part response
+                    successful = [r for r, s in replies if s == "completed"]
+                    failed = [
+                        r for r, s in replies if s not in ("completed", "duplicate")
+                    ]
+
+                    if failed:
+                        reply = f"Processed {len(successful)}/{len(replies)} tasks:\n\n"
+                        for i, (r, s) in enumerate(replies):
+                            status_icon = "✅" if s == "completed" else "⚠️"
+                            reply += f"{status_icon} **{segment_result.segments[i]}**: {r}\n\n"
+                        status = "partial"
+                    else:
+                        reply = (
+                            "\n\n---\n\n".join(successful)
+                            if len(successful) > 1
+                            else successful[0]
+                            if successful
+                            else "All tasks processed."
+                        )
+                        status = "completed"
+                else:
+                    # Single task: standard handling
+                    reply, status = await handle_slack_with_l_agent(
+                        app=app,
+                        text=text,
+                        thread_uuid=str(thread_uuid),
+                        team_id=team_id,
+                        channel_id=channel_id,
+                        user_id=user_id,
+                        context=dag_context,
+                    )
+
                 # Post reply to Slack
                 if status in ("completed", "duplicate"):
                     await slack_client.post_message(
@@ -833,14 +944,14 @@ async def handle_slack_events(
                         text=f"⚠️ {reply}",
                         thread_ts=thread_ts,
                     )
-                
+
                 logger.info(
                     "slack_l_agent_response",
                     status=status,
                     user_id=user_id,
                     channel_id=channel_id,
                 )
-                
+
                 # Store outbound packet for L-CTO response
                 try:
                     outbound_packet_in = PacketEnvelopeIn(
@@ -867,14 +978,14 @@ async def handle_slack_events(
                     await substrate_service.write_packet(outbound_packet_in)
                 except Exception as e:
                     logger.error("slack_l_agent_packet_storage_error", error=str(e))
-                
+
                 return {"ok": True, "l_agent": True, "status": status}
             else:
                 logger.warning("slack_l_agent_no_app_reference")
         except Exception as e:
             logger.error("slack_l_agent_routing_error", error=str(e))
             # Fall through to legacy AIOS flow
-    
+
     # === Task Routing (files or email commands) ===
     if file_artifacts or is_email_command:
         if is_email_command:
@@ -899,9 +1010,14 @@ async def handle_slack_events(
             )
         if route_result:
             return route_result
-    
+
     # === Simple DM Response (when no special handling needed) ===
-    if is_dm and not file_artifacts and not is_email_command and not text.strip().startswith("!mac"):
+    if (
+        is_dm
+        and not file_artifacts
+        and not is_email_command
+        and not text.strip().startswith("!mac")
+    ):
         # For simple DMs, provide a helpful response about available commands
         await slack_client.post_message(
             channel=channel_id,
@@ -917,7 +1033,7 @@ async def handle_slack_events(
         )
         logger.info("slack_simple_dm_response", user_id=user_id, channel_id=channel_id)
         return {"ok": True, "simple_dm": True}
-    
+
     # =========================================================================
     # DEPRECATED: Legacy AIOS Flow (GMP-60: Runtime Hardening)
     # =========================================================================
@@ -931,7 +1047,7 @@ async def handle_slack_events(
     # RECOMMENDATION: Set L9_ENABLE_LEGACY_SLACK_ROUTER=false to use
     # the kernel-governed L-CTO agent flow instead.
     # =========================================================================
-    
+
     # Log deprecation warning (GMP-60)
     logger.warning(
         "slack_legacy_aios_flow_deprecated",
@@ -947,7 +1063,9 @@ async def handle_slack_events(
     aios_start_time = current_time()
 
     # CANONICAL LOG EVENT 5: AIOS call start (DEPRECATED)
-    logger.info("slack_aios_call_start", event_id=event_id, agent_type="aios", deprecated=True)
+    logger.info(
+        "slack_aios_call_start", event_id=event_id, agent_type="aios", deprecated=True
+    )
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -983,19 +1101,34 @@ async def handle_slack_events(
     except httpx.TimeoutException:
         aios_error = "AIOS timeout (10s)"
         aios_duration = current_time() - aios_start_time
-        logger.error("slack_aios_call_complete", event_id=event_id, status="timeout", duration_seconds=aios_duration)
+        logger.error(
+            "slack_aios_call_complete",
+            event_id=event_id,
+            status="timeout",
+            duration_seconds=aios_duration,
+        )
         record_aios_call(agent_type="aios", duration_seconds=aios_duration)
     except httpx.HTTPStatusError as e:
         aios_error = f"AIOS HTTP {e.response.status_code}"
         aios_duration = current_time() - aios_start_time
         logger.error(
-            "slack_aios_call_complete", event_id=event_id, status="http_error", http_status=e.response.status_code, duration_seconds=aios_duration
+            "slack_aios_call_complete",
+            event_id=event_id,
+            status="http_error",
+            http_status=e.response.status_code,
+            duration_seconds=aios_duration,
         )
         record_aios_call(agent_type="aios", duration_seconds=aios_duration)
     except Exception as e:
         aios_error = str(e)
         aios_duration = current_time() - aios_start_time
-        logger.error("slack_aios_call_complete", event_id=event_id, status="error", error=aios_error, duration_seconds=aios_duration)
+        logger.error(
+            "slack_aios_call_complete",
+            event_id=event_id,
+            status="error",
+            error=aios_error,
+            duration_seconds=aios_duration,
+        )
         record_aios_call(agent_type="aios", duration_seconds=aios_duration)
 
     # Store inbound packet
@@ -1025,9 +1158,12 @@ async def handle_slack_events(
         result = await substrate_service.write_packet(inbound_packet_in)
         # CANONICAL LOG EVENT 7: Packet stored
         logger.debug(
-            "slack_packet_stored", event_id=event_id, packet_id=result.packet_id, packet_type="slack.in"
+            "slack_packet_stored",
+            event_id=event_id,
+            packet_id=result.packet_id,
+            packet_type="slack.in",
         )
-        
+
         # Index conversation for preferences and corrections
         try:
             await _index_slack_conversation(
@@ -1042,7 +1178,10 @@ async def handle_slack_events(
     except Exception as e:
         # CANONICAL LOG EVENT 9: Handler error
         logger.error(
-            "slack_handler_error", error=str(e), event_id=event_id, context="inbound_packet_storage"
+            "slack_handler_error",
+            error=str(e),
+            event_id=event_id,
+            context="inbound_packet_storage",
         )
         record_packet_write_error(packet_type="slack.in")
 
@@ -1068,14 +1207,23 @@ async def handle_slack_events(
         )
         slack_ts = slack_response.get("ts")
         # CANONICAL LOG EVENT 8: Reply sent
-        logger.info("slack_reply_sent", event_id=event_id, slack_ts=slack_ts, channel_id=channel_id)
+        logger.info(
+            "slack_reply_sent",
+            event_id=event_id,
+            slack_ts=slack_ts,
+            channel_id=channel_id,
+        )
     except SlackClientError as e:
         slack_error = str(e)
-        logger.error("slack_reply_sent", event_id=event_id, error=slack_error, status="error")
+        logger.error(
+            "slack_reply_sent", event_id=event_id, error=slack_error, status="error"
+        )
         record_slack_reply_error(error_type="api_error")
     except Exception as e:
         slack_error = str(e)
-        logger.error("slack_reply_sent", event_id=event_id, error=slack_error, status="exception")
+        logger.error(
+            "slack_reply_sent", event_id=event_id, error=slack_error, status="exception"
+        )
         record_slack_reply_error(error_type="exception")
 
     # Store outbound packet
@@ -1111,7 +1259,7 @@ async def handle_slack_events(
             packet_id=result.packet_id,
             packet_type="slack.out",
         )
-        
+
         # Index conversation for preferences and corrections
         try:
             await _index_slack_conversation(
@@ -1126,7 +1274,10 @@ async def handle_slack_events(
     except Exception as e:
         # CANONICAL LOG EVENT 9: Handler error
         logger.error(
-            "slack_handler_error", error=str(e), event_id=event_id, context="outbound_packet_storage"
+            "slack_handler_error",
+            error=str(e),
+            event_id=event_id,
+            context="outbound_packet_storage",
         )
 
     return {"ok": True}
@@ -1266,7 +1417,6 @@ async def handle_slack_commands(
 
 # ============================================================================
 # Helper Functions
-# ============================================================================
 
 
 async def _check_duplicate(
@@ -1305,7 +1455,7 @@ async def _check_duplicate(
     try:
         # Access repository for raw SQL query
         repository = substrate_service._repository
-        
+
         async with repository.acquire() as conn:
             # Query for duplicate using event_id OR composite match
             # The envelope column is JSONB, so we use -> for object access and ->> for text extraction
@@ -1330,12 +1480,12 @@ async def _check_duplicate(
                 ts,
                 user_id,
             )
-            
+
             if row:
                 # Found a duplicate
                 matched_packet_id = str(row["packet_id"])
                 envelope = row["envelope"]
-                
+
                 # Determine reason for duplicate
                 if isinstance(envelope, dict):
                     payload = envelope.get("payload", {})
@@ -1346,23 +1496,23 @@ async def _check_duplicate(
                         reason = "composite_match"
                 else:
                     reason = "duplicate_found"
-                
+
                 logger.debug(
                     "slack_duplicate_detected",
                     event_id=event_id,
                     matched_packet_id=matched_packet_id,
                     reason=reason,
                 )
-                
+
                 return {
                     "is_duplicate": True,
                     "reason": reason,
                     "packet_id": matched_packet_id,
                 }
-            
+
             # No duplicate found
             return {"is_duplicate": False}
-            
+
     except Exception as e:
         logger.error("dedupe_check_error", error=str(e), event_id=event_id)
         # On error, return not duplicate to allow processing (fail open)
@@ -1466,7 +1616,7 @@ async def _index_slack_conversation(
 ) -> None:
     """
     Index Slack conversation - extract preferences and corrections, create knowledge facts and embeddings.
-    
+
     Extracts:
     - User preferences (patterns like "I prefer", "I like", "use X instead of Y")
     - Corrections (patterns like "that's wrong", "should be", "actually")
@@ -1475,15 +1625,15 @@ async def _index_slack_conversation(
     """
     try:
         import re
-        
+
         # Extract preferences
         preference_patterns = [
-            r'(?:I|we)\s+prefer\s+(.+?)(?:\.|$|,)',
-            r'(?:I|we)\s+like\s+(.+?)(?:\.|$|,)',
-            r'use\s+([^\.]+?)\s+instead\s+of',
-            r'(?:I|we)\s+want\s+(.+?)(?:\.|$|,)',
+            r"(?:I|we)\s+prefer\s+(.+?)(?:\.|$|,)",
+            r"(?:I|we)\s+like\s+(.+?)(?:\.|$|,)",
+            r"use\s+([^\.]+?)\s+instead\s+of",
+            r"(?:I|we)\s+want\s+(.+?)(?:\.|$|,)",
         ]
-        
+
         preferences = []
         for pattern in preference_patterns:
             matches = re.finditer(pattern, text, re.IGNORECASE)
@@ -1491,15 +1641,15 @@ async def _index_slack_conversation(
                 pref = match.group(1).strip()
                 if len(pref) > 10 and len(pref) < 200:
                     preferences.append(pref)
-        
+
         # Extract corrections
         correction_patterns = [
-            r'(?:that\'?s|that is)\s+wrong[:\s]+(.+?)(?:\.|$|,)',
-            r'should\s+be\s+(.+?)(?:\.|$|,)',
-            r'actually[,\s]+(.+?)(?:\.|$|,)',
-            r'correct(?:ion|ed)?[:\s]+(.+?)(?:\.|$|,)',
+            r"(?:that\'?s|that is)\s+wrong[:\s]+(.+?)(?:\.|$|,)",
+            r"should\s+be\s+(.+?)(?:\.|$|,)",
+            r"actually[,\s]+(.+?)(?:\.|$|,)",
+            r"correct(?:ion|ed)?[:\s]+(.+?)(?:\.|$|,)",
         ]
-        
+
         corrections = []
         for pattern in correction_patterns:
             matches = re.finditer(pattern, text, re.IGNORECASE)
@@ -1507,33 +1657,41 @@ async def _index_slack_conversation(
                 corr = match.group(1).strip()
                 if len(corr) > 10 and len(corr) < 200:
                     corrections.append(corr)
-        
+
         # Create knowledge facts for preferences
         for pref in preferences[:5]:  # Limit to 5
             try:
                 await substrate_service._repository.insert_knowledge_fact(
                     subject=user_id,
                     predicate="prefers",
-                    object_value={"preference": pref, "source": "slack", "team_id": team_id},
+                    object_value={
+                        "preference": pref,
+                        "source": "slack",
+                        "team_id": team_id,
+                    },
                     confidence=0.8,
                     source_packet=packet_id if packet_id else None,
                 )
             except Exception as e:
                 logger.debug(f"Failed to create preference fact: {e}")
-        
+
         # Create knowledge facts for corrections
         for corr in corrections[:5]:  # Limit to 5
             try:
                 await substrate_service._repository.insert_knowledge_fact(
                     subject=user_id,
                     predicate="corrects",
-                    object_value={"correction": corr, "source": "slack", "team_id": team_id},
+                    object_value={
+                        "correction": corr,
+                        "source": "slack",
+                        "team_id": team_id,
+                    },
                     confidence=0.85,
                     source_packet=packet_id if packet_id else None,
                 )
             except Exception as e:
                 logger.debug(f"Failed to create correction fact: {e}")
-        
+
         # Create semantic embedding for conversation context if significant content
         if len(text) > 50 and (preferences or corrections):
             try:
@@ -1542,7 +1700,7 @@ async def _index_slack_conversation(
                     context_text += f"\nPreferences: {', '.join(preferences[:3])}"
                 if corrections:
                     context_text += f"\nCorrections: {', '.join(corrections[:3])}"
-                
+
                 await substrate_service.embed_text(
                     text=context_text,
                     payload={
@@ -1556,7 +1714,7 @@ async def _index_slack_conversation(
                 )
             except Exception as e:
                 logger.debug(f"Failed to create conversation embedding: {e}")
-        
+
     except Exception as e:
         logger.debug(f"Slack conversation indexing error: {e}")
 
@@ -1594,3 +1752,64 @@ def _build_system_prompt(
                 parts.append(f"  - {content}")
 
     return "\n".join(parts)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "api.slack_adapter",
+        "api.slack_client",
+        "core.agents.schemas",
+        "core.commands.executor",
+        "core.commands.intent_extractor",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "debugging",
+        "engine",
+        "event-driven",
+        "http-client",
+        "learning",
+        "logging",
+        "memory-substrate",
+    ],
+    "keywords": [
+        "agent",
+        "agentexecutorservice",
+        "aios",
+        "check",
+        "command",
+        "commands",
+        "delivery",
+        "detection",
+    ],
+    "business_value": "1. Dedupe check (prevent double-processing) 2. Memory context retrieval (fetch thread history + semantic hits) 3. L-CTO agent routing via AgentExecutorService (when legacy flag is False) 4. AIOS /chat",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

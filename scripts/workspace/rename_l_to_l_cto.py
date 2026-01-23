@@ -11,6 +11,27 @@ Usage:
     python scripts/rename_l_to_l_cto.py [--dry-run]
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Rename L To L Cto",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "rename_l_to_l_cto",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import re
 import structlog
 import os
@@ -80,12 +101,10 @@ CONTEXTUAL_REPLACEMENTS = [
     ),
 ]
 
-
 def should_skip_file(filepath: Path) -> bool:
     """Check if file should be skipped."""
     path_str = str(filepath)
     return any(re.search(pattern, path_str) for pattern in SKIP_PATTERNS)
-
 
 def replace_in_file(
     filepath: Path, dry_run: bool = False
@@ -138,7 +157,6 @@ def replace_in_file(
 
     return changes
 
-
 def process_directory(directory: Path, dry_run: bool = False) -> dict:
     """Process all files in a directory."""
     stats = {
@@ -182,7 +200,6 @@ def process_directory(directory: Path, dry_run: bool = False) -> dict:
                         logger.info(f"      ... and {len(changes) - 3} more")
 
     return stats
-
 
 def main():
     """Main entry point."""
@@ -234,8 +251,40 @@ def main():
         logger.info("  3. Update any remaining references manually")
         logger.info("  4. Rename directory: mv l-cto l_cto (if needed for Python imports)")
 
-
-
 logger = structlog.get_logger(__name__)
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "authorization", "caching", "cli", "filesystem", "logging", "operations", "scripts", "testing"],
+    "keywords": ["cto", "directory", "process", "rename", "replace", "should", "skip"],
+    "business_value": "Import paths: `from l.` → `from l_cto.` (Python modules use underscores) Agent IDs: `agent_id=` → `a",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

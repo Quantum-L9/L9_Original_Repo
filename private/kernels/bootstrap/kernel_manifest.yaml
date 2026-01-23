@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Kernel Manifest"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2025-12-20T15:08:40Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "operations"
+# domain: "private"
+# file_name: "kernel_manifest"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 kernel_manifest:
   version: "1.0.0"
   description: "Canonical kernel load order for L9"
@@ -16,3 +31,10 @@ kernel_manifest:
   load_order_source: "runtime/kernel_loader.py::KERNEL_ORDER"
   enforcement: "strict"
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["kernel", "model-config", "operations", "private", "utility"]
+# keywords: ["kernel", "kernel_manifest", "manifest"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

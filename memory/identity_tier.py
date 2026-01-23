@@ -19,12 +19,39 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Identity Tier Service",
+    "module_version": "3.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T15:23:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "identity_tier",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Anthropic API", "OpenAI API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "memory.__init__",
+            "tests.memory.test_frontier_memory_pipeline",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -128,7 +155,7 @@ class IdentityTierService:
     - Bulk import/export for identity facts
     """
 
-    def __init__(self, repository=None):
+    def __init__(self, repository: Optional["SubstrateRepository"] = None):
         """
         Initialize IdentityTierService.
 
@@ -138,7 +165,7 @@ class IdentityTierService:
         self._repository = repository
         logger.info("IdentityTierService initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -534,8 +561,62 @@ def get_identity_tier_service() -> IdentityTierService:
     return _identity_service
 
 
-def init_identity_tier_service(repository) -> IdentityTierService:
+def init_identity_tier_service(
+    repository: "SubstrateRepository",
+) -> IdentityTierService:
     """Initialize the IdentityTierService with repository."""
     service = get_identity_tier_service()
     service.set_repository(repository)
     return service
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-033",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.substrate_models"],
+    "tags": [
+        "async",
+        "data-models",
+        "dataclass",
+        "learning",
+        "logging",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "agent",
+        "category",
+        "core",
+        "create",
+        "default",
+        "export",
+        "fact",
+        "facts",
+    ],
+    "business_value": "Identity (permanent, immutable core facts) Project (working context, scoped) Session (ephemeral, temporal) General (default tier) Human-curated (validated by Igor or system) High importance (0.8+ by d",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

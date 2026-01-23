@@ -8,6 +8,27 @@ Loads WorldModelOS.yaml specifications into:
 Follows EU AI Act Annex 22 (data independence).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Declarative Specification Loading.",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T23:45:01Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "loader",
+    "type": "collector",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from typing import Dict, List, Any, Tuple, Optional
 import yaml
 from pathlib import Path
@@ -383,3 +404,47 @@ class WorldModelLoader(IWorldModelLoader):
                 raise ValueError(f"{section} must be a {expected_type.__name__}")
 
         return True
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-023",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["collector", "config", "filesystem", "learning", "loader", "world-model"],
+    "keywords": [
+        "blueprint",
+        "causal",
+        "declarative",
+        "domain",
+        "entity",
+        "graph",
+        "initial",
+        "load",
+    ],
+    "business_value": "Implements WorldModelLoader for loader functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

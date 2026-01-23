@@ -11,6 +11,27 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Kernel Evolution Logging",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-08T15:53:43Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "foundation",
+    "domain": "memory_substrate",
+    "module_name": "runtime",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server", "tests.integration.test_kernel_hot_reload"],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -260,3 +281,56 @@ __all__ = [
     "get_kernel_evolution_history",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-023",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.substrate_service"],
+    "tags": [
+        "api",
+        "async",
+        "audit-tool",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "security",
+    ],
+    "keywords": [
+        "audit",
+        "event",
+        "evolution",
+        "history",
+        "kernel",
+        "log",
+        "logging",
+        "memory",
+    ],
+    "business_value": "Provides functions for logging kernel evolution events to the memory substrate.",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

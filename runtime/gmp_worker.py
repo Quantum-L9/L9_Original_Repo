@@ -15,6 +15,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "GMP Worker",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-25T18:55:20Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "gmp_worker",
+    "type": "engine",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": [],
+        "imported_by": ["api.server", "runtime.gmp_approval", "runtime.gmp_tool"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import os
 import structlog
@@ -23,6 +44,7 @@ from typing import Any, Dict, Optional
 from datetime import datetime
 
 from runtime.task_queue import TaskQueue, QueuedTask
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -58,6 +80,7 @@ class GMPWorker:
         self._running = False
         self._task: Optional[asyncio.Task] = None
 
+    @must_stay_async("callers use await")
     async def start(self) -> None:
         """Start the worker loop."""
         if self._running:
@@ -439,3 +462,57 @@ __all__ = [
     "remove_pending_task",
     "approve_and_enqueue",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-007",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "runtime.task_queue"],
+    "tags": [
+        "async",
+        "debugging",
+        "engine",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "operations",
+        "queue",
+        "realtime",
+        "runtime-operations",
+    ],
+    "keywords": [
+        "approve",
+        "dedicated",
+        "enqueue",
+        "executor",
+        "gmp",
+        "module",
+        "pending",
+        "queue",
+    ],
+    "business_value": "Implements GMPWorker for gmp worker functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

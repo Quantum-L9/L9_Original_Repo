@@ -10,11 +10,36 @@ Orchestrates all capabilities:
 Maintains backward compatibility with existing PacketEnvelope.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Integration",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "integration",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "core.packet_envelope.__init__",
+            "tests.upgrades.test_packet_envelope_phases",
+        ],
+    },
+}
+# ============================================================================
+
 import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
+from core.decorators import must_stay_async
 
 from core.packet_envelope.observability import (
     ObservabilityConfig,
@@ -102,6 +127,7 @@ class PacketEnvelopeUpgradeEngine:
         self.schema_registry = None
         self.trace_propagator = None
 
+    @must_stay_async("callers use await")
     async def activate_phase_2(self) -> Dict[str, Any]:
         """Activate Phase 2: Observability"""
         self.logger.info("Activating Phase 2: Observability")
@@ -134,6 +160,7 @@ class PacketEnvelopeUpgradeEngine:
             self.logger.error(f"Phase 2 activation failed: {e}", exc_info=True)
             return {"status": "error", "phase": 2, "error": str(e)}
 
+    @must_stay_async("callers use await")
     async def activate_phase_3(self) -> Dict[str, Any]:
         """Activate Phase 3: Standardization"""
         self.logger.info("Activating Phase 3: Standardization")
@@ -174,6 +201,7 @@ class PacketEnvelopeUpgradeEngine:
             self.logger.error(f"Phase 3 activation failed: {e}", exc_info=True)
             return {"status": "error", "phase": 3, "error": str(e)}
 
+    @must_stay_async("callers use await")
     async def activate_phase_4(self) -> Dict[str, Any]:
         """Activate Phase 4: Scalability"""
         self.logger.info("Activating Phase 4: Scalability")
@@ -214,6 +242,7 @@ class PacketEnvelopeUpgradeEngine:
             self.logger.error(f"Phase 4 activation failed: {e}", exc_info=True)
             return {"status": "error", "phase": 4, "error": str(e)}
 
+    @must_stay_async("callers use await")
     async def activate_phase_5(self) -> Dict[str, Any]:
         """Activate Phase 5: Governance"""
         self.logger.info("Activating Phase 5: Governance")
@@ -351,9 +380,8 @@ class PacketEnvelopeAdapter:
 
         return str(result.successful_packets > 0)
 
-    async def get_packet_as_cloudevent(
-        self, packet_id: str
-    ) -> Optional[CloudEvent]:
+    @must_stay_async("callers use await")
+    async def get_packet_as_cloudevent(self, packet_id: str) -> Optional[CloudEvent]:
         """
         Retrieve packet as CloudEvent
         Automatically wraps if Phase 3 enabled
@@ -378,6 +406,7 @@ class PacketEnvelopeAdapter:
 # ============================================================================
 
 
+@must_stay_async("callers use await")
 async def validate_deployment() -> Dict[str, Any]:
     """
     Validate deployment readiness for phases 2-5
@@ -407,3 +436,63 @@ async def validate_deployment() -> Dict[str, Any]:
 
     return validation_results
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-009",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "core.packet_envelope.governance",
+        "core.packet_envelope.observability",
+        "core.packet_envelope.scalability",
+        "core.packet_envelope.standardization",
+    ],
+    "tags": [
+        "adapter-pattern",
+        "api",
+        "async",
+        "batch-processing",
+        "data-models",
+        "dataclass",
+        "engine",
+        "event-driven",
+        "foundation",
+        "metrics",
+    ],
+    "keywords": [
+        "activate",
+        "adapter",
+        "all",
+        "cloudevent",
+        "deployment",
+        "engine",
+        "envelope",
+        "governance",
+    ],
+    "business_value": "• Observability → Standardization • Standardization → Scalability • Scalability → Governance Maintains backward compatibility with existing PacketEnvelope.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

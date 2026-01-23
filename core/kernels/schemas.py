@@ -23,6 +23,31 @@ Kernel Types:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Pydantic Models for Kernel Manifests",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-08T15:53:43Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "schemas",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.agents.kernel_registry",
+            "core.kernels.kernelloader",
+            "tests.unit.test_kernel_loader_activation",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -112,7 +137,9 @@ class KernelMeta(FlexibleModel):
     """Metadata attached during loading."""
 
     source_file: Optional[str] = Field(default=None, description="Source file path")
-    layer: Optional[str] = Field(default=None, description="Layer name (00_system, etc.)")
+    layer: Optional[str] = Field(
+        default=None, description="Layer name (00_system, etc.)"
+    )
     layer_order: int = Field(default=50, description="Layer load order")
     loaded_at: Optional[datetime] = Field(default=None, description="Load timestamp")
     sha256: Optional[str] = Field(default=None, description="File hash for integrity")
@@ -183,7 +210,9 @@ class ThresholdsConfig(FlexibleModel):
     """Behavioral thresholds configuration."""
 
     execute: float = Field(default=0.8, ge=0.0, le=1.0, description="Execute threshold")
-    questions_max: int = Field(default=1, ge=0, description="Max questions before acting")
+    questions_max: int = Field(
+        default=1, ge=0, description="Max questions before acting"
+    )
     hedges_max: int = Field(default=0, ge=0, description="Max hedges allowed")
     confidence_floor: float = Field(
         default=0.5, ge=0.0, le=1.0, description="Minimum confidence to proceed"
@@ -212,7 +241,9 @@ class GuardrailConfig(FlexibleModel):
 
     name: str = Field(..., description="Guardrail name")
     enabled: bool = Field(default=True, description="Whether guardrail is active")
-    description: Optional[str] = Field(default=None, description="Guardrail description")
+    description: Optional[str] = Field(
+        default=None, description="Guardrail description"
+    )
     enforcement: str = Field(default="strict", description="Enforcement mode")
 
 
@@ -420,7 +451,9 @@ class KernelActivationResult(FlexibleModel):
     success: bool = Field(..., description="Whether phase succeeded")
     kernels_loaded: int = Field(default=0, description="Number of kernels loaded")
     kernels_activated: int = Field(default=0, description="Number of kernels activated")
-    integrity_verified: bool = Field(default=False, description="Integrity check passed")
+    integrity_verified: bool = Field(
+        default=False, description="Integrity check passed"
+    )
     validation_errors: List[ValidationError] = Field(default_factory=list)
     activation_context_set: bool = Field(
         default=False, description="Whether activation context was injected"
@@ -473,3 +506,55 @@ __all__ = [
     "KernelActivationResult",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-004",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "data-models",
+        "foundation",
+        "messaging",
+        "pydantic",
+        "schema",
+        "security",
+        "validation",
+    ],
+    "keywords": [
+        "activation",
+        "agent",
+        "behavioral",
+        "cognitive",
+        "developer",
+        "ensure",
+        "entry",
+        "execution",
+    ],
+    "business_value": "Provides schemas components including FlexibleModel, KernelType, KernelState",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

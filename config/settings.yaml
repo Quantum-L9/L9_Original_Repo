@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Settings"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2025-12-09T01:02:49Z"
+# updated_at: "2026-01-08T14:21:22Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "settings"
+# type: "config"
+# status: "active"
+# ============================================================================
+
 base_path: /opt/l9
 cursor_host: 127.0.0.1
 cursor_port: 3000
@@ -8,3 +23,11 @@ mac_port: 8001
 memory_enabled: false
 request_timeout: 30
 shutdown_timeout: 5
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["config", "configuration", "foundation"]
+# keywords: ["base_path", "cursor_host", "cursor_port", "debug", "l9_port", "log_path"]
+# last_modified: "2026-01-08T14:21:22Z"
+# ============================================================================

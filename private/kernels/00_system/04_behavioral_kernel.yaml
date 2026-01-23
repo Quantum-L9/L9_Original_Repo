@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "04 Behavioral Kernel"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2025-12-09T01:02:49Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "operations"
+# domain: "private"
+# file_name: "04_behavioral_kernel"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 ---
 file: BEHAVIORAL_KERNEL.yaml
 version: "1.0.0"
@@ -119,3 +134,10 @@ schema:
     - tone_score
     - compliance_status
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["kernel", "operations", "private", "schema", "tool-config", "utility"]
+# keywords: ["behavioral", "defaults", "file", "hooks", "init", "kernel"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

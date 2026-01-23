@@ -15,7 +15,6 @@ from unittest.mock import patch
 import pytest
 import httpx
 
-
 # =============================================================================
 # Configuration
 # =============================================================================
@@ -67,9 +66,7 @@ class TestAgentExecuteAuth:
 
         response = api_client_no_auth.post("/agent/execute", json=payload)
 
-        assert response.status_code == 401, (
-            f"Expected 401 Unauthorized, got {response.status_code}"
-        )
+        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
         data = response.json()
         assert "Unauthorized" in data.get("detail", "")
 
@@ -87,9 +84,11 @@ class TestAgentExecuteAuth:
 
         # Accept: 200 (success), 503 (executor not ready), 500 (internal error)
         # All prove auth worked and route is functional
-        assert response.status_code in [200, 500, 503], (
-            f"Expected 200/500/503 with valid auth, got {response.status_code}"
-        )
+        assert response.status_code in [
+            200,
+            500,
+            503,
+        ], f"Expected 200/500/503 with valid auth, got {response.status_code}"
 
         if response.status_code == 200:
             data = response.json()
@@ -109,13 +108,9 @@ class TestAgentExecuteAuth:
 
         headers = {"Authorization": "Bearer wrong-key"}
 
-        response = api_client_no_auth.post(
-            "/agent/execute", json=payload, headers=headers
-        )
+        response = api_client_no_auth.post("/agent/execute", json=payload, headers=headers)
 
-        assert response.status_code == 401, (
-            f"Expected 401 Unauthorized, got {response.status_code}"
-        )
+        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
         data = response.json()
         assert "Unauthorized" in data.get("detail", "")
 
@@ -138,9 +133,7 @@ class TestAgentTaskAuth:
 
         response = api_client_no_auth.post("/agent/task", json=payload)
 
-        assert response.status_code == 401, (
-            f"Expected 401 Unauthorized, got {response.status_code}"
-        )
+        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
         data = response.json()
         assert "Unauthorized" in data.get("detail", "")
 
@@ -154,9 +147,9 @@ class TestAgentTaskAuth:
 
         response = api_client_with_auth.post("/agent/task", json=payload)
 
-        assert response.status_code == 200, (
-            f"Expected 200 OK with valid auth, got {response.status_code}"
-        )
+        assert (
+            response.status_code == 200
+        ), f"Expected 200 OK with valid auth, got {response.status_code}"
 
         data = response.json()
         assert data["status"] == "accepted"
@@ -172,12 +165,8 @@ class TestAgentTaskAuth:
 
         headers = {"Authorization": "Bearer wrong-key"}
 
-        response = api_client_no_auth.post(
-            "/agent/task", json=payload, headers=headers
-        )
+        response = api_client_no_auth.post("/agent/task", json=payload, headers=headers)
 
-        assert response.status_code == 401, (
-            f"Expected 401 Unauthorized, got {response.status_code}"
-        )
+        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
         data = response.json()
         assert "Unauthorized" in data.get("detail", "")

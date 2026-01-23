@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Dev-Layer-Gmp"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-15T23:45:01Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "operations"
+# domain: ".github"
+# file_name: "dev-layer-gmp"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 name: Dev Layer GMP Governance Gate
 
 on:
@@ -89,3 +104,11 @@ jobs:
               repo: context.repo.repo,
               body: '✅ Dev Layer GMP gate passed\n- AM Engine compilation: ✓\n- Determinism: ✓\n- E2E tests: ✓\n- Coverage: ✓'
             })
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".github", "operations", "utility", "workflow"]
+# keywords: ["dev", "gmp", "jobs", "layer", "name"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

@@ -10,11 +10,37 @@ Version: 1.0.0 (GMP-18)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service",
+    "module_version": "1.0.0 (GMP-18)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "world_model",
+    "module_name": "service",
+    "type": "service",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Anthropic API", "Neo4j", "Perplexity API", "Redis"],
+        "memory_layers": ["episodic_memory", "working_memory"],
+        "imported_by": [
+            "core.agents.adaptive_prompting",
+            "core.worldmodel.__init__",
+            "tests.integration.test_world_model",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
 
 import structlog
+from core.decorators import must_stay_async
 
 from core.worldmodel.l9_schema import (
     L9Agent,
@@ -38,7 +64,7 @@ logger = structlog.get_logger(__name__)
 class WorldModelService:
     """
     Service for L9 world model operations.
-    
+
     Maintains in-memory representation of L9 entities and relationships,
     with optional persistence to memory substrate.
     """
@@ -46,12 +72,12 @@ class WorldModelService:
     def __init__(self, substrate_service: Optional[Any] = None):
         """
         Initialize WorldModelService.
-        
+
         Args:
             substrate_service: Memory substrate for persistence (optional)
         """
         self._substrate = substrate_service
-        
+
         # In-memory entity storage
         self._agents: Dict[UUID, L9Agent] = {}
         self._repositories: Dict[UUID, L9Repository] = {}
@@ -60,12 +86,12 @@ class WorldModelService:
         self._memory_segments: Dict[UUID, L9MemorySegment] = {}
         self._external_systems: Dict[UUID, L9ExternalSystem] = {}
         self._relationships: Dict[UUID, L9Relationship] = {}
-        
+
         # Index by name for quick lookup
         self._agents_by_name: Dict[str, UUID] = {}
         self._tools_by_name: Dict[str, UUID] = {}
         self._infra_by_name: Dict[str, UUID] = {}
-        
+
         # Initialization flag
         self._initialized = False
 
@@ -73,9 +99,9 @@ class WorldModelService:
         """Initialize the world model with known L9 entities."""
         if self._initialized:
             return
-            
+
         logger.info("Initializing L9 world model...")
-        
+
         await self._initialize_agents()
         await self._initialize_infrastructure()
         await self._initialize_tools()
@@ -83,7 +109,7 @@ class WorldModelService:
         await self._initialize_external_systems()
         await self._initialize_repositories()
         await self._initialize_relationships()
-        
+
         self._initialized = True
         logger.info(
             "World model initialized",
@@ -93,13 +119,20 @@ class WorldModelService:
             relationships=len(self._relationships),
         )
 
+    @must_stay_async("callers use await")
     async def _initialize_agents(self) -> None:
         """Initialize known L9 agents."""
         agents = [
             L9Agent(
                 name="L",
                 role="CTO",
-                capabilities=["reasoning", "tool_use", "memory", "governance", "planning"],
+                capabilities=[
+                    "reasoning",
+                    "tool_use",
+                    "memory",
+                    "governance",
+                    "planning",
+                ],
                 kernel_version="10.0.0",
                 status="active",
             ),
@@ -128,11 +161,12 @@ class WorldModelService:
                 status="planned",
             ),
         ]
-        
+
         for agent in agents:
             self._agents[agent.id] = agent
             self._agents_by_name[agent.name] = agent.id
 
+    @must_stay_async("callers use await")
     async def _initialize_infrastructure(self) -> None:
         """Initialize known L9 infrastructure components."""
         infra = [
@@ -176,11 +210,12 @@ class WorldModelService:
                 port=443,
             ),
         ]
-        
+
         for item in infra:
             self._infrastructure[item.id] = item
             self._infra_by_name[item.name] = item.id
 
+    @must_stay_async("callers use await")
     async def _initialize_tools(self) -> None:
         """Initialize known L9 tools."""
         tools = [
@@ -241,11 +276,12 @@ class WorldModelService:
                 description="Post message to Slack",
             ),
         ]
-        
+
         for tool in tools:
             self._tools[tool.id] = tool
             self._tools_by_name[tool.name] = tool.id
 
+    @must_stay_async("callers use await")
     async def _initialize_memory_segments(self) -> None:
         """Initialize known L9 memory segments."""
         segments = [
@@ -275,10 +311,11 @@ class WorldModelService:
                 retention_days=30,
             ),
         ]
-        
+
         for segment in segments:
             self._memory_segments[segment.id] = segment
 
+    @must_stay_async("callers use await")
     async def _initialize_external_systems(self) -> None:
         """Initialize known external system integrations."""
         systems = [
@@ -320,10 +357,11 @@ class WorldModelService:
             #     auth_method="api_key",
             # ),
         ]
-        
+
         for system in systems:
             self._external_systems[system.id] = system
 
+    @must_stay_async("callers use await")
     async def _initialize_repositories(self) -> None:
         """Initialize known repositories."""
         repos = [
@@ -335,19 +373,20 @@ class WorldModelService:
                 remote_url="https://github.com/quantumai/L9",
             ),
         ]
-        
+
         for repo in repos:
             self._repositories[repo.id] = repo
 
+    @must_stay_async("callers use await")
     async def _initialize_relationships(self) -> None:
         """Initialize relationships between entities."""
         # Get L agent ID
         l_agent_id = self._agents_by_name.get("L")
         if not l_agent_id:
             return
-            
+
         l_agent = self._agents[l_agent_id]
-        
+
         # L HAS_TOOL for each tool
         for tool_id, tool in self._tools.items():
             rel = L9Relationship(
@@ -359,7 +398,7 @@ class WorldModelService:
                 properties={"enabled": True},
             )
             self._relationships[rel.id] = rel
-        
+
         # High-risk tools REQUIRE_APPROVAL from Igor
         igor_agent = L9Agent(
             name="Igor",
@@ -369,7 +408,7 @@ class WorldModelService:
         )
         self._agents[igor_agent.id] = igor_agent
         self._agents_by_name["Igor"] = igor_agent.id
-        
+
         for tool_id, tool in self._tools.items():
             if tool.requires_approval:
                 rel = L9Relationship(
@@ -381,11 +420,11 @@ class WorldModelService:
                     properties={"approval_required": True},
                 )
                 self._relationships[rel.id] = rel
-        
+
         # Infrastructure DEPENDS_ON relationships
         postgres_id = self._infra_by_name.get("l9-postgres")
         api_id = self._infra_by_name.get("l9-api")
-        
+
         if postgres_id and api_id:
             rel = L9Relationship(
                 relationship_type=L9RelationshipType.DEPENDS_ON,
@@ -400,22 +439,23 @@ class WorldModelService:
     # Query APIs
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_agent_capabilities(self, agent_name: str) -> Dict[str, Any]:
         """
         Get capabilities for an agent.
-        
+
         Args:
             agent_name: Agent name (e.g., 'L', 'CA')
-            
+
         Returns:
             Dict with agent capabilities and tools
         """
         agent_id = self._agents_by_name.get(agent_name)
         if not agent_id:
             return {"error": f"Agent {agent_name} not found"}
-            
+
         agent = self._agents[agent_id]
-        
+
         # Get tools for this agent
         tools = []
         for rel in self._relationships.values():
@@ -425,13 +465,15 @@ class WorldModelService:
             ):
                 tool = self._tools.get(rel.target_id)
                 if tool:
-                    tools.append({
-                        "name": tool.name,
-                        "category": tool.category.value,
-                        "risk_level": tool.risk_level.value,
-                        "requires_approval": tool.requires_approval,
-                    })
-        
+                    tools.append(
+                        {
+                            "name": tool.name,
+                            "category": tool.category.value,
+                            "risk_level": tool.risk_level.value,
+                            "requires_approval": tool.requires_approval,
+                        }
+                    )
+
         return {
             "agent": agent.name,
             "role": agent.role,
@@ -441,10 +483,11 @@ class WorldModelService:
             "tool_count": len(tools),
         }
 
+    @must_stay_async("health endpoint")
     async def get_infrastructure_status(self) -> Dict[str, Any]:
         """
         Get status of all infrastructure components.
-        
+
         Returns:
             Dict with infrastructure statuses
         """
@@ -462,31 +505,35 @@ class WorldModelService:
             "total": len(self._infrastructure),
         }
 
+    @must_stay_async("callers use await")
     async def get_approvals_summary(self) -> Dict[str, Any]:
         """
         Get summary of approval requirements.
-        
+
         Returns:
             Dict with approval requirements by tool
         """
         approval_tools = []
         for tool in self._tools.values():
             if tool.requires_approval:
-                approval_tools.append({
-                    "tool": tool.name,
-                    "risk_level": tool.risk_level.value,
-                    "category": tool.category.value,
-                })
-        
+                approval_tools.append(
+                    {
+                        "tool": tool.name,
+                        "risk_level": tool.risk_level.value,
+                        "category": tool.category.value,
+                    }
+                )
+
         return {
             "tools_requiring_approval": approval_tools,
             "count": len(approval_tools),
         }
 
+    @must_stay_async("callers use await")
     async def get_integrations(self) -> Dict[str, Any]:
         """
         Get list of external system integrations.
-        
+
         Returns:
             Dict with integration statuses
         """
@@ -506,19 +553,19 @@ class WorldModelService:
     async def get_world_model_context(self, agent_name: str = "L") -> str:
         """
         Generate world model context for agent prompts.
-        
+
         Args:
             agent_name: Agent to generate context for
-            
+
         Returns:
             Natural language context string
         """
         await self.initialize()  # Ensure initialized
-        
+
         caps = await self.get_agent_capabilities(agent_name)
         infra = await self.get_infrastructure_status()
         integrations = await self.get_integrations()
-        
+
         context_parts = [
             "**WORLD MODEL CONTEXT:**",
             "",
@@ -528,26 +575,27 @@ class WorldModelService:
             "",
             "Infrastructure Status:",
         ]
-        
+
         for item in infra.get("infrastructure", []):
             context_parts.append(
                 f"  - {item['name']} ({item['type']}): {item['status']}"
             )
-        
+
         context_parts.append("")
         context_parts.append("External Integrations:")
-        
+
         for item in integrations.get("integrations", []):
             context_parts.append(
                 f"  - {item['name']} ({item['type']}): {item['status']}"
             )
-        
+
         return "\n".join(context_parts)
 
     # =========================================================================
     # Entity Updates
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def update_tool_usage(self, tool_name: str) -> None:
         """Update tool usage statistics."""
         tool_id = self._tools_by_name.get(tool_name)
@@ -556,12 +604,14 @@ class WorldModelService:
             tool.use_count += 1
             tool.last_used = datetime.utcnow()
 
+    @must_stay_async("callers use await")
     async def update_agent_activity(self, agent_name: str) -> None:
         """Update agent last activity timestamp."""
         agent_id = self._agents_by_name.get(agent_name)
         if agent_id and agent_id in self._agents:
             self._agents[agent_id].last_active = datetime.utcnow()
 
+    @must_stay_async("health endpoint")
     async def update_infrastructure_status(
         self, infra_name: str, new_status: str
     ) -> None:
@@ -578,13 +628,15 @@ class WorldModelService:
 _global_service: Optional[WorldModelService] = None
 
 
-def get_world_model_service(substrate_service: Optional[Any] = None) -> WorldModelService:
+def get_world_model_service(
+    substrate_service: Optional[Any] = None,
+) -> WorldModelService:
     """Get or create the global WorldModelService instance."""
     global _global_service
-    
+
     if _global_service is None:
         _global_service = WorldModelService(substrate_service)
-    
+
     return _global_service
 
 
@@ -597,3 +649,56 @@ __all__ = [
     "get_world_model_service",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-080",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.worldmodel.l9_schema"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "caching",
+        "foundation",
+        "logging",
+        "messaging",
+        "rest-api",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "activity",
+        "agent",
+        "approvals",
+        "capabilities",
+        "infrastructure",
+        "initialize",
+        "integrations",
+        "model",
+    ],
+    "business_value": "Implements WorldModelService for service functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

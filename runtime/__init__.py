@@ -86,6 +86,12 @@ from runtime.execution_gate import (
     FORBIDDEN_PATTERNS,
 )
 
+# Background Task Registry (Auto-Wiring)
+from runtime.background_tasks import (
+    BackgroundTaskRegistry,
+    get_background_task_registry,
+)
+
 __all__ = [
     # Task Queue
     "TaskQueue",
@@ -144,4 +150,7 @@ __all__ = [
     "select_mode_based_on_confidence",
     "DEFAULT_TOOL_AUTHORIZATION",
     "FORBIDDEN_PATTERNS",
+    # Background Task Registry
+    "BackgroundTaskRegistry",
+    "get_background_task_registry",
 ]

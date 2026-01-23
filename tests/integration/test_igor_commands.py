@@ -573,4 +573,3 @@ def mock_agent_executor():
 
     mock.start_agent_task = start_agent_task
     return mock
-

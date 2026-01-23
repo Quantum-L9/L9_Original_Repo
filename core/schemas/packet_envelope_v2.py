@@ -23,6 +23,27 @@ Contracts:
 - Schema version is 2.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Packet Envelope V2",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-13T17:23:56Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "packet_envelope_v2",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["core.schemas.__init__"],
+    },
+}
+# ============================================================================
+
 import hashlib
 import json
 from datetime import datetime
@@ -228,6 +249,20 @@ class PacketEnvelope(BaseModel):
         None, description="Optional expiry timestamp for memory hygiene/GC"
     )
 
+    # v2.0.1+ Tracing Fields (Phase 0 Plan 2 - Observability)
+    trace_id: Optional[str] = Field(
+        None,
+        description="Distributed trace ID (UUID format) for request chain tracing (OpenTelemetry compatible)"
+    )
+    correlation_id: Optional[str] = Field(
+        None,
+        description="Groups related packets in same task/batch for correlation"
+    )
+    source_location: Optional[dict[str, Any]] = Field(
+        None,
+        description="Source code location where packet was created: {file, line, function}"
+    )
+
     # v2.0.0 Fields
     content_hash: Optional[str] = Field(
         None, description="SHA-256 hash of payload+metadata for integrity verification"
@@ -356,12 +391,16 @@ class PacketEnvelopeIn(BaseModel):
     Allows partial fields - packet_id and timestamp auto-generated if omitted.
     """
 
-    packet_id: Optional[UUID] = Field(None, description="UUID (auto-generated if omitted)")
+    packet_id: Optional[UUID] = Field(
+        None, description="UUID (auto-generated if omitted)"
+    )
     packet_type: str = Field(
         ..., min_length=1, description="Semantic category of the packet"
     )
     payload: dict[str, Any] = Field(..., description="Flexible JSON payload")
-    timestamp: Optional[datetime] = Field(None, description="UTC timestamp (auto-generated)")
+    timestamp: Optional[datetime] = Field(
+        None, description="UTC timestamp (auto-generated)"
+    )
     metadata: Optional[dict[str, Any]] = Field(None)
     provenance: Optional[dict[str, Any]] = Field(None)
     confidence: Optional[dict[str, Any]] = Field(None)
@@ -380,7 +419,9 @@ class PacketEnvelopeIn(BaseModel):
             packet_type=self.packet_type,
             payload=self.payload,
             timestamp=self.timestamp or datetime.utcnow(),
-            metadata=PacketMetadata(**self.metadata) if self.metadata else PacketMetadata(),
+            metadata=PacketMetadata(**self.metadata)
+            if self.metadata
+            else PacketMetadata(),
             provenance=PacketProvenance(**self.provenance) if self.provenance else None,
             confidence=PacketConfidence(**self.confidence) if self.confidence else None,
             reasoning_block=self.reasoning_block,
@@ -399,7 +440,7 @@ class PacketEnvelopeIn(BaseModel):
 class PacketWriteResult(BaseModel):
     """
     Result of writing a PacketEnvelope.
-    
+
     v2.1.0: Added enrichment visibility fields for unified pipeline (GMP-67).
     """
 
@@ -414,9 +455,11 @@ class PacketWriteResult(BaseModel):
     )
 
     # Enrichment visibility fields (v2.1.0 - GMP-67 unified pipeline)
-    enrichment_status: Literal["not_attempted", "success", "failed", "disabled"] = Field(
-        default="not_attempted",
-        description="DAG enrichment outcome: not_attempted (default), success, failed, disabled",
+    enrichment_status: Literal["not_attempted", "success", "failed", "disabled"] = (
+        Field(
+            default="not_attempted",
+            description="DAG enrichment outcome: not_attempted (default), success, failed, disabled",
+        )
     )
     enrichment_error: Optional[str] = Field(
         None, description="Enrichment error message if enrichment_status='failed'"
@@ -431,7 +474,8 @@ class PacketWriteResult(BaseModel):
         description="Which write tier succeeded: full (core+enrichment), core_only, direct_db, failed",
     )
     warnings: list[str] = Field(
-        default_factory=list, description="Non-fatal warnings (enrichment timeout, fallback used, etc.)"
+        default_factory=list,
+        description="Non-fatal warnings (enrichment timeout, fallback used, etc.)",
     )
 
 
@@ -464,3 +508,57 @@ class SemanticSearchResult(BaseModel):
         default_factory=list, description="List of matching results"
     )
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-076",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "data-models",
+        "enum",
+        "event-driven",
+        "foundation",
+        "messaging",
+        "pydantic",
+        "security",
+        "serialization",
+        "tracing",
+    ],
+    "keywords": [
+        "compute",
+        "confidence",
+        "derivation",
+        "derive",
+        "envelope",
+        "frozen",
+        "hash",
+        "hit",
+    ],
+    "business_value": "This is the SINGLE SOURCE OF TRUTH for PacketEnvelope. All new code should import from this module. Immutability enforced (frozen=True) Thread tracking (thread_id) DAG lineage (lineage) Tagging system",
+    "last_modified": "2026-01-13T17:23:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

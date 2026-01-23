@@ -13,6 +13,34 @@ Simulates:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Simulation Engine",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "simulation_engine",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "api.routes.simulation",
+            "runtime.l_tools",
+            "simulation.__init__",
+            "simulation.outcome_evaluator",
+            "tests.simulation.test_simulation_engine",
+            "world_model.runtime",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 import random
@@ -24,6 +52,7 @@ from uuid import UUID, uuid4
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -247,8 +276,12 @@ class SimulationEngine:
                         "bottlenecks": run.metrics.bottlenecks,
                     },
                     "failure_modes": run.failure_modes,
-                    "started_at": run.started_at.isoformat() if run.started_at else None,
-                    "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+                    "started_at": run.started_at.isoformat()
+                    if run.started_at
+                    else None,
+                    "completed_at": run.completed_at.isoformat()
+                    if run.completed_at
+                    else None,
                 },
                 provenance=PacketProvenance(
                     source="simulation_engine",
@@ -264,7 +297,9 @@ class SimulationEngine:
             logger.debug(f"Simulation packet emitted: run_id={run.run_id}")
 
         except ImportError:
-            logger.debug("Memory substrate models not available, skipping packet emission")
+            logger.debug(
+                "Memory substrate models not available, skipping packet emission"
+            )
         except Exception as e:
             # Non-fatal: log and continue
             logger.warning(f"Failed to emit simulation packet: {e}")
@@ -283,6 +318,7 @@ class SimulationEngine:
 
         return dep_graph
 
+    @must_stay_async("callers use await")
     async def _simulate_fast(
         self,
         run: SimulationRun,
@@ -615,3 +651,58 @@ class SimulationEngine:
     def clear_runs(self) -> None:
         """Clear all stored runs."""
         self._runs.clear()
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SIM-LEAR-002",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas", "memory.substrate_service"],
+    "tags": [
+        "api",
+        "async",
+        "authorization",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "engine",
+        "learning",
+        "logging",
+        "metrics",
+    ],
+    "keywords": [
+        "clear",
+        "engine",
+        "execution",
+        "graph",
+        "length",
+        "memory",
+        "metrics",
+        "mode",
+    ],
+    "business_value": "Provides simulation engine components including SimulationMode, SimulationConfig, SimulationMetrics",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

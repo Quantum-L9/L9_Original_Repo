@@ -12,6 +12,33 @@ Version: 1.0.0 (GMP-11)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Commands Router",
+    "module_version": "1.0.0 (GMP-11)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "commands",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "POST /execute",
+            "POST /parse",
+            "POST /intent",
+            "GET /help",
+            "POST /governance/feedback",
+        ],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Optional
 
@@ -19,10 +46,22 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/commands", tags=["commands"])
+
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/commands"
+    tags=["commands"],
+    module_id="commands",
+    display_name="Igor Commands",
+)
 
 
 # =============================================================================
@@ -34,8 +73,12 @@ class CommandExecuteRequest(BaseModel):
     """Request to execute an Igor command."""
 
     command_text: str = Field(..., description="Command text (structured or NLP)")
-    user_id: str = Field(default="Igor", description="User ID (must be Igor for approvals)")
-    context: dict[str, Any] = Field(default_factory=dict, description="Optional execution context")
+    user_id: str = Field(
+        default="Igor", description="User ID (must be Igor for approvals)"
+    )
+    context: dict[str, Any] = Field(
+        default_factory=dict, description="Optional execution context"
+    )
 
 
 class CommandExecuteResponse(BaseModel):
@@ -56,8 +99,12 @@ class IntentExtractResponse(BaseModel):
 
     intent_type: str = Field(..., description="Extracted intent type")
     confidence: float = Field(..., description="Confidence score")
-    entities: dict[str, Any] = Field(default_factory=dict, description="Extracted entities")
-    ambiguities: list[str] = Field(default_factory=list, description="Ambiguous elements")
+    entities: dict[str, Any] = Field(
+        default_factory=dict, description="Extracted entities"
+    )
+    ambiguities: list[str] = Field(
+        default_factory=list, description="Ambiguous elements"
+    )
     is_ambiguous: bool = Field(..., description="Whether intent is ambiguous")
     suggested_command: Optional[dict[str, Any]] = Field(
         None, description="Suggested structured command"
@@ -103,6 +150,7 @@ async def execute_command(
     if substrate_service is not None:
         try:
             from core.governance.approvals import ApprovalManager
+
             approval_manager = ApprovalManager(substrate_service)
         except ImportError:
             logger.warning("ApprovalManager not available")
@@ -229,11 +277,11 @@ async def execute_command(
         # No suggested command - forward to L-CTO as query
         if agent_executor is not None:
             try:
-                from core.agents.schemas import AgentTask, TaskKind
+                from core.agents.schemas import AgentTask, AgentType
 
                 task = AgentTask(
                     agent_id="l-cto",
-                    kind=TaskKind.CONVERSATION,
+                    agent_type=AgentType.ASSISTANT,
                     source_id="igor-command",
                     thread_identifier=f"nlp-{intent.id}",
                     payload={
@@ -272,6 +320,7 @@ async def execute_command(
 
 
 @router.post("/parse")
+@must_stay_async("FastAPI/ASGI route handler")
 async def parse_command_endpoint(
     request: CommandExecuteRequest,
     _: bool = Depends(verify_api_key),
@@ -322,7 +371,7 @@ async def extract_intent_endpoint(
             entities={},
             ambiguities=[],
             is_ambiguous=False,
-            suggested_command=parsed.dict() if hasattr(parsed, 'dict') else None,
+            suggested_command=parsed.dict() if hasattr(parsed, "dict") else None,
         )
 
     intent = await extract_intent(parsed)
@@ -333,11 +382,14 @@ async def extract_intent_endpoint(
         entities=intent.entities,
         ambiguities=intent.ambiguities,
         is_ambiguous=intent.is_ambiguous,
-        suggested_command=intent.suggested_command.dict() if intent.suggested_command else None,
+        suggested_command=intent.suggested_command.dict()
+        if intent.suggested_command
+        else None,
     )
 
 
 @router.get("/help")
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_help():
     """
     Get available commands and usage.
@@ -370,14 +422,18 @@ class ApprovalFeedbackRequest(BaseModel):
     approver: str = Field(default="Igor", description="Who made the decision")
     tool_name: Optional[str] = Field(None, description="Tool involved")
     task_type: Optional[str] = Field(None, description="Type of task")
-    context: dict[str, Any] = Field(default_factory=dict, description="Additional context")
+    context: dict[str, Any] = Field(
+        default_factory=dict, description="Additional context"
+    )
 
 
 class ApprovalFeedbackResponse(BaseModel):
     """Response from approval feedback."""
 
     success: bool = Field(..., description="Whether feedback was recorded")
-    pattern_created: bool = Field(..., description="Whether a governance pattern was created")
+    pattern_created: bool = Field(
+        ..., description="Whether a governance pattern was created"
+    )
     message: str = Field(..., description="Result message")
 
 
@@ -456,3 +512,62 @@ async def record_approval_feedback(
 
 __all__ = ["router"]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-024",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "api.auth",
+        "core.agents.schemas",
+        "core.commands.executor",
+        "core.commands.intent_extractor",
+        "core.commands.parser",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "debugging",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+    ],
+    "keywords": [
+        "approval",
+        "command",
+        "commands",
+        "endpoint",
+        "execute",
+        "extract",
+        "feedback",
+        "help",
+    ],
+    "business_value": "Provides commands components including CommandExecuteRequest, CommandExecuteResponse, IntentExtractResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

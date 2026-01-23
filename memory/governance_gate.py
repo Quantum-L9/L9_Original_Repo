@@ -15,13 +15,147 @@ GMP-80: RLS Full Instantiation
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Governance Gate",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T12:05:57Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "governance_gate",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_gateway",
+            "api.memory.router",
+            "api.routes.mcp",
+            "core.agents.bootstrap.phase_7_verify_and_lock",
+            "mcp_memory.src.db",
+            "mcp_memory.src.routes.memory_unified",
+            "memory.__init__",
+            "memory.ingestion",
+            "memory.retrieval",
+            "memory.substrate_repository",
+        ],
+    },
+}
+# ============================================================================
+
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, AsyncGenerator, Optional, Sequence
 import os
 
+import structlog
+import yaml
+
 from config.rls_config import get_rls_config
+from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
+
+
+# =============================================================================
+# Policy-Based Scope Access (loaded from config/policies/memory_scope.yaml)
+# =============================================================================
+
+_SCOPE_ACCESS_MATRIX: dict[str, dict[str, Any]] = {}
+
+
+def _load_memory_scope_policies() -> dict[str, dict[str, Any]]:
+    """Load scope access matrix from memory_scope.yaml policy file.
+
+    Returns cached matrix if already loaded. Falls back to hardcoded
+    defaults if file not found (for backward compatibility).
+    """
+    global _SCOPE_ACCESS_MATRIX
+
+    if _SCOPE_ACCESS_MATRIX:
+        return _SCOPE_ACCESS_MATRIX
+
+    policy_path = (
+        Path(__file__).parent.parent / "config" / "policies" / "memory_scope.yaml"
+    )
+
+    if policy_path.exists():
+        try:
+            with open(policy_path) as f:
+                data = yaml.safe_load(f)
+                _SCOPE_ACCESS_MATRIX = data.get("scope_access_matrix", {})
+                logger.debug(
+                    "memory_scope_policies.loaded",
+                    path=str(policy_path),
+                    callers=list(_SCOPE_ACCESS_MATRIX.keys()),
+                )
+        except Exception as e:
+            logger.warning(
+                "memory_scope_policies.load_failed",
+                path=str(policy_path),
+                error=str(e),
+            )
+
+    # Fallback to hardcoded defaults if not loaded
+    if not _SCOPE_ACCESS_MATRIX:
+        _SCOPE_ACCESS_MATRIX = {
+            "L": {"allowed_scopes": ["developer", "global", "l-private"]},
+            "C": {
+                "allowed_scopes": ["developer", "global"],
+                "denied_scopes": ["l-private"],
+            },
+            "default": {
+                "allowed_scopes": ["developer", "global"],
+                "denied_scopes": ["l-private"],
+            },
+        }
+        logger.debug("memory_scope_policies.using_fallback")
+
+    return _SCOPE_ACCESS_MATRIX
+
+
+def is_scope_allowed_for_caller(caller_id: str, scope: str) -> bool:
+    """Check if a caller is allowed to access a scope (policy-based).
+
+    Args:
+        caller_id: The caller identifier (e.g., "L", "C")
+        scope: The memory scope to check (e.g., "l-private")
+
+    Returns:
+        True if allowed, False if denied
+    """
+    matrix = _load_memory_scope_policies()
+    caller_config = matrix.get(caller_id, matrix.get("default", {}))
+
+    denied_scopes = caller_config.get("denied_scopes", [])
+    if scope in denied_scopes:
+        return False
+
+    allowed_scopes = caller_config.get("allowed_scopes", [])
+    return scope in allowed_scopes or not allowed_scopes  # Empty = allow all
+
+
+def validate_caller_scope_access(caller_id: str, allowed_scopes: Sequence[str]) -> None:
+    """Validate that caller's allowed_scopes don't include denied scopes.
+
+    Raises:
+        RuntimeError: If caller has a denied scope in their allowed_scopes
+    """
+    matrix = _load_memory_scope_policies()
+    caller_config = matrix.get(caller_id, matrix.get("default", {}))
+    denied_scopes = set(caller_config.get("denied_scopes", []))
+
+    for scope in allowed_scopes:
+        if scope in denied_scopes:
+            raise RuntimeError(
+                f"Caller '{caller_id}' cannot access '{scope}' scope (policy: memory_scope.yaml)"
+            )
 
 
 @dataclass(frozen=True)
@@ -48,8 +182,8 @@ class MemoryGovernanceContext:
             raise RuntimeError("allowed_scopes cannot be empty")
         if self.scope not in self.allowed_scopes:
             raise RuntimeError("scope must be included in allowed_scopes")
-        if self.caller_id == "C" and "l-private" in self.allowed_scopes:
-            raise RuntimeError("Cursor cannot access l-private scope")
+        # GMP-103: Policy-based scope validation (replaces hardcoded check)
+        validate_caller_scope_access(self.caller_id, self.allowed_scopes)
 
 
 _governance_context: ContextVar[Optional[MemoryGovernanceContext]] = ContextVar(
@@ -148,6 +282,7 @@ async def ensure_governance_context(
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def governance_context(
     ctx: MemoryGovernanceContext,
 ) -> AsyncGenerator[MemoryGovernanceContext, None]:
@@ -208,3 +343,47 @@ def build_scope_project_filter(
     )
     params: list[Any] = [list(ctx.allowed_scopes), ctx.project_id]
     return clause, params, param_idx + 2
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-014",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["async", "auth", "dataclass", "learning", "memory-substrate", "rest-api"],
+    "keywords": [
+        "build",
+        "enforce",
+        "ensure",
+        "filter",
+        "gate",
+        "governance",
+        "isolation",
+        "memory",
+    ],
+    "business_value": "Implements MemoryGovernanceContext for governance gate functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

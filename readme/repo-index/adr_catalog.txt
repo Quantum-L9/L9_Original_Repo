@@ -1,0 +1,82 @@
+# L9 Architecture Decision Record (ADR) Catalog
+# Generated: 2026-01-22
+# Total: 56 ADRs
+#
+# Format: ADR_NUMBER | STATUS | TITLE | PATH
+# ============================================================================
+
+# FOUNDATION (0001-0013)
+0000 | Accepted | L9 Philosophy — Foundational Principles | readme/adr/0000-l9-philosophy.md
+0001 | Accepted | Sandboxed Path Resolution for Research Factory | readme/adr/0001-path-safety.md
+0002 | Accepted | Circular Import Prevention via TYPE_CHECKING Pattern | readme/adr/0002-circular-import-prevention.md
+0003 | Accepted | Documentation Standards for AI-Readable Codebase | readme/adr/0003-documentation-standards.md
+0004 | Accepted | Singleton Auto-Registry Pattern | readme/adr/0004-singleton-auto-registry.md
+0005 | Accepted | RLS Shared Tenant Model | readme/adr/0005-rls-shared-tenant-model.md
+0006 | Accepted | PacketEnvelope Audit Trail | readme/adr/0006-packet-envelope-audit-trail.md
+0007 | Accepted | 7-Phase Bootstrap Ceremony | readme/adr/0007-seven-phase-bootstrap.md
+0008 | Accepted | Feature Flag Gating Pattern | readme/adr/0008-feature-flag-gating.md
+0009 | Accepted | Circuit Breaker Resilience | readme/adr/0009-circuit-breaker-resilience.md
+0010 | Accepted | must_stay_async Decorator | readme/adr/0010-must-stay-async-decorator.md
+0011 | Accepted | Lazy Initialization Pattern | readme/adr/0011-lazy-initialization-pattern.md
+0012 | Accepted | Memory DAG Pipeline | readme/adr/0012-memory-dag-pipeline.md
+0013 | Accepted | Governance Authority Hierarchy | readme/adr/0013-governance-authority-hierarchy.md
+
+# CORE PATTERNS (0014-0023)
+0014 | Accepted | DORA Metadata Block Pattern | readme/adr/0014-dora-metadata-block.md
+0015 | Accepted | Migration Sequential Apply Pattern | readme/adr/0015-migration-sequential-apply.md
+0016 | Accepted | TypedDict vs Pydantic Boundary | readme/adr/0016-typeddict-pydantic-boundary.md
+0017 | Accepted | Tool Definition Schema | readme/adr/0017-tool-definition-schema.md
+0018 | Accepted | Async Retry Pattern | readme/adr/0018-async-retry-pattern.md
+0019 | Accepted | structlog Logging Standard | readme/adr/0019-structlog-logging-standard.md
+0020 | Accepted | Test Fixture Hierarchy | readme/adr/0020-test-fixture-hierarchy.md
+0021 | Accepted | LangGraph Node Wrapper Pattern | readme/adr/0021-langgraph-node-wrapper.md
+0022 | Accepted | Registry Pattern | readme/adr/0022-registry-pattern.md
+0023 | Accepted | Error Packet Pattern | readme/adr/0023-error-packet-pattern.md
+
+# ADVANCED PATTERNS (0024+)
+0024 | Accepted | Resilience Mixin Pattern | readme/adr/0024-resilience-mixin-pattern.md
+0025 | Accepted | FastAPI Dependency Injection | readme/adr/0025-fastapi-dependency-injection.md
+0026 | Accepted | Protocol-Based Abstractions | readme/adr/0026-protocol-based-abstractions.md
+0027 | Accepted | LRU Cache Pattern | readme/adr/0027-lru-cache-pattern.md
+0028 | Accepted | Database Transaction Context | readme/adr/0028-database-transaction-context.md
+0029 | Accepted | Embedding Generation Pipeline | readme/adr/0029-embedding-generation-pipeline.md
+0030 | Accepted | Kernel YAML Schema | readme/adr/0030-kernel-yaml-schema.md
+0031 | Accepted | WebSocket Connection Pattern | readme/adr/0031-websocket-connection-pattern.md
+0032 | Accepted | Neo4j Cypher Query Pattern | readme/adr/0032-neo4j-cypher-query-pattern.md
+0033 | Accepted | Async Context Manager Pattern | readme/adr/0033-async-context-manager-pattern.md
+0034 | Accepted | Agent Capability Scoping | readme/adr/0034-agent-capability-scoping.md
+0035 | Accepted | ADR Bootstrap Protocol | readme/adr/0035-adr-bootstrap-protocol.md
+0036 | Accepted | Schema Organization Pattern | readme/adr/0036-schema-organization-pattern.md
+0037 | Accepted | Tool Wiring Protocol | readme/adr/0037-tool-wiring-protocol.md
+0038 | Unknown | Secrets Management Protocol | readme/adr/0038-secrets-management-protocol.md
+0039 | Unknown | L9 CLI Tool | readme/adr/0039-l9-cli-tool.md
+0040 | Unknown | CI/CD Security Scanning | readme/adr/0040-ci-cd-security-scanning.md
+0041 | Proposed | Executor Builder Pattern | readme/adr/0041-executor-builder-pattern.md
+0042 | Proposed | Execution Profiles | readme/adr/0042-execution-profiles.md
+0043 | Proposed | Controller Profiles | readme/adr/0043-controller-profiles.md
+0044 | Proposed | Agent Policy Protocols | readme/adr/0044-agent-policy-protocols.md
+0045 | Proposed | Online/Offline Execution Split | readme/adr/0045-online-offline-execution-split.md
+0046 | Proposed | Pipeline Stage Organization | readme/adr/0046-pipeline-stage-organization.md
+0047 | Proposed | Memory Facade Decomposition | readme/adr/0047-memory-facade-decomposition.md
+0048 | Proposed | Tool Dispatch Strategy | readme/adr/0048-tool-dispatch-strategy.md
+0049 | Proposed | Checkpoint Plan Snapshots | readme/adr/0049-checkpoint-plan-snapshots.md
+0050 | Proposed | Tool Registry Cache | readme/adr/0050-tool-registry-cache.md
+0051 | Accepted | Cursor File Organization | readme/adr/0051-cursor-file-organization.md
+0052 | Accepted | Dependency Injection and Inversion (DI/DIP) Foundation | readme/adr/0052-di-dip-foundation.md
+0053 | Accepted | Kernel Configuration Externalization | readme/adr/0053-kernel-config-externalization.md
+0054 | Proposed | Loop Stage Protocol | readme/adr/0054-loop-stage-protocol.md
+0055 | Accepted | Fail-Loudly vs Graceful Degradation Policy | readme/adr/0055-fail-loudly-vs-graceful-degradation.md
+
+# ============================================================================
+# AI QUICK REFERENCE - KEY DO NOT's
+# ============================================================================
+
+# Do NOT flag as circular import or unused import (ADR-0002)
+# do not flag" instructions (ADR-0003)
+# DO NOT add manual try/except blocks to `_register_core_singletons()` (ADR-0004)
+# DO NOT duplicate validation elsewhere:** (ADR-0012)
+# do NOT validate packets (they may not emit packets at all) (ADR-0012)
+# DO NOT place before docstring (ADR-0014)
+# do not implement | `# DEPRECATED - DO NOT IMPLEMENT` | (ADR-0037)
+# DO NOT IMPLEMENT (ADR-0037)
+# Do NOT catch and return None (ADR-0055)

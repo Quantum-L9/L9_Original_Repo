@@ -7,49 +7,60 @@ AIOSCall::BaseModel @ ir_engine/meta_ir.py
 AIOSResult::BaseModel @ core/agents/schemas.py
 AIOSResultType::str,Enum @ core/agents/schemas.py
 AIOSRuntime::Protocol @ core/agents/executor.py
-AIOSRuntime::Protocol @ current_work/GMP Stage 2 - Tools & Memory/executor.py
+AIOSRuntime::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
+AOISCompliance::NodeVisitor @ scripts/refactoring/aios_validate.py
 APGeneratorError::Exception @ agents/codegenagent/ap_generator.py
 AcceptanceCriterion::BaseModel @ ir_engine/meta_ir.py
 AcceptanceSpec::BaseModel @ ir_engine/meta_ir.py
 ActionNode::IRNodeBase @ ir_engine/ir_schema.py
-ActionToolOrchestrator::IActionToolOrchestrator @ igor/audit-tools/orchestrators_action_tool_orchestrator.py
+ActionToolOrchestrator::IActionToolOrchestrator @ igor/DONE!/audit-tools/orchestrators_action_tool_orchestrator.py
 ActionToolOrchestrator::IActionToolOrchestrator @ orchestrators/action_tool/orchestrator.py
-ActionToolRequest::BaseModel @ igor/audit-tools/orchestrators_action_tool_interface.py
+ActionToolRequest::BaseModel @ igor/DONE!/audit-tools/orchestrators_action_tool_interface.py
 ActionToolRequest::BaseModel @ orchestrators/action_tool/interface.py
-ActionToolResponse::BaseModel @ igor/audit-tools/orchestrators_action_tool_interface.py
+ActionToolResponse::BaseModel @ igor/DONE!/audit-tools/orchestrators_action_tool_interface.py
 ActionToolResponse::BaseModel @ orchestrators/action_tool/interface.py
 ActionType::str,Enum @ ir_engine/ir_schema.py
+ActivatableAgent::Protocol @ core/protocols/agent_protocols.py
 AgentCapabilities::BaseModel @ core/schemas/capabilities.py
-AgentCapabilities::BaseModel @ current_work/GMP Stage 1 - Tools/capabilities.py
-AgentCapabilities::BaseModel @ igor/audit-tools/core_schemas_capabilities.py
+AgentCapabilities::BaseModel @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
+AgentCapabilities::BaseModel @ igor/DONE!/audit-tools/core_schemas_capabilities.py
 AgentConfig::BaseModel @ core/agents/schemas.py
-AgentConfigExtractor::BaseExtractor @ igor/audit-memory/memory_extractor_agent_config_extractor.py
+AgentConfigExtractor::BaseExtractor @ igor/DONE!/audit-memory/memory_extractor_agent_config_extractor.py
 AgentConfigExtractor::BaseExtractor @ memory/extractor/agent_config_extractor.py
+AgentContext::Protocol @ core/protocols/agent_protocols.py
 AgentExecutionOrchestrator::IAgentExecutionOrchestrator @ orchestrators/agent_execution/orchestrator.py
 AgentExecutionRequest::BaseModel @ orchestrators/agent_execution/interface.py
 AgentExecutionResponse::BaseModel @ orchestrators/agent_execution/interface.py
 AgentHandshake::BaseModel @ core/schemas/event_stream.py
-AgentHandshake::BaseModel @ igor/audit-memory/core_schemas_event_stream.py
+AgentHandshake::BaseModel @ igor/DONE!/audit-memory/core_schemas_event_stream.py
 AgentHeartbeat::BaseModel @ core/schemas/ws_event_stream.py
-AgentHeartbeat::BaseModel @ igor/audit-memory/core_schemas_ws_event_stream.py
+AgentHeartbeat::BaseModel @ igor/DONE!/audit-memory/core_schemas_ws_event_stream.py
 AgentKPI::BaseModel @ core/observability/models.py
-AgentKPI::BaseModel @ current_work/Observability/observability_models.py
-AgentMemoryEventRow::BaseModel @ igor/audit-memory/memory_substrate_models.py
+AgentKPI::BaseModel @ current_work/DONE/Observability/observability_models.py
+AgentMemoryEventRow::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 AgentMemoryEventRow::BaseModel @ memory/substrate_models.py
+AgentOrchestrator::Protocol @ core/protocols/agent_protocols.py
 AgentProtocol::Protocol @ orchestrators/pattern/orchestrator.py
+AgentRegistry::Protocol @ core/protocols/agent_protocols.py
 AgentRegistryProtocol::Protocol @ core/agents/executor.py
-AgentRegistryProtocol::Protocol @ current_work/GMP Stage 2 - Tools & Memory/executor.py
+AgentRegistryProtocol::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
 AgentRole::str,Enum @ agents/base_agent.py
 AgentSchema::BaseModel @ codegen/code-gen-files/schema_parser.py
+AgentState::str,Enum @ core/protocols/agent_protocols.py
 AgentTask::BaseModel @ core/agents/schemas.py
 AgentTask::BaseModel @ core/schemas/tasks.py
 AgentTrajectorySpan::Span @ core/observability/models.py
-AgentTrajectorySpan::Span @ current_work/Observability/observability_models.py
+AgentTrajectorySpan::Span @ current_work/DONE/Observability/observability_models.py
+AgentType::str,Enum @ core/agents/schemas.py
 AlertLevel::str,Enum @ ir_engine/meta_ir.py
 AmbiguityError::CompilerError @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
 AnalyticsResponse::BaseModel @ api/routes/gmp_learning.py
+AnalyzeFailureRequest::BaseModel @ api/routes/reflection_agent.py
+AnalyzeFailureResponse::BaseModel @ api/routes/reflection_agent.py
 AnomalyClassifierRequest::BaseModel @ workers/anomaly_classifier.py
 AnomalyClassifierResponse::BaseModel @ workers/anomaly_classifier.py
+AnomalyProcessRequest::BaseModel @ api/routes/workers.py
+AnomalyProcessResponse::BaseModel @ api/routes/workers.py
 AnomalyResponseMonitorRequest::BaseModel @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitorResponse::BaseModel @ workers/anomaly_response_monitor.py
 AnomalySeverity::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
@@ -68,44 +79,49 @@ ArchitectAgentB::BaseAgent @ agents/architect_agent/architect_agent_b.py
 ArchitectCell::BaseCell @ collaborative_cells/architect_cell.py
 ArtifactCategory::str,Enum @ codegen/dev_layer/am_engine/compile.py
 AsyncSpanExporter::ABC @ core/observability/exporters.py
-AsyncSpanExporter::ABC @ current_work/Observability/observability_exporters.py
+AsyncSpanExporter::ABC @ current_work/DONE/Observability/observability_exporters.py
 AttentionConfig::BaseModel @ memory/warming_models.py
 AuditLogExportResponse::BaseModel @ api/routes/compliance.py
 AuditType::str,Enum @ scripts/audit/run_all.py
 AuthType::str,Enum @ ir_engine/meta_ir.py
-AutonomyGraduationMetrics::BaseModel @ core/gmp/meta_learning_engine.py
+AutonomyGraduationMetrics::BaseModel @ agents/cursor/gmp_meta_learning.py
 AutonomyGraduationMetrics::BaseModel @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
-AutonomyLevel::str,Enum @ core/gmp/meta_learning_engine.py
+AutonomyLevel::str,Enum @ agents/cursor/gmp_meta_learning.py
 AutonomyLevel::str,Enum @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 AutonomyLevelResponse::BaseModel @ api/routes/gmp_learning.py
-AutonomyMetricsDB::Base @ core/gmp/meta_learning_engine.py
+AutonomyMetricsDB::Base @ agents/cursor/gmp_meta_learning.py
 AutonomyMetricsDB::Base @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 AutonomyProfileConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
-BackendType::str,Enum @ core/symbolic_computation/models.py
-BackendType::str,Enum @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
+BackendType::str,Enum @ _archived/symbolic_computation/models.py
+BackendType::str,Enum @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 BackendType::str,Enum @ services/symbolic_computation/core/models.py
 BackendType::str,Enum @ services/symbolic_computation/models.py
 BaseAgent::ABC @ agents/base_agent.py
 BaseAgent::ABC @ services/research/agents/base_agent.py
 BaseCell::ABC @ collaborative_cells/base_cell.py
-BaseExtractor::ABC @ igor/audit-memory/memory_extractor_base_extractor.py
+BaseExtractor::ABC @ igor/DONE!/audit-memory/memory_extractor_base_extractor.py
 BaseExtractor::ABC @ memory/extractor/base_extractor.py
-BaseTool::ABC @ igor/audit-tools/services_research_tools_tool_wrappers.py
+BaseTool::ABC @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
 BaseTool::ABC @ services/research/tools/tool_wrappers.py
 BatchRequest::BaseModel @ api/memory/router.py
-BatchRequest::BaseModel @ igor/audit-memory/api_memory_router.py
+BatchRequest::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
 BatchResponse::BaseModel @ api/memory/router.py
-BatchResponse::BaseModel @ igor/audit-memory/api_memory_router.py
+BatchResponse::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
+BayesianNode::HypergraphNode @ current_work/Bayesian Upgrade/hypergraph.py
 BehavioralKernelData::FlexibleModel @ core/kernels/schemas.py
+BindingNotFoundError::DIContainerError @ core/di/container.py
 Blueprint::BaseModel @ orchestrators/meta/interface.py
 BlueprintEvaluation::BaseModel @ orchestrators/meta/interface.py
 BlueprintScore::BaseModel @ orchestrators/meta/interface.py
 BlueprintType::str,Enum @ orchestrators/meta/interface.py
 BootImpact::BaseModel @ ir_engine/meta_ir.py
 BootImpactLevel::str,Enum @ ir_engine/meta_ir.py
+CGMPEngineError::Exception @ agents/codegenagent/CodeGenAgent Engine.py
 CGMPEngineError::Exception @ agents/codegenagent/c_gmp_engine.py
-CacheError::SymbolicComputationError @ core/symbolic_computation/exceptions.py
-CacheError::SymbolicComputationError @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
+CacheClient::Protocol @ core/protocols/memory_protocols.py
+CacheClient::Protocol @ tests/unit/di/test_container.py
+CacheError::SymbolicComputationError @ _archived/symbolic_computation/exceptions.py
+CacheError::SymbolicComputationError @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
 CacheError::SymbolicComputationError @ services/symbolic_computation/exceptions.py
 CacheGetArgs::BaseModel @ mcp_memory/src/models.py
 CacheGetSessionContextArgs::BaseModel @ mcp_memory/src/models.py
@@ -113,53 +129,57 @@ CacheMetrics::BaseModel @ memory/warming_models.py
 CacheResponse::BaseModel @ api/memory/cache.py
 CacheSetArgs::BaseModel @ mcp_memory/src/models.py
 CacheSetRequest::BaseModel @ api/memory/cache.py
-CalendarAdapterContext::BaseModel @ api/adapters/calendar_adapter/schemas.py
 CalendarAdapterContext::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/schemas.py
-CalendarAdapterRequest::BaseModel @ api/adapters/calendar_adapter/schemas.py
 CalendarAdapterRequest::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/schemas.py
-CalendarAdapterResponse::BaseModel @ api/adapters/calendar_adapter/schemas.py
 CalendarAdapterResponse::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/schemas.py
 CallGraphBuilder::NodeVisitor @ scripts/audit/audit_shared_core.py
 CallGraphBuilder::NodeVisitor @ scripts/audit/tier1/audit_code_integrity.py
 CallableFrom::str,Enum @ ir_engine/meta_ir.py
 Capability::BaseModel @ core/schemas/capabilities.py
-Capability::BaseModel @ current_work/GMP Stage 1 - Tools/capabilities.py
-Capability::BaseModel @ igor/audit-tools/core_schemas_capabilities.py
+Capability::BaseModel @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
+Capability::BaseModel @ igor/DONE!/audit-tools/core_schemas_capabilities.py
 CapabilityEnforcedRouter::TaskRouter @ orchestration/task_router.py
 CapabilityViolation::BaseModel @ core/schemas/event_stream.py
-CapabilityViolation::BaseModel @ igor/audit-memory/core_schemas_event_stream.py
+CapabilityViolation::BaseModel @ igor/DONE!/audit-memory/core_schemas_event_stream.py
 CausalRelationType::str,Enum @ world_model/causal_mapper.py
 CausalStrength::str,Enum @ world_model/causal_mapper.py
 CellType::str,Enum @ orchestration/cell_orchestrator.py
 ChainStatus::str,Enum @ orchestration/orchestrator_kernel.py
+ChangeStatus::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+ChangeStatus::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
+ChangeType::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
+ChangeType::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py
 ChangeType::str,Enum @ codegen/dev_layer/modules/code_planning.py
 ChannelConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 ChatRequest::BaseModel @ api/server.py
 ChatRequest::BaseModel @ api/server_memory.py
+ChatRequest::BaseModel @ current_work/DONE/GMP Stage 1 - Tools/server.py
 ChatRequest::BaseModel @ current_work/DONE/Slack-Debug-2/server.py
-ChatRequest::BaseModel @ current_work/GMP Stage 1 - Tools/server.py
 ChatResponse::BaseModel @ api/server.py
 ChatResponse::BaseModel @ api/server_memory.py
+ChatResponse::BaseModel @ current_work/DONE/GMP Stage 1 - Tools/server.py
 ChatResponse::BaseModel @ current_work/DONE/Slack-Debug-2/server.py
-ChatResponse::BaseModel @ current_work/GMP Stage 1 - Tools/server.py
 CircuitBreakerState::str,Enum @ core/observability/circuit_breaker.py
+CircuitBreakerStatus::BaseModel @ api/routes/observability.py
+CircuitBreakersResponse::BaseModel @ api/routes/observability.py
 CircuitOpenError::Exception @ core/observability/circuit_breaker.py
+CircularDependencyError::DIContainerError @ core/di/container.py
 ClassificationResult::BaseModel @ workers/anomaly_classifier.py
-CodeExtractor::BaseExtractor @ igor/audit-memory/memory_extractor_code_extractor.py
+CodeExtractor::BaseExtractor @ igor/DONE!/audit-memory/memory_extractor_code_extractor.py
 CodeExtractor::BaseExtractor @ memory/extractor/code_extractor.py
-CodeGenRequest::BaseModel @ core/symbolic_computation/models.py
-CodeGenRequest::BaseModel @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
+CodeGenRequest::BaseModel @ _archived/symbolic_computation/models.py
+CodeGenRequest::BaseModel @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 CodeGenRequest::BaseModel @ services/symbolic_computation/core/models.py
 CodeGenRequest::BaseModel @ services/symbolic_computation/models.py
-CodeGenResult::BaseModel @ core/symbolic_computation/models.py
-CodeGenResult::BaseModel @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
+CodeGenResult::BaseModel @ _archived/symbolic_computation/models.py
+CodeGenResult::BaseModel @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 CodeGenResult::BaseModel @ services/symbolic_computation/core/models.py
 CodeGenResult::BaseModel @ services/symbolic_computation/models.py
-CodeGenerationError::SymbolicComputationError @ core/symbolic_computation/exceptions.py
-CodeGenerationError::SymbolicComputationError @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
+CodeGenerationError::SymbolicComputationError @ _archived/symbolic_computation/exceptions.py
+CodeGenerationError::SymbolicComputationError @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
 CodeGenerationError::SymbolicComputationError @ services/symbolic_computation/exceptions.py
-CodeLanguage::str,Enum @ core/symbolic_computation/models.py
-CodeLanguage::str,Enum @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
+CodeLanguage::str,Enum @ _archived/symbolic_computation/models.py
+CodeLanguage::str,Enum @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 CodeLanguage::str,Enum @ services/symbolic_computation/core/models.py
 CodeLanguage::str,Enum @ services/symbolic_computation/models.py
 CodegenIntent::str,Enum @ codegen/symbolic/spec.py
@@ -179,35 +199,44 @@ CommandType::str,Enum @ core/commands/schemas.py
 CommunicationHarmonizationConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 CommunicationStackBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 CompactResponse::BaseModel @ api/memory/router.py
-CompactResponse::BaseModel @ igor/audit-memory/api_memory_router.py
+CompactResponse::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
+CompareApproachesRequest::BaseModel @ api/routes/reflection_agent.py
+CompareApproachesResponse::BaseModel @ api/routes/reflection_agent.py
 CompilerError::Exception @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
 ComplianceAuditorError::Exception @ agents/codegenagent/compliance_auditor.py
 ComplianceLevel::str,Enum @ agents/codegenagent/compliance_auditor.py
 ComplianceReportResponse::BaseModel @ api/routes/compliance.py
+ComponentNotFoundError::RegistryError @ core/auto_registry.py
+ComponentNotFoundError::RegistryError @ current_work/DONE/AUTOWIRING/auto_registry.py
 CompositeTask::BaseModel @ api/vps_executor.py
 CompoundMemoriesArgs::BaseModel @ mcp_memory/src/models.py
-CompoundResult::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+CompoundResult::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 CompoundResult::BaseModel @ mcp_memory/src/models.py
-ComputationRequest::BaseModel @ core/symbolic_computation/models.py
-ComputationRequest::BaseModel @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
+ComputationRequest::BaseModel @ _archived/symbolic_computation/models.py
+ComputationRequest::BaseModel @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 ComputationRequest::BaseModel @ services/symbolic_computation/core/models.py
 ComputationRequest::BaseModel @ services/symbolic_computation/models.py
-ComputationResult::BaseModel @ core/symbolic_computation/models.py
-ComputationResult::BaseModel @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
+ComputationResult::BaseModel @ _archived/symbolic_computation/models.py
+ComputationResult::BaseModel @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 ComputationResult::BaseModel @ services/symbolic_computation/core/models.py
 ComputationResult::BaseModel @ services/symbolic_computation/models.py
 Condition::BaseModel @ core/governance/schemas.py
 ConditionOperator::str,Enum @ core/governance/schemas.py
 ConfidenceLevel::Enum @ runtime/response_tagger.py
 ConfirmationResult::BaseModel @ core/commands/schemas.py
+ConflictResolutionMode::str,Enum @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
+ConflictResolutionMode::str,Enum @ current_work/01-21-2026/swarm_sync.py
+ConflictResolutionMode::str,Enum @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 ConnectionStatus::str,Enum @ core/worldmodel/l9_schema.py
 ConsensusStrategy::str,Enum @ collaborative_cells/base_cell.py
-ConsistencyMode::Enum @ current_work/WORLD_MODEL STUB IMPLEMENTATION/orchestrator.py
+ConsistencyMode::Enum @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/orchestrator.py
 ConsistencyMode::Enum @ world_model/_pack_staging/orchestrator.py
 ConsoleExporter::SpanExporter @ core/observability/exporters.py
-ConsoleExporter::SpanExporter @ current_work/Observability/observability_exporters.py
+ConsoleExporter::SpanExporter @ current_work/DONE/Observability/observability_exporters.py
 ConsolidationRequest::BaseModel @ api/memory/router.py
 ConsolidationResponse::BaseModel @ api/memory/router.py
+ConstraintExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ConstraintExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 ConstraintNode::IRNodeBase @ ir_engine/ir_schema.py
 ConstraintStatus::str,Enum @ ir_engine/ir_schema.py
 ConstraintType::str,Enum @ ir_engine/ir_schema.py
@@ -215,21 +244,22 @@ ConstraintViolation::Exception @ codegen/dev_layer/runtime/enforcement.py
 ContentMode::Enum @ core/packet_envelope/standardization.py
 ContentMode::Enum @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 ContextAssemblySpan::Span @ core/observability/models.py
-ContextAssemblySpan::Span @ current_work/Observability/observability_models.py
-ContextInjectionRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+ContextAssemblySpan::Span @ current_work/DONE/Observability/observability_models.py
+ContextInjectionRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 ContextInjectionRequest::BaseModel @ mcp_memory/src/models.py
-ContextInjectionResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+ContextInjectionResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 ContextInjectionResponse::BaseModel @ mcp_memory/src/models.py
 ContextRead::BaseModel @ ir_engine/meta_ir.py
 ContextStrategy::ABC @ core/observability/context_strategies.py
-ContextStrategy::ABC @ current_work/Observability/observability_context_strategies.py
+ContextStrategy::ABC @ current_work/DONE/Observability/observability_context_strategies.py
 ControllerPhase::str,Enum @ orchestration/unified_controller.py
+ControllerProfile::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/controller_profile_protocol.py
 CorrelateTimelineRequest::BaseModel @ api/memory/router.py
 CriterionType::str,Enum @ simulation/outcome_evaluator.py
 CriticAgent::BaseAgent @ services/research/agents/critic_agent.py
 CrossAgentSharingConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 CursorActionExtractor::BaseExtractor @ agents/cursor/extractors/cursor_action_extractor.py
-CursorActionExtractor::BaseExtractor @ igor/audit-memory/memory_extractor_cursor_action_extractor.py
+CursorActionExtractor::BaseExtractor @ igor/DONE!/audit-memory/memory_extractor_cursor_action_extractor.py
 CursorAgentState::BaseModel @ agents/cursor/integrations/cursor_langgraph.py
 CursorInstructionsBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 CursorLangGraphConfig::BaseModel @ config/cursor_langgraph_config.py
@@ -241,9 +271,12 @@ CursorTaskRequest::BaseModel @ api/routes/cursor.py
 CursorTaskResponse::BaseModel @ api/routes/cursor.py
 CursorTaskSpec::BaseModel @ agents/cursor/integrations/cursor_executor.py
 CypherTemplateCategory::str,Enum @ memory/cypher_templates.py
+DIContainerError::Exception @ core/di/container.py
 DatabaseType::str,Enum @ memory/saga.py
 DataclassFieldVisitor::NodeVisitor @ scripts/audit/find_dead_code.py
-DecisionType::str,Enum @ igor/audit-memory/memory_governance_patterns.py
+DecisionMode::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+DecisionMode::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py
+DecisionType::str,Enum @ igor/DONE!/audit-memory/memory_governance_patterns.py
 DecisionType::str,Enum @ memory/governance_patterns.py
 DeleteExpiredMemoriesArgs::BaseModel @ mcp_memory/src/models.py
 DependencySpec::BaseModel @ ir_engine/meta_ir.py
@@ -251,17 +284,18 @@ DeploymentBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 DeploymentPhase::Enum @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/deployment_automation.py
 DerivationType::str,Enum @ core/schemas/packet_envelope_v2.py
 DeriveType::str,Enum @ core/schemas/packet_envelope_v2.py
-DeriveType::str,Enum @ igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py
+DeriveType::str,Enum @ igor/DONE!/L9 Memory Substrate Audit/packet_validator.py
 DeveloperKernelData::FlexibleModel @ core/kernels/schemas.py
+DiscoverRequest::BaseModel @ api/routes/research_agent.py
+DiscoverResponse::BaseModel @ api/routes/research_agent.py
 DraftRequest::BaseModel @ email_agent/router.py
+DuplicateRegistrationError::RegistryError @ core/auto_registry.py
+DuplicateRegistrationError::RegistryError @ current_work/DONE/AUTOWIRING/auto_registry.py
 DuplicateTaskResponse::BaseModel @ core/agents/schemas.py
-EmailAdapterContext::BaseModel @ api/adapters/email_adapter/schemas.py
 EmailAdapterContext::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/schemas.py
-EmailAdapterRequest::BaseModel @ api/adapters/email_adapter/schemas.py
 EmailAdapterRequest::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/schemas.py
-EmailAdapterResponse::BaseModel @ api/adapters/email_adapter/schemas.py
 EmailAdapterResponse::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/schemas.py
-EmbeddingProvider::ABC @ igor/audit-memory/memory_substrate_semantic.py
+EmbeddingProvider::ABC @ igor/DONE!/audit-memory/memory_substrate_semantic.py
 EmbeddingProvider::ABC @ memory/substrate_semantic.py
 EnrichEntitiesRequest::BaseModel @ api/memory/router.py
 EnrichmentResult::BaseModel @ memory/substrate_models.py
@@ -278,7 +312,7 @@ EpisodicSemanticLinkRow::BaseModel @ memory/substrate_models.py
 EpistemicStatus::Enum @ runtime/response_tagger.py
 ErrorCategory::BaseModel @ ir_engine/meta_ir.py
 ErrorEvent::BaseModel @ core/schemas/ws_event_stream.py
-ErrorEvent::BaseModel @ igor/audit-memory/core_schemas_ws_event_stream.py
+ErrorEvent::BaseModel @ igor/DONE!/audit-memory/core_schemas_ws_event_stream.py
 ErrorPolicy::BaseModel @ ir_engine/meta_ir.py
 ErrorStrategy::str,Enum @ ir_engine/meta_ir.py
 EscalationConfig::BaseModel @ ir_engine/meta_ir.py
@@ -287,20 +321,21 @@ EscalationRequired::Exception @ codegen/dev_layer/runtime/enforcement.py
 EscalationTriggerType::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
 EvaluateRequest::BaseModel @ services/symbolic_computation/api/routes.py
 EvaluationCriteria::BaseModel @ orchestrators/meta/interface.py
-EvaluationError::SymbolicComputationError @ core/symbolic_computation/exceptions.py
-EvaluationError::SymbolicComputationError @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
+EvaluationError::SymbolicComputationError @ _archived/symbolic_computation/exceptions.py
+EvaluationError::SymbolicComputationError @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
 EvaluationError::SymbolicComputationError @ services/symbolic_computation/exceptions.py
 EvaluationRequest::BaseModel @ core/governance/schemas.py
 EvaluationResult::BaseModel @ core/governance/schemas.py
 EvaluationVerdict::str,Enum @ simulation/outcome_evaluator.py
 EventKind::Enum @ core/coordination/event_queue.py
 EventMessage::BaseModel @ core/schemas/ws_event_stream.py
-EventMessage::BaseModel @ igor/audit-memory/core_schemas_ws_event_stream.py
+EventMessage::BaseModel @ igor/DONE!/audit-memory/core_schemas_ws_event_stream.py
 EventType::Enum @ core/packet_envelope/standardization.py
 EventType::Enum @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 EventType::str,Enum @ core/schemas/ws_event_stream.py
-EventType::str,Enum @ igor/audit-memory/core_schemas_ws_event_stream.py
+EventType::str,Enum @ igor/DONE!/audit-memory/core_schemas_ws_event_stream.py
 Evidence::TypedDict @ services/research/graph_state.py
+EvidenceStrength::str,Enum @ current_work/Bayesian Upgrade/bayesian_kernel.py
 EvolutionOrchestrator::IEvolutionOrchestrator @ orchestrators/evolution/orchestrator.py
 EvolutionOrchestratorRequest::BaseModel @ orchestrators/evolution/interface.py
 EvolutionOrchestratorResponse::BaseModel @ orchestrators/evolution/interface.py
@@ -309,41 +344,56 @@ ExecuteTaskRequest::BaseModel @ api/agent_routes.py
 ExecuteTaskResponse::BaseModel @ api/agent_routes.py
 ExecutionKernelData::FlexibleModel @ core/kernels/schemas.py
 ExecutionMode::str,Enum @ orchestration/unified_controller.py
+ExecutionProfile::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/execution_profile_protocol.py
 ExecutionResult::BaseModel @ core/agents/schemas.py
 ExecutionStatus::str,Enum @ orchestration/plan_executor.py
 ExecutionTarget::str,Enum @ orchestration/task_router.py
 ExecutorState::str,Enum @ core/agents/schemas.py
 ExternalSurface::BaseModel @ ir_engine/meta_ir.py
+ExtractPatternsRequest::BaseModel @ api/routes/reflection_agent.py
+ExtractPatternsResponse::BaseModel @ api/routes/reflection_agent.py
 ExtractRequest::BaseModel @ api/routes/factory.py
 ExtractResponse::BaseModel @ api/routes/factory.py
 ExtractSessionLearningsArgs::BaseModel @ mcp_memory/src/models.py
-ExtractedInsight::BaseModel @ igor/audit-memory/memory_substrate_models.py
+ExtractedInsight::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 ExtractedInsight::BaseModel @ memory/substrate_models.py
 FailureClass::str,Enum @ core/observability/models.py
-FailureClass::str,Enum @ current_work/Observability/observability_models.py
+FailureClass::str,Enum @ current_work/DONE/Observability/observability_models.py
+FailureResponse::BaseModel @ api/routes/observability.py
 FailureSignal::BaseModel @ core/observability/models.py
-FailureSignal::BaseModel @ current_work/Observability/observability_models.py
+FailureSignal::BaseModel @ current_work/DONE/Observability/observability_models.py
 FailureType::str,Enum @ agents/codegenagent/telemetry_codegen.py
+FailuresListResponse::BaseModel @ api/routes/observability.py
 FeatureFlag::Enum @ current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/feature_flags.py
+FeedbackType::Enum @ current_work/Bayesian Upgrade/learning/feedback_collector.py
 FetchAndEnrichRequest::BaseModel @ api/memory/router.py
+FileSnapshot::BaseModel @ core/governance/cmts.py
+FindingType::str,Enum @ services/research/graph_persistence.py
 FixAction::str,Enum @ scripts/audit/categorize_dead_code.py
 FlexibleModel::BaseModel @ core/kernels/schemas.py
 ForwardRequest::BaseModel @ email_agent/router.py
-GMPExecutionHistoryDB::Base @ core/gmp/meta_learning_engine.py
+GMPExecutionHistoryDB::Base @ agents/cursor/gmp_meta_learning.py
 GMPExecutionHistoryDB::Base @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
-GMPExecutionResult::BaseModel @ core/gmp/meta_learning_engine.py
+GMPExecutionResult::BaseModel @ agents/cursor/gmp_meta_learning.py
 GMPExecutionResult::BaseModel @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 GMPRunInput::BaseModel @ core/schemas/l_tools.py
-GMPRunInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
+GMPRunInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
+GNNKernel::Module @ current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py
+GNNKernel::Module @ current_work/01-21-2026/neural_substrate.py
+GNNKernel::Module @ current_work/Neural-Symbolic Orchestration/neural_substrate.py
 GapSeverity::str,Enum @ memory/warming_models.py
 GateDecision::str,Enum @ codegen/dev_layer/runtime/enforcement.py
+GenerateImprovementsRequest::BaseModel @ api/routes/reflection_agent.py
+GenerateImprovementsResponse::BaseModel @ api/routes/reflection_agent.py
+GenerateSpecRequest::BaseModel @ api/routes/research_agent.py
+GenerateSpecResponse::BaseModel @ api/routes/research_agent.py
 GeneratorError::Exception @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/generate_module_code.py
 GetContextArgs::BaseModel @ mcp_memory/src/models.py
 GetMemoryStatsArgs::BaseModel @ mcp_memory/src/models.py
 GetProactiveSuggestionsArgs::BaseModel @ mcp_memory/src/models.py
 GetRequest::BaseModel @ email_agent/router.py
 GitCommitInput::BaseModel @ core/schemas/l_tools.py
-GitCommitInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
+GitCommitInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
 GlobalInvariantsAck::BaseModel @ ir_engine/meta_ir.py
 GlobalStateVisitor::NodeVisitor @ dev/tools/global_state_audit.py
 GlueConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
@@ -351,16 +401,18 @@ GoalsSpec::BaseModel @ ir_engine/meta_ir.py
 GovernanceBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 GovernanceBlockPattern::GapDetectionPattern @ core/agents/selfreflection.py
 GovernanceCheckSpan::Span @ core/observability/models.py
-GovernanceCheckSpan::Span @ current_work/Observability/observability_models.py
+GovernanceCheckSpan::Span @ current_work/DONE/Observability/observability_models.py
 GovernanceDecision::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
 GovernanceHarmonizationConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
-GovernancePattern::BaseModel @ igor/audit-memory/memory_governance_patterns.py
+GovernancePattern::BaseModel @ igor/DONE!/audit-memory/memory_governance_patterns.py
 GovernancePattern::BaseModel @ memory/governance_patterns.py
 GraduationStatusResponse::BaseModel @ api/routes/gmp_learning.py
-GraphCheckpointRow::BaseModel @ igor/audit-memory/memory_substrate_models.py
+GraphCheckpointRow::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 GraphCheckpointRow::BaseModel @ memory/substrate_models.py
+GraphClient::Protocol @ core/protocols/memory_protocols.py
 GraphGetContextArgs::BaseModel @ mcp_memory/src/models.py
 GraphGetEntityArgs::BaseModel @ mcp_memory/src/models.py
+GraphHydrationPolicy::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
 GraphQueryArgs::BaseModel @ mcp_memory/src/models.py
 GraphResponse::BaseModel @ api/memory/graph.py
 GraphSearchContext::BaseModel @ memory/graph_search_cache.py
@@ -372,27 +424,31 @@ HTTPBinaryBinding::ProtocolBinding @ current_work/packetEnvelope - Phase 2-5/pha
 HTTPHealthProbe::HealthProbe @ scripts/audit/tier1/audit_infrastructure_health.py
 HTTPStructuredBinding::ProtocolBinding @ core/packet_envelope/standardization.py
 HTTPStructuredBinding::ProtocolBinding @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
-HTTPTool::BaseTool @ igor/audit-tools/services_research_tools_tool_wrappers.py
+HTTPTool::BaseTool @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
 HTTPTool::BaseTool @ services/research/tools/tool_wrappers.py
 HandshakeResponse::BaseModel @ core/schemas/event_stream.py
-HandshakeResponse::BaseModel @ igor/audit-memory/core_schemas_event_stream.py
+HandshakeResponse::BaseModel @ igor/DONE!/audit-memory/core_schemas_event_stream.py
 HandshakeStatus::str,Enum @ core/schemas/event_stream.py
-HandshakeStatus::str,Enum @ igor/audit-memory/core_schemas_event_stream.py
+HandshakeStatus::str,Enum @ igor/DONE!/audit-memory/core_schemas_event_stream.py
+HealthChecker::Protocol @ core/protocols/observability_protocols.py
 HealthResponse::BaseModel @ api/routes/factory.py
+HealthResponse::BaseModel @ api/routes/observability.py
 HealthStatus::BaseModel @ services/symbolic_computation/core/models.py
 HealthStatus::str,Enum @ scripts/audit/tier1/audit_infrastructure_health.py
+HeuristicExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+HeuristicExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 HeuristicsResponse::BaseModel @ api/routes/gmp_learning.py
 HierarchicalSummarizationStrategy::ContextStrategy @ core/observability/context_strategies.py
-HierarchicalSummarizationStrategy::ContextStrategy @ current_work/Observability/observability_context_strategies.py
+HierarchicalSummarizationStrategy::ContextStrategy @ current_work/DONE/Observability/observability_context_strategies.py
 HttpClientStandard::BaseModel @ ir_engine/meta_ir.py
 HybridStrategy::ContextStrategy @ core/observability/context_strategies.py
-HybridStrategy::ContextStrategy @ current_work/Observability/observability_context_strategies.py
-IActionToolOrchestrator::Protocol @ igor/audit-tools/orchestrators_action_tool_interface.py
+HybridStrategy::ContextStrategy @ current_work/DONE/Observability/observability_context_strategies.py
+IActionToolOrchestrator::Protocol @ igor/DONE!/audit-tools/orchestrators_action_tool_interface.py
 IActionToolOrchestrator::Protocol @ orchestrators/action_tool/interface.py
 IAgentExecutionOrchestrator::Protocol @ orchestrators/agent_execution/interface.py
 ICausalGraph::Protocol @ world_model/interfaces.py
 IEvolutionOrchestrator::Protocol @ orchestrators/evolution/interface.py
-IMemoryOrchestrator::Protocol @ igor/audit-memory/orchestrators_memory_interface.py
+IMemoryOrchestrator::Protocol @ igor/DONE!/audit-memory/orchestrators_memory_interface.py
 IMemoryOrchestrator::Protocol @ orchestrators/memory/interface.py
 IMetaOrchestrator::Protocol @ orchestrators/meta/interface.py
 IRGraph::BaseModel @ ir_engine/ir_schema.py
@@ -402,7 +458,7 @@ IRStatus::str,Enum @ ir_engine/ir_schema.py
 IRValidationResult::BaseModel @ ir_engine/ir_schema.py
 IReasoningOrchestrator::Protocol @ orchestrators/reasoning/interface.py
 IResearchSwarmOrchestrator::Protocol @ orchestrators/research_swarm/interface.py
-IStrategyMemoryService::ABC @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
+IStrategyMemoryService::ABC @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
 IStrategyMemoryService::ABC @ memory/strategymemory.py
 IWorldModelEngine::Protocol @ world_model/interfaces.py
 IWorldModelLoader::Protocol @ world_model/interfaces.py
@@ -422,6 +478,7 @@ Impact::str,Enum @ scripts/audit/tier1/audit_capability_inventory.py
 InboundInterface::BaseModel @ ir_engine/meta_ir.py
 IncompleteSpecError::GeneratorError @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/generate_module_code.py
 InfrastructureType::str,Enum @ core/worldmodel/l9_schema.py
+IngestionPipeline::Protocol @ core/protocols/memory_protocols.py
 InjectionSeverity::str,Enum @ core/agents/prompt_defense.py
 InputField::BaseModel @ orchestrators/pattern/interface.py
 Insight::BaseModel @ core/worldmodel/insight_emitter.py
@@ -432,6 +489,7 @@ InsightsResult::BaseModel @ clients/world_model_client.py
 IntegrationBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 IntegrationResult::BaseModel @ core/schemas/research_factory_models.py
 IntegrationSettings::BaseSettings @ config/settings.py
+IntegrityVerifier::Protocol @ core/protocols/kernel_protocols.py
 IntentExtractResponse::BaseModel @ api/routes/commands.py
 IntentModel::BaseModel @ core/commands/schemas.py
 IntentNode::IRNodeBase @ ir_engine/ir_schema.py
@@ -443,31 +501,36 @@ InvalidMetaError::APGeneratorError @ agents/codegenagent/ap_generator.py
 InvalidPolicyError::PolicyLoadError @ core/governance/loader.py
 InvalidSchemaVersionError::Exception @ core/schemas/schema_registry.py
 JSONFileExporter::SpanExporter @ core/observability/exporters.py
-JSONFileExporter::SpanExporter @ current_work/Observability/observability_exporters.py
+JSONFileExporter::SpanExporter @ current_work/DONE/Observability/observability_exporters.py
 KernelActivationResult::FlexibleModel @ core/kernels/schemas.py
+KernelActivator::Protocol @ core/protocols/kernel_protocols.py
 KernelAwareAgent::Protocol @ core/agents/prompt_builder.py
 KernelAwareAgent::Protocol @ core/kernels/kernelloader.py
-KernelAwareAgent::Protocol @ igor/audit-tools/Current Config/runtime_kernel_loader.py
+KernelAwareAgent::Protocol @ core/protocols/kernel_protocols.py
+KernelAwareAgent::Protocol @ igor/DONE!/audit-tools/Current Config/runtime_kernel_loader.py
 KernelAwareAgent::Protocol @ runtime/kernel_loader.py
+KernelDiscovery::Protocol @ core/protocols/kernel_protocols.py
 KernelInfo::FlexibleModel @ core/kernels/schemas.py
 KernelLifecycleSpan::Span @ core/observability/models.py
 KernelManifest::FlexibleModel @ core/kernels/schemas.py
 KernelMeta::FlexibleModel @ core/kernels/schemas.py
 KernelPhase::str,Enum @ orchestration/orchestrator_kernel.py
 KernelReadInput::BaseModel @ core/schemas/l_tools.py
-KernelReadInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
+KernelReadInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
 KernelReloadRequest::BaseModel @ api/server.py
 KernelReloadRequest::BaseModel @ current_work/DONE/Slack-Debug-2/server.py
 KernelReloadResponse::BaseModel @ api/server.py
 KernelReloadResponse::BaseModel @ current_work/DONE/Slack-Debug-2/server.py
 KernelRule::FlexibleModel @ core/kernels/schemas.py
 KernelState::str,Enum @ core/kernels/schemas.py
+KernelStateManager::Protocol @ core/protocols/kernel_protocols.py
 KernelType::str,Enum @ core/kernels/schemas.py
 KernelValidationResult::FlexibleModel @ core/kernels/schemas.py
+KernelValidator::Protocol @ core/protocols/kernel_protocols.py
 KernelViolationError::Exception @ tests/mocks/kernel_mocks.py
-KnowledgeFact::BaseModel @ igor/audit-memory/memory_substrate_models.py
+KnowledgeFact::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 KnowledgeFact::BaseModel @ memory/substrate_models.py
-KnowledgeFactRow::BaseModel @ igor/audit-memory/memory_substrate_models.py
+KnowledgeFactRow::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 KnowledgeFactRow::BaseModel @ memory/substrate_models.py
 KnowledgeFusionConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 L9Agent::BaseModel @ core/worldmodel/l9_schema.py
@@ -478,78 +541,91 @@ L9PostgresSaver::BaseCheckpointSaver @ memory/checkpoint/postgres_saver.py
 L9Relationship::BaseModel @ core/worldmodel/l9_schema.py
 L9RelationshipType::str,Enum @ core/worldmodel/l9_schema.py
 L9Repository::BaseModel @ core/worldmodel/l9_schema.py
+L9RetryablePostgresSaver::L9PostgresSaver @ memory/checkpoint/postgres_saver.py
 L9Tool::BaseModel @ core/worldmodel/l9_schema.py
 LCTOAgent::BaseAgent @ agents/l_cto.py
-LCTOAgent::BaseAgent @ igor/audit-tools/Current Config/agents_l_cto.py
+LCTOAgent::BaseAgent @ igor/DONE!/audit-tools/Current Config/agents_l_cto.py
 LChatRequest::BaseModel @ api/server.py
 LChatRequest::BaseModel @ current_work/DONE/Slack-Debug-2/server.py
 LChatResponse::BaseModel @ api/server.py
 LChatResponse::BaseModel @ current_work/DONE/Slack-Debug-2/server.py
 LImprovementLoopConfig::BaseModel @ orchestrators/pattern/interface.py
 LLMGenerationSpan::Span @ core/observability/models.py
-LLMGenerationSpan::Span @ current_work/Observability/observability_models.py
-LearnedHeuristic::BaseModel @ core/gmp/meta_learning_engine.py
+LLMGenerationSpan::Span @ current_work/DONE/Observability/observability_models.py
+Language::Enum @ current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py
+Language::Enum @ scripts/refactoring/bootstrap_refactor.py
+LearnedHeuristic::BaseModel @ agents/cursor/gmp_meta_learning.py
 LearnedHeuristic::BaseModel @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
-LearnedHeuristicDB::Base @ core/gmp/meta_learning_engine.py
+LearnedHeuristicDB::Base @ agents/cursor/gmp_meta_learning.py
 LearnedHeuristicDB::Base @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 LearningSystemBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
+LessonsLearnedResponse::BaseModel @ api/routes/reflection_agent.py
 LoadSequenceEntry::FlexibleModel @ core/kernels/schemas.py
+LogExporter::Protocol @ core/protocols/observability_protocols.py
 LogLevel::str,Enum @ ir_engine/meta_ir.py
+Logger::Protocol @ tests/unit/di/test_container.py
 LoggingStandard::BaseModel @ ir_engine/meta_ir.py
 LogsConfig::BaseModel @ ir_engine/meta_ir.py
-LongPlanState::TypedDict @ current_work/GMP Stage 1 - Tools/long_plan_graph.py
-LongPlanState::TypedDict @ current_work/GMP Stage 2 - Tools & Memory/long_plan_graph.py
+LongPlanState::TypedDict @ current_work/DONE/GMP Stage 1 - Tools/long_plan_graph.py
+LongPlanState::TypedDict @ current_work/DONE/GMP Stage 2 - Tools & Memory/long_plan_graph.py
 LongPlanState::TypedDict @ orchestration/long_plan_graph.py
+LoopStage::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/loop_stage_protocol.py
 MCPCallToolInput::BaseModel @ core/schemas/l_tools.py
-MCPCallToolInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
-MCPTool::BaseModel @ igor/audit-memory/mcp_memory_src_mcp_server.py
+MCPCallToolInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
+MCPTool::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_mcp_server.py
 MCPTool::BaseModel @ mcp_memory/src/mcp_server.py
-MCPToolCall::BaseModel @ igor/audit-memory/mcp_memory_src_mcp_server.py
+MCPToolCall::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_mcp_server.py
 MCPToolCall::BaseModel @ mcp_memory/src/mcp_server.py
 MacAgentExecInput::BaseModel @ core/schemas/l_tools.py
-MacAgentExecInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
-MacMessage::BaseModel @ igor/audit-tools/tools_mac_protocol.py
+MacAgentExecInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
+MacMessage::BaseModel @ igor/DONE!/audit-tools/tools_mac_protocol.py
 MacMessage::BaseModel @ tools/mac_protocol.py
-MacResponse::BaseModel @ igor/audit-tools/tools_mac_protocol.py
+MacResponse::BaseModel @ igor/DONE!/audit-tools/tools_mac_protocol.py
 MacResponse::BaseModel @ tools/mac_protocol.py
+MasterConfig::BaseModel @ orchestrators/pattern/master_orchestrator.py
+MasterExecuteRequest::BaseModel @ api/routes/pattern.py
+MasterExecuteResponse::BaseModel @ api/routes/pattern.py
+MasterExecutionResult::BaseModel @ orchestrators/pattern/master_orchestrator.py
 MasterKernelData::FlexibleModel @ core/kernels/schemas.py
 MemoryBackendsConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 MemoryError::Exception @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryExtractor::BaseExtractor @ igor/audit-memory/memory_extractor_memory_extractor.py
+MemoryExtractor::BaseExtractor @ igor/DONE!/audit-memory/memory_extractor_memory_extractor.py
 MemoryExtractor::BaseExtractor @ memory/extractor/memory_extractor.py
 MemoryHealthTask::BaseModel @ api/vps_executor.py
 MemoryKernelData::FlexibleModel @ core/kernels/schemas.py
 MemoryLayerConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 MemoryModel::BaseModel @ orchestrators/pattern/interface.py
-MemoryOperation::str,Enum @ igor/audit-memory/orchestrators_memory_interface.py
+MemoryOperation::str,Enum @ igor/DONE!/audit-memory/orchestrators_memory_interface.py
 MemoryOperation::str,Enum @ orchestrators/memory/interface.py
-MemoryOrchestrator::IMemoryOrchestrator @ igor/audit-memory/orchestrators_memory_orchestrator.py
+MemoryOrchestrator::IMemoryOrchestrator @ igor/DONE!/audit-memory/orchestrators_memory_orchestrator.py
 MemoryOrchestrator::IMemoryOrchestrator @ orchestrators/memory/orchestrator.py
 MemoryPacket::BaseModel @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
 MemoryPacketError::MemoryError @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryRequest::BaseModel @ igor/audit-memory/orchestrators_memory_interface.py
+MemoryRepository::Protocol @ core/protocols/memory_protocols.py
+MemoryRequest::BaseModel @ igor/DONE!/audit-memory/orchestrators_memory_interface.py
 MemoryRequest::BaseModel @ orchestrators/memory/interface.py
-MemoryResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
-MemoryResponse::BaseModel @ igor/audit-memory/orchestrators_memory_interface.py
+MemoryResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
+MemoryResponse::BaseModel @ igor/DONE!/audit-memory/orchestrators_memory_interface.py
 MemoryResponse::BaseModel @ mcp_memory/src/models.py
 MemoryResponse::BaseModel @ orchestrators/memory/interface.py
 MemorySearchInput::BaseModel @ core/schemas/l_tools.py
-MemorySearchInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
+MemorySearchInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
 MemorySegment::BaseModel @ orchestrators/pattern/interface.py
 MemorySegment::Enum @ core/tools/memory_tools.py
 MemorySegment::str,Enum @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
 MemorySegment::str,Enum @ memory/substrate_models.py
 MemorySegmentError::MemoryError @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryStatsResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+MemoryStatsResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 MemoryStatsResponse::BaseModel @ mcp_memory/src/models.py
 MemorySubstratePacketSource::PacketSource @ world_model/runtime.py
 MemorySubstrateSettings::BaseSettings @ config/memory_substrate_settings.py
-MemorySubstrateSettings::BaseSettings @ igor/audit-memory/config_memory_substrate_settings.py
+MemorySubstrateSettings::BaseSettings @ igor/DONE!/audit-memory/config_memory_substrate_settings.py
 MemoryTier::Enum @ core/memory/virtual_context.py
 MemoryTier::str,Enum @ memory/context_builder.py
 MemoryTopologyBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
+MemoryWarmPolicy::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
 MemoryWriteInput::BaseModel @ core/schemas/l_tools.py
-MemoryWriteInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
+MemoryWriteInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
 MessageRole::str,Enum @ memory/graph_memory.py
 MetaContract::BaseModel @ ir_engine/meta_ir.py
 MetaContractValidationError::BaseModel @ ir_engine/meta_ir.py
@@ -560,30 +636,40 @@ MetaOrchestratorRequest::BaseModel @ orchestrators/meta/interface.py
 MetaOrchestratorResponse::BaseModel @ orchestrators/meta/interface.py
 MetadataBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 MetricType::str,Enum @ agents/codegenagent/telemetry_codegen.py
+MetricsCollector::Protocol @ core/protocols/observability_protocols.py
 MetricsConfig::BaseModel @ ir_engine/meta_ir.py
 MetricsSummary::BaseModel @ services/symbolic_computation/core/models.py
-MockSearchTool::BaseTool @ igor/audit-tools/services_research_tools_tool_wrappers.py
+MockSchemaRegistry::_SchemaRegistry @ current_work/DONE/AUTOWIRING/test_upcaster_registry.py
+MockSchemaRegistry::_SchemaRegistry @ tests/core/schemas/test_upcaster_registry.py
+MockSearchTool::BaseTool @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
 MockSearchTool::BaseTool @ services/research/tools/tool_wrappers.py
 ModeConfig::FlexibleModel @ core/kernels/schemas.py
 ModuleMetadata::BaseModel @ ir_engine/meta_ir.py
-ModuleSchemaExtractor::BaseExtractor @ igor/audit-memory/memory_extractor_module_schema_extractor.py
+ModuleSchemaExtractor::BaseExtractor @ igor/DONE!/audit-memory/memory_extractor_module_schema_extractor.py
 ModuleSchemaExtractor::BaseExtractor @ memory/extractor/module_schema_extractor.py
 ModuleTier::str,Enum @ ir_engine/meta_ir.py
+MutationQuery::BaseModel @ core/governance/cmts.py
+MutationRecord::BaseModel @ core/governance/cmts.py
+MutationStatus::str,Enum @ core/governance/cmts.py
 NLPPrompt::BaseModel @ core/commands/schemas.py
 NaiveTruncationStrategy::ContextStrategy @ core/observability/context_strategies.py
-NaiveTruncationStrategy::ContextStrategy @ current_work/Observability/observability_context_strategies.py
+NaiveTruncationStrategy::ContextStrategy @ current_work/DONE/Observability/observability_context_strategies.py
+Neo4jStrategyMemoryService::IStrategyMemoryService @ memory/neo4j_strategy_memory.py
 NodeDefinition::BaseModel @ orchestrators/pattern/interface.py
 NodeKind::str,Enum @ orchestrators/pattern/interface.py
 NodePriority::str,Enum @ ir_engine/ir_schema.py
 NodeResult::BaseModel @ orchestrators/pattern/interface.py
 NodeResultResponse::BaseModel @ api/routes/pattern.py
+NodeStatus::str,Enum @ current_work/Bayesian Upgrade/hypergraph.py
 NodeStatus::str,Enum @ orchestrators/pattern/interface.py
+NodeType::str,Enum @ current_work/Bayesian Upgrade/hypergraph.py
 OAuthHandler::BaseHTTPRequestHandler @ email_agent/oauth_server.py
 ObservabilityConfig::BaseModel @ orchestrators/pattern/interface.py
+ObservabilityService::Protocol @ core/protocols/observability_protocols.py
 ObservabilitySettings::BaseSettings @ core/observability/config.py
-ObservabilitySettings::BaseSettings @ current_work/Observability/observability_config.py
+ObservabilitySettings::BaseSettings @ current_work/DONE/Observability/observability_config.py
 ObservabilitySpec::BaseModel @ ir_engine/meta_ir.py
-OpenAIEmbeddingProvider::EmbeddingProvider @ igor/audit-memory/memory_substrate_semantic.py
+OpenAIEmbeddingProvider::EmbeddingProvider @ igor/DONE!/audit-memory/memory_substrate_semantic.py
 OpenAIEmbeddingProvider::EmbeddingProvider @ memory/substrate_semantic.py
 OptimizeRequest::BaseModel @ services/symbolic_computation/api/routes.py
 OptimizeResponse::BaseModel @ services/symbolic_computation/api/routes.py
@@ -595,55 +681,52 @@ OwnershipSpec::BaseModel @ ir_engine/meta_ir.py
 OwnershipTeam::str,Enum @ ir_engine/meta_ir.py
 PacketConfidence::BaseModel @ core/schemas/packet_envelope.py
 PacketConfidence::BaseModel @ core/schemas/packet_envelope_v2.py
-PacketConfidence::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-PacketConfidence::BaseModel @ igor/audit-memory/memory_substrate_models.py
+PacketConfidence::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+PacketConfidence::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 PacketContract::BaseModel @ ir_engine/meta_ir.py
 PacketEnvelope::BaseModel @ core/schemas/packet_envelope.py
 PacketEnvelope::BaseModel @ core/schemas/packet_envelope_v2.py
-PacketEnvelope::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-PacketEnvelope::BaseModel @ igor/audit-memory/memory_substrate_models.py
+PacketEnvelope::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+PacketEnvelope::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 PacketEnvelopeIn::BaseModel @ clients/memory_client.py
 PacketEnvelopeIn::BaseModel @ core/schemas/packet_envelope.py
 PacketEnvelopeIn::BaseModel @ core/schemas/packet_envelope_v2.py
-PacketEnvelopeIn::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-PacketEnvelopeIn::BaseModel @ igor/audit-memory/memory_substrate_models.py
+PacketEnvelopeIn::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+PacketEnvelopeIn::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 PacketEnvelopeUpgradePhase::Enum @ core/packet_envelope/integration.py
 PacketEnvelopeUpgradePhase::Enum @ current_work/packetEnvelope - Phase 2-5/integration.py
 PacketKind::str,Enum @ core/schemas/packet_envelope.py
 PacketKind::str,Enum @ core/schemas/packet_envelope_v2.py
-PacketKind::str,Enum @ igor/audit-memory/core_schemas_packet_envelope.py
+PacketKind::str,Enum @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
 PacketLineage::BaseModel @ core/schemas/packet_envelope_v2.py
-PacketLineage::BaseModel @ igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py
-PacketLineage::BaseModel @ igor/audit-memory/memory_substrate_models.py
+PacketLineage::BaseModel @ igor/DONE!/L9 Memory Substrate Audit/packet_validator.py
+PacketLineage::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 PacketMetadata::BaseModel @ core/schemas/packet_envelope.py
 PacketMetadata::BaseModel @ core/schemas/packet_envelope_v2.py
-PacketMetadata::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-PacketMetadata::BaseModel @ igor/audit-memory/memory_substrate_models.py
-PacketPayload::BaseModel @ api/adapters/calendar_adapter/schemas.py
-PacketPayload::BaseModel @ api/adapters/email_adapter/schemas.py
-PacketPayload::BaseModel @ api/adapters/twilio_adapter/schemas.py
+PacketMetadata::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+PacketMetadata::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 PacketPayload::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/schemas.py
 PacketPayload::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/schemas.py
 PacketPayload::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/schemas.py
 PacketProtocolKernelData::FlexibleModel @ core/kernels/schemas.py
 PacketProvenance::BaseModel @ core/schemas/packet_envelope.py
 PacketProvenance::BaseModel @ core/schemas/packet_envelope_v2.py
-PacketProvenance::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-PacketProvenance::BaseModel @ igor/audit-memory/memory_substrate_models.py
+PacketProvenance::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+PacketProvenance::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 PacketRequest::BaseModel @ api/memory/router.py
-PacketRequest::BaseModel @ igor/audit-memory/api_memory_router.py
+PacketRequest::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
 PacketResponse::BaseModel @ api/memory/router.py
-PacketResponse::BaseModel @ igor/audit-memory/api_memory_router.py
-PacketStoreRow::BaseModel @ igor/audit-memory/memory_substrate_models.py
+PacketResponse::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
+PacketStoreRow::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 PacketStoreRow::BaseModel @ memory/substrate_models.py
-PacketValidationError::Exception @ igor/01-07-2026/L9 Memory Substrate Audit/packet_validator.py
-PacketValidationError::Exception @ igor/audit-memory/memory_validators_packet_validator.py
+PacketValidationError::Exception @ igor/DONE!/L9 Memory Substrate Audit/packet_validator.py
+PacketValidationError::Exception @ igor/DONE!/audit-memory/memory_validators_packet_validator.py
 PacketValidationError::Exception @ memory/validators/packet_validator.py
 PacketWriteResult::BaseModel @ clients/memory_client.py
 PacketWriteResult::BaseModel @ core/schemas/packet_envelope.py
 PacketWriteResult::BaseModel @ core/schemas/packet_envelope_v2.py
-PacketWriteResult::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-PacketWriteResult::BaseModel @ igor/audit-memory/memory_substrate_models.py
+PacketWriteResult::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+PacketWriteResult::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 ParsedObject::BaseModel @ core/schemas/research_factory_models.py
 PassMetadata::BaseModel @ core/schemas/research_factory_state.py
 PassStatus::str,Enum @ core/schemas/research_factory_state.py
@@ -653,9 +736,11 @@ PatternConfig::BaseModel @ orchestrators/pattern/interface.py
 PatternConfigResponse::BaseModel @ api/routes/pattern.py
 PatternExecuteRequest::BaseModel @ api/routes/pattern.py
 PatternExecuteResponse::BaseModel @ api/routes/pattern.py
-PerplexityModel::str,Enum @ igor/audit-tools/services_research_tools_perplexity_client.py
+PatternExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PatternExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+PerplexityModel::str,Enum @ igor/DONE!/audit-tools/services_research_tools_perplexity_client.py
 PerplexityModel::str,Enum @ services/research/tools/perplexity_client.py
-PerplexityTool::BaseTool @ igor/audit-tools/services_research_tools_tool_wrappers.py
+PerplexityTool::BaseTool @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
 PerplexityTool::BaseTool @ services/research/tools/tool_wrappers.py
 PipelineConfig::BaseModel @ orchestrators/pattern/interface.py
 PipelineRequest::BaseModel @ orchestrators/pattern/interface.py
@@ -670,15 +755,20 @@ PolicyLoadError::ComplianceAuditorError @ agents/codegenagent/compliance_auditor
 PolicyLoadError::Exception @ core/governance/loader.py
 PolicyViolation::Exception @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/apply_policy_rules.py
 PredictiveCacheConfig::BaseModel @ memory/warming_models.py
-ProactiveRecallRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+ProactiveRecallRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 ProactiveRecallRequest::BaseModel @ mcp_memory/src/models.py
-ProactiveRecallResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+ProactiveRecallResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 ProactiveRecallResponse::BaseModel @ mcp_memory/src/models.py
+ProactivityLevel::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
+ProactivityLevel::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py
 ProcessedAnomaly::BaseModel @ workers/anomaly_response_monitor.py
 Prohibition::FlexibleModel @ core/kernels/schemas.py
+PromptDefensePolicy::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
 PromptStyle::str,Enum @ agents/codegenagent/ap_generator.py
 ProtocolBinding::ABC @ core/packet_envelope/standardization.py
 ProtocolBinding::ABC @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
+ProtocolExtractor::ArtifactExtractor @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
+ProtocolExtractor::ArtifactExtractor @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 PythonModuleHealthProbe::HealthProbe @ scripts/audit/tier1/audit_infrastructure_health.py
 QAAgent::BaseAgent @ agents/qa_agent.py
 Query::BaseModel @ core/schemas/research_factory_models.py
@@ -687,15 +777,17 @@ QueryRequest::BaseModel @ api/memory/graph.py
 QueryRequest::BaseModel @ email_agent/router.py
 QueryTemporalArgs::BaseModel @ mcp_memory/src/models.py
 RAGRetrievalSpan::Span @ core/observability/models.py
-RAGRetrievalSpan::Span @ current_work/Observability/observability_models.py
+RAGRetrievalSpan::Span @ current_work/DONE/Observability/observability_models.py
 RAGStrategy::ContextStrategy @ core/observability/context_strategies.py
-RAGStrategy::ContextStrategy @ current_work/Observability/observability_context_strategies.py
+RAGStrategy::ContextStrategy @ current_work/DONE/Observability/observability_context_strategies.py
 RLSConfig::BaseSettings @ config/rls_config.py
+RateLimitExceeded::Exception @ core/governance/rate_limit_policy.py
 ReasoningEngineBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 ReasoningExecuteRequest::BaseModel @ api/routes/reasoning.py
 ReasoningExecuteResponse::BaseModel @ api/routes/reasoning.py
 ReasoningFeedbackConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 ReasoningMode::str,Enum @ orchestrators/reasoning/interface.py
+ReasoningNode::HypergraphNode @ current_work/Bayesian Upgrade/hypergraph.py
 ReasoningNodeState::TypedDict @ orchestrators/reasoning/adapter_node.py
 ReasoningOrchestrator::IReasoningOrchestrator @ orchestrators/reasoning/orchestrator.py
 ReasoningPhase::str,Enum @ memory/warming_models.py
@@ -703,22 +795,27 @@ ReasoningReplayRequest::BaseModel @ api/memory/router.py
 ReasoningReplayResponse::BaseModel @ api/memory/router.py
 ReasoningRequest::BaseModel @ orchestrators/reasoning/interface.py
 ReasoningResponse::BaseModel @ orchestrators/reasoning/interface.py
-ReasoningTraceRow::BaseModel @ igor/audit-memory/memory_substrate_models.py
+ReasoningTraceRow::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 ReasoningTraceRow::BaseModel @ memory/substrate_models.py
 RecencyBiasedWindowStrategy::ContextStrategy @ core/observability/context_strategies.py
-RecencyBiasedWindowStrategy::ContextStrategy @ current_work/Observability/observability_context_strategies.py
+RecencyBiasedWindowStrategy::ContextStrategy @ current_work/DONE/Observability/observability_context_strategies.py
 RecoveryAction::str,Enum @ core/observability/failures.py
-RecoveryAction::str,Enum @ current_work/Observability/observability_failures.py
+RecoveryAction::str,Enum @ current_work/DONE/Observability/observability_failures.py
 RedisConnectionError::CursorSyncError @ agents/codegenagent/cursor_context_sync_engine.py
+ReflectRequest::BaseModel @ api/routes/reflection_agent.py
+ReflectResponse::BaseModel @ api/routes/reflection_agent.py
 ReflectionAgent::BaseAgent @ agents/reflection_agent.py
 ReflectionCell::BaseCell @ collaborative_cells/reflection_cell.py
+ReflectionPolicy::Protocol @ readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py
 ReflectionPriority::str,Enum @ world_model/reflection_memory.py
 ReflectionType::str,Enum @ world_model/reflection_memory.py
+RegistryError::Exception @ core/auto_registry.py
+RegistryError::Exception @ current_work/DONE/AUTOWIRING/auto_registry.py
 RegressionError::Exception @ core/evaluation/evaluator.py
 RelationshipRequest::BaseModel @ api/memory/graph.py
 RelationshipType::str,Enum @ memory/graph_memory.py
 RemediationAction::BaseModel @ core/observability/models.py
-RemediationAction::BaseModel @ current_work/Observability/observability_models.py
+RemediationAction::BaseModel @ current_work/DONE/Observability/observability_models.py
 RemediationAction::str,Enum @ workers/remediation_engine.py
 RemediationEngineRequest::BaseModel @ workers/remediation_engine.py
 RemediationEngineResponse::BaseModel @ workers/remediation_engine.py
@@ -729,6 +826,7 @@ ReplyRequest::BaseModel @ email_agent/router.py
 RepoSpec::BaseModel @ ir_engine/meta_ir.py
 ResearchExecuteRequest::BaseModel @ api/routes/research.py
 ResearchExecuteResponse::BaseModel @ api/routes/research.py
+ResearchFinding::TypedDict @ services/research/graph_persistence.py
 ResearchGraphState::TypedDict @ services/research/graph_state.py
 ResearchGraphState::TypedDict @ tests/performance/test_state_bloat.py
 ResearchJobSpec::BaseModel @ core/schemas/research_factory_models.py
@@ -742,18 +840,24 @@ ResearchStep::TypedDict @ services/research/graph_state.py
 ResearchSwarmOrchestrator::IResearchSwarmOrchestrator @ orchestrators/research_swarm/orchestrator.py
 ResearchSwarmRequest::BaseModel @ orchestrators/research_swarm/interface.py
 ResearchSwarmResponse::BaseModel @ orchestrators/research_swarm/interface.py
+ResearchToCodeRequest::BaseModel @ api/routes/research_agent.py
+ResearchToCodeResponse::BaseModel @ api/routes/research_agent.py
 ResearcherAgent::BaseAgent @ services/research/agents/researcher_agent.py
+ResilientService::Protocol @ core/resilience/protocols.py
+ResolutionError::DIContainerError @ core/di/container.py
 RestoreRequest::BaseModel @ api/world_model_api.py
 RestoreResponse::BaseModel @ api/world_model_api.py
 RestoreResult::BaseModel @ clients/world_model_client.py
 RetentionPolicy::Enum @ core/packet_envelope/governance.py
 RetentionPolicy::Enum @ current_work/packetEnvelope - Phase 2-5/phase_5_governance.py
 RetrievalBatch::BaseModel @ core/schemas/research_factory_models.py
+RetrievalStrategy::Protocol @ core/protocols/memory_protocols.py
 RetrievalStrategy::str,Enum @ memory/retrieval_strategy.py
 RetryConfig::BaseModel @ ir_engine/meta_ir.py
 RetryExhaustedError::Exception @ core/resilience/retry.py
 ReviewerCell::BaseCell @ collaborative_cells/reviewer_cell.py
 Risk::str,Enum @ scripts/audit/tier1/audit_capability_inventory.py
+RiskLevel::Enum @ current_work/Bayesian Upgrade/foundation/probabilistic_engine.py
 RiskLevel::str,Enum @ core/commands/schemas.py
 RiskLevel::str,Enum @ scripts/audit/categorize_dead_code.py
 RiskModel::BaseModel @ orchestrators/pattern/interface.py
@@ -766,61 +870,68 @@ RuntimeMode::str,Enum @ world_model/runtime.py
 RuntimeTouchpoints::BaseModel @ ir_engine/meta_ir.py
 RuntimeWiringSpec::BaseModel @ ir_engine/meta_ir.py
 SREMetric::BaseModel @ core/observability/models.py
-SREMetric::BaseModel @ current_work/Observability/observability_models.py
+SREMetric::BaseModel @ current_work/DONE/Observability/observability_models.py
+SREMetricsResponse::BaseModel @ api/routes/observability.py
 SSOTViolation::CompilerError @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py
 SafetyKernelData::FlexibleModel @ core/kernels/schemas.py
 SagaResponse::BaseModel @ api/memory/router.py
 SagaStatus::str,Enum @ memory/saga.py
 SagaStepStatus::str,Enum @ memory/saga.py
 SaveMemoryArgs::BaseModel @ mcp_memory/src/models.py
-SaveMemoryRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+SaveMemoryRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 SaveMemoryRequest::BaseModel @ mcp_memory/src/models.py
 SaveMemoryWithConfidenceArgs::BaseModel @ mcp_memory/src/models.py
-SaveMemoryWithConfidenceRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+SaveMemoryWithConfidenceRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 SaveMemoryWithConfidenceRequest::BaseModel @ mcp_memory/src/models.py
 ScenarioType::str,Enum @ simulation/scenario_loader.py
 SchemaError::PipelineValidatorError @ agents/codegenagent/pipeline_validator.py
 SchemaValidationError::Exception @ ir_engine/schema_validator.py
 SchemaVersion::Enum @ memory/checkpoint_validator.py
-SearchContextSize::str,Enum @ igor/audit-tools/services_research_tools_perplexity_client.py
+SearchContextSize::str,Enum @ igor/DONE!/audit-tools/services_research_tools_perplexity_client.py
 SearchContextSize::str,Enum @ services/research/tools/perplexity_client.py
 SearchHit::BaseModel @ memory/semantic_search.py
 SearchMemoryArgs::BaseModel @ mcp_memory/src/models.py
-SearchMemoryRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+SearchMemoryRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 SearchMemoryRequest::BaseModel @ mcp_memory/src/models.py
-SearchMemoryResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+SearchMemoryResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 SearchMemoryResponse::BaseModel @ mcp_memory/src/models.py
 SecretType::Enum @ core/governance/credentials_policy.py
+SecretsClient::Protocol @ core/protocols/secrets_protocols.py
+SecretsError::Exception @ core/protocols/secrets_protocols.py
 SecurityEvent::BaseModel @ core/schemas/event_stream.py
-SecurityEvent::BaseModel @ igor/audit-memory/core_schemas_event_stream.py
+SecurityEvent::BaseModel @ igor/DONE!/audit-memory/core_schemas_event_stream.py
 SecurityEventType::str,Enum @ core/schemas/event_stream.py
-SecurityEventType::str,Enum @ igor/audit-memory/core_schemas_event_stream.py
+SecurityEventType::str,Enum @ igor/DONE!/audit-memory/core_schemas_event_stream.py
+SegmentPreviewRequest::BaseModel @ api/agent_routes.py
+SegmentPreviewResponse::BaseModel @ api/agent_routes.py
+SegmentResult::BaseModel @ api/agent_routes.py
 SemanticFactRow::BaseModel @ memory/substrate_models.py
 SemanticHit::BaseModel @ clients/memory_client.py
 SemanticHit::BaseModel @ core/schemas/packet_envelope.py
 SemanticHit::BaseModel @ core/schemas/packet_envelope_v2.py
-SemanticHit::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-SemanticHit::BaseModel @ igor/audit-memory/memory_substrate_models.py
-SemanticMemoryRow::BaseModel @ igor/audit-memory/memory_substrate_models.py
+SemanticHit::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+SemanticHit::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
+SemanticMemoryRow::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 SemanticMemoryRow::BaseModel @ memory/substrate_models.py
 SemanticSearchRequest::BaseModel @ clients/memory_client.py
 SemanticSearchRequest::BaseModel @ core/schemas/packet_envelope.py
 SemanticSearchRequest::BaseModel @ core/schemas/packet_envelope_v2.py
-SemanticSearchRequest::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-SemanticSearchRequest::BaseModel @ igor/audit-memory/memory_substrate_models.py
+SemanticSearchRequest::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+SemanticSearchRequest::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 SemanticSearchResult::BaseModel @ clients/memory_client.py
 SemanticSearchResult::BaseModel @ core/schemas/packet_envelope.py
 SemanticSearchResult::BaseModel @ core/schemas/packet_envelope_v2.py
-SemanticSearchResult::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-SemanticSearchResult::BaseModel @ igor/audit-memory/memory_substrate_models.py
+SemanticSearchResult::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+SemanticSearchResult::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 SendRequest::BaseModel @ email_agent/router.py
+Service::Protocol @ tests/unit/di/test_container.py
 ServiceType::str,Enum @ ir_engine/meta_ir.py
 SessionContextRequest::BaseModel @ api/memory/cache.py
-SessionLearningRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+SessionLearningRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 SessionLearningRequest::BaseModel @ mcp_memory/src/models.py
-SessionLearningResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+SessionLearningResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 SessionLearningResponse::BaseModel @ mcp_memory/src/models.py
-Settings::BaseSettings @ igor/audit-memory/mcp_memory_src_config.py
+Settings::BaseSettings @ igor/DONE!/audit-memory/mcp_memory_src_config.py
 Settings::BaseSettings @ mcp_memory/src/config.py
 Severity::Enum @ core/governance/mistake_prevention.py
 SeverityLevel::str,Enum @ scripts/audit/audit_api_signatures.py
@@ -828,7 +939,7 @@ ShellTask::BaseModel @ api/vps_executor.py
 SideEffect::BaseModel @ ir_engine/meta_ir.py
 SignatureAnalyzer::NodeVisitor @ scripts/audit/audit_api_signatures.py
 SimpleContent::BaseModel @ core/schemas/packet_envelope.py
-SimpleContent::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
+SimpleContent::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
 SimulationMetricsResponse::BaseModel @ api/routes/simulation.py
 SimulationMode::str,Enum @ simulation/simulation_engine.py
 SimulationRequest::BaseModel @ api/routes/simulation.py
@@ -843,13 +954,18 @@ SnapshotResponse::BaseModel @ api/world_model_api.py
 SourceType::str,Enum @ world_model/knowledge_ingestor.py
 SovereigntyConfig::FlexibleModel @ core/kernels/schemas.py
 Span::BaseModel @ core/observability/models.py
-Span::BaseModel @ current_work/Observability/observability_models.py
+Span::BaseModel @ current_work/DONE/Observability/observability_models.py
+SpanEmitter::Protocol @ core/protocols/observability_protocols.py
 SpanExporter::ABC @ core/observability/exporters.py
-SpanExporter::ABC @ current_work/Observability/observability_exporters.py
+SpanExporter::ABC @ current_work/DONE/Observability/observability_exporters.py
 SpanKind::str,Enum @ core/observability/models.py
-SpanKind::str,Enum @ current_work/Observability/observability_models.py
+SpanKind::str,Enum @ core/protocols/observability_protocols.py
+SpanKind::str,Enum @ current_work/DONE/Observability/observability_models.py
 SpanStatus::str,Enum @ core/observability/models.py
-SpanStatus::str,Enum @ current_work/Observability/observability_models.py
+SpanStatus::str,Enum @ core/protocols/observability_protocols.py
+SpanStatus::str,Enum @ current_work/DONE/Observability/observability_models.py
+SpanSummary::BaseModel @ api/routes/observability.py
+SpansListResponse::BaseModel @ api/routes/observability.py
 SpecConfidence::BaseModel @ ir_engine/meta_ir.py
 SpecConfidenceLevel::str,Enum @ ir_engine/meta_ir.py
 SpecValidationError::Exception @ ci/validate_spec_v25.py
@@ -857,33 +973,34 @@ SpecValidationError::Exception @ codegen/code-gen-files/validate_spec_v25.py
 StandardsSpec::BaseModel @ ir_engine/meta_ir.py
 StartupPhase::str,Enum @ ir_engine/meta_ir.py
 StateMachineConfig::FlexibleModel @ core/kernels/schemas.py
+StateManager::Protocol @ core/protocols/agent_protocols.py
 StateVersion::BaseModel @ clients/world_model_client.py
 StateVersionResponse::BaseModel @ api/world_model_api.py
 StepStatus::str,Enum @ orchestration/plan_executor.py
-StrategyCandidate::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
+StrategyCandidate::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
 StrategyCandidate::BaseModel @ memory/strategymemory.py
-StrategyFeedback::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
+StrategyFeedback::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
 StrategyFeedback::BaseModel @ memory/strategymemory.py
-StrategyFeedbackMetadata::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
-StrategyFeedbackPayload::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
-StrategyMemoryService::IStrategyMemoryService @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
+StrategyFeedbackMetadata::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
+StrategyFeedbackPayload::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
+StrategyMemoryService::IStrategyMemoryService @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
 StrategyMemoryService::IStrategyMemoryService @ memory/strategymemory.py
-StrategyRequestMetadata::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
-StrategyRequestPayload::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
-StrategyResponseMetadata::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
-StrategyResponsePayload::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
-StrategyRetrievalRequest::BaseModel @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
+StrategyRequestMetadata::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
+StrategyRequestPayload::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
+StrategyResponseMetadata::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
+StrategyResponsePayload::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
+StrategyRetrievalRequest::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
 StrategyRetrievalRequest::BaseModel @ memory/strategymemory.py
-StrategySelector::AgentQ @ igor/01-07-2026/TODO/Memory - Strategic Memory/Harvested Files/agent_q_strategy_selector.py
-StructuredLogger::Logger @ core/symbolic_computation/logger.py
-StructuredLogger::Logger @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_logger.py
+StrategySelector::AgentQ @ igor/DONE!/Memory - Strategic Memory/Harvested Files/agent_q_strategy_selector.py
+StructuredLogger::Logger @ _archived/symbolic_computation/logger.py
+StructuredLogger::Logger @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_logger.py
 StructuredLogger::Logger @ services/symbolic_computation/logger.py
 StructuredReasoningBlock::BaseModel @ core/schemas/packet_envelope.py
-StructuredReasoningBlock::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
-StructuredReasoningBlock::BaseModel @ igor/audit-memory/memory_substrate_models.py
+StructuredReasoningBlock::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
+StructuredReasoningBlock::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 StructuredReasoningBlock::BaseModel @ memory/substrate_models.py
 StubDetector::NodeVisitor @ scripts/audit/tier1/audit_code_integrity.py
-StubEmbeddingProvider::EmbeddingProvider @ igor/audit-memory/memory_substrate_semantic.py
+StubEmbeddingProvider::EmbeddingProvider @ igor/DONE!/audit-memory/memory_substrate_semantic.py
 StubEmbeddingProvider::EmbeddingProvider @ memory/substrate_semantic.py
 StyleConfig::FlexibleModel @ core/kernels/schemas.py
 StyleNotFoundError::APGeneratorError @ agents/codegenagent/ap_generator.py
@@ -891,29 +1008,32 @@ SubgraphEntry::BaseModel @ memory/warming_models.py
 SubstrateConnectionError::SubstrateException @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubstrateException::Exception @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubstrateExporter::AsyncSpanExporter @ core/observability/exporters.py
-SubstrateExporter::AsyncSpanExporter @ current_work/Observability/observability_exporters.py
-SubstrateGraphState::TypedDict @ igor/audit-memory/memory_substrate_graph.py
+SubstrateExporter::AsyncSpanExporter @ current_work/DONE/Observability/observability_exporters.py
+SubstrateGraphState::TypedDict @ igor/DONE!/audit-memory/memory_substrate_graph.py
 SubstrateGraphState::TypedDict @ memory/substrate_dag.py
 SubstrateProtocol::Protocol @ core/governance/engine.py
 SubstrateRetriever::BaseRetriever @ core/retrievers/substrate_retriever.py
 SubstrateService::Protocol @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubstrateServiceProtocol::Protocol @ core/agents/executor.py
-SubstrateServiceProtocol::Protocol @ current_work/GMP Stage 2 - Tools & Memory/executor.py
-SubstrateState::BaseModel @ igor/audit-memory/memory_substrate_models.py
+SubstrateServiceProtocol::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
+SubstrateState::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 SubstrateState::BaseModel @ memory/substrate_models.py
 SubstrateTimeoutError::SubstrateException @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubstrateValidationError::SubstrateException @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubsystemConfig::BaseModel @ orchestrators/pattern/interface.py
+SubsystemEntry::BaseModel @ orchestrators/pattern/master_orchestrator.py
 SubsystemMetadata::BaseModel @ orchestrators/pattern/interface.py
 SummaryTier::str,Enum @ memory/hierarchical_summarizer.py
 Superprompt::BaseModel @ core/schemas/research_factory_models.py
 SwarmLoaderError::Exception @ orchestration/quantum_swarm_loader.py
-SymbolicComputationConfig::BaseSettings @ core/symbolic_computation/config.py
-SymbolicComputationConfig::BaseSettings @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_config.py
+SymbolicComputationConfig::BaseSettings @ _archived/symbolic_computation/config.py
+SymbolicComputationConfig::BaseSettings @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_config.py
 SymbolicComputationConfig::BaseSettings @ services/symbolic_computation/config.py
-SymbolicComputationError::Exception @ core/symbolic_computation/exceptions.py
-SymbolicComputationError::Exception @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
+SymbolicComputationError::Exception @ _archived/symbolic_computation/exceptions.py
+SymbolicComputationError::Exception @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
 SymbolicComputationError::Exception @ services/symbolic_computation/exceptions.py
+SynthesizeRequest::BaseModel @ api/routes/research_agent.py
+SynthesizeResponse::BaseModel @ api/routes/research_agent.py
 SystemBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 TCPHealthProbe::HealthProbe @ scripts/audit/tier1/audit_infrastructure_health.py
 TaskBatch::BaseModel @ core/schemas/tasks.py
@@ -921,11 +1041,11 @@ TaskComplexity::str,Enum @ orchestration/task_router.py
 TaskEnvelope::BaseModel @ core/schemas/tasks.py
 TaskExecutionStatus::str,Enum @ orchestrators/agent_execution/interface.py
 TaskGraph::BaseModel @ core/schemas/tasks.py
-TaskIntent::str,Enum @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+TaskIntent::str,Enum @ igor/DONE!/tokenizer/core/tokenizer/task.py
 TaskKind::str,Enum @ core/agents/schemas.py
 TaskKind::str,Enum @ core/schemas/tasks.py
-TaskModule::str,Enum @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
-TaskPriority::str,Enum @ igor/01-09-2025/tokenizer/core/tokenizer/task.py
+TaskModule::str,Enum @ igor/DONE!/tokenizer/core/tokenizer/task.py
+TaskPriority::str,Enum @ igor/DONE!/tokenizer/core/tokenizer/task.py
 TaskResult::BaseModel @ core/schemas/tasks.py
 TaskResultRequest::BaseModel @ api/webhook_mac_agent.py
 TaskRisk::str,Enum @ orchestration/task_router.py
@@ -936,66 +1056,64 @@ TelemetryConfig::BaseModel @ codegen/code-gen-files/schema_parser.py
 TelemetryEvent::BaseModel @ workers/anomaly_response_monitor.py
 TemplateInfo::BaseModel @ api/routes/factory.py
 TemplatesResponse::BaseModel @ api/routes/factory.py
-TemporalQueryRequest::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+TemporalQueryRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 TemporalQueryRequest::BaseModel @ mcp_memory/src/models.py
-TemporalQueryResponse::BaseModel @ igor/audit-memory/mcp_memory_src_models.py
+TemporalQueryResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 TemporalQueryResponse::BaseModel @ mcp_memory/src/models.py
-TestIntegration::TestCase @ current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
+TestIntegration::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestIntegration::TestCase @ world_model/_pack_staging/test_integration.py
 TestModel::BaseModel @ tests/memory/test_agent_persistence.py
-TestOrchestration::TestCase @ current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
+TestModel::Module @ current_work/Bayesian Upgrade/core/bayesian/uncertainty.py
+TestOrchestration::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestOrchestration::TestCase @ world_model/_pack_staging/test_integration.py
-TestQueries::TestCase @ current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
+TestQueries::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestQueries::TestCase @ world_model/_pack_staging/test_integration.py
 TestScope::BaseModel @ ir_engine/meta_ir.py
+TestService::ResilienceMixin @ tests/core/test_resilience_mixin.py
 TestState::TypedDict @ tests/memory/test_substrate_dag_native.py
-TestStateUpdates::TestCase @ current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
+TestStateUpdates::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestStateUpdates::TestCase @ world_model/_pack_staging/test_integration.py
-TestYAMLLoading::TestCase @ current_work/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
+TestYAMLLoading::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestYAMLLoading::TestCase @ world_model/_pack_staging/test_integration.py
 ThresholdsConfig::FlexibleModel @ core/kernels/schemas.py
 TokenOverusePattern::GapDetectionPattern @ core/agents/selfreflection.py
 TokenUsage::BaseModel @ core/schemas/packet_envelope.py
-TokenUsage::BaseModel @ igor/audit-memory/core_schemas_packet_envelope.py
+TokenUsage::BaseModel @ igor/DONE!/audit-memory/core_schemas_packet_envelope.py
 ToolBinding::BaseModel @ core/agents/schemas.py
 ToolCallRequest::BaseModel @ core/agents/schemas.py
 ToolCallResult::BaseModel @ core/agents/schemas.py
 ToolCallSpan::Span @ core/observability/models.py
-ToolCallSpan::Span @ current_work/Observability/observability_models.py
+ToolCallSpan::Span @ current_work/DONE/Observability/observability_models.py
 ToolCategory::str,Enum @ core/worldmodel/l9_schema.py
 ToolExecuteRequest::BaseModel @ api/tools/router.py
-ToolExecuteRequest::BaseModel @ igor/audit-tools/api_tools_router.py
+ToolExecuteRequest::BaseModel @ igor/DONE!/audit-tools/api_tools_router.py
 ToolExecuteResponse::BaseModel @ api/tools/router.py
-ToolExecuteResponse::BaseModel @ igor/audit-tools/api_tools_router.py
+ToolExecuteResponse::BaseModel @ igor/DONE!/audit-tools/api_tools_router.py
+ToolExecutor::Protocol @ core/protocols/agent_protocols.py
 ToolExecutor::Protocol @ core/tools/registry_adapter.py
-ToolExecutor::Protocol @ igor/audit-tools/core_tools_registry_adapter.py
+ToolExecutor::Protocol @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
 ToolInputSanitizationError::ValueError @ core/tools/sanitizer.py
-ToolMetadata::BaseModel @ core/tools/base_registry.py
-ToolMetadata::BaseModel @ current_work/GMP Stage 2 - Tools & Memory/tool_registry.py
-ToolMetadata::BaseModel @ igor/audit-tools/services_research_tools_tool_registry.py
+ToolMetadata::BaseModel @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
+ToolMetadata::BaseModel @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 ToolName::str,Enum @ core/schemas/capabilities.py
-ToolName::str,Enum @ current_work/GMP Stage 1 - Tools/capabilities.py
-ToolName::str,Enum @ igor/audit-tools/core_schemas_capabilities.py
+ToolName::str,Enum @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
+ToolName::str,Enum @ igor/DONE!/audit-tools/core_schemas_capabilities.py
 ToolRegistryProtocol::Protocol @ core/agents/executor.py
-ToolRegistryProtocol::Protocol @ current_work/GMP Stage 2 - Tools & Memory/executor.py
+ToolRegistryProtocol::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
 ToolRiskLevel::str,Enum @ core/worldmodel/l9_schema.py
-ToolSafetyLevel::str,Enum @ igor/audit-tools/orchestrators_action_tool_interface.py
+ToolSafetyLevel::str,Enum @ igor/DONE!/audit-tools/orchestrators_action_tool_interface.py
 ToolSafetyLevel::str,Enum @ orchestrators/action_tool/interface.py
-ToolSchema::BaseModel @ core/tools/base_registry.py
-ToolSchema::BaseModel @ current_work/GMP Stage 2 - Tools & Memory/tool_registry.py
-ToolSchema::BaseModel @ igor/audit-tools/services_research_tools_tool_registry.py
-ToolType::str,Enum @ core/tools/base_registry.py
-ToolType::str,Enum @ current_work/GMP Stage 2 - Tools & Memory/tool_registry.py
-ToolType::str,Enum @ igor/audit-tools/services_research_tools_tool_registry.py
+ToolSchema::BaseModel @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
+ToolSchema::BaseModel @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
+ToolType::str,Enum @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
+ToolType::str,Enum @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 TraceContext::BaseModel @ core/observability/models.py
-TraceContext::BaseModel @ current_work/Observability/observability_models.py
+TraceContext::BaseModel @ current_work/DONE/Observability/observability_models.py
+TraceContext::Protocol @ core/protocols/observability_protocols.py
 TracesConfig::BaseModel @ ir_engine/meta_ir.py
 TransparencyLevel::Enum @ runtime/response_tagger.py
-TwilioAdapterContext::BaseModel @ api/adapters/twilio_adapter/schemas.py
 TwilioAdapterContext::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/schemas.py
-TwilioAdapterRequest::BaseModel @ api/adapters/twilio_adapter/schemas.py
 TwilioAdapterRequest::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/schemas.py
-TwilioAdapterResponse::BaseModel @ api/adapters/twilio_adapter/schemas.py
 TwilioAdapterResponse::BaseModel @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/schemas.py
 UpcasterNotFoundError::Exception @ core/schemas/schema_registry.py
 UpdateRecord::BaseModel @ api/world_model_api.py
@@ -1013,40 +1131,51 @@ ValidateResponse::BaseModel @ api/routes/factory.py
 ValidationError::BaseModel @ ir_engine/ir_schema.py
 ValidationError::Exception @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/apply_policy_rules.py
 ValidationError::FlexibleModel @ core/kernels/schemas.py
-ValidationError::SymbolicComputationError @ core/symbolic_computation/exceptions.py
-ValidationError::SymbolicComputationError @ current_work/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
+ValidationError::RegistryError @ core/auto_registry.py
+ValidationError::RegistryError @ current_work/DONE/AUTOWIRING/auto_registry.py
+ValidationError::SymbolicComputationError @ _archived/symbolic_computation/exceptions.py
+ValidationError::SymbolicComputationError @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
 ValidationError::SymbolicComputationError @ services/symbolic_computation/exceptions.py
 ValidationLevel::str,Enum @ agents/codegenagent/pipeline_validator.py
 ValidationResult::BaseModel @ services/symbolic_computation/core/models.py
 ValidationStatus::str,Enum @ core/schemas/research_factory_models.py
+VectorStore::Protocol @ core/protocols/memory_protocols.py
 Violation::NamedTuple @ ci/check_no_deprecated_services.py
 Violation::NamedTuple @ ci/check_schema_deprecation.py
+ViolationCountsResponse::BaseModel @ api/routes/workers.py
 ViolationMatch::BaseModel @ workers/violation_patterns.py
 ViolationPatternsRequest::BaseModel @ workers/violation_patterns.py
 ViolationPatternsResponse::BaseModel @ workers/violation_patterns.py
 ViolationRecord::BaseModel @ workers/violation_tracker_service.py
+ViolationScanRequest::BaseModel @ api/routes/workers.py
+ViolationScanResponse::BaseModel @ api/routes/workers.py
+ViolationSeverity::Enum @ current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
+ViolationSeverity::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py
 ViolationSeverity::str,Enum @ workers/violation_patterns.py
 ViolationTrackerServiceRequest::BaseModel @ workers/violation_tracker_service.py
 ViolationTrackerServiceResponse::BaseModel @ workers/violation_tracker_service.py
+WarmRequest::BaseModel @ api/memory/router.py
+WarmResponse::BaseModel @ api/memory/router.py
 WiringSpec::BaseModel @ codegen/code-gen-files/glue_resolver.py
+WorkersHealthResponse::BaseModel @ api/routes/workers.py
 WorkflowStatus::str,Enum @ orchestration/cell_orchestrator.py
 WorldModelGraphState::TypedDict @ world_model/nodes/service_nodes.py
 WorldModelIntegrationBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 WorldModelKernelData::FlexibleModel @ core/kernels/schemas.py
-WorldModelLoader::IWorldModelLoader @ current_work/WORLD_MODEL STUB IMPLEMENTATION/loader.py
+WorldModelLoader::IWorldModelLoader @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/loader.py
 WorldModelLoader::IWorldModelLoader @ world_model/_pack_staging/loader.py
 WorldModelNodeState::TypedDict @ world_model/nodes/update_world_model_node.py
 WorldModelOperation::str,Enum @ orchestrators/world_model/interface.py
 WorldModelOrchestrator::IWorldModelOrchestrator @ orchestrators/world_model/orchestrator.py
 WorldModelQueryInput::BaseModel @ core/schemas/l_tools.py
-WorldModelQueryInput::BaseModel @ igor/audit-tools/core_schemas_l_tools.py
-WorldModelRegistry::IWorldModelRegistry @ current_work/WORLD_MODEL STUB IMPLEMENTATION/registry.py
+WorldModelQueryInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
+WorldModelRegistry::IWorldModelRegistry @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/registry.py
 WorldModelRegistry::IWorldModelRegistry @ world_model/_pack_staging/registry.py
 WorldModelRequest::BaseModel @ orchestrators/world_model/interface.py
 WorldModelResponse::BaseModel @ orchestrators/world_model/interface.py
-WorldModelState::IWorldModelState @ current_work/WORLD_MODEL STUB IMPLEMENTATION/state.py
+WorldModelState::IWorldModelState @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/state.py
 WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
-WorldModelUpdater::IWorldModelUpdater @ current_work/WORLD_MODEL STUB IMPLEMENTATION/updater.py
+WorldModelUpdater::IWorldModelUpdater @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1045 classes with inheritance
+# Total: 1174 classes with inheritance

@@ -27,6 +27,38 @@ Changelog v1.1.0:
 - Updated PacketStoreRow with new DB columns
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Database DTOs and Memory-Specific Models",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "substrate_models",
+    "type": "enum",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+        "imported_by": [
+            "ci.check_schema_deprecation",
+            "memory.__init__",
+            "memory.identity_tier",
+            "memory.insight_extraction",
+            "memory.retrieval",
+            "memory.substrate_dag",
+            "memory.substrate_repository",
+            "memory.timeline_service",
+            "memory.tool_audit",
+            "scripts.migrate_substrate_models",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
@@ -242,15 +274,44 @@ class KnowledgeFact(BaseModel):
 
 
 class KnowledgeFactRow(BaseModel):
-    """DTO for knowledge_facts table."""
+    """DTO for knowledge_facts table (v2.0 - all columns from migrations 0005, 0008, 0010)."""
 
+    # Core fields (migration 0005)
     fact_id: UUID
     subject: str
     predicate: str
     object: Any
-    confidence: Optional[float]
-    source_packet: Optional[UUID]
+    confidence: Optional[float] = 0.8
+    source_packet: Optional[UUID] = None
     created_at: datetime
+
+    # Entity normalization (migration 0008)
+    subject_normalized: Optional[str] = None
+    object_normalized: Optional[str] = None
+    object_type: Optional[str] = "value"
+
+    # Confidence decay tracking (migration 0008)
+    confidence_updated_at: Optional[datetime] = None
+    contradiction_count: Optional[int] = 0
+    supporting_packet_count: Optional[int] = 1
+
+    # Access tracking (migration 0008)
+    access_count: Optional[int] = 0
+    last_accessed: Optional[datetime] = None
+
+    # Scope (migration 0008)
+    scope: Optional[str] = "shared"
+
+    # Multi-tenant identity (migration 0008)
+    tenant_id: Optional[UUID] = None
+    org_id: Optional[UUID] = None
+    user_id: Optional[UUID] = None
+    correlation_id: Optional[UUID] = None
+
+    # Deprecation (migration 0010)
+    deprecated: Optional[bool] = False
+    deprecated_at: Optional[datetime] = None
+    deprecated_reason: Optional[str] = None
 
 
 class ExtractedInsight(BaseModel):
@@ -347,7 +408,9 @@ class SemanticFactRow(BaseModel):
     )  # {subject, predicate, object}
 
     # Embedding (optional - not always loaded)
-    embedding: Optional[list[float]] = None  # 3072 dimensions
+    embedding: Optional[list[float]] = (
+        None  # 1536 dimensions (truncated from text-embedding-3-large)
+    )
 
     # Importance and ranking
     importance: float = 0.5
@@ -453,3 +516,58 @@ class EpisodicSemanticLinkRow(BaseModel):
 
     # Timestamp
     created_at: datetime
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-003",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "auth",
+        "data-models",
+        "enum",
+        "event-driven",
+        "learning",
+        "metrics",
+        "migration",
+        "pydantic",
+        "security",
+        "testing",
+    ],
+    "keywords": [
+        "added",
+        "agent",
+        "block",
+        "changelog",
+        "checkpoint",
+        "core",
+        "database",
+        "dtos",
+    ],
+    "business_value": "Database row DTOs (PacketStoreRow, KnowledgeFactRow, etc.) Memory-specific models (StructuredReasoningBlock, SubstrateState) Knowledge extraction models (KnowledgeFact, ExtractedInsight) Enrichment pi",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

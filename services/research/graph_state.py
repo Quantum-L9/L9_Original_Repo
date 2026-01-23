@@ -6,6 +6,37 @@ Defines the TypedDict state structure for the research LangGraph DAG.
 This state is persisted to the Memory Substrate via PacketEnvelope.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Graph State Definition",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "operations",
+    "domain": "research_services",
+    "module_name": "graph_state",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "services.research.__init__",
+            "services.research.agents.critic_agent",
+            "services.research.agents.planner_agent",
+            "services.research.agents.researcher_agent",
+            "services.research.memory_adapter",
+            "services.research.research_graph",
+            "tests.integration.test_research_tool_integration",
+            "tests.test_memory_adapter",
+            "tests.test_research_graph",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from typing import Any, Optional, TypedDict
 
@@ -166,3 +197,47 @@ def create_initial_state(
         # Memory Substrate Integration
         stored_insights=[],
     )
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["messaging", "operations", "research-services", "utility"],
+    "keywords": [
+        "create",
+        "definition",
+        "evidence",
+        "graph",
+        "initial",
+        "memory",
+        "research",
+        "state",
+    ],
+    "business_value": "This state is persisted to the Memory Substrate via PacketEnvelope.",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

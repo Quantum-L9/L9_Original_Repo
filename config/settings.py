@@ -6,6 +6,38 @@ Centralized configuration for all external integrations.
 All integrations can be toggled on/off via environment variables.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Settings",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "configuration",
+    "module_name": "settings",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "Slack API"],
+        "memory_layers": [],
+        "imported_by": [
+            "_archived.legacy_slack.webhook_slack",
+            "api.e2e_slack_audit",
+            "api.server",
+            "api.server_memory",
+            "config.__init__",
+            "mac_agent.runner",
+            "memory.slack_ingest",
+            "orchestrators.agent_execution.orchestrator",
+            "services.slack_files",
+            "tests.api.test_e2e_slack_audit",
+        ],
+    },
+}
+# ============================================================================
+
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -71,17 +103,9 @@ class IntegrationSettings(BaseSettings):
     )
 
     # Feature flags for legacy route migration
-    l9_enable_legacy_chat: bool = Field(
-        default=False,
-        alias="L9_ENABLE_LEGACY_CHAT",
-        description="Enable legacy /chat route (direct OpenAI). Set False to disable.",
-    )
-
-    l9_enable_legacy_slack_router: bool = Field(
-        default=False,
-        alias="L9_ENABLE_LEGACY_SLACK_ROUTER",
-        description="Enable legacy Slack routing. Set False to use AgentTask routing.",
-    )
+    # REMOVED: l9_enable_legacy_chat - legacy /chat endpoint deleted
+    # REMOVED: l9_enable_legacy_slack_router - legacy Slack router deleted
+    # All routing now uses AgentExecutorService via unified orchestrator
 
     # Feature flags for L9 runtime modules
     l9_new_agent_init: bool = Field(
@@ -142,6 +166,12 @@ class IntegrationSettings(BaseSettings):
         default=False,
         alias="L9_GMP_LEARNING_ENABLED",
         description="Enable GMP v2.0 Meta-Learning Engine (requires migration 0021).",
+    )
+
+    l9_memory_warming_enabled: bool = Field(
+        default=True,
+        alias="L9_MEMORY_WARMING_ENABLED",
+        description="Enable Stage 5: Predictive Memory Warming (gap detection + cache warming).",
     )
 
     # Development mode
@@ -249,3 +279,49 @@ def get_slack_files_dir() -> str:
     Path(slack_files_dir).mkdir(parents=True, exist_ok=True)
 
     return slack_files_dir
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CON-FOUN-005",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "caching",
+        "configuration",
+        "event-driven",
+        "filesystem",
+        "foundation",
+        "migration",
+        "queue",
+        "schema",
+    ],
+    "keywords": ["dir", "files", "integration", "integrations", "reset", "slack"],
+    "business_value": "Provides settings components including IntegrationSettings, Config",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

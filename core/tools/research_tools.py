@@ -16,9 +16,31 @@ GMP: wire_research_lcto_integration
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Research Tools",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T12:13:08Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "research_tools",
+    "type": "engine",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["runtime.l_tools"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Optional
 
 import structlog
+from runtime.tool_registry import register_tool
 
 logger = structlog.get_logger(__name__)
 
@@ -31,7 +53,7 @@ def _get_research_agent():
     global _research_agent
     if _research_agent is None:
         try:
-            from agents.research_agent import create_research_agent
+            from agents.research_agent_impl import create_research_agent
 
             _research_agent = create_research_agent()
             logger.info(
@@ -51,9 +73,91 @@ def _get_research_agent():
 
 # ============================================================================
 # Tool Executors
-# ============================================================================
 
 
+@register_tool(category="research", priority=10, description="run_research_query tool")
+@register_tool(category="research", priority=10, description="run_research_query tool")
+async def run_research_query(
+    query: str,
+    user_id: str = "l_agent",
+    thread_id: Optional[str] = None,
+    **kwargs,
+) -> dict[str, Any]:
+    """
+    Execute a research query through the full LangGraph pipeline.
+
+    This is the PRIMARY research tool that triggers:
+    1. PlannerAgent → Decompose query into research steps
+    2. ResearcherAgent → Gather evidence (Perplexity web search)
+    3. MergerAgent → Synthesize findings
+    4. CriticAgent → Evaluate quality (may trigger retry)
+    5. FinalizerAgent → Package output
+    6. GraphPersistence → Store findings as Neo4j nodes
+
+    Use this tool when you need to:
+    - Research external topics (web search)
+    - Gather evidence for decisions
+    - Answer questions requiring current information
+    - Build knowledge for architecture decisions
+
+    Args:
+        query: Research question (1-5000 chars)
+        user_id: User identifier for tracking (default: l_agent)
+        thread_id: Optional thread ID for correlation
+
+    Returns:
+        Dict with research results:
+        - success: bool
+        - thread_id: str (for follow-up)
+        - summary: str (synthesized findings)
+        - sources: list[str] (URLs cited)
+        - evidence_count: int
+        - quality_score: float (0-1)
+        - feedback: str (critic feedback)
+        - error: str (if failed)
+
+    Example:
+        result = await run_research_query(
+            query="What are the latest advances in LLM memory architectures?"
+        )
+        # result["summary"] contains the synthesized findings
+    """
+    try:
+        from services.research import run_research
+
+        logger.info("run_research_query", query=query[:50], user_id=user_id)
+
+        result = await run_research(
+            query=query,
+            user_id=user_id,
+            thread_id=thread_id,
+        )
+
+        return {
+            "success": True,
+            "thread_id": result.get("thread_id", ""),
+            "summary": result.get("summary", ""),
+            "sources": result.get("sources", []),
+            "evidence_count": result.get("evidence_count", 0),
+            "quality_score": result.get("quality_score", 0.0),
+            "feedback": result.get("feedback", ""),
+        }
+    except ImportError as e:
+        logger.error("run_research_query: services.research not available", error=str(e))
+        return {
+            "success": False,
+            "error": f"Research service not available: {e}",
+        }
+    except Exception as e:
+        logger.error("run_research_query failed", error=str(e), exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+        }
+
+
+@register_tool(category="research", priority=10, description="research_agent_synthesize tool")
+@register_tool(category="research", priority=10, description="research_agent_synthesize tool")
 async def research_agent_synthesize(
     topic: str,
     context: Optional[dict[str, Any]] = None,
@@ -114,6 +218,8 @@ async def research_agent_synthesize(
         }
 
 
+@register_tool(category="research", priority=10, description="research_agent_discover tool")
+@register_tool(category="research", priority=10, description="research_agent_discover tool")
 async def research_agent_discover(
     topic: str,
     domain: str = "general",
@@ -184,6 +290,8 @@ async def research_agent_discover(
         }
 
 
+@register_tool(category="research", priority=10, description="research_agent_generate_spec tool")
+@register_tool(category="research", priority=10, description="research_agent_generate_spec tool")
 async def research_agent_generate_spec(
     topic: str,
     description: Optional[str] = None,
@@ -251,22 +359,72 @@ async def research_agent_generate_spec(
 
 # ============================================================================
 # Tool Executor Registry (for runtime.l_tools integration)
-# ============================================================================
 
 RESEARCH_TOOL_EXECUTORS = {
+    "run_research_query": run_research_query,  # PRIMARY: Full LangGraph pipeline
     "research_agent_synthesize": research_agent_synthesize,
     "research_agent_discover": research_agent_discover,
     "research_agent_generate_spec": research_agent_generate_spec,
 }
 
-
 # ============================================================================
 # Public API
-# ============================================================================
 
 __all__ = [
+    "run_research_query",
     "research_agent_synthesize",
     "research_agent_discover",
     "research_agent_generate_spec",
     "RESEARCH_TOOL_EXECUTORS",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.research_agent"],
+    "tags": [
+        "api",
+        "async",
+        "engine",
+        "foundation",
+        "logging",
+        "testing",
+        "tool-registry",
+    ],
+    "keywords": [
+        "agent",
+        "discover",
+        "generate",
+        "module",
+        "research",
+        "researchagent",
+        "spec",
+        "synthesize",
+    ],
+    "business_value": "Utility module for research tools",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -20,7 +20,7 @@ from services.symbolic_computation.core.code_generator import CodeGenerator
 
 class TestCodeGenerator:
     """Test suite for CodeGenerator."""
-    
+
     @pytest.fixture
     def generator(self):
         """Create generator instance."""
@@ -29,11 +29,11 @@ class TestCodeGenerator:
 
 class TestPythonCodeGeneration:
     """Tests for Python code generation."""
-    
+
     @pytest.fixture
     def generator(self):
         return CodeGenerator()
-    
+
     @pytest.mark.asyncio
     async def test_generate_python_simple(self, generator):
         """Test generating Python code for simple expression."""
@@ -43,12 +43,12 @@ class TestPythonCodeGeneration:
             language="Python",
             function_name="square",
         )
-        
+
         assert result.success is True
         assert "def square" in result.source_code
         assert result.language == "Python"
         assert result.function_name == "square"
-    
+
     @pytest.mark.asyncio
     async def test_generate_python_multi_var(self, generator):
         """Test generating Python code with multiple variables."""
@@ -58,18 +58,18 @@ class TestPythonCodeGeneration:
             language="Python",
             function_name="sum_xyz",
         )
-        
+
         assert result.success is True
         assert "def sum_xyz" in result.source_code
 
 
 class TestCCodeGeneration:
     """Tests for C code generation."""
-    
+
     @pytest.fixture
     def generator(self):
         return CodeGenerator()
-    
+
     @pytest.mark.asyncio
     async def test_generate_c_simple(self, generator):
         """Test generating C code for simple expression."""
@@ -79,7 +79,7 @@ class TestCCodeGeneration:
             language="C",
             function_name="quadratic",
         )
-        
+
         assert result.success is True
         assert result.language == "C"
         # Should have C-style function definition
@@ -88,11 +88,11 @@ class TestCCodeGeneration:
 
 class TestFortranCodeGeneration:
     """Tests for Fortran code generation."""
-    
+
     @pytest.fixture
     def generator(self):
         return CodeGenerator()
-    
+
     @pytest.mark.asyncio
     async def test_generate_fortran_simple(self, generator):
         """Test generating Fortran code for simple expression."""
@@ -102,18 +102,18 @@ class TestFortranCodeGeneration:
             language="Fortran",
             function_name="square",
         )
-        
+
         assert result.success is True
         assert result.language == "Fortran"
 
 
 class TestErrorHandling:
     """Tests for error handling."""
-    
+
     @pytest.fixture
     def generator(self):
         return CodeGenerator()
-    
+
     @pytest.mark.asyncio
     async def test_invalid_expression(self, generator):
         """Test handling of invalid expression."""
@@ -123,27 +123,26 @@ class TestErrorHandling:
             language="C",
             function_name="test",
         )
-        
+
         assert result.success is False
         assert result.error_message is not None
 
 
 class TestCodeCompilation:
     """Tests for code compilation."""
-    
+
     @pytest.fixture
     def generator(self):
         return CodeGenerator()
-    
+
     def test_compile_python_code(self, generator):
         """Test compiling generated Python code."""
-        python_code = '''
+        python_code = """
 def square(x):
     return x**2
-'''
+"""
         fn = generator.compile_generated(python_code, "Python", "square")
-        
+
         if fn is not None:
             assert callable(fn)
             assert fn(3) == 9
-

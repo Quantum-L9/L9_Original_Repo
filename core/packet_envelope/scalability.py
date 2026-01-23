@@ -17,12 +17,37 @@ TECHNICAL SPECS:
   • Event store with snapshots
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Scalability",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "scalability",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "core.packet_envelope.integration",
+            "tests.upgrades.test_packet_envelope_phases",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, List, Optional
+from core.decorators import must_stay_async
 
 logger = logging.getLogger(__name__)
 
@@ -197,11 +222,13 @@ class BatchIngestionEngine:
                 raise ValueError(f"Missing required field: {field_name}")
         return packet
 
+    @must_stay_async("callers use await")
     async def _check_idempotency(self, key: str) -> Optional[BatchIngestResult]:
         """Check if batch already processed"""
         # TODO: Check cache
         return None
 
+    @must_stay_async("callers use await")
     async def _cache_result(self, key: str, result: BatchIngestResult):
         """Cache result for idempotency"""
         # TODO: Store in cache (Redis/Memcached)
@@ -264,6 +291,7 @@ class CommandHandler:
         else:
             raise ValueError(f"Unknown command type: {command.command_type}")
 
+    @must_stay_async("callers use await")
     async def _handle_ingest_packet(self, command: Command) -> List[Event]:
         """Handle packet ingestion command"""
         events = []
@@ -285,6 +313,7 @@ class CommandHandler:
 
         return events
 
+    @must_stay_async("callers use await")
     async def _handle_update_lineage(self, command: Command) -> List[Event]:
         """Handle lineage update command"""
         events = []
@@ -313,6 +342,7 @@ class ReadModel:
         self.lineage_graph: Dict[str, List[str]] = {}
         self.logger = logger
 
+    @must_stay_async("callers use await")
     async def handle_event(self, event: Event):
         """
         Update read model based on event
@@ -333,10 +363,12 @@ class ReadModel:
                     self.lineage_graph[parent_id] = []
                 self.lineage_graph[parent_id].append(event.aggregate_id)
 
+    @must_stay_async("callers use await")
     async def query_packet(self, packet_id: str) -> Optional[Dict]:
         """Query packet from read model"""
         return self.packets.get(packet_id)
 
+    @must_stay_async("callers use await")
     async def query_lineage(self, packet_id: str) -> List[str]:
         """Query lineage from read model"""
         return self.lineage_graph.get(packet_id, [])
@@ -395,16 +427,19 @@ class StreamConsumer:
                     # Dead-letter queue
                     await self._send_to_dlq(event)
 
+    @must_stay_async("callers use await")
     async def stop(self):
         """Stop consuming"""
         self.is_running = False
         self.logger.info(f"Consumer {self.consumer_group} stopped")
 
+    @must_stay_async("future await planned")
     async def _fetch_events(self, from_offset: int, batch_size: int) -> List[Event]:
         """Fetch events from event store"""
         # TODO: Implement event store query
         return []
 
+    @must_stay_async("callers use await")
     async def _send_to_dlq(self, event: Event):
         """Send failed event to dead-letter queue"""
         self.logger.error(f"DLQ: {event.event_id}")
@@ -447,9 +482,8 @@ class EventStore:
 
         return len(self.events) - 1
 
-    async def get_events(
-        self, aggregate_id: str, from_version: int = 0
-    ) -> List[Event]:
+    @must_stay_async("callers use await")
+    async def get_events(self, aggregate_id: str, from_version: int = 0) -> List[Event]:
         """Get events for aggregate"""
         return [
             e
@@ -457,10 +491,12 @@ class EventStore:
             if e.aggregate_id == aggregate_id and len(self.events) >= from_version
         ]
 
+    @must_stay_async("callers use await")
     async def get_snapshot(self, aggregate_id: str) -> Optional[Snapshot]:
         """Get latest snapshot"""
         return self.snapshots.get(aggregate_id)
 
+    @must_stay_async("callers use await")
     async def _create_snapshot(self):
         """Create snapshot from events"""
         # Group events by aggregate
@@ -479,3 +515,57 @@ class EventStore:
             )
             self.snapshots[agg_id] = snapshot
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-010",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "caching",
+        "data-models",
+        "dataclass",
+        "engine",
+        "event-driven",
+        "foundation",
+        "handler",
+        "metrics",
+    ],
+    "keywords": [
+        "append",
+        "batch",
+        "command",
+        "consumer",
+        "cqrs",
+        "engine",
+        "event",
+        "events",
+    ],
+    "business_value": "Provides scalability components including BatchIngestRequest, BatchIngestResult, BatchIngestionEngine",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

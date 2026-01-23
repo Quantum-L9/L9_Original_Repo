@@ -17,6 +17,27 @@ Auto-generated scaffold by L9 CodeGenAgent, implementation by governance design.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Anomaly Response Monitor",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T00:41:22Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "anomaly_response_monitor",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["workers.__init__"],
+    },
+}
+# ============================================================================
+
 import asyncio
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -24,6 +45,7 @@ from uuid import uuid4, uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 from workers.anomaly_classifier import (
     AnomalyClassifier,
@@ -139,6 +161,7 @@ class AnomalyResponseMonitor:
         self._remediation_engine = remediation_engine or RemediationEngine()
         self._poll_interval = poll_interval_seconds
         self._running = False
+        self._telemetry_providers: Dict[str, callable] = {}
         self._stats = {
             "total_processed": 0,
             "anomalies_detected": 0,
@@ -227,21 +250,68 @@ class AnomalyResponseMonitor:
 
         logger.info("continuous_monitoring_stopped")
 
+    @must_stay_async("callers use await")
     async def stop_continuous_monitoring(self) -> None:
         """Stop the continuous monitoring loop."""
         self._running = False
 
+    @must_stay_async("callers use await")
     async def _collect_telemetry(self) -> List[TelemetryEvent]:
         """
         Collect telemetry from configured sources.
 
-        Override this method to integrate with actual telemetry sources.
+        Integrates with:
+        - Memory substrate (recent error packets)
+        - Custom telemetry providers (registered via add_telemetry_provider)
         """
-        # In production, this would:
-        # 1. Query memory substrate for recent packets
-        # 2. Check monitoring endpoints
-        # 3. Read from telemetry logs
-        return []
+        events: List[TelemetryEvent] = []
+
+        # Collect from registered providers
+        for provider_name, provider_fn in self._telemetry_providers.items():
+            try:
+                provider_events = await provider_fn()
+                events.extend(provider_events)
+                logger.debug(
+                    "telemetry_collected",
+                    provider=provider_name,
+                    event_count=len(provider_events),
+                )
+            except Exception as e:
+                logger.warning(
+                    "telemetry_provider_failed",
+                    provider=provider_name,
+                    error=str(e),
+                )
+
+        return events
+
+    def add_telemetry_provider(
+        self,
+        name: str,
+        provider_fn: callable,
+    ) -> None:
+        """
+        Register a telemetry provider function.
+
+        Args:
+            name: Unique provider name
+            provider_fn: Async function that returns List[TelemetryEvent]
+
+        Example:
+            async def prometheus_provider() -> List[TelemetryEvent]:
+                # Query Prometheus for high error rates
+                return [TelemetryEvent(...)]
+
+            monitor.add_telemetry_provider("prometheus", prometheus_provider)
+        """
+        self._telemetry_providers[name] = provider_fn
+        logger.info("telemetry_provider_registered", provider=name)
+
+    def remove_telemetry_provider(self, name: str) -> None:
+        """Remove a registered telemetry provider."""
+        if name in self._telemetry_providers:
+            del self._telemetry_providers[name]
+            logger.info("telemetry_provider_removed", provider=name)
 
     # =========================================================================
     # Main API
@@ -499,3 +569,57 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-005",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "data-models",
+        "event-driven",
+        "logging",
+        "messaging",
+        "monitoring",
+        "operations",
+        "pydantic",
+    ],
+    "keywords": [
+        "anomaly",
+        "check",
+        "continuous",
+        "create",
+        "design",
+        "detection",
+        "event",
+        "governance",
+    ],
+    "business_value": "Provides anomaly response monitor components including TelemetryEvent, AnomalyResponseMonitorRequest, ProcessedAnomaly",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

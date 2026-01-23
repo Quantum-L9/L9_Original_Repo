@@ -13,12 +13,39 @@ Based on frontier AI lab patterns for adaptive memory management.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Importance Manager",
+    "module_version": "3.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T15:23:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "importance_manager",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "memory.__init__",
+            "tests.memory.test_frontier_memory_pipeline",
+        ],
+    },
+}
+# ============================================================================
+
 import math
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -116,7 +143,7 @@ class ImportanceManager:
 
     def __init__(
         self,
-        repository=None,
+        repository: Optional["SubstrateRepository"] = None,
         config: Optional[ImportanceConfig] = None,
     ):
         """
@@ -130,7 +157,7 @@ class ImportanceManager:
         self._config = config or DEFAULT_CONFIG
         logger.info("ImportanceManager initialized", config=str(self._config))
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update repository reference."""
         self._repository = repository
 
@@ -546,3 +573,56 @@ def init_importance_manager(
     if config:
         manager._config = config
     return manager
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-047",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "batch-processing",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+    ],
+    "keywords": [
+        "access",
+        "based",
+        "decay",
+        "elevate",
+        "facts",
+        "importance",
+        "low",
+        "management",
+    ],
+    "business_value": "Access tracking (increment access_count, update last_accessed) Importance elevation (boost importance when facts are useful) Importance decay (reduce importance for unused facts) Importance-based prun",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

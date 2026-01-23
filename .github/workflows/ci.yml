@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Ci"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-06T19:43:29Z"
+# updated_at: "2026-01-18T03:24:23Z"
+# layer: "operations"
+# domain: ".github"
+# file_name: "ci"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =============================================================================
 # L9 AI OS — Complete CI Pipeline
 # =============================================================================
@@ -30,7 +45,7 @@ on:
     branches: [main]
 
 env:
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.12"
 
 jobs:
   # ===========================================================================
@@ -63,6 +78,149 @@ jobs:
           echo "🔍 Running L9 CI Gates..."
           chmod +x ci/run_ci_gates.sh
           ./ci/run_ci_gates.sh --all || true
+
+  # ===========================================================================
+  # JOB 1A: CRYPTO-GUARD — Ban Weak Cryptography (MD5, SHA1)
+  # ===========================================================================
+  crypto-guard:
+    name: Crypto Guard
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for banned MD5 usage
+        run: |
+          echo "🔐 Checking for banned MD5 usage..."
+          
+          # Find MD5 in Python files (excluding .venv and tests)
+          FOUND=$(grep -r "hashlib\.md5" --include="*.py" . \
+            | grep -v ".venv" \
+            | grep -v "__pycache__" \
+            | grep -v "# MD5 required by protocol" \
+            || true)
+          
+          if [ -n "$FOUND" ]; then
+            echo "❌ BANNED: MD5 usage detected!"
+            echo ""
+            echo "$FOUND"
+            echo ""
+            echo "Use hashlib.sha256() instead."
+            echo "If MD5 is required by external protocol, add comment: # MD5 required by protocol"
+            exit 1
+          fi
+          
+          echo "✅ No banned MD5 usage found"
+
+      - name: Check for weak SHA1 (non-HMAC)
+        run: |
+          echo "🔐 Checking for weak SHA1 usage..."
+          
+          # Find SHA1 usage (excluding HMAC and protocol requirements)
+          FOUND=$(grep -r "hashlib\.sha1" --include="*.py" . \
+            | grep -v ".venv" \
+            | grep -v "__pycache__" \
+            | grep -v "hmac" \
+            | grep -v "# SHA1 required by protocol" \
+            || true)
+          
+          if [ -n "$FOUND" ]; then
+            echo "⚠️ WARNING: SHA1 usage detected (review required)"
+            echo ""
+            echo "$FOUND"
+            echo ""
+            echo "Consider using SHA256 unless required by external protocol."
+          fi
+          
+          echo "✅ SHA1 check complete"
+
+      - name: Check for deprecated TaskKind usage
+        run: |
+          echo "🚫 Checking for deprecated TaskKind usage..."
+          
+          # Check 1: Import of TaskKind from core.agents.schemas (DEPRECATED)
+          # NOT core.schemas.tasks.TaskKind which is for internal routing
+          IMPORTS=$(grep -rE "from core\.agents\.schemas import.*TaskKind" --include="*.py" . \
+            | grep -v ".venv" \
+            | grep -v "__pycache__" \
+            | grep -v "current_work/" \
+            | grep -v "# TaskKind: backward compat" \
+            || true)
+          
+          # Check 2: Usage of deprecated TaskKind enum values
+          # CONVERSATION, QUERY, EXECUTION, RESEARCH are ONLY in core.agents.schemas (deprecated)
+          # RESULT, ERROR, COMMAND are in core.schemas.tasks (NOT deprecated)
+          USAGE=$(grep -rE "TaskKind\.(CONVERSATION|QUERY|EXECUTION|RESEARCH)" --include="*.py" . \
+            | grep -v ".venv" \
+            | grep -v "__pycache__" \
+            | grep -v "core/agents/schemas.py" \
+            | grep -v "current_work/" \
+            | grep -v "# TaskKind: backward compat" \
+            || true)
+          
+          FAILED=0
+          
+          if [ -n "$IMPORTS" ]; then
+            echo "❌ DEPRECATED: TaskKind import from core.agents.schemas!"
+            echo ""
+            echo "$IMPORTS"
+            FAILED=1
+          fi
+          
+          if [ -n "$USAGE" ]; then
+            echo "❌ DEPRECATED: TaskKind enum values (CONVERSATION/QUERY/EXECUTION/RESEARCH)!"
+            echo ""
+            echo "$USAGE"
+            FAILED=1
+          fi
+          
+          if [ $FAILED -eq 1 ]; then
+            echo ""
+            echo "========================================="
+            echo "core.agents.schemas.TaskKind is DEPRECATED."
+            echo "Use AgentType instead:"
+            echo "  from core.agents.schemas import AgentType"
+            echo ""
+            echo "Migration mapping:"
+            echo "  TaskKind.CONVERSATION → AgentType.ASSISTANT"
+            echo "  TaskKind.QUERY        → AgentType.ANALYST"
+            echo "  TaskKind.EXECUTION    → AgentType.EXECUTOR"
+            echo "  TaskKind.RESEARCH     → AgentType.RESEARCHER"
+            echo "  TaskKind.COMMAND      → AgentType.OPERATOR"
+            echo ""
+            echo "Parameter change:"
+            echo "  kind=TaskKind.X → agent_type=AgentType.Y"
+            echo ""
+            echo "Note: core.schemas.tasks.TaskKind is NOT deprecated (internal routing)"
+            echo "      TaskKind.RESULT, TaskKind.ERROR, TaskKind.COMMAND from tasks.py are OK"
+            echo "Escape hatch: Add comment '# TaskKind: backward compat'"
+            exit 1
+          fi
+          
+          echo "✅ No deprecated TaskKind usage found"
+
+  # ===========================================================================
+  # JOB 1B: DORA-CHECK — DORA Block Compliance
+  # ===========================================================================
+  dora-check:
+    name: DORA Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Check DORA compliance
+        run: |
+          echo "🔍 Checking DORA block compliance..."
+          python ci/dora_compliance_check.py --check --path .
+        continue-on-error: true  # Don't block CI yet - report only
 
   # ===========================================================================
   # JOB 2: DOCKER-CHECK — Validate Docker Files
@@ -270,6 +428,78 @@ jobs:
           docker compose down -v
 
   # ===========================================================================
+  # JOB 4B: MUTATION-TESTS — Mutation Testing (PRs only)
+  # ===========================================================================
+  mutation-tests:
+    name: Mutation Testing
+    runs-on: ubuntu-latest
+    needs: [test]  # Only run after tests pass
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install mutmut>=2.4.5 pytest pytest-asyncio
+
+      - name: Run mutation tests on critical paths
+        id: mutation
+        run: |
+          echo "🧬 Running mutation tests on critical paths..."
+          
+          # Run mutmut on critical paths only (full codebase would take hours)
+          mutmut run \
+            --paths-to-mutate core/agents/executor.py \
+            --tests-dir tests/ \
+            --timeout 30 \
+            --no-progress \
+            2>&1 || true
+            
+      - name: Check mutation score threshold
+        run: |
+          # Get results
+          RESULTS=$(mutmut results --json 2>/dev/null || echo '{"killed":0,"total":1}')
+          KILLED=$(echo "$RESULTS" | jq -r '.killed // 0')
+          TOTAL=$(echo "$RESULTS" | jq -r '.total // 1')
+          
+          # Calculate score
+          if [ "$TOTAL" -eq 0 ]; then
+            SCORE="100"
+          else
+            SCORE=$(echo "scale=2; $KILLED * 100 / $TOTAL" | bc)
+          fi
+          
+          echo "📊 Mutation Testing Results:"
+          echo "   Killed: $KILLED / $TOTAL"
+          echo "   Score:  $SCORE%"
+          
+          # Check threshold (85%)
+          PASSED=$(echo "$SCORE >= 85" | bc -l)
+          
+          if [ "$PASSED" -eq 0 ]; then
+            echo ""
+            echo "❌ FAILED: Mutation score $SCORE% is below 85% threshold"
+            echo ""
+            echo "Surviving mutants indicate weak tests. To fix:"
+            echo "  1. Run: mutmut results"
+            echo "  2. For each survivor: mutmut show <id>"
+            echo "  3. Add tests that catch the mutation"
+            exit 1
+          fi
+          
+          echo "✅ PASSED: Mutation score $SCORE% meets 85% threshold"
+
+  # ===========================================================================
   # JOB 5: SECURITY — Dependency Scan
   # ===========================================================================
   security:
@@ -300,7 +530,7 @@ jobs:
   ci-complete:
     name: CI Complete
     runs-on: ubuntu-latest
-    needs: [validate, docker-check, test, docker-smoke, security]
+    needs: [validate, crypto-guard, dora-check, docker-check, test, mutation-tests, docker-smoke, security]
     if: always()
     
     steps:
@@ -311,16 +541,24 @@ jobs:
           echo "╚══════════════════════════════════════════════════════════════╝"
           echo ""
           echo "Jobs:"
-          echo "  ├─ Validate:     ${{ needs.validate.result }}"
-          echo "  ├─ Docker Check: ${{ needs.docker-check.result }}"
-          echo "  ├─ Test:         ${{ needs.test.result }}"
-          echo "  ├─ Docker Smoke: ${{ needs.docker-smoke.result }}"
-          echo "  └─ Security:     ${{ needs.security.result }}"
+          echo "  ├─ Validate:       ${{ needs.validate.result }}"
+          echo "  ├─ Crypto Guard:   ${{ needs.crypto-guard.result }}"
+          echo "  ├─ DORA Check:     ${{ needs.dora-check.result }}"
+          echo "  ├─ Docker Check:   ${{ needs.docker-check.result }}"
+          echo "  ├─ Test:           ${{ needs.test.result }}"
+          echo "  ├─ Mutation Tests: ${{ needs.mutation-tests.result || 'skipped (push)' }}"
+          echo "  ├─ Docker Smoke:   ${{ needs.docker-smoke.result }}"
+          echo "  └─ Security:       ${{ needs.security.result }}"
           echo ""
           
           # Fail if critical jobs failed
           if [[ "${{ needs.validate.result }}" == "failure" ]]; then
             echo "❌ CI Gates failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.crypto-guard.result }}" == "failure" ]]; then
+            echo "❌ Crypto Guard failed (banned MD5 detected)"
             exit 1
           fi
           
@@ -330,3 +568,11 @@ jobs:
           fi
           
           echo "✅ All critical checks passed"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".github", "api-config", "configuration", "database-config", "operations", "pipeline", "redis-config", "utility"]
+# keywords: ["env", "jobs", "name"]
+# last_modified: "2026-01-18T03:24:23Z"
+# ============================================================================

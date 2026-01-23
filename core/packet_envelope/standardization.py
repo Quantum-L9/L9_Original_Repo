@@ -17,6 +17,30 @@ TECHNICAL SPECS:
   • Zero-copy marshaling
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Standardization",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "standardization",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.packet_envelope.integration",
+            "tests.upgrades.test_packet_envelope_phases",
+        ],
+    },
+}
+# ============================================================================
+
 import json
 import logging
 import uuid
@@ -247,7 +271,9 @@ class HTTPBinaryBinding(ProtocolBinding):
         # Parse time
         time_str = headers.get("ce-time")
         time_obj = (
-            datetime.fromisoformat(time_str.replace("Z", "+00:00")) if time_str else None
+            datetime.fromisoformat(time_str.replace("Z", "+00:00"))
+            if time_str
+            else None
         )
 
         event = CloudEvent(
@@ -447,3 +473,56 @@ class CloudEventBatch:
         events = [CloudEvent.from_dict(e) for e in data]
         return cls(events=events)
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-007",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "batch-processing",
+        "data-models",
+        "dataclass",
+        "event-driven",
+        "foundation",
+        "realtime",
+        "serialization",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "batch",
+        "binary",
+        "binding",
+        "bindings",
+        "cloud",
+        "cloudevents",
+        "cncf",
+        "compliance",
+    ],
+    "business_value": "Provides standardization components including ContentMode, EventType, CloudEvent",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,0 +1,220 @@
+# =============================================================================
+# L9 Kernel Discovery Configuration
+# =============================================================================
+# 
+# This file externalizes kernel loading configuration from runtime/kernel_loader.py
+# to enable environment-specific kernel management without code changes.
+#
+# Version: 1.0.0
+# Created: 2026-01-20
+# Author: L9 Kernel Team
+# Related PR: #23 (builds on PR #22 DI/DIP foundation)
+# Integration: Used by runtime/kernel_loader.py for kernel discovery
+#
+# CRITICAL RULES:
+# - NEVER modify kernel_order without @l-cto approval
+# - NEVER reduce minimum_kernel_count below 4
+# - ALWAYS test environment overrides before deployment
+# - Environment-specific configs MUST maintain required_kernels
+# =============================================================================
+
+# =============================================================================
+# Production Configuration (Default)
+# =============================================================================
+
+# Kernel loading order (explicit sequence, MUST be maintained)
+# This order is critical for proper kernel initialization
+kernel_order:
+  - private/kernels/00_system/01_master_kernel.yaml
+  - private/kernels/00_system/02_identity_kernel.yaml
+  - private/kernels/00_system/03_cognitive_kernel.yaml
+  - private/kernels/00_system/04_behavioral_kernel.yaml
+  - private/kernels/00_system/05_memory_kernel.yaml
+  - private/kernels/00_system/06_worldmodel_kernel.yaml
+  - private/kernels/00_system/07_execution_kernel.yaml
+  - private/kernels/00_system/08_safety_kernel.yaml
+  - private/kernels/00_system/09_developer_kernel.yaml
+  - private/kernels/00_system/10_packet_protocol_kernel.yaml
+
+# Required kernels for L-CTO to operate (GMP-60: Runtime hardening)
+# Missing any of these will cause kernel loading to fail loudly
+required_kernels:
+  master: "01_master_kernel"
+  identity: "02_identity_kernel"
+  safety: "08_safety_kernel"
+  execution: "07_execution_kernel"
+
+# Minimum kernel count for valid operation
+# MUST NOT be less than 4 (required_kernels count)
+minimum_kernel_count: 4
+
+# Kernel validation settings
+validation:
+  # Enable SHA256 integrity verification
+  enable_integrity_check: true
+  
+  # Fail loudly if required kernels are missing
+  strict_required_kernels: true
+  
+  # Fail if kernel count < minimum_kernel_count
+  enforce_minimum_count: true
+  
+  # Log kernel loading details
+  verbose_logging: true
+
+# Kernel discovery settings
+discovery:
+  # Base path for kernel files (relative to repo root)
+  base_path: "private/kernels"
+  
+  # Kernel file extensions to search for
+  extensions:
+    - ".yaml"
+    - ".yml"
+  
+  # Enable automatic kernel discovery (in addition to kernel_order)
+  auto_discovery: false
+  
+  # Layers to search for kernels (if auto_discovery enabled)
+  layers:
+    - "00_system"
+    - "01_domain"
+    - "02_agent"
+
+# =============================================================================
+# Environment-Specific Overrides
+# =============================================================================
+
+environments:
+  # Development environment (minimal kernel set for fast iteration)
+  dev:
+    kernel_order:
+      - private/kernels/00_system/01_master_kernel.yaml
+      - private/kernels/00_system/02_identity_kernel.yaml
+      - private/kernels/00_system/08_safety_kernel.yaml
+      - private/kernels/00_system/07_execution_kernel.yaml
+    
+    minimum_kernel_count: 4
+    
+    validation:
+      enable_integrity_check: false  # Faster loading in dev
+      strict_required_kernels: true
+      enforce_minimum_count: true
+      verbose_logging: true
+  
+  # Test environment (minimal kernel set for unit tests)
+  test:
+    kernel_order:
+      - private/kernels/00_system/01_master_kernel.yaml
+      - private/kernels/00_system/02_identity_kernel.yaml
+    
+    minimum_kernel_count: 2
+    
+    required_kernels:
+      master: "01_master_kernel"
+      identity: "02_identity_kernel"
+    
+    validation:
+      enable_integrity_check: false  # Faster test execution
+      strict_required_kernels: false  # Allow partial kernel loading
+      enforce_minimum_count: false
+      verbose_logging: false
+  
+  # Staging environment (full kernel set, relaxed validation)
+  staging:
+    # Inherits production kernel_order
+    
+    validation:
+      enable_integrity_check: true
+      strict_required_kernels: true
+      enforce_minimum_count: true
+      verbose_logging: true
+  
+  # Production environment (full kernel set, strict validation)
+  production:
+    # Inherits production kernel_order
+    
+    validation:
+      enable_integrity_check: true
+      strict_required_kernels: true
+      enforce_minimum_count: true
+      verbose_logging: false  # Reduce log noise in prod
+
+# =============================================================================
+# Feature Flags (for gradual rollout)
+# =============================================================================
+
+feature_flags:
+  # Enable externalized config loading (vs hard-coded)
+  # Set to false to rollback to hard-coded KERNEL_ORDER
+  enable_config_loading: true
+  
+  # Enable environment-specific overrides
+  enable_env_overrides: true
+  
+  # Enable kernel discovery (auto-find kernels in base_path)
+  enable_auto_discovery: false
+
+# =============================================================================
+# Monitoring & Observability
+# =============================================================================
+
+monitoring:
+  # Emit metrics for kernel loading
+  enable_metrics: true
+  
+  # Metric names
+  metrics:
+    kernel_load_duration: "l9.kernel.load_duration_seconds"
+    kernel_load_success: "l9.kernel.load_success_total"
+    kernel_load_failure: "l9.kernel.load_failure_total"
+    kernel_count: "l9.kernel.count"
+  
+  # Emit traces for kernel loading
+  enable_tracing: true
+  
+  # Trace span names
+  traces:
+    kernel_load: "kernel.load"
+    kernel_validate: "kernel.validate"
+    kernel_discover: "kernel.discover"
+
+# =============================================================================
+# Backward Compatibility
+# =============================================================================
+
+backward_compatibility:
+  # Support old hard-coded KERNEL_ORDER for 2 weeks
+  # After 2026-02-03, this will be removed
+  fallback_to_hardcoded: true
+  
+  # Deprecation warning
+  deprecation_warning: |
+    WARNING: Hard-coded KERNEL_ORDER is deprecated and will be removed on 2026-02-03.
+    Please migrate to config/kernel_discovery.yaml.
+    See docs/architecture/di-migration-guide.md for details.
+
+# =============================================================================
+# Notes
+# =============================================================================
+#
+# Usage:
+#   from runtime.kernel_loader import load_kernel_config
+#   config = load_kernel_config(env="production")
+#
+# Environment Selection:
+#   - Set L9_ENV environment variable (default: "production")
+#   - export L9_ENV=dev
+#   - export L9_ENV=test
+#   - export L9_ENV=staging
+#   - export L9_ENV=production
+#
+# Validation:
+#   - Run: pytest tests/unit/kernel/test_config_loading.py
+#   - Run: pytest tests/unit/kernel/test_env_overrides.py
+#
+# Rollback:
+#   - Set feature_flags.enable_config_loading: false
+#   - This will revert to hard-coded KERNEL_ORDER in kernel_loader.py
+#
+# =============================================================================

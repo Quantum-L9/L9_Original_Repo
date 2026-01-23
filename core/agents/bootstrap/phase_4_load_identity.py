@@ -7,6 +7,27 @@ Purpose: Parse identity.yaml, hydrate agent's self-awareness (designation, role,
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Phase 4 Load Identity",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "phase_4_load_identity",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["tests.core.bootstrap.test_bootstrap_phases"],
+    },
+}
+# ============================================================================
+
 from typing import TYPE_CHECKING, Optional
 from pathlib import Path
 from datetime import datetime
@@ -147,3 +168,49 @@ async def load_identity_persona(
         # Set minimal identity on failure
         instance.designation = instance.agent_id
         instance.role = "Agent"
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.graph_client", "memory.substrate_service"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "auth",
+        "config",
+        "debugging",
+        "filesystem",
+        "foundation",
+        "logging",
+        "service",
+    ],
+    "keywords": ["agent", "identity", "load", "persona", "phase"],
+    "business_value": "Utility module for phase 4 load identity",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

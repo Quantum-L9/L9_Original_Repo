@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Code Mutation"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-16T00:01:21Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "code_mutation"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 subsystem_config_v1:
   metadata:
     name: code_mutation
@@ -47,3 +62,11 @@ subsystem_config_v1:
     high_risk_triggers:
       - "Database schema change"
       - "Authentication/authorization boundary change"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "configuration", "database-config", "foundation", "model-config", "pipeline", "schema", "utility"]
+# keywords: ["code", "mutation", "subsystem_config_v1"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

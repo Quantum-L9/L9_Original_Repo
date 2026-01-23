@@ -18,7 +18,6 @@ Run: pytest tests/memory/test_mcp_bypass_compliance.py -v
 
 import pytest
 
-
 # =============================================================================
 # Test 1: MCP Architecture Compliance (No MCP Import Required)
 # =============================================================================
@@ -40,9 +39,9 @@ class TestMCPArchitectureCompliance:
             "routes",
             "memory_unified.py",
         )
-        assert os.path.exists(mcp_unified_path), (
-            "mcp_memory/src/routes/memory_unified.py should exist"
-        )
+        assert os.path.exists(
+            mcp_unified_path
+        ), "mcp_memory/src/routes/memory_unified.py should exist"
 
     def test_mcp_does_not_import_substrate_dag(self):
         """Verify MCP memory handler does NOT use SubstrateDAG."""
@@ -62,9 +61,9 @@ class TestMCPArchitectureCompliance:
             source = f.read()
 
         # MCP should NOT import or use SubstrateDAG
-        assert "from memory.substrate_dag import" not in source, (
-            "MCP should not import SubstrateDAG"
-        )
+        assert (
+            "from memory.substrate_dag import" not in source
+        ), "MCP should not import SubstrateDAG"
         assert "SubstrateDAG(" not in source, "MCP should not instantiate SubstrateDAG"
 
     def test_mcp_uses_direct_execute_calls(self):
@@ -85,9 +84,7 @@ class TestMCPArchitectureCompliance:
             source = f.read()
 
         # MCP should use direct execute() calls
-        assert "execute(" in source, (
-            "MCP should use direct execute() calls for DB operations"
-        )
+        assert "execute(" in source, "MCP should use direct execute() calls for DB operations"
 
         # MCP should insert into packet_store
         assert "packet_store" in source, "MCP should write to packet_store table"
@@ -120,9 +117,9 @@ class TestMCPSkipsReasoningTraces:
 
         # MCP should NOT insert into reasoning_traces
         # (This is by design - MCP bypasses the DAG which creates traces)
-        assert "INSERT INTO reasoning_traces" not in source, (
-            "MCP should NOT write to reasoning_traces (DAG bypass by design)"
-        )
+        assert (
+            "INSERT INTO reasoning_traces" not in source
+        ), "MCP should NOT write to reasoning_traces (DAG bypass by design)"
 
     def test_mcp_handler_does_not_call_reasoning_node(self):
         """MCP handler should NOT call reasoning_node from SubstrateDAG."""
@@ -142,9 +139,9 @@ class TestMCPSkipsReasoningTraces:
             source = f.read()
 
         # MCP should NOT call reasoning_node
-        assert "reasoning_node" not in source, (
-            "MCP should NOT call reasoning_node (DAG bypass by design)"
-        )
+        assert (
+            "reasoning_node" not in source
+        ), "MCP should NOT call reasoning_node (DAG bypass by design)"
 
 
 # =============================================================================
@@ -179,9 +176,9 @@ class TestMCPAuditLogging:
         assert "class AuditLogger" in source, "AuditLogger class should exist"
 
         # log method should exist
-        assert "async def log(" in source or "def log(" in source, (
-            "AuditLogger should have log method"
-        )
+        assert (
+            "async def log(" in source or "def log(" in source
+        ), "AuditLogger should have log method"
 
     def test_mcp_server_uses_audit_logging(self):
         """Verify MCP server imports and uses audit logging."""
@@ -264,9 +261,7 @@ class TestMCPPacketEnvelopeCompliance:
             source = f.read()
 
         # Should write to memory_embeddings
-        assert "memory_embeddings" in source, (
-            "MCP should write to memory_embeddings table"
-        )
+        assert "memory_embeddings" in source, "MCP should write to memory_embeddings table"
 
 
 # =============================================================================
@@ -289,9 +284,9 @@ class TestMCPL9PipelineSeparation:
             source = f.read()
 
         # L9 core should use SubstrateDAG
-        assert "SubstrateDAG" in source or "substrate_dag" in source.lower(), (
-            "L9 core ingestion should use SubstrateDAG"
-        )
+        assert (
+            "SubstrateDAG" in source or "substrate_dag" in source.lower()
+        ), "L9 core ingestion should use SubstrateDAG"
 
     def test_l9_core_creates_reasoning_traces(self):
         """L9 core should create reasoning traces via DAG."""
@@ -299,9 +294,7 @@ class TestMCPL9PipelineSeparation:
 
         # Check substrate_dag.py or substrate_graph.py
         for filename in ["substrate_dag.py", "substrate_graph.py"]:
-            dag_path = os.path.join(
-                os.path.dirname(__file__), "..", "..", "memory", filename
-            )
+            dag_path = os.path.join(os.path.dirname(__file__), "..", "..", "memory", filename)
             if os.path.exists(dag_path):
                 with open(dag_path, "r") as f:
                     source = f.read()

@@ -17,6 +17,38 @@ Production-ready features (v2.1.0):
 - Async execution with timeout handling
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Base Registry",
+    "module_version": "2.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "base_registry",
+    "type": "enum",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "Perplexity API", "PostgreSQL"],
+        "memory_layers": ["episodic_memory", "semantic_memory", "working_memory"],
+        "imported_by": [
+            "core.agents.bootstrap.phase_0_validate",
+            "core.singleton_registry",
+            "core.tools.registry_adapter",
+            "runtime.l_tools",
+            "services.research.tools.__init__",
+            "services.research.tools.tool_resolver",
+            "tests.integration.test_l_bootstrap",
+            "tests.integration.test_research_tool_integration",
+            "tests.test_tool_registry",
+            "tests.unit.test_registry_adapter_sanitization",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from collections import defaultdict
@@ -25,6 +57,8 @@ from enum import Enum
 from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from runtime.tool_registry import register_tool
 
 logger = structlog.get_logger(__name__)
 
@@ -383,6 +417,11 @@ class ToolRegistry:
 _registry: Optional[ToolRegistry] = None
 
 
+@register_singleton(
+    name="tool_registry",
+    lifecycle="startup",
+    description="In-memory registry of available tools with rate limiting",
+)
 def get_tool_registry() -> ToolRegistry:
     """Get or create tool registry singleton."""
     global _registry
@@ -736,6 +775,7 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
 # =============================================================================
 
 
+@register_tool(category="routing", priority=10, description="tool_router_find tool")
 async def tool_router_find(
     query: str,
     top_k: int = 5,
@@ -830,6 +870,7 @@ async def tool_router_find(
 # =============================================================================
 
 
+@register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
 async def saga_fetch_and_enrich(
     query: str,
     entity_types: Optional[List[str]] = None,
@@ -962,6 +1003,7 @@ async def saga_fetch_and_enrich(
         }
 
 
+@register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
 async def saga_enrich_entities(
     entity_ids: List[str],
     relationship_types: Optional[List[str]] = None,
@@ -1063,6 +1105,7 @@ async def saga_enrich_entities(
         }
 
 
+@register_tool(category="saga", priority=10, description="saga_timeline_correlation tool")
 async def saga_timeline_correlation(
     start_entity_id: str,
     time_range_hours: int = 24,
@@ -1199,6 +1242,7 @@ async def saga_timeline_correlation(
         }
 
 
+@register_tool(category="saga", priority=10, description="saga_execute_custom tool")
 async def saga_execute_custom(
     steps: List[dict],
 ) -> dict:
@@ -1327,3 +1371,64 @@ async def saga_execute_custom(
             "error": str(e),
             "results": {},
         }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-019",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.agents.executor",
+        "core.tools.tool_embeddings",
+        "memory.substrate_dag",
+        "memory.substrate_service",
+        "runtime.task_queue",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "debugging",
+        "enum",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "pydantic",
+    ],
+    "keywords": [
+        "all",
+        "ask",
+        "calculate",
+        "check",
+        "correlation",
+        "custom",
+        "disable",
+        "enable",
+    ],
+    "business_value": "Provides base registry components including ToolType, ToolSchema, ToolMetadata",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

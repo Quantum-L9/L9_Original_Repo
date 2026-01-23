@@ -16,13 +16,13 @@ The migration is idempotent - running it multiple times is safe.
 Usage:
     # Dry run (shows what would change)
     python scripts/neo4j_unify_relationships.py --dry-run
-    
+
     # Run migration
     python scripts/neo4j_unify_relationships.py
-    
+
     # Run and delete legacy relationships
     python scripts/neo4j_unify_relationships.py --delete-legacy
-    
+
     # Verify migration
     python scripts/neo4j_unify_relationships.py --verify
 
@@ -30,6 +30,27 @@ Version: 1.0.0
 Created: 2026-01-05
 GMP: GMP-UKG-1 (Schema Unification)
 """
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Neo4J Unify Relationships",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "agent_execution",
+    "module_name": "neo4j_unify_relationships",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
 
 import asyncio
 import argparse
@@ -41,6 +62,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -49,14 +71,17 @@ LEGACY_REL = "HAS_TOOL"
 UNIFIED_REL = "CAN_EXECUTE"
 
 
+@must_stay_async("callers use await")
 async def get_neo4j_driver():
     """Get async Neo4j driver."""
     from neo4j import AsyncGraphDatabase, basic_auth
-    
-    neo4j_uri = os.getenv("NEO4J_URL") or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+
+    neo4j_uri = os.getenv("NEO4J_URL") or os.getenv(
+        "NEO4J_URI", "bolt://localhost:7687"
+    )
     neo4j_user = os.getenv("NEO4J_USER", "neo4j")
     neo4j_password = os.getenv("NEO4J_PASSWORD", "password")
-    
+
     return AsyncGraphDatabase.driver(
         neo4j_uri,
         auth=basic_auth(neo4j_user, neo4j_password),
@@ -97,14 +122,14 @@ async def migrate_relationship(
 ) -> bool:
     """
     Migrate a single HAS_TOOL relationship to CAN_EXECUTE.
-    
+
     Args:
         driver: Neo4j driver
         agent_id: Agent identifier
         tool_id: Tool identifier
         properties: Relationship properties to preserve
         dry_run: If True, only log what would happen
-    
+
     Returns:
         True if successful
     """
@@ -114,40 +139,43 @@ async def migrate_relationship(
             f"to ({agent_id})-[:{UNIFIED_REL}]->({tool_id})"
         )
         return True
-    
+
     async with driver.session() as session:
         # Create new CAN_EXECUTE relationship (if not exists)
-        await session.run(f"""
+        await session.run(
+            f"""
             MATCH (a:Agent), (t:Tool)
             WHERE (a.agent_id = $agent_id OR a.id = $agent_id)
               AND (t.name = $tool_id OR t.id = $tool_id)
             MERGE (a)-[r:{UNIFIED_REL}]->(t)
             SET r += $props
-        """, agent_id=agent_id, tool_id=tool_id, props=properties or {})
-        
-        logger.info(
-            f"Migrated: ({agent_id})-[:{UNIFIED_REL}]->({tool_id})"
+        """,
+            agent_id=agent_id,
+            tool_id=tool_id,
+            props=properties or {},
         )
+
+        logger.info(f"Migrated: ({agent_id})-[:{UNIFIED_REL}]->({tool_id})")
         return True
 
 
 async def delete_legacy_relationships(driver, dry_run: bool = False) -> int:
     """
     Delete all legacy HAS_TOOL relationships.
-    
+
     Args:
         driver: Neo4j driver
         dry_run: If True, only log what would happen
-    
+
     Returns:
         Number of relationships deleted
     """
     count = await count_relationships(driver, LEGACY_REL)
-    
+
     if dry_run:
         logger.info(f"[DRY RUN] Would delete {count} legacy {LEGACY_REL} relationships")
         return count
-    
+
     async with driver.session() as session:
         result = await session.run(f"""
             MATCH ()-[r:{LEGACY_REL}]->()
@@ -156,7 +184,7 @@ async def delete_legacy_relationships(driver, dry_run: bool = False) -> int:
         """)
         record = await result.single()
         deleted = record["deleted"] if record else 0
-        
+
         logger.info(f"Deleted {deleted} legacy {LEGACY_REL} relationships")
         return deleted
 
@@ -164,13 +192,13 @@ async def delete_legacy_relationships(driver, dry_run: bool = False) -> int:
 async def verify_migration(driver) -> dict:
     """
     Verify migration was successful.
-    
+
     Returns:
         dict with verification results
     """
     legacy_count = await count_relationships(driver, LEGACY_REL)
     unified_count = await count_relationships(driver, UNIFIED_REL)
-    
+
     return {
         "legacy_count": legacy_count,
         "unified_count": unified_count,
@@ -182,25 +210,25 @@ async def verify_migration(driver) -> dict:
 async def run_migration(dry_run: bool = False, delete_legacy: bool = False) -> dict:
     """
     Run the full migration.
-    
+
     Args:
         dry_run: If True, only show what would change
         delete_legacy: If True, delete legacy relationships after migration
-    
+
     Returns:
         dict with migration statistics
     """
     driver = await get_neo4j_driver()
-    
+
     try:
         # Get current counts
         legacy_count = await count_relationships(driver, LEGACY_REL)
         unified_count = await count_relationships(driver, UNIFIED_REL)
-        
+
         logger.info(
             f"Before migration: {LEGACY_REL}={legacy_count}, {UNIFIED_REL}={unified_count}"
         )
-        
+
         if legacy_count == 0:
             logger.info("No legacy relationships to migrate")
             return {
@@ -209,33 +237,35 @@ async def run_migration(dry_run: bool = False, delete_legacy: bool = False) -> d
                 "unified_before": unified_count,
                 "migrated": 0,
             }
-        
+
         # Get legacy relationships
         legacy_rels = await get_legacy_relationships(driver)
         logger.info(f"Found {len(legacy_rels)} legacy relationships to migrate")
-        
+
         # Migrate each relationship
         migrated = 0
         for rel in legacy_rels:
             agent_id = rel.get("agent_id") or rel.get("agent_id_alt")
             tool_id = rel.get("tool_name") or rel.get("tool_id_alt")
             props = rel.get("props", {})
-            
+
             if agent_id and tool_id:
-                if await migrate_relationship(driver, agent_id, tool_id, props, dry_run):
+                if await migrate_relationship(
+                    driver, agent_id, tool_id, props, dry_run
+                ):
                     migrated += 1
-        
+
         # Delete legacy if requested
         deleted = 0
         if delete_legacy and not dry_run:
             deleted = await delete_legacy_relationships(driver)
         elif delete_legacy and dry_run:
             deleted = await delete_legacy_relationships(driver, dry_run=True)
-        
+
         # Verify
         final_legacy = await count_relationships(driver, LEGACY_REL)
         final_unified = await count_relationships(driver, UNIFIED_REL)
-        
+
         return {
             "status": "SUCCESS" if not dry_run else "DRY_RUN",
             "legacy_before": legacy_count,
@@ -245,7 +275,7 @@ async def run_migration(dry_run: bool = False, delete_legacy: bool = False) -> d
             "legacy_after": final_legacy,
             "unified_after": final_unified,
         }
-        
+
     finally:
         await driver.close()
 
@@ -275,65 +305,67 @@ async def main():
         action="store_true",
         help="Enable verbose logging",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.verify:
         logger.info("=" * 60)
         logger.info("VERIFYING RELATIONSHIP MIGRATION")
         logger.info("=" * 60)
-        
+
         driver = await get_neo4j_driver()
         try:
             verification = await verify_migration(driver)
-            
+
             logger.info(f"\n  Legacy ({LEGACY_REL}): {verification['legacy_count']}")
             logger.info(f"  Unified ({UNIFIED_REL}): {verification['unified_count']}")
             logger.info(f"  Status: {verification['status']}")
-            
-            if verification['migration_complete']:
+
+            if verification["migration_complete"]:
                 logger.info("\n✅ Migration COMPLETE")
             else:
                 logger.info("\n⚠️ Migration PENDING")
-                logger.info("   Run: python scripts/neo4j_unify_relationships.py --delete-legacy")
+                logger.info(
+                    "   Run: python scripts/neo4j_unify_relationships.py --delete-legacy"
+                )
         finally:
             await driver.close()
         return
-    
+
     logger.info("=" * 60)
     logger.info("RELATIONSHIP UNIFICATION MIGRATION")
     logger.info(f"  {LEGACY_REL} → {UNIFIED_REL}")
     logger.info("=" * 60)
-    
+
     if args.dry_run:
         logger.info("\n[DRY RUN MODE - No changes will be made]\n")
-    
+
     try:
         stats = await run_migration(
             dry_run=args.dry_run,
             delete_legacy=args.delete_legacy,
         )
-        
+
         logger.info(f"\n  Status: {stats['status']}")
         logger.info(f"  Legacy before: {stats['legacy_before']}")
         logger.info(f"  Unified before: {stats['unified_before']}")
         logger.info(f"  Migrated: {stats['migrated']}")
-        
-        if 'deleted' in stats:
+
+        if "deleted" in stats:
             logger.info(f"  Deleted: {stats['deleted']}")
-        
-        if 'legacy_after' in stats:
+
+        if "legacy_after" in stats:
             logger.info(f"  Legacy after: {stats['legacy_after']}")
             logger.info(f"  Unified after: {stats['unified_after']}")
-        
-        if stats['status'] == "SUCCESS":
+
+        if stats["status"] == "SUCCESS":
             logger.info("\n✅ Migration COMPLETE")
-        elif stats['status'] == "ALREADY_COMPLETE":
+        elif stats["status"] == "ALREADY_COMPLETE":
             logger.info("\n✅ Already migrated - no changes needed")
         else:
             logger.info("\n📋 Dry run complete - no changes made")
             logger.info("   Run without --dry-run to apply changes")
-        
+
     except Exception as e:
         logger.info(f"\n❌ Migration FAILED: {e}")
         sys.exit(1)
@@ -342,3 +374,56 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "agent-execution",
+        "async",
+        "auth",
+        "cli",
+        "filesystem",
+        "graph-db",
+        "logging",
+        "migration",
+        "operations",
+        "service",
+    ],
+    "keywords": [
+        "count",
+        "delete",
+        "driver",
+        "legacy",
+        "migrate",
+        "migration",
+        "neo4j",
+        "relationship",
+    ],
+    "business_value": "1. Finds all (Agent)-[:HAS_TOOL]->(Tool) relationships 2. Creates equivalent (Agent)-[:CAN_EXECUTE]->(Tool) relationships 3. Optionally deletes the legacy HAS_TOOL relationships",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

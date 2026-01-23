@@ -22,11 +22,11 @@ from typing import Literal
 def get_execution_context() -> Literal["docker", "host"]:
     """
     Detect if running inside Docker or on host machine.
-    
+
     Detection methods:
     1. Check for /.dockerenv file (present in Docker containers)
     2. Try to resolve Docker service DNS name
-    
+
     Returns:
         "docker" if running inside Docker network
         "host" if running on host machine
@@ -34,7 +34,7 @@ def get_execution_context() -> Literal["docker", "host"]:
     # Method 1: Check for Docker environment file
     if os.path.exists("/.dockerenv"):
         return "docker"
-    
+
     # Method 2: Check if Docker DNS resolves
     try:
         socket.gethostbyname("l9-api")
@@ -46,26 +46,26 @@ def get_execution_context() -> Literal["docker", "host"]:
 def resolve_service_url(service_name: str, port: int) -> str:
     """
     Auto-resolve service URL based on execution context.
-    
+
     Priority:
     1. Environment variable override (SERVICE_NAME_URL)
     2. Docker DNS if inside Docker network
     3. localhost (127.0.0.1) if on host
-    
+
     Args:
         service_name: Docker service name (e.g., "l9-api", "l9-postgres")
         port: Service port number
-        
+
     Returns:
         Resolved URL (e.g., "http://l9-api:8000" or "http://127.0.0.1:8000")
-        
+
     Examples:
         >>> resolve_service_url("l9-api", 8000)
         'http://127.0.0.1:8000'  # from host
-        
+
         >>> resolve_service_url("l9-api", 8000)
         'http://l9-api:8000'  # from Docker
-        
+
         >>> os.environ["L9_API_URL"] = "http://custom:9000"
         >>> resolve_service_url("l9-api", 8000)
         'http://custom:9000'  # manual override
@@ -75,7 +75,7 @@ def resolve_service_url(service_name: str, port: int) -> str:
     env_key = f"{service_name.upper().replace('-', '_')}_URL"
     if url := os.environ.get(env_key):
         return url
-    
+
     # Also check common override patterns
     if service_name == "l9-api":
         if url := os.environ.get("API_BASE_URL"):
@@ -86,7 +86,7 @@ def resolve_service_url(service_name: str, port: int) -> str:
         # Legacy fallback (DEPRECATED - will be removed)
         if url := os.environ.get("MEMORY_API_BASE_URL"):
             return url
-    
+
     # Auto-detect based on execution context
     context = get_execution_context()
     if context == "docker":

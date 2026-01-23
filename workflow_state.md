@@ -26,7 +26,242 @@
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
-**COMPLETED THIS SESSION (2026-01-15)**:
+**COMPLETED THIS SESSION (2026-01-20)**:
+- ✅ **ADR Creation + Harvest: Perplexity Refactor Patterns** — Created 11 ADRs (0040-0050) for architectural patterns L9 lacks:
+  - **ADRs Created:** 0040 (Loop Stage Protocol), 0041 (Executor Builder), 0042 (Execution Profiles), 0043 (Controller Profiles), 0044 (Agent Policy Protocols), 0045 (Online/Offline Split), 0046 (Pipeline Stage Organization), 0047 (Memory Facade Decomposition), 0048 (Tool Dispatch Strategy), 0049 (Checkpoint Plan Snapshots), 0050 (Tool Registry Cache)
+  - **Code Harvested:** 11 code samples via `sed` extraction → `readme/harvested/perplexity-refactor-2026-01-20/`
+  - **Source:** `current_work/01-20-2026/Refactor/PHASE 1_Refactor Plan.md`
+  - **Value:** Patterns for decomposing monolithic executor/controller/memory into testable micro-stages
+- ✅ **GMP-112: Merge PR #24 + Fix Python 3.9 Compatibility** — .pre-commit-config.yaml, .gitignore, env_secrets_client.py. Report: `GMP-Report-112-Merge-Pr-24-Fix-Python-39-Compatibility.md`
+- ✅ **GMP-111: Fix PR #23 Python 3.9 Compatibility + Code Quality** — Merged PR #23 (Week 2 Kernel Config + DI Bindings):
+  - **Issue:** PR #23 used Python 3.10+ `|` union syntax in 4 protocol files (same issue as PR #22)
+  - **Fixes:** Changed `|` to `Union[]` in all 4 files, removed confusing WorldModelService/ToolRegistry aliases, changed None-returning factories to raise `NotImplementedError` (fail-loud), fixed `container._bindings` → `get_bindings()`
+  - **Lesson Capture:** Added 🚨 ULTRA-CRITICAL warning to `92-learned-lessons.mdc` about Python 3.9 union syntax
+  - **Validation:** py_compile ✅, 74 tests pass
+  - **PR Merged:** #23 at 2026-01-21 (+3,056 lines)
+  - **Report:** `reports/GMP-Report-111-Fix-Pr-23-Python-39-Compatibility-Code-Quality.md`
+- ✅ **GMP-110: Wire workers package: MCP Memory integration, telemetry hooks, unit tests** — anomaly_response_monitor.py, violation_tracker_service.py. Report: `GMP-Report-110-Wire-Workers-Package-Mcp-Memory-Integration.md`
+- ✅ **GMP-WIRE: World Model Pipeline Unification** — Unified 3 memory pipelines into single flow:
+  - **Problem:** World Model had 2 isolated systems: in-memory `KnowledgeIngestor` → lost on restart, and DB-backed `WorldModelService` → PostgreSQL (never called from in-memory path)
+  - **Analysis:** Traced all 3 memory pipelines: `ingest_packet()`, `_emit_packet()`, World Model `ingest()`. Found first two converge to `write_packet()` → DAG, but World Model was isolated.
+  - **Solution:** Added `sync_to_db()` to `KnowledgeIngestor`, wired callers (`runtime.py`, `engine.py`, `seed_loader.py`), then wired `WorldModelService` to `WorldModelRuntime` at startup
+  - **Files:** `world_model/knowledge_ingestor.py`, `world_model/runtime.py`, `world_model/engine.py`, `world_model/seed_loader.py`, `api/server.py`
+  - **Report:** `reports/WIRE-Report-WorldModelService-Pipeline-20260120.md`
+- ✅ **GMP-106: Fix Python 3.9 Union Syntax + Merge PR #22** — DI/DIP Foundation merged:
+  - **Issue:** PR #22 used Python 3.10+ `|` union syntax incompatible with Python 3.9
+  - **Fix:** Changed `KernelProtocols | MemoryProtocols | ...` to `Union[KernelProtocols, MemoryProtocols, ...]` in 4 protocol files
+  - **Validation:** py_compile PASSED, imports PASSED, 20 unit tests PASSED
+  - **PR Merged:** #22 at 2026-01-20T18:10:12Z (+5,133 lines, 13 files)
+  - **New Modules:** `core/abstractions/` (24 protocols), `core/di/` (DI container), `docs/architecture/` (3 guides)
+  - **Report:** `reports/GMP-Report-106-Fix-Python39-Union-Syntax-PR22.md`
+- ✅ **GMP-105: Checkpoint Resilience (Batch 1+2)** — Production-ready LangGraph checkpoint persistence:
+  - **Research:** Read @DOCS (LangGraph Persistence, PostgreSQL Vacuuming) + Perplexity deep research for gaps
+  - **Batch 1 (Resilience):** Created `L9RetryablePostgresSaver` with exponential backoff retry, implemented proper `list()` method (was stub returning `[]`), added `get_pool_stats()`. 20 tests.
+  - **Batch 2 (Observability):** Added 3 Prometheus gauges (`CHECKPOINT_POOL_SIZE/AVAILABLE/WAITING`), `record_pool_stats()` function, `/health/checkpoint` endpoint. 14 tests.
+  - **New Rule:** Created `.cursor-commands/rules/93-perplexity-research-protocol.md` — Docs-first, Perplexity-second workflow
+  - **Files:** `memory/checkpoint/postgres_saver.py` (+263), `memory/checkpoint_metrics.py` (+77), `api/server.py` (+32), 2 test files (+522)
+  - **Report:** `reports/GMP-Report-105-Checkpoint-Resilience-Complete.md`
+- ✅ **Gap Analysis: TODO Memory Files** — Analyzed 6 TODO Memory Files vs L9 production codebase:
+  - `chunking-protocol.md` — N/A (code generation protocol, not memory)
+  - `Data_Pipeline_Orchestration_v4.0.md` — N/A (Odoo-specific, not L9)
+  - `DSL_Compiler_Description.md` — Not needed (L9 has Semantic Compiler + YAML policies)
+  - `enforceable_recursive_extractor.prompt.md` — PARTIAL (L9 has extractors but simpler schema)
+  - `belief_calibration.md` — FOUNDATIONAL (confidence fields exist, no calibration loop)
+  - `inverse_reinforcement_learning.md` — N/A (research-level, not production)
+  - **Conclusion:** L9 has extensive memory infrastructure that surpasses most proposals
+- ✅ **Policy Generator Utility** — Created `core/governance/policy_generator.py` (~550 LOC):
+  - Template presets: `scope-access`, `tool-approval`, `resource-access`
+  - Auto-generates DORA metadata (header + footer)
+  - CLI interface (`python -m core.governance.policy_generator`)
+  - Programmatic API with `PolicySpec`, `ScopeAccessSpec` dataclasses
+  - Generated example: `config/policies/tool_approval_generated.yaml`
+- ✅ **Governance Exports** — Added `PolicyGenerator`, `PolicySpec`, `ScopeAccessSpec` to `core/governance/__init__.py`
+
+**COMPLETED THIS SESSION (2026-01-19 late evening)**:
+- ✅ **GMP Phase 0.5 (CONTEXT HARVEST)** — Added new phase to `/gmp` command between Phase 0 and Phase 1:
+  - Systematic analysis of provided/attached files before implementation
+  - Harvest checklist: file inventory, pattern extraction, function catalog, import map, type/model discovery, test patterns
+  - Structured output format with tables for files analyzed, reusable functions, patterns, imports, models
+  - Updated Definition of Done with DOD-01.5
+- ✅ **C_GOV_FILES Flat Structure** — Consolidated `.cursor-commands/C_GOV_FILES/` subdirectories:
+  - Moved 83 files from 17 subdirectories to flat parent directory
+  - Deleted all empty subdirectories and READMEs
+  - Identified 3 YAML files with broken path references (moved but not re-wired)
+- ✅ **/wire v10.0.0 Dynamic Wiring** — Complete rewrite of `/wire` command:
+  - Now dynamic: analyzes component type, discovers all references, generates wiring plan
+  - Added Phase 6 (RECURSIVE VERIFICATION): re-run discovery to confirm complete, no new/broken refs
+  - Added Phase 7 (REPORT): GMP-style report at `reports/WIRE-Report-{component}-{date}.md`
+  - Component type detection: Config, Module, Service, Route, Tool, Agent
+  - Fail conditions updated to require Phase 6 pass and Phase 7 generation
+- ✅ **C_GOV_FILES Python Analysis** — Analyzed 10 orphaned Python files in C_GOV_FILES:
+  - ALL 10 files UNUSED (zero references in L9 codebase)
+  - High-value candidates: `auto_calibrator.py`, `feedback_collector.py`, `chat-learning-extractor.py`, `context-extractor.py`
+  - Delete candidates: `governance-api.py` (Flask, superseded by FastAPI), `gmp-todo.schema.yaml` (obsolete)
+- ✅ **Cursor SQLite Documentation** — Documented state.vscdb locations and chat export infrastructure:
+  - Per-workspace: `~/Library/Application Support/Cursor/User/workspaceStorage/{hash}/state.vscdb`
+  - Global: `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb`
+  - Tables: `ItemTable`, `cursorDiskKV` with chat/composer/aiService keys
+  - Export infrastructure: `export_chats.sh` runs hourly → `ops/logs/chat_exports/` (93+ workspaces)
+- ❌ **Autonomous Chat Extractor** — GMP-103 cancelled (user passed)
+
+**COMPLETED THIS SESSION (2026-01-19 evening)**:
+- ✅ **BackgroundTaskRegistry + ReActRuntime** — Harvested from `Runtime 2.md`, wired into L9:
+  - Created `runtime/background_tasks.py` (~260 LOC) — Centralized background task management with feature flags, graceful shutdown, observability
+  - Created `core/runtimes/react_runtime.py` (~225 LOC) — Think → Act → Observe loop for agent reasoning
+  - Created `core/runtimes/__init__.py` — Package exports
+  - Refactored `api/server.py` to use `BackgroundTaskRegistry` — Replaced 2 inline `while True` loops with `bg_tasks.register()` calls
+  - Added graceful shutdown via `await bg_tasks.shutdown_all()`
+  - **Net: ~35 lines removed, massive maintainability improvement**
+- ✅ **Pydantic v2 Annotated Pattern** — Applied stricter validation to `core/agents/schemas.py` future-proof fields:
+  - `target_domain`: Added `pattern=r"^(l9|l10|external|sandbox)$"` regex constraint
+  - `delegation_chain`: Added `conlist(str, max_length=50)` — prevents unbounded list growth
+  - `capability_requirements`: Added `conlist(str, max_length=20)` — reasonable constraint
+  - All fields: Added `"FUTURE-PROOF:"` prefix in descriptions
+  - Added `Annotated` and `conlist` imports
+  - **Validation confirmed:** Invalid values now rejected at model creation
+
+**COMPLETED THIS SESSION (2026-01-19 later)**:
+- ✅ **GMP-95: Wire Stage 2 Memory Consolidation Modules** — Wired `NeuralDecayScheduler` and `HierarchicalSummarizer` into server background loop:
+  - Added imports for both modules in Stage 4 consolidation block
+  - Initialized both with `repository` from substrate service
+  - Wired `run_decay_pass()` and `run_cascade()` calls into `run_consolidation_loop()`
+  - Existing `MemoryConsolidationService` untouched (additive wiring only)
+  - **Result:** Stage 2 modules now execute every `L9_CONSOLIDATION_INTERVAL_HOURS` (default: 4h)
+- ✅ **Memory Tools Verification** — Confirmed `memory_search` and `memory_write` tools ALREADY WIRED:
+  - `core/tools/memory_tools.py` — Full implementation exists (functions, schemas, registration)
+  - `api/server.py:1760-1768` — Already registered at startup via `register_memory_tools()`
+- ✅ **GMP-101: Superprompt Script Phase 1 Enhancements** — Enhanced `scripts/generate_readme_superprompt.py`:
+  - Added `--max-classes` and `--max-functions` flags (configurable limits)
+  - Added `__all__` extraction (public API surface)
+  - Added `__dora_meta__` extraction (governance metadata)
+  - Added README.md exists warning (warns if substantial existing README)
+  - Added `--template` flag stub (for Phase 2 template system)
+  - Report: `reports/GMP-Report-101-Superprompt-Phase1-Enhancements.md`
+- ✅ **GMP-100 Infrastructure** — README Gold Standard Generation project setup:
+  - Created `agents/cursor/perplexity_research_results/README-SOP.md` (research results SOP)
+  - Created `GMP-100-README-GENERATION-TRACKER.md` (35 modules across 9 categories)
+  - Organized existing research files into dated subfolders
+  - Added `agents/cursor/perplexity_research_results/` to `.gitignore`
+- ✅ **Research Agent Facade** — Created `agents/research_agent/` as facade over `services/research/`:
+  - `__init__.py` — Simple imports + re-exports from services.research
+  - `research_facade.py` — `run_research()`, `run_quick_research()`, `generate_superprompt()`, `extract_facts()`
+  - `RESEARCH-AGENT-ANALYSIS.md` — Analysis of existing research infrastructure
+  - **Architecture:** Facade pattern, not duplication (production code stays in `services/research/`)
+
+**COMPLETED THIS SESSION (2026-01-19 earlier)**:
+- ✅ **Infrastructure as Code (IaC)** — Complete one-click VPS provisioning system:
+  - Created `scripts/infra/deploy_new_vps.sh` — One-click Hetzner VPS deployment
+  - Created `scripts/infra/bootstrap_vps.sh` — 10-phase server configuration
+  - Created `scripts/infra/terraform/main.tf` — Terraform config for Hetzner/DO/AWS
+  - Created `scripts/backup/backup_server_config.sh` — System configs backup (Caddy, systemd, cron)
+  - Updated `scripts/backup/README.md` — Full disaster recovery documentation
+  - Installed Terraform via brew
+  - Configured: Hetzner API token, SSH key `Hetzner-L9`, S3 bucket `l9-backups`
+  - **Full rebuild time: ~10 minutes** (provision + bootstrap + restore from S3)
+- ✅ **S3 Backup Automation** — VPS cron job set for 12-hour automated backups:
+  - Cron: `0 */12 * * *` (00:00 and 12:00 daily)
+  - Backs up: PostgreSQL, Neo4j, .env, server configs
+  - S3 lifecycle: 30-day retention
+- ✅ **PR #15 Merged: WebSocket Orchestrator Unification** — Unified all WebSocket routing through single orchestrator:
+  - Added `AgentType` enum (ASSISTANT, EXECUTOR, ANALYST, RESEARCHER, OPERATOR, COORDINATOR, etc.)
+  - Added `verify_ws_token()` as single source of truth for WebSocket auth (fail-closed)
+  - Added `handle_conversation_task()` for kernel-aware L-CTO routing
+  - Removed legacy `/chat` endpoint and `L9_ENABLE_LEGACY_*` feature flags
+  - Deleted `_archived/legacy_slack/webhook_slack.py` (43KB, 1,087 lines)
+  - Net: **-1,023 lines** (23% reduction)
+- ✅ **CI Crypto-Guard + Deprecation Guard** — Added security gates to CI pipeline:
+  - **MD5 Ban:** `hashlib.md5` blocked in CI (escape hatch: `# MD5 required by protocol`)
+  - **SHA1 Warning:** `hashlib.sha1` flagged for review
+  - **TaskKind Deprecation:** Blocks `from core.agents.schemas import.*TaskKind` and `TaskKind.(CONVERSATION|QUERY|EXECUTION|RESEARCH)`
+- ✅ **Complete TaskKind → AgentType Migration** — Migrated entire codebase from deprecated TaskKind:
+  - **Production files:** `api/server.py`, `api/agent_routes.py`, `api/routes/commands.py`, `memory/slack_ingest.py`, `core/commands/executor.py`
+  - **Test files:** 5 test files (test_executor.py, test_executor_governance.py, test_l_bootstrap.py, test_l_cto_end_to_end.py, test_governance_tracking_e2e.py)
+  - **Mapping:** CONVERSATION→ASSISTANT, QUERY→ANALYST, EXECUTION→EXECUTOR, RESEARCH→RESEARCHER, COMMAND→OPERATOR
+- ✅ **Security Hardening** — MD5→SHA256 and shell injection fixes:
+  - `memory/tool_router.py`: MD5→SHA256 for content hashing
+  - `world_model/knowledge_ingestor.py`: MD5→SHA256 for deduplication
+  - `scripts/audit/generate_gmp_todos.py`: MD5→SHA256 for consistency
+  - `mac_agent/runner.py`, `api/vps_executor.py`: `shell=True`→`shlex.split()` + `shell=False`
+- ✅ **PR Cleanup** — Closed 3 harvested/superseded PRs:
+  - PR #18 (Require gated approval) — Good parts surgically integrated
+  - PR #17 (Phase 3 Auto-Wiring) — Superseded by PR #16
+  - PR #14 (Complete Auto-Wiring) — Superseded by incremental PRs
+- ✅ **Phase 2 Auto-Wiring Integration** — User integrated singleton/event/router auto-registration into `api/server.py`
+
+**COMPLETED PREVIOUS SESSION (2026-01-19 earlier)**:
+- ✅ **Pre-Commit Hook v3.0 (Frontier-Grade)** — Upgraded to enterprise-grade 8-gate security hook:
+  - Harvested from Perplexity CI Script pack (`current_work/01-19-2026/CI Script/`)
+  - **Gate 0:** Branch protection — blocks `--no-verify` on main/production/release/*
+  - **Gate 1:** Secret scanning (gitleaks)
+  - **Gate 2:** Auto-format (ruff)
+  - **Gate 3:** Lint (ruff check)
+  - **Gate 4:** Type checking (mypy --strict, MANDATORY)
+  - **Gate 5:** AI security — prompt injection detection, PacketEnvelope safety, WebSocket validation
+  - **Gate 6:** Test execution + 75% coverage enforcement (pytest)
+  - **Gate 7:** Protected surfaces — WS orchestrator, substrate_service, kernel_loader, docker-compose, packet, auth
+  - **Gate 8:** Audit logging (JSONL) + Prometheus metrics export
+  - Files: `scripts/hooks/pre-commit` (428 LOC), `scripts/hooks/install-precommit-security.sh`, `scripts/hooks/DEPLOYMENT-GUIDE.md`
+  - Deleted redundant `.pre-commit-config.yaml` and gap analysis file
+  - **All 5 critical gaps from gap analysis CLOSED**
+
+**COMPLETED PREVIOUS SESSION (2026-01-18/19)**:
+- ✅ **Cursor Session Startup System** — Complete startup infrastructure for Cursor sessions:
+  - Created `/start-session` command (`.cursor-commands/commands/start-session.md`)
+  - Created CLI script `scripts/cursor-start-session` + `make cursor-start` target
+  - Renamed kernel: `l9.workflow_todo_kernel.v2.yaml` → `cursor_workflow_kernel.yaml` (v1.0.0)
+  - Moved kernel from `gmp_protocol/` to `agents/cursor/` (top-level, THE binding contract)
+  - Fixed kernel path in `session_startup.py` (was pointing to wrong location)
+  - Added 7 Cursor-specific files to startup (GMP contracts, docs, templates)
+  - Session startup now loads **20 files** in 37ms with kernel validation
+- ✅ **Startup File Cleanup** — Removed obsolete/aspirational files:
+  - Archived `probabilistic_governance_activated.md` to `current_work/DONE/` (referenced non-existent Bayesian system)
+  - Deleted `gmp-todo.schema.yaml` (superseded by `gmp-contract.yaml`)
+  - Deleted `run_setup_protocol.py` (pattern integrated into `session_startup.py`)
+  - Moved `production_speed_pack.md` → `agents/cursor/docs/PRODUCTION-SPEED-PACK.md`
+- ✅ **Lint Fixes** — Fixed 2 unused variable errors (F841):
+  - `.github/scripts/validate-readme-sections.py:69` — removed unused `found`
+  - `tests/test_code_facts_extraction.py:273` — removed unused `code_map_forbidden`
+
+**COMPLETED PREVIOUS SESSION (2026-01-18)**:
+- ✅ **S3 Backup System** — Full backup infrastructure for L9 memories:
+  - Created `scripts/backup/backup_l9_memory.sh` — PostgreSQL + Neo4j + config backup to S3
+  - Created `scripts/backup/restore_l9_memory.sh` — Restore from S3 with `--list`, `latest`, or timestamp
+  - Created `scripts/backup/setup_s3_bucket.sh` — One-time S3 bucket setup
+  - Created `scripts/backup/README.md` — Full documentation
+  - S3 bucket `l9-backups` created with 30-day lifecycle policy, versioning, public access blocked
+  - AWS CLI installed on Mac (`brew install awscli`) and VPS (user-space install)
+  - IAM user `L9` with `AmazonS3FullAccess` policy
+  - First backup successful: 12.4MB PostgreSQL (68 vectors), 2.3KB config (.env)
+  - Deprecated old scripts moved to `_archived/deprecated_backup_scripts/`
+  - **Remaining:** Set VPS cron for 12-hour automated backups
+- ✅ **DORA Block Mass Injection** — Injected DORA blocks into ALL Python and YAML files:
+  - **1,158 files** now have complete DORA blocks (`__dora_meta__`, `__dora_footer__`, `__l9_trace__`)
+  - Updated `dora-contract.yaml` to v2.1.0: removed declared/aspirational fields, keep only OBSERVABLE facts
+  - Created `ci/dora_compliance_check.py` for CI enforcement (--check and --fix modes)
+  - Updated `.github/workflows/ci.yml` with `dora-check` job
+  - Fixed malformed `business_value` strings (nested quotes) in 9 files
+  - **Footer fields now only contain measurable data**: tags, keywords, dependencies, timestamps from git
+  - **Contract principle**: "If it's not measured and auto-updated, it doesn't belong"
+
+**COMPLETED PREVIOUS SESSION (2026-01-17)**:
+- ✅ **GMP-94: Embedding Dimension Mismatch Fix** — Fixed critical bug causing semantic search failures:
+  - **Root cause:** `mcp_memory/src/embeddings.py` was missing `dimensions` parameter when calling OpenAI API
+  - Writes (via `substrate_semantic.py`) correctly truncated to 1536-dim, but search queries returned 3072-dim
+  - pgvector error: `"different vector dimensions 1536 and 3072"`
+  - **Fix:** Added `dimensions=settings.OPENAI_EMBED_DIM` to `embed_text()` and `embed_texts()` in `embeddings.py`
+  - Fixed 4 misleading comments (3072→1536) in: `substrate_models.py`, `substrate_repository.py`, `strategymemory.py`, `plan_executor.py`
+- ✅ **Cursor MCP Configuration Cleanup** — Removed broken/redundant MCP servers:
+  - Deleted `l9-memory` MCP from `~/.cursor/mcp.json` (used incompatible `server-http` wrapper)
+  - Deleted `postgres` MCP from `~/.cursor/mcp.json` (bypassed governance via direct localhost SQL)
+  - **Canonical method:** `cursor_memory_client.py` is the ONLY method for Cursor ↔ L9 memory
+- ✅ **Memory Client Comment Fix** — Updated `cursor_memory_client.py` comment: "PRODUCTION: VPS (always)"
+- ✅ **Embedding Alignment Audit** — Verified ALL embedding dimensions aligned at 1536:
+  - Memory Substrate: `text-embedding-3-large` truncated to 1536 ✅
+  - MCP Memory Server: `text-embedding-3-large` truncated to 1536 ✅ (FIXED)
+  - Tool Embeddings: `text-embedding-3-small` native 1536 ✅
+  - Strategy Memory: placeholder, comments fixed to 1536 ✅
+
+**PREVIOUS SESSION (2026-01-15)**:
 - ✅ **World Model Pack Integration (GMP-89/90/91/92)** — Full Layer 1+2 integration:
   - `world_model/state.py` — 12 stubs replaced, Entity/Relation CRUD, snapshot/restore
   - `world_model/registry.py` — 14 stubs replaced, schema validation, type hierarchy
@@ -94,6 +329,13 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-20] **GMP-112: Merge PR #24 + Fix Python 3.9 Compatibility** — Merged PR #24 (secrets protocol, L9 CLI, test formatting) and fixed Python 3.9 compatibility issue
+- [2026-01-20] **GMP-110: Wire workers package: MCP Memory integration, telemetry hooks, unit tests** — Wired MCP Memory integration to ViolationTrackerService, added telemetry provider hooks to AnomalyResponseMonitor, created unit tests
+- [2026-01-20] **World Model Pipeline Unification** — Unified 3 memory pipelines. Traced `ingest_packet()` (external), `_emit_packet()` (executor), and World Model `ingest()`. Found World Model in-memory path was isolated (entities lost on restart). Solution: Added `sync_to_db()` method to `KnowledgeIngestor`, wired to callers (`runtime.py`, `engine.py`, `seed_loader.py`), connected `WorldModelService` to `WorldModelRuntime` at startup via `set_world_model_service()`. All World Model entities now automatically persist to PostgreSQL. Files: `world_model/knowledge_ingestor.py`, `world_model/runtime.py`, `world_model/engine.py`, `world_model/seed_loader.py`, `api/server.py`. Report: `reports/WIRE-Report-WorldModelService-Pipeline-20260120.md`.
+- [2026-01-20] **Policy Generator Utility** — Created `core/governance/policy_generator.py` (~550 LOC) for declarative YAML policy generation. Features: 3 template presets (`scope-access`, `tool-approval`, `resource-access`), auto DORA metadata, CLI (`python -m core.governance.policy_generator`), programmatic API. Generated example at `config/policies/tool_approval_generated.yaml`. Added exports to `core/governance/__init__.py` (`PolicyGenerator`, `PolicySpec`, `ScopeAccessSpec`).
+- [2026-01-20] **Gap Analysis: TODO Memory Files** — Analyzed 6 files in `current_work/TODO Memory Files/` against L9 production. Results: chunking-protocol (N/A), Data_Pipeline_v4.0 (N/A - Odoo), DSL_Compiler (not needed - L9 has semantic compiler), recursive_extractor (partial), belief_calibration (foundational only), IRL (N/A - research). L9 has extensive memory infrastructure: LangGraph DAG pipeline, insight extraction, consolidation, importance manager, retrieval strategies, closed-loop learning via adaptive prompting.
+- [2026-01-19] **GMP-95: Wire Stage 2 Memory Consolidation Modules** — Wired `NeuralDecayScheduler` and `HierarchicalSummarizer` into `api/server.py` Stage 4 consolidation loop. Both modules initialized at startup with repository from substrate service. `run_decay_pass()` (salience decay) and `run_cascade()` (20min→daily→weekly summarization) now execute every `L9_CONSOLIDATION_INTERVAL_HOURS` (default 4h). Existing `MemoryConsolidationService` untouched (additive wiring). Files: `api/server.py` (+24 lines in Stage 4 block).
+- [2026-01-16] **GMP-93: Remove slack_sdk Dependency Entirely** — Removed `slack_sdk` dependency from L9 codebase. Extended `api/slack_client.py` with async `upload_file()` and `get_file_info()` methods. Migrated all callers to async: `orchestrators/agent_execution/orchestrator.py`, `mac_agent/runner.py`, `api/webhook_mac_agent.py`, `services/slack_files.py`, `memory/slack_ingest.py`. Deleted `services/slack_client.py` (312 lines). Removed `slack-sdk>=3.26.0` from `requirements.txt`. **Result:** 100% async httpx-based Slack client, no blocking I/O, no slack_sdk dependency. Report: `reports/GMP_Report_GMP-93.md`
 - [2026-01-15] **Feature Flag Centralization** — Fixed hardcoded feature flags in `api/server.py`. Added 10 new flags to `config/settings.py` (L9_NEW_AGENT_INIT, L9_STAGE3_MODULES, L9_GRAPH_AGENT_STATE, L9_OBSERVABILITY, L9_SKIP_STARTUP_CHECKS, L9_STAGE4_CONSOLIDATION, L9_CONSOLIDATION_INTERVAL_HOURS, L9_GRAPH_WM_SYNC, L9_TOOL_PATTERN_EXTRACTION, LOCAL_DEV). Updated `api/server.py` to use `settings.xyz` instead of `os.getenv()`. Also fixed `_has_mac_agent` and `_has_waba` to use existing settings. All feature flags now read from `.env` via centralized Pydantic settings.
 - [2026-01-15] **10X Deploy Script Enhancement** — Fixed Docker rebuild issue (container running old code) + improved health checks. Changes: (1) Created `scripts/vps/` directory with `sync_env_vars.sh`, `verify_vps_env.sh`, `run_migrations.sh` (wrappers → canonical `scripts/deployment/` versions). (2) Phase 5 now stops, removes container, optionally removes image, uses `--force-recreate`, verifies image ID changed. (3) Phase 6 enhanced with early container status check, startup error detection, HTTP code tracking, comprehensive failure diagnostics (resource usage, internal curl, process list, container inspect). (4) Added Phase 6.5 service verification: git SHA match, Python import test, uvicorn process check, memory usage.
 - [2026-01-14] **GMP-87: Wire CursorExecutor to FastAPI Lifespan** — Fixed 503 error when calling `/cursor/*` routes. Added full dependency chain initialization in lifespan: SubstrateDAG → SubstrateDagOrchestrator → CursorMemoryGateway → L9PostgresSaver → CursorCheckpointManager → ApprovalManager → LangGraph app → CursorExecutor. Also expanded Cursor imports (9 new imports). Dead code audit revealed most findings were false positives (Protocol classes, glob-loaded configs, already-wired orchestrators). Report: `reports/GMP_Report_GMP-87-Wire-CursorExecutor.md`
@@ -129,6 +371,10 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Decision Log (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-20] **Unified Memory Pipeline Architecture**: Three entry points (`ingest_packet()`, `_emit_packet()`, World Model `ingest()`) all ultimately flow to PostgreSQL. `ingest_packet()` and `_emit_packet()` use `write_packet()` → DAG. World Model uses `sync_to_db()` → `WorldModelService.upsert_entity()`. Key insight: `_emit_packet()` cannot be replaced with `ingest_packet()` because they serve different abstraction levels (internal executor trace vs external API entry point), but they both converge to the same destination.
+- [2026-01-19] **BackgroundTaskRegistry Pattern**: All periodic background tasks in `api/server.py` should use `bg_tasks.register()` instead of inline `while True` loops. Benefits: centralized error handling, feature flag support, graceful shutdown, observability via `snapshot()`. New tasks: just call `bg_tasks.register(name, coro, interval)`.
+- [2026-01-19] **Pydantic v2 Annotated Pattern**: Future-proof fields in schemas should use `Annotated[T, Field(...)]` with explicit constraints (regex patterns, `conlist` for bounded lists). Descriptions prefixed with `"FUTURE-PROOF:"` for documentation clarity.
+- [2026-01-17] **Memory Pipeline Architecture**: Use `MemorySubstrateService` directly (not `SubstrateDagOrchestrator`) for Cursor integration and testing. Rationale: simpler path until memory pipeline fully validated. `SubstrateDagOrchestrator` now has enterprise resilience (retry/CB/DLQ) ready for future wiring when needed. Pre-existing blocker: `graph_client.py:28` syntax error (unindented import in try block) needs separate fix.
 - [2026-01-15] **RLS Architecture**: L and C share the SAME tenant_id/org_id/user_id (deterministic UUIDs via uuid5). Isolation is scope-based (`developer`, `l-private`, `global`) + creator-based (`metadata.creator`), NOT tenant-based. This preserves L/C collaboration while blocking C from `l-private`. See `readme/RLS TENANT ID.md`.
 - [2026-01-15] Kernel Runtime Layer: KernelState is a dataclass (not a string) providing full audit trail. guarded_execute is THE enforcement choke point — all tool calls should go through it. Response renderer provides template but is not yet mandated (opt-in). Safety scan is in-code (08_safety_kernel.yaml not modified).
 - [2026-01-14] Memory Governance uses feature flags (`GOVERNANCE_HARDENING_ENABLED`, `GOVERNANCE_ENFORCEMENT_MODE`) for safe rollout: deploy code first (flag off), run migrations, enable log_only mode to monitor, then enable enforce mode. Instant rollback by setting flag to False.
@@ -166,30 +412,62 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - Test on both macOS local and Linux VPS
 - **Domain**: `l9.quantumaipartners.com` (Cloudflare proxied)
 - **Ports**: 8000=l9-api (unified - handles all traffic including MCP)
-- **Memory Client**: `agents/cursor/cursor_memory_client.py` (moved from `.cursor-commands/cursor-memory/`)
+- **Memory Client**: `agents/cursor/cursor_memory_client.py` — **THE ONLY METHOD** for Cursor ↔ L9 memory (no MCP servers in ~/.cursor/mcp.json)
 - **Memory API Keys**: `MCP_API_KEY_C` for Cursor, `MCP_API_KEY_L` for L-CTO (NOT `L9_EXECUTOR_API_KEY`)
 - **Memory scopes**: `developer` (L+C collab), `global` (cross-project), `l-private` (L only, C blocked)
 - **Direct API**: `/api/v1/memory/packet` WORKS ✅ | MCP `/mcp/call` WORKS ✅ (JSON codec fix applied)
 - **Slack credentials**: Already in VPS `.env` ✅ (SLACK_APP_ENABLED=true)
 - **Slack code**: `api/routes/slack.py` → `memory/slack_ingest.py` ✅ (handle_slack_with_l_agent ported)
-- **Missing for Slack DMs**: Set `L9_ENABLE_LEGACY_SLACK_ROUTER=false`, add `message.im` subscription in Slack App
+- **Missing for Slack DMs**: Add `message.im` subscription in Slack App (legacy router removed, AgentType routing is default)
 - **Cloudflare**: All DNS for quantumaipartners.com proxied via Cloudflare (HTTPS, DDoS protection)
 - **RLS UUIDs** (deterministic, shared by L+C): tenant=`73350468-3158-5d0f-9b8c-9b193d96fc4b`, org=`14910cef-fea1-51d7-9a28-05579e6c0c18`, user=`2f00c090-3816-51a0-806c-34d32522a070`
+- **Embedding Dimensions**: ALL systems aligned at **1536** (text-embedding-3-large truncated, text-embedding-3-small native)
 
 ---
-*Last updated: 2026-01-15 (World Model Pack Integration Complete: GMP-89/90/91/92, 63+ stubs → production)*
+*Last updated: 2026-01-21 (PRs #28-30 Analysis + Merge Prep)*
 
 ## Next Steps (Current Session)
-1. **World Model Engine Integration** — Wire QueryEngine into WorldModelEngine for unified API
-2. **Add Unit Tests** — Create test_query_engine.py with comprehensive coverage
-3. **Deploy container detection fix** — Run `docker-compose build --no-cache l9-api && docker-compose up -d l9-api` on VPS
-4. **Add Persistence Substrates** — postgres_substrate.py, neo4j_substrate.py, redis_substrate.py
-5. **CodeGenAgent (CGA) System** — Resume CGA work now that governance is verified
-11. ~~**VPS Migrations**~~ ⏳ PENDING — Will run automatically at next Docker rebuild
-12. ~~**GMP-83: Bootstrap Pack Finalization**~~ ✅ DONE — Redis working memory, Prometheus metrics, test namespace fix
-13. ~~**GMP-84: L-CTO Research Overlay Wiring**~~ ✅ DONE — `create_l_cto_research_agent()` factory added
+
+### 🔴 BLOCKED: PRs #28, #29, #30 Merge
+**Status:** All 3 PRs have CI failures (CI Gates, Docker Validation, Path Safety Tests)
+**Action:** Manus fixing — prompts already sent
+**Merge Order (when CI passes):** PR #28 → PR #29 → PR #30
+
+### Post-Merge Wiring Checklist (after PRs land)
+| Component | Wire To | File |
+|-----------|---------|------|
+| `ExecutorComposer` | `api/server.py` | Replace scattered `os.getenv` |
+| `DeduplicationEngine` | `memory/consolidation.py` | Call from `_run_deduplication()` |
+| `registry_cache.py` | `core/tools/registry_adapter.py` | Add cache layer |
+| Tracing decorators | High-traffic routes | `@traced`, `@timed` |
+
+### 🟠 DEFERRED: api/server.py Refactor
+**Decision:** Separate future PR after PRs 28-30 merged
+**Scope:** Replace remaining `os.getenv()` with `ExecutorConfig`, wire `ExecutorComposer`
+
+### Lower Priority
+- **World Model Engine Integration** — Wire QueryEngine into WorldModelEngine
+- **CodeGenAgent (CGA) System** — Resume after governance verified on VPS
+- **README Gold Standard (GMP-100)** — Template system + YAML support
+
+~~**IaC Deployment**~~ ✅ DONE — One-click VPS provisioning complete
+~~**S3 Backup Automation**~~ ✅ DONE — VPS cron job set for 12-hour backups
 
 **Recent Sessions (7-day window):**
+- 2026-01-21: **PRs #28-30 Analysis + Merge Prep** — Combined `/analyze_evaluate` of 3 PRs (ExecutorComposer, Observability, Memory & Governance). All blocked on CI (Gates, Docker, Path Safety). Identified: bootstrap.py non-existent factory imports (Manus fixing), deduplication.py integration needed with consolidation.py. Added adaptive cache to TODO. DEFERRED: api/server.py refactor to separate PR.
+- 2026-01-20: **World Model Pipeline Unification + GMP-106 PR #22** — Unified 3 memory pipelines: traced `ingest_packet()`, `_emit_packet()`, World Model `ingest()`. Found World Model in-memory path was isolated. Added `sync_to_db()` to `KnowledgeIngestor`, wired to callers, connected `WorldModelService` to `WorldModelRuntime` at startup. All World Model entities now persist to PostgreSQL. Also: Fixed Python 3.9 union syntax, merged PR #22 (+5,133 lines).
+- ✅ 2026-01-20: **GMP-105 Checkpoint Resilience + Research Protocol** — Completed GMP-105 Batch 1+2: `L9RetryablePostgresSaver` with retry logic, proper `list()` implementation, Prometheus pool gauges, `/health/checkpoint` endpoint. 34 new tests. Established Perplexity Research Protocol rule (docs-first, Perplexity for gaps only). Also: Gap Analysis + Policy Generator utility.
+- 2026-01-20: **Gap Analysis + Policy Generator** — Analyzed 6 TODO Memory Files vs L9 production (most N/A or already implemented). Created `core/governance/policy_generator.py` (~550 LOC) with template presets (`scope-access`, `tool-approval`, `resource-access`), DORA metadata, CLI + programmatic API. Generated `config/policies/tool_approval_generated.yaml`. **New utility for declarative policy creation.**
+- 2026-01-19: **Governance Command Enhancements** — Added Phase 0.5 (CONTEXT HARVEST) to `/gmp` for systematic file analysis before implementation. Rewrote `/wire` to v10.0.0 (dynamic wiring + Phase 6 recursive verify + Phase 7 report). Consolidated `C_GOV_FILES/` (83 files from 17 subdirs → flat). Analyzed 10 orphaned Python files (all unused). Documented Cursor state.vscdb + chat export infrastructure.
+- 2026-01-19: **Auto-Wiring Phase 3: BackgroundTaskRegistry + ReActRuntime** — Harvested `BackgroundTaskRegistry` (~260 LOC) and `ReActRuntime` (~225 LOC) from Runtime 2.md. Refactored `api/server.py` to use registry (~35 lines removed). Applied Pydantic v2 `Annotated` pattern to future-proof fields in `core/agents/schemas.py` (regex validation, list bounds). **New files:** `runtime/background_tasks.py`, `core/runtimes/react_runtime.py`.
+- 2026-01-19: **Memory Consolidation Wiring (GMP-95)** — Wired `NeuralDecayScheduler` and `HierarchicalSummarizer` into server background loop. Verified memory tools (`memory_search`, `memory_write`) already registered. Earlier: README Gold Standard Infrastructure (GMP-100/101), superprompt enhancements, research agent facade. **Stage 2 memory consolidation now active.**
+- ✅ 2026-01-19: **Pre-Commit v3.0 Frontier-Grade** — Upgraded to 8-gate security hook. Gates: branch protection, secret scan, format, lint, type check (strict), AI security, test+coverage (75%), protected surfaces, audit logging. **All 5 critical gaps CLOSED.**
+- ✅ 2026-01-19: **Cursor Session Startup System** — Created `/start-session` command + CLI (`make cursor-start`). Renamed kernel → `cursor_workflow_kernel.yaml` (v1.0.0, `agents/cursor/`). Fixed kernel path. Added 7 Cursor files to startup. Cleaned up 4 obsolete files. Fixed 2 lint errors. **20 files loaded, 37ms, kernel validated.**
+- ✅ 2026-01-18: **S3 Backup + DORA Injection** — Created backup scripts (PostgreSQL + Neo4j → S3). Injected DORA blocks into 1,158 files. Contract v2.1.0, CI compliance script.
+- ✅ 2026-01-17: **GMP-94: Embedding Dimension Mismatch Fix** — Fixed critical semantic search failure. `mcp_memory/src/embeddings.py` was missing `dimensions=settings.OPENAI_EMBED_DIM` causing 3072-dim queries against 1536-dim vectors. Fixed `embed_text()` and `embed_texts()`. Cleaned up Cursor MCP config (removed broken `l9-memory` and `postgres` MCPs). Fixed 4 misleading 3072→1536 comments. **Canonical method:** `cursor_memory_client.py` only. **DEPLOYMENT REQUIRED.**
+- ✅ 2026-01-17: **GMP-FIX-01: Syntax Error Fix** — Fixed `from core.decorators import must_stay_async` syntax errors in 4 files (import was unindented inside try blocks). Files fixed: `memory/graph_client.py`, `memory/gap_detector.py`, `runtime/redis_client.py`, `agents/codegenagent/codegen_agent.py`. **Root cause:** Script added imports without checking indentation context. **Result:** pytest now runs, 27 GMP-88 resilience tests pass. Report: `reports/GMP_Report_GMP-FIX-01-Syntax-Errors.md`
+- ✅ 2026-01-16: **GMP-93: Remove slack_sdk Dependency** — Removed `slack_sdk` dependency entirely. Extended `api/slack_client.py` with `upload_file()` and `get_file_info()` async methods. Migrated 5 callers to async client. Deleted `services/slack_client.py` (312 lines). Removed dependency from `requirements.txt`. **Result:** 100% async httpx-based client, no blocking I/O. Report: `reports/GMP_Report_GMP-93.md`
+- ✅ 2026-01-17: **GMP-88: SubstrateDagOrchestrator Resilience** — Added enterprise-grade resilience to DAG orchestrator: RetryPolicy (exponential backoff, jitter), CircuitBreaker integration, DeadLetterQueue (Redis Streams). Created `memory/dead_letter.py` (165 LOC), updated `memory/substrate_dag_wrapper.py` v1.0→v2.0 (219 LOC), created `tests/memory/test_dag_orchestrator_resilience.py` (27 tests). **Architecture Decision:** Using `MemorySubstrateService` directly for Cursor/testing until memory pipeline fully validated. Report: `reports/GMP_Report_GMP-88-SubstrateDagOrchestrator-Resilience.md`
 - ✅ 2026-01-15: **World Model Pack Integration Complete (GMP-89/90/91/92)** — Full Layer 1+2 integration: state.py (12 stubs → production CRUD), registry.py (14 stubs → schema validation), loader.py (10 stubs → YAML parsing), updater.py (12 stubs → atomic batch updates), causal_graph.py (15 stubs → BFS traversal), query_engine.py (new file, 20+ query methods). **63+ stubs replaced, ~3,400 lines, 6 files, 25 tests pass**. Reports: GMP-89/90/91/92.
 - ✅ 2026-01-16: **Slash Commands v2 + Memory Integration** — Updated `/end-session` (v2 with structured PICKUP| format), `/mem` (v2 with NOTE|/LESSON|/ERROR| formats), `/gmp` (v2 with GMP| completion format + memory integration). All commands now use pipe-delimited structured formats for searchability. Created `end-session-v2.yaml`. Reduced /gmp from 967→180 lines, /mem from 422→120 lines.
 - ✅ 2026-01-16: **GMP-68: MCP Memory Governance + WMToGraphSync** — Fixed "Governance context required" error (api/routes/mcp.py). Created WMToGraphSync for bidirectional World Model↔Neo4j sync. Fixed container detection with L9_CONTAINER_ENV. Updated mcp_memory docs.

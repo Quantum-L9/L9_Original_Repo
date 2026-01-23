@@ -2,6 +2,27 @@
 MCP (Model Context Protocol) Server Implementation.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Mcp Server",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "data_models",
+    "module_name": "mcp_server",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": ["working_memory", "semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Dict, List
 from pydantic import BaseModel, ValidationError
@@ -1032,3 +1053,49 @@ async def handle_tool_call(
                 )
 
         raise
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MCP-INTE-006",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.memory.cache", "api.memory.graph"],
+    "tags": [
+        "api",
+        "async",
+        "cache",
+        "caching",
+        "data-models",
+        "debugging",
+        "graph-db",
+        "integration",
+        "logging",
+        "messaging",
+    ],
+    "keywords": ["handle", "mcp", "server", "tool", "tools"],
+    "business_value": "Provides mcp server components including MCPTool, MCPToolCall",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

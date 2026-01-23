@@ -6,6 +6,13 @@
 
 ### tests/core/
 
+- `tests/core/test_event_type_registry.py` (5 tests)
+- `tests/core/test_fail_closed_executor.py` (4 tests)
+- `tests/core/test_singleton_auto_registry.py` (4 tests)
+- `tests/core/test_moduleregistry.py` (11 tests)
+- `tests/core/test_auto_registry.py` (11 tests)
+- `tests/core/test_fail_closed_registry.py` (8 tests)
+- `tests/core/test_resilience_mixin.py` (16 tests)
 - `tests/core/tools/test_tool_graph.py` (2 tests)
 - `tests/core/tools/test_tool_graph_unified.py` (16 tests)
 - `tests/core/bootstrap/test_executor_governance.py` (5 tests)
@@ -20,9 +27,12 @@
 - `tests/core/aios/test_runtime.py` (2 tests)
 - `tests/core/observability/test_observability_integration.py` (32 tests)
 - `tests/core/schemas/test_content_hash_integrity.py` (14 tests)
+- `tests/core/schemas/test_upcaster_registry.py` (4 tests)
 - `tests/core/schemas/test_schema_registry.py` (20 tests)
 - `tests/core/governance/test_engine.py` (15 tests)
+- `tests/core/governance/test_policy_registry.py` (4 tests)
 - `tests/core/governance/test_validation.py` (12 tests)
+- `tests/core/protocols/test_secrets_protocols.py` (7 tests)
 
 ### tests/integration/
 
@@ -49,6 +59,7 @@
 - `tests/integration/test_closed_loop_learning.py` (7 tests)
 - `tests/integration/test_ws_task_routing_integration.py` (3 tests)
 - `tests/integration/test_compliance_audit.py` (15 tests)
+- `tests/integration/test_memory_packet_golden_path.py` (1 tests)
 - `tests/integration/test_l_cto_memory_governance_integration.py` (6 tests)
 - `tests/integration/test_recursive_self_testing.py` (20 tests)
 - `tests/integration/test_unified_graph.py` (11 tests)
@@ -60,14 +71,17 @@
 - `tests/memory/test_hierarchical_consolidation.py` (29 tests)
 - `tests/memory/test_embedding_filter.py` (9 tests)
 - `tests/memory/test_ingestion_transaction.py` (4 tests)
+- `tests/memory/test_mcp_hardening_startup.py` (3 tests)
 - `tests/memory/test_graph_memory.py` (24 tests)
 - `tests/memory/test_cross_client_consistency.py` (11 tests)
 - `tests/memory/test_ingestion_audit.py` (16 tests)
 - `tests/memory/test_governance_invariants.py` (12 tests)
+- `tests/memory/test_strategy_memory_integration.py` (11 tests)
 - `tests/memory/test_tool_router.py` (23 tests)
 - `tests/memory/test_mcp_bypass_compliance.py` (13 tests)
 - `tests/memory/test_pruning.py` (5 tests)
 - `tests/memory/test_query_classifier.py` (15 tests)
+- `tests/memory/test_checkpoint_retry.py` (20 tests)
 - `tests/memory/test_substrate_semantic.py` (6 tests)
 - `tests/memory/test_hybrid_rag.py` (19 tests)
 - `tests/memory/test_rls_isolation.py` (5 tests)
@@ -77,10 +91,13 @@
 - `tests/memory/test_ingestion_pipeline_audit.py` (50 tests)
 - `tests/memory/test_retrieval_audit.py` (12 tests)
 - `tests/memory/test_unified_pipeline.py` (17 tests)
+- `tests/memory/test_strategy_memory.py` (26 tests)
 - `tests/memory/test_e2e_memory_audit.py` (7 tests)
 - `tests/memory/test_packet_envelope.py` (2 tests)
 - `tests/memory/test_memory_ingestion.py` (10 tests)
 - `tests/memory/test_vector_search.py` (1 tests)
+- `tests/memory/test_checkpoint_metrics_pool.py` (14 tests)
+- `tests/memory/test_dag_orchestrator_resilience.py` (27 tests)
 - `tests/memory/test_substrate_alignment.py` (8 tests)
 - `tests/memory/test_extraction_pipeline.py` (3 tests)
 - `tests/memory/test_packet_envelope_immutability.py` (14 tests)
@@ -89,10 +106,12 @@
 - `tests/memory/test_reasoning_replay.py` (11 tests)
 - `tests/memory/test_vector_index.py` (5 tests)
 - `tests/memory/test_frontier_memory_pipeline.py` (35 tests)
+- `tests/memory/test_predictive_warming.py` (17 tests)
 - `tests/memory/test_packet_validation_v2.py` (23 tests)
 - `tests/memory/test_substrate_dag_native.py` (32 tests)
 - `tests/memory/test_tool_audit.py` (27 tests)
 - `tests/memory/test_cypher_templates.py` (14 tests)
+- `tests/memory/tests/memory/test_mcp_hardening_startup.py` (3 tests)
 
 ### tests/telemetry/
 
@@ -106,12 +125,14 @@
 - `tests/api/test_factory_path_safety.py` (3 tests)
 - `tests/api/test_slack_adapter.py` (26 tests)
 - `tests/api/test_websocket_auth.py` (5 tests)
+- `tests/api/test_auth_api_key_enforcement.py` (2 tests)
 - `tests/api/test_e2e_slack_audit.py` (0 tests)
+- `tests/api/routes/test_registry.py` (9 tests)
 
 ## Summary
 
-- **Total test files**: 89
-- **Total test functions**: 1143
+- **Total test files**: 110
+- **Total test functions**: 1350
 
 ## Running Tests
 

@@ -8,6 +8,27 @@ Manages entity and relation type definitions with:
 Follows ISO 42001 §7.5 (schema conformance).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Type Schema Management.",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T23:45:01Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "registry",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from typing import Dict, List, Optional, Any, Set
 from dataclasses import dataclass
 
@@ -314,3 +335,47 @@ class WorldModelRegistry(IWorldModelRegistry):
             registry._type_hierarchy[parent] = set(children)
 
         return registry
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-021",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["caching", "dataclass", "learning", "queue", "rest-api", "world-model"],
+    "keywords": [
+        "entity",
+        "management.",
+        "model",
+        "register",
+        "registry",
+        "relation",
+        "schema",
+        "subtype",
+    ],
+    "business_value": "Implements WorldModelRegistry for registry functionality",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

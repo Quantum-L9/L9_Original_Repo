@@ -14,6 +14,33 @@ GMP: wire_research_agent_yaml
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Research Agent",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T12:13:08Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "research_agent",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "GET /status",
+            "POST /synthesize",
+            "POST /discover",
+            "POST /generate-spec",
+            "POST /research-to-code",
+        ],
+        "datasources": ["Perplexity API"],
+        "memory_layers": [],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Optional
 
 import structlog
@@ -21,10 +48,22 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
+
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/research/agent",
+    tags=["research-agent"],
+    display_name="Research Agent",
+    dependencies=["research_agent"],
+)
 
 
 # ============================================================================
@@ -166,6 +205,7 @@ class ResearchToCodeResponse(BaseModel):
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def research_agent_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -393,3 +433,58 @@ async def research_to_code(
             has_spec=False,
             error=str(e),
         )
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-022",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.decorators"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "router",
+    ],
+    "keywords": [
+        "agent",
+        "discover",
+        "generate",
+        "module",
+        "pipeline",
+        "research",
+        "router",
+        "spec",
+    ],
+    "business_value": "/synthesize: Fast multi-perspective synthesis (~10 min) /discover: Deep 5-stage research pipeline (hours) /generate-spec: Module-Spec-v2.4 YAML generation (~1 min) /research-to-code: End-to-end pipeli",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -13,6 +13,30 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Adaptive Prompting",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "adaptive_prompting",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.agents.executor",
+            "tests.integration.test_closed_loop_learning",
+        ],
+    },
+}
+# ============================================================================
+
 from typing import Any, Dict, List
 
 import structlog
@@ -186,23 +210,23 @@ async def get_adaptive_context_for_tool(tool_name: str) -> str:
 async def get_world_model_context_for_agent(agent_name: str = "L") -> str:
     """
     Get world model context for an agent.
-    
+
     Queries the world model for agent capabilities, infrastructure status,
     and integration status to provide situational awareness.
-    
+
     Args:
         agent_name: Agent name (e.g., "L", "CA")
-        
+
     Returns:
         World model context string to prepend to agent prompts
     """
     try:
         from core.worldmodel.service import get_world_model_service
-        
+
         service = get_world_model_service()
         context = await service.get_world_model_context(agent_name)
         return context
-        
+
     except Exception as e:
         logger.warning(f"Failed to get world model context for {agent_name}: {e}")
         return ""
@@ -215,78 +239,74 @@ async def get_combined_adaptive_context(
 ) -> str:
     """
     Get combined adaptive context including governance patterns and world model.
-    
+
     Args:
         tool_name: Tool being used
         agent_name: Agent using the tool
         include_world_model: Whether to include world model context
-        
+
     Returns:
         Combined context string
     """
     context_parts = []
-    
+
     # Get governance-based adaptive context
     governance_context = await get_adaptive_context_for_tool(tool_name)
     if governance_context:
         context_parts.append(governance_context)
-    
+
     # Get world model context
     if include_world_model:
         world_model_context = await get_world_model_context_for_agent(agent_name)
         if world_model_context:
             context_parts.append(world_model_context)
-    
+
     return "\n\n".join(context_parts)
 
 
 async def get_test_failure_context(task_id: str) -> str:
     """
     Get adaptive context from test failures for a task.
-    
+
     Queries test_results segment for failures and generates
     adaptive guidance for L to refine proposals.
-    
+
     Args:
         task_id: Task ID to check for test failures
-        
+
     Returns:
         Adaptive context string based on test failures
     """
     try:
         from memory.retrieval import get_test_results_for_task
-        
+
         test_results = await get_test_results_for_task(task_id)
-        
+
         if not test_results:
             return ""
-        
+
         # Find failed tests
         failed_results = [r for r in test_results if not r.get("success", True)]
-        
+
         if not failed_results:
             return ""
-        
-        context_parts = [
-            "\n---\n**PRIOR TEST FAILURES FOR THIS TASK:**\n"
-        ]
-        
+
+        context_parts = ["\n---\n**PRIOR TEST FAILURES FOR THIS TASK:**\n"]
+
         for result in failed_results[:3]:  # Limit to 3 most recent
             tests_failed = result.get("tests_failed", 0)
             recommendations = result.get("recommendations", [])
-            
+
             context_parts.append(
                 f"- Previous attempt had {tests_failed} failing test(s)"
             )
             for rec in recommendations[:2]:
                 context_parts.append(f"  - {rec}")
-        
-        context_parts.append(
-            "\nAddress these issues in your revised proposal.\n---\n"
-        )
-        
+
+        context_parts.append("\nAddress these issues in your revised proposal.\n---\n")
+
         return "\n".join(context_parts)
-        
+
     except Exception as e:
         logger.warning(f"Failed to get test failure context: {e}")
         return ""
@@ -304,3 +324,53 @@ __all__ = [
     "get_test_failure_context",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.worldmodel.service", "memory.retrieval"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "foundation",
+        "logging",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "adaptive",
+        "agent",
+        "based",
+        "combined",
+        "failure",
+        "generate",
+        "governance",
+        "model",
+    ],
+    "business_value": "Utility module for adaptive prompting",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

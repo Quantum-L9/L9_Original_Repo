@@ -19,7 +19,6 @@ structlog>=24.1.0
 anyio>=4.2.0
 aiofiles>=23.2.0
 typing-extensions>=4.9.0
-slack-sdk>=3.26.0
 twilio>=8.10.0
 Jinja2>=3.1.2
 PyYAML>=6.0.1
@@ -39,3 +38,4 @@ vulture>=2.11
 mypy>=1.10.0
 python-multipart
 urllib3<2
+mutmut>=2.4.5

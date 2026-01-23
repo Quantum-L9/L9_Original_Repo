@@ -14,6 +14,27 @@ Auto-generated scaffold by L9 CodeGenAgent, implementation by governance design.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Remediation Engine",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T00:41:22Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "remediation_engine",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["workers.__init__", "workers.anomaly_response_monitor"],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -21,6 +42,7 @@ from uuid import uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -135,12 +157,14 @@ class RemediationEngine:
     # Lifecycle
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def startup(self) -> None:
         """Initialize resources on startup."""
         logger.info("remediation_engine_starting")
         self._initialized = True
         logger.info("remediation_engine_started")
 
+    @must_stay_async("health endpoint")
     async def shutdown(self) -> None:
         """Clean up resources on shutdown."""
         logger.info("remediation_engine_shutting_down")
@@ -241,6 +265,7 @@ class RemediationEngine:
         else:
             return await self._handle_investigate(request)
 
+    @must_stay_async("callers use await")
     async def _handle_log_and_monitor(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -263,6 +288,7 @@ class RemediationEngine:
             next_steps=["Continue monitoring", "Review in daily audit"],
         )
 
+    @must_stay_async("callers use await")
     async def _handle_remediate(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -314,6 +340,7 @@ class RemediationEngine:
             next_steps=["Verify remediation effectiveness", "Monitor for recurrence"],
         )
 
+    @must_stay_async("callers use await")
     async def _handle_rollback(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -375,6 +402,7 @@ class RemediationEngine:
                 next_steps=["Manual intervention required", "Escalate to Igor"],
             )
 
+    @must_stay_async("callers use await")
     async def _handle_escalate(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -400,6 +428,7 @@ class RemediationEngine:
             next_steps=["Await human response", "Monitor anomaly progression"],
         )
 
+    @must_stay_async("callers use await")
     async def _handle_investigate(
         self, request: RemediationEngineRequest
     ) -> RemediationResult:
@@ -432,6 +461,7 @@ class RemediationEngine:
     # Health Check
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def health_check(self) -> Dict[str, Any]:
         """Check service health."""
         return {
@@ -475,3 +505,57 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "data-models",
+        "engine",
+        "enum",
+        "logging",
+        "messaging",
+        "monitoring",
+        "operations",
+    ],
+    "keywords": [
+        "action",
+        "actions",
+        "anomaly",
+        "cache",
+        "check",
+        "create",
+        "engine",
+        "governance",
+    ],
+    "business_value": "Provides remediation engine components including RemediationAction, RemediationStatus, RemediationEngineRequest",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -15,6 +15,30 @@ Best Practices (from Perplexity docs):
 v3.0.0: Added retry logic with exponential backoff for transient failures
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Perplexity Client",
+    "module_version": "3.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "perplexity_client",
+    "type": "dataclass",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API", "Perplexity API"],
+        "memory_layers": [],
+        "imported_by": [
+            "services.research.tools.__init__",
+            "services.research.tools.tool_wrappers",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from enum import Enum
@@ -23,6 +47,8 @@ from typing import Any, Optional
 import httpx
 
 from core.resilience.retry import async_retry, AsyncRetryConfig
+from core.decorators import must_stay_async
+from core.governance.rate_limit_policy import rate_limit
 
 log = structlog.get_logger(__name__)
 
@@ -155,6 +181,7 @@ class PerplexityClient:
         self.api_key = api_key
         self._client: Optional[httpx.AsyncClient] = None
 
+    @must_stay_async("async context manager protocol")
     async def __aenter__(self):
         """Async context manager entry."""
         self._client = httpx.AsyncClient(
@@ -167,15 +194,21 @@ class PerplexityClient:
         if self._client:
             await self._client.aclose()
 
+    @rate_limit("llm.perplexity")
     async def search(self, request: PerplexityRequest) -> PerplexityResponse:
         """
         Execute search with best practices enforced.
+
+        Rate limited to 20 requests/minute per config/policies/rate_limits.yaml.
 
         Args:
             request: Validated PerplexityRequest
 
         Returns:
             PerplexityResponse with results
+
+        Raises:
+            RateLimitExceeded: If rate limit is exceeded
         """
         # Validate request
         issues = request.validate()
@@ -221,7 +254,9 @@ class PerplexityClient:
                 if response.status_code >= 400:
                     error_text = response.text[:500]
                     log.error(
-                        "perplexity_error", status=response.status_code, error=error_text
+                        "perplexity_error",
+                        status=response.status_code,
+                        error=error_text,
                     )
                     return PerplexityResponse(
                         success=False,
@@ -241,7 +276,11 @@ class PerplexityClient:
                 _make_request,
                 config=PERPLEXITY_RETRY_CONFIG,
                 operation=f"perplexity_search_{request.model.value}",
-                retry_on=(httpx.TimeoutException, httpx.ConnectError, httpx.HTTPStatusError),
+                retry_on=(
+                    httpx.TimeoutException,
+                    httpx.ConnectError,
+                    httpx.HTTPStatusError,
+                ),
             )
 
         except httpx.TimeoutException:
@@ -440,3 +479,57 @@ def get_perplexity_client() -> Optional[PerplexityClient]:
         log.warning("perplexity_not_configured", hint="Set PERPLEXITY_API_KEY")
         return None
     return PerplexityClient(api_key)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-008",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.resilience.retry"],
+    "tags": [
+        "async",
+        "auth",
+        "client",
+        "data-models",
+        "dataclass",
+        "http-client",
+        "logging",
+        "messaging",
+        "operations",
+    ],
+    "keywords": [
+        "analyze",
+        "best",
+        "client",
+        "deep",
+        "model",
+        "perplexity",
+        "practices",
+        "quick",
+    ],
+    "business_value": "Provides perplexity client components including PerplexityModel, SearchContextSize, PerplexityRequest",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

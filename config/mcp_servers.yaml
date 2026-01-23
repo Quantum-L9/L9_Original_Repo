@@ -1,0 +1,47 @@
+# L9 MCP Server Configuration
+# ============================
+#
+# This file defines MCP (Model Context Protocol) servers that L9 can connect to.
+# Servers are automatically discovered and registered at startup.
+#
+# Format:
+#   servers:
+#     - server_id: unique_identifier
+#       command: ["command", "arg1", "arg2"]
+#       env:
+#         ENV_VAR: value
+#       enabled: true
+#       priority: 10
+#       category: category_name
+#       description: Human-readable description
+
+servers:
+  # Filesystem MCP Server
+  - server_id: filesystem
+    command: ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+    env:
+      NODE_ENV: production
+    enabled: true
+    priority: 10
+    category: storage
+    description: Provides filesystem access capabilities
+
+  # GitHub MCP Server
+  - server_id: github
+    command: ["npx", "-y", "@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    enabled: false  # Disabled by default, enable when GITHUB_TOKEN is set
+    priority: 5
+    category: development
+    description: GitHub API integration for repository operations
+
+  # Example: Custom MCP Server
+  # - server_id: custom_server
+  #   command: ["python", "-m", "my_mcp_server"]
+  #   env:
+  #     API_KEY: ${CUSTOM_API_KEY}
+  #   enabled: true
+  #   priority: 0
+  #   category: custom
+  #   description: Custom MCP server implementation

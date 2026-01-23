@@ -45,12 +45,37 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Unified Controller",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "unified_controller",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["orchestration.__init__"],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, List
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
+
+# Input segmenter for multi-part directive support (harvested from tokenizer)
+from orchestration.input_segmenter import SegmentResult, get_segmenter
 
 logger = structlog.get_logger(__name__)
 
@@ -270,6 +295,7 @@ class UnifiedController:
         # External services
         self._memory_client: Optional[Any] = None
         self._world_model: Optional[Any] = None
+        self._strategy_memory: Optional[Any] = None
 
         logger.info(f"UnifiedController initialized in {self._config.mode.value} mode")
 
@@ -389,6 +415,20 @@ class UnifiedController:
 
         logger.info("World model attached to UnifiedController")
 
+    def set_strategy_memory(self, strategy_memory: Any) -> None:
+        """
+        Set the Strategy Memory service for plan reuse.
+
+        Args:
+            strategy_memory: IStrategyMemoryService implementation
+        """
+        self._strategy_memory = strategy_memory
+
+        if self._plan_executor:
+            self._plan_executor.set_strategy_memory(strategy_memory)
+
+        logger.info("Strategy Memory attached to UnifiedController")
+
     # =========================================================================
     # Main Entry Point
     # =========================================================================
@@ -492,9 +532,109 @@ class UnifiedController:
         return result
 
     # =========================================================================
+    # Multi-Part Request Handling (Harvested from tokenizer pipeline)
+    # =========================================================================
+
+    async def handle_multi_request(
+        self,
+        text: str,
+        context: Optional[dict[str, Any]] = None,
+    ) -> List[ControllerResult]:
+        """
+        Handle a multi-part request by segmenting and processing each part.
+
+        This method uses the InputSegmenter (harvested from tokenizer) to break
+        compound directives into atomic tasks. For example:
+
+            "Deploy RIL, test ToT, sync Supabase then generate plan v3"
+
+        Becomes 4 separate requests processed sequentially.
+
+        Args:
+            text: Natural language task description (may contain multiple directives)
+            context: Optional execution context
+
+        Returns:
+            List of ControllerResult, one per segment
+        """
+        segmenter = get_segmenter()
+        segment_result = segmenter.segment(text, context)
+
+        # If only one segment, use regular handler
+        if segment_result.segment_count <= 1:
+            result = await self.handle_request(text, context)
+            return [result]
+
+        logger.info(
+            f"Processing multi-part request: {segment_result.segment_count} segments",
+            segments=segment_result.segments,
+        )
+
+        results: List[ControllerResult] = []
+        base_context = context or {}
+
+        for i, segment in enumerate(segment_result.segments):
+            # Add sequence metadata to context
+            segment_context = {
+                **base_context,
+                "segment_index": i,
+                "total_segments": segment_result.segment_count,
+                "from_multi_part": True,
+                "original_input": segment_result.raw_input,
+            }
+
+            logger.info(
+                f"Processing segment {i + 1}/{segment_result.segment_count}: {segment}"
+            )
+
+            result = await self.handle_request(segment, segment_context)
+            results.append(result)
+
+            # If one segment fails critically, we may want to stop
+            # For now, continue processing all segments
+            if not result.success:
+                logger.warning(
+                    f"Segment {i + 1} failed, continuing with remaining segments",
+                    segment=segment,
+                    errors=result.errors,
+                )
+
+        logger.info(
+            f"Multi-part request complete: {len(results)} results, "
+            f"{sum(1 for r in results if r.success)} successful"
+        )
+
+        return results
+
+    def segment_input(self, text: str) -> SegmentResult:
+        """
+        Segment input without processing (for inspection/preview).
+
+        Args:
+            text: Input text to segment
+
+        Returns:
+            SegmentResult with segments and metadata
+        """
+        return get_segmenter().segment(text)
+
+    def is_multi_part(self, text: str) -> bool:
+        """
+        Quick check if input contains multiple directives.
+
+        Args:
+            text: Input text to check
+
+        Returns:
+            True if input would be segmented into multiple parts
+        """
+        return get_segmenter().is_multi_part(text)
+
+    # =========================================================================
     # Pipeline Phases
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _phase_routing(
         self,
         text: str,
@@ -656,6 +796,7 @@ class UnifiedController:
 
         self._record_phase_time("simulate", phase_start)
 
+    @must_stay_async("callers use await")
     async def _phase_plan(
         self,
         result: ControllerResult,
@@ -1202,3 +1343,63 @@ async def broadcast_task(
     logger.info("Broadcast task to %d agents: type=%s", count, task_type)
 
     return count
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-035",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "core.schemas",
+        "core.schemas.ws_event_stream",
+        "runtime.websocket_orchestrator",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "auth",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "agent",
+        "broadcast",
+        "client",
+        "compile",
+        "controller",
+        "dispatch",
+        "engine",
+        "execute",
+    ],
+    "business_value": "IR Engine (semantic compiler, validator, generator, planner) World Model Runtime Simulation Engine (via SimulationRouter) Memory Substrate (PacketEnvelope API) Collaborative cells (architect/coder/rev",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

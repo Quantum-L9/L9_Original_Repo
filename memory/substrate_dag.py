@@ -15,6 +15,38 @@ All memory operations flow through MCP-Memory's unified ingestion pipeline.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "LangGraph DAG (Ingestion Pipeline)",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "substrate_dag",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "core.tools.base_registry",
+            "memory.__init__",
+            "memory.ingestion",
+            "memory.substrate_dag_wrapper",
+            "memory.substrate_service",
+            "tests.memory.test_embedding_filter",
+            "tests.memory.test_ingestion_pipeline_audit",
+            "tests.memory.test_mcp_bypass_compliance",
+            "tests.memory.test_substrate_dag_native",
+            "tests.memory.test_unified_pipeline",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from datetime import datetime
@@ -25,6 +57,7 @@ from langgraph.graph import StateGraph, END
 from langchain_core.runnables import RunnableConfig
 
 from core.schemas import PacketEnvelope, PacketWriteResult
+from core.decorators import must_stay_async
 from memory.substrate_models import (
     EnrichmentResult,
     ExtractedInsight,
@@ -96,7 +129,9 @@ def _should_skip_embedding(text: str) -> bool:
 # =============================================================================
 
 
-def _get_config_dependency(config: RunnableConfig, key: str, default=None):
+def _get_config_dependency(
+    config: RunnableConfig, key: str, default: Any = None
+) -> Any:
     """
     Safely extract a configurable dependency from RunnableConfig.
 
@@ -168,6 +203,7 @@ def _default_state() -> SubstrateGraphState:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def intake_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -216,6 +252,7 @@ async def intake_node(
     }
 
 
+@must_stay_async("callers use await")
 async def reasoning_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -516,6 +553,7 @@ async def checkpoint_node(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def extract_insights_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -1191,3 +1229,58 @@ class SubstrateDAG:
             world_model_triggered=final_state.get("world_model_triggered", False),
             enrichment_duration_ms=duration_ms,
         )
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-042",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas", "memory.substrate_models"],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "llm",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "metrics",
+        "rest-api",
+    ],
+    "keywords": [
+        "(ingestion",
+        "after",
+        "build",
+        "checkpoint",
+        "dag",
+        "embed",
+        "enrich",
+        "enrichment",
+    ],
+    "business_value": "intake_node → reasoning_node → memory_write_node → semantic_embed_node → checkpoint_node",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

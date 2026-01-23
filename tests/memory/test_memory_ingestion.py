@@ -26,9 +26,9 @@ async def test_ingestion_assigns_packet_id(memory_adapter):
     packet = await memory_adapter.ingest({"content": "test"})
 
     assert "packet_id" in packet, "Packet should have packet_id field"
-    assert packet["packet_id"] is not None, (
-        f"packet_id should not be None, got {packet.get('packet_id')}"
-    )
+    assert (
+        packet["packet_id"] is not None
+    ), f"packet_id should not be None, got {packet.get('packet_id')}"
 
 
 @pytest.mark.asyncio

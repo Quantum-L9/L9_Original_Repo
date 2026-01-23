@@ -74,9 +74,7 @@ async def audit_redis() -> AuditResult:
         redis = await get_redis_client()
         if redis is None or not redis.is_available():
             result.add_check("redis_available", False, "Redis not available")
-            result.add_recommendation(
-                "Ensure Redis is running: docker-compose up -d redis"
-            )
+            result.add_recommendation("Ensure Redis is running: docker-compose up -d redis")
             result.finalize()
             return result
 
@@ -101,10 +99,26 @@ async def audit_redis() -> AuditResult:
 
         # Check 4: TTL Analysis from code
         ttl_config = {
-            "task_data": {"default": 3600, "location": "redis_client.py:185", "unit": "seconds (1 hour)"},
-            "task_context": {"default": 3600, "location": "redis_client.py:350", "unit": "seconds (1 hour)"},
-            "rate_limit": {"default": 60, "location": "redis_client.py:302", "unit": "seconds (1 minute)"},
-            "generic_set": {"default": "None (no expiry)", "location": "redis_client.py:408", "unit": "optional"},
+            "task_data": {
+                "default": 3600,
+                "location": "redis_client.py:185",
+                "unit": "seconds (1 hour)",
+            },
+            "task_context": {
+                "default": 3600,
+                "location": "redis_client.py:350",
+                "unit": "seconds (1 hour)",
+            },
+            "rate_limit": {
+                "default": 60,
+                "location": "redis_client.py:302",
+                "unit": "seconds (1 minute)",
+            },
+            "generic_set": {
+                "default": "None (no expiry)",
+                "location": "redis_client.py:408",
+                "unit": "optional",
+            },
         }
 
         result.add_check(
@@ -173,12 +187,8 @@ async def audit_neo4j() -> AuditResult:
         neo4j = await get_neo4j_client()
         if neo4j is None or not neo4j.is_available():
             result.add_check("neo4j_available", False, "Neo4j not available")
-            result.add_recommendation(
-                "Ensure Neo4j is running: docker-compose up -d neo4j"
-            )
-            result.add_recommendation(
-                "Set NEO4J_PASSWORD environment variable"
-            )
+            result.add_recommendation("Ensure Neo4j is running: docker-compose up -d neo4j")
+            result.add_recommendation("Set NEO4J_PASSWORD environment variable")
             result.finalize()
             return result
 
@@ -257,9 +267,7 @@ async def audit_neo4j() -> AuditResult:
         result.add_recommendation(
             "Neo4j is used for entity graphs and event timelines (best-effort sync)"
         )
-        result.add_recommendation(
-            "Failure to sync to Neo4j does NOT block packet ingestion"
-        )
+        result.add_recommendation("Failure to sync to Neo4j does NOT block packet ingestion")
 
     except Exception as e:
         result.add_check("neo4j_audit", False, f"Exception: {e}")
@@ -344,13 +352,11 @@ async def audit_postgresql() -> AuditResult:
 
         # Check 5: pgvector extension
         async with repo.acquire() as conn:
-            row = await conn.fetchrow(
-                """
+            row = await conn.fetchrow("""
                 SELECT EXISTS (
                     SELECT FROM pg_extension WHERE extname = 'vector'
                 ) as exists
-                """
-            )
+                """)
             pgvector_exists = row["exists"] if row else False
             result.add_check(
                 "pgvector_extension",
@@ -501,9 +507,7 @@ async def audit_retrieval_pipeline() -> AuditResult:
         # Check 3: Thread search
         # Use a known thread_id or generate one
         test_thread_id = str(uuid4())
-        thread_packets = await service.search_packets_by_thread(
-            thread_id=test_thread_id, limit=5
-        )
+        thread_packets = await service.search_packets_by_thread(thread_id=test_thread_id, limit=5)
         result.add_check(
             "thread_search",
             isinstance(thread_packets, list),
@@ -511,9 +515,7 @@ async def audit_retrieval_pipeline() -> AuditResult:
         )
 
         # Check 4: Type search
-        type_packets = await service.search_packets_by_type(
-            packet_type="e2e_audit_test", limit=5
-        )
+        type_packets = await service.search_packets_by_type(packet_type="e2e_audit_test", limit=5)
         result.add_check(
             "type_search",
             isinstance(type_packets, list),
@@ -593,9 +595,7 @@ async def audit_e2e_flow() -> AuditResult:
             search_result = await service.semantic_search(
                 SemanticSearchRequest(query="E2E flow test semantic content", top_k=5)
             )
-            found_in_semantic = any(
-                e2e_id in str(hit.payload) for hit in search_result.hits
-            )
+            found_in_semantic = any(e2e_id in str(hit.payload) for hit in search_result.hits)
             result.add_check(
                 "e2e_semantic_search",
                 found_in_semantic or len(search_result.hits) > 0,
@@ -646,12 +646,8 @@ async def audit_e2e_flow() -> AuditResult:
             )
 
         # Step 6: Verify retrieval by type
-        type_packets = await service.search_packets_by_type(
-            packet_type="e2e_flow_test", limit=10
-        )
-        found_by_type = any(
-            p.get("payload", {}).get("e2e_id") == e2e_id for p in type_packets
-        )
+        type_packets = await service.search_packets_by_type(packet_type="e2e_flow_test", limit=10)
+        found_by_type = any(p.get("payload", {}).get("e2e_id") == e2e_id for p in type_packets)
         result.add_check(
             "e2e_retrieval_by_type",
             found_by_type,
@@ -756,18 +752,18 @@ async def memory_service():
     database_url = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
     if not database_url:
         pytest.skip("MEMORY_DSN or DATABASE_URL not set")
-    
+
     from memory.substrate_service import init_service, get_service, close_service
-    
+
     await init_service(
         database_url=database_url,
         embedding_provider_type=os.getenv("EMBEDDING_PROVIDER", "stub"),
         embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-large"),
         openai_api_key=os.getenv("OPENAI_API_KEY"),
     )
-    
+
     yield await get_service()
-    
+
     await close_service()
 
 
@@ -775,7 +771,10 @@ async def memory_service():
 async def test_redis_audit(memory_service):
     """Test Redis configuration."""
     result = await audit_redis()
-    assert result.status in ["PASSED", "PASSED_WITH_WARNINGS"], f"Redis audit failed: {result.errors}"
+    assert result.status in [
+        "PASSED",
+        "PASSED_WITH_WARNINGS",
+    ], f"Redis audit failed: {result.errors}"
 
 
 @pytest.mark.asyncio
@@ -790,35 +789,49 @@ async def test_neo4j_audit(memory_service):
 async def test_postgresql_audit(memory_service):
     """Test PostgreSQL configuration."""
     result = await audit_postgresql()
-    assert result.status in ["PASSED", "PASSED_WITH_WARNINGS"], f"PostgreSQL audit failed: {result.errors}"
+    assert result.status in [
+        "PASSED",
+        "PASSED_WITH_WARNINGS",
+    ], f"PostgreSQL audit failed: {result.errors}"
 
 
 @pytest.mark.asyncio
 async def test_ingestion_pipeline_audit(memory_service):
     """Test ingestion pipeline."""
     result = await audit_ingestion_pipeline()
-    assert result.status in ["PASSED", "PASSED_WITH_WARNINGS"], f"Ingestion audit failed: {result.errors}"
+    assert result.status in [
+        "PASSED",
+        "PASSED_WITH_WARNINGS",
+    ], f"Ingestion audit failed: {result.errors}"
 
 
 @pytest.mark.asyncio
 async def test_retrieval_pipeline_audit(memory_service):
     """Test retrieval pipeline."""
     result = await audit_retrieval_pipeline()
-    assert result.status in ["PASSED", "PASSED_WITH_WARNINGS"], f"Retrieval audit failed: {result.errors}"
+    assert result.status in [
+        "PASSED",
+        "PASSED_WITH_WARNINGS",
+    ], f"Retrieval audit failed: {result.errors}"
 
 
 @pytest.mark.asyncio
 async def test_e2e_flow_audit(memory_service):
     """Test complete E2E memory flow."""
     result = await audit_e2e_flow()
-    assert result.status in ["PASSED", "PASSED_WITH_WARNINGS"], f"E2E flow audit failed: {result.errors}"
+    assert result.status in [
+        "PASSED",
+        "PASSED_WITH_WARNINGS",
+    ], f"E2E flow audit failed: {result.errors}"
 
 
 @pytest.mark.asyncio
 async def test_full_memory_audit(memory_service):
     """Run full memory audit suite."""
     audit_results = await run_full_audit()
-    assert audit_results["overall_status"] == "PASSED", f"Full audit failed: {audit_results['summary']}"
+    assert (
+        audit_results["overall_status"] == "PASSED"
+    ), f"Full audit failed: {audit_results['summary']}"
 
 
 # =============================================================================
@@ -851,4 +864,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

@@ -15,6 +15,30 @@ Each tier has configurable compression ratios and LLM prompts.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Hierarchical Summarizer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T15:23:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "hierarchical_summarizer",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Anthropic API", "OpenAI API"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "memory.__init__",
+            "tests.memory.test_hierarchical_consolidation",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -497,3 +521,56 @@ class HierarchicalSummarizer:
 
         except Exception as e:
             logger.error(f"Failed to store summary: {e}", exc_info=True)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-032",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "learning",
+        "logging",
+        "messaging",
+        "metrics",
+    ],
+    "keywords": [
+        "cascade",
+        "daily",
+        "hierarchical",
+        "into",
+        "memory",
+        "summaries",
+        "summarizer",
+        "summary",
+    ],
+    "business_value": "Implements tiered memory summarization with 20min → daily → weekly cascade. Part of Stage 2: Hierarchical Memory Consolidation Engine (SUPER-PROMPT). 20-minute summaries: Capture session highlights Da",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

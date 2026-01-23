@@ -13,12 +13,37 @@ All operations are async-safe with proper logging.
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Insight Extraction Pipeline",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "insight_extraction",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["core.singleton_registry", "memory.__init__"],
+    },
+}
+# ============================================================================
 
 import structlog
 import re
 from functools import lru_cache
-from typing import Any
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 from core.schemas import PacketEnvelope
 from memory.substrate_models import ExtractedInsight, KnowledgeFact
@@ -66,7 +91,7 @@ class InsightExtractionPipeline:
     - Patterns and anomalies
     """
 
-    def __init__(self, repository=None):
+    def __init__(self, repository: Optional["SubstrateRepository"] = None):
         """
         Initialize insight extraction pipeline.
 
@@ -81,7 +106,7 @@ class InsightExtractionPipeline:
         }
         logger.info("InsightExtractionPipeline initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -450,14 +475,76 @@ class InsightExtractionPipeline:
 # Singleton / Factory
 # =============================================================================
 
+
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="insight_extraction_pipeline",
+    lifecycle="lazy",
+    description="Memory insight extraction pipeline for pattern detection",
+)
 def get_insight_pipeline() -> InsightExtractionPipeline:
     """Get or create the insight extraction pipeline singleton. CACHED."""
     return InsightExtractionPipeline()
 
 
-def init_insight_pipeline(repository) -> InsightExtractionPipeline:
+def init_insight_pipeline(
+    repository: "SubstrateRepository",
+) -> InsightExtractionPipeline:
     """Initialize the insight extraction pipeline with a repository."""
     pipeline = get_insight_pipeline()
     pipeline.set_repository(repository)
     return pipeline
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-050",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.substrate_models"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "debugging",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "service",
+    ],
+    "keywords": [
+        "anomalies",
+        "detect",
+        "detection",
+        "extract",
+        "extraction",
+        "heuristic",
+        "insight",
+        "memory",
+    ],
+    "business_value": "Implements InsightExtractionPipeline for insight extraction functionality",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

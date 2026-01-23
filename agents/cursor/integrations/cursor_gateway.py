@@ -1,21 +1,55 @@
 """
 L9 Cursor Memory Gateway
-Version: 1.0.0
+Version: 2.0.0
 
 Safe gateway for Cursor to read/write through the Memory Substrate using
-PacketEnvelope v2.0.0 and SubstrateDAG, enforcing scope constraints.
+PacketEnvelope v2.0.0, enforcing scope constraints.
 
 Cursor can only access "developer" and "global" scopes.
+
+LGRAPH-006: Implemented load_checkpoint() via search_packets_by_thread
+LGRAPH-007: Implemented search_memory() via semantic_search
 """
 
 from __future__ import annotations
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor Gateway",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "error_handling",
+    "module_name": "cursor_gateway",
+    "type": "exception",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_executor",
+            "api.server",
+            "memory.checkpoint.cursor_checkpoint_manager",
+            "tests.integration.test_cursor_langgraph_integration",
+        ],
+    },
+}
+# ============================================================================
 
 import structlog
 from typing import Any, List, Dict, Optional
 from uuid import UUID
 
-from core.schemas import PacketEnvelopeIn
-from memory.substrate_dag_wrapper import SubstrateDagOrchestrator
+from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
+from core.decorators import must_stay_async
+from memory.substrate_service import MemorySubstrateService
+from memory.governance_gate import (
+    build_governance_context,
+    governance_context,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -39,31 +73,31 @@ class CursorScopeViolationError(Exception):
 class CursorMemoryGateway:
     """
     Safe gateway for Cursor to interact with L9 Memory Substrate.
-    
+
     Enforces scope constraints: Cursor can only access "developer" and "global" scopes.
-    All writes go through SubstrateDAG for full pipeline processing.
+    All operations go through MemorySubstrateService for full pipeline processing.
     """
 
     # Allowed scopes for Cursor
     ALLOWED_SCOPES = {"developer", "global"}
 
-    def __init__(self, dag_orchestrator: SubstrateDagOrchestrator):
+    def __init__(self, substrate_service: MemorySubstrateService):
         """
         Initialize Cursor memory gateway.
-        
+
         Args:
-            dag_orchestrator: SubstrateDagOrchestrator for packet ingestion
+            substrate_service: MemorySubstrateService for all memory operations
         """
-        self._dag_orchestrator = dag_orchestrator
-        logger.info("CursorMemoryGateway initialized")
+        self._substrate_service = substrate_service
+        logger.info("CursorMemoryGateway initialized with MemorySubstrateService")
 
     def _validate_scope(self, scope: str | List[str]) -> None:
         """
         Validate scope is within Cursor's allowed range.
-        
+
         Args:
             scope: Single scope string or list of scope strings
-            
+
         Raises:
             CursorScopeViolationError: If scope is not allowed
         """
@@ -83,15 +117,26 @@ class CursorMemoryGateway:
                     f"Cursor cannot access scope '{s}'. Allowed: {self.ALLOWED_SCOPES}"
                 )
 
+    def _build_cursor_governance_context(self):
+        """Build governance context for Cursor operations."""
+        return build_governance_context(
+            caller_id="cursor_gateway",
+            role="developer",
+            tenant_id="cursor",
+            org_id="l9",
+            project_ids=["cursor"],
+        )
+
     async def write_decision(
-        self, state: Any  # CursorAgentState
+        self,
+        state: Any,  # CursorAgentState
     ) -> UUID:
         """
         Write a decision packet to memory substrate.
-        
+
         Args:
             state: CursorAgentState with decision information
-            
+
         Returns:
             Packet ID of written envelope
         """
@@ -119,12 +164,10 @@ class CursorMemoryGateway:
             metadata=None,  # Will use defaults
         )
 
-        # Set scope in metadata (via payload for now, will be in metadata when v2.0.0 fully integrated)
-        # For now, scope is enforced at gateway level
-        scope = "developer"  # Cursor decisions are developer-scoped
-
-        # Ingest via DAG orchestrator
-        result = await self._dag_orchestrator.ingest_packet(packet_in)
+        # Write via substrate service with governance context
+        ctx = self._build_cursor_governance_context()
+        async with governance_context(ctx):
+            result = await self._substrate_service.write_packet(packet_in)
 
         if result.status != "ok":
             raise RuntimeError(f"Failed to write decision: {result.error_message}")
@@ -133,14 +176,15 @@ class CursorMemoryGateway:
         return result.packet_id
 
     async def write_error(
-        self, state: Any  # CursorAgentState
+        self,
+        state: Any,  # CursorAgentState
     ) -> UUID:
         """
         Write an error packet to memory substrate.
-        
+
         Args:
             state: CursorAgentState with error information
-            
+
         Returns:
             Packet ID of written envelope
         """
@@ -169,8 +213,10 @@ class CursorMemoryGateway:
             metadata=None,
         )
 
-        # Ingest via DAG orchestrator
-        result = await self._dag_orchestrator.ingest_packet(packet_in)
+        # Write via substrate service with governance context
+        ctx = self._build_cursor_governance_context()
+        async with governance_context(ctx):
+            result = await self._substrate_service.write_packet(packet_in)
 
         if result.status != "ok":
             raise RuntimeError(f"Failed to write error: {result.error_message}")
@@ -178,6 +224,7 @@ class CursorMemoryGateway:
         logger.info("Error written", packet_id=result.packet_id)
         return result.packet_id
 
+    @must_stay_async("callers use await")
     async def search_memory(
         self,
         query: str,
@@ -187,16 +234,18 @@ class CursorMemoryGateway:
     ) -> List[Dict[str, Any]]:
         """
         Search memory substrate using semantic search.
-        
+
+        LGRAPH-007: Implemented via MemorySubstrateService.semantic_search()
+
         Args:
             query: Search query string
             scope: List of scopes to search (must be subset of ALLOWED_SCOPES)
             project_id: Project identifier
             limit: Maximum number of results
-            
+
         Returns:
             List of search hits, each containing packet_id, similarity_score, metadata
-            
+
         Raises:
             CursorScopeViolationError: If scope contains disallowed values
         """
@@ -205,10 +254,47 @@ class CursorMemoryGateway:
         # Validate scope
         self._validate_scope(scope)
 
-        # TODO: Use MemorySubstrateService.semantic_search() directly
-        # For now, return empty list (will be implemented in LGRAPH-007)
-        logger.warning("Semantic search not yet implemented, returning empty results")
-        return []
+        try:
+            # Build semantic search request
+            request = SemanticSearchRequest(
+                query=query,
+                top_k=limit,
+                agent_id=None,  # Search across all agents
+            )
+
+            # Execute semantic search with governance context
+            ctx = self._build_cursor_governance_context()
+            async with governance_context(ctx):
+                result = await self._substrate_service.semantic_search(request)
+
+            # Transform hits to expected format
+            hits = []
+            for hit in result.hits:
+                hits.append(
+                    {
+                        "packet_id": str(hit.embedding_id),
+                        "similarity_score": hit.score,
+                        "metadata": hit.payload,
+                        "scope": hit.payload.get("scope", "unknown"),
+                    }
+                )
+
+            # Filter by allowed scopes
+            filtered_hits = [
+                h for h in hits if h.get("scope", "developer") in self.ALLOWED_SCOPES
+            ]
+
+            logger.info(
+                "Memory search completed",
+                total_hits=len(result.hits),
+                filtered_hits=len(filtered_hits),
+            )
+            return filtered_hits
+
+        except Exception as e:
+            logger.error("Semantic search failed", error=str(e))
+            # Return empty list on error (graceful degradation)
+            return []
 
     async def write_checkpoint(
         self,
@@ -217,11 +303,11 @@ class CursorMemoryGateway:
     ) -> UUID:
         """
         Write a checkpoint packet to memory substrate (dual checkpoint strategy).
-        
+
         Args:
             thread_id: Thread identifier
             state: CursorAgentState to checkpoint
-            
+
         Returns:
             Packet ID of written checkpoint envelope
         """
@@ -229,10 +315,12 @@ class CursorMemoryGateway:
 
         # Serialize state (trim oversized fields if necessary)
         state_dict = state.model_dump() if hasattr(state, "model_dump") else {}
-        
+
         # Trim selected_code if too long
         if state_dict.get("selected_code") and len(state_dict["selected_code"]) > 10000:
-            state_dict["selected_code"] = state_dict["selected_code"][:10000] + "... [truncated]"
+            state_dict["selected_code"] = (
+                state_dict["selected_code"][:10000] + "... [truncated]"
+            )
 
         payload = {
             "thread_id": thread_id,
@@ -249,8 +337,10 @@ class CursorMemoryGateway:
             metadata=None,
         )
 
-        # Ingest via DAG orchestrator
-        result = await self._dag_orchestrator.ingest_packet(packet_in)
+        # Write via substrate service with governance context
+        ctx = self._build_cursor_governance_context()
+        async with governance_context(ctx):
+            result = await self._substrate_service.write_packet(packet_in)
 
         if result.status != "ok":
             raise RuntimeError(f"Failed to write checkpoint: {result.error_message}")
@@ -258,23 +348,113 @@ class CursorMemoryGateway:
         logger.info("Checkpoint written", packet_id=result.packet_id)
         return result.packet_id
 
+    @must_stay_async("future await planned")
     async def load_checkpoint(
         self,
         thread_id: str,
     ) -> Optional[Any]:  # Optional[CursorAgentState]
         """
         Load checkpoint from memory substrate (fallback for dual checkpoint).
-        
+
+        LGRAPH-006: Implemented via MemorySubstrateService.search_packets_by_thread()
+
         Args:
             thread_id: Thread identifier
-            
+
         Returns:
             CursorAgentState if found, None otherwise
         """
         logger.info("Loading checkpoint from memory", thread_id=thread_id)
 
-        # TODO: Implement semantic search or direct packetstore lookup
-        # For now, return None (will be implemented in LGRAPH-006)
-        logger.warning("Checkpoint loading not yet implemented, returning None")
-        return None
+        try:
+            # Search for checkpoint packets by thread_id
+            ctx = self._build_cursor_governance_context()
+            async with governance_context(ctx):
+                packets = await self._substrate_service.search_packets_by_thread(
+                    thread_id=thread_id,
+                    packet_type="cursor_checkpoint",
+                    limit=1,  # Get most recent
+                )
 
+            if not packets:
+                logger.info("No checkpoint found for thread", thread_id=thread_id)
+                return None
+
+            # Get most recent checkpoint
+            checkpoint_packet = packets[0]
+            payload = checkpoint_packet.get("payload", {})
+            state_dict = payload.get("state", {})
+
+            if not state_dict:
+                logger.warning("Checkpoint packet has no state", thread_id=thread_id)
+                return None
+
+            # Import here to avoid circular dependency
+            from agents.cursor.integrations.cursor_langgraph import CursorAgentState
+
+            # Reconstruct CursorAgentState
+            state = CursorAgentState(**state_dict)
+            logger.info("Checkpoint loaded from memory", thread_id=thread_id)
+            return state
+
+        except Exception as e:
+            logger.error("Failed to load checkpoint", error=str(e), thread_id=thread_id)
+            return None
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-023",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "agents.cursor.integrations.cursor_langgraph",
+        "core.decorators",
+        "core.schemas",
+        "memory.governance_gate",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "async",
+        "error-handling",
+        "exception",
+        "intelligence",
+        "logging",
+        "messaging",
+        "tracing",
+    ],
+    "keywords": [
+        "checkpoint",
+        "cursor",
+        "decision",
+        "gateway",
+        "global",
+        "implemented",
+        "lgraph",
+        "load",
+    ],
+    "business_value": "Provides cursor gateway components including CursorScopeViolationError, CursorMemoryGateway",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

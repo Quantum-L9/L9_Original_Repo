@@ -6,38 +6,43 @@ Specialized component for action_tool orchestration.
 Handles tool validation and safety checks.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Validator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "validator",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Dict, List, Optional, Set
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
-# High-risk tools that require explicit approval
-HIGH_RISK_TOOLS: Set[str] = {
-    "shell_exec",
-    "file_write",
-    "file_delete",
-    "database_write",
-    "git_commit",
-    "git_push",
-    "gmp_run",
-}
+# GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
+from core.governance.tool_risk_policy import (  # noqa: E402
+    get_high_risk_tools,
+    get_igor_approval_tools,
+    get_safe_tools,
+)
 
-# Tools that require Igor's approval
-IGOR_APPROVAL_REQUIRED: Set[str] = {
-    "git_push",
-    "gmp_run",
-    "deploy",
-    "database_migrate",
-}
-
-# Safe tools that can execute without approval
-SAFE_TOOLS: Set[str] = {
-    "file_read",
-    "search",
-    "list_directory",
-    "get_status",
-    "health_check",
-}
+HIGH_RISK_TOOLS: Set[str] = get_high_risk_tools()
+IGOR_APPROVAL_REQUIRED: Set[str] = get_igor_approval_tools()
+SAFE_TOOLS: Set[str] = get_safe_tools()
 
 
 class ValidationResult:
@@ -91,6 +96,7 @@ class Validator:
         self._registry = tool_registry
         logger.info("Validator initialized")
 
+    @must_stay_async("callers use await")
     async def _get_registry(self) -> Optional[Any]:
         """Get or lazily load the tool registry."""
         if self._registry is None:
@@ -240,3 +246,52 @@ class Validator:
                     errors.append(f"Missing required argument: {prop}")
 
         return errors
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-002",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.tools.registry_adapter"],
+    "tags": [
+        "async",
+        "intelligence",
+        "logging",
+        "orchestration",
+        "service",
+        "validation",
+    ],
+    "keywords": [
+        "orchestrator",
+        "process",
+        "tool",
+        "validate",
+        "validation",
+        "validator",
+    ],
+    "business_value": "Handles tool validation and safety checks.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

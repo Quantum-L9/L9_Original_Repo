@@ -10,6 +10,27 @@ Performance: Sub-ms lookups + ~1GB/10M entities in RAM.
 NIST AI RMF Govern-1 (cache governance).
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "High-Performance Cache Layer for World Model.",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T23:45:01Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "redis_substrate",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from typing import Dict, List, Any, Optional, Callable
 from dataclasses import dataclass
 import json
@@ -439,3 +460,58 @@ class RedisSubstrate:
 
         except Exception as e:
             self.logger.error(f"Failed to invalidate session: {e}")
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-027",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "auth",
+        "authorization",
+        "cache",
+        "caching",
+        "dataclass",
+        "debugging",
+        "learning",
+        "messaging",
+        "monitoring",
+        "serialization",
+    ],
+    "keywords": [
+        "cache",
+        "cached",
+        "clear",
+        "connect",
+        "disconnect",
+        "entities",
+        "entity",
+        "governance",
+    ],
+    "business_value": "Entity/Relation caching with TTL Atomic operations (SETEX, GETEX, DEL) Pub/Sub for state change notifications Session management (L9 authority model) Performance: Sub-ms lookups + ~1GB/10M entities in",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -61,5 +61,3 @@ def test_sanitizer_blocks_path_traversal_for_path_like_keys():
     schema = {"type": "object", "properties": {"file_path": {"type": "string"}}, "required": []}
     with pytest.raises(ToolInputSanitizationError):
         s.sanitize(tool_id="t", arguments={"file_path": "../secrets.env"}, schema=schema)
-
-

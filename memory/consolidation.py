@@ -15,6 +15,32 @@ Strategies:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Consolidation Pipeline",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-11T18:13:39Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "consolidation",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "memory.__init__",
+            "memory.substrate_service",
+            "orchestrators.memory.housekeeping",
+            "tests.memory.test_consolidation",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import re
 import structlog
@@ -222,13 +248,13 @@ class ConsolidationPipeline:
                             e2.embedding_id as id2,
                             e1.payload->>'packet_id' as packet_id_1,
                             e2.payload->>'packet_id' as packet_id_2,
-                            1 - (e1.embedding <=> e2.embedding) as similarity,
+                            1 - (e1.vector <=> e2.vector) as similarity,
                             e1.created_at as created_1,
                             e2.created_at as created_2
                         FROM semantic_memory e1
                         INNER JOIN semantic_memory e2 
                             ON e1.embedding_id < e2.embedding_id
-                        WHERE 1 - (e1.embedding <=> e2.embedding) >= $1
+                        WHERE 1 - (e1.vector <=> e2.vector) >= $1
                         LIMIT $2
                     )
                     SELECT * FROM embedding_pairs
@@ -319,7 +345,7 @@ class ConsolidationPipeline:
                 rows = await conn.fetch(
                     """
                     SELECT packet_id, created_at
-                    FROM packetstore
+                    FROM packet_store
                     WHERE created_at < $1
                     LIMIT $2
                     """,
@@ -550,7 +576,7 @@ class ConsolidationPipeline:
                 rows = await conn.fetch(
                     """
                     SELECT packet_id, ttl, created_at
-                    FROM packetstore
+                    FROM packet_store
                     WHERE ttl IS NOT NULL
                       AND (created_at + INTERVAL '1 second' * ttl) < $1
                     LIMIT $2
@@ -567,7 +593,7 @@ class ConsolidationPipeline:
                         # Delete embeddings first
                         await conn.execute(
                             """
-                            DELETE FROM memoryembeddings
+                            DELETE FROM memory_embeddings
                             WHERE packet_id = $1
                             """,
                             packet_id,
@@ -576,7 +602,7 @@ class ConsolidationPipeline:
                     # Delete packet
                     await conn.execute(
                         """
-                        DELETE FROM packetstore
+                        DELETE FROM packet_store
                         WHERE packet_id = $1
                         """,
                         packet_id,
@@ -594,3 +620,57 @@ class ConsolidationPipeline:
 
         logger.info("TTL expiration complete", expired_count=expired)
         return expired
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-018",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.substrate_repository"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "debugging",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "scheduling",
+        "service",
+    ],
+    "keywords": [
+        "archival",
+        "consolidation",
+        "deduplication",
+        "memory",
+        "packets",
+        "pipeline",
+        "report",
+        "repository",
+    ],
+    "business_value": "Implements memory_spec_v3.0.yaml pipelines.consolidation contract. Schedule: weekly_saturday_2am_utc deduplication: Merge similar packets (similarity_threshold: 0.95) archival: Archive old, low-access",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

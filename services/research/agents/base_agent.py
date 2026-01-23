@@ -5,6 +5,32 @@ Version: 1.0.0
 Shared LLM wrapper and utilities for all research agents.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Base Agent",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "research_services",
+    "module_name": "base_agent",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": [],
+        "imported_by": [
+            "services.research.agents.__init__",
+            "services.research.agents.critic_agent",
+            "services.research.agents.planner_agent",
+            "services.research.agents.researcher_agent",
+        ],
+    },
+}
+# ============================================================================
+
 import json
 import structlog
 from abc import ABC, abstractmethod
@@ -13,6 +39,7 @@ from typing import Any, Optional
 from openai import AsyncOpenAI
 
 from config.research_settings import get_research_settings
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -155,6 +182,7 @@ class BaseAgent(ABC):
         return {}
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def run(self, *args, **kwargs) -> Any:
         """
         Execute the agent's primary function.
@@ -174,3 +202,58 @@ class BaseAgent(ABC):
     def format_assistant_prompt(self, content: str) -> dict[str, str]:
         """Create an assistant message."""
         return {"role": "assistant", "content": content}
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-010",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "adapter",
+        "api",
+        "async",
+        "debugging",
+        "llm",
+        "logging",
+        "messaging",
+        "operations",
+        "research-services",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "assistant",
+        "format",
+        "json",
+        "llm",
+        "prompt",
+        "research",
+        "system",
+    ],
+    "business_value": "Implements BaseAgent for base agent functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -10,6 +10,36 @@ Version: 2.0.0 - KernelState + Introspection + Response Rendering
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "L-CTO Agent",
+    "module_version": "2.0.0 - KernelState + Introspection + Response Rendering",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "l_cto",
+    "type": "agent",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "agents.__init__",
+            "conftest",
+            "core.agents.kernel_registry",
+            "tests.agents.test_l_cto_memory_emission",
+            "tests.config.test_l_cto_yaml",
+            "tests.test_l_cto_kernel_activation",
+            "tests.unit.conftest",
+            "tests.unit.test_lcto_bootstrap",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Dict, Optional, TYPE_CHECKING, Union
 
@@ -705,3 +735,63 @@ __all__ = [
     "is_research_mode",
     "RESEARCH_OVERLAY_PATH",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "agents.base_agent",
+        "core.schemas",
+        "memory.substrate_service",
+        "runtime.execution_gate",
+        "runtime.introspection",
+    ],
+    "tags": [
+        "agent",
+        "agent-execution",
+        "api",
+        "async",
+        "authorization",
+        "config",
+        "debugging",
+        "filesystem",
+        "intelligence",
+        "logging",
+    ],
+    "keywords": [
+        "absorb",
+        "agent",
+        "apply",
+        "boot",
+        "create",
+        "cto",
+        "describe",
+        "end",
+    ],
+    "business_value": "The primary L agent - Igor's CTO. Kernel-aware agent with full system integration. Version: 2.0.0 - KernelState + Introspection + Response Rendering",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

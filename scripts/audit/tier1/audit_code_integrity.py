@@ -25,6 +25,27 @@ Usage:
   python scripts/audit/tier1/audit_code_integrity.py --gmp-output
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Audit Code Integrity",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T19:43:29Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "audit_code_integrity",
+    "type": "worker",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import re
 import json
 import hashlib
@@ -35,6 +56,7 @@ from dataclasses import dataclass, asdict, field
 from typing import Optional, Set, List, Dict, Tuple, Any, Union
 import ast
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -46,32 +68,69 @@ REPO_ROOT = Path(__file__).parent.parent.parent.parent
 
 # Directories to skip entirely
 SKIP_DIRS = {
-    ".git", "__pycache__", ".pytest_cache", "node_modules",
-    ".venv", "venv", "env", ".cursor", "docs", "reports",
-    "archive", "deprecated", "templates", ".dora",
-    "codegen/templates", "codegen/code-gen-files",
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    "node_modules",
+    ".venv",
+    "venv",
+    "env",
+    ".cursor",
+    "docs",
+    "reports",
+    "archive",
+    "deprecated",
+    "templates",
+    ".dora",
+    "codegen/templates",
+    "codegen/code-gen-files",
 }
 
 # Partial path patterns to skip
 SKIP_PATH_PATTERNS = [
-    "template", "example", "/archive/", "/deprecated/",
-    "/.dora/", "/igor/audit-tools/",
+    "template",
+    "example",
+    "/archive/",
+    "/deprecated/",
+    "/.dora/",
+    "/igor/audit-tools/",
 ]
 
 # Entry points (called by framework, not direct)
 ENTRY_POINTS = {
-    "main", "setup", "teardown", "run", "start", "stop",
-    "configure", "initialize", "cleanup", "shutdown",
-    "lifespan", "on_startup", "on_shutdown", "reload_config",
+    "main",
+    "setup",
+    "teardown",
+    "run",
+    "start",
+    "stop",
+    "configure",
+    "initialize",
+    "cleanup",
+    "shutdown",
+    "lifespan",
+    "on_startup",
+    "on_shutdown",
+    "reload_config",
 }
 
 # Framework decorators (false positives)
 FRAMEWORK_DECORATORS = [
-    r"@router\.", r"@app\.", r"@pytest\.",
-    r"@fixture", r"@mark\.", r"@celery\.",
-    r"@dramatiq\.", r"@click\.", r"@staticmethod",
-    r"@classmethod", r"@property", r"@.*\.getter",
-    r"@.*\.setter", r"@dataclass", r"@pydantic",
+    r"@router\.",
+    r"@app\.",
+    r"@pytest\.",
+    r"@fixture",
+    r"@mark\.",
+    r"@celery\.",
+    r"@dramatiq\.",
+    r"@click\.",
+    r"@staticmethod",
+    r"@classmethod",
+    r"@property",
+    r"@.*\.getter",
+    r"@.*\.setter",
+    r"@dataclass",
+    r"@pydantic",
 ]
 
 # Cache configuration
@@ -82,34 +141,42 @@ CACHE_MANIFEST = CACHE_DIR / "manifest.json"
 # DATA MODELS
 # =============================================================================
 
+
 @dataclass
 class FileHashEntry:
     """Track file hash for incremental mode."""
+
     path: str
     hash: str
     modified: float
 
+
 @dataclass
 class CallGraphEdge:
     """Edge in call graph (caller → callee)."""
+
     caller: str
     caller_file: str
     callee: str
     callee_type: str  # 'function', 'method', 'class'
     line_num: int
 
+
 @dataclass
 class UncalledFunction:
     """Uncalled function finding."""
+
     name: str
     line_num: int
     filepath: Path
     skip_reason: Optional[str] = None
     is_private: bool = False
 
+
 @dataclass
 class OrphanClass:
     """Orphan class finding."""
+
     name: str
     line_num: int
     filepath: Path
@@ -119,24 +186,30 @@ class OrphanClass:
     stub_reason: Optional[str] = None
     caller_count: int = 0
 
+
 @dataclass
 class CircularImport:
     """Circular import finding."""
+
     chain: List[str]  # A → B → C → A
     files: List[str]
+
 
 @dataclass
 class AuditReport:
     """Complete integrity audit report."""
+
     uncalled_functions: List[UncalledFunction] = field(default_factory=list)
     orphan_classes: List[OrphanClass] = field(default_factory=list)
     circular_imports: List[CircularImport] = field(default_factory=list)
     summary: Dict[str, Any] = field(default_factory=dict)
     call_graph_edges: List[CallGraphEdge] = field(default_factory=list)
 
+
 # =============================================================================
 # AST ANALYSIS
 # =============================================================================
+
 
 class CallGraphBuilder(ast.NodeVisitor):
     """Build call graph from AST."""
@@ -177,29 +250,34 @@ class CallGraphBuilder(ast.NodeVisitor):
             # obj.method() - track as method call
             if isinstance(node.func.value, ast.Name):
                 callee = f"{node.func.value.id}.{node.func.attr}"
-        
+
         if callee and self.current_scope:
-            self.calls.append(CallGraphEdge(
-                caller=self.current_scope,
-                caller_file=self.filepath,
-                callee=callee,
-                callee_type="function",
-                line_num=node.lineno,
-            ))
-        
+            self.calls.append(
+                CallGraphEdge(
+                    caller=self.current_scope,
+                    caller_file=self.filepath,
+                    callee=callee,
+                    callee_type="function",
+                    line_num=node.lineno,
+                )
+            )
+
         self.generic_visit(node)
 
     def visit_Attribute(self, node: ast.Attribute):
         # Track method references
         if isinstance(node.value, ast.Name):
-            self.calls.append(CallGraphEdge(
-                caller=self.current_scope or "<module>",
-                caller_file=self.filepath,
-                callee=f"{node.value.id}.{node.attr}",
-                callee_type="method",
-                line_num=node.lineno,
-            ))
+            self.calls.append(
+                CallGraphEdge(
+                    caller=self.current_scope or "<module>",
+                    caller_file=self.filepath,
+                    callee=f"{node.value.id}.{node.attr}",
+                    callee_type="method",
+                    line_num=node.lineno,
+                )
+            )
         self.generic_visit(node)
+
 
 class StubDetector(ast.NodeVisitor):
     """Detect stub implementations."""
@@ -218,7 +296,9 @@ class StubDetector(ast.NodeVisitor):
         self.source_lines = source_code.splitlines()
         self.stubs: Dict[str, Tuple[bool, Optional[str]]] = {}
 
-    def check_is_stub(self, node: Union[ast.ClassDef, ast.FunctionDef]) -> Tuple[bool, Optional[str]]:
+    def check_is_stub(
+        self, node: Union[ast.ClassDef, ast.FunctionDef]
+    ) -> Tuple[bool, Optional[str]]:
         """Check if class or function is a stub."""
         try:
             start = node.lineno - 1
@@ -236,25 +316,35 @@ class StubDetector(ast.NodeVisitor):
         # Skip this check for Pydantic models, dataclasses, and classes with field definitions
         if isinstance(node, ast.ClassDef):
             # Count methods vs non-method body items (fields, annotations)
-            methods = [item for item in node.body if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))]
-            non_methods = [item for item in node.body if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))]
-            
+            methods = [
+                item
+                for item in node.body
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            ]
+            non_methods = [
+                item
+                for item in node.body
+                if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            ]
+
             # If class has fields/annotations but no methods, it's likely a data class - NOT a stub
             if len(methods) == 0 and len(non_methods) > 0:
                 return False, None  # Data class / Pydantic model - not a stub
-            
+
             # If class has methods, check if they're all stubs
             if len(methods) > 0:
                 non_stub_methods = 0
                 for item in methods:
                     if len(item.body) > 0 and not isinstance(item.body[0], ast.Pass):
-                        if not isinstance(item.body[0], ast.Expr) or not isinstance(getattr(item.body[0], 'value', None), ast.Constant):
+                        if not isinstance(item.body[0], ast.Expr) or not isinstance(
+                            getattr(item.body[0], "value", None), ast.Constant
+                        ):
                             # Not just a docstring
                             non_stub_methods += 1
                         elif len(item.body) > 1:
                             # Has more than just docstring
                             non_stub_methods += 1
-                
+
                 if non_stub_methods == 0:
                     return True, "All methods are pass/ellipsis"
 
@@ -265,9 +355,11 @@ class StubDetector(ast.NodeVisitor):
         self.stubs[node.name] = (is_stub, reason)
         self.generic_visit(node)
 
+
 # =============================================================================
 # CACHE MANAGEMENT
 # =============================================================================
+
 
 class CacheManager:
     """Manage incremental audit cache."""
@@ -289,9 +381,7 @@ class CacheManager:
             return {}
         try:
             data = json.loads(CACHE_MANIFEST.read_text())
-            return {
-                k: FileHashEntry(**v) for k, v in data.items()
-            }
+            return {k: FileHashEntry(**v) for k, v in data.items()}
         except (json.JSONDecodeError, TypeError):
             return {}
 
@@ -308,7 +398,7 @@ class CacheManager:
         for filepath in all_files:
             rel_path = str(filepath.relative_to(REPO_ROOT))
             current_hash = self.get_file_hash(filepath)
-            
+
             if rel_path not in manifest or manifest[rel_path].hash != current_hash:
                 modified.add(filepath)
 
@@ -339,20 +429,20 @@ class CacheManager:
         """Load cached content index if valid."""
         hash_path = self.get_content_index_hash_path()
         index_path = self.get_content_index_path()
-        
+
         if not hash_path.exists() or not index_path.exists():
             return None
-        
+
         try:
             current_hash = self.compute_manifest_hash(all_files)
             cached_hash = hash_path.read_text().strip()
-            
+
             if current_hash == cached_hash:
                 logger.info("Loading content index from cache...")
                 return index_path.read_text(encoding="utf-8", errors="ignore")
         except Exception:
             pass
-        
+
         return None
 
     def save_content_index(self, all_files: List[Path], content: str):
@@ -360,7 +450,7 @@ class CacheManager:
         try:
             hash_path = self.get_content_index_hash_path()
             index_path = self.get_content_index_path()
-            
+
             current_hash = self.compute_manifest_hash(all_files)
             hash_path.write_text(current_hash)
             index_path.write_text(content, encoding="utf-8")
@@ -376,21 +466,21 @@ class CacheManager:
         """Load cached analysis results if content index unchanged."""
         results_path = self.get_results_cache_path()
         hash_path = self.get_content_index_hash_path()
-        
+
         if not results_path.exists() or not hash_path.exists():
             return None
-        
+
         try:
             data = json.loads(results_path.read_text())
             cached_index_hash = hash_path.read_text().strip()
-            
+
             # Results are valid only if content index hash matches
             if data.get("content_index_hash") == cached_index_hash:
                 logger.info("Loading analysis results from cache...")
                 return data
         except (json.JSONDecodeError, Exception):
             pass
-        
+
         return None
 
     def save_results(self, uncalled: List, orphans: List, circular: List):
@@ -398,12 +488,12 @@ class CacheManager:
         try:
             results_path = self.get_results_cache_path()
             hash_path = self.get_content_index_hash_path()
-            
+
             if not hash_path.exists():
                 return
-            
+
             content_hash = hash_path.read_text().strip()
-            
+
             # Convert to serializable format (convert Path to str)
             def serialize(obj):
                 d = asdict(obj)
@@ -411,7 +501,7 @@ class CacheManager:
                     if isinstance(v, Path):
                         d[k] = str(v)
                 return d
-            
+
             data = {
                 "content_index_hash": content_hash,
                 "uncalled": [serialize(u) for u in uncalled],
@@ -426,7 +516,7 @@ class CacheManager:
     def update_manifest(self, all_files: List[Path]):
         """Update manifest with current file hashes."""
         manifest = self.load_manifest()
-        
+
         for filepath in all_files:
             rel_path = str(filepath.relative_to(REPO_ROOT))
             manifest[rel_path] = FileHashEntry(
@@ -434,12 +524,14 @@ class CacheManager:
                 hash=self.get_file_hash(filepath),
                 modified=filepath.stat().st_mtime,
             )
-        
+
         self.save_manifest(manifest)
+
 
 # =============================================================================
 # FILE DISCOVERY & FILTERING
 # =============================================================================
+
 
 def should_skip_file(filepath: Path, root: Path) -> bool:
     """Check if file should be skipped."""
@@ -457,6 +549,7 @@ def should_skip_file(filepath: Path, root: Path) -> bool:
 
     return False
 
+
 def find_python_files(root: Path, include_tests: bool = False) -> List[Path]:
     """Find all Python files to scan."""
     files = []
@@ -468,11 +561,15 @@ def find_python_files(root: Path, include_tests: bool = False) -> List[Path]:
         files.append(path)
     return files
 
+
 # =============================================================================
 # ANALYSIS
 # =============================================================================
 
-def analyze_file_for_uncalled(filepath: Path, all_content: str) -> List[UncalledFunction]:
+
+def analyze_file_for_uncalled(
+    filepath: Path, all_content: str
+) -> List[UncalledFunction]:
     """Analyze file for uncalled parameterless functions."""
     try:
         content = filepath.read_text(encoding="utf-8", errors="ignore")
@@ -509,7 +606,7 @@ def analyze_file_for_uncalled(filepath: Path, all_content: str) -> List[Uncalled
                 if re.search(pattern, decorator_line):
                     has_decorator = True
                     break
-        
+
         if has_decorator:
             continue
 
@@ -518,13 +615,16 @@ def analyze_file_for_uncalled(filepath: Path, all_content: str) -> List[Uncalled
         if re.search(call_pattern, all_content):
             continue
 
-        results.append(UncalledFunction(
-            name=func_name,
-            line_num=line_num,
-            filepath=filepath,
-        ))
+        results.append(
+            UncalledFunction(
+                name=func_name,
+                line_num=line_num,
+                filepath=filepath,
+            )
+        )
 
     return results
+
 
 def analyze_file_for_orphans(filepath: Path, all_content: str) -> List[OrphanClass]:
     """Analyze file for orphan classes."""
@@ -544,14 +644,15 @@ def analyze_file_for_orphans(filepath: Path, all_content: str) -> List[OrphanCla
 
         # Skip exception classes, ABC, etc.
         base_names = [
-            b.id if isinstance(b, ast.Name) else 
-            (f"{b.value.id}.{b.attr}" if isinstance(b, ast.Attribute) else "")
+            b.id
+            if isinstance(b, ast.Name)
+            else (f"{b.value.id}.{b.attr}" if isinstance(b, ast.Attribute) else "")
             for b in node.bases
         ]
 
         is_exception = any(
-            b in ["Exception", "BaseException", "ABC", "Protocol"] or
-            b.endswith(("Error", "Exception", "ABC"))
+            b in ["Exception", "BaseException", "ABC", "Protocol"]
+            or b.endswith(("Error", "Exception", "ABC"))
             for b in base_names
         )
 
@@ -563,22 +664,31 @@ def analyze_file_for_orphans(filepath: Path, all_content: str) -> List[OrphanCla
 
         # Check if referenced
         class_ref_pattern = rf"\b{re.escape(node.name)}\b"
-        ref_count = len(re.findall(class_ref_pattern, all_content)) - 1  # -1 for definition
+        ref_count = (
+            len(re.findall(class_ref_pattern, all_content)) - 1
+        )  # -1 for definition
         has_callers = ref_count > 0
 
         if is_stub or not has_callers:
-            results.append(OrphanClass(
-                name=node.name,
-                line_num=node.lineno,
-                filepath=filepath,
-                base_classes=base_names,
-                methods=[n.name for n in node.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))],
-                is_stub=is_stub,
-                stub_reason=stub_reason,
-                caller_count=ref_count,
-            ))
+            results.append(
+                OrphanClass(
+                    name=node.name,
+                    line_num=node.lineno,
+                    filepath=filepath,
+                    base_classes=base_names,
+                    methods=[
+                        n.name
+                        for n in node.body
+                        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    ],
+                    is_stub=is_stub,
+                    stub_reason=stub_reason,
+                    caller_count=ref_count,
+                )
+            )
 
     return results
+
 
 def detect_circular_imports(root: Path) -> List[CircularImport]:
     """Detect circular imports using import graph."""
@@ -593,7 +703,9 @@ def detect_circular_imports(root: Path) -> List[CircularImport]:
         except (SyntaxError, UnicodeDecodeError):
             continue
 
-        module_name = str(filepath.relative_to(root)).replace("/", ".").replace(".py", "")
+        module_name = (
+            str(filepath.relative_to(root)).replace("/", ".").replace(".py", "")
+        )
 
         for node in ast.walk(tree):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
@@ -622,10 +734,12 @@ def detect_circular_imports(root: Path) -> List[CircularImport]:
                 # Found cycle
                 cycle_start = path.index(neighbor)
                 cycle = path[cycle_start:] + [neighbor]
-                cycles.append(CircularImport(
-                    chain=cycle,
-                    files=[f"{m}.py" for m in cycle],
-                ))
+                cycles.append(
+                    CircularImport(
+                        chain=cycle,
+                        files=[f"{m}.py" for m in cycle],
+                    )
+                )
                 return True
 
         rec_stack.discard(node)
@@ -637,9 +751,11 @@ def detect_circular_imports(root: Path) -> List[CircularImport]:
 
     return cycles
 
+
 # =============================================================================
 # REPORT GENERATION
 # =============================================================================
+
 
 def generate_html_report(report: AuditReport, output_path: Path):
     """Generate HTML report."""
@@ -671,7 +787,7 @@ def generate_html_report(report: AuditReport, output_path: Path):
 <body>
     <div class="container">
         <h1>🔍 L9 Code Integrity Audit Report</h1>
-        <p>Generated at {json.dumps(report.summary.get('timestamp', 'unknown'))}</p>
+        <p>Generated at {json.dumps(report.summary.get("timestamp", "unknown"))}</p>
 
         <div class="summary">
             <div class="summary-item">
@@ -738,7 +854,7 @@ def generate_html_report(report: AuditReport, output_path: Path):
                     <td><code>{cls.name}</code></td>
                     <td>{cls.filepath.relative_to(REPO_ROOT)}</td>
                     <td>{cls.line_num}</td>
-                    <td>{'✅ Yes' if cls.is_stub else '❌ No'}</td>
+                    <td>{"✅ Yes" if cls.is_stub else "❌ No"}</td>
                     <td>{cls.caller_count}</td>
                     <td><span class="{severity_class}">{severity}</span></td>
                 </tr>
@@ -756,7 +872,7 @@ def generate_html_report(report: AuditReport, output_path: Path):
             html += f"""
         <div style="background: #fff3cd; border-left: 4px solid #f57c00; padding: 10px; margin: 10px 0;">
             <strong>Circular dependency detected:</strong><br/>
-            {' → '.join(imp.chain)}
+            {" → ".join(imp.chain)}
         </div>
     """
     else:
@@ -775,22 +891,31 @@ def generate_html_report(report: AuditReport, output_path: Path):
     output_path.write_text(html)
     logger.info(f"HTML report written to {output_path}")
 
+
 # =============================================================================
 # MAIN
 # =============================================================================
 
+
+@must_stay_async("callers use await")
 async def main():
     """Run comprehensive code integrity audit."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="L9 Code Integrity Audit v2.0")
     parser.add_argument("--cache", action="store_true", help="Use incremental caching")
     parser.add_argument("--html", action="store_true", help="Generate HTML report")
     parser.add_argument("--json", action="store_true", help="Output JSON report")
-    parser.add_argument("--gmp-output", action="store_true", help="GMP-compatible format")
-    parser.add_argument("--no-circular", action="store_true", help="Skip circular import detection")
-    parser.add_argument("--include-tests", action="store_true", help="Include test files")
-    
+    parser.add_argument(
+        "--gmp-output", action="store_true", help="GMP-compatible format"
+    )
+    parser.add_argument(
+        "--no-circular", action="store_true", help="Skip circular import detection"
+    )
+    parser.add_argument(
+        "--include-tests", action="store_true", help="Include test files"
+    )
+
     args = parser.parse_args()
 
     logger.info("=" * 70)
@@ -813,7 +938,7 @@ async def main():
     all_content = None
     if cache_mgr:
         all_content = cache_mgr.load_content_index(all_files)
-    
+
     if all_content is None:
         logger.info("Building content index...")
         all_content = ""
@@ -831,13 +956,15 @@ async def main():
     cached_results = None
     if cache_mgr and len(modified_files) == 0:
         cached_results = cache_mgr.load_results()
-    
+
     if cached_results:
         # Use cached results (fast path)
         uncalled = [UncalledFunction(**u) for u in cached_results.get("uncalled", [])]
         orphans = [OrphanClass(**o) for o in cached_results.get("orphans", [])]
         circular = cached_results.get("circular", [])
-        logger.info(f"Using cached analysis: {len(uncalled)} uncalled, {len(orphans)} orphans, {len(circular)} circular")
+        logger.info(
+            f"Using cached analysis: {len(uncalled)} uncalled, {len(orphans)} orphans, {len(circular)} circular"
+        )
     else:
         # Full analysis (slow path)
         logger.info("Analyzing code for integrity issues...")
@@ -877,7 +1004,7 @@ async def main():
             "orphan_count": len(orphans),
             "circular_count": len(circular),
             "timestamp": json.dumps({"$date": "2026-01-06T21:59:00Z"}),
-        }
+        },
     )
 
     # Output results
@@ -892,7 +1019,7 @@ async def main():
     if args.json or args.gmp_output:
         output_file = REPO_ROOT / "reports" / "audit_code_integrity.json"
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        
+
         output_data = {
             "uncalled_functions": [asdict(f) for f in uncalled],
             "orphan_classes": [asdict(c) for c in orphans],
@@ -912,5 +1039,60 @@ async def main():
     logger.info("✅ AUDIT COMPLETE")
     logger.info("=" * 70)
 
+
 if __name__ == "__main__":
     asyncio.run(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-020",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "ast",
+        "async",
+        "builder-pattern",
+        "caching",
+        "cli",
+        "dataclass",
+        "endpoint",
+        "filesystem",
+        "logging",
+        "operations",
+    ],
+    "keywords": [
+        "analyze",
+        "audit",
+        "builder",
+        "cache",
+        "check",
+        "circular",
+        "compute",
+        "detect",
+    ],
+    "business_value": "Provides audit code integrity components including FileHashEntry, CallGraphEdge, UncalledFunction",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

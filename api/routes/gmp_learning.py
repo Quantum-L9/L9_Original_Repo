@@ -12,12 +12,41 @@ Endpoints:
 - POST /api/gmp/log-execution - Log a GMP execution (internal)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Gmp Learning",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T12:13:08Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "gmp_learning",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "GET /autonomy-level",
+            "GET /graduation-status",
+            "POST /graduate",
+            "GET /heuristics",
+            "GET /analytics",
+            "POST /log-execution",
+            "POST /generate-heuristics",
+        ],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 import structlog
 
-from agents.cursor import (
+from agents.cursor.gmp_meta_learning import (
     GMPMetaLearningEngine,
     AutonomyController,
     GMPExecutionResult,
@@ -25,6 +54,16 @@ from agents.cursor import (
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
+
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/api/gmp",
+    tags=["gmp-learning"],
+    display_name="GMP Learning",
+)
 
 
 # Response models
@@ -242,3 +281,58 @@ async def trigger_heuristic_generation(
             for h in heuristics
         ],
     }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-018",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["agents.cursor.gmp_meta_learning", "api.server"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "endpoint",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+        "pydantic",
+        "router",
+    ],
+    "keywords": [
+        "analytics",
+        "autonomy",
+        "endpoints",
+        "engine",
+        "execution",
+        "generation",
+        "gmp",
+        "graduate",
+    ],
+    "business_value": "Provides gmp learning components including AutonomyLevelResponse, GraduationStatusResponse, HeuristicsResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

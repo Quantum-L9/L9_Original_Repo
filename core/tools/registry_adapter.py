@@ -83,6 +83,37 @@ Version: 2.1.0 (Governance Integration + Architecture Docs)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Registry Adapter (ExecutorToolRegistry)",
+    "module_version": "2.1.0 (Governance Integration + Architecture Docs)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "registry_adapter",
+    "type": "adapter",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "Perplexity API", "Redis"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "api.server",
+            "api.tools.router",
+            "core.agents.bootstrap.phase_5_bind_tools",
+            "core.tools.__init__",
+            "orchestrators.action_tool.orchestrator",
+            "orchestrators.action_tool.validator",
+            "tests.integration.test_tool_observability_integration",
+            "tests.unit.test_guarded_execution",
+            "tests.unit.test_registry_adapter_sanitization",
+        ],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 import time
@@ -102,6 +133,7 @@ from core.tools.sanitizer import ToolInputSanitizer, ToolInputSanitizationError
 
 if TYPE_CHECKING:
     from core.governance.engine import GovernanceEngineService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -152,6 +184,7 @@ def _tool_belongs_to_agent(tool_name: str, agent_id: str) -> bool:
 class ToolExecutor(Protocol):
     """Protocol for tool executors."""
 
+    @must_stay_async("callers use await")
     async def execute(self, **kwargs) -> Any:
         """Execute the tool with arguments."""
         ...
@@ -170,17 +203,14 @@ class RiskLevel:
     HIGH = "high"
 
 
-# Side-effect tools that require governance approval
-SIDE_EFFECT_TOOLS = {
-    "http_request",  # Can make external requests
-}
+# GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
+from core.governance.tool_risk_policy import (
+    get_high_risk_tools,
+    get_side_effect_tools,
+)
 
-# Tools with elevated risk
-HIGH_RISK_TOOLS = {
-    "shell_exec",
-    "file_write",
-    "database_write",
-}
+SIDE_EFFECT_TOOLS = get_side_effect_tools()
+HIGH_RISK_TOOLS = get_high_risk_tools()
 
 
 # =============================================================================
@@ -221,13 +251,16 @@ class ExecutorToolRegistry:
         if base_registry is None:
             try:
                 from core.tools.base_registry import get_tool_registry
-
-                self._registry = get_tool_registry()
-            except ImportError:
-                logger.warning("Could not import tool_registry, using empty registry")
-                self._registry = None
+            except ImportError as exc:
+                raise RuntimeError(
+                    "Tool registry import failed; tool dispatch blocked"
+                ) from exc
+            self._registry = get_tool_registry()
         else:
             self._registry = base_registry
+
+        if self._registry is None:
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
 
         self._governance_enabled = governance_enabled
         self._governance_engine = governance_engine
@@ -271,7 +304,7 @@ class ExecutorToolRegistry:
             List of approved ToolBinding objects
         """
         if self._registry is None:
-            return []
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
 
         bindings: list[ToolBinding] = []
 
@@ -370,7 +403,7 @@ class ExecutorToolRegistry:
             List of ToolBinding objects for relevant + approved tools
         """
         if self._registry is None:
-            return []
+            raise RuntimeError("Tool registry unavailable; tool dispatch blocked")
 
         # Step 1: Get semantically relevant tools via embeddings
         relevant_tool_names: set[str] = set()
@@ -388,19 +421,15 @@ class ExecutorToolRegistry:
                 len(relevant_tool_names),
                 query=query[:50],
             )
-        except ImportError:
-            logger.warning(
-                "tool_embeddings not available, falling back to all approved"
-            )
-            return self.get_approved_tools(agent_id, principal_id)
         except Exception as e:
-            logger.warning(f"Semantic tool search failed, using fallback: {e}")
-            return self.get_approved_tools(agent_id, principal_id)
+            raise RuntimeError(
+                f"Semantic tool retrieval unavailable; tool binding blocked: {e}"
+            ) from e
 
         if not relevant_tool_names:
-            # No semantic results, fall back to all approved
-            logger.debug("No semantic matches, using all approved tools")
-            return self.get_approved_tools(agent_id, principal_id)
+            # No semantic results - return empty list (fail-closed, no fallback to all tools)
+            logger.debug("No semantic matches found; returning empty tool list")
+            return []
 
         # Step 2: Filter by governance (intersection of relevant + approved)
         bindings: list[ToolBinding] = []
@@ -495,6 +524,7 @@ class ExecutorToolRegistry:
             log_tool_invocation = tool_audit_module.log_tool_invocation
         except Exception:
 
+            @must_stay_async("callers use await")
             async def log_tool_invocation(**kwargs):  # type: ignore[no-redef]
                 return None
 
@@ -884,7 +914,13 @@ class ExecutorToolRegistry:
 
         # GATE 1: Verify kernel activation
         kernel_state = getattr(agent, "kernel_state", None)
-        if kernel_state != "ACTIVE":
+        kernel_active = False
+        if isinstance(kernel_state, str):
+            kernel_active = kernel_state == "ACTIVE"
+        elif hasattr(kernel_state, "initialized"):
+            kernel_active = bool(kernel_state.initialized)
+
+        if not kernel_active:
             logger.error(
                 "guarded_execute.kernel_not_active",
                 agent_id=agent_id,
@@ -987,17 +1023,23 @@ class ExecutorToolRegistry:
                     policy_id=eval_result.policy_id,
                 )
             except Exception as gov_err:
-                # Governance check failure is a soft failure - log but continue
-                logger.warning(
+                logger.error(
                     "guarded_execute.governance_check_error",
                     agent_id=agent_id,
                     tool_id=tool_id,
                     error=str(gov_err),
                 )
+                return ToolCallResult(
+                    call_id=call_id,
+                    tool_id=tool_id,
+                    success=False,
+                    error=f"Governance check failed: {gov_err}",
+                )
 
         # GATE 6: Check tool approval for high-risk tools
         try:
-            from core.governance.approvals import ApprovalManager, HIGH_RISK_TOOLS
+            from core.governance.approvals import ApprovalManager
+            # GMP-104: Uses module-level HIGH_RISK_TOOLS from tool_risk_policy (line 213)
 
             if tool_id in HIGH_RISK_TOOLS:
                 # Import substrate service if available
@@ -1023,9 +1065,13 @@ class ExecutorToolRegistry:
                             success=False,
                             error=f"Tool {tool_id} requires approval. Request ID: {call_id}",
                         )
-        except ImportError:
-            # ApprovalManager not available - skip check
-            pass
+        except ImportError as approval_import_error:
+            return ToolCallResult(
+                call_id=call_id,
+                tool_id=tool_id,
+                success=False,
+                error=f"Approval enforcement unavailable: {approval_import_error}",
+            )
         except Exception as approval_err:
             logger.warning(
                 "guarded_execute.approval_check_error",
@@ -3595,3 +3641,64 @@ async def register_l_tools() -> int:
     )
 
     return registered_count
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-021",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.agents.schemas",
+        "core.decorators",
+        "core.governance.approvals",
+        "core.governance.engine",
+        "core.governance.schemas",
+    ],
+    "tags": [
+        "adapter",
+        "api",
+        "async",
+        "audit-tool",
+        "authorization",
+        "batch-processing",
+        "cache",
+        "caching",
+        "debugging",
+        "event-driven",
+    ],
+    "keywords": [
+        "(executortoolregistry)",
+        "adapter",
+        "agent",
+        "approval",
+        "approve",
+        "approved",
+        "architecture",
+        "audit",
+    ],
+    "business_value": "This module implements the primary tool dispatch mechanism for L9. Tools are registered and executed through ExecutorToolRegistry, which integrates with Neo4j for governance and Postgres for data. ARC",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

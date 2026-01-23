@@ -18,6 +18,38 @@ Changes v1.1.0:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Dependency Graph",
+    "module_version": "1.1.0 (UKG Phase 2 - Unified Knowledge Graph)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-21T00:00:34Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "tool_graph",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL", "Redis"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "api.server",
+            "core.agents.executor",
+            "core.tools.__init__",
+            "core.tools.registry_adapter",
+            "core.tools.tool_embeddings",
+            "orchestration.long_plan_graph",
+            "runtime.git_tool",
+            "runtime.gmp_tool",
+            "runtime.l_tools",
+            "runtime.mcp_tool",
+        ],
+    },
+}
+# ============================================================================
+
 import re
 import structlog
 import os
@@ -624,24 +656,32 @@ async def register_tool_with_metadata(
 # =============================================================================
 
 L9_TOOLS = [
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Awaiting Firecrawl/Perplexity MCP integration
+    # Alternative: run_research_query (full pipeline with Perplexity)
+    # ========================================================================
     ToolDefinition(
         name="web_search",
         description="Search the web using Firecrawl",
         external_apis=["Firecrawl", "Perplexity"],
         category="research",
     ),
+    # ACTIVE - Executor: runtime/l_tools.py::llm_chat
     ToolDefinition(
         name="llm_chat",
         description="Chat with OpenAI models",
         external_apis=["OpenAI"],
         category="ai",
     ),
+    # ACTIVE - Executor: runtime/l_tools.py::memory_write
     ToolDefinition(
         name="memory_write",
         description="Write to L9 memory substrate",
         external_apis=["PostgreSQL"],
         category="memory",
     ),
+    # ACTIVE - Executor: runtime/l_tools.py::memory_search
     ToolDefinition(
         name="memory_search",
         description="Search L9 memory with embeddings",
@@ -649,13 +689,18 @@ L9_TOOLS = [
         internal_dependencies=["memory_write"],
         category="memory",
     ),
+    # ACTIVE - Executor: runtime/l_tools.py::slack_send
     ToolDefinition(
         name="slack_send",
         description="Send message to Slack",
         external_apis=["Slack"],
         category="communication",
     ),
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
     # Email Agent Tools (Gmail multi-account via email_agent/)
+    # Awaiting email_agent/ integration with TOOL_EXECUTORS
+    # ========================================================================
     ToolDefinition(
         name="email_query",
         description="Query emails from Gmail account",
@@ -692,6 +737,10 @@ L9_TOOLS = [
         external_apis=["Gmail API"],
         category="communication",
     ),
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Calendar Tools - Awaiting Google Calendar API integration
+    # ========================================================================
     ToolDefinition(
         name="calendar_create",
         description="Create calendar event",
@@ -724,7 +773,10 @@ async def register_l9_tools() -> int:
 # =============================================================================
 
 L_INTERNAL_TOOLS = [
-    # Memory & World Model tools
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # Superseded by: memory_get_packet, memory_search, memory_query_packets
+    # ========================================================================
     ToolDefinition(
         name="memory_read",
         description="Read from L9 memory substrate",
@@ -735,6 +787,9 @@ L_INTERNAL_TOOLS = [
         external_apis=["PostgreSQL"],
         agent_id="L",
     ),
+    # ========================================================================
+    # Memory & World Model tools - ACTIVE
+    # ========================================================================
     ToolDefinition(
         name="memory_search",
         description="Search L9 memory with embeddings. Use for structured data retrieval, aggregations, keyword search, and text similarity. Best for: totals, averages, counts, tabular reports, finding specific facts.",
@@ -1014,7 +1069,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["MCP", "Neo4j"],
         agent_id="L",
     ),
-    # GitHub MCP Tools
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # GitHub MCP Tools - Awaiting MCP GitHub server integration
+    # ========================================================================
     ToolDefinition(
         name="github_create_issue",
         description="Create a GitHub issue via MCP",
@@ -1049,7 +1107,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["GitHub", "MCP"],
         agent_id="L",
     ),
-    # Notion MCP Tools
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Notion MCP Tools - Awaiting MCP Notion server integration
+    # ========================================================================
     ToolDefinition(
         name="notion_create_page",
         description="Create a Notion page via MCP",
@@ -1072,7 +1133,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["Notion", "MCP"],
         agent_id="L",
     ),
-    # Vercel MCP Tools
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Vercel MCP Tools - Awaiting MCP Vercel server integration
+    # ========================================================================
     ToolDefinition(
         name="vercel_trigger_deploy",
         description="Trigger a Vercel deployment via MCP",
@@ -1096,7 +1160,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["Vercel", "MCP"],
         agent_id="L",
     ),
-    # GoDaddy MCP Tools
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # GoDaddy MCP Tools - Awaiting MCP GoDaddy server integration
+    # ========================================================================
     ToolDefinition(
         name="godaddy_update_dns_record",
         description="Update a GoDaddy DNS record via MCP",
@@ -1373,7 +1440,10 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         agent_id="L",
     ),
-    # Schema Introspection & Hybrid RAG (GMP-55)
+    # ========================================================================
+    # DEPRECATED - LOW PRIORITY
+    # Schema Introspection - Can use neo4j_query or direct SQL instead
+    # ========================================================================
     ToolDefinition(
         name="schema_introspect_postgres",
         description="Introspect PostgreSQL schema (tables, columns, indexes)",
@@ -1396,6 +1466,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # Superseded by: neo4j_query (accepts any Cypher)
+    # ========================================================================
     ToolDefinition(
         name="cypher_template_list",
         description="List available parameterized Cypher templates",
@@ -1417,6 +1491,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # Superseded by: memory_hybrid_search (already implemented)
+    # ========================================================================
     ToolDefinition(
         name="hybrid_rag_search",
         description="Hybrid RAG search combining vector similarity (Postgres/pgvector) + graph enrichment (Neo4j). Use when you need BOTH semantic matching AND relationship context. Best for: questions spanning facts and connections, enriched search results with related entities.",
@@ -1511,6 +1589,10 @@ L_INTERNAL_TOOLS = [
         external_apis=["PostgreSQL", "OpenAI"],
         agent_id="L",
     ),
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # Superseded by: tools_list_all, tools_list_enabled (ADR-0022)
+    # ========================================================================
     ToolDefinition(
         name="tool_router_list",
         description="List all available tools in the tool router",
@@ -1521,7 +1603,10 @@ L_INTERNAL_TOOLS = [
         risk_level="low",
         agent_id="L",
     ),
-    # Conversational Graph Memory (GMP-58)
+    # ========================================================================
+    # DEPRECATED - DO NOT IMPLEMENT
+    # graph_memory_store superseded by: memory_write, neo4j_query
+    # ========================================================================
     ToolDefinition(
         name="graph_memory_store",
         description="Store a message in conversational graph memory",
@@ -1533,6 +1618,11 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
+    # ========================================================================
+    # FUTURE FEATURE - NOT ORPHANED
+    # Conversational Graph Memory - Convenience wrappers over neo4j_query
+    # Implementation: wrap neo4j_query with predefined Cypher patterns
+    # ========================================================================
     ToolDefinition(
         name="graph_memory_query_history",
         description="Query user conversation history from graph memory",
@@ -1566,7 +1656,20 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
-    # Research Agent Integration (GMP: wire_research_lcto_integration)
+    # ========================================================================
+    # ACTIVE - Research Agent Integration (GMP: wire_research_lcto_integration)
+    # ========================================================================
+    ToolDefinition(
+        name="run_research_query",
+        description="Execute a research query through the full LangGraph pipeline. Triggers: PlannerAgent → ResearcherAgent (Perplexity web search) → MergerAgent → CriticAgent → FinalizerAgent → GraphPersistence (Neo4j). Use for external research, evidence gathering, architecture decisions requiring current information.",
+        category="research",
+        scope="external",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Perplexity", "Neo4j"],
+        agent_id="L",
+    ),
     ToolDefinition(
         name="research_agent_synthesize",
         description="Fast multi-perspective synthesis via ResearchAgent (~10 min). Runs 5 parallel Perplexity queries with different perspectives (pragmatic, research, systems, agents, multimodal) and synthesizes consensus patterns.",
@@ -1656,6 +1759,231 @@ L_INTERNAL_TOOLS = [
         external_apis=["OpenAI"],
         agent_id="L",
     ),
+    # MCP Server Management Tools
+    ToolDefinition(
+        name="mcp_start_server",
+        description="Start an MCP (Model Context Protocol) server by name. Launches the server process for external tool integration.",
+        category="mcp",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="medium",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="mcp_stop_server",
+        description="Stop a specific MCP server by name. Gracefully terminates the server process.",
+        category="mcp",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="mcp_stop_all_servers",
+        description="Stop all running MCP servers. Use for cleanup or restart scenarios.",
+        category="mcp",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=True,
+        risk_level="medium",
+        agent_id="L",
+    ),
+    # Memory Health & Checkpoint Tools
+    ToolDefinition(
+        name="memory_health_check",
+        description="Run health check on memory substrate. Verifies PostgreSQL, Neo4j, Redis connectivity and returns status.",
+        category="memory",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["PostgreSQL", "Neo4j", "Redis"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="memory_get_checkpoint",
+        description="Get current memory checkpoint state. Returns latest checkpoint ID, timestamp, and metadata.",
+        category="memory",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["PostgreSQL"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="memory_trigger_world_model_update",
+        description="Trigger a world model update from accumulated memory. Initiates the WM sync pipeline.",
+        category="memory",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="medium",
+        external_apis=["Neo4j"],
+        agent_id="L",
+    ),
+    # Redis Rate Limiting Tools
+    ToolDefinition(
+        name="redis_get_rate_limit",
+        description="Get current rate limit counter for a key. Returns current count and TTL.",
+        category="cache",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Redis"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="redis_set_rate_limit",
+        description="Set rate limit for a key with TTL. Establishes quota for rate-limited operations.",
+        category="cache",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Redis"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="redis_increment_rate_limit",
+        description="Increment rate limit counter for a key. Returns new count after increment.",
+        category="cache",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Redis"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="redis_decrement_rate_limit",
+        description="Decrement rate limit counter for a key. Returns new count after decrement.",
+        category="cache",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Redis"],
+        agent_id="L",
+    ),
+    # Symbolic Computation Tools
+    ToolDefinition(
+        name="symbolic_compute",
+        description="Execute symbolic computation (algebra, calculus, equation solving). Uses SymPy backend for exact mathematical operations.",
+        category="computation",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="symbolic_codegen",
+        description="Generate code from symbolic expressions. Converts SymPy expressions to Python, NumPy, or other target languages.",
+        category="computation",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="symbolic_optimize",
+        description="Optimize symbolic expressions. Simplifies, factors, or transforms expressions for efficiency.",
+        category="computation",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="simulation",
+        description="Run simulation with given parameters. Executes discrete event or continuous simulation models.",
+        category="simulation",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    # Tool Graph Introspection Tools
+    ToolDefinition(
+        name="tools_get_catalog",
+        description="Get full tool catalog with metadata. Returns all registered tools with descriptions, categories, and risk levels.",
+        category="introspection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="tools_get_dependencies",
+        description="Get dependencies for a tool. Returns tools that the specified tool depends on.",
+        category="introspection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="tools_get_api_dependents",
+        description="Get tools that depend on a specific external API. Useful for impact analysis.",
+        category="introspection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="tools_get_blast_radius",
+        description="Calculate blast radius for a tool or API change. Shows downstream impact of modifications.",
+        category="introspection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="tools_detect_circular_deps",
+        description="Detect circular dependencies in tool graph. Returns cycles if any exist.",
+        category="introspection",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        agent_id="L",
+    ),
+    # World Model Advanced Tools
+    ToolDefinition(
+        name="world_model_restore",
+        description="Restore world model to a previous snapshot. Reverts WM state to specified version.",
+        category="knowledge",
+        scope="internal",
+        is_destructive=True,
+        requires_confirmation=True,
+        risk_level="high",
+        external_apis=["Neo4j"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="world_model_list_updates",
+        description="List recent world model updates. Returns update history with timestamps and change summaries.",
+        category="knowledge",
+        scope="internal",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Neo4j"],
+        agent_id="L",
+    ),
 ]
 
 
@@ -1690,3 +2018,57 @@ __all__ = [
     "L_INTERNAL_TOOLS",
     "register_l_tools",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-018",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.graph_state.schema", "memory.graph_client"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "cache",
+        "caching",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "graph-db",
+        "logging",
+    ],
+    "keywords": [
+        "agent",
+        "all",
+        "api",
+        "blast",
+        "catalog",
+        "circular",
+        "create",
+        "definition",
+    ],
+    "business_value": "Provides tool graph components including ToolDefinition, ToolGraph",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -45,6 +45,34 @@ Usage:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Slack Adapter Metrics",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-09T01:42:58Z",
+    "updated_at": "2026-01-08T20:50:40Z",
+    "layer": "operations",
+    "domain": "observability",
+    "module_name": "slack_metrics",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "api.e2e_slack_audit",
+            "api.routes.slack",
+            "memory.slack_ingest",
+            "telemetry.slack_metrics",
+            "tests.api.test_e2e_slack_audit",
+            "tests.api.test_slack_adapter",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Optional
 
@@ -58,7 +86,6 @@ try:
 except ImportError:
     PROMETHEUS_AVAILABLE = False
     logger.warning("prometheus_client not installed - slack metrics disabled")
-
 
 # =============================================================================
 # Metric Definitions
@@ -124,7 +151,6 @@ if PROMETHEUS_AVAILABLE:
         "Requests rejected due to rate limiting",
         ["team_id"],
     )
-
 
 # =============================================================================
 # Recording Functions
@@ -205,7 +231,9 @@ def record_slack_processing(
         return
 
     try:
-        SLACK_PROCESSING_DURATION.labels(event_type=event_type).observe(duration_seconds)
+        SLACK_PROCESSING_DURATION.labels(event_type=event_type).observe(
+            duration_seconds
+        )
         SLACK_REQUESTS_TOTAL.labels(event_type=event_type, status=status).inc()
     except Exception as e:
         logger.warning("Failed to record slack processing metric", error=str(e))
@@ -336,3 +364,55 @@ __all__ = [
     "init_slack_metrics",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TEL-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "adapter",
+        "api",
+        "event-driven",
+        "logging",
+        "messaging",
+        "metrics",
+        "observability",
+        "operations",
+        "webhooks",
+    ],
+    "keywords": [
+        "active",
+        "adapter",
+        "after",
+        "agent",
+        "aios",
+        "created",
+        "hit",
+        "idempotent",
+    ],
+    "business_value": "the prometheus_client library. Version: 1.0.0 Author: L9 Enterprise Created: 2026-01-08 1. request_received - Webhook request received 2. signature_verified - HMAC signature validated 3. thread_uuid_g",
+    "last_modified": "2026-01-08T20:50:40Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

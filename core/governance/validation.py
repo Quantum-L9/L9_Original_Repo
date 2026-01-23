@@ -13,6 +13,32 @@ These complement the policy-based GovernanceEngineService.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Validation Layer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "governance",
+    "module_name": "validation",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "core.agents.executor",
+            "tests.core.governance.test_validation",
+            "tests.integration.test_l_cto_end_to_end",
+            "tests.integration.test_l_cto_memory_governance_integration",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Dict, Any, Optional, List
@@ -23,7 +49,6 @@ logger = structlog.get_logger(__name__)
 # In-memory audit trail (for drift detection)
 # TODO: Migrate to MemorySubstrateService for persistence
 _audit_trail: deque = deque(maxlen=1000)
-
 
 # =============================================================================
 # Authority Validation
@@ -263,3 +288,54 @@ __all__ = [
     "audit_log",
     "get_audit_trail",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "audit-tool",
+        "foundation",
+        "governance",
+        "logging",
+        "monitoring",
+        "utility",
+    ],
+    "keywords": [
+        "audit",
+        "authority",
+        "checks",
+        "detect",
+        "detection",
+        "drift",
+        "governance",
+        "layer",
+    ],
+    "business_value": "Utility module for validation",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

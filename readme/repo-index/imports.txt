@@ -22,6 +22,7 @@
   .c_gmp_engine
   .circuit_breaker
   .classifier
+  .cmts
   .code_extractor
   .codegen_agent
   .computation
@@ -72,8 +73,10 @@
   .phase_5_bind_tools
   .phase_6_wire_governance
   .phase_7_verify_and_lock
+  .policy_generator
   .prometheus_exporter
   .quick_fixes
+  .rate_limit_policy
   .readme_generator
   .reasoning.orchestrator
   .reasoning_engine
@@ -82,7 +85,7 @@
   .schema
   .schemas
   .service
-  .session_startup
+  .subsystem_detector
   .task
   .task_queue
   .tokenizer
@@ -96,8 +99,6 @@
   .ws_bridge
 # 2020
   2020
-# Cursor
-  Cursor
 # SUPER_PROMPT_TEMPLATE
   SUPER_PROMPT_TEMPLATE
 # YAML
@@ -112,6 +113,7 @@
   adapters.email_adapter_adapter
   adapters.twilio_adapter_adapter
 # agents
+  agents.agent_registry
   agents.architect_agent.architect_agent_a
   agents.architect_agent.architect_agent_b
   agents.base_agent
@@ -124,23 +126,17 @@
   agents.coder_agent.coder_agent_b
   agents.cursor.cursor_client
   agents.cursor.cursor_memory_kernel
+  agents.cursor.gmp_meta_learning
   agents.cursor.integrations.cursor_gateway
   agents.cursor.integrations.cursor_langgraph
   agents.l_cto
   agents.qa_agent
   agents.reflection_agent
-  agents.research_agent
+  agents.research_agent.research_facade
+  agents.research_agent_impl
 # api
   api.
-  api.adapters.calendar_adapter.adapters.calendar_adapter_adapter
-  api.adapters.calendar_adapter.routes.calendar_adapter
-  api.adapters.email_adapter.adapters.email_adapter_adapter
-  api.adapters.email_adapter.routes.email_adapter
-  api.adapters.twilio_adapter.adapters.twilio_adapter_adapter
-  api.adapters.twilio_adapter.routes.twilio_adapter
   api.agent_routes
-  api.anomaly_classifier_adapter
-  api.anomaly_response_monitor_adapter
   api.auth
   api.circuit_breaker
   api.db
@@ -149,11 +145,11 @@
   api.memory.graph
   api.memory.router
   api.os_routes
+  api.routes.registry
   api.server
   api.slack_adapter
   api.slack_client
   api.tools.router
-  api.violation_tracker_service_adapter
 # apply_policy_rules
   apply_policy_rules
 # argparse
@@ -176,6 +172,8 @@
   base64
 # chat
   chat
+# click
+  click
 # clients
   clients.memory_client
 # codegen
@@ -187,6 +185,7 @@
 # collaborative_cells
   collaborative_cells.architect_cell
   collaborative_cells.base_cell
+  collaborative_cells.cell_registry
   collaborative_cells.coder_cell
   collaborative_cells.reflection_cell
   collaborative_cells.reviewer_cell
@@ -197,6 +196,7 @@
 # concurrent
   concurrent.futures
 # config
+  config.di_config
   config.memory_substrate_settings
   config.research_settings
   config.rls_config
@@ -220,25 +220,45 @@
   core.agents.schemas
   core.agents.selfreflection
   core.aios.runtime
+  core.auto_registry
   core.boundary.enforcer
+  core.ca_governance
+  core.ca_governance.ca_code_change
+  core.ca_governance.constraint_validator
+  core.ca_governance.diff_generator
+  core.ca_governance.report_generator
   core.commands.schemas
   core.compliance.audit_log
   core.compliance.audit_reporter
-  core.gmp
-  core.gmp.meta_learning_engine
+  core.config
+  core.decorators
+  core.di.container
+  core.event_type_registry
   core.governance.approval_gate
   core.governance.approval_manager
   core.governance.approvals
   core.governance.engine
   core.governance.loader
   core.governance.mistake_prevention
+  core.governance.policy_registry
+  core.governance.protected_files_policy
+  core.governance.rate_limit_policy
   core.governance.schemas
   core.governance.session_startup
+  core.governance.tool_risk_policy
   core.governance.validation
   core.kernel_wiring.packet_protocol_wiring
+  core.kernels.bayesian_kernel
   core.kernels.integrity
   core.kernels.kernelloader
   core.kernels.schemas
+  core.l_agent_runtime
+  core.l_agent_runtime.action_registry
+  core.l_agent_runtime.agent_state
+  core.l_agent_runtime.foresight_engine
+  core.l_agent_runtime.memory_adapter
+  core.l_agent_runtime.reflection_engine
+  core.moduleregistry
   core.observability.circuit_breaker
   core.observability.models
   core.packet_envelope
@@ -247,11 +267,22 @@
   core.packet_envelope.observability
   core.packet_envelope.scalability
   core.packet_envelope.standardization
+  core.protocols
+  core.protocols.agent_protocols
+  core.protocols.kernel_protocols
+  core.protocols.memory_protocols
+  core.protocols.observability_protocols
+  core.protocols.secrets_protocols
+  core.registry.models
+  core.resilience.mixin
+  core.resilience.protocols
   core.resilience.retry
   core.retrievers.substrate_retriever
+  core.runtimes.react_runtime
   core.schemas
   core.schemas.capabilities
   core.schemas.event_stream
+  core.schemas.hypergraph
   core.schemas.packet_envelope
   core.schemas.packet_envelope_v2
   core.schemas.research_factory_models
@@ -259,8 +290,12 @@
   core.schemas.research_factory_state
   core.schemas.schema_registry
   core.schemas.tasks
+  core.schemas.upcaster_registry
   core.schemas.ws_event_stream
+  core.secrets.env_secrets_client
   core.security.path_safety
+  core.singleton_auto_registry
+  core.singleton_registry
   core.testing.test_agent
   core.testing.test_executor
   core.testing.test_generator
@@ -285,6 +320,8 @@
   dev_layer.modules.code_planning
   dev_layer.runtime
   dev_layer.runtime.enforcement
+# difflib
+  difflib
 # domain_tensor_bridge
   domain_tensor_bridge.agent_controller
   domain_tensor_bridge.context_enricher
@@ -384,6 +421,8 @@
   mac_agent.helpers.logging
 # math
   math
+# mcp_memory
+  mcp_memory.src.main
 # memory
   memory
   memory.active_encoder
@@ -396,7 +435,9 @@
   memory.consolidation
   memory.cross_encoder_reranker
   memory.cypher_templates
+  memory.dead_letter
   memory.extractors.base_extractor
+  memory.gap_detector
   memory.governance_gate
   memory.governance_patterns
   memory.graph_client
@@ -410,8 +451,10 @@
   memory.insight_extraction
   memory.migration_runner
   memory.models
+  memory.neo4j_strategy_memory
   memory.neural_decay_scheduler
   memory.packet_serializer
+  memory.predictive_cache
   memory.query_classifier
   memory.reasoning_replay
   memory.retention_engine
@@ -421,6 +464,7 @@
   memory.schema_introspection
   memory.semantic_search
   memory.slack_ingest
+  memory.state_manager
   memory.strategymemory
   memory.substrate_alignment
   memory.substrate_dag
@@ -430,8 +474,11 @@
   memory.substrate_repository
   memory.substrate_semantic
   memory.substrate_service
+  memory.timeline_service
   memory.tool_router
   memory.validators.packet_validator
+  memory.warming_models
+  memory.warming_service
 # mocks
   mocks.kernel_mocks
   mocks.memory_mocks
@@ -439,6 +486,8 @@
   mocks.world_model_mocks
 # neo4j
   neo4j
+# numpy
+  numpy
 # openai
   openai
 # opentelemetry
@@ -454,6 +503,7 @@
   opentelemetry.trace.propagation.tracecontext
 # orchestration
   orchestration.cell_orchestrator
+  orchestration.input_segmenter
   orchestration.long_plan_graph
   orchestration.orchestrator_kernel
   orchestration.plan_executor
@@ -466,8 +516,10 @@
   orchestrators.agent_execution.task_queue
   orchestrators.memory.interface
   orchestrators.memory.orchestrator
+  orchestrators.orchestrator_registry
   orchestrators.pattern.cell_adapter
   orchestrators.pattern.interface
+  orchestrators.pattern.master_orchestrator
   orchestrators.pattern.metrics
   orchestrators.pattern.orchestrator
   orchestrators.reasoning.interface
@@ -490,6 +542,8 @@
   phase_5_governance
 # pickle
   pickle
+# pkgutil
+  pkgutil
 # platform
   platform
 # psycopg
@@ -507,6 +561,7 @@
 # re
   re
 # redis
+  redis
   redis.asyncio
 # requests
   requests
@@ -517,25 +572,33 @@
   routes.twilio_adapter
 # runtime
   runtime
+  runtime.auth_rate_limiter
+  runtime.background_tasks
   runtime.dora
   runtime.execution_gate
   runtime.gmp_worker
+  runtime.kernel_config_loader
   runtime.kernel_loader
   runtime.kernel_state
+  runtime.l_tools
   runtime.long_plan_tool
   runtime.mcp_client
+  runtime.mcp_server_registry
   runtime.rate_limiter
   runtime.redis_client
   runtime.superprompt_emitter
   runtime.task_queue
   runtime.tool_call_wrapper
+  runtime.tool_registry
   runtime.websocket_orchestrator
 # services
+  services.research
   services.research.agents
   services.research.agents.base_agent
   services.research.agents.critic_agent
   services.research.agents.planner_agent
   services.research.agents.researcher_agent
+  services.research.graph_persistence
   services.research.graph_runtime
   services.research.graph_state
   services.research.insight_extractor
@@ -640,10 +703,18 @@
   threading
 # time
   time
+# tools
+  tools.adr.adr_cli
+  tools.adr.adr_generator
+  tools.adr.adr_indexer
+  tools.adr.adr_validator
 # torch
   torch
   torch.nn
   torch.nn.functional
+# torch_geometric
+  torch_geometric.data
+  torch_geometric.nn
 # traceback
   traceback
 # twilio
@@ -698,3 +769,5 @@
   world_model.world_model_service
 # yaml
   yaml
+# zoneinfo
+  zoneinfo

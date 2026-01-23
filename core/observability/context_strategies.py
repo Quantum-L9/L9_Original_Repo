@@ -4,9 +4,31 @@ Context window assembly strategies.
 Implements 6 strategies for managing LLM context: naive, recency, summary, RAG, hybrid, adaptive.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Context Strategies",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "context_strategies",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["tests.core.observability.test_observability_integration"],
+    },
+}
+# ============================================================================
+
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional, Any
 import structlog
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -15,6 +37,7 @@ class ContextStrategy(ABC):
     """Base class for context window strategies."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def assemble(
         self,
         conversation: List[Dict[str, str]],
@@ -28,6 +51,7 @@ class ContextStrategy(ABC):
 class NaiveTruncationStrategy(ContextStrategy):
     """Keep recent messages until budget exhausted (simple, lossy)."""
 
+    @must_stay_async("callers use await")
     async def assemble(
         self,
         conversation: List[Dict[str, str]],
@@ -41,7 +65,9 @@ class NaiveTruncationStrategy(ContextStrategy):
         for msg in reversed(conversation):
             msg_tokens = len(msg.get("content", "").split())
             if token_count + msg_tokens > max_tokens:
-                logger.debug(f"Truncation: dropping message, would exceed {max_tokens} tokens")
+                logger.debug(
+                    f"Truncation: dropping message, would exceed {max_tokens} tokens"
+                )
                 break
             result.append(f"{msg['role']}: {msg['content']}")
             token_count += msg_tokens
@@ -54,12 +80,13 @@ class RecencyBiasedWindowStrategy(ContextStrategy):
 
     def __init__(self, recent_percent: float = 0.7):
         """Initialize strategy.
-        
+
         Args:
             recent_percent: Fraction (0-1) of budget reserved for recent messages.
         """
         self.recent_percent = recent_percent
 
+    @must_stay_async("callers use await")
     async def assemble(
         self,
         conversation: List[Dict[str, str]],
@@ -112,12 +139,13 @@ class HierarchicalSummarizationStrategy(ContextStrategy):
 
     def __init__(self, summary_ratio: float = 0.25):
         """Initialize strategy.
-        
+
         Args:
             summary_ratio: Fraction of budget to use for summaries.
         """
         self.summary_ratio = summary_ratio
 
+    @must_stay_async("callers use await")
     async def assemble(
         self,
         conversation: List[Dict[str, str]],
@@ -153,7 +181,9 @@ class HierarchicalSummarizationStrategy(ContextStrategy):
             result.insert(0, summary)
             token_count += len(summary.split())
 
-        logger.debug(f"HierarchicalSummary: {len(older)} older msgs summarized, {token_count} total tokens")
+        logger.debug(
+            f"HierarchicalSummary: {len(older)} older msgs summarized, {token_count} total tokens"
+        )
         return "\n".join(result)
 
 
@@ -162,7 +192,7 @@ class RAGStrategy(ContextStrategy):
 
     def __init__(self, top_k: int = 5, min_relevance: float = 0.5):
         """Initialize RAG strategy.
-        
+
         Args:
             top_k: Number of chunks to retrieve.
             min_relevance: Minimum relevance score (0-1).
@@ -189,11 +219,15 @@ class RAGStrategy(ContextStrategy):
             return ""
 
         # Retrieve relevant chunks (stub: in production, use vector DB)
-        retrieved = await knowledge_base.retrieve(
-            query=query,
-            top_k=self.top_k,
-            min_relevance=self.min_relevance,
-        ) if hasattr(knowledge_base, "retrieve") else []
+        retrieved = (
+            await knowledge_base.retrieve(
+                query=query,
+                top_k=self.top_k,
+                min_relevance=self.min_relevance,
+            )
+            if hasattr(knowledge_base, "retrieve")
+            else []
+        )
 
         result = []
         if retrieved:
@@ -264,13 +298,16 @@ class HybridStrategy(ContextStrategy):
         if recent_context:
             result.append(recent_context)
 
-        logger.debug(f"Hybrid: RAG + Summary + Recency combined, {len(' '.join(result).split())} tokens")
+        logger.debug(
+            f"Hybrid: RAG + Summary + Recency combined, {len(' '.join(result).split())} tokens"
+        )
         return "\n\n".join(result)
 
 
 class AdaptiveStrategySelector:
     """Select optimal strategy based on task characteristics."""
 
+    @must_stay_async("callers use await")
     async def select_strategy(
         self,
         conversation: List[Dict[str, str]],
@@ -286,3 +323,55 @@ class AdaptiveStrategySelector:
             return HybridStrategy()
         else:
             return RecencyBiasedWindowStrategy()
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-061",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "async",
+        "core",
+        "debugging",
+        "foundation",
+        "logging",
+        "messaging",
+        "service",
+    ],
+    "keywords": [
+        "adaptive",
+        "assemble",
+        "biased",
+        "hierarchical",
+        "hybrid",
+        "naive",
+        "recency",
+        "select",
+    ],
+    "business_value": "Implements 6 strategies for managing LLM context: naive, recency, summary, RAG, hybrid, adaptive.",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

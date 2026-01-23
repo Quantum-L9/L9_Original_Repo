@@ -100,6 +100,7 @@ class TestSlackMetrics:
             record_slack_processing,
             record_aios_call,
         )
+
         # All imports should succeed
         assert callable(record_slack_request)
         assert callable(record_signature_verification)
@@ -109,6 +110,7 @@ class TestSlackMetrics:
     def test_record_slack_request(self):
         """Test request metric recording."""
         from telemetry.slack_metrics import record_slack_request
+
         # Should not raise
         record_slack_request(event_type="events", status="received")
         record_slack_request(event_type="commands", status="processed")
@@ -116,12 +118,14 @@ class TestSlackMetrics:
     def test_record_signature_verification_success(self):
         """Test signature verification success metric."""
         from telemetry.slack_metrics import record_signature_verification
+
         # Should not raise
         record_signature_verification(valid=True)
 
     def test_record_signature_verification_failure(self):
         """Test signature verification failure metric."""
         from telemetry.slack_metrics import record_signature_verification
+
         # Should not raise
         record_signature_verification(valid=False, reason="timestamp_expired")
         record_signature_verification(valid=False, reason="invalid_signature")
@@ -129,6 +133,7 @@ class TestSlackMetrics:
     def test_record_slack_processing(self):
         """Test processing duration metric."""
         from telemetry.slack_metrics import record_slack_processing
+
         # Should not raise
         record_slack_processing(
             event_type="message",
@@ -144,6 +149,7 @@ class TestSlackMetrics:
     def test_record_aios_call(self):
         """Test AIOS call duration metric."""
         from telemetry.slack_metrics import record_aios_call
+
         # Should not raise
         record_aios_call(agent_type="aios", duration_seconds=1.5)
         record_aios_call(agent_type="l-cto", duration_seconds=3.0)
@@ -151,12 +157,14 @@ class TestSlackMetrics:
     def test_record_idempotent_hit(self):
         """Test idempotent hit metric."""
         from telemetry.slack_metrics import record_idempotent_hit
+
         # Should not raise
         record_idempotent_hit(team_id="T123")
 
     def test_record_packet_write_error(self):
         """Test packet write error metric."""
         from telemetry.slack_metrics import record_packet_write_error
+
         # Should not raise
         record_packet_write_error(packet_type="slack.in")
         record_packet_write_error(packet_type="slack.out")
@@ -164,6 +172,7 @@ class TestSlackMetrics:
     def test_record_slack_reply_error(self):
         """Test Slack reply error metric."""
         from telemetry.slack_metrics import record_slack_reply_error
+
         # Should not raise
         record_slack_reply_error(error_type="api_error")
         record_slack_reply_error(error_type="timeout")
@@ -171,12 +180,14 @@ class TestSlackMetrics:
     def test_record_rate_limit_hit(self):
         """Test rate limit hit metric."""
         from telemetry.slack_metrics import record_rate_limit_hit
+
         # Should not raise
         record_rate_limit_hit(team_id="T123")
 
     def test_init_slack_metrics(self):
         """Test metrics initialization."""
         from telemetry.slack_metrics import init_slack_metrics, PROMETHEUS_AVAILABLE
+
         result = init_slack_metrics()
         # Result depends on whether prometheus_client is installed
         assert result == PROMETHEUS_AVAILABLE
@@ -193,8 +204,9 @@ class TestCanonicalLogEvents:
     def test_canonical_events_documented(self):
         """Verify canonical events are documented in module."""
         import memory.slack_ingest as module
+
         source = open(module.__file__).read()
-        
+
         # All 9 canonical events should be documented
         canonical_events = [
             "slack_request_received",
@@ -207,7 +219,7 @@ class TestCanonicalLogEvents:
             "slack_reply_sent",
             "slack_handler_error",
         ]
-        
+
         for event in canonical_events:
             assert event in source, f"Canonical event '{event}' not found in slack_ingest.py"
 
@@ -258,7 +270,7 @@ class TestDeduplication:
         mock_substrate_service.search_packets.return_value = [
             {"packet_id": "existing-123", "payload": {"event_id": "Ev123"}}
         ]
-        
+
         # Verify search is called
         await mock_substrate_service.search_packets(
             filter_criteria={"payload.event_id": "Ev123"},
@@ -271,7 +283,7 @@ class TestDeduplication:
         """Test new events are processed."""
         # Mock no existing packet
         mock_substrate_service.search_packets.return_value = []
-        
+
         result = await mock_substrate_service.search_packets(
             filter_criteria={"payload.event_id": "EvNEW"},
             limit=1,
@@ -291,14 +303,14 @@ class TestPacketStorage:
     async def test_inbound_packet_stored(self, mock_substrate_service):
         """Test inbound packet is stored."""
         from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
-        
+
         packet = PacketEnvelopeIn(
             packet_type="slack.in",
             payload={"event_id": "Ev123", "text": "Hello"},
             metadata=PacketMetadata(schema_version="1.0.1", agent="slack_adapter"),
             provenance=PacketProvenance(source="slack"),
         )
-        
+
         result = await mock_substrate_service.write_packet(packet)
         assert result.packet_id == "test-packet-123"
         mock_substrate_service.write_packet.assert_called_once()
@@ -307,14 +319,14 @@ class TestPacketStorage:
     async def test_outbound_packet_stored(self, mock_substrate_service):
         """Test outbound packet is stored."""
         from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
-        
+
         packet = PacketEnvelopeIn(
             packet_type="slack.out",
             payload={"event_id": "Ev123", "reply_text": "Response"},
             metadata=PacketMetadata(schema_version="1.0.1", agent="slack_adapter"),
             provenance=PacketProvenance(source="aios"),
         )
-        
+
         result = await mock_substrate_service.write_packet(packet)
         assert result.packet_id == "test-packet-123"
 
@@ -342,9 +354,9 @@ class TestSlackReply:
     async def test_reply_error_handled(self, mock_slack_client):
         """Test reply error is handled gracefully."""
         from api.slack_client import SlackClientError
-        
+
         mock_slack_client.post_message.side_effect = SlackClientError("rate_limited")
-        
+
         with pytest.raises(SlackClientError):
             await mock_slack_client.post_message(
                 channel="C123",
@@ -364,12 +376,14 @@ class TestSlackAdapterIntegration:
     def test_slack_normalizer_imports(self):
         """Test SlackRequestNormalizer imports."""
         from api.slack_adapter import SlackRequestNormalizer
+
         normalizer = SlackRequestNormalizer()
         assert normalizer is not None
 
     def test_slack_validator_imports(self):
         """Test SlackRequestValidator imports."""
         from api.slack_adapter import SlackRequestValidator
+
         # Validator requires signing secret
         validator = SlackRequestValidator(signing_secret="test_secret")
         assert validator is not None
@@ -377,14 +391,14 @@ class TestSlackAdapterIntegration:
     def test_thread_uuid_generation(self, sample_slack_event):
         """Test deterministic thread UUID generation."""
         from api.slack_adapter import SlackRequestNormalizer
-        
+
         # parse_event_callback is a static method
         normalized = SlackRequestNormalizer.parse_event_callback(sample_slack_event)
-        
+
         # Thread UUID should be generated
         assert "thread_uuid" in normalized
         assert normalized["thread_uuid"] is not None
-        
+
         # Same input should produce same UUID (deterministic)
         normalized2 = SlackRequestNormalizer.parse_event_callback(sample_slack_event)
         assert normalized["thread_uuid"] == normalized2["thread_uuid"]
@@ -404,7 +418,7 @@ class TestErrorHandling:
             record_slack_request,
             record_signature_verification,
         )
-        
+
         # These should never raise, even if prometheus is unavailable
         try:
             record_slack_request(event_type="test", status="test")
@@ -416,9 +430,8 @@ class TestErrorHandling:
     async def test_substrate_error_handled(self, mock_substrate_service):
         """Test substrate errors are handled gracefully."""
         mock_substrate_service.write_packet.side_effect = Exception("DB connection failed")
-        
+
         with pytest.raises(Exception) as exc_info:
             await mock_substrate_service.write_packet(MagicMock())
-        
-        assert "DB connection failed" in str(exc_info.value)
 
+        assert "DB connection failed" in str(exc_info.value)

@@ -11,6 +11,30 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Kernelevolution",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-08T15:53:43Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "kernelevolution",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "core.agents.executor",
+            "tests.integration.test_kernel_evolution_flow",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -33,7 +57,9 @@ class KernelUpdateProposal:
 
     proposal_id: str
     kernel_id: str
-    update_type: str  # ADD_RULE, MODIFY_RULE, REMOVE_RULE, ADD_CONSTRAINT, MODIFY_CONSTRAINT
+    update_type: (
+        str  # ADD_RULE, MODIFY_RULE, REMOVE_RULE, ADD_CONSTRAINT, MODIFY_CONSTRAINT
+    )
     priority: str  # LOW, MEDIUM, HIGH, CRITICAL
     title: str
     description: str
@@ -90,7 +116,7 @@ class KernelUpdateProposal:
 {changes_text}
 
 ### Gaps Addressed
-{', '.join(self.gaps_addressed)}
+{", ".join(self.gaps_addressed)}
 
 ### Confidence
 {self.confidence:.2%}
@@ -306,7 +332,9 @@ async def create_evolution_plan(
     proposals = generate_proposals_from_reflection(reflection)
 
     # Determine overall impact
-    high_priority_count = sum(1 for p in proposals if p.priority in ("HIGH", "CRITICAL"))
+    high_priority_count = sum(
+        1 for p in proposals if p.priority in ("HIGH", "CRITICAL")
+    )
     if high_priority_count >= 2:
         estimated_impact = "HIGH"
     elif high_priority_count == 1 or len(proposals) >= 3:
@@ -446,3 +474,53 @@ __all__ = [
     "generate_gmp_spec_from_plan",
 ]
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-038",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.agents.selfreflection", "core.schemas"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "async",
+        "dataclass",
+        "foundation",
+        "logging",
+        "testing",
+    ],
+    "keywords": [
+        "create",
+        "evolution",
+        "gap",
+        "generate",
+        "gmp",
+        "kernel",
+        "kernelevolution",
+        "module",
+    ],
+    "business_value": "Provides kernelevolution components including KernelUpdateProposal, EvolutionPlan",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

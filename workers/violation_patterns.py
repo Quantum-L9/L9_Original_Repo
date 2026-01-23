@@ -11,6 +11,27 @@ Auto-generated scaffold by L9 CodeGenAgent, implementation by governance design.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Violation Patterns",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T00:41:22Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "violation_patterns",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["workers.__init__", "workers.violation_tracker_service"],
+    },
+}
+# ============================================================================
+
 import re
 from dataclasses import dataclass
 from datetime import datetime
@@ -20,6 +41,7 @@ from uuid import uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -198,6 +220,7 @@ class ViolationPatterns:
     # Lifecycle
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def startup(self) -> None:
         """Initialize resources on startup."""
         logger.info("violation_patterns_starting")
@@ -223,6 +246,7 @@ class ViolationPatterns:
             compiled_regex_count=len(self._compiled_patterns),
         )
 
+    @must_stay_async("health endpoint")
     async def shutdown(self) -> None:
         """Clean up resources on shutdown."""
         logger.info("violation_patterns_shutting_down")
@@ -307,6 +331,7 @@ class ViolationPatterns:
     # Internal Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _execute(self, request: ViolationPatternsRequest) -> List[ViolationMatch]:
         """
         Execute pattern matching.
@@ -399,6 +424,7 @@ class ViolationPatterns:
     # Health Check
     # =========================================================================
 
+    @must_stay_async("health endpoint")
     async def health_check(self) -> Dict[str, Any]:
         """Check service health."""
         return {
@@ -438,3 +464,56 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "dataclass",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "validation",
+    ],
+    "keywords": [
+        "check",
+        "create",
+        "governance",
+        "health",
+        "lesson",
+        "match",
+        "pattern",
+        "patterns",
+    ],
+    "business_value": "Provides violation patterns components including ViolationSeverity, ViolationPattern, ViolationMatch",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

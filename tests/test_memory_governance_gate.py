@@ -27,7 +27,8 @@ ensure_governance_context = _gate_module.ensure_governance_context
 
 def test_build_governance_context_blocks_cursor_private_scope():
     """Cursor (caller_id='C') cannot have l-private in allowed_scopes."""
-    with pytest.raises(RuntimeError, match="Cursor cannot access l-private"):
+    # GMP-103: Policy-based validation from config/policies/memory_scope.yaml
+    with pytest.raises(RuntimeError, match="cannot access 'l-private' scope"):
         build_governance_context(
             caller_id="C",
             role="end_user",

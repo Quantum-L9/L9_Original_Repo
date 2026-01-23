@@ -14,6 +14,27 @@ For full DB-connected tests, set MEMORY_DSN and run:
     python dev/audit/smoke_test.py --with-db
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Smoke Test",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:23:43Z",
+    "updated_at": "2026-01-14T15:02:45Z",
+    "layer": "operations",
+    "domain": "tests",
+    "module_name": "smoke_test",
+    "type": "test",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import sys
 import asyncio
 import logging
@@ -70,9 +91,7 @@ def test_compileall() -> tuple[bool, str]:
         text=True,
     )
     if result.returncode != 0:
-        return False, result.stderr[
-            :200
-        ] if result.stderr else "Compilation errors (see output)"
+        return False, result.stderr[:200] if result.stderr else "Compilation errors (see output)"
     return True, ""
 
 
@@ -163,9 +182,7 @@ def test_core_modules_exist() -> tuple[bool, str]:
         return False, f"Missing directories: {missing}"
 
     # Check for __init__.py in each
-    missing_init = [
-        d for d in required_dirs if not (REPO_ROOT / d / "__init__.py").exists()
-    ]
+    missing_init = [d for d in required_dirs if not (REPO_ROOT / d / "__init__.py").exists()]
     if missing_init:
         return False, f"Missing __init__.py in: {missing_init}"
 
@@ -192,9 +209,7 @@ def test_no_nested_repos() -> tuple[bool, str]:
         text=True,
     )
     nested_dirs = [
-        d
-        for d in result.stdout.strip().split("\n")
-        if d and d.startswith(str(REPO_ROOT))
+        d for d in result.stdout.strip().split("\n") if d and d.startswith(str(REPO_ROOT))
     ]
 
     if nested_dirs:
@@ -212,12 +227,7 @@ def test_entrypoints_exist() -> tuple[bool, str]:
     missing = []
     for line in entrypoints_file.read_text().strip().split("\n"):
         # Only check lines that are actual file paths (not indented, end with .py, not comments)
-        if (
-            line
-            and not line.startswith("#")
-            and not line.startswith(" ")
-            and line.endswith(".py")
-        ):
+        if line and not line.startswith("#") and not line.startswith(" ") and line.endswith(".py"):
             path = REPO_ROOT / line
             if not path.exists():
                 missing.append(line)
@@ -336,3 +346,62 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TES-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "api.memory.router",
+        "core.schemas",
+        "memory.substrate_dag",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "filesystem",
+        "logging",
+        "messaging",
+        "migration",
+        "operations",
+        "subprocess",
+        "test",
+    ],
+    "keywords": [
+        "async",
+        "compileall",
+        "core",
+        "dry",
+        "entrypoints",
+        "exist",
+        "imports",
+        "instantiation",
+    ],
+    "business_value": "This test does NOT require a running database - it validates import chains and basic functionality only. python tests/smoke_test.py python dev/audit/smoke_test.py --with-db",
+    "last_modified": "2026-01-14T15:02:45Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

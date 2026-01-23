@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Audit"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-06T19:43:29Z"
+# updated_at: "2026-01-07T13:35:58Z"
+# layer: "operations"
+# domain: "api_gateway"
+# file_name: "audit"
+# type: "router"
+# status: "active"
+# ============================================================================
+
 # L9 Audit Suite v2.0 — Master Configuration
 # Frontier-grade audit framework for code integrity, infrastructure health, and capability inventory
 
@@ -308,3 +323,11 @@ notifications:
   
   # Only notify on failures
   only_on_failure: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["api-config", "api-gateway", "configuration", "operations", "prompt", "router", "schema", "tool-config"]
+# keywords: ["audit", "description", "integration", "logging", "output", "performance"]
+# last_modified: "2026-01-07T13:35:58Z"
+# ============================================================================

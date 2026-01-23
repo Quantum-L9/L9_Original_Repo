@@ -27,6 +27,34 @@ Version: 1.2.0 (async interface)
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Engine",
+    "module_version": "1.2.0 (async interface)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:57Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "engine",
+    "type": "engine",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "core.singleton_registry",
+            "world_model.__init__",
+            "world_model.nodes.update_world_model_node",
+            "world_model.runtime",
+            "world_model.world_model_service",
+        ],
+    },
+}
+# ============================================================================
 
 import asyncio
 import structlog
@@ -44,6 +72,8 @@ if TYPE_CHECKING:
     from world_model.knowledge_ingestor import KnowledgeIngestor
     from world_model.causal_mapper import CausalMapper
     from world_model.reflection_memory import ReflectionMemory
+    from world_model.service import WorldModelService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -120,7 +150,26 @@ class WorldModelEngine:
         self._causal_mapper: Optional[CausalMapper] = None
         self._reflection_memory: Optional[ReflectionMemory] = None
 
-        logger.info("WorldModelEngine initialized (v1.2.0 async)")
+        # World Model Service for DB-backed entity persistence
+        self._world_model_service: Optional["WorldModelService"] = None
+
+        logger.info("WorldModelEngine initialized (v1.3.0 async with DB sync)")
+
+    def set_world_model_service(self, service: "WorldModelService") -> None:
+        """
+        Set WorldModelService for DB-backed entity persistence.
+
+        When set, entities ingested via update_from_packet() are
+        automatically synced to PostgreSQL after in-memory ingestion.
+
+        Args:
+            service: WorldModelService instance
+        """
+        self._world_model_service = service
+        # Wire to ingestor if already initialized
+        if self._ingestor:
+            self._ingestor.set_world_model_service(service)
+        logger.info("WorldModelService attached to engine for DB sync")
 
     # =========================================================================
     # Initialization
@@ -196,6 +245,9 @@ class WorldModelEngine:
 
             # Initialize runtime components
             self._ingestor = KnowledgeIngestor(state=self._state)
+            # Wire DB sync if service available
+            if self._world_model_service:
+                self._ingestor.set_world_model_service(self._world_model_service)
             self._causal_mapper = CausalMapper()
             self._reflection_memory = ReflectionMemory()
 
@@ -287,6 +339,12 @@ class WorldModelEngine:
                 affected_entities = result.get("entities", [])
                 affected_relations = result.get("relations", [])
                 errors = result.get("errors", [])
+
+                # Sync entities to DB if service available (GMP-WIRE: Pipeline unification)
+                if self._world_model_service and self._ingestor:
+                    sync_result = await self._ingestor.sync_to_db()
+                    if sync_result.get("errors"):
+                        logger.warning(f"DB sync partial: {sync_result['errors']}")
 
                 self._version += 1
 
@@ -380,6 +438,7 @@ class WorldModelEngine:
 
         return {"entities": entities, "relations": relations, "errors": []}
 
+    @must_stay_async("callers use await")
     async def query(self, query: dict[str, Any]) -> dict[str, Any]:
         """
         Query the world model.
@@ -498,6 +557,7 @@ class WorldModelEngine:
 
         return stats
 
+    @must_stay_async("callers use await")
     async def simulate(self, change_request: dict[str, Any]) -> dict[str, Any]:
         """
         Run a simulation scenario (what-if analysis).
@@ -719,6 +779,11 @@ class WorldModelEngine:
 _engine: Optional[WorldModelEngine] = None
 
 
+@register_singleton(
+    name="world_model_engine",
+    lifecycle="lazy",
+    description="World model reasoning engine",
+)
 def get_world_model_engine() -> WorldModelEngine:
     """
     Get or create singleton WorldModelEngine.
@@ -760,3 +825,58 @@ def reset_world_model_engine() -> None:
     """Reset the singleton engine (for testing)."""
     global _engine
     _engine = None
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-012",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "async",
+        "config",
+        "debugging",
+        "engine",
+        "event-driven",
+        "learning",
+        "logging",
+        "rest-api",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "async",
+        "causal",
+        "core",
+        "count",
+        "engine",
+        "entity",
+        "graph",
+        "ingestor",
+    ],
+    "business_value": "Load specifications from YAML Initialize and manage state (async) Process incoming memory packets (async) Answer queries against current state (async) Run simulations (async, future) Memory Substrate:",
+    "last_modified": "2026-01-17T23:47:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -12,6 +12,27 @@ agent_state, long_term_flags, and contradiction_tracking.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "State Manager",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "state_manager",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Optional
 from uuid import UUID, uuid4
@@ -19,6 +40,7 @@ from datetime import datetime
 
 from core.schemas import PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_service import MemorySubstrateService
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -83,6 +105,7 @@ class MemoryStateManager:
         """
         return await self._service.get_checkpoint(agent_id=self._agent_id)
 
+    @must_stay_async("callers use await")
     async def start_new_thread(self) -> UUID:
         """
         Generate a new thread_id for multi-turn conversations / graphs.
@@ -388,3 +411,57 @@ class MemoryStateManager:
             "_persisted_at": datetime.utcnow().isoformat(),
         }
         await self.save_checkpoint(checkpoint_data)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-007",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas", "memory.substrate_service"],
+    "tags": [
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "service",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "active",
+        "agent",
+        "append",
+        "checkpoint",
+        "compliance",
+        "contradiction",
+        "count",
+        "delete",
+    ],
+    "business_value": "Implements MemoryStateManager for state manager functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

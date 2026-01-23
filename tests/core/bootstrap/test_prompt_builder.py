@@ -59,32 +59,29 @@ class TestBuildKernelSystemPrompt:
         """Should return safety prefix when no kernels loaded."""
         agent = MockKernelAgent(kernels={}, kernel_state="INACTIVE")
         prompt = build_kernel_system_prompt(agent)
-        
+
         assert SAFETY_PREFIX in prompt
         assert "INACTIVE" in prompt
 
     def test_inactive_kernel_state_warns(self):
         """Should include warning when kernel state is not ACTIVE."""
         agent = MockKernelAgent(
-            kernels={"test_kernel": {"identity": "test"}},
-            kernel_state="LOADING"
+            kernels={"test_kernel": {"identity": "test"}}, kernel_state="LOADING"
         )
         prompt = build_kernel_system_prompt(agent)
-        
+
         assert "INACTIVE" in prompt or "LOADING" in prompt or SAFETY_PREFIX in prompt
 
     def test_active_kernels_includes_safety_prefix(self):
         """Should include safety prefix when kernels are active."""
         agent = MockKernelAgent(
             kernels={
-                "private/kernels/00_system/02_identity_kernel.yaml": {
-                    "identity": "I am L, the CTO"
-                }
+                "private/kernels/00_system/02_identity_kernel.yaml": {"identity": "I am L, the CTO"}
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent)
-        
+
         assert SAFETY_PREFIX in prompt
 
     def test_extracts_identity_section(self):
@@ -95,10 +92,10 @@ class TestBuildKernelSystemPrompt:
                     "identity": "I am L, Igor's CTO assistant"
                 }
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent, include_identity=True)
-        
+
         assert "IDENTITY" in prompt
         assert "Igor's CTO" in prompt
 
@@ -110,10 +107,10 @@ class TestBuildKernelSystemPrompt:
                     "safety": "Never execute destructive operations without approval"
                 }
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent, include_safety=True)
-        
+
         assert "SAFETY CONSTRAINTS" in prompt
         assert "destructive operations" in prompt
 
@@ -125,10 +122,10 @@ class TestBuildKernelSystemPrompt:
                     "behavioral": "Be direct and concise"
                 }
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent, include_behavioral=True)
-        
+
         assert "BEHAVIORAL" in prompt
         assert "direct and concise" in prompt
 
@@ -140,10 +137,10 @@ class TestBuildKernelSystemPrompt:
                     "execution": "Execute tasks autonomously"
                 }
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent, include_execution=True)
-        
+
         assert "EXECUTION" in prompt
         assert "autonomously" in prompt
 
@@ -151,14 +148,12 @@ class TestBuildKernelSystemPrompt:
         """Should allow disabling safety prefix (for testing only)."""
         agent = MockKernelAgent(
             kernels={
-                "private/kernels/00_system/02_identity_kernel.yaml": {
-                    "identity": "Test identity"
-                }
+                "private/kernels/00_system/02_identity_kernel.yaml": {"identity": "Test identity"}
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent, include_safety_prefix=False)
-        
+
         assert SAFETY_PREFIX not in prompt
         assert "IDENTITY" in prompt
 
@@ -166,21 +161,17 @@ class TestBuildKernelSystemPrompt:
         """Should allow disabling individual sections."""
         agent = MockKernelAgent(
             kernels={
-                "private/kernels/00_system/02_identity_kernel.yaml": {
-                    "identity": "Test identity"
-                },
-                "private/kernels/00_system/08_safety_kernel.yaml": {
-                    "safety": "Test safety"
-                },
+                "private/kernels/00_system/02_identity_kernel.yaml": {"identity": "Test identity"},
+                "private/kernels/00_system/08_safety_kernel.yaml": {"safety": "Test safety"},
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(
             agent,
             include_identity=False,
             include_safety=False,
         )
-        
+
         # Should only have safety prefix, no identity or safety sections
         assert SAFETY_PREFIX in prompt
         # IDENTITY section should not be present (separate from prefix)
@@ -192,16 +183,13 @@ class TestBuildKernelSystemPrompt:
         agent = MockKernelAgent(
             kernels={
                 "private/kernels/00_system/02_identity_kernel.yaml": {
-                    "identity": {
-                        "content": "Nested content",
-                        "version": "1.0"
-                    }
+                    "identity": {"content": "Nested content", "version": "1.0"}
                 }
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent)
-        
+
         assert "Nested content" in prompt
 
     def test_handles_list_kernel_content(self):
@@ -212,10 +200,10 @@ class TestBuildKernelSystemPrompt:
                     "identity": ["Trait 1", "Trait 2", "Trait 3"]
                 }
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent)
-        
+
         assert "Trait 1" in prompt
         assert "Trait 2" in prompt
 
@@ -229,7 +217,7 @@ class TestBuildRuntimePrompt:
             task_payload={"message": "Hello"},
             channel="slack",
         )
-        
+
         assert "slack" in prompt
         assert "CURRENT SESSION" in prompt
 
@@ -240,7 +228,7 @@ class TestBuildRuntimePrompt:
             memory_context={"thread_context": "Previous conversation about GMP"},
             channel="http",
         )
-        
+
         assert "Thread Context" in prompt
         assert "GMP" in prompt
 
@@ -251,7 +239,7 @@ class TestBuildRuntimePrompt:
             memory_context={"semantic_hits": "Relevant memory about deployment"},
             channel="http",
         )
-        
+
         assert "Relevant Memory" in prompt
         assert "deployment" in prompt
 
@@ -262,7 +250,7 @@ class TestBuildRuntimePrompt:
             memory_context={},
             channel="http",
         )
-        
+
         assert "CURRENT SESSION" in prompt
         assert "Thread Context" not in prompt
 
@@ -273,7 +261,7 @@ class TestBuildRuntimePrompt:
             memory_context=None,
             channel="http",
         )
-        
+
         assert "CURRENT SESSION" in prompt
 
 
@@ -283,13 +271,10 @@ class TestKernelExtractionEdgeCases:
     def test_no_matching_kernel_file(self):
         """Should handle missing kernel files gracefully."""
         agent = MockKernelAgent(
-            kernels={
-                "some_other_path/kernel.yaml": {"data": "value"}
-            },
-            kernel_state="ACTIVE"
+            kernels={"some_other_path/kernel.yaml": {"data": "value"}}, kernel_state="ACTIVE"
         )
         prompt = build_kernel_system_prompt(agent)
-        
+
         # Should still have safety prefix
         assert SAFETY_PREFIX in prompt
 
@@ -301,10 +286,10 @@ class TestKernelExtractionEdgeCases:
                     "description": "Identity from description"
                 }
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent)
-        
+
         # The extraction tries multiple keys including 'description'
         assert SAFETY_PREFIX in prompt
 
@@ -316,10 +301,10 @@ class TestKernelExtractionEdgeCases:
                     "content": "Identity from content key"
                 }
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent)
-        
+
         assert SAFETY_PREFIX in prompt
 
 
@@ -330,15 +315,9 @@ class TestMultipleKernels:
         """Should handle multiple kernel files."""
         agent = MockKernelAgent(
             kernels={
-                "private/kernels/00_system/01_master_kernel.yaml": {
-                    "master": "Master rules"
-                },
-                "private/kernels/00_system/02_identity_kernel.yaml": {
-                    "identity": "L identity"
-                },
-                "private/kernels/00_system/08_safety_kernel.yaml": {
-                    "safety": "Safety rules"
-                },
+                "private/kernels/00_system/01_master_kernel.yaml": {"master": "Master rules"},
+                "private/kernels/00_system/02_identity_kernel.yaml": {"identity": "L identity"},
+                "private/kernels/00_system/08_safety_kernel.yaml": {"safety": "Safety rules"},
                 "private/kernels/00_system/07_execution_kernel.yaml": {
                     "execution": "Execution rules"
                 },
@@ -346,10 +325,10 @@ class TestMultipleKernels:
                     "behavioral": "Behavioral rules"
                 },
             },
-            kernel_state="ACTIVE"
+            kernel_state="ACTIVE",
         )
         prompt = build_kernel_system_prompt(agent)
-        
+
         assert SAFETY_PREFIX in prompt
         assert "IDENTITY" in prompt
         assert "SAFETY CONSTRAINTS" in prompt
@@ -364,9 +343,9 @@ class TestAgentWithoutKernelAttribute:
         """Should handle agent without kernels attribute."""
         agent = MagicMock(spec=[])  # No kernels attribute
         del agent.kernels  # Ensure it doesn't exist
-        
+
         prompt = build_kernel_system_prompt(agent)
-        
+
         # Should return safety prefix with warning
         assert SAFETY_PREFIX in prompt
 
@@ -374,8 +353,8 @@ class TestAgentWithoutKernelAttribute:
         """Should handle agent with None kernels."""
         agent = MockKernelAgent(kernels=None, kernel_state="ACTIVE")
         agent.kernels = None  # Explicitly set to None
-        
+
         prompt = build_kernel_system_prompt(agent)
-        
+
         assert SAFETY_PREFIX in prompt
         assert "INACTIVE" in prompt or "Operating with minimal constraints" in prompt

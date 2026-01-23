@@ -1,10 +1,77 @@
 # TODO
 
-> **Last Updated:** 2026-01-14 (GMP-87: Scaffolding features added)
+> **Last Updated:** 2026-01-21 (PRs 28-30 merge tracking, adaptive cache, api/server.py deferred)
 
 ---
 
 ## 🔴 High Priority
+
+### PRs #28, #29, #30 Merge (BLOCKED on CI)
+
+**Status:** CI failing on all 3 PRs — Manus fixing (prompts sent)
+
+| PR | Title | CI Status | Blocker |
+|----|-------|-----------|---------|
+| #28 | ExecutorComposer + DIContainer | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
+| #29 | Observability Infrastructure | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
+| #30 | Memory & Governance | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
+
+**Merge Order:** #28 → #29 → #30 (dependency chain)
+
+**Post-Merge TODO:**
+- [ ] Wire `DeduplicationEngine` into `memory/consolidation.py` `_run_deduplication()`
+- [ ] Wire `registry_cache.py` into `core/tools/registry_adapter.py`
+- [ ] Add tracing decorators to high-traffic routes
+
+**DEFERRED:** `api/server.py` refactor → separate future PR
+
+---
+
+### Tool Registry Adaptive Cache (ADR-0050 Extension)
+
+**Status:** Future enhancement — add after PR #30 merged
+
+**Current:** Fixed 5-minute TTL for all tools in `core/tools/registry_cache.py`
+
+**Proposed:** HOT tools get longer TTL based on access frequency:
+- `>100 accesses` → 1 hour TTL
+- `>10 accesses` → 10 min TTL  
+- `<10 accesses` → 5 min TTL (default)
+
+**Files to update:**
+- `core/tools/registry_cache.py` — Add access counter + adaptive TTL logic
+- `readme/ADR/0050-tool-registry-cache.md` — Document adaptive behavior
+
+**Priority:** 🟢 Low (optimization, not blocking)
+
+---
+
+### Agent/Tenant ID Naming Review
+
+**Status:** Review needed
+
+**Issue:** L9 has multiple identifiers for the same entities, causing confusion:
+
+| Identifier | What It Is | Canonical? |
+|------------|------------|------------|
+| `l-cto` | L's agent_id | ✅ PRIMARY |
+| `l9-standard-v1` | Alias for l-cto (config name) | Keep as alias |
+| `l9-kernel` | MCP memory source field | Different concept (source, not agent) |
+| `cursor-ide` | Cursor's agent_id | ✅ PRIMARY |
+| `cursor-agent` | Folder name for Cursor files | Should rename to `cursor-ide`? |
+
+**Questions to resolve:**
+1. Should `agents/cursor/` folder be renamed to `agents/cursor-ide/`? (consistency)
+2. Should `l9-kernel` MCP source be changed to `l-cto`? (reduce confusion)
+3. Should we deprecate `l9-standard-v1` eventually or keep as permanent alias?
+
+**Files using these identifiers:**
+- `core/agents/kernel_registry.py` — Aliases l-cto ↔ l9-standard-v1
+- `mcp_memory/src/main.py` — Uses `l9-kernel` as source
+- `agents/cursor/cursor_memory_kernel.py` — Uses `cursor-ide`
+- `runtime/kernel_loader.py` — Checks for multiple L aliases
+
+---
 
 ### UUID Standardization Refactor
 
@@ -120,6 +187,19 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
   export PATH="$HOME/Library/Python/3.9/bin:$PATH"
   ```
 
+- [x] **S3 Backup System**: ✅ DONE (2026-01-18) — Full PostgreSQL + Config backup to S3
+  - Created `scripts/backup/backup_l9_memory.sh` (backup script)
+  - Created `scripts/backup/restore_l9_memory.sh` (restore script)
+  - Created `scripts/backup/setup_s3_bucket.sh` (S3 bucket setup)
+  - S3 bucket `l9-backups` created with 30-day lifecycle policy
+  - AWS CLI installed on Mac and VPS
+  - First backup uploaded: 12.4MB PostgreSQL + 2.3KB config
+  - Deprecated old scripts moved to `_archived/deprecated_backup_scripts/`
+
+- [x] **Set VPS backup cron** (12-hour interval): ✅ DONE (2026-01-19)
+  - Runs at 00:00 and 12:00 daily
+  - Logs to `/opt/l9/logs/l9-backup-cron.log`
+
 - [ ] **Test deployment script** locally: `./scripts/deploy_agent_executor.sh`
 - [ ] **Test server startup** to verify fail-loudly behavior (GMP-47 removed silent stubs)
 - [ ] **Test Slack integration** after deployment to verify agent_executor responds
@@ -154,6 +234,75 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 
 ## 🟣 Deferred Work
 
+### Strategy Memory Phase 2: RAFA & Agent Q (GMP-103 Follow-up)
+
+**Status**: Deferred — Phase 1 Auto-Capture complete (GMP-103)
+
+**Source**: `current_work/Strategy Memory for Repeat Task Optimization/`
+
+**Context**: Strategy Memory enables L9 to remember and reuse successful planning strategies. Phase 0 (retrieval-only) and Phase 1 (auto-capture) are complete. Phase 2 adds advanced learning capabilities.
+
+| Feature | Description | Effort | Priority |
+|---------|-------------|--------|----------|
+| **RAFA Adapter** | Retrieval-Augmented Fine-tuning Adapter — adapts retrieved strategies to new contexts via in-context learning | 4-6 hours | 🟡 Medium |
+| **Agent Q** | Q-learning-based strategy scoring — learns optimal strategy selection from feedback over time | 6-8 hours | 🟡 Medium |
+| **Native Vector Index** | Neo4j 5.11+ vector index for embeddings (currently uses pgvector) | 2-3 hours | 🟢 Low |
+
+**RAFA Adapter Scope:**
+- [ ] Create `memory/rafa_adapter.py` — in-context strategy adaptation
+- [ ] Integrate with `PlanExecutor.maybe_apply_strategy()` — adapt before execute
+- [ ] Add `was_adapted` and `adaptation_distance` tracking to feedback
+- [ ] Create unit tests for adaptation logic
+
+**Agent Q Scope:**
+- [ ] Create `memory/agent_q.py` — Q-value tracking per strategy-context pair
+- [ ] Implement exploration/exploitation (ε-greedy or UCB)
+- [ ] Wire into retrieval scoring (boost high Q-value strategies)
+- [ ] Add feedback loop to update Q-values on execution outcomes
+- [ ] Create unit tests for learning dynamics
+
+**Prerequisites:**
+- ✅ Phase 0: Retrieval-only (Neo4j service, hybrid scoring) — **COMPLETE**
+- ✅ Phase 1: Auto-capture (trigger, threshold, tests) — **COMPLETE** (GMP-103)
+
+**Reference**: 
+- `reports/GMP-Report-103-Strategy-Memory-Phase1-AutoCapture.md`
+- `memory/neo4j_strategy_memory.py` (current implementation)
+- `orchestration/plan_executor.py` (integration point)
+
+---
+
+### Auto-Wiring & WebSocket Consolidation (Gap Analysis 2026-01-19)
+
+**Source:** `current_work/01-19-2026/Autowiring3/` and `current_work/01-19-2026/L9_AUTOWIRING2/`
+
+#### Missing Runtimes
+
+| Runtime | File | Status | Notes |
+|---------|------|--------|-------|
+| Multi-Agent Debate Runtime | `core/runtimes/debate_runtime.py` | ❌ Not created | Multiple agents debate → consensus |
+| Self-Refinement Runtime | `core/runtimes/refinement_runtime.py` | ❌ Not created | Agent reflects on mistakes → refines |
+| Tool-Augmented Generation Runtime | `core/runtimes/tag_runtime.py` | ❌ Not created | Semantic tool retrieval → dynamic binding |
+
+**Existing:** `core/runtimes/react_runtime.py` ✅ (Think → Act → Observe loop)
+
+#### WebSocket Consolidation — ✅ COMPLETE (verified 2026-01-19)
+
+| Task | Status | Evidence |
+|------|--------|----------|
+| `/lws` route through `ws_orchestrator` | ✅ DONE | `server.py:3478` → `ws_orchestrator.handle_incoming()` → `handle_conversation_task()` |
+| `verify_ws_token()` centralization | ✅ DONE | `runtime/websocket_orchestrator.py:63-120`, imported by server.py |
+| Delete `/chat` endpoint | ✅ DONE | Removed, comments at lines 3117-3121 point to `/lchat` |
+| Delete legacy flags | ✅ DONE | `L9_ENABLE_LEGACY_CHAT` and `L9_ENABLE_LEGACY_SLACK_ROUTER` removed from settings |
+| `runtime/background_tasks.py` | ✅ DONE | 286 lines, `BackgroundTaskRegistry` fully implemented |
+
+**TODO (remaining):**
+- [ ] Create Multi-Agent Debate Runtime
+- [ ] Create Self-Refinement Runtime
+- [ ] Create Tool-Augmented Generation Runtime
+
+---
+
 ### Scaffolding / Future Features (from Dead Code Audit)
 
 **Status:** Scaffolding only — not dead code, just not yet exposed via API routes
@@ -173,6 +322,9 @@ UUID(source_packet) if isinstance(source_packet, str) else source_packet
 | Twilio Adapter | `api/adapters/twilio_adapter/` (4 files) | SMS/Voice integration |
 
 **TODO (when developing these):**
+- [ ] Create `/orchestrators/evolution` router for kernel evolution management (GMP-91 follow-up)
+  - Endpoints: `GET /evolution/status`, `POST /evolution/trigger`, `GET /evolution/history`
+  - Wire EvolutionOrchestrator in FastAPI lifespan
 - [ ] Create API routes for orchestrators (`api/routes/meta.py`, etc.)
 - [ ] Wire orchestrators in FastAPI lifespan (follow GMP-87 CursorExecutor pattern)
 - [ ] Complete adapter implementations (currently skeleton code)

@@ -18,6 +18,27 @@ Auto-generated scaffold by L9 CodeGenAgent, implementation by governance design.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Violation Tracker Service",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T00:41:22Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "violation_tracker_service",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["workers.__init__"],
+    },
+}
+# ============================================================================
+
 import json
 from datetime import datetime
 from pathlib import Path
@@ -26,6 +47,10 @@ from uuid import uuid5, NAMESPACE_DNS
 
 import structlog
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
+
+# MCP Memory integration
+from clients.memory_client import get_memory_client
 
 from workers.violation_patterns import (
     ViolationPatterns,
@@ -342,6 +367,7 @@ class ViolationTrackerService:
 
         return violation
 
+    @must_stay_async("callers use await")
     async def _log_to_audit(
         self,
         violation: ViolationRecord,
@@ -366,6 +392,7 @@ class ViolationTrackerService:
         except Exception as e:
             logger.error("audit_log_write_failed", error=str(e))
 
+    @must_stay_async("callers use await")
     async def _log_to_violations(self, violation: ViolationRecord) -> None:
         """Write violation to violations log."""
         entry = {
@@ -386,32 +413,50 @@ class ViolationTrackerService:
         except Exception as e:
             logger.error("violations_log_write_failed", error=str(e))
 
+    @must_stay_async("callers use await")
     async def _emit_to_mcp_memory(self, violation: ViolationRecord) -> None:
         """Emit violation to MCP Memory for cross-session persistence."""
-        # In production, this would call the MCP Memory API
-        # For now, we log the intent
-        logger.info(
-            "mcp_memory_emit",
-            kind="lesson_violation",
-            lesson_id=violation.lesson_id,
-            violation_count=violation.violation_count,
-        )
+        try:
+            client = get_memory_client()
 
-        # TODO: Implement actual MCP call
-        # async with httpx.AsyncClient() as client:
-        #     await client.post(
-        #         "https://l9.quantumaipartners.com/mcp/tools/save_memory",
-        #         json={
-        #             "content": f"VIOLATION: {violation.lesson_id} violated ({violation.violation_count}x). Pattern: {violation.pattern}",
-        #             "kind": "lesson_violation",
-        #             "scope": "cursor",
-        #             "metadata": {
-        #                 "lesson_id": violation.lesson_id,
-        #                 "violation_count": violation.violation_count,
-        #             }
-        #         }
-        #     )
+            await client.write_packet(
+                packet_type="lesson_violation",
+                payload={
+                    "violation_id": violation.violation_id,
+                    "lesson_id": violation.lesson_id,
+                    "severity": violation.severity.value,
+                    "pattern": violation.pattern,
+                    "description": violation.description,
+                    "source": violation.source,
+                    "context": violation.context,
+                    "violation_count": violation.violation_count,
+                },
+                metadata={
+                    "agent": "violation_tracker",
+                    "domain": "governance",
+                    "schema_version": "1.0.0",
+                },
+                confidence={
+                    "score": 1.0,  # Deterministic pattern match
+                    "rationale": f"Pattern '{violation.pattern}' matched in source",
+                },
+            )
 
+            logger.info(
+                "mcp_memory_emit_success",
+                lesson_id=violation.lesson_id,
+                violation_count=violation.violation_count,
+            )
+
+        except Exception as e:
+            # Non-fatal: log warning but don't fail the violation tracking
+            logger.warning(
+                "mcp_memory_emit_failed",
+                lesson_id=violation.lesson_id,
+                error=str(e),
+            )
+
+    @must_stay_async("callers use await")
     async def _trigger_escalation(self, lesson_id: str) -> None:
         """Trigger escalation for repeated violations."""
         count = self._violation_counts.get(lesson_id, 0)
@@ -441,6 +486,7 @@ class ViolationTrackerService:
         except Exception as e:
             logger.error("escalation_log_failed", error=str(e))
 
+    @must_stay_async("callers use await")
     async def _load_violation_counts(self) -> None:
         """Load existing violation counts from log."""
         if not self._violations_log_path.exists():
@@ -539,3 +585,57 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-004",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "api",
+        "async",
+        "audit-tool",
+        "data-models",
+        "filesystem",
+        "logging",
+        "messaging",
+        "operations",
+        "pydantic",
+        "schema",
+    ],
+    "keywords": [
+        "all",
+        "audit",
+        "check",
+        "count",
+        "counts",
+        "create",
+        "design",
+        "detection",
+    ],
+    "business_value": "Provides violation tracker service components including ViolationRecord, ViolationTrackerServiceRequest, ViolationTrackerServiceResponse",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

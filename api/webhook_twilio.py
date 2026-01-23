@@ -1,3 +1,24 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Webhook Twilio",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-12T14:26:37Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "webhook_twilio",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["POST /twilio/webhook"],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["api.server_memory"],
+    },
+}
+# ============================================================================
+
 import os
 from fastapi import APIRouter, Request, HTTPException, Header
 from fastapi.responses import PlainTextResponse
@@ -22,10 +43,12 @@ router = APIRouter()
 CHAT_URL = "http://127.0.0.1:8000/chat"
 
 
-def verify_twilio_signature(url: str, params: dict, signature: str, auth_token: str | None) -> bool:
+def verify_twilio_signature(
+    url: str, params: dict, signature: str, auth_token: str | None
+) -> bool:
     """
     Verify Twilio request signature using HMAC-SHA1 base64.
-    
+
     Twilio signs requests by:
     1. Taking the full URL
     2. Sorting POST params alphabetically and appending key=value pairs
@@ -33,17 +56,17 @@ def verify_twilio_signature(url: str, params: dict, signature: str, auth_token: 
     """
     if not auth_token:
         return False
-    
+
     # Build the signature base string: URL + sorted params
     s = url
     for key in sorted(params.keys()):
         s += f"{key}{params[key]}"
-    
+
     # Compute HMAC-SHA1 and base64 encode
     computed = base64.b64encode(
         hmac.new(auth_token.encode(), s.encode(), hashlib.sha1).digest()
     ).decode()
-    
+
     return hmac.compare_digest(computed, signature)
 
 
@@ -61,7 +84,9 @@ async def twilio_webhook(
     form = await request.form()
     if not x_twilio_signature:
         raise HTTPException(status_code=401, detail="Missing Twilio signature")
-    if not verify_twilio_signature(str(request.url), dict(form), x_twilio_signature, TWILIO_AUTH_TOKEN):
+    if not verify_twilio_signature(
+        str(request.url), dict(form), x_twilio_signature, TWILIO_AUTH_TOKEN
+    ):
         raise HTTPException(status_code=401, detail="Invalid Twilio signature")
     from_number = form.get("From")
     body = form.get("Body")
@@ -89,3 +114,49 @@ async def twilio_webhook(
 
     # Twilio expects plain text for simple replies (it will wrap into SMS)
     return PlainTextResponse(reply)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "http-client",
+        "messaging",
+        "operations",
+        "router",
+        "security",
+    ],
+    "keywords": ["signature", "twilio", "verify", "webhook"],
+    "business_value": "Utility module for webhook twilio",
+    "last_modified": "2026-01-12T14:26:37Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

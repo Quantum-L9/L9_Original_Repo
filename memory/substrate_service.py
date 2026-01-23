@@ -6,10 +6,43 @@ Orchestrating service that coordinates repository, semantic, and graph layers.
 Provides a unified interface for substrate operations.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service Layer",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "substrate_service",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "agents.cursor.integrations.cursor_executor",
+            "agents.cursor.integrations.cursor_gateway",
+            "agents.l_cto",
+            "api.memory.router",
+            "api.routes.mcp",
+            "api.server",
+            "core.agents.bootstrap.orchestrator",
+            "core.agents.bootstrap.phase_0_validate",
+            "core.agents.bootstrap.phase_2_instantiate",
+            "core.agents.bootstrap.phase_3_bind_kernels",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from datetime import datetime
 from typing import Any, Optional
 
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 from core.schemas import (
     PacketEnvelopeIn,
     PacketWriteResult,
@@ -39,7 +72,12 @@ from memory.saga_patterns import (
     SagaPatterns,
 )
 from memory.audit_utils import prepare_packet_for_ingest
-from memory.governance_gate import enforce_packet_governance, require_governance_context
+from memory.governance_gate import (
+    ensure_governance_context,
+    enforce_packet_governance,
+    governance_context,
+    require_governance_context,
+)
 from telemetry.memory_metrics import (
     record_memory_write,
     record_memory_search,
@@ -48,6 +86,7 @@ from telemetry.memory_metrics import (
     record_memory_ingest,
 )
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -77,10 +116,18 @@ class MemorySubstrateService:
         """
         self._repository = repository
 
-        # Initialize embedding provider
+        # Initialize embedding provider (fail-closed: no stub fallback)
+        # GMP-96: Embedding provider is REQUIRED for production
         if embedding_provider is None:
-            logger.warning("No embedding provider specified, using stub provider")
-            embedding_provider = StubEmbeddingProvider()
+            raise RuntimeError(
+                "Embedding provider required; missing embedding context. "
+                "Set OPENAI_API_KEY or provide explicit EmbeddingProvider."
+            )
+        if isinstance(embedding_provider, StubEmbeddingProvider):
+            raise RuntimeError(
+                "StubEmbeddingProvider is not allowed in enforcement mode. "
+                "Use create_embedding_provider() with valid OPENAI_API_KEY."
+            )
         self._embedding_provider = embedding_provider
 
         # Initialize semantic service
@@ -116,7 +163,16 @@ class MemorySubstrateService:
         self._saga_executor: Optional[SagaExecutor] = None
         self._saga_patterns: Optional[SagaPatterns] = None
 
+        # Initialize Dead-Letter Queue (lazy initialization)
+        self._dlq: Optional[Any] = None
+
         logger.info("MemorySubstrateService initialized")
+
+    def _require_rls_context(self, operation: str) -> Any:
+        ctx = require_governance_context(operation)
+        if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+            raise RuntimeError(f"RLS scope required for memory operation: {operation}")
+        return ctx
 
     # =========================================================================
     # RLS Session Scope
@@ -204,7 +260,7 @@ class MemorySubstrateService:
             PacketWriteResult with status and written tables
         """
         # GMP-70: Governance enforcement (fail-closed)
-        ctx = require_governance_context("write_packet")
+        ctx = self._require_rls_context("write_packet")
         if tenant_id and tenant_id != ctx.tenant_id:
             raise RuntimeError("tenant_id must be derived server-side")
         if org_id and org_id != ctx.org_id:
@@ -286,7 +342,7 @@ class MemorySubstrateService:
                         result.error_message or "DAG returned error status"
                     )
             except Exception as dag_error:
-                # DAG threw exception - record failure and re-raise
+                # DAG threw exception - record failure
                 self._circuit_breaker.record_failure(str(dag_error))
                 logger.error(
                     "memory_substrate_dag_exception",
@@ -294,6 +350,22 @@ class MemorySubstrateService:
                     error=str(dag_error),
                     circuit_state=self._circuit_breaker.get_state(),
                 )
+                
+                # Push to Dead-Letter Queue for later reprocessing
+                if hasattr(self, '_dlq') and self._dlq:
+                    try:
+                        await self._dlq.push(packet_in, str(dag_error))
+                        logger.info(
+                            "memory_substrate_packet_queued_for_retry",
+                            packet_id=str(envelope.packet_id),
+                        )
+                    except Exception as dlq_error:
+                        logger.error(
+                            "dlq_push_failed",
+                            packet_id=str(envelope.packet_id),
+                            error=str(dlq_error),
+                        )
+                
                 raise
 
         # Record Prometheus metrics for memory write (result is defined in both branches)
@@ -322,14 +394,21 @@ class MemorySubstrateService:
         """
         from uuid import UUID
 
+        ctx = self._require_rls_context("get_packet")
         try:
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
             row = await self._repository.get_packet(UUID(packet_id))
             if row:
                 return row.envelope
             return None
         except Exception as e:
             logger.error(f"Error retrieving packet {packet_id}: {e}")
-            return None
+            raise
 
     async def search_packets_by_thread(
         self,
@@ -350,7 +429,14 @@ class MemorySubstrateService:
         """
         from uuid import UUID
 
+        ctx = self._require_rls_context("search_packets_by_thread")
         try:
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
             rows = await self._repository.search_packets_by_thread(
                 thread_id=UUID(thread_id),
                 packet_type=packet_type,
@@ -368,7 +454,7 @@ class MemorySubstrateService:
             return results
         except Exception as e:
             logger.error(f"Error searching packets by thread {thread_id}: {e}")
-            return []
+            raise
 
     async def search_packets_by_type(
         self,
@@ -388,11 +474,18 @@ class MemorySubstrateService:
             List of packet envelopes as dicts
         """
         try:
-            rows = await self._repository.search_packets_by_type(
-                packet_type=packet_type,
-                agent_id=agent_id,
-                limit=limit,
-            )
+            async with ensure_governance_context("search_packets_by_type") as ctx:
+                await self.set_session_scope(
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
+                    ctx.role,
+                )
+                rows = await self._repository.search_packets_by_type(
+                    packet_type=packet_type,
+                    agent_id=agent_id,
+                    limit=limit,
+                )
             results = [row.envelope for row in rows]
 
             # Record Prometheus metrics for search
@@ -405,7 +498,7 @@ class MemorySubstrateService:
             return results
         except Exception as e:
             logger.error(f"Error searching packets by type {packet_type}: {e}")
-            return []
+            raise
 
     async def query_packets(
         self,
@@ -439,33 +532,43 @@ class MemorySubstrateService:
             Dict with 'packets' list and metadata
         """
         try:
-            # Set RLS scope if provided
-            if tenant_id and org_id and user_id:
-                await self.set_session_scope(tenant_id, org_id, user_id, role)
+            ctx = self._require_rls_context("query_packets")
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
 
             all_packets = []
 
-            if packet_types:
-                # Fetch each type and combine
-                for ptype in packet_types:
-                    rows = await self._repository.search_packets_by_type(
-                        packet_type=ptype,
-                        agent_id=agent_id,
-                        limit=limit,
-                        since=since,
-                    )
-                    all_packets.extend([row.envelope for row in rows])
-            else:
-                # No type filter - get recent packets
-                # Use a common packet type as fallback
-                for ptype in ["insight", "reflection", "ir_graph", "execution_plan"]:
-                    rows = await self._repository.search_packets_by_type(
-                        packet_type=ptype,
-                        agent_id=agent_id,
-                        limit=limit // 4,  # Split limit across types
-                        since=since,
-                    )
-                    all_packets.extend([row.envelope for row in rows])
+            async with governance_context(ctx):
+                if packet_types:
+                    # Fetch each type and combine
+                    for ptype in packet_types:
+                        rows = await self._repository.search_packets_by_type(
+                            packet_type=ptype,
+                            agent_id=agent_id,
+                            limit=limit,
+                            since=since,
+                        )
+                        all_packets.extend([row.envelope for row in rows])
+                else:
+                    # No type filter - get recent packets
+                    # Use a common packet type as fallback
+                    for ptype in [
+                        "insight",
+                        "reflection",
+                        "ir_graph",
+                        "execution_plan",
+                    ]:
+                        rows = await self._repository.search_packets_by_type(
+                            packet_type=ptype,
+                            agent_id=agent_id,
+                            limit=limit // 4,  # Split limit across types
+                            since=since,
+                        )
+                        all_packets.extend([row.envelope for row in rows])
 
             # Sort by timestamp descending and limit
             all_packets.sort(
@@ -497,7 +600,7 @@ class MemorySubstrateService:
                 )
             except ImportError:
                 pass
-            return {"packets": [], "count": 0, "error": str(e)}
+            raise
 
     # =========================================================================
     # Semantic Search Operations
@@ -515,6 +618,7 @@ class MemorySubstrateService:
         Returns:
             SemanticSearchResult with hits
         """
+        self._require_rls_context("semantic_search")
         logger.info(
             f"Semantic search: query='{request.query[:50]}...', min_score={request.min_score}"
         )
@@ -565,6 +669,7 @@ class MemorySubstrateService:
         Returns:
             embedding_id
         """
+        self._require_rls_context("embed_text")
         return await self._semantic_service.embed_and_store(
             text=text,
             payload=payload,
@@ -939,6 +1044,7 @@ class MemorySubstrateService:
     # Saga Pattern (GMP-56/57: Cross-DB Multi-Step Operations)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_saga_executor(self) -> SagaExecutor:
         """
         Get saga executor instance (lazy initialization).
@@ -1206,6 +1312,12 @@ async def create_substrate_service(
 _service: Optional[MemorySubstrateService] = None
 
 
+@must_stay_async("callers use await")
+@register_singleton(
+    name="memory_substrate_service",
+    lifecycle="startup",
+    description="Memory substrate service orchestrating repository, semantic, and graph layers",
+)
 async def get_service() -> MemorySubstrateService:
     """Get service singleton (must be initialized first)."""
     if _service is None:
@@ -1223,9 +1335,95 @@ async def init_service(
     return _service
 
 
+@register_singleton_closer("memory_substrate_service")
 async def close_service() -> None:
     """Close the service and release resources."""
     global _service
     if _service:
         await _service._repository.disconnect()
         _service = None
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    # === IDENTITY ===
+    "component_id": "MEM-LEAR-001",
+    # === GOVERNANCE ===
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "security_classification": "internal",
+    # === DEPENDENCIES ===
+    "dependencies": [
+        "core.decorators",
+        "core.error_tracking",
+        "core.observability.circuit_breaker",
+        "core.schemas",
+        "memory.agent_persistence",
+    ],
+    # === OPERATIONAL ===
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "batch",
+    "retry_policy": "exponential",
+    "circuit_breaker_enabled": True,
+    "circuit_breaker_threshold": 5,
+    # === OBSERVABILITY ===
+    "monitoring_required": True,
+    "logging_level": "info",
+    "success_metrics": {
+        "latency_p95_ms": 500,
+        "throughput_ops_per_sec": 100,
+        "availability_percent": 99.9,
+        "error_rate_percent": 0.1,
+    },
+    # === DISCOVERY ===
+    "tags": [
+        "api",
+        "async",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "metrics",
+        "monitoring",
+    ],
+    "keywords": [
+        "agent",
+        "check",
+        "checkpoint",
+        "classifier",
+        "close",
+        "consolidation",
+        "correlate",
+        "create",
+    ],
+    "business_value": "Orchestrating service that coordinates repository, semantic, and graph layers.",
+    # === CHANGE TRACKING ===
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

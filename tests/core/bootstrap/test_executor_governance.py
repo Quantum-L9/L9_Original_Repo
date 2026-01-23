@@ -17,7 +17,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
-from core.agents.schemas import AgentTask, TaskKind
+from core.agents.schemas import AgentTask, AgentType
 from core.agents.executor import AgentExecutorService
 from core.agents.schemas import AgentConfig
 
@@ -41,13 +41,15 @@ class TestExecutorGovernanceValidation:
     @pytest.fixture
     def mock_tool_registry(self):
         """Mock tool registry.
-        
+
         Note: get_approved_tools is synchronous (per ToolRegistryProtocol),
-        dispatch_tool_call is asynchronous.
+        dispatch_tool_call and get_relevant_tools are asynchronous.
         """
         mock = MagicMock()
         mock.get_approved_tools = MagicMock(return_value=[])
         mock.dispatch_tool_call = AsyncMock()
+        # get_relevant_tools is async and returns empty by default (fail-closed: no fallback)
+        mock.get_relevant_tools = AsyncMock(return_value=[])
         return mock
 
     @pytest.fixture
@@ -93,7 +95,7 @@ class TestExecutorGovernanceValidation:
         task = AgentTask(
             id=uuid4(),
             agent_id="l-cto",
-            kind=TaskKind.QUERY,
+            agent_type=AgentType.ANALYST,
             payload={"message": "privilege_escalation attempt"},
         )
 
@@ -110,7 +112,7 @@ class TestExecutorGovernanceValidation:
         task = AgentTask(
             id=uuid4(),
             agent_id="l-cto",
-            kind=TaskKind.QUERY,
+            agent_type=AgentType.ANALYST,
             payload={"message": "rm -rf /"},
         )
 
@@ -127,7 +129,7 @@ class TestExecutorGovernanceValidation:
         task = AgentTask(
             id=uuid4(),
             agent_id="l-cto",
-            kind=TaskKind.QUERY,
+            agent_type=AgentType.ANALYST,
             payload={"message": "What is L9?"},
         )
 
@@ -144,7 +146,7 @@ class TestExecutorGovernanceValidation:
         task = AgentTask(
             id=uuid4(),
             agent_id="l-cto",
-            kind=TaskKind.QUERY,
+            agent_type=AgentType.ANALYST,
             payload={"message": "Test message"},
         )
 
@@ -160,12 +162,12 @@ class TestExecutorGovernanceValidation:
             assert "metadata" in call_kwargs
 
     @pytest.mark.asyncio
-    async def test_governance_validation_non_fatal(self, executor):
-        """If governance validation unavailable, execution continues."""
+    async def test_governance_validation_blocks_on_import_error(self, executor):
+        """If governance validation unavailable, execution is BLOCKED (fail-closed)."""
         task = AgentTask(
             id=uuid4(),
             agent_id="l-cto",
-            kind=TaskKind.QUERY,
+            agent_type=AgentType.ANALYST,
             payload={"message": "Test"},
         )
 
@@ -177,9 +179,11 @@ class TestExecutorGovernanceValidation:
         ):
             result = await executor.start_agent_task(task)
 
-            # Should still execute (non-fatal) - governance validation failure is caught
-            assert result.status != "blocked"
-            assert executor._aios_runtime.execute_reasoning.called
+            # Should BLOCK (fail-closed) - governance validation is required
+            assert result.status == "blocked"
+            assert "Governance validation unavailable" in result.error
+            # Should NOT call AIOS runtime
+            assert not executor._aios_runtime.execute_reasoning.called
 
 
 if __name__ == "__main__":

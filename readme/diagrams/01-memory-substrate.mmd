@@ -1,0 +1,73 @@
+%% L9 Memory Substrate Architecture
+%% Subsystem: Memory Storage & Retrieval
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Client Layer"
+        AGENT[Agent/Service]
+        API[API Request]
+    end
+
+    subgraph "Memory Service Layer"
+        SERVICE[SubstrateService<br/>substrate_service.py]
+        ROUTER[ToolRouter<br/>tool_router.py]
+        EMBED[ToolEmbeddings<br/>tool_embeddings.py]
+    end
+
+    subgraph "Repository Layer"
+        REPO[SubstrateRepository<br/>substrate_repository.py]
+        PACKET[Packet Builder]
+        ENVELOPE[Envelope Builder]
+    end
+
+    subgraph "Data Model"
+        PACKET_MODEL["Packet<br/>- id<br/>- content<br/>- metadata<br/>- embedding"]
+        ENVELOPE_MODEL["Envelope<br/>- id<br/>- packets<br/>- context<br/>- audit_trail"]
+    end
+
+    subgraph "PostgreSQL + pgvector"
+        PACKETS_TABLE[(packets table)]
+        ENVELOPES_TABLE[(envelopes table)]
+        VECTOR_INDEX[pgvector index]
+    end
+
+    subgraph "External Services"
+        LLM[OpenAI API<br/>Embeddings]
+    end
+
+    %% Client to Service
+    AGENT --> SERVICE
+    API --> SERVICE
+
+    %% Service Layer Flow
+    SERVICE --> ROUTER
+    SERVICE --> EMBED
+    ROUTER --> REPO
+    EMBED --> LLM
+
+    %% Repository to Data Model
+    REPO --> PACKET
+    REPO --> ENVELOPE
+    PACKET --> PACKET_MODEL
+    ENVELOPE --> ENVELOPE_MODEL
+
+    %% Data Model to Database
+    PACKET_MODEL --> PACKETS_TABLE
+    ENVELOPE_MODEL --> ENVELOPES_TABLE
+    PACKET_MODEL -.embedding.-> VECTOR_INDEX
+
+    %% Embeddings Flow
+    EMBED -.generates.-> PACKET_MODEL
+    LLM -.returns.-> EMBED
+
+    %% Query Flow (dotted)
+    ROUTER -.semantic search.-> VECTOR_INDEX
+    VECTOR_INDEX -.results.-> ROUTER
+
+    style SERVICE fill:#4ecdc4
+    style ROUTER fill:#ffe66d
+    style EMBED fill:#ffe66d
+    style REPO fill:#95e1d3
+    style PACKETS_TABLE fill:#a8e6cf
+    style ENVELOPES_TABLE fill:#a8e6cf
+    style VECTOR_INDEX fill:#ff6b6b

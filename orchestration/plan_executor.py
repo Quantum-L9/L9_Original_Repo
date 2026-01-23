@@ -31,6 +31,27 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Plan Executor",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "plan_executor",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["orchestration.__init__", "orchestration.unified_controller"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 from dataclasses import dataclass, field
@@ -38,6 +59,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Optional
 from uuid import UUID, uuid4
+from core.decorators import must_stay_async
 
 # Strategy Memory (optional - Phase 0)
 from memory.strategymemory import (
@@ -164,6 +186,9 @@ class ExecutorConfig:
     allowed_write_roots: list[str] = field(
         default_factory=lambda: ["/Users/ib-mac/Projects"]
     )
+    # Strategy Memory auto-capture (Phase 1 - GMP-103)
+    auto_capture_enabled: bool = True  # Auto-capture successful executions
+    capture_min_success_ratio: float = 0.85  # Min success ratio to capture
 
 
 # =============================================================================
@@ -294,7 +319,7 @@ class PlanExecutor:
             task_id: Current task ID
             task_kind: Type of task (e.g., "research", "deploy", "code_review")
             goal_description: Natural language description of the goal
-            context_embedding: Optional pre-computed embedding (384-dim)
+            context_embedding: Optional pre-computed embedding (1536-dim)
             tags: Preferred strategy tags
             min_confidence: Minimum confidence threshold for match
 
@@ -398,6 +423,110 @@ class PlanExecutor:
         except Exception as e:
             logger.warning(f"Strategy feedback recording failed: {e}")
 
+    async def _maybe_capture_strategy(
+        self,
+        plan: Any,
+        result: "ExecutionResult",
+        context: dict[str, Any],
+    ) -> Optional[str]:
+        """
+        Capture a successful execution as a new strategy (Phase 1 - GMP-103).
+
+        Auto-captures when:
+        - No existing strategy was used (strategy_id not in context)
+        - Execution was successful (COMPLETED status)
+        - Success ratio >= capture_min_success_ratio
+        - Strategy Memory is configured
+
+        Args:
+            plan: The executed plan
+            result: Execution result
+            context: Execution context
+
+        Returns:
+            strategy_id if captured, None otherwise
+        """
+        # Guard: auto-capture must be enabled
+        if not self._config.auto_capture_enabled:
+            return None
+
+        # Guard: Strategy Memory must be configured
+        if self._strategy_memory is None:
+            return None
+
+        # Guard: Don't capture if a strategy was already used (avoid duplicates)
+        if context.get("strategy_id"):
+            return None
+
+        # Guard: Only capture successful executions
+        if result.status != ExecutionStatus.COMPLETED:
+            return None
+
+        # Guard: Check success ratio threshold
+        total_steps = (
+            result.completed_steps + result.failed_steps + result.skipped_steps
+        )
+        success_ratio = result.completed_steps / total_steps if total_steps > 0 else 0.0
+
+        if success_ratio < self._config.capture_min_success_ratio:
+            logger.debug(
+                "strategy_capture_skipped",
+                reason="success_ratio_below_threshold",
+                success_ratio=success_ratio,
+                threshold=self._config.capture_min_success_ratio,
+            )
+            return None
+
+        try:
+            # Build description from plan metadata
+            task_kind = context.get("task_kind", "unknown")
+            goal = context.get("goal_description", f"Plan {plan.plan_id}")
+            description = f"Auto-captured strategy for {task_kind}: {goal}"
+
+            # Serialize plan structure for reuse
+            plan_payload = {
+                "task_kind": task_kind,
+                "steps": [
+                    {
+                        "action_type": s.action_type,
+                        "target": s.target,
+                        "description": getattr(s, "description", ""),
+                        "parameters": getattr(s, "parameters", {}),
+                    }
+                    for s in plan.steps
+                ],
+                "source_plan_id": str(plan.plan_id),
+                "captured_from_execution": str(result.execution_id),
+            }
+
+            # Get embedding from context if available
+            context_embedding = context.get("context_embedding", [])
+
+            # Get tags from context or infer from task_kind
+            tags = context.get("tags", [task_kind])
+
+            strategy_id = await self._strategy_memory.record_new_strategy(
+                task_id=context.get("task_id", str(plan.plan_id)),
+                description=description,
+                plan_payload=plan_payload,
+                context_embedding=context_embedding,
+                tags=tags,
+            )
+
+            logger.info(
+                "strategy_auto_captured",
+                strategy_id=strategy_id,
+                task_kind=task_kind,
+                success_ratio=success_ratio,
+                steps_count=len(plan.steps),
+            )
+
+            return strategy_id
+
+        except Exception as e:
+            logger.warning(f"Strategy auto-capture failed: {e}")
+            return None
+
     # =========================================================================
     # Handler Registration
     # =========================================================================
@@ -444,6 +573,10 @@ class PlanExecutor:
         Args:
             plan: ExecutionPlan from IRToPlanAdapter
             context: Execution context (workspace, credentials, etc.)
+                Optional keys for Strategy Memory integration:
+                - strategy_id: ID of strategy being executed (for feedback)
+                - task_id: Original task ID
+                - task_kind: Type of task (e.g., "research", "code_review")
 
         Returns:
             ExecutionResult with step outcomes and artifacts
@@ -457,7 +590,14 @@ class PlanExecutor:
         self._active_executions[result.execution_id] = result
         context = context or {}
 
-        logger.info(f"Executing plan {plan.plan_id} with {len(plan.steps)} steps")
+        # Track strategy usage for feedback (GMP-102)
+        strategy_id = context.get("strategy_id")
+        task_id = context.get("task_id", str(plan.plan_id))
+
+        logger.info(
+            f"Executing plan {plan.plan_id} with {len(plan.steps)} steps",
+            strategy_id=strategy_id,
+        )
 
         # Emit start packet
         await self._emit_execution_start_packet(result, plan)
@@ -498,6 +638,42 @@ class PlanExecutor:
             f"{result.completed_steps}/{len(plan.steps)} steps, "
             f"status={result.status.value}, packets={result.packets_emitted}"
         )
+
+        # Record strategy feedback if a strategy was used (GMP-102)
+        if strategy_id and self._strategy_memory:
+            execution_time_ms = (
+                int((result.completed_at - result.started_at).total_seconds() * 1000)
+                if result.completed_at and result.started_at
+                else 0
+            )
+
+            # Compute outcome score based on step success ratio
+            total_steps = (
+                result.completed_steps + result.failed_steps + result.skipped_steps
+            )
+            outcome_score = (
+                result.completed_steps / total_steps if total_steps > 0 else 0.0
+            )
+
+            await self.record_strategy_feedback(
+                strategy_id=strategy_id,
+                task_id=task_id,
+                success=result.status == ExecutionStatus.COMPLETED,
+                outcome_score=outcome_score,
+                execution_time_ms=execution_time_ms,
+                metadata={
+                    "plan_id": str(plan.plan_id),
+                    "steps_total": len(plan.steps),
+                    "steps_completed": result.completed_steps,
+                    "steps_failed": result.failed_steps,
+                    "errors": result.errors[:3] if result.errors else [],
+                },
+            )
+
+        # Auto-capture successful executions as new strategies (Phase 1 - GMP-103)
+        # Only when no existing strategy was used
+        if not strategy_id:
+            await self._maybe_capture_strategy(plan, result, context)
 
         return result
 
@@ -648,6 +824,7 @@ class PlanExecutor:
             result = await result
         return result
 
+    @must_stay_async("callers use await")
     async def _dry_run(
         self,
         plan: Any,
@@ -680,6 +857,7 @@ class PlanExecutor:
     # Default Handlers
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _handle_code_write(
         self,
         step: Any,
@@ -765,6 +943,7 @@ class PlanExecutor:
                 "error": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def _handle_code_read(
         self,
         step: Any,
@@ -779,6 +958,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_code_modify(
         self,
         step: Any,
@@ -794,6 +974,7 @@ class PlanExecutor:
             "parameters": step.parameters,
         }
 
+    @must_stay_async("callers use await")
     async def _handle_file_create(
         self,
         step: Any,
@@ -808,6 +989,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_file_delete(
         self,
         step: Any,
@@ -822,6 +1004,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_api_call(
         self,
         step: Any,
@@ -836,6 +1019,7 @@ class PlanExecutor:
             "status": "simulated" if not self._config.real_execution else "executed",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_reasoning(
         self,
         step: Any,
@@ -850,6 +1034,7 @@ class PlanExecutor:
             "status": "simulated",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_validation(
         self,
         step: Any,
@@ -864,6 +1049,7 @@ class PlanExecutor:
             "status": "simulated",
         }
 
+    @must_stay_async("callers use await")
     async def _handle_simulation(
         self,
         step: Any,
@@ -1088,3 +1274,58 @@ class PlanExecutor:
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
         return int((datetime.utcnow() - start).total_seconds() * 1000)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-037",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators", "core.schemas", "memory.strategymemory"],
+    "tags": [
+        "api",
+        "async",
+        "batch-processing",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "executor",
+        "filesystem",
+        "intelligence",
+        "logging",
+    ],
+    "keywords": [
+        "active",
+        "apply",
+        "cancel",
+        "client",
+        "dependency",
+        "duration",
+        "execute",
+        "execution",
+    ],
+    "business_value": "Provides plan executor components including ExecutionStatus, StepStatus, StepResult",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

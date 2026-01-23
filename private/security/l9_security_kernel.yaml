@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "L9 Security Kernel"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2025-12-09T01:02:49Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "security"
+# domain: "private"
+# file_name: "l9_security_kernel"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =============================================================================
 # L9 Security Kernel
 # =============================================================================
@@ -109,3 +124,10 @@ metadata:
   last_modified: "2024-12-08T00:00:00Z"
   checksum: null  # Will be computed on first load
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "configuration", "kernel", "private", "security", "tool-config", "utility"]
+# keywords: ["kernel", "metadata", "security"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

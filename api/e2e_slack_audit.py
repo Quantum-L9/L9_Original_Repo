@@ -15,6 +15,27 @@ Comprehensive audit of the L9 Slack integration:
 Run with: python -m api.e2e_slack_audit
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "E2E Slack Audit",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-09T03:13:41Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "e2e_slack_audit",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis", "Slack API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import asyncio
 import structlog
 import os
@@ -24,6 +45,7 @@ import hashlib
 import time
 from datetime import datetime
 from typing import Any
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -64,6 +86,7 @@ class AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_configuration() -> AuditResult:
     """Audit Slack configuration and environment variables."""
     result = AuditResult("Slack Configuration")
@@ -87,26 +110,27 @@ async def audit_slack_configuration() -> AuditResult:
             return result
 
         # Check 2: Signing secret configured
-        signing_secret = (
-            integration_settings.slack_signing_secret
-            or os.getenv("SLACK_SIGNING_SECRET")
+        signing_secret = integration_settings.slack_signing_secret or os.getenv(
+            "SLACK_SIGNING_SECRET"
         )
         has_signing_secret = bool(signing_secret and len(signing_secret) > 10)
         result.add_check(
             "signing_secret_configured",
             has_signing_secret,
-            "SLACK_SIGNING_SECRET is set" if has_signing_secret else "SLACK_SIGNING_SECRET missing",
+            "SLACK_SIGNING_SECRET is set"
+            if has_signing_secret
+            else "SLACK_SIGNING_SECRET missing",
         )
 
         # Check 3: Bot token configured
-        bot_token = (
-            integration_settings.slack_bot_token or os.getenv("SLACK_BOT_TOKEN")
-        )
+        bot_token = integration_settings.slack_bot_token or os.getenv("SLACK_BOT_TOKEN")
         has_bot_token = bool(bot_token and bot_token.startswith("xoxb-"))
         result.add_check(
             "bot_token_configured",
             has_bot_token,
-            "SLACK_BOT_TOKEN is set (xoxb-...)" if has_bot_token else "SLACK_BOT_TOKEN missing or invalid",
+            "SLACK_BOT_TOKEN is set (xoxb-...)"
+            if has_bot_token
+            else "SLACK_BOT_TOKEN missing or invalid",
         )
 
         # Check 4: Legacy flag status
@@ -117,7 +141,9 @@ async def audit_slack_configuration() -> AuditResult:
             f"L9_ENABLE_LEGACY_SLACK_ROUTER={legacy_enabled}",
         )
         if legacy_enabled:
-            result.add_warning("Legacy Slack router is enabled - using AIOS /chat instead of L-CTO agent")
+            result.add_warning(
+                "Legacy Slack router is enabled - using AIOS /chat instead of L-CTO agent"
+            )
 
         # Check 5: Bot user ID (for self-message filtering)
         bot_user_id = os.getenv("SLACK_BOT_USER_ID")
@@ -125,7 +151,9 @@ async def audit_slack_configuration() -> AuditResult:
         result.add_check(
             "bot_user_id_configured",
             has_bot_user_id,
-            f"SLACK_BOT_USER_ID={bot_user_id}" if has_bot_user_id else "SLACK_BOT_USER_ID not set (optional)",
+            f"SLACK_BOT_USER_ID={bot_user_id}"
+            if has_bot_user_id
+            else "SLACK_BOT_USER_ID not set (optional)",
         )
         if not has_bot_user_id:
             result.add_recommendation(
@@ -152,6 +180,7 @@ async def audit_slack_configuration() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_security() -> AuditResult:
     """Audit Slack security (signature verification)."""
     result = AuditResult("Slack Security")
@@ -172,7 +201,9 @@ async def audit_slack_security() -> AuditResult:
         # Check 1: Validator initialization
         try:
             validator = SlackRequestValidator(signing_secret)
-            result.add_check("validator_initialized", True, "SlackRequestValidator created")
+            result.add_check(
+                "validator_initialized", True, "SlackRequestValidator created"
+            )
         except Exception as e:
             result.add_check("validator_initialized", False, f"Failed: {e}")
             result.finalize()
@@ -245,6 +276,7 @@ async def audit_slack_security() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_routing() -> AuditResult:
     """Audit Slack message routing paths."""
     result = AuditResult("Slack Routing")
@@ -327,6 +359,7 @@ async def audit_slack_routing() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_memory_integration() -> AuditResult:
     """Audit Slack memory integration."""
     result = AuditResult("Slack Memory Integration")
@@ -369,7 +402,7 @@ async def audit_slack_memory_integration() -> AuditResult:
 
         # Check 5: Thread UUID generation
         from api.slack_adapter import SlackRequestNormalizer
-        
+
         thread_uuid = SlackRequestNormalizer._generate_thread_uuid(
             "T123", "C456", "1234567890.123456"
         )
@@ -398,6 +431,7 @@ async def audit_slack_memory_integration() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_telemetry() -> AuditResult:
     """Audit Slack telemetry and metrics."""
     result = AuditResult("Slack Telemetry")
@@ -409,7 +443,9 @@ async def audit_slack_telemetry() -> AuditResult:
         result.add_check(
             "prometheus_available",
             PROMETHEUS_AVAILABLE,
-            "prometheus_client installed" if PROMETHEUS_AVAILABLE else "prometheus_client not installed",
+            "prometheus_client installed"
+            if PROMETHEUS_AVAILABLE
+            else "prometheus_client not installed",
         )
 
         if PROMETHEUS_AVAILABLE:
@@ -499,13 +535,15 @@ async def audit_slack_rate_limiting() -> AuditResult:
         # Check 3: Redis backend check
         try:
             from runtime.redis_client import get_redis_client
-            
+
             redis = await get_redis_client()
             redis_available = redis and redis.is_available()
             result.add_check(
                 "redis_rate_limit_backend",
                 redis_available,
-                "Redis available for rate limiting" if redis_available else "Redis not available - rate limiting disabled",
+                "Redis available for rate limiting"
+                if redis_available
+                else "Redis not available - rate limiting disabled",
             )
             if not redis_available:
                 result.add_warning(
@@ -533,6 +571,7 @@ async def audit_slack_rate_limiting() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_e2e_flow() -> AuditResult:
     """Audit Slack E2E flow (simulated)."""
     result = AuditResult("Slack E2E Flow")
@@ -557,11 +596,13 @@ async def audit_slack_e2e_flow() -> AuditResult:
         normalized = SlackRequestNormalizer.parse_event_callback(test_payload)
         result.add_check(
             "request_normalization",
-            all([
-                normalized.get("team_id") == "T123TEST",
-                normalized.get("channel_id") == "C123TEST",
-                normalized.get("thread_uuid"),
-            ]),
+            all(
+                [
+                    normalized.get("team_id") == "T123TEST",
+                    normalized.get("channel_id") == "C123TEST",
+                    normalized.get("thread_uuid"),
+                ]
+            ),
             "Event callback normalized with thread_uuid",
         )
 
@@ -591,7 +632,10 @@ async def audit_slack_e2e_flow() -> AuditResult:
         )
 
         # Check 4: Bot message detection
-        bot_payload = {**test_payload, "event": {**test_payload["event"], "bot_id": "B123"}}
+        bot_payload = {
+            **test_payload,
+            "event": {**test_payload["event"], "bot_id": "B123"},
+        }
         result.add_check(
             "bot_detection_logic",
             bot_payload["event"].get("bot_id") is not None,
@@ -720,3 +764,61 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-004",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "api.slack_adapter",
+        "core.decorators",
+        "memory.slack_ingest",
+        "runtime.redis_client",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "audit-tool",
+        "auth",
+        "event-driven",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+    ],
+    "keywords": [
+        "audit",
+        "check",
+        "configuration",
+        "e2e",
+        "finalize",
+        "flow",
+        "full",
+        "integration",
+    ],
+    "business_value": "Configuration verification Security (signature verification) Routing paths (L-CTO, AIOS, Mac, Email) Memory integration Telemetry integration Rate limiting Full E2E flow test Run with: python -m api.e",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

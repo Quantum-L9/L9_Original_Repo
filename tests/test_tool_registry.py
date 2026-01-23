@@ -7,9 +7,7 @@ Tests for the in-memory tool registry and resolver.
 
 import pytest
 
-pytest.skip(
-    "Legacy tool registry — services.research not available.", allow_module_level=True
-)
+pytest.skip("Legacy tool registry — services.research not available.", allow_module_level=True)
 from unittest.mock import AsyncMock, MagicMock
 
 from core.tools.base_registry import (
@@ -81,9 +79,7 @@ class TestToolRegistry:
         assert registry.get("sample_tool") is not None
         assert registry.get("sample_tool").name == "Sample Tool"
 
-    def test_register_tool_with_executor(
-        self, registry: ToolRegistry, sample_tool: ToolMetadata
-    ):
+    def test_register_tool_with_executor(self, registry: ToolRegistry, sample_tool: ToolMetadata):
         """Test registering a tool with executor."""
         mock_executor = MagicMock()
         registry.register(sample_tool, mock_executor)
@@ -115,9 +111,7 @@ class TestToolRegistry:
         critic_tools = registry.get_for_role("critic")
         assert len(critic_tools) == 0
 
-    def test_disable_enable_tool(
-        self, registry: ToolRegistry, sample_tool: ToolMetadata
-    ):
+    def test_disable_enable_tool(self, registry: ToolRegistry, sample_tool: ToolMetadata):
         """Test disabling and enabling a tool."""
         registry.register(sample_tool)
 

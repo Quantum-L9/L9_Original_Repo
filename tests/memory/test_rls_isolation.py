@@ -50,9 +50,7 @@ class TestRLSScopeTransaction:
         async def mock_transaction_cm():
             yield mock_conn
 
-        mock_conn.transaction = MagicMock(
-            return_value=mock_transaction_cm().__aenter__()
-        )
+        mock_conn.transaction = MagicMock(return_value=mock_transaction_cm().__aenter__())
         # Make transaction return an async context manager
         mock_conn.transaction = lambda: mock_transaction_cm()
 
@@ -226,9 +224,7 @@ class TestWritePacketWithRLS:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
-            return_value=None
-        )
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
 
         # Mock DAG
         mock_dag = AsyncMock()
@@ -240,10 +236,15 @@ class TestWritePacketWithRLS:
             status="ok",
         )
 
-        # Create service with mock repository (API v2.0)
+        # Create mock embedding provider (required since GMP-96: fail-closed enforcement)
+        mock_embedding_provider = MagicMock()
+        mock_embedding_provider.embed_text = AsyncMock(return_value=[0.1] * 1536)
+        mock_embedding_provider.embed_batch = AsyncMock(return_value=[[0.1] * 1536])
+
+        # Create service with mock repository and mock embedding provider
         service = MemorySubstrateService(
             repository=mock_repository,
-            embedding_provider=None,  # Uses stub
+            embedding_provider=mock_embedding_provider,
         )
         service._dag = mock_dag
 

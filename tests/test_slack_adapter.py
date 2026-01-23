@@ -79,9 +79,7 @@ class TestSlackSignatureVerification:
 
     def test_signature_verification_stale_timestamp(self):
         """Timestamp outside tolerance window should fail."""
-        stale_timestamp = str(
-            int(time.time()) - 400
-        )  # 400 seconds ago (tolerance: 300)
+        stale_timestamp = str(int(time.time()) - 400)  # 400 seconds ago (tolerance: 300)
         body = '{"type":"url_verification"}'
 
         signed_content = f"v0:{stale_timestamp}:{body}"
@@ -90,9 +88,7 @@ class TestSlackSignatureVerification:
         ).hexdigest()
         signature = f"v0={expected_hash}"
 
-        is_valid, error = self.validator.verify(
-            body.encode(), stale_timestamp, signature
-        )
+        is_valid, error = self.validator.verify(body.encode(), stale_timestamp, signature)
 
         assert is_valid is False
         assert "stale" in error.lower()
@@ -118,9 +114,7 @@ class TestSlackSignatureVerification:
         assert "Missing" in error
 
         # Missing signature
-        is_valid, error = self.validator.verify(
-            body.encode(), str(int(time.time())), None
-        )
+        is_valid, error = self.validator.verify(body.encode(), str(int(time.time())), None)
         assert is_valid is False
         assert "Missing" in error
 
@@ -201,12 +195,8 @@ class TestSlackRequestNormalizer:
         channel_id = "C456"
         thread_ts = "1234567890.123456"
 
-        uuid_1 = SlackRequestNormalizer._generate_thread_uuid(
-            team_id, channel_id, thread_ts
-        )
-        uuid_2 = SlackRequestNormalizer._generate_thread_uuid(
-            team_id, channel_id, thread_ts
-        )
+        uuid_1 = SlackRequestNormalizer._generate_thread_uuid(team_id, channel_id, thread_ts)
+        uuid_2 = SlackRequestNormalizer._generate_thread_uuid(team_id, channel_id, thread_ts)
 
         assert uuid_1 == uuid_2  # Deterministic
         assert len(uuid_1) == 36  # Valid UUID string

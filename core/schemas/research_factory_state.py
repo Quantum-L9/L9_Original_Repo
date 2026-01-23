@@ -9,6 +9,32 @@ The state flows through:
   pass_4_extract_results → pass_5_integrate_results
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Research Factory State",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "research_factory_state",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.schemas.__init__",
+            "core.schemas.research_factory_nodes",
+            "core.schemas.tests.test_research_factory",
+            "core.schemas.universal_schema",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Optional
@@ -231,3 +257,56 @@ class ResearchState(BaseModel):
             total_latency_ms=total_latency,
             pass_durations_ms=pass_durations,
         )
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-071",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas.research_factory_models"],
+    "tags": [
+        "async",
+        "batch-processing",
+        "data-models",
+        "enum",
+        "foundation",
+        "metrics",
+        "pydantic",
+        "validation",
+    ],
+    "keywords": [
+        "complete",
+        "errors",
+        "factory",
+        "metadata",
+        "metrics",
+        "pass",
+        "plan",
+        "queries",
+    ],
+    "business_value": "pass_1_plan_queries → pass_2_build_superprompts → pass_3_execute_retrieval → pass_4_extract_results → pass_5_integrate_results",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

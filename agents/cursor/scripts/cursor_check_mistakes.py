@@ -21,6 +21,27 @@ Exit codes:
     2 — CRITICAL violations found (would be blocked)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor Check Mistakes",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T19:43:29Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "cursor_check_mistakes",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import sys
 import argparse
 from pathlib import Path
@@ -33,7 +54,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.governance.mistake_prevention import create_mistake_prevention, Violation
 
-
 def format_violation(v: Violation) -> str:
     """Format a violation for display."""
     icon = "🚫" if v.blocked else "⚠️"
@@ -43,7 +63,6 @@ def format_violation(v: Violation) -> str:
    Prevention: {v.prevention}
    Blocked: {"YES" if v.blocked else "no"}
 """
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -142,7 +161,39 @@ def main():
         logger.info("⚠️  WARNINGS: Non-blocking violations detected")
         return 1
 
-
 if __name__ == "__main__":
     sys.exit(main())
 
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.governance.mistake_prevention"],
+    "tags": ["agent-execution", "api", "cli", "event-driven", "filesystem", "intelligence", "logging"],
+    "keywords": ["check", "cursor", "format", "mistakes", "violation"],
+    "business_value": "This script allows Cursor to check content against L9's mistake prevention rules before execution. p",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

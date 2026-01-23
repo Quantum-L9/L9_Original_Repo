@@ -1,5 +1,14 @@
 # Entry Points
 
+.github/scripts/generate-ai-collab-report.py
+  Type: Script
+  Has __main__ block: Yes
+.github/scripts/validate-protected-files.py
+  Type: Script
+  Has __main__ block: Yes
+.github/scripts/validate-readme-sections.py
+  Type: Script
+  Has __main__ block: Yes
 agents/cursor/cursor_memory_client.py
   Type: Script
   Has __main__ block: Yes
@@ -9,10 +18,16 @@ agents/cursor/cursor_memory_kernel.py
 agents/cursor/cursor_neo4j_query.py
   Type: Script
   Has __main__ block: Yes
+agents/cursor/gmp_meta_learning.py
+  Type: Script
+  Has __main__ block: Yes
 agents/cursor/scripts/cursor_check_mistakes.py
   Type: Script
   Has __main__ block: Yes
-agents/research_agent.py
+agents/research_agent/research_facade.py
+  Type: Script
+  Has __main__ block: Yes
+agents/research_agent_impl.py
   Type: Script
   Has __main__ block: Yes
 api/e2e_slack_audit.py
@@ -21,18 +36,18 @@ api/e2e_slack_audit.py
 api/server.py
   Type: FastAPI
   Title: L9 Phase 2 Secure AI OS
-  Routes (14):
+  Routes (15):
     - GET /
     - GET /health
     - GET /health/startup
     - POST /kernels/reload
     - GET /health/neo4j
+    - GET /health/services
+    - GET /health/checkpoint
     - POST /lchat
-    - POST /chat
     - WEBSOCKET /ws/agent
     - WEBSOCKET /lws
-    - ROUTER /os/*
-    ... and 4 more
+    ... and 5 more
 api/server_memory.py
   Type: FastAPI
   Title: L9 Phase 2 Secure AI OS
@@ -69,6 +84,9 @@ ci/check_tool_naming.py
 ci/check_tool_wiring.py
   Type: Script
   Has __main__ block: Yes
+ci/dora_compliance_check.py
+  Type: Script
+  Has __main__ block: Yes
 ci/lint_forbidden_imports.py
   Type: Script
   Has __main__ block: Yes
@@ -78,7 +96,10 @@ ci/validate_codegen.py
 ci/validate_spec_v25.py
   Type: Script
   Has __main__ block: Yes
-core/gmp/meta_learning_engine.py
+core/governance/policy_generator.py
+  Type: Script
+  Has __main__ block: Yes
+core/governance/subsystem_detector.py
   Type: Script
   Has __main__ block: Yes
 dev/tools/global_state_audit.py
@@ -103,13 +124,11 @@ mac_agent/websocket_client.py
 mcp_memory/src/main.py
   Type: FastAPI
   Title: L9 MCP Memory Server
-  Routes (8):
+  Routes (6):
     - GET /
     - GET /health
     - GET /mcp/tools
     - POST /mcp/call
-    - ROUTER /memory/*
-    - ROUTER /api/v1/memory/*
     - ROUTER /memory/*
     - ROUTER /api/v1/memory/*
 orchestrators/agent_execution/orchestrator.py
@@ -145,6 +164,15 @@ scripts/audit/find_dead_code.py
 scripts/audit/generate_gmp_todos.py
   Type: Script
   Has __main__ block: Yes
+scripts/audit/inject_dora_complete.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/inject_dora_multiformat_complete.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/migrate_dora_legacy.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/audit/resolve_dead_code_refs.py
   Type: Script
   Has __main__ block: Yes
@@ -163,6 +191,9 @@ scripts/audit/tier1/audit_code_integrity.py
 scripts/audit/tier1/audit_infrastructure_health.py
   Type: Script
   Has __main__ block: Yes
+scripts/audit/validate_dora_complete.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/audit/verify_memory_spec_v3.py
   Type: Script
   Has __main__ block: Yes
@@ -170,6 +201,24 @@ scripts/audit/verify_wiring_alignment.py
   Type: Script
   Has __main__ block: Yes
 scripts/batch/batch_generate_specs.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/diagnose_memory_search.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/extract_code_facts.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/fix_async_decorators.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/generate_gmp_report.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/generate_readme_superprompt.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/generate_subsystem_readmes.py
   Type: Script
   Has __main__ block: Yes
 scripts/gmp-validate-stage.py
@@ -235,7 +284,16 @@ scripts/memory/load_indexes_to_neo4j_vps.py
 scripts/memory/migrate_kernels_to_graph.py
   Type: Script
   Has __main__ block: Yes
+scripts/memory/seed_golden_strategies.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/migrate_substrate_models.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/refactoring/aios_validate.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/refactoring/bootstrap_refactor.py
   Type: Script
   Has __main__ block: Yes
 scripts/research/delegate_deep_research.py
@@ -256,6 +314,9 @@ scripts/run_pattern.py
 scripts/setup_gmail_accounts.py
   Type: Script
   Has __main__ block: Yes
+scripts/validate_gmp_report.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/workspace/init_workspace.py
   Type: Script
   Has __main__ block: Yes
@@ -268,10 +329,13 @@ scripts/workspace/rename_l_to_l_cto.py
 services/symbolic_computation/health_check.py
   Type: Script
   Has __main__ block: Yes
+tools/adr/adr_cli.py
+  Type: Script
+  Has __main__ block: Yes
 tools/export_repo_indexes.py
   Type: Script
   Has __main__ block: Yes
-wiring-audit-perplexity/validate_wiring_alignment.py
+tools/l9_cli.py
   Type: Script
   Has __main__ block: Yes
 world_model/seed_loader.py

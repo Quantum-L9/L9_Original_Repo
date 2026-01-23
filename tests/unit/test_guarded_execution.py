@@ -18,8 +18,13 @@ from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
-from core.agents.schemas import ToolCallResult
-
+from core.agents.schemas import (
+    AgentConfig,
+    AgentTask,
+    ToolBinding,
+    ToolCallRequest,
+    ToolCallResult,
+)
 
 # =============================================================================
 # Fixtures
@@ -85,9 +90,7 @@ class TestGuardedExecute:
     """Tests for ExecutorToolRegistry.guarded_execute."""
 
     @pytest.mark.asyncio
-    async def test_guarded_execute_success(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    async def test_guarded_execute_success(self, mock_agent: MockKernelAwareAgent) -> None:
         """guarded_execute should succeed with active kernels."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 
@@ -194,9 +197,7 @@ class TestGuardedExecute:
         assert "prohibited" in result.error.lower()
 
     @pytest.mark.asyncio
-    async def test_guarded_execute_passes_context(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    async def test_guarded_execute_passes_context(self, mock_agent: MockKernelAwareAgent) -> None:
         """guarded_execute should pass context to dispatch_tool_call."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 
@@ -237,7 +238,7 @@ class TestGuardedExecute:
 
 @pytest.mark.skipif(
     True,  # Skip until tests/memory naming conflict is resolved
-    reason="tests/memory shadows memory module in pytest environment"
+    reason="tests/memory shadows memory module in pytest environment",
 )
 class TestExecutorGuardedIntegration:
     """Tests for executor integration with guarded execution."""
@@ -429,9 +430,7 @@ class TestGuardedExecuteEdgeCases:
         assert result.success is False
 
     @pytest.mark.asyncio
-    async def test_empty_context(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    async def test_empty_context(self, mock_agent: MockKernelAwareAgent) -> None:
         """guarded_execute should handle empty context."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 
@@ -454,9 +453,7 @@ class TestGuardedExecuteEdgeCases:
         assert result.success is True
 
     @pytest.mark.asyncio
-    async def test_dispatch_failure_propagates(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    async def test_dispatch_failure_propagates(self, mock_agent: MockKernelAwareAgent) -> None:
         """guarded_execute should propagate dispatch failures."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 
@@ -677,6 +674,7 @@ class TestAuditTrailEmission:
 
         # Patch importlib.import_module to raise exception (simulates audit module failure)
         original_import = __import__("importlib").import_module
+
         def failing_import(name):
             if name == "memory.tool_audit":
                 raise RuntimeError("Audit service unavailable")
@@ -745,9 +743,7 @@ class TestSafetyConstraints:
         assert result.success is False
 
     @pytest.mark.asyncio
-    async def test_allowed_tool_not_blocked(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    async def test_allowed_tool_not_blocked(self, mock_agent: MockKernelAwareAgent) -> None:
         """guarded_execute should allow tools not in prohibited lists."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 
@@ -771,3 +767,52 @@ class TestSafetyConstraints:
 
         assert result.success is True
 
+
+# =============================================================================
+# AgentExecutorService Kernel Enforcement Tests
+# =============================================================================
+
+
+class TestExecutorKernelEnforcement:
+    """Tests for executor fail-closed kernel enforcement."""
+
+    @pytest.mark.asyncio
+    async def test_executor_blocks_when_kernel_agent_missing(self) -> None:
+        """Executor should fail closed when guarded execution lacks kernel agent."""
+        from core.agents.agent_instance import AgentInstance
+        from core.agents.executor import AgentExecutorService
+
+        tool_registry = MagicMock()
+        tool_registry.guarded_execute = AsyncMock()
+        tool_registry.dispatch_tool_call = AsyncMock()
+
+        executor = AgentExecutorService(
+            aios_runtime=MagicMock(),
+            tool_registry=tool_registry,
+            substrate_service=MagicMock(),
+            agent_registry=MagicMock(),
+        )
+
+        executor._bind_memory_context = AsyncMock(return_value={})
+        executor._emit_packet = AsyncMock()
+
+        task = AgentTask(agent_id="test-agent")
+        config = AgentConfig(
+            agent_id="test-agent",
+            tools=[ToolBinding(tool_id="test_tool")],
+        )
+        instance = AgentInstance(config=config, task=task)
+
+        tool_call = ToolCallRequest(
+            tool_id="test_tool",
+            arguments={},
+            task_id=task.id,
+            iteration=0,
+        )
+
+        result = await executor._dispatch_tool_call(instance, tool_call)
+
+        assert result.success is False
+        assert result.error == "KERNEL_ENFORCEMENT_REQUIRED"
+        tool_registry.dispatch_tool_call.assert_not_called()
+        tool_registry.guarded_execute.assert_not_called()

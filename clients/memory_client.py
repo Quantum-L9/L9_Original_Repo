@@ -12,6 +12,34 @@ Endpoints:
   - POST /api/v1/memory/semantic/search → semantic_search()
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Memory Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "data_models",
+    "module_name": "memory_client",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "clients.__init__",
+            "core.singleton_registry",
+            "runtime.l_tools",
+            "services.research.research_graph",
+            "tests.clients.test_memory_client",
+            "tests.memory.test_memory_adapter_basic",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 import os
 from typing import Any, Optional
@@ -19,6 +47,7 @@ from uuid import UUID
 
 import httpx
 from pydantic import BaseModel, Field
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -29,7 +58,7 @@ logger = structlog.get_logger(__name__)
 # PRIMARY: VPS Memory API (production)
 # FALLBACK: Local Docker l9-api container (for testing when VPS unavailable)
 VPS_MEMORY_URL = "http://l9-memory-api:8080"  # VPS production
-DOCKER_FALLBACK_URL = "http://l9-api:8000"    # Local Docker fallback
+DOCKER_FALLBACK_URL = "http://l9-api:8000"  # Local Docker fallback
 
 DEFAULT_BASE_URL = VPS_MEMORY_URL
 DEFAULT_TIMEOUT = 30.0
@@ -148,6 +177,7 @@ class MemoryClient:
         self._client: Optional[httpx.AsyncClient] = None
         self._using_fallback = False
 
+    @must_stay_async("callers use await")
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create the HTTP client."""
         if self._client is None or self._client.is_closed:
@@ -161,25 +191,25 @@ class MemoryClient:
     async def _try_fallback(self) -> bool:
         """
         Switch to fallback URL (Docker) if not already using it.
-        
+
         Returns:
             True if switched to fallback, False if already on fallback
         """
         if self._using_fallback or not self.enable_fallback:
             return False
-        
+
         logger.warning(
             f"VPS Memory API unavailable at {self.primary_url}, "
             f"switching to Docker fallback at {self.fallback_url}"
         )
         self.base_url = self.fallback_url
         self._using_fallback = True
-        
+
         # Close existing client so new one uses fallback URL
         if self._client is not None and not self._client.is_closed:
             await self._client.aclose()
             self._client = None
-        
+
         return True
 
     @property
@@ -193,6 +223,7 @@ class MemoryClient:
             await self._client.aclose()
             self._client = None
 
+    @must_stay_async("async context manager protocol")
     async def __aenter__(self) -> "MemoryClient":
         """Async context manager entry."""
         return self
@@ -356,7 +387,9 @@ class MemoryClient:
                     response = await client.get("/health")
                     return response.status_code == 200
                 except Exception as e:
-                    logger.warning(f"Memory API health check failed (Docker fallback): {e}")
+                    logger.warning(
+                        f"Memory API health check failed (Docker fallback): {e}"
+                    )
                     return False
             return False
         except Exception as e:
@@ -610,3 +643,58 @@ async def close_memory_client() -> None:
     if _client is not None:
         await _client.close()
         _client = None
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CLI-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": [
+        "async",
+        "client",
+        "data-models",
+        "debugging",
+        "event-driven",
+        "http-client",
+        "integration",
+        "logging",
+        "messaging",
+        "pydantic",
+    ],
+    "keywords": [
+        "check",
+        "client",
+        "close",
+        "envelope",
+        "facts",
+        "fallback",
+        "fetch",
+        "health",
+    ],
+    "business_value": "Provides memory client components including PacketEnvelopeIn, PacketWriteResult, SemanticSearchRequest",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

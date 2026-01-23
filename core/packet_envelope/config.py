@@ -9,6 +9,27 @@ Centralizes all configuration for phases 2-5:
   - Governance policies
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Config",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "config",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 from dataclasses import dataclass, field
 
@@ -44,7 +65,9 @@ def _get_env_int(key: str, default: int = 0) -> int:
 class JaegerConfig:
     """Jaeger tracing configuration"""
 
-    host: str = field(default_factory=lambda: _get_env("JAEGER_AGENT_HOST", "localhost"))
+    host: str = field(
+        default_factory=lambda: _get_env("JAEGER_AGENT_HOST", "localhost")
+    )
     port: int = field(default_factory=lambda: _get_env_int("JAEGER_AGENT_PORT", 6831))
     service_name: str = field(
         default_factory=lambda: _get_env("JAEGER_SERVICE_NAME", "l9-packet-envelope")
@@ -66,7 +89,9 @@ class PrometheusConfig:
 class ObservabilityPhaseConfig:
     """Phase 2 observability configuration"""
 
-    enabled: bool = field(default_factory=lambda: _get_env_bool("L9_OBSERVABILITY_ENABLED", True))
+    enabled: bool = field(
+        default_factory=lambda: _get_env_bool("L9_OBSERVABILITY_ENABLED", True)
+    )
     jaeger: JaegerConfig = field(default_factory=JaegerConfig)
     prometheus: PrometheusConfig = field(default_factory=PrometheusConfig)
     trace_internal_calls: bool = True
@@ -103,7 +128,9 @@ class BatchIngestionConfig:
     max_concurrent_batches: int = field(
         default_factory=lambda: _get_env_int("L9_MAX_CONCURRENT_BATCHES", 10)
     )
-    db_pool_size: int = field(default_factory=lambda: _get_env_int("L9_DB_POOL_SIZE", 20))
+    db_pool_size: int = field(
+        default_factory=lambda: _get_env_int("L9_DB_POOL_SIZE", 20)
+    )
     timeout_seconds: int = 30
     idempotency_cache_ttl_seconds: int = 3600
 
@@ -222,3 +249,56 @@ def reload_config() -> PacketEnvelopeUpgradeConfig:
     _config_instance = PacketEnvelopeUpgradeConfig()
     return _config_instance
 
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-006",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "batch-processing",
+        "caching",
+        "core",
+        "dataclass",
+        "event-driven",
+        "foundation",
+        "metrics",
+        "streaming",
+        "tracing",
+    ],
+    "keywords": [
+        "batch",
+        "cloud",
+        "configuration",
+        "envelope",
+        "event",
+        "events",
+        "governance",
+        "ingestion",
+    ],
+    "business_value": "Provides config components including JaegerConfig, PrometheusConfig, ObservabilityPhaseConfig",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

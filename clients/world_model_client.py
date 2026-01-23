@@ -32,12 +32,34 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "World Model Client",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "integration",
+    "domain": "data_models",
+    "module_name": "world_model_client",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": ["clients.world_model_client", "core.singleton_registry", "runtime.l_tools"],
+    },
+}
+# ============================================================================
+
 import structlog
 import os
 from typing import Any, Optional
 
 import httpx
 from pydantic import BaseModel
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -140,6 +162,7 @@ class WorldModelClient:
         self._client: Optional[httpx.AsyncClient] = None
         logger.info(f"WorldModelClient initialized: {self.base_url}")
 
+    @must_stay_async("callers use await")
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client."""
         if self._client is None or self._client.is_closed:
@@ -157,6 +180,7 @@ class WorldModelClient:
             self._client = None
             logger.debug("WorldModelClient closed")
 
+    @must_stay_async("async context manager protocol")
     async def __aenter__(self) -> "WorldModelClient":
         return self
 
@@ -452,3 +476,37 @@ async def close_world_model_client() -> None:
     if _client is not None:
         await _client.close()
         _client = None
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CLI-INTE-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.decorators"],
+    "tags": ["api", "async", "client", "data-models", "debugging", "http-client", "integration", "logging", "pydantic", "rest-api"],
+    "keywords": ["await", "check", "client", "close", "entities", "entity", "health", "insights"],
+    "business_value": "the World Model API. from clients.world_model_client import get_world_model_client client = get_worl",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

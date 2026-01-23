@@ -15,6 +15,39 @@ All operations are async-safe with proper logging.
 """
 
 from __future__ import annotations
+from core.singleton_auto_registry import register_singleton
+
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Ingestion Pipeline",
+    "module_version": "1.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "ingestion",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "PostgreSQL"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "api.agent_routes",
+            "api.memory.router",
+            "api.server",
+            "api.server_memory",
+            "api.webhook_mac_agent",
+            "core.agents.executor",
+            "core.singleton_registry",
+            "email_agent.router",
+            "memory.__init__",
+            "memory.smoke_test",
+        ],
+    },
+}
+# ============================================================================
 
 import structlog
 from functools import lru_cache
@@ -24,16 +57,21 @@ from uuid import uuid4
 if TYPE_CHECKING:
     import asyncpg
     from memory.substrate_dag import SubstrateDAG
+    from memory.substrate_repository import SubstrateRepository
+    from memory.substrate_semantic import SemanticService
+    from memory.agent_persistence import AgentPersistenceService
 
 from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_service import MemorySubstrateService
 from memory.graph_client import get_neo4j_client
 from memory.validators.packet_validator import PacketValidator, PacketValidationError
 from memory.audit_utils import prepare_packet_for_ingest
+from core.decorators import must_stay_async
 from memory.governance_gate import (
     enforce_packet_governance,
     require_governance_context,
 )
+from core.governance.rate_limit_policy import rate_limit
 
 logger = structlog.get_logger(__name__)
 
@@ -102,15 +140,15 @@ class IngestionPipeline:
             enrichment_timeout=enrichment_timeout,
         )
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_semantic_service(self, service) -> None:
+    def set_semantic_service(self, service: "SemanticService") -> None:
         """Set or update the semantic service reference."""
         self._semantic_service = service
 
-    def set_agent_persistence(self, service) -> None:
+    def set_agent_persistence(self, service: "AgentPersistenceService") -> None:
         """Set or update the agent persistence service reference."""
         self._agent_persistence = service
 
@@ -377,9 +415,9 @@ class IngestionPipeline:
                 "packet_type": envelope.packet_type,
                 "source_id": envelope.source_id,
                 "thread_id": str(envelope.thread_id) if envelope.thread_id else None,
-                "timestamp": envelope.timestamp.isoformat()
-                if envelope.timestamp
-                else None,
+                "timestamp": (
+                    envelope.timestamp.isoformat() if envelope.timestamp else None
+                ),
             }
 
             checkpoint_id = await self._agent_persistence.create_checkpoint(
@@ -568,6 +606,7 @@ class IngestionPipeline:
             agent_id=agent_id,
         )
 
+    @must_stay_async("callers use await")
     async def _store_artifacts(self, envelope: PacketEnvelope) -> int:
         """
         Store any artifacts associated with the packet.
@@ -710,12 +749,20 @@ class IngestionPipeline:
 
 
 @lru_cache(maxsize=1)
+@register_singleton(
+    name="ingestion_pipeline",
+    lifecycle="lazy",
+    description="Memory ingestion pipeline for packet processing and DAG construction",
+)
 def get_ingestion_pipeline() -> IngestionPipeline:
     """Get or create the ingestion pipeline singleton. CACHED."""
     return IngestionPipeline()
 
 
-def init_ingestion_pipeline(repository, semantic_service=None) -> IngestionPipeline:
+def init_ingestion_pipeline(
+    repository: "SubstrateRepository",
+    semantic_service: Optional["SemanticService"] = None,
+) -> IngestionPipeline:
     """Initialize the ingestion pipeline with dependencies."""
     pipeline = get_ingestion_pipeline()
     pipeline.set_repository(repository)
@@ -729,6 +776,7 @@ def init_ingestion_pipeline(repository, semantic_service=None) -> IngestionPipel
 # =============================================================================
 
 
+@rate_limit("memory.ingest")
 async def ingest_packet(
     packet_in: PacketEnvelopeIn,
     service: Optional[MemorySubstrateService] = None,
@@ -737,12 +785,27 @@ async def ingest_packet(
     Canonical packet ingestion entrypoint.
 
     This is the SINGLE POINT OF ENTRY for all packet ingestion.
-    All runtime packets MUST pass through this function.
+    All runtime packets MUST pass through this function regardless of source:
+    - Slack webhooks
+    - API endpoints
+    - Cursor agent
+    - Mac agent
+    - Email agent
+    - Any other input source
 
-    SIMPLIFIED PATH (2026-01-13):
-    Routes through IngestionPipeline ONLY (no DAG) for reliability.
-    DAG path (reasoning, insight extraction) can be wired in later
-    once the core pipeline is stable.
+    Rate limited to 100 packets/minute per config/policies/rate_limits.yaml.
+
+    FULL DAG PATH (2026-01-19):
+    Routes through MemorySubstrateService.write_packet() which executes the
+    full SubstrateDAG with all 8 enrichment nodes:
+    - intake_node: Validation
+    - reasoning_node: Reasoning trace generation
+    - memory_write_node: Core packet storage
+    - semantic_embed_node: Vector embedding (with GMP-42 filter)
+    - extract_insights_node: Insight extraction
+    - store_insights_node: Insight persistence
+    - world_model_trigger_node: World model updates
+    - checkpoint_node: Agent state checkpoints
 
     Args:
         packet_in: PacketEnvelopeIn to ingest
@@ -755,6 +818,8 @@ async def ingest_packet(
         RuntimeError: If memory system is not initialized
     """
     # GMP-70: Governance enforcement (defense in depth)
+    # Note: write_packet() also enforces governance, but we apply here too
+    # for fail-closed defense in depth
     ctx = require_governance_context("ingestion.ingest_packet")
     packet_in = enforce_packet_governance(packet_in, ctx)
 
@@ -768,19 +833,10 @@ async def ingest_packet(
                 "Memory system not initialized. Call memory.init_service() at startup."
             )
 
-    # SIMPLIFIED: Use IngestionPipeline directly (no DAG)
-    # This path includes: validation, embedding, packet_store, neo4j sync, checkpoints
-    # DAG features (reasoning, insights, world model) can be added later
-    pipeline = get_ingestion_pipeline()
-    pipeline.set_repository(service._repository)
-    pipeline.set_semantic_service(service._semantic_service)
-
-    # Wire agent persistence for critical checkpoints
-    agent_persistence = service.get_agent_persistence()
-    if agent_persistence:
-        pipeline.set_agent_persistence(agent_persistence)
-
-    return await pipeline.ingest(packet_in)
+    # FULL DAG PATH: Route through write_packet() for complete enrichment
+    # This includes: validation, reasoning, embedding (GMP-42 filtered),
+    # insights, world model, checkpoints - all within RLS transaction
+    return await service.write_packet(packet_in)
 
 
 # =============================================================================
@@ -869,6 +925,60 @@ async def on_task_completion(
     # Process task completion
     result = await encoder.on_task_completion(outcome)
 
+    # Strategy Memory Auto-Capture (GMP-102: Phase 1)
+    # If task succeeded with a plan, auto-record as strategy for future reuse
+    strategy_captured = False
+    strategy_id = None
+
+    if success and metadata:
+        plan_payload = metadata.get("plan_payload")
+        should_capture = metadata.get("capture_strategy", True)  # Default: auto-capture
+        min_impact_for_capture = 0.6
+
+        if plan_payload and should_capture and impact_score >= min_impact_for_capture:
+            try:
+                # Get Strategy Memory service
+                from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
+                from memory.graph_client import get_neo4j_client
+
+                neo4j = await get_neo4j_client()
+                if neo4j and await neo4j.is_available():
+                    strategy_memory = Neo4jStrategyMemoryService(neo4j_client=neo4j)
+
+                    # Generate embedding from description
+                    context_embedding: list[float] = []
+                    try:
+                        from memory.substrate_semantic import SemanticService
+
+                        semantic = SemanticService()
+                        context_embedding = await semantic.embed_text(
+                            f"{task_type}: {description}"
+                        )
+                    except Exception:
+                        pass  # Continue without embedding
+
+                    # Record the strategy
+                    strategy_id = await strategy_memory.record_new_strategy(
+                        task_id=task_id,
+                        description=description
+                        or f"Auto-captured {task_type} strategy",
+                        plan_payload=plan_payload,
+                        context_embedding=context_embedding,
+                        tags=[task_type] + (metadata.get("tags") or []),
+                    )
+
+                    strategy_captured = True
+                    logger.info(
+                        "strategy_auto_captured",
+                        task_id=task_id,
+                        strategy_id=strategy_id,
+                        task_type=task_type,
+                        impact_score=impact_score,
+                    )
+
+            except Exception as e:
+                logger.warning(f"Strategy auto-capture failed: {e}")
+
     return {
         "task_id": task_id,
         "facts_created": result.facts_created,
@@ -878,4 +988,68 @@ async def on_task_completion(
         "consolidation_triggered": result.consolidation_triggered,
         "execution_time_ms": result.execution_time_ms,
         "errors": result.errors,
+        # Strategy Memory (GMP-102)
+        "strategy_captured": strategy_captured,
+        "strategy_id": strategy_id,
     }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-004",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.decorators",
+        "core.schemas",
+        "memory.active_encoder",
+        "memory.audit_utils",
+        "memory.governance_gate",
+    ],
+    "tags": [
+        "async",
+        "batch-processing",
+        "caching",
+        "debugging",
+        "event-driven",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "postgres",
+    ],
+    "keywords": [
+        "agent",
+        "assignment",
+        "batch",
+        "completion",
+        "dag",
+        "enable",
+        "enrichment",
+        "ingest",
+    ],
+    "business_value": "Implements IngestionPipeline for ingestion functionality",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "L-Cto-Agent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-15T11:17:09Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "L-CTO-Agent"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # L-CTO Agent Manifest
 # ====================
 # Authority: Igor (L = Chief Technology Officer)
@@ -341,3 +356,11 @@ governance:
   # Risk & reporting
   risk_report_interval: "daily"
   compliance_report_interval: "weekly"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "anthropic", "configuration", "database-config", "foundation", "kernel", "model-config", "openai"]
+# keywords: ["agent", "agent_id", "cto", "description", "governance", "metadata"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

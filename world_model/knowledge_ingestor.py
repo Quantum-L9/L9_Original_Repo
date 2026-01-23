@@ -32,6 +32,33 @@ Version: 2.0.0 (full ingestor implementation per README_RUNTIMES.md)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Knowledge Ingestor",
+    "module_version": "2.0.0 (full ingestor implementation per README_RUNTIMES.md)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-07T13:35:58Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "knowledge_ingestor",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "world_model.__init__",
+            "world_model.engine",
+            "world_model.runtime",
+            "world_model.seed_loader",
+            "world_model.world_model_service",
+        ],
+    },
+}
+# ============================================================================
+
 import hashlib
 import json
 import structlog
@@ -39,10 +66,13 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from world_model.state import WorldModelState, Entity, Relation
+
+if TYPE_CHECKING:
+    from world_model.service import WorldModelService
 
 logger = structlog.get_logger(__name__)
 
@@ -244,11 +274,91 @@ class KnowledgeIngestor:
         self._pattern_cache: dict[str, NormalizedPattern] = {}
         self._heuristic_cache: dict[str, NormalizedHeuristic] = {}
 
-        logger.info("KnowledgeIngestor initialized (v2.0.0)")
+        # DB persistence (wired via set_world_model_service)
+        self._world_model_service: Optional["WorldModelService"] = None
+        self._pending_entities: list[Entity] = []
+
+        logger.info("KnowledgeIngestor initialized (v2.1.0 with DB sync)")
 
     def set_state(self, state: WorldModelState) -> None:
         """Set the world model state."""
         self._state = state
+
+    def set_world_model_service(self, service: "WorldModelService") -> None:
+        """
+        Set the WorldModelService for DB persistence.
+
+        When set, entities added via ingest() are queued for DB sync.
+        Call sync_to_db() after ingest() to persist to PostgreSQL.
+
+        Args:
+            service: WorldModelService instance (DB-backed)
+        """
+        self._world_model_service = service
+        logger.info("WorldModelService attached to KnowledgeIngestor for DB sync")
+
+    async def sync_to_db(
+        self,
+        tenant_id: Optional[str] = None,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        role: str = "end_user",
+    ) -> dict[str, Any]:
+        """
+        Sync pending entities to PostgreSQL via WorldModelService.
+
+        Called after ingest() to persist in-memory entities to the DB.
+        This bridges the in-memory KnowledgeIngestor to the DB-backed
+        primary memory pipeline.
+
+        Args:
+            tenant_id: Tenant UUID for RLS isolation
+            org_id: Organization UUID for RLS isolation
+            user_id: User UUID for RLS isolation
+            role: User role for RLS policy enforcement
+
+        Returns:
+            Dict with sync results: entities_synced, errors
+        """
+        if not self._world_model_service:
+            logger.debug("sync_to_db: No WorldModelService attached, skipping")
+            return {"entities_synced": 0, "skipped": True, "errors": []}
+
+        if not self._pending_entities:
+            return {"entities_synced": 0, "skipped": False, "errors": []}
+
+        synced = 0
+        errors: list[str] = []
+
+        for entity in self._pending_entities:
+            try:
+                await self._world_model_service.upsert_entity(
+                    entity_id=entity.entity_id,
+                    attributes=entity.attributes,
+                    entity_type=entity.entity_type,
+                    confidence=entity.attributes.get("confidence", 1.0),
+                    tenant_id=tenant_id,
+                    org_id=org_id,
+                    user_id=user_id,
+                    role=role,
+                )
+                synced += 1
+            except Exception as e:
+                logger.warning(
+                    f"sync_to_db: Failed to sync entity {entity.entity_id}: {e}"
+                )
+                errors.append(f"{entity.entity_id}: {str(e)}")
+
+        # Clear pending after sync
+        self._pending_entities.clear()
+
+        logger.info(f"sync_to_db: Synced {synced} entities to DB, {len(errors)} errors")
+        return {"entities_synced": synced, "skipped": False, "errors": errors}
+
+    def _track_entity_for_sync(self, entity: Entity) -> None:
+        """Track entity for later DB sync."""
+        if self._world_model_service is not None:
+            self._pending_entities.append(entity)
 
     # ==========================================================================
     # Seed YAML Ingestion
@@ -403,6 +513,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(entity)
+            self._track_entity_for_sync(entity)
             result.entities_added += 1
 
         # Ingest patterns
@@ -419,6 +530,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(entity)
+            self._track_entity_for_sync(entity)
             result.entities_added += 1
 
     def _ingest_cross_task_graph(
@@ -435,6 +547,7 @@ class KnowledgeIngestor:
                 attributes=node_data.get("attributes", {}),
             )
             self._state.add_entity(entity)
+            self._track_entity_for_sync(entity)
             result.entities_added += 1
 
         # Ingest edges (relationships)
@@ -771,6 +884,7 @@ class KnowledgeIngestor:
             },
         )
         self._state.add_entity(run_entity)
+        self._track_entity_for_sync(run_entity)
         result.entities_added += 1
 
         # Link to graph if exists
@@ -796,6 +910,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(failure_entity)
+            self._track_entity_for_sync(failure_entity)
             result.entities_added += 1
 
             # Link to run
@@ -883,6 +998,7 @@ class KnowledgeIngestor:
             },
         )
         self._state.add_entity(graph_entity)
+        self._track_entity_for_sync(graph_entity)
         result.entities_added += 1
 
         # Extract intents as entities
@@ -898,6 +1014,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(intent_entity)
+            self._track_entity_for_sync(intent_entity)
             result.entities_added += 1
 
             # Relation to graph
@@ -924,6 +1041,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(constraint_entity)
+            self._track_entity_for_sync(constraint_entity)
             result.entities_added += 1
 
             # Relation to graph
@@ -950,6 +1068,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(action_entity)
+            self._track_entity_for_sync(action_entity)
             result.entities_added += 1
 
     def _ingest_execution_result(
@@ -972,6 +1091,7 @@ class KnowledgeIngestor:
             },
         )
         self._state.add_entity(entity)
+        self._track_entity_for_sync(entity)
         result.entities_added += 1
 
     def _ingest_insight(
@@ -994,6 +1114,7 @@ class KnowledgeIngestor:
             },
         )
         self._state.add_entity(entity)
+        self._track_entity_for_sync(entity)
         result.entities_added += 1
         result.facts_extracted += 1
 
@@ -1016,6 +1137,7 @@ class KnowledgeIngestor:
             },
         )
         self._state.add_entity(doc_entity)
+        self._track_entity_for_sync(doc_entity)
         result.entities_added += 1
 
         # Extract sections
@@ -1029,6 +1151,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(section_entity)
+            self._track_entity_for_sync(section_entity)
             result.entities_added += 1
 
             # Relation to document
@@ -1059,6 +1182,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(lesson_entity)
+            self._track_entity_for_sync(lesson_entity)
             result.entities_added += 1
             result.facts_extracted += 1
 
@@ -1074,6 +1198,7 @@ class KnowledgeIngestor:
                 },
             )
             self._state.add_entity(imp_entity)
+            self._track_entity_for_sync(imp_entity)
             result.entities_added += 1
 
     def _ingest_generic(
@@ -1113,9 +1238,11 @@ class KnowledgeIngestor:
             # Update existing
             existing.attributes.update(entity.attributes)
             result.entities_updated += 1
+            self._track_entity_for_sync(existing)  # Track for DB sync
             return existing
         else:
             self._state.add_entity(entity)
+            self._track_entity_for_sync(entity)  # Track for DB sync
             result.entities_added += 1
             return entity
 
@@ -1153,7 +1280,8 @@ class KnowledgeIngestor:
     def _compute_hash(self, data: dict[str, Any]) -> str:
         """Compute hash for deduplication."""
         json_str = json.dumps(data, sort_keys=True, default=str)
-        return hashlib.md5(json_str.encode()).hexdigest()
+        # Use SHA256 instead of MD5 for better security
+        return hashlib.sha256(json_str.encode()).hexdigest()
 
     # ==========================================================================
     # Batch Operations
@@ -1671,3 +1799,58 @@ class KnowledgeIngestor:
                 )
 
         return result
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-004",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "batch-processing",
+        "caching",
+        "code-quality",
+        "config",
+        "data-models",
+        "dataclass",
+        "filesystem",
+        "learning",
+        "logging",
+    ],
+    "keywords": [
+        "architectural",
+        "batch",
+        "build",
+        "cache",
+        "clear",
+        "coding",
+        "engine",
+        "entities",
+    ],
+    "business_value": "Provides knowledge ingestor components including SourceType, IngestResult, ExtractedFact",
+    "last_modified": "2026-01-07T13:35:58Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

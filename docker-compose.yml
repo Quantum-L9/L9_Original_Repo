@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Docker-Compose"
+# module_version: "1.0.0"
+# created_by: "Igor"
+# created_at: "2025-12-26T23:48:00Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "operations"
+# domain: "docker-compose.yml"
+# file_name: "docker-compose"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 services:
   # ===========================================================================
   # Redis (Task queues, rate limiting, caching)
@@ -111,7 +126,7 @@ services:
 
       # Feature Flags
       L9_ENABLE_LEGACY_CHAT: ${L9_ENABLE_LEGACY_CHAT:-false}
-      L9_ENABLE_LEGACY_SLACK_ROUTER: ${L9_ENABLE_LEGACY_SLACK_ROUTER:-true}
+      L9_ENABLE_LEGACY_SLACK_ROUTER: ${L9_ENABLE_LEGACY_SLACK_ROUTER:-false}
 
       # Embedding Configuration (for memory substrate)
       EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
@@ -318,3 +333,11 @@ volumes:
 
 networks:
   l9-network:
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "database-config", "docker-compose.yml", "kernel", "model-config", "openai"]
+# keywords: ["compose", "docker", "networks", "services", "volumes"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

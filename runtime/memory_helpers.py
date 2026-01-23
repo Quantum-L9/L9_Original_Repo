@@ -19,8 +19,38 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Memory Segment Helpers",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-25T18:55:20Z",
+    "updated_at": "2026-01-14T13:21:36Z",
+    "layer": "operations",
+    "domain": "runtime_operations",
+    "module_name": "memory_helpers",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+        "imported_by": [
+            "core.agents.executor",
+            "orchestration.long_plan_graph",
+            "runtime.git_tool",
+            "runtime.gmp_tool",
+            "runtime.mcp_tool",
+            "runtime.tool_call_wrapper",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from typing import Any, Dict, List, Optional
+
+from memory.governance_gate import require_governance_context
 
 logger = structlog.get_logger(__name__)
 
@@ -66,14 +96,15 @@ async def memory_search(
     if segment not in ALL_SEGMENTS:
         logger.warning(f"Unknown memory segment: {segment}, using default search")
 
+    ctx = require_governance_context("memory_search")
+    if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+        raise RuntimeError("RLS scope required for memory_search")
+
     try:
         from memory.substrate_service import get_service
         from core.schemas import SemanticSearchRequest
 
-        service = get_service()
-        if not service:
-            logger.warning("Memory service not available")
-            return []
+        service = await get_service()
 
         # Use semantic search with segment tag
         # The segment is encoded in the packet_type or tags
@@ -115,12 +146,11 @@ async def memory_search(
 
         return filtered
 
-    except ImportError:
-        logger.warning("Memory service not available - returning empty results")
-        return []
+    except ImportError as exc:
+        raise RuntimeError("Memory service not available") from exc
     except Exception as e:
         logger.error(f"Memory search failed: {e}", exc_info=True)
-        return []
+        raise
 
 
 async def memory_write(
@@ -150,6 +180,10 @@ async def memory_write(
     """
     if segment not in ALL_SEGMENTS:
         logger.warning(f"Unknown memory segment: {segment}, writing anyway")
+
+    ctx = require_governance_context("memory_write")
+    if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
+        raise RuntimeError("RLS scope required for memory_write")
 
     try:
         from memory.ingestion import ingest_packet
@@ -187,12 +221,11 @@ async def memory_write(
             logger.warning(f"Memory write to {segment} returned no packet_id")
             return None
 
-    except ImportError:
-        logger.warning("Memory ingestion not available - skipping write")
-        return None
+    except ImportError as exc:
+        raise RuntimeError("Memory ingestion not available") from exc
     except Exception as e:
         logger.error(f"Memory write failed: {e}", exc_info=True)
-        return None
+        raise
 
 
 # =============================================================================
@@ -231,7 +264,6 @@ Tool Call Logging:
 - Use tool_call_wrapper() helper to ensure consistent logging
 """
 
-
 __all__ = [
     "MEMORY_SEGMENT_GOVERNANCE_META",
     "MEMORY_SEGMENT_PROJECT_HISTORY",
@@ -241,3 +273,53 @@ __all__ = [
     "memory_search",
     "memory_write",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "RUN-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas", "memory.ingestion", "memory.substrate_service"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "logging",
+        "operations",
+        "runtime-operations",
+        "service",
+    ],
+    "keywords": [
+        "audit",
+        "helpers",
+        "memory",
+        "rules",
+        "search",
+        "segment",
+        "state",
+        "write",
+    ],
+    "business_value": "memory_search(segment, query, agent_id) memory_write(segment, payload, agent_id) governance_meta: Rules, authority, policies project_history: Project decisions, milestones, context tool_audit: Tool ca",
+    "last_modified": "2026-01-14T13:21:36Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

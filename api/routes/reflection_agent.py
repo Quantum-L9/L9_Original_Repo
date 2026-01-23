@@ -16,6 +16,36 @@ GMP: wire_reflection_agent_yaml
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Reflection Agent",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-16T12:13:08Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "reflection_agent",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "GET /status",
+            "POST /reflect",
+            "POST /analyze-failure",
+            "POST /compare",
+            "POST /extract-patterns",
+            "POST /generate-improvements",
+            "GET /lessons-learned",
+            "DELETE /lessons-learned",
+        ],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.server"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Optional
 
 import structlog
@@ -23,10 +53,22 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
+
+# AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/reflection/agent",
+    tags=["reflection"],
+    display_name="Reflection Agent",
+    dependencies=["reflection_agent"],
+)
 
 
 # ============================================================================
@@ -233,6 +275,7 @@ class LessonsLearnedResponse(BaseModel):
 
 
 @router.get("/status")
+@must_stay_async("FastAPI/ASGI route handler")
 async def reflection_agent_status(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -490,6 +533,7 @@ async def generate_improvements(
 
 
 @router.get("/lessons-learned", response_model=LessonsLearnedResponse)
+@must_stay_async("FastAPI/ASGI route handler")
 async def get_lessons_learned(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -511,6 +555,7 @@ async def get_lessons_learned(
 
 
 @router.delete("/lessons-learned")
+@must_stay_async("FastAPI/ASGI route handler")
 async def clear_lessons_learned(
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -526,3 +571,58 @@ async def clear_lessons_learned(
             "reflection_agent.clear_lessons failed", error=str(e), exc_info=True
         )
         return {"success": False, "error": str(e)}
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-017",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.auth", "core.decorators"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "endpoint",
+        "event-driven",
+        "logging",
+        "messaging",
+        "metrics",
+        "operations",
+    ],
+    "keywords": [
+        "agent",
+        "analysis",
+        "analyze",
+        "approaches",
+        "clear",
+        "compare",
+        "extract",
+        "failure",
+    ],
+    "business_value": "/reflect: Execute reflection on execution history /analyze-failure: Deep failure root cause analysis /compare: Compare two approaches /extract-patterns: Extract patterns from examples /generate-improv",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

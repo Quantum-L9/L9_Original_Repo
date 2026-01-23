@@ -92,7 +92,7 @@ REQUIRED_VARS=(
     "OPENAI_API_KEY"
 )
 
-# IMPORTANT - features may be degraded
+# IMPORTANT - features may be degraded without these
 IMPORTANT_VARS=(
     "DATABASE_URL"
     "L9_API_KEY"
@@ -103,6 +103,18 @@ IMPORTANT_VARS=(
     "NEO4J_URL"
     "NEO4J_USER"
     "NEO4J_PASSWORD"
+    "NEO4J_URI"
+    "MCP_API_KEY"
+    "MCP_API_KEY_C"
+    "MCP_API_KEY_L"
+    "SLACK_SIGNING_SECRET"
+    "SLACK_BOT_TOKEN"
+    "EMBEDDING_PROVIDER"
+    "EMBEDDING_MODEL"
+    "OPENAI_MODEL"
+    "LOG_LEVEL"
+    "API_HOST"
+    "API_PORT"
 )
 
 # =============================================================================
@@ -237,13 +249,17 @@ if [ "$QUICK" = false ]; then
     done
     log ""
 else
-    # Quick mode: Just check required and important
+    # Quick mode: Check required and important, plus count total
     for var in "${REQUIRED_VARS[@]}"; do
         check_var "$var"
     done
     for var in "${IMPORTANT_VARS[@]}"; do
         check_var "$var"
     done
+    
+    # Also count total vars from .env.example vs .env
+    TOTAL_EXAMPLE=$(grep -cE "^[A-Z_]+=" "$EXAMPLE_FILE" 2>/dev/null || echo "0")
+    TOTAL_ENV=$(grep -cE "^[A-Z_]+=" "$ENV_FILE" 2>/dev/null || echo "0")
 fi
 
 # =============================================================================
@@ -253,9 +269,12 @@ fi
 TOTAL_VARS=$((${#SET_VARS[@]} + ${#MISSING_REQUIRED[@]} + ${#MISSING_OPTIONAL[@]}))
 
 if [ "$QUICK" = true ]; then
-    # Quick summary
+    # Quick summary with accurate totals
+    TOTAL_EXAMPLE=$(grep -cE "^[A-Z_]+=" "$EXAMPLE_FILE" 2>/dev/null || echo "0")
+    TOTAL_ENV=$(grep -cE "^[A-Z_]+=" "$ENV_FILE" 2>/dev/null || echo "0")
+    
     if [ ${#MISSING_REQUIRED[@]} -eq 0 ]; then
-        log_always "${GREEN}✅ Env verify: all ${#SET_VARS[@]} required vars set${NC}"
+        log_always "${GREEN}✅ Env verify: ${#SET_VARS[@]} core vars set (${TOTAL_ENV}/${TOTAL_EXAMPLE} total)${NC}"
     else
         log_always "${RED}❌ Env verify: ${#MISSING_REQUIRED[@]} REQUIRED vars missing!${NC}"
         for var in "${MISSING_REQUIRED[@]}"; do

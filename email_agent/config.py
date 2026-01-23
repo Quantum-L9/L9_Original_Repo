@@ -8,6 +8,34 @@ Supports multi-account mode (igor, l) with backward compatibility.
 Version: 2.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Config",
+    "module_version": "2.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-14T12:48:58Z",
+    "updated_at": "2026-01-13T13:58:04Z",
+    "layer": "integration",
+    "domain": "email_integration",
+    "module_name": "config",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "email_agent.credentials",
+            "email_agent.gmail_client",
+            "email_agent.oauth_server",
+            "email_agent.router",
+            "scripts.setup_gmail_accounts",
+            "tests.email_agent.test_email_router",
+        ],
+    },
+}
+# ============================================================================
+
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -71,8 +99,17 @@ VALID_ACCOUNTS = list(ACCOUNTS.keys())
 # Legacy paths (backward compatibility)
 # =============================================================================
 
-# Base data root
-GMAIL_DATA_ROOT = Path(os.path.expanduser("~/.l9/gmail"))
+# Base data root - respect L9_DATA_ROOT env var for containers
+# Use /app/data in container environments (when /app exists), else use ~/.l9
+if os.environ.get("L9_DATA_ROOT"):
+    _data_root = os.environ["L9_DATA_ROOT"]
+elif os.path.isdir("/app/data"):
+    # Running in container - use container-safe path
+    _data_root = "/app/data/.l9"
+else:
+    # Running locally - use home directory
+    _data_root = os.path.expanduser("~/.l9")
+GMAIL_DATA_ROOT = Path(_data_root) / "gmail"
 
 # File paths
 TOKENS_FILE = GMAIL_DATA_ROOT / "tokens.json"
@@ -140,3 +177,55 @@ def ensure_dirs(account: Optional[str] = None):
             "client_secret_file": str(CLIENT_SECRET_FILE),
             "attachments_dir": str(ATTACHMENTS_DIR),
         }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "EMA-INTE-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "dataclass",
+        "email-integration",
+        "filesystem",
+        "integration",
+        "security",
+    ],
+    "keywords": [
+        "account",
+        "agent",
+        "attachments",
+        "client",
+        "configuration",
+        "dir",
+        "dirs",
+        "ensure",
+    ],
+    "business_value": "Implements AccountConfig for config functionality",
+    "last_modified": "2026-01-13T13:58:04Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -73,6 +73,4 @@ async def test_register_tool_mock():
         # Try to register tool
         # Note: ToolGraph methods are static, so we test the structure
         assert ToolGraph is not None
-        assert hasattr(ToolGraph, "register_tool") or hasattr(
-            ToolGraph, "_register_tool"
-        )
+        assert hasattr(ToolGraph, "register_tool") or hasattr(ToolGraph, "_register_tool")

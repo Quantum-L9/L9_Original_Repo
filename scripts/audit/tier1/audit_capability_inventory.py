@@ -27,6 +27,27 @@ Usage:
   python scripts/audit/tier1/audit_capability_inventory.py --missing-acl
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Audit Capability Inventory",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T19:43:29Z",
+    "updated_at": "2026-01-14T15:03:00Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "audit_capability_inventory",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import json
 import inspect
 import ast
@@ -58,40 +79,86 @@ INFRA_FILES = [
 # Internal/lifecycle methods — NOT tool candidates
 EXCLUDED_METHODS = {
     # Connection lifecycle
-    "connect", "disconnect", "close", "start", "stop",
+    "connect",
+    "disconnect",
+    "close",
+    "start",
+    "stop",
     # Singleton factories
-    "get_service", "init_service", "close_service",
-    "get_redis_client", "close_redis_client",
-    "get_memory_client", "close_memory_client",
-    "get_world_model_client", "close_world_model_client",
-    "get_mcp_client", "close_mcp_client",
+    "get_service",
+    "init_service",
+    "close_service",
+    "get_redis_client",
+    "close_redis_client",
+    "get_memory_client",
+    "close_memory_client",
+    "get_world_model_client",
+    "close_world_model_client",
+    "get_mcp_client",
+    "close_mcp_client",
     "create_substrate_service",
     # Internal protocol/wiring
-    "send_request", "set_session_scope",
-    "ensure_agent_exists", "log_tool_call",
+    "send_request",
+    "set_session_scope",
+    "ensure_agent_exists",
+    "log_tool_call",
     # Registration (internal wiring)
-    "register_tool", "register_tool_with_metadata",
-    "register_l9_tools", "register_l_tools",
+    "register_tool",
+    "register_tool_with_metadata",
+    "register_l9_tools",
+    "register_l_tools",
     # Already exposed under prefixed names
-    "get", "set", "delete", "keys",
-    "enqueue_task", "dequeue_task", "queue_size",
-    "get_rate_limit", "set_rate_limit",
-    "increment_rate_limit", "decrement_rate_limit",
-    "get_task_context", "set_task_context",
-    "get_packet", "query_packets", "write_packet",
-    "search_packets_by_thread", "search_packets_by_type",
-    "semantic_search", "embed_text", "hybrid_search",
-    "get_memory_events", "get_reasoning_traces", "get_checkpoint",
-    "write_insights", "trigger_world_model_update",
-    "get_facts_by_subject", "health_check",
-    "fetch_lineage", "fetch_thread", "fetch_facts", "fetch_insights",
-    "run_gc", "get_gc_stats",
-    "get_api_dependents", "get_tool_dependencies", "get_blast_radius",
-    "detect_circular_dependencies", "get_all_tools", "get_l_tool_catalog",
-    "get_entity", "list_entities", "get_state_version",
-    "snapshot", "restore", "list_snapshots",
-    "send_insights_for_update", "list_updates",
-    "list_tools", "call_tool", "stop_all_servers",
+    "get",
+    "set",
+    "delete",
+    "keys",
+    "enqueue_task",
+    "dequeue_task",
+    "queue_size",
+    "get_rate_limit",
+    "set_rate_limit",
+    "increment_rate_limit",
+    "decrement_rate_limit",
+    "get_task_context",
+    "set_task_context",
+    "get_packet",
+    "query_packets",
+    "write_packet",
+    "search_packets_by_thread",
+    "search_packets_by_type",
+    "semantic_search",
+    "embed_text",
+    "hybrid_search",
+    "get_memory_events",
+    "get_reasoning_traces",
+    "get_checkpoint",
+    "write_insights",
+    "trigger_world_model_update",
+    "get_facts_by_subject",
+    "health_check",
+    "fetch_lineage",
+    "fetch_thread",
+    "fetch_facts",
+    "fetch_insights",
+    "run_gc",
+    "get_gc_stats",
+    "get_api_dependents",
+    "get_tool_dependencies",
+    "get_blast_radius",
+    "detect_circular_dependencies",
+    "get_all_tools",
+    "get_l_tool_catalog",
+    "get_entity",
+    "list_entities",
+    "get_state_version",
+    "snapshot",
+    "restore",
+    "list_snapshots",
+    "send_insights_for_update",
+    "list_updates",
+    "list_tools",
+    "call_tool",
+    "stop_all_servers",
     "simulation_execute",
 }
 
@@ -99,23 +166,29 @@ EXCLUDED_METHODS = {
 # DATA MODELS
 # =============================================================================
 
+
 class Impact(str, Enum):
     """Capability impact level."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
 
+
 class Risk(str, Enum):
     """Security/operational risk."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
+
 
 @dataclass
 class ParameterSchema:
     """Parameter schema for MCP."""
+
     name: str
     type: str
     description: str = ""
@@ -123,18 +196,22 @@ class ParameterSchema:
     default: Optional[Any] = None
     enum_values: Optional[List[str]] = None
 
+
 @dataclass
 class MCPSchema:
     """MCP tool schema."""
+
     name: str
     description: str
     input_schema: Dict[str, Any]
     output_schema: Dict[str, Any]
     parameters: List[ParameterSchema] = field(default_factory=list)
 
+
 @dataclass
 class CapabilityMethod:
     """Discovered async method."""
+
     name: str
     file_path: str
     line_num: int
@@ -149,19 +226,25 @@ class CapabilityMethod:
     version_added: str = "1.0.0"
     version_deprecated: Optional[str] = None
 
+
 @dataclass
 class CapabilityMatrix:
     """Capability with impact/risk/effort assessment."""
+
     method: CapabilityMethod
     impact: Impact
     risk: Risk
     effort_hours: float
     value_score: float  # 0.0 - 1.0
-    exposure_recommendation: str  # "expose_now", "expose_with_acl", "monitor", "deprecate"
+    exposure_recommendation: (
+        str  # "expose_now", "expose_with_acl", "monitor", "deprecate"
+    )
+
 
 @dataclass
 class CapabilityReport:
     """Complete capability inventory report."""
+
     exposed_tools: List[CapabilityMethod] = field(default_factory=list)
     hidden_capabilities: List[CapabilityMethod] = field(default_factory=list)
     capability_matrix: List[CapabilityMatrix] = field(default_factory=list)
@@ -170,9 +253,11 @@ class CapabilityReport:
     deprecated_methods: List[CapabilityMethod] = field(default_factory=list)
     summary: Dict[str, Any] = field(default_factory=dict)
 
+
 # =============================================================================
 # SIGNATURE INSPECTION
 # =============================================================================
+
 
 def extract_type_hint(annotation) -> str:
     """Convert type annotation to string."""
@@ -181,6 +266,7 @@ def extract_type_hint(annotation) -> str:
     if hasattr(annotation, "__name__"):
         return annotation.__name__
     return str(annotation).replace("typing.", "")
+
 
 def build_parameters_from_signature(func: Callable) -> List[ParameterSchema]:
     """Extract parameters from function signature."""
@@ -197,15 +283,20 @@ def build_parameters_from_signature(func: Callable) -> List[ParameterSchema]:
 
         param_type = extract_type_hint(type_hints.get(param_name, param.annotation))
 
-        params.append(ParameterSchema(
-            name=param_name,
-            type=param_type,
-            description=f"Parameter: {param_name}",
-            required=param.default == inspect.Parameter.empty,
-            default=param.default if param.default != inspect.Parameter.empty else None,
-        ))
+        params.append(
+            ParameterSchema(
+                name=param_name,
+                type=param_type,
+                description=f"Parameter: {param_name}",
+                required=param.default == inspect.Parameter.empty,
+                default=param.default
+                if param.default != inspect.Parameter.empty
+                else None,
+            )
+        )
 
     return params
+
 
 def generate_mcp_schema(method: CapabilityMethod) -> MCPSchema:
     """Generate MCP schema from method."""
@@ -238,9 +329,11 @@ def generate_mcp_schema(method: CapabilityMethod) -> MCPSchema:
         parameters=method.parameters,
     )
 
+
 # =============================================================================
 # DISCOVERY
 # =============================================================================
+
 
 def get_exposed_tools(root: Path) -> Dict[str, Any]:
     """Extract tool names from TOOL_EXECUTORS dict."""
@@ -251,34 +344,35 @@ def get_exposed_tools(root: Path) -> Dict[str, Any]:
     try:
         content = l_tools_file.read_text()
         tools = {}
-        
+
         # Find TOOL_EXECUTORS dict and extract all "tool_name": entries
         # Pattern: "tool_name": function_name (with optional comma)
         in_tool_executors = False
         brace_depth = 0
-        
+
         for line in content.split("\n"):
             # Detect start of TOOL_EXECUTORS
             if "TOOL_EXECUTORS" in line and "=" in line and "{" in line:
                 in_tool_executors = True
                 brace_depth = line.count("{") - line.count("}")
                 continue
-            
+
             if in_tool_executors:
                 brace_depth += line.count("{") - line.count("}")
-                
+
                 # Extract tool name from lines like: "memory_search": memory_search,
                 match = re.match(r'^\s*"([a-z_][a-z0-9_]*)"\s*:\s*[a-z_]', line)
                 if match:
                     tools[match.group(1)] = True
-                
+
                 # End of dict
                 if brace_depth <= 0:
                     break
-        
+
         return tools
     except Exception:
         return {}
+
 
 def get_async_methods(filepath: Path) -> List[CapabilityMethod]:
     """Extract async method definitions from file."""
@@ -291,7 +385,9 @@ def get_async_methods(filepath: Path) -> List[CapabilityMethod]:
         return []
 
     methods = []
-    module_name = str(filepath.relative_to(REPO_ROOT)).replace("/", ".").replace(".py", "")
+    module_name = (
+        str(filepath.relative_to(REPO_ROOT)).replace("/", ".").replace(".py", "")
+    )
 
     # Try to parse with AST
     try:
@@ -317,7 +413,10 @@ def get_async_methods(filepath: Path) -> List[CapabilityMethod]:
             if isinstance(decorator, ast.Name) and decorator.id == "deprecated":
                 is_deprecated = True
             elif isinstance(decorator, ast.Call):
-                if isinstance(decorator.func, ast.Name) and decorator.func.id == "deprecated":
+                if (
+                    isinstance(decorator.func, ast.Name)
+                    and decorator.func.id == "deprecated"
+                ):
                     is_deprecated = True
                     if decorator.args:
                         deprecation_reason = ast.literal_eval(decorator.args[0])
@@ -329,22 +428,26 @@ def get_async_methods(filepath: Path) -> List[CapabilityMethod]:
                 signature += f"{arg.arg}, "
         signature = signature.rstrip(", ") + ")"
 
-        methods.append(CapabilityMethod(
-            name=node.name,
-            file_path=str(filepath.relative_to(REPO_ROOT)),
-            line_num=node.lineno,
-            module=module_name,
-            docstring=docstring[:100],
-            signature=signature,
-            is_deprecated=is_deprecated,
-            deprecation_reason=deprecation_reason,
-        ))
+        methods.append(
+            CapabilityMethod(
+                name=node.name,
+                file_path=str(filepath.relative_to(REPO_ROOT)),
+                line_num=node.lineno,
+                module=module_name,
+                docstring=docstring[:100],
+                signature=signature,
+                is_deprecated=is_deprecated,
+                deprecation_reason=deprecation_reason,
+            )
+        )
 
     return methods
+
 
 # =============================================================================
 # CAPABILITY MATRIX BUILDING
 # =============================================================================
+
 
 def assess_capability(method: CapabilityMethod) -> CapabilityMatrix:
     """Assess capability for impact/risk/effort."""
@@ -392,22 +495,30 @@ def assess_capability(method: CapabilityMethod) -> CapabilityMatrix:
         exposure_recommendation=exposure_recommendation,
     )
 
+
 # =============================================================================
 # MAIN
 # =============================================================================
 
 import re
 
+
 def main():
     """Run capability inventory audit."""
     import argparse
 
     parser = argparse.ArgumentParser(description="L9 Capability Inventory Audit v2.0")
-    parser.add_argument("--generate-mcp", action="store_true", help="Generate MCP schemas")
-    parser.add_argument("--capability-matrix", action="store_true", help="Show capability matrix")
+    parser.add_argument(
+        "--generate-mcp", action="store_true", help="Generate MCP schemas"
+    )
+    parser.add_argument(
+        "--capability-matrix", action="store_true", help="Show capability matrix"
+    )
     parser.add_argument("--missing-acl", action="store_true", help="Find missing ACL")
     parser.add_argument("--json", action="store_true", help="JSON output")
-    parser.add_argument("--mcp-manifest", action="store_true", help="Generate MCP manifest")
+    parser.add_argument(
+        "--mcp-manifest", action="store_true", help="Generate MCP manifest"
+    )
 
     args = parser.parse_args()
 
@@ -437,7 +548,8 @@ def main():
             continue
 
         hidden = [
-            m for m in methods
+            m
+            for m in methods
             if m.name not in exposed_tool_names
             and m.name not in EXCLUDED_METHODS
             and not m.name.startswith("_")
@@ -525,5 +637,60 @@ def main():
     logger.info("✅ AUDIT COMPLETE")
     logger.info(f"{'=' * 70}")
 
+
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-018",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "ast",
+        "async",
+        "authorization",
+        "cli",
+        "data-models",
+        "dataclass",
+        "event-driven",
+        "filesystem",
+        "logging",
+    ],
+    "keywords": [
+        "assess",
+        "async",
+        "audit",
+        "build",
+        "capability",
+        "exposed",
+        "extract",
+        "generate",
+    ],
+    "business_value": "Provides audit capability inventory components including Impact, Risk, ParameterSchema",
+    "last_modified": "2026-01-14T15:03:00Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -19,12 +19,40 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Hierarchical Context Builder",
+    "module_version": "3.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T15:23:54Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "learning",
+    "domain": "data_models",
+    "module_name": "context_builder",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Anthropic API", "OpenAI API"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [
+            "memory.__init__",
+            "tests.memory.test_frontier_memory_pipeline",
+        ],
+    },
+}
+# ============================================================================
+
 import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
+    from memory.identity_tier import IdentityTierService
 
 logger = structlog.get_logger(__name__)
 
@@ -115,8 +143,8 @@ class HierarchicalContextBuilder:
 
     def __init__(
         self,
-        repository=None,
-        identity_service=None,
+        repository: Optional["SubstrateRepository"] = None,
+        identity_service: Optional["IdentityTierService"] = None,
         allocation: Optional[dict[MemoryTier, float]] = None,
     ):
         """
@@ -132,11 +160,11 @@ class HierarchicalContextBuilder:
         self._allocation = allocation or self.DEFAULT_ALLOCATION
         logger.info("HierarchicalContextBuilder initialized")
 
-    def set_repository(self, repository) -> None:
+    def set_repository(self, repository: "SubstrateRepository") -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_identity_service(self, service) -> None:
+    def set_identity_service(self, service: "IdentityTierService") -> None:
         """Set or update the identity service reference."""
         self._identity_service = service
 
@@ -412,3 +440,55 @@ def init_context_builder(
     if identity_service:
         builder.set_identity_service(identity_service)
     return builder
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-017",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "builder-pattern",
+        "data-models",
+        "dataclass",
+        "learning",
+        "logging",
+        "serialization",
+    ],
+    "keywords": [
+        "agent",
+        "based",
+        "build",
+        "builder",
+        "facts",
+        "general",
+        "hierarchical",
+        "identity",
+    ],
+    "business_value": "Provides context builder components including MemoryTier, ContextSection, HierarchicalContextBuilder",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

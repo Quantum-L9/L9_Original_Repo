@@ -13,6 +13,27 @@ Responsibilities:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Seed Loader",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-09T01:02:49Z",
+    "updated_at": "2026-01-14T15:02:46Z",
+    "layer": "learning",
+    "domain": "world_model",
+    "module_name": "seed_loader",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["world_model.runtime"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import logging
 import structlog
@@ -473,18 +494,27 @@ class SeedLoader:
             r.get("ingest_result", {}).get("relations_added", 0) or 0 for r in results
         )
 
+        # Sync all pending entities to DB (GMP-WIRE: Pipeline unification)
+        db_synced = 0
+        if hasattr(self.ingestor, "sync_to_db"):
+            sync_result = await self.ingestor.sync_to_db()
+            db_synced = sync_result.get("entities_synced", 0)
+            if sync_result.get("errors"):
+                logger.warning(f"DB sync partial: {sync_result['errors']}")
+
         summary = {
             "files_loaded": len(results),
             "total_entities": total_entities,
             "total_relations": total_relations,
             "reflections_loaded": reflections_loaded,
+            "entities_synced_to_db": db_synced,
             "results": results,
         }
 
         logger.info(
             f"Seed loading complete: {len(results)} files, "
             f"{total_entities} entities, {total_relations} relations, "
-            f"{reflections_loaded} reflections"
+            f"{reflections_loaded} reflections, {db_synced} synced to DB"
         )
 
         return summary
@@ -778,3 +808,61 @@ if __name__ == "__main__":
                 logger.info(f"    Relations: {ir.get('relations_added', 0)}")
 
     asyncio.run(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-LEAR-015",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.schemas",
+        "memory.substrate_repository",
+        "memory.substrate_service",
+    ],
+    "tags": [
+        "async",
+        "cli",
+        "config",
+        "debugging",
+        "filesystem",
+        "learning",
+        "loader",
+        "logging",
+        "messaging",
+        "service",
+    ],
+    "keywords": [
+        "files",
+        "ingest",
+        "into",
+        "load",
+        "loaded",
+        "loader",
+        "memory",
+        "model",
+    ],
+    "business_value": "Implements SeedLoader for seed loader functionality",
+    "last_modified": "2026-01-14T15:02:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

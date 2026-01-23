@@ -1,0 +1,104 @@
+# C1 Redis - Single instance, no clustering
+# Rollback: kubectl delete -f c1-redis.yaml
+#
+# Changes from original:
+# - Replicas: 6 → 1 (single node)
+# - Cluster: disabled (single instance mode)
+# - Memory: 2Gi → 512Mi (resource constraint)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: l9-redis
+  namespace: l9-c1
+  labels:
+    app: l9-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: l9-redis
+  template:
+    metadata:
+      labels:
+        app: l9-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        command:
+          - redis-server
+          - --appendonly
+          - "yes"
+          - --maxmemory
+          - "400mb"
+          - --maxmemory-policy
+          - allkeys-lru
+          - --tcp-backlog
+          - "128"
+          - --timeout
+          - "0"
+          - --tcp-keepalive
+          - "300"
+        ports:
+        - containerPort: 6379
+          name: redis
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data-pvc
+  namespace: l9-c1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: l9-redis
+  namespace: l9-c1
+  labels:
+    app: l9-redis
+spec:
+  type: ClusterIP
+  selector:
+    app: l9-redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis

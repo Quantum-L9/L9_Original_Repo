@@ -1,0 +1,105 @@
+%% L9 Kernel & Runtime Architecture
+%% Subsystem: Kernel Loading & Task Execution
+%% Generated: 2026-01-18
+
+graph TB
+    subgraph "Bootstrap Phase"
+        START[System Start]
+        LOADER[kernel_loader_ultimate.py]
+        INTEGRITY[Integrity Check]
+        VERIFY[Signature Verification]
+    end
+
+    subgraph "Kernel Components"
+        KERNEL[Kernel Instance]
+        CONFIG[Kernel Config]
+        STATE[Kernel State]
+    end
+
+    subgraph "Task Queue"
+        QUEUE[TaskQueue<br/>task_queue.py]
+        PRIORITY[Priority Queue]
+        SCHEDULER[Task Scheduler]
+        WORKER[Worker Pool]
+    end
+
+    subgraph "Background Tasks"
+        BG[BackgroundTasks<br/>background_tasks.py]
+        PERIODIC[Periodic Tasks]
+        CLEANUP[Cleanup Tasks]
+        MONITOR[Monitoring Tasks]
+    end
+
+    subgraph "Execution Flow"
+        GATE[Execution Gate]
+        EXECUTOR[Task Executor]
+        RESULT[Result Handler]
+    end
+
+    subgraph "Registry Integration"
+        SINGLETON[Singleton Registry]
+        TOOL_REG[Tool Registry]
+        MCP_REG[MCP Registry]
+    end
+
+    subgraph "Storage"
+        KERNEL_FILE[(private/kernels/<br/>*.kernel.yaml)]
+        STATE_DB[(Runtime State)]
+    end
+
+    subgraph "Fail-Safe"
+        TAMPER[Tamper Detection]
+        FAILSAFE[Fail-Closed Mode]
+        RECOVERY[Recovery Handler]
+    end
+
+    %% Bootstrap Flow
+    START --> LOADER
+    LOADER --> INTEGRITY
+    INTEGRITY --> VERIFY
+    VERIFY -.✓ valid.-> KERNEL
+    VERIFY -.✗ invalid.-> TAMPER
+
+    %% Kernel Initialization
+    KERNEL --> CONFIG
+    KERNEL --> STATE
+    CONFIG -.loads.-> KERNEL_FILE
+
+    %% Task Queue Flow
+    KERNEL --> QUEUE
+    QUEUE --> PRIORITY
+    PRIORITY --> SCHEDULER
+    SCHEDULER --> WORKER
+
+    %% Execution Flow
+    WORKER --> GATE
+    GATE --> EXECUTOR
+    EXECUTOR --> RESULT
+
+    %% Background Tasks
+    KERNEL --> BG
+    BG --> PERIODIC
+    BG --> CLEANUP
+    BG --> MONITOR
+
+    %% Registry Integration
+    KERNEL --> SINGLETON
+    SINGLETON --> TOOL_REG
+    SINGLETON --> MCP_REG
+
+    %% State Persistence
+    STATE -.persists.-> STATE_DB
+    RESULT -.updates.-> STATE_DB
+
+    %% Fail-Safe Handling
+    TAMPER --> FAILSAFE
+    FAILSAFE --> RECOVERY
+    INTEGRITY -.monitors.-> TAMPER
+
+    style LOADER fill:#ff6b6b
+    style INTEGRITY fill:#ff6b6b
+    style KERNEL fill:#4ecdc4
+    style QUEUE fill:#ffe66d
+    style BG fill:#95e1d3
+    style GATE fill:#ff6b6b
+    style TAMPER fill:#ff6b6b

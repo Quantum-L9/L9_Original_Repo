@@ -14,6 +14,32 @@ Status: Production Ready
 Updated: 2026-01-15 (async conversion)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Gmp Meta Learning",
+    "module_version": "2.1.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-15T23:45:01Z",
+    "updated_at": "2026-01-17T23:47:56Z",
+    "layer": "intelligence",
+    "domain": "data_models",
+    "module_name": "gmp_meta_learning",
+    "type": "enum",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL"],
+        "memory_layers": [],
+        "imported_by": [
+            "agents.cursor.__init__",
+            "api.routes.gmp_learning",
+            "api.server",
+            "tests.cursor.test_gmp_meta_learning",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Tuple, Any
 from enum import Enum
@@ -153,13 +179,13 @@ class GMPExecutionHistoryDB(Base):
     todo_count = Column(Integer, nullable=False)
     execution_minutes = Column(Float, nullable=False)
     error_count = Column(Integer, nullable=False, default=0)
-    error_types = Column(ARRAY(String), nullable=False, default=[])
-    files_modified = Column(ARRAY(String), nullable=False, default=[])
+    error_types = Column(ARRAY(String), nullable=False, default=list)
+    files_modified = Column(ARRAY(String), nullable=False, default=list)
     lines_changed = Column(Integer, nullable=False, default=0)
     final_confidence = Column(Float, nullable=False)
     audit_result = Column(String(20), nullable=False)
-    l9_kernel_versions = Column(JSONB, nullable=False, default={})
-    feature_flags_enabled = Column(ARRAY(String), nullable=False, default=[])
+    l9_kernel_versions = Column(JSONB, nullable=False, default=dict)
+    feature_flags_enabled = Column(ARRAY(String), nullable=False, default=list)
     created_at = Column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow, index=True
     )
@@ -181,7 +207,7 @@ class LearnedHeuristicDB(Base):
     condition = Column(String, nullable=False)
     recommendation = Column(String, nullable=False)
     confidence = Column(Float, nullable=False, index=True)
-    supporting_gmp_ids = Column(ARRAY(String), nullable=False, default=[])
+    supporting_gmp_ids = Column(ARRAY(String), nullable=False, default=list)
     impact_estimate = Column(String(50), nullable=False)
     generated_date = Column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow, index=True
@@ -480,7 +506,7 @@ class GMPMetaLearningEngine:
             async with self.async_session() as session:
                 stmt = (
                     select(LearnedHeuristicDB)
-                    .where(LearnedHeuristicDB.active == True)
+                    .where(LearnedHeuristicDB.active.is_(True))
                     .order_by(LearnedHeuristicDB.confidence.desc())
                 )
                 result = await session.execute(stmt)
@@ -847,3 +873,57 @@ if __name__ == "__main__":
     import asyncio
 
     asyncio.run(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-019",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "data-models",
+        "engine",
+        "enum",
+        "event-driven",
+        "intelligence",
+        "logging",
+        "messaging",
+        "metrics",
+        "migration",
+    ],
+    "keywords": [
+        "active",
+        "analysis",
+        "analyze",
+        "assert",
+        "async",
+        "autonomy",
+        "can",
+        "capability",
+    ],
+    "business_value": "This module powers the learning-driven autonomy evolution in GMP v2.0+ Fully type-safe, truly async, tested for production deployment on L9. Author: L9 Frontier Research Version: 2.1.0 Status: Product",
+    "last_modified": "2026-01-17T23:47:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

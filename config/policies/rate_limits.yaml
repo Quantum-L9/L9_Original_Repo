@@ -1,0 +1,167 @@
+# ============================================================================
+# L9 Unified Rate Limit Policy
+# ============================================================================
+# Single source of truth for ALL rate limits across L9.
+#
+# Usage in code:
+#   @rate_limit("llm.openai")
+#   Depends(RateLimitDep("memory.ingest"))
+#   async with rate_limit_context("tools.high_risk"):
+#
+# Version: 1.0.0
+# ============================================================================
+
+rate_limits:
+  # ==========================================================================
+  # LLM APIs (Cost Control)
+  # ==========================================================================
+  llm:
+    openai:
+      requests_per_minute: 60
+      tokens_per_minute: 100000
+      daily_cost_limit_usd: 50.00
+      window_seconds: 60
+      description: "OpenAI API calls (GPT-4, embeddings)"
+    
+    anthropic:
+      requests_per_minute: 40
+      tokens_per_minute: 80000
+      daily_cost_limit_usd: 40.00
+      window_seconds: 60
+      description: "Anthropic Claude API calls"
+    
+    perplexity:
+      requests_per_minute: 20
+      requests_per_hour: 100
+      daily_cost_limit_usd: 25.00
+      window_seconds: 60
+      description: "Perplexity search and research API"
+
+  # ==========================================================================
+  # Authentication (Security)
+  # ==========================================================================
+  auth:
+    login:
+      max_failures_per_ip: 10
+      max_failures_per_user: 5
+      lockout_seconds: 900  # 15 minutes
+      window_seconds: 300   # 5 minute window
+      description: "Login attempt rate limiting"
+    
+    api_key:
+      requests_per_minute: 1000
+      window_seconds: 60
+      description: "API key validation rate limiting"
+
+  # ==========================================================================
+  # Memory System (Stability)
+  # ==========================================================================
+  memory:
+    ingest:
+      packets_per_minute: 100
+      bytes_per_minute: 10485760  # 10MB
+      window_seconds: 60
+      description: "Memory packet ingestion"
+    
+    search:
+      queries_per_minute: 200
+      window_seconds: 60
+      description: "Memory search queries"
+    
+    embedding:
+      requests_per_minute: 50
+      window_seconds: 60
+      description: "Embedding generation"
+
+  # ==========================================================================
+  # Tool Execution (Safety)
+  # ==========================================================================
+  tools:
+    high_risk:
+      calls_per_hour: 10
+      calls_per_day: 50
+      requires_approval_after: 5
+      window_seconds: 3600  # 1 hour
+      description: "High-risk tool calls (git, shell, etc.)"
+    
+    standard:
+      calls_per_minute: 60
+      window_seconds: 60
+      description: "Standard tool calls"
+    
+    research:
+      calls_per_hour: 30
+      window_seconds: 3600
+      description: "Research agent tool calls"
+
+  # ==========================================================================
+  # External APIs (Quota Protection)
+  # ==========================================================================
+  external:
+    slack:
+      messages_per_minute: 30
+      messages_per_hour: 500
+      window_seconds: 60
+      description: "Slack API rate limiting"
+    
+    github:
+      requests_per_minute: 30
+      requests_per_hour: 500
+      window_seconds: 60
+      description: "GitHub API rate limiting"
+    
+    webhook:
+      requests_per_minute: 100
+      window_seconds: 60
+      description: "Inbound webhook rate limiting"
+
+  # ==========================================================================
+  # WebSocket (Connection Abuse Prevention)
+  # ==========================================================================
+  websocket:
+    connections_per_ip:
+      max_connections: 10
+      window_seconds: 60
+      description: "Max WebSocket connections per IP"
+    
+    messages_per_connection:
+      messages_per_minute: 60
+      window_seconds: 60
+      description: "Messages per WebSocket connection"
+
+  # ==========================================================================
+  # Agent Tasks (Flooding Prevention)
+  # ==========================================================================
+  agents:
+    task_creation:
+      tasks_per_minute: 20
+      tasks_per_hour: 200
+      window_seconds: 60
+      description: "Agent task creation rate"
+    
+    concurrent_tasks:
+      max_concurrent: 5
+      description: "Max concurrent agent tasks"
+
+# ==========================================================================
+# Global Settings
+# ==========================================================================
+settings:
+  default_window_seconds: 60
+  enable_redis: true
+  fallback_to_memory: true
+  log_violations: true
+  emit_metrics: true
+  
+# ==========================================================================
+# Exemptions (bypass rate limiting)
+# ==========================================================================
+exemptions:
+  # IPs that bypass rate limiting (internal services)
+  ips:
+    - "127.0.0.1"
+    - "::1"
+  
+  # Caller IDs that bypass (system accounts)
+  caller_ids:
+    - "L"  # L-CTO has elevated access

@@ -18,7 +18,6 @@ from core.kernels.kernelloader import (
     KERNEL_ORDER,
 )
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -115,9 +114,7 @@ class TestReloadKernelsFunction:
         # Modify one kernel file
         kernel_to_modify = KERNEL_ORDER[0]
         kernel_file = mock_kernel_files / kernel_to_modify
-        kernel_file.write_text(
-            kernel_file.read_text() + "\n# Modified for test\n"
-        )
+        kernel_file.write_text(kernel_file.read_text() + "\n# Modified for test\n")
 
         # Reload - should detect the modification
         result = reload_kernels(mock_agent, base_path=mock_kernel_files, force=False)
@@ -202,7 +199,9 @@ class TestKernelEvolutionLogging:
         )
 
         # Mock the import inside the function by patching builtins
-        original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
+        original_import = (
+            __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
+        )
 
         def mock_import(name, *args, **kwargs):
             if name == "memory.substrate_service":
@@ -231,7 +230,9 @@ class TestKernelEvolutionLogging:
         from core.memory.runtime import log_kernel_evolution
 
         # Mock the import to return None for substrate
-        original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
+        original_import = (
+            __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
+        )
 
         def mock_import(name, *args, **kwargs):
             if name == "memory.substrate_service":
@@ -269,6 +270,7 @@ class TestKernelReloadEndpoint:
         """/kernels/reload requires API key authentication."""
         # Import from the correct location
         import sys
+
         sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
         try:
@@ -294,6 +296,7 @@ class TestKernelReloadEndpoint:
     async def test_endpoint_response_structure(self):
         """/kernels/reload returns correct response structure."""
         import sys
+
         sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
         try:
@@ -347,8 +350,10 @@ class TestReloadObservabilitySpans:
 
     def test_reload_creates_span(self, mock_kernel_files, mock_agent):
         """reload_kernels() creates an observability span."""
-        with patch("core.kernels.kernelloader._has_observability", True), \
-             patch("core.kernels.kernelloader.get_observability_service") as mock_obs:
+        with (
+            patch("core.kernels.kernelloader._has_observability", True),
+            patch("core.kernels.kernelloader.get_observability_service") as mock_obs,
+        ):
             mock_service = MagicMock()
             mock_service.emit_span = MagicMock()
             mock_obs.return_value = mock_service
@@ -362,4 +367,3 @@ class TestReloadObservabilitySpans:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

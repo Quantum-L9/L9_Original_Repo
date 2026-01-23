@@ -22,6 +22,34 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# See footer for extended metadata
+# ============================================================================
+__dora_meta__ = {
+    "component_id": "COR-FOUN-001",
+    "component_name": "Executor",
+    "module_version": "1.0.0",
+    "created_at": "2026-01-18T05:25:09Z",
+    "created_by": "L9_Codegen_Engine",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "type": "engine",
+    "status": "active",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "purpose": "Provides executor components including AIOSRuntime, ToolRegistryProtocol, SubstrateServiceProtocol",
+    "dependencies": [
+        "core.agents.adaptive_prompting",
+        "core.agents.agent_instance",
+        "core.agents.kernelevolution",
+        "core.agents.prompt_builder",
+        "core.agents.prompt_defense",
+    ],
+}
+# ============================================================================
+
 import json
 import os
 import structlog
@@ -47,7 +75,7 @@ from memory.agent_persistence import AgentPersistenceService
 from core.governance.approvals import ApprovalManager
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
-from runtime.dora import emit_executor_trace
+from runtime.dora import emit_executor_trace, update_dora_block_in_file
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 
 # Initialize logger early for import error handling
@@ -91,12 +119,24 @@ except ImportError:
     _has_prompt_builder = False
     logger.warning("prompt_builder not available - kernel prompts disabled")
 
+from core.decorators import must_stay_async
+
+# Stage 5: Predictive Memory Warming (optional - graceful degradation)
+try:
+    from memory.warming_service import MemoryWarmingService
+
+    _has_memory_warming = True
+except ImportError:
+    _has_memory_warming = False
+    logger.debug("memory_warming not available - warming disabled")
+
 
 # =============================================================================
 # Reactive Task Generation
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def _generate_tasks_from_query(query: str) -> List[Dict[str, Any]]:
     """
     Parse user requests into task specifications.
@@ -185,6 +225,7 @@ async def _generate_tasks_from_query(query: str) -> List[Dict[str, Any]]:
 class AIOSRuntime(Protocol):
     """Protocol for AIOS runtime interface."""
 
+    @must_stay_async("callers use await")
     async def execute_reasoning(
         self,
         context: dict[str, Any],
@@ -204,6 +245,7 @@ class AIOSRuntime(Protocol):
 class ToolRegistryProtocol(Protocol):
     """Protocol for tool registry interface."""
 
+    @must_stay_async("callers use await")
     async def dispatch_tool_call(
         self,
         tool_id: str,
@@ -244,6 +286,7 @@ class ToolRegistryProtocol(Protocol):
 class SubstrateServiceProtocol(Protocol):
     """Protocol for memory substrate service interface."""
 
+    @must_stay_async("callers use await")
     async def write_packet(
         self,
         packet_in: PacketEnvelopeIn,
@@ -259,6 +302,7 @@ class SubstrateServiceProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def search_packets(
         self,
         thread_id: UUID,
@@ -276,6 +320,7 @@ class SubstrateServiceProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def search_packets_by_thread(
         self,
         thread_id: str,
@@ -379,6 +424,12 @@ class AgentExecutorService:
         # Kernel-aware agent reference (for guarded execution)
         self._kernel_aware_agent: Optional[Any] = None
 
+        # Stage 5: Predictive Memory Warming service (optional)
+        self._memory_warming_service: Optional[Any] = None
+
+        # Stage 5: Graph Hydrator for loading agent context from Neo4j (optional)
+        self._graph_hydrator: Optional[Any] = None
+
         logger.info(
             "agent.executor.init: default_agent_id=%s, max_iterations=%d, persistence=%s",
             self._default_agent_id,
@@ -404,6 +455,39 @@ class AgentExecutorService:
             "agent.executor.kernel_agent_set: state=%s, kernels=%d",
             kernel_state,
             kernel_count,
+        )
+
+    def set_memory_warming_service(self, service: Any) -> None:
+        """
+        Set the memory warming service for predictive cache warming.
+
+        Stage 5: Predictive Memory Warming (GMP-STAGE5).
+        Warms relevant entities before agent reasoning to reduce latency.
+
+        Args:
+            service: MemoryWarmingService instance
+        """
+        self._memory_warming_service = service
+        logger.info(
+            "agent.executor.memory_warming_set: enabled=%s",
+            service is not None,
+        )
+
+    def set_graph_hydrator(self, hydrator: Any) -> None:
+        """
+        Set the graph hydrator for loading agent context from Neo4j.
+
+        Stage 5: Graph-Backed Agent State (GMP-76).
+        Hydrates agent context (responsibilities, directives, tools) from
+        Neo4j graph before task execution.
+
+        Args:
+            hydrator: GraphHydrator instance
+        """
+        self._graph_hydrator = hydrator
+        logger.info(
+            "agent.executor.graph_hydrator_set: enabled=%s",
+            hydrator is not None,
         )
 
     async def shutdown(self) -> None:
@@ -468,7 +552,15 @@ class AgentExecutorService:
             return None
 
         kernel_state = getattr(self._kernel_aware_agent, "kernel_state", None)
-        if kernel_state != "ACTIVE":
+        if kernel_state is None:
+            return None
+        if isinstance(kernel_state, str):
+            if kernel_state != "ACTIVE":
+                return None
+        elif hasattr(kernel_state, "initialized"):
+            if not kernel_state.initialized:
+                return None
+        else:
             return None
 
         return self._kernel_aware_agent
@@ -571,6 +663,77 @@ class AgentExecutorService:
                         error="Prompt injection detected",
                     )
 
+            # Stage 5: Predictive Memory Warming (GMP-STAGE5)
+            # Warm relevant entities before agent reasoning
+            if _has_memory_warming and self._memory_warming_service is not None:
+                try:
+                    user_message = (
+                        task.payload.get("message", "") if task.payload else ""
+                    )
+                    if user_message:
+                        # Extract simple entity mentions (words that might be entities)
+                        # In production, use NER or semantic extraction
+                        words = user_message.split()
+                        mentioned_entities = [
+                            w.strip(".,!?;:()[]{}\"'")
+                            for w in words
+                            if len(w) > 3 and w[0].isupper()
+                        ]
+
+                        if mentioned_entities:
+                            warming_result = (
+                                await self._memory_warming_service.warm_for_query(
+                                    query=user_message,
+                                    mentioned_entities=mentioned_entities[:20],
+                                    max_gaps_to_warm=10,
+                                )
+                            )
+                            logger.debug(
+                                "agent.executor.memory_warming",
+                                task_id=task_id_str,
+                                gaps_detected=warming_result.get("gaps_detected", 0),
+                                entities_warmed=warming_result.get(
+                                    "entities_warmed", 0
+                                ),
+                                latency_ms=warming_result.get("warming_latency_ms", 0),
+                            )
+                except Exception as warming_error:
+                    # Non-fatal - log and continue
+                    logger.warning(
+                        "agent.executor.memory_warming_failed",
+                        task_id=task_id_str,
+                        error=str(warming_error),
+                    )
+
+            # Stage 5: Graph Hydration (GMP-76)
+            # Load agent context from Neo4j graph before execution
+            hydrated_context = None
+            if self._graph_hydrator is not None:
+                try:
+                    hydrated_context = await self._graph_hydrator.hydrate(
+                        agent_id=task.agent_id,
+                        include_kernels=True,
+                    )
+                    logger.debug(
+                        "agent.executor.graph_hydration",
+                        task_id=task_id_str,
+                        agent_id=task.agent_id,
+                        responsibilities=len(hydrated_context.responsibilities)
+                        if hydrated_context
+                        else 0,
+                        tools=len(hydrated_context.available_tools)
+                        if hydrated_context
+                        else 0,
+                    )
+                except Exception as hydration_error:
+                    # Non-fatal - log and continue without hydrated context
+                    logger.warning(
+                        "agent.executor.graph_hydration_failed",
+                        task_id=task_id_str,
+                        agent_id=task.agent_id,
+                        error=str(hydration_error),
+                    )
+
             # Instantiate agent
             instance = await self._instantiate_agent(task)
             if instance is None:
@@ -626,7 +789,7 @@ class AgentExecutorService:
             )
 
             # Emit DORA trace block (auto-updates on every execution)
-            await emit_executor_trace(
+            _dora_trace = await emit_executor_trace(
                 task_id=task_id_str,
                 task_name=getattr(task, "name", None) or f"task_{task.kind.value}",
                 agent_id=task.agent_id,
@@ -640,6 +803,11 @@ class AgentExecutorService:
                 errors=[result.error] if result.error else None,
                 patterns=["agent_execution", "reasoning_loop"],
             )
+
+            # Update DORA trace block in executor source file (GMP-DORA-WIRE)
+            # This writes the runtime trace to __l9_trace__ at end of this file
+            if os.environ.get("L9_DORA_UPDATE_SOURCE", "").lower() == "true":
+                update_dora_block_in_file(__file__, _dora_trace)
 
             # Active memory encoding hook (GMP-80-A7: Frontier Memory)
             # System automatically extracts and encodes learnings from task outcomes
@@ -1157,14 +1325,37 @@ class AgentExecutorService:
                     governance_blocks=instance.governance_blocks,
                 )
         except ImportError:
-            # Governance validation not available - skip (non-fatal)
-            logger.debug(
-                "agent.executor.governance: validation module not available, skipping"
+            # Governance validation not available - BLOCK (fail-closed)
+            logger.error(
+                "agent.executor.governance.missing",
+                task_id=str(instance.task.id),
+            )
+            return ExecutionResult(
+                task_id=instance.task.id,
+                status="blocked",
+                error="Governance validation unavailable. Execution blocked.",
+                iterations=0,
+                duration_ms=int(
+                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                ),
+                governance_blocks=instance.governance_blocks,
             )
         except Exception as e:
-            # Governance check failed - log but continue (non-fatal)
-            logger.warning(
-                f"agent.executor.governance: validation error (non-fatal): {e}"
+            # Governance check failed - BLOCK (fail-closed)
+            logger.error(
+                "agent.executor.governance.error",
+                task_id=str(instance.task.id),
+                error=str(e),
+            )
+            return ExecutionResult(
+                task_id=instance.task.id,
+                status="blocked",
+                error=f"Governance validation failed: {e}",
+                iterations=0,
+                duration_ms=int(
+                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                ),
+                governance_blocks=instance.governance_blocks,
             )
 
         max_iterations = min(
@@ -1196,9 +1387,15 @@ class AgentExecutorService:
         # Instead of binding all 100+ tools, find the most relevant ones
         if user_message and hasattr(self._tool_registry, "get_relevant_tools"):
             try:
+                # principal_id may be in task context or payload
+                principal_id = (
+                    instance.task.context.get("principal_id")
+                    or instance.task.payload.get("principal_id")
+                    or instance.task.source_id
+                )
                 relevant_tools = await self._tool_registry.get_relevant_tools(
                     agent_id=instance.task.agent_id,
-                    principal_id=instance.task.principal_id,
+                    principal_id=principal_id,
                     query=user_message,
                     top_k=7,  # Slightly more than 5 to account for governance filtering
                 )
@@ -1211,8 +1408,21 @@ class AgentExecutorService:
                         tools=[t.tool_id for t in relevant_tools],
                     )
             except Exception as e:
-                logger.warning(
-                    f"Tool shortlisting failed, using all approved tools: {e}"
+                # Tool shortlisting failed - BLOCK (fail-closed)
+                logger.error(
+                    "agent.executor.tools.shortlisting_failed",
+                    task_id=str(instance.task.id),
+                    error=str(e),
+                )
+                return ExecutionResult(
+                    task_id=instance.task.id,
+                    status="blocked",
+                    error=f"Tool shortlisting failed: {e}",
+                    iterations=0,
+                    duration_ms=int(
+                        (datetime.utcnow() - start_time).total_seconds() * 1000
+                    ),
+                    governance_blocks=instance.governance_blocks,
                 )
 
         # Transition to reasoning
@@ -1638,23 +1848,30 @@ class AgentExecutorService:
                 "memory_context": memory_context,  # Inject memory context
             }
 
-            # Check if registry supports guarded execution and agent has kernels
+            # Require guarded execution with active kernels (fail-closed)
             agent = self._get_kernel_aware_agent()
-            if agent and hasattr(self._tool_registry, "guarded_execute"):
-                # Use guarded execution (kernel-aware)
-                result = await self._tool_registry.guarded_execute(
-                    agent=agent,
+            if not agent:
+                return ToolCallResult(
+                    call_id=tool_call.call_id,
                     tool_id=tool_call.tool_id,
-                    arguments=tool_call.arguments,
-                    context=context,
+                    success=False,
+                    error="Kernel-aware agent required for tool dispatch",
                 )
-            else:
-                # Fallback to standard dispatch
-                result = await self._tool_registry.dispatch_tool_call(
+            if not hasattr(self._tool_registry, "guarded_execute"):
+                return ToolCallResult(
+                    call_id=tool_call.call_id,
                     tool_id=tool_call.tool_id,
-                    arguments=tool_call.arguments,
-                    context=context,
+                    success=False,
+                    error="Tool registry missing guarded_execute enforcement",
                 )
+
+            # Use guarded execution (kernel-aware)
+            result = await self._tool_registry.guarded_execute(
+                agent=agent,
+                tool_id=tool_call.tool_id,
+                arguments=tool_call.arguments,
+                context=context,
+            )
 
             # Persist task result after execution
             await self._persist_task_result(
@@ -1849,10 +2066,8 @@ class AgentExecutorService:
         """
         Emit a packet to the memory substrate.
 
-        BEHAVIOR: Best-effort, non-blocking.
-        - Packet write failures are logged but do NOT stop execution.
-        - This is intentional: execution must complete even if observability fails.
-        - Critical failures (e.g., substrate down) are logged at WARNING level.
+        BEHAVIOR: Enforced, fail-closed.
+        - Packet write failures are logged and raised to stop execution.
 
         REQUIRED FIELDS (all packets include):
         - packet_type: Discriminator for packet routing
@@ -1869,26 +2084,25 @@ class AgentExecutorService:
             payload: Packet payload (must contain task_id)
             thread_id: Thread identifier
         """
+        # Use task.agent_id if available in payload, otherwise "agent.executor"
+        agent_id = payload.get("agent_id", "agent.executor")
+
+        packet = PacketEnvelopeIn(
+            packet_type=packet_type,
+            payload=payload,
+            thread_id=thread_id,
+            metadata={"agent": agent_id, "schema_version": "1.0.0"},
+        )
         try:
-            # Use task.agent_id if available in payload, otherwise "agent.executor"
-            agent_id = payload.get("agent_id", "agent.executor")
-
-            packet = PacketEnvelopeIn(
-                packet_type=packet_type,
-                payload=payload,
-                thread_id=thread_id,
-                metadata={"agent": agent_id, "schema_version": "1.0.0"},
-            )
             await self._substrate_service.write_packet(packet)
-
         except Exception as e:
-            # Best-effort: log but don't fail execution
-            logger.warning(
+            logger.error(
                 "agent.executor.packet_write_failed: packet_type=%s, thread_id=%s, error=%s",
                 packet_type,
                 str(thread_id),
                 str(e),
             )
+            raise
 
     # =========================================================================
     # Active Memory Encoding (GMP-80-A7: Frontier Memory)
@@ -2196,3 +2410,45 @@ __all__ = [
     "SubstrateServiceProtocol",
     "AgentRegistryProtocol",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Extended metadata referenced by header
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-001",
+    "security_classification": "internal",
+    "execution_mode": "on-demand",
+    "timeout_seconds": 30,
+    "performance_tier": "batch",
+    "last_modified": "2026-01-18T05:25:09Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "f892b0df",
+    "task": "l_agent:second_test",
+    "timestamp": "2026-01-18T06:31:09.967674+00:00",
+    "patterns_used": ["agent_execution", "reasoning_loop"],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {
+        "task_id": "test-456",
+        "agent_id": "l_agent",
+        "query": "verify replacement",
+    },
+    "outputs": {"status": "success", "iterations": 3},
+    "metrics": {
+        "confidence": "0.95",
+        "errors_detected": [],
+        "stability_score": "1.0",
+        "duration_ms": 250,
+    },
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
