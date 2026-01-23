@@ -268,7 +268,9 @@ class SubstrateRepository:
         """Helper method to insert packet using provided connection."""
         # DEBUG: Trace envelope JSON
         envelope_json = envelope.model_dump(mode="json")
-        logger.warning(f"DEBUG insert_packet: envelope_json.metadata.project_id={envelope_json.get('metadata', {}).get('project_id')!r}")
+        import json as json_module
+        full_json = json_module.dumps(envelope_json)
+        logger.warning(f"DEBUG insert_packet: FULL JSON length={len(full_json)}, first 500 chars={full_json[:500]!r}")
         await conn.execute(
             """
             INSERT INTO packet_store (
