@@ -219,14 +219,12 @@ def validate_api_keys() -> None:
         )
 
 
-# Validate on module load (fail fast)
+# Validate on module load (warn but don't exit - allow app to start)
 try:
     validate_api_keys()
 except ValueError as e:
-    logger.error("MCP server configuration invalid", error=str(e))
-    import sys
-
-    sys.exit(1)
+    logger.warning("MCP server API keys not configured", error=str(e))
+    # Don't exit - allow app to start, MCP features will be disabled
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

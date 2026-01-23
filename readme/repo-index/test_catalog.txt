@@ -32,7 +32,7 @@
 - `tests/core/governance/test_engine.py` (15 tests)
 - `tests/core/governance/test_policy_registry.py` (4 tests)
 - `tests/core/governance/test_validation.py` (12 tests)
-- `tests/core/abstractions/test_secrets_protocols.py` (7 tests)
+- `tests/core/protocols/test_secrets_protocols.py` (7 tests)
 
 ### tests/integration/
 

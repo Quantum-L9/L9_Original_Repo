@@ -58,6 +58,7 @@ from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from runtime.tool_registry import register_tool
 
 logger = structlog.get_logger(__name__)
 
@@ -774,6 +775,7 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
 # =============================================================================
 
 
+@register_tool(category="routing", priority=10, description="tool_router_find tool")
 async def tool_router_find(
     query: str,
     top_k: int = 5,
@@ -868,6 +870,7 @@ async def tool_router_find(
 # =============================================================================
 
 
+@register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
 async def saga_fetch_and_enrich(
     query: str,
     entity_types: Optional[List[str]] = None,
@@ -1000,6 +1003,7 @@ async def saga_fetch_and_enrich(
         }
 
 
+@register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
 async def saga_enrich_entities(
     entity_ids: List[str],
     relationship_types: Optional[List[str]] = None,
@@ -1101,6 +1105,7 @@ async def saga_enrich_entities(
         }
 
 
+@register_tool(category="saga", priority=10, description="saga_timeline_correlation tool")
 async def saga_timeline_correlation(
     start_entity_id: str,
     time_range_hours: int = 24,
@@ -1237,6 +1242,7 @@ async def saga_timeline_correlation(
         }
 
 
+@register_tool(category="saga", priority=10, description="saga_execute_custom tool")
 async def saga_execute_custom(
     steps: List[dict],
 ) -> dict:
