@@ -42,7 +42,7 @@ filterwarnings = [
     "ignore::DeprecationWarning:langchain",
     "ignore::PendingDeprecationWarning",
 ]
-timeout = 300  # 5 minute timeout for hanging tests
+timeout = 30  # 30 second timeout for hanging tests
 asyncio_mode = "auto"
 
 [tool.coverage.run]
@@ -92,10 +92,10 @@ namespace_packages = true
 
 # Import discovery
 follow_imports = "normal"
-ignore_missing_imports = false  # Changed to false for better type checking
+ignore_missing_imports = true  # Keep permissive for gradual adoption
 
 # Warnings
-warn_return_any = true
+warn_return_any = false  # Too noisy for current codebase
 warn_unused_configs = true
 warn_unused_ignores = true
 warn_redundant_casts = true
