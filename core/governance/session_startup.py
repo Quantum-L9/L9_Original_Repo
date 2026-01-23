@@ -161,7 +161,7 @@ class SessionStartup:
     returning structured status for governance verification.
 
     Usage:
-        startup = SessionStartup(Path("/Users/ib-mac/Projects/L9"))
+        startup = SessionStartup(Path.home() / "Projects/L9")
         result = startup.execute()
         if result.status != "READY":
             # Handle startup issues
@@ -720,7 +720,7 @@ def create_session_startup(workspace_root: Optional[Path] = None) -> SessionStar
     Returns:
         Configured SessionStartup
     """
-    root = workspace_root or Path("/Users/ib-mac/Projects/L9")
+    root = workspace_root or Path.home() / "Projects/L9"
     return SessionStartup(root)
 
 

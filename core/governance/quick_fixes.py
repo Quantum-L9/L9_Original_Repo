@@ -173,8 +173,8 @@ class QuickFixEngine:
             ),
             QuickFix(
                 id="QF-009",
-                problem="Hardcoded /Users/ib-mac path",
-                pattern=r"/Users/ib-mac/(?!Projects/L9)",
+                problem="Hardcoded user-specific path",
+                pattern=rf"{Path.home()}/(?!Projects/L9)",
                 solution="Use Path.home() or $HOME for portability",
                 fix_fn=None,  # Requires context analysis
                 auto_apply=False,

@@ -184,7 +184,7 @@ class ExecutorConfig:
     # Handler options
     real_execution: bool = False  # When True, actually modify files
     allowed_write_roots: list[str] = field(
-        default_factory=lambda: ["/Users/ib-mac/Projects"]
+        default_factory=lambda: [str(Path.home() / "Projects")]
     )
     # Strategy Memory auto-capture (Phase 1 - GMP-103)
     auto_capture_enabled: bool = True  # Auto-capture successful executions
@@ -893,7 +893,7 @@ class PlanExecutor:
             }
 
         # Validate path is within allowed directories
-        allowed_roots = self._config.allowed_write_roots or ["/Users/ib-mac/Projects"]
+        allowed_roots = self._config.allowed_write_roots or [str(Path.home() / "Projects")]
         path = Path(target_path).resolve()
 
         is_allowed = any(

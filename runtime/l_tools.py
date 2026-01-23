@@ -981,7 +981,7 @@ async def mcp_call_tool(
 
         # Read local file
         mcp_call_tool(server_id="filesystem", tool_name="read_file", arguments={
-            "path": "/Users/ib-mac/Projects/L9/README.md"
+            "path": str(Path.home() / "Projects/L9/README.md")
         })
     """
     if arguments is None:

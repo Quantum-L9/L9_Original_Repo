@@ -46,6 +46,7 @@ import structlog
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import Any, Optional
 
 logger = structlog.get_logger(__name__)
@@ -143,7 +144,7 @@ class MistakePrevention:
             MistakeRule(
                 id="MP-004",
                 name="Hardcoded User Path",
-                pattern=r"/Users/ib-mac/(?!Projects/L9)",
+                pattern=rf"{Path.home()}/(?!Projects/L9)",
                 prevention="Use $HOME or relative paths for cross-machine compatibility.",
                 severity=Severity.CRITICAL,
             ),

@@ -35,7 +35,7 @@ mkdir -p "$(dirname "$TEST_LOG")" 2>/dev/null || true
 
 # Metrics
 HOOK_START=$(date +%s)
-TOTAL_CHECKS=8
+TOTAL_CHECKS=9
 CHECKS_PASSED=0
 
 # Get staged Python files
@@ -389,10 +389,49 @@ echo -e "${GREEN}✓ Protected surfaces validated${NC}"
 CHECKS_PASSED=$((CHECKS_PASSED + 1))
 
 # ============================================
-# PHASE 8: AUDIT TRAIL & METRICS
+# PHASE 8: ANTI-PATTERN DETECTION
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 8/8]${NC} AUDIT LOGGING & METRICS"
+echo -e "\n${YELLOW}[GATE 8/9]${NC} ANTI-PATTERN DETECTION"
+
+ANTI_PATTERN_VIOLATIONS=0
+
+if [ -z "$STAGED_PY_FILES" ]; then
+    echo -e "${GREEN}✓ No Python files staged, skipping anti-pattern checks${NC}"
+    CHECKS_PASSED=$((CHECKS_PASSED + 1))
+else
+    # Check for hardcoded /Users/ib-mac paths
+    echo "  Checking for hardcoded user paths..."
+    for file in $STAGED_PY_FILES; do
+        if [ -f "$file" ]; then
+            # Skip test files and legacy scripts
+            if [[ "$file" == tests/* ]] || [[ "$file" == scripts/* ]] || [[ "$file" == agents/cursor/* ]]; then
+                continue
+            fi
+            
+            if grep -q "/Users/ib-mac" "$file"; then
+                echo -e "  ${RED}❌ CRITICAL: Hardcoded /Users/ib-mac path in $file${NC}"
+                echo "     Fix: Use Path.home() or environment variables"
+                ANTI_PATTERN_VIOLATIONS=$((ANTI_PATTERN_VIOLATIONS + 1))
+            fi
+        fi
+    done
+    
+    if [ $ANTI_PATTERN_VIOLATIONS -gt 0 ]; then
+        echo -e "${RED}❌ Anti-pattern check FAILED: $ANTI_PATTERN_VIOLATIONS violation(s)${NC}"
+        echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"anti_pattern_violations\",\"branch\":\"$BRANCH\",\"user\":\"$USER\",\"violations\":$ANTI_PATTERN_VIOLATIONS,\"severity\":\"CRITICAL\"}" >> "$HOOK_AUDIT_LOG"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✓ No anti-pattern violations detected${NC}"
+    CHECKS_PASSED=$((CHECKS_PASSED + 1))
+fi
+
+# ============================================
+# PHASE 9: AUDIT TRAIL & METRICS
+# ============================================
+
+echo -e "\n${YELLOW}[GATE 9/9]${NC} AUDIT LOGGING & METRICS"
 
 HOOK_END=$(date +%s)
 HOOK_DURATION=$((HOOK_END - HOOK_START))

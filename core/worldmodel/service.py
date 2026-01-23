@@ -367,7 +367,7 @@ class WorldModelService:
         repos = [
             L9Repository(
                 name="L9",
-                path="/Users/ib-mac/Projects/L9",
+                path=str(Path.home() / "Projects/L9"),
                 integration_type="git",
                 default_branch="main",
                 remote_url="https://github.com/quantumai/L9",

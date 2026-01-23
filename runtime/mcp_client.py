@@ -330,7 +330,7 @@ class MCPClient:
             "MCP_FILESYSTEM_COMMAND", "npx -y @modelcontextprotocol/server-filesystem"
         )
         fs_allowed_dirs = os.getenv(
-            "MCP_FILESYSTEM_ALLOWED_DIRS", "/Users/ib-mac/Projects"
+            "MCP_FILESYSTEM_ALLOWED_DIRS", str(Path.home() / "Projects")
         )
         self._servers["filesystem"] = {
             "command": fs_command.split() + fs_allowed_dirs.split(","),

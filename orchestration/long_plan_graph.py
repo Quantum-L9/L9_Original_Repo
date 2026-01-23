@@ -537,7 +537,7 @@ async def prepare_changes_node(state: LongPlanState) -> LongPlanState:
             try:
                 gmp_result = await gmp_run_tool(
                     gmp_markdown=draft_plan,
-                    repo_root="/Users/ib-mac/Projects/L9",  # Default repo
+                    repo_root=str(Path.home() / "Projects/L9"),  # Default repo
                     caller=agent_id,
                     metadata={
                         "goal": state.get("goal"),
