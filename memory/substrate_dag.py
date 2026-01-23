@@ -392,6 +392,10 @@ async def memory_write_node(
     try:
         # Write packet
         packet = PacketEnvelope(**envelope)
+        # DEBUG: Trace project_id in memory_write_node
+        meta_dict = packet.metadata.model_dump() if packet.metadata else {}
+        logger.warning(f"DEBUG memory_write_node: packet.metadata.project_id={meta_dict.get('project_id')!r}")
+        logger.warning(f"DEBUG memory_write_node: full envelope JSON metadata={envelope.get('metadata')}")
         await repository.insert_packet(packet)
         written_tables.append("packet_store")
 
