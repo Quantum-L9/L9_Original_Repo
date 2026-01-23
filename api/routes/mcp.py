@@ -28,6 +28,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
+
 import structlog
 from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import ValidationError
@@ -73,8 +75,7 @@ except ImportError as e:
 # Import governance context for memory operations
 try:
     from config.rls_config import get_rls_config
-    from memory.governance_gate import (build_governance_context,
-                                        governance_context)
+    from memory.governance_gate import build_governance_context, governance_context
 
     _has_governance = True
 except ImportError as e:
@@ -109,7 +110,7 @@ async def call_tool(request: Request, authorization: str = Header(None)):
     Caller identity (L or C) determines:
     - user_id: Shared L_CTO_USER_ID (L and C collaborate in same space)
     - metadata.creator: "L-CTO" or "Cursor-IDE" (enforced server-side)
-    - metadata.source: "l9-kernel" or "cursor-ide" (enforced server-side)
+    - metadata.source: "l9-kernel" or "cursor" (enforced server-side)
     - write/delete scope: C can only modify own memories (creator="Cursor-IDE")
     """
     if not _has_mcp:
@@ -184,11 +185,13 @@ async def call_tool(request: Request, authorization: str = Header(None)):
             # Get RLS config for tenant/org/user UUIDs
             rls_config = get_rls_config()
 
+            # GMP-JSONB-GOV-FIX: Get project_id from env var (not hardcoded)
+            # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
             gov_ctx = build_governance_context(
                 caller_id=caller.caller_id,
                 role="admin" if caller.caller_id == "L" else "developer",
                 scope=requested_scope,
-                project_id="l9",
+                project_id=os.getenv("L9_PROJECT_ID", "l9"),
                 allowed_scopes=allowed_scopes,
                 tenant_id=rls_config.tenant_uuid,
                 org_id=rls_config.org_uuid,

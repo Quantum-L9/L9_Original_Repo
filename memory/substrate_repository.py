@@ -39,10 +39,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from datetime import datetime
-from typing import Any, AsyncGenerator, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -63,7 +64,7 @@ async def _init_json_codecs(conn: asyncpg.Connection) -> None:
 
 
 # Context variable for RLS-scoped connection (used within transactions)
-_current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
+_current_rls_connection: ContextVar[asyncpg.Connection | None] = ContextVar(
     "_current_rls_connection", default=None
 )
 
@@ -105,7 +106,7 @@ class SubstrateRepository:
         self._database_url = database_url
         self._pool_size = pool_size
         self._max_overflow = max_overflow
-        self._pool: Optional[asyncpg.Pool] = None
+        self._pool: asyncpg.Pool | None = None
 
     async def connect(self) -> None:
         """Initialize connection pool."""
@@ -136,9 +137,9 @@ class SubstrateRepository:
     @asynccontextmanager
     async def transaction(
         self,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> AsyncGenerator[asyncpg.Connection, None]:
         """
@@ -162,25 +163,24 @@ class SubstrateRepository:
         if self._pool is None:
             raise RuntimeError("Repository not connected. Call connect() first.")
 
-        async with self._pool.acquire() as conn:
-            async with conn.transaction():
-                # Set RLS scope within transaction (SET LOCAL makes it transaction-scoped)
-                if tenant_id and org_id and user_id:
-                    await conn.execute(
-                        """SELECT l9_set_scope($1::uuid, $2::uuid, $3::uuid, $4::text)""",
-                        tenant_id,
-                        org_id,
-                        user_id,
-                        role,
-                    )
+        async with self._pool.acquire() as conn, conn.transaction():
+            # Set RLS scope within transaction (SET LOCAL makes it transaction-scoped)
+            if tenant_id and org_id and user_id:
+                await conn.execute(
+                    """SELECT l9_set_scope($1::uuid, $2::uuid, $3::uuid, $4::text)""",
+                    tenant_id,
+                    org_id,
+                    user_id,
+                    role,
+                )
 
-                # Store connection in context variable for repository methods to use
-                token = _current_rls_connection.set(conn)
-                try:
-                    yield conn
-                finally:
-                    # Restore previous context (or clear if None)
-                    _current_rls_connection.reset(token)
+            # Store connection in context variable for repository methods to use
+            token = _current_rls_connection.set(conn)
+            try:
+                yield conn
+            finally:
+                # Restore previous context (or clear if None)
+                _current_rls_connection.reset(token)
 
     # =========================================================================
     # Packet Store Operations
@@ -231,24 +231,23 @@ class SubstrateRepository:
                 importance_score,
             )
             return envelope.packet_id
-        else:
-            # No RLS scope - use normal connection pool
-            async with self.acquire() as conn:
-                await self._insert_packet_with_connection(
-                    conn,
-                    envelope,
-                    thread_id,
-                    tags,
-                    ttl,
-                    parent_ids,
-                    metadata_dict,
-                    content_hash,
-                    session_id,
-                    scope,
-                    trace_id,
-                    importance_score,
-                )
-                return envelope.packet_id
+        # No RLS scope - use normal connection pool
+        async with self.acquire() as conn:
+            await self._insert_packet_with_connection(
+                conn,
+                envelope,
+                thread_id,
+                tags,
+                ttl,
+                parent_ids,
+                metadata_dict,
+                content_hash,
+                session_id,
+                scope,
+                trace_id,
+                importance_score,
+            )
+            return envelope.packet_id
 
     async def _insert_packet_with_connection(
         self,
@@ -298,7 +297,11 @@ class SubstrateRepository:
             envelope.timestamp,
             # routing and provenance are also JSONB - pass dicts, not json.dumps()
             {"agent": envelope.metadata.agent if envelope.metadata else None},
-            (envelope.provenance.model_dump(mode="json") if envelope.provenance else None),
+            (
+                envelope.provenance.model_dump(mode="json")
+                if envelope.provenance
+                else None
+            ),
             thread_id,
             parent_ids,
             tags,
@@ -313,7 +316,7 @@ class SubstrateRepository:
             f"Inserted packet {envelope.packet_id} with thread_id={thread_id}, parent_ids={parent_ids}, importance={importance_score}"
         )
 
-    async def get_packet(self, packet_id: UUID) -> Optional[PacketStoreRow]:
+    async def get_packet(self, packet_id: UUID) -> PacketStoreRow | None:
         """Retrieve a packet by ID."""
         # GMP-70: Governance scope filtering
         ctx = require_governance_context("repository.get_packet")
@@ -355,7 +358,7 @@ class SubstrateRepository:
     async def search_packets_by_thread(
         self,
         thread_id: UUID,
-        packet_type: Optional[str] = None,
+        packet_type: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[PacketStoreRow]:
@@ -415,9 +418,9 @@ class SubstrateRepository:
     async def search_packets_by_type(
         self,
         packet_type: str,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
         limit: int = 100,
-        since: Optional[datetime] = None,
+        since: datetime | None = None,
     ) -> list[PacketStoreRow]:
         """
         Search for packets by type.
@@ -527,8 +530,8 @@ class SubstrateRepository:
         agent_id: str,
         event_type: str,
         content: dict[str, Any],
-        packet_id: Optional[UUID] = None,
-        timestamp: Optional[datetime] = None,
+        packet_id: UUID | None = None,
+        timestamp: datetime | None = None,
     ) -> UUID:
         """Insert a memory event."""
         event_id = uuid4()
@@ -537,6 +540,7 @@ class SubstrateRepository:
         rls_conn = _current_rls_connection.get()
         if rls_conn:
             # Use existing RLS-scoped connection (within transaction)
+            # GMP-JSONB-GOV-FIX: Pass dict directly - asyncpg JSONB codec handles serialization
             await rls_conn.execute(
                 """
                 INSERT INTO agent_memory_events (event_id, agent_id, timestamp, packet_id, event_type, content)
@@ -547,32 +551,32 @@ class SubstrateRepository:
                 timestamp or datetime.utcnow(),
                 packet_id,
                 event_type,
-                json.dumps(content),
+                content,  # Dict, not json.dumps() - asyncpg codec serializes JSONB
             )
             logger.debug(f"Inserted memory event {event_id} for agent {agent_id}")
             return event_id
-        else:
-            # No RLS scope - use normal connection pool
-            async with self.acquire() as conn:
-                await conn.execute(
-                    """
+        # No RLS scope - use normal connection pool
+        # GMP-JSONB-GOV-FIX: Pass dict directly - asyncpg JSONB codec handles serialization
+        async with self.acquire() as conn:
+            await conn.execute(
+                """
                     INSERT INTO agent_memory_events (event_id, agent_id, timestamp, packet_id, event_type, content)
                     VALUES ($1, $2, $3, $4, $5, $6)
                     """,
-                    event_id,
-                    agent_id,
-                    timestamp or datetime.utcnow(),
-                    packet_id,
-                    event_type,
-                    json.dumps(content),
-                )
-                logger.debug(f"Inserted memory event {event_id} for agent {agent_id}")
-                return event_id
+                event_id,
+                agent_id,
+                timestamp or datetime.utcnow(),
+                packet_id,
+                event_type,
+                content,  # Dict, not json.dumps() - asyncpg codec serializes JSONB
+            )
+            logger.debug(f"Inserted memory event {event_id} for agent {agent_id}")
+            return event_id
 
     async def get_memory_events(
         self,
         agent_id: str,
-        event_type: Optional[str] = None,
+        event_type: str | None = None,
         limit: int = 100,
     ) -> list[AgentMemoryEventRow]:
         """Retrieve memory events for an agent."""
@@ -626,11 +630,10 @@ class SubstrateRepository:
             # Use existing RLS-scoped connection (within transaction)
             await self._insert_reasoning_block_with_connection(rls_conn, block)
             return block.block_id
-        else:
-            # No RLS scope - use normal connection pool
-            async with self.acquire() as conn:
-                await self._insert_reasoning_block_with_connection(conn, block)
-                return block.block_id
+        # No RLS scope - use normal connection pool
+        async with self.acquire() as conn:
+            await self._insert_reasoning_block_with_connection(conn, block)
+            return block.block_id
 
     async def _insert_reasoning_block_with_connection(
         self, conn: asyncpg.Connection, block: StructuredReasoningBlock
@@ -641,6 +644,7 @@ class SubstrateRepository:
         if hasattr(block, "agent_id"):
             agent_id = block.agent_id
 
+        # GMP-JSONB-GOV-FIX: Pass dicts directly - asyncpg JSONB codec handles serialization
         await conn.execute(
             """
             INSERT INTO reasoning_traces (
@@ -653,20 +657,20 @@ class SubstrateRepository:
             block.block_id,
             agent_id,
             block.packet_id,
-            json.dumps({"steps": block.inference_steps}),
-            json.dumps(block.extracted_features),
-            json.dumps(block.inference_steps),
-            json.dumps(block.reasoning_tokens),
-            json.dumps(block.decision_tokens),
-            json.dumps(block.confidence_scores),
+            {"steps": block.inference_steps},  # Dict, not json.dumps()
+            block.extracted_features,  # Dict, not json.dumps()
+            block.inference_steps,  # Dict/list, not json.dumps()
+            block.reasoning_tokens,  # Dict/list, not json.dumps()
+            block.decision_tokens,  # Dict/list, not json.dumps()
+            block.confidence_scores,  # Dict/list, not json.dumps()
             block.timestamp,
         )
         logger.debug(f"Inserted reasoning block {block.block_id}")
 
     async def get_reasoning_traces(
         self,
-        agent_id: Optional[str] = None,
-        packet_id: Optional[UUID] = None,
+        agent_id: str | None = None,
+        packet_id: UUID | None = None,
         limit: int = 100,
     ) -> list[ReasoningTraceRow]:
         """Retrieve reasoning traces with optional filters."""
@@ -744,7 +748,7 @@ class SubstrateRepository:
         predicate: str,
         object_value: Any,
         confidence: float,
-        source_packet: Optional[UUID],
+        source_packet: UUID | None,
     ) -> KnowledgeFactRow:
         """
         Insert or update knowledge fact (idempotent via UPSERT).
@@ -811,7 +815,7 @@ class SubstrateRepository:
         predicate: str,
         object_json: str,
         confidence: float,
-        source_packet: Optional[UUID],
+        source_packet: UUID | None,
         created_at: datetime,
     ) -> KnowledgeFactRow:
         """Helper to insert fact using provided connection."""
@@ -859,8 +863,8 @@ class SubstrateRepository:
 
     async def get_knowledge_facts(
         self,
-        source_packet: Optional[UUID] = None,
-        subject: Optional[str] = None,
+        source_packet: UUID | None = None,
+        subject: str | None = None,
         limit: int = 100,
     ) -> list[KnowledgeFactRow]:
         """
@@ -924,7 +928,7 @@ class SubstrateRepository:
         self,
         vector: list[float],
         payload: dict[str, Any],
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
         scope: str = "shared",  # RLS scope: 'developer', 'global', 'shared', 'l-private'
     ) -> UUID:
         """
@@ -959,7 +963,7 @@ class SubstrateRepository:
         embedding_id: UUID,
         vector: list[float],
         payload: dict[str, Any],
-        agent_id: Optional[str],
+        agent_id: str | None,
         scope: str = "shared",
     ) -> None:
         """Helper to insert semantic embedding using provided connection."""
@@ -982,7 +986,7 @@ class SubstrateRepository:
         self,
         query_embedding: list[float],
         top_k: int = 10,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
     ) -> list[SemanticHit]:
         """
         Search semantic memory using cosine similarity.
@@ -1080,13 +1084,12 @@ class SubstrateRepository:
                 rls_conn, checkpoint_id, agent_id, graph_state, reason
             )
             return checkpoint_id
-        else:
-            # No RLS scope - use normal connection pool
-            async with self.acquire() as conn:
-                await self._save_checkpoint_with_connection(
-                    conn, checkpoint_id, agent_id, graph_state, reason
-                )
-                return checkpoint_id
+        # No RLS scope - use normal connection pool
+        async with self.acquire() as conn:
+            await self._save_checkpoint_with_connection(
+                conn, checkpoint_id, agent_id, graph_state, reason
+            )
+            return checkpoint_id
 
     async def _save_checkpoint_with_connection(
         self,
@@ -1133,7 +1136,7 @@ class SubstrateRepository:
 
         logger.debug(f"Saved checkpoint for agent {agent_id}", reason=reason)
 
-    async def get_checkpoint(self, agent_id: str) -> Optional[GraphCheckpointRow]:
+    async def get_checkpoint(self, agent_id: str) -> GraphCheckpointRow | None:
         """Retrieve the latest checkpoint for an agent."""
         async with self.acquire() as conn:
             row = await conn.fetchrow(
@@ -1280,7 +1283,7 @@ class SubstrateRepository:
         agent_id: str,
         level: str,
         message: str,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> UUID:
         """Insert a log entry."""
         log_id = uuid4()
@@ -1302,7 +1305,7 @@ class SubstrateRepository:
     async def get_facts_by_subject(
         self,
         subject: str,
-        predicate: Optional[str] = None,
+        predicate: str | None = None,
         limit: int = 100,
     ) -> list[KnowledgeFactRow]:
         """
@@ -1556,18 +1559,18 @@ class SubstrateRepository:
     async def insert_semantic_fact(
         self,
         fact_text: str,
-        triplet: Optional[dict[str, Any]] = None,
-        embedding: Optional[list[float]] = None,
+        triplet: dict[str, Any] | None = None,
+        embedding: list[float] | None = None,
         importance: float = 0.5,
-        tags: Optional[list[str]] = None,
+        tags: list[str] | None = None,
         tier: str = "general",
-        source: Optional[str] = None,
-        source_packet_id: Optional[UUID] = None,
+        source: str | None = None,
+        source_packet_id: UUID | None = None,
         confidence: float = 0.8,
-        agent_id: Optional[str] = None,
-        tenant_id: Optional[UUID] = None,
-        org_id: Optional[UUID] = None,
-        user_id: Optional[UUID] = None,
+        agent_id: str | None = None,
+        tenant_id: UUID | None = None,
+        org_id: UUID | None = None,
+        user_id: UUID | None = None,
     ) -> UUID:
         """
         Insert a semantic fact into the semantic_facts table.
@@ -1655,7 +1658,7 @@ class SubstrateRepository:
     async def get_semantic_facts_by_subject(
         self,
         subject: str,
-        tier: Optional[str] = None,
+        tier: str | None = None,
         limit: int = 50,
     ) -> list:
         """
@@ -1838,17 +1841,17 @@ class SubstrateRepository:
         observation: str,
         event_timestamp: datetime,
         event_type: str = "general",
-        entities: Optional[list[str]] = None,
-        context: Optional[dict[str, Any]] = None,
-        outcome: Optional[str] = None,
+        entities: list[str] | None = None,
+        context: dict[str, Any] | None = None,
+        outcome: str | None = None,
         severity: float = 0.5,
-        source_packet_id: Optional[UUID] = None,
-        parent_event_id: Optional[UUID] = None,
-        session_id: Optional[UUID] = None,
-        agent_id: Optional[str] = None,
-        tenant_id: Optional[UUID] = None,
-        org_id: Optional[UUID] = None,
-        user_id: Optional[UUID] = None,
+        source_packet_id: UUID | None = None,
+        parent_event_id: UUID | None = None,
+        session_id: UUID | None = None,
+        agent_id: str | None = None,
+        tenant_id: UUID | None = None,
+        org_id: UUID | None = None,
+        user_id: UUID | None = None,
     ) -> UUID:
         """
         Insert an episodic event into the episodic_events table.
@@ -1914,8 +1917,8 @@ class SubstrateRepository:
         self,
         start_time: datetime,
         end_time: datetime,
-        entities: Optional[list[str]] = None,
-        event_type: Optional[str] = None,
+        entities: list[str] | None = None,
+        event_type: str | None = None,
         limit: int = 100,
     ) -> list:
         """
@@ -2211,7 +2214,7 @@ class SubstrateRepository:
     async def get_facts_as_of(
         self,
         point_in_time: datetime,
-        tier: Optional[str] = None,
+        tier: str | None = None,
         limit: int = 100,
     ) -> list:
         """
@@ -2263,7 +2266,7 @@ class SubstrateRepository:
     async def get_fact_history(
         self,
         fact_text: str,
-        tenant_id: Optional[UUID] = None,
+        tenant_id: UUID | None = None,
     ) -> list:
         """
         Get the version history of a fact (all versions, including superseded).
@@ -2307,7 +2310,7 @@ class SubstrateRepository:
         self,
         old_fact_id: UUID,
         new_fact_text: str,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> UUID:
         """
         Mark a fact as superseded and create a new version.
@@ -2324,21 +2327,20 @@ class SubstrateRepository:
         """
         now = datetime.utcnow()
 
-        async with self.acquire() as conn:
-            async with conn.transaction():
-                # Get the old fact
-                old_row = await conn.fetchrow(
-                    "SELECT * FROM semantic_facts WHERE fact_id = $1",
-                    old_fact_id,
-                )
+        async with self.acquire() as conn, conn.transaction():
+            # Get the old fact
+            old_row = await conn.fetchrow(
+                "SELECT * FROM semantic_facts WHERE fact_id = $1",
+                old_fact_id,
+            )
 
-                if not old_row:
-                    raise ValueError(f"Fact {old_fact_id} not found")
+            if not old_row:
+                raise ValueError(f"Fact {old_fact_id} not found")
 
-                # Create new fact (inheriting properties from old)
-                new_fact_id = uuid4()
-                await conn.execute(
-                    """
+            # Create new fact (inheriting properties from old)
+            new_fact_id = uuid4()
+            await conn.execute(
+                """
                     INSERT INTO semantic_facts (
                         fact_id, tenant_id, org_id, user_id, agent_id,
                         fact_text, triplet, importance, tags, tier,
@@ -2351,29 +2353,29 @@ class SubstrateRepository:
                     FROM semantic_facts
                     WHERE fact_id = $4
                     """,
-                    new_fact_id,
-                    new_fact_text,
-                    now,
-                    old_fact_id,
-                )
+                new_fact_id,
+                new_fact_text,
+                now,
+                old_fact_id,
+            )
 
-                # Mark old fact as superseded
-                await conn.execute(
-                    """
+            # Mark old fact as superseded
+            await conn.execute(
+                """
                     UPDATE semantic_facts
                     SET valid_to = $1, superseded_by = $2
                     WHERE fact_id = $3
                     """,
-                    now,
-                    new_fact_id,
-                    old_fact_id,
-                )
+                now,
+                new_fact_id,
+                old_fact_id,
+            )
 
-                logger.info(
-                    f"Fact {old_fact_id} superseded by {new_fact_id}",
-                    reason=reason,
-                )
-                return new_fact_id
+            logger.info(
+                f"Fact {old_fact_id} superseded by {new_fact_id}",
+                reason=reason,
+            )
+            return new_fact_id
 
     # =========================================================================
     # Health Check
@@ -2399,7 +2401,7 @@ class SubstrateRepository:
 
 
 # Singleton instance
-_repository: Optional[SubstrateRepository] = None
+_repository: SubstrateRepository | None = None
 
 
 @register_singleton(
@@ -2414,7 +2416,7 @@ def get_repository() -> SubstrateRepository:
     return _repository
 
 
-def get_substrate_repository(database_url: Optional[str] = None) -> SubstrateRepository:
+def get_substrate_repository(database_url: str | None = None) -> SubstrateRepository:
     """
     Get or create a SubstrateRepository instance.
 
