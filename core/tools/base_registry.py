@@ -50,16 +50,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import structlog
 from collections import defaultdict
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, List, Optional
 
-import structlog
 from pydantic import BaseModel, Field
-
-from core.singleton_auto_registry import (register_singleton,
-                                          register_singleton_closer)
+from core.singleton_auto_registry import register_singleton
 from runtime.tool_registry import register_tool
 
 logger = structlog.get_logger(__name__)
@@ -435,9 +433,11 @@ def get_tool_registry() -> ToolRegistry:
 
 def _initialize_default_tools(registry: ToolRegistry) -> None:
     """Initialize default tools in registry with schemas."""
-    from services.research.tools.tool_wrappers import (HTTPTool,
-                                                       MockSearchTool,
-                                                       PerplexityTool)
+    from services.research.tools.tool_wrappers import (
+        PerplexityTool,
+        HTTPTool,
+        MockSearchTool,
+    )
 
     # Perplexity Search
     perplexity_meta = ToolMetadata(
@@ -582,12 +582,9 @@ async def ask_l(query: str) -> dict:
         Dictionary with execution results: task_ids, status, message
     """
     import structlog
-
-from uuid import uuid4
-
-from core.agents.executor import _generate_tasks_from_query
-from runtime.task_queue import QueuedTask, dispatch_task_immediate
-from runtime.tool_registry import register_tool
+    from core.agents.executor import _generate_tasks_from_query
+    from runtime.task_queue import dispatch_task_immediate, QueuedTask
+    from uuid import uuid4
 
     logger = structlog.get_logger(__name__)
 
@@ -655,9 +652,7 @@ async def get_l_memory_state() -> dict:
         Dictionary with memory state: governance_rules, project_history, recent_tasks
     """
     import structlog
-
-from memory.substrate_service import get_service
-from runtime.tool_registry import register_tool
+    from memory.substrate_service import get_service
 
     logger = structlog.get_logger(__name__)
 
@@ -732,9 +727,7 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
         List of task result dicts with task_id, status, duration_ms, error, etc.
     """
     import structlog
-
-from memory.substrate_service import get_service
-from runtime.tool_registry import register_tool
+    from memory.substrate_service import get_service
 
     logger = structlog.get_logger(__name__)
 
@@ -783,7 +776,6 @@ from runtime.tool_registry import register_tool
 
 
 @register_tool(category="routing", priority=10, description="tool_router_find tool")
-@register_tool(category="routing", priority=10, description="tool_router_find tool")
 async def tool_router_find(
     query: str,
     top_k: int = 5,
@@ -811,8 +803,6 @@ async def tool_router_find(
         - count: Number of tools found
     """
     import structlog
-
-from runtime.tool_registry import register_tool
 
     logger = structlog.get_logger(__name__)
 
@@ -881,7 +871,6 @@ from runtime.tool_registry import register_tool
 
 
 @register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
-@register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
 async def saga_fetch_and_enrich(
     query: str,
     entity_types: Optional[List[str]] = None,
@@ -907,8 +896,6 @@ async def saga_fetch_and_enrich(
         Dict with combined results from both databases
     """
     import structlog
-
-from runtime.tool_registry import register_tool
 
     logger = structlog.get_logger(__name__)
 
@@ -1017,7 +1004,6 @@ from runtime.tool_registry import register_tool
 
 
 @register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
-@register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
 async def saga_enrich_entities(
     entity_ids: List[str],
     relationship_types: Optional[List[str]] = None,
@@ -1042,8 +1028,6 @@ async def saga_enrich_entities(
         Dict with enriched entity data including relationships
     """
     import structlog
-
-from runtime.tool_registry import register_tool
 
     logger = structlog.get_logger(__name__)
 
@@ -1121,8 +1105,9 @@ from runtime.tool_registry import register_tool
         }
 
 
-@register_tool(category="saga", priority=10, description="saga_timeline_correlation tool")
-@register_tool(category="saga", priority=10, description="saga_timeline_correlation tool")
+@register_tool(
+    category="saga", priority=10, description="saga_timeline_correlation tool"
+)
 async def saga_timeline_correlation(
     start_entity_id: str,
     time_range_hours: int = 24,
@@ -1147,10 +1132,7 @@ async def saga_timeline_correlation(
         Dict with timeline events and causal relationships
     """
     import structlog
-
-from datetime import datetime, timedelta
-
-from runtime.tool_registry import register_tool
+    from datetime import datetime, timedelta
 
     logger = structlog.get_logger(__name__)
 
@@ -1263,7 +1245,6 @@ from runtime.tool_registry import register_tool
 
 
 @register_tool(category="saga", priority=10, description="saga_execute_custom tool")
-@register_tool(category="saga", priority=10, description="saga_execute_custom tool")
 async def saga_execute_custom(
     steps: List[dict],
 ) -> dict:
@@ -1287,10 +1268,7 @@ async def saga_execute_custom(
         Dict with results from each step
     """
     import structlog
-
-import re
-
-from runtime.tool_registry import register_tool
+    import re
 
     logger = structlog.get_logger(__name__)
 

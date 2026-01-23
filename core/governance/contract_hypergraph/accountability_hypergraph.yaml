@@ -1,0 +1,155 @@
+# ============================================================================
+# ACCOUNTABILITY HYPERGRAPH SCHEMA (L9 Canonical)
+# ============================================================================
+# Source: EOS.md — Extended from Contract Hypergraph
+# Purpose: Central nervous system for governed computation
+# Version: 1.0.0
+# Authority: L=CTO
+# ============================================================================
+
+metadata:
+  name: accountability_hypergraph
+  version: "1.0.0"
+  description: |
+    Extended hypergraph that models permission, causality, liability, 
+    and blast radius in one structure. Supersedes contract_hypergraph.
+
+# -----------------------------------------------------------------------------
+# NODE TYPES (Authoritative)
+# -----------------------------------------------------------------------------
+node_types:
+  epistemic_object:
+    subtypes: [fact, belief, rule, invariant, contract, prohibition]
+    description: "First-class knowledge primitives with enforceability"
+
+  action:
+    subtypes: [tool_call, code_diff, deploy, db_write, gmp_run, memory_write]
+    description: "Any operation that changes state"
+
+  agent:
+    attributes: [authority_tier, health_state, signing_key]
+    description: "Entity that can perform actions"
+
+  capability:
+    attributes: [scope, risk_class]
+    description: "Permission to perform action types"
+
+  authority:
+    subtypes: [human_root, ai_governor, quorum]
+    description: "Source of permission/approval"
+
+  evidence:
+    subtypes: [test_result, simulation, benchmark, incident, audit_report]
+    description: "Proof artifacts supporting decisions"
+
+  verdict:
+    subtypes: [allow, deny, conditional, rollback]
+    description: "Decision output from accountability engine"
+
+  risk:
+    attributes: [blast_radius, environment]
+    description: "Impact classification"
+
+  state:
+    subtypes: [HEALTHY, DEGRADED, BLOCKED, DRY_RUN_ONLY]
+    description: "Runtime health states"
+
+  ledger_entry:
+    attributes: [hash, signer, timestamp]
+    description: "Immutable audit record"
+
+  obligation:
+    subtypes: [must_log, must_simulate, must_provide_rollback]
+    description: "Required actions before/after execution"
+
+  interface:
+    attributes: [promised_surface, actual_surface]
+    description: "Module API contracts"
+
+  trust_signal:
+    attributes: [reputation_score, violation_rate, anomaly_score]
+    description: "Agent/provider reliability metrics"
+
+  external_dependency:
+    subtypes: [vendor_api, mcp_server, credentials]
+    description: "External system bindings"
+
+# -----------------------------------------------------------------------------
+# HYPEREDGES (Many-to-Many Constraints)
+# -----------------------------------------------------------------------------
+hyperedges:
+  # Permission edges
+  - edge: REQUIRES
+    from: action
+    to: [capability, authority, evidence, ledger_entry]
+    description: "Action requires all of these to execute"
+
+  # Violation edges
+  - edge: VIOLATES
+    from: action
+    to: [rule, invariant, prohibition]
+    description: "Action breaks constraint"
+
+  # Authorization edges
+  - edge: ISSUED_BY
+    from: verdict
+    to: [authority, quorum]
+    description: "Verdict came from this authority"
+
+  # Evidence edges
+  - edge: SUPPORTS
+    from: evidence
+    to: [verdict, contract]
+    description: "Evidence backs this decision/contract"
+
+  # Causality edges
+  - edge: CAUSES
+    from: action
+    to: [state_transition]
+    description: "Action led to state change"
+
+  # Governance edges
+  - edge: GOVERNS
+    from: contract
+    to: [agent, capability, action]
+    description: "Contract applies to these entities"
+
+  # Attestation edges
+  - edge: ATTESTS
+    from: ledger_entry
+    to: [action, verdict]
+    description: "Ledger proves this happened"
+
+  # Impact edges
+  - edge: IMPACTS
+    from: change_diff
+    to: [tests, services, schemas, downstream_modules]
+    description: "Change affects these components"
+
+  # Trust edges
+  - edge: DELEGATES_TO
+    from: authority
+    to: [agent, quorum]
+    description: "Authority delegation chain"
+
+# -----------------------------------------------------------------------------
+# ENFORCEMENT RULES
+# -----------------------------------------------------------------------------
+enforcement:
+  # No action without accountability proof
+  rule_1:
+    name: no_unattested_actions
+    constraint: "Every action.risk_class >= medium MUST have ledger_entry"
+    enforcement: hard
+
+  # No verdict without evidence
+  rule_2:
+    name: no_unsupported_verdicts
+    constraint: "Every verdict.decision != deny MUST have evidence_refs"
+    enforcement: hard
+
+  # Causality must be traceable
+  rule_3:
+    name: causal_chain_required
+    constraint: "Every state_transition MUST have CAUSES edge to action"
+    enforcement: soft

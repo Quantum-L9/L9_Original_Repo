@@ -50,7 +50,7 @@ _research_agent = None
 
 
 def _get_research_agent():
-    """Lazy-load ResearchAgent singleton."""
+    """Load ResearchAgent singleton on first access."""
     global _research_agent
     if _research_agent is None:
         try:

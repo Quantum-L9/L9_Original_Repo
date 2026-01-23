@@ -1,0 +1,80 @@
+# ============================================================================
+# EOS CORE SCHEMAS (L9 Canonical)
+# ============================================================================
+# Source: EOS.md (Epistemic Operating System - Accountability-First)
+# Version: 1.0.0
+# Authority: L=CTO
+# ============================================================================
+
+# -----------------------------------------------------------------------------
+# EPISTEMIC OBJECT — First-class knowledge primitive
+# -----------------------------------------------------------------------------
+EpistemicObject:
+  id: string
+  type: fact | belief | rule | invariant | contract | prohibition
+  content: string
+  embeddings:
+    semantic: vector
+    structural: vector
+    normative: vector
+  enforceability: hard | soft | advisory
+  authority_id: string
+  tags: set[string]
+  provenance:
+    ledger_ref: hash
+    created_at: datetime
+    created_by: agent_id
+
+# -----------------------------------------------------------------------------
+# EXECUTABLE DOCTRINE — Research/spec turned into enforceable law
+# -----------------------------------------------------------------------------
+ExecutableDoctrine:
+  id: string
+  source: research | spec | law
+  claims: list[string]
+  assumptions: list[string]
+  invariants: list[string]
+  allowed_actions: list[string]
+  forbidden_actions: list[string]
+  enforcement_level: hard | soft
+  authority_required: IGOR | L
+
+# -----------------------------------------------------------------------------
+# ACTION ENVELOPE — Required wrapper for any action
+# -----------------------------------------------------------------------------
+ActionEnvelope:
+  action_id: uuid
+  agent_id: string
+  action_type: tool_call | code_diff | deploy | db_write | gmp_run | memory_write
+  payload_ref: uri
+  claimed_authority: authority_id
+  required_capabilities: list[capability_id]
+  environment: dev | staging | prod
+  risk_class: low | medium | high
+  evidence_refs: list[evidence_id]
+  simulation_ref: optional[simulation_id]
+  signature: base64
+  signing_key_id: string
+  created_at: datetime
+
+# -----------------------------------------------------------------------------
+# VERDICT — Decision output from Accountability Engine
+# -----------------------------------------------------------------------------
+Verdict:
+  verdict_id: uuid
+  action_id: uuid
+  decision: allow | deny | conditional
+  conditions: list[condition]
+  issuing_authority: authority_id | quorum_id
+  justification_refs: list[evidence_id]
+  ledger_ref: hash
+  created_at: datetime
+
+# -----------------------------------------------------------------------------
+# CONDITION — Requirement for conditional verdict
+# -----------------------------------------------------------------------------
+Condition:
+  type: evidence_required | simulation_required | authority_required | timeout
+  description: string
+  deadline: optional[datetime]
+  satisfied: boolean

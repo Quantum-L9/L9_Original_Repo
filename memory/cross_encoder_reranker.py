@@ -172,7 +172,7 @@ class CrossEncoderReranker:
 
     def _load_model(self) -> bool:
         """
-        Lazy-load the cross-encoder model.
+        Load the cross-encoder model on first access.
 
         Returns:
             True if model loaded successfully
