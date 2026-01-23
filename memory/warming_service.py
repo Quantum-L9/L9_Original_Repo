@@ -47,15 +47,11 @@ from typing import Any, Optional
 
 import structlog
 
-# Use harvested models
-from memory.warming_models import (
-    MemoryContext,
-    PredictiveCacheConfig,
-)
-
 # Import L9 components
 from memory.gap_detector import GapDetector
 from memory.predictive_cache import PredictiveCache
+# Use harvested models
+from memory.warming_models import MemoryContext, PredictiveCacheConfig
 
 logger = structlog.get_logger(__name__)
 

@@ -44,17 +44,9 @@ __dora_meta__ = {
 import importlib
 import inspect
 import pkgutil
+from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
+
 import structlog
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    TypeVar,
-    Union,
-)
 
 logger = structlog.get_logger(__name__)
 

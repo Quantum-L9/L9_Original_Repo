@@ -27,12 +27,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Protocol, List, Dict, Any, Optional
+from enum import Enum
+from typing import Any, Dict, List, Optional, Protocol
+
 import structlog
 from pydantic import BaseModel, Field
-from enum import Enum
-from core.decorators import must_stay_async
 
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 

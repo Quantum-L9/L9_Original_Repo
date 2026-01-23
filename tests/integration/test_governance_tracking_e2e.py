@@ -11,17 +11,17 @@ Tests the complete flow:
 Version: 1.0.0
 """
 
-import pytest
 from uuid import uuid4
 
-from core.agents.schemas import AgentTask, AgentConfig, AgentType, ExecutionResult
+import pytest
+
 from core.agents.agent_instance import AgentInstance
-from core.agents.selfreflection import (
-    TaskExecutionContext,
-    analyze_task_execution,
-    GovernanceBlockPattern,
-    UserCorrectionPattern,
-)
+from core.agents.schemas import (AgentConfig, AgentTask, AgentType,
+                                 ExecutionResult)
+from core.agents.selfreflection import (GovernanceBlockPattern,
+                                        TaskExecutionContext,
+                                        UserCorrectionPattern,
+                                        analyze_task_execution)
 
 # =============================================================================
 # Fixtures

@@ -36,9 +36,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from typing import Any, Optional
 
+import structlog
 from openai import AsyncOpenAI
 
 from collaborative_cells.base_cell import BaseCell, CellConfig
@@ -168,9 +168,9 @@ class ArchitectCell(BaseCell):
 
         prompt = ARCHITECT_A_PROMPT.format(
             task=json.dumps(task, indent=2),
-            critique=json.dumps(previous_critique, indent=2)
-            if previous_critique
-            else "None",
+            critique=(
+                json.dumps(previous_critique, indent=2) if previous_critique else "None"
+            ),
             context=json.dumps(context, indent=2),
         )
 

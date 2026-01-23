@@ -41,12 +41,8 @@ class TestPacketEnvelope:
 
     def test_create_packet_with_all_fields(self):
         """Test creating a packet with all fields."""
-        from core.schemas import (
-            PacketConfidence,
-            PacketEnvelope,
-            PacketMetadata,
-            PacketProvenance,
-        )
+        from core.schemas import (PacketConfidence, PacketEnvelope,
+                                  PacketMetadata, PacketProvenance)
 
         packet_id = uuid4()
         parent_id = uuid4()
@@ -142,7 +138,7 @@ class TestSemanticSearchModels:
 
     def test_search_result(self):
         """Test SemanticSearchResult model."""
-        from memory.substrate_models import SemanticSearchResult, SemanticHit
+        from memory.substrate_models import SemanticHit, SemanticSearchResult
 
         result = SemanticSearchResult(
             query="test query",
@@ -455,9 +451,10 @@ class TestSubstrateDAGDBIntegration:
     @pytest.mark.integration
     async def test_dag_with_db_writes_packet(self, repository):
         """Test DAG writes packet to real database."""
+        import uuid
+
         from core.schemas import PacketEnvelope
         from memory.substrate_dag import SubstrateDAG
-        import uuid
 
         # Create unique packet
         test_id = str(uuid.uuid4())

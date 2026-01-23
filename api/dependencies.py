@@ -38,9 +38,8 @@ __dora_meta__ = {
 
 from typing import Any, Optional
 
-from fastapi import Request, HTTPException
-
 import structlog
+from fastapi import HTTPException, Request
 
 # Re-export verify_api_key for convenience
 from api.auth import verify_api_key

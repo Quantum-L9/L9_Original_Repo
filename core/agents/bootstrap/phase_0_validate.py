@@ -28,8 +28,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Tuple, TYPE_CHECKING
 from pathlib import Path
+from typing import TYPE_CHECKING, Tuple
 
 import structlog
 

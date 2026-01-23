@@ -43,21 +43,17 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from uuid import uuid5, NAMESPACE_DNS
+from uuid import NAMESPACE_DNS, uuid5
 
 import structlog
 from pydantic import BaseModel, Field
-from core.decorators import must_stay_async
 
 # MCP Memory integration
 from clients.memory_client import get_memory_client
-
-from workers.violation_patterns import (
-    ViolationPatterns,
-    ViolationPatternsRequest,
-    ViolationMatch,
-    ViolationSeverity,
-)
+from core.decorators import must_stay_async
+from workers.violation_patterns import (ViolationMatch, ViolationPatterns,
+                                        ViolationPatternsRequest,
+                                        ViolationSeverity)
 
 logger = structlog.get_logger(__name__)
 

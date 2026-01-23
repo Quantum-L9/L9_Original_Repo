@@ -44,12 +44,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Callable, Dict, Optional
 
-from core.schemas.ws_event_stream import EventMessage, EventType
-from core.schemas.tasks import AgentTask, TaskEnvelope, TaskKind
+import structlog
+
 from core.decorators import must_stay_async
+from core.schemas.tasks import AgentTask, TaskEnvelope, TaskKind
+from core.schemas.ws_event_stream import EventMessage, EventType
 
 logger = structlog.get_logger(__name__)
 
@@ -361,7 +362,7 @@ class WSTaskRouter:
 
 # Try to import LangGraph
 try:
-    from langgraph.graph import StateGraph, START, END
+    from langgraph.graph import END, START, StateGraph
 
     LANGGRAPH_AVAILABLE = True
 except ImportError:
@@ -370,7 +371,7 @@ except ImportError:
         "LangGraph not installed. LangGraphRouter will use fallback routing."
     )
 
-from typing import Any, TypedDict, List
+from typing import Any, List, TypedDict
 
 
 class RouterState(TypedDict):
@@ -514,9 +515,11 @@ class LangGraphRouter:
                 # Enrich with world model context
                 task_dict = {
                     "task_id": str(task_envelope.task_id),
-                    "task": task_envelope.task.model_dump()
-                    if hasattr(task_envelope.task, "model_dump")
-                    else {},
+                    "task": (
+                        task_envelope.task.model_dump()
+                        if hasattr(task_envelope.task, "model_dump")
+                        else {}
+                    ),
                     "kind": task_envelope.kind,
                     "priority": task_envelope.priority,
                     "world_context": world_context,
@@ -565,9 +568,11 @@ class LangGraphRouter:
                     "event_type": event.event_type.value,
                     "session_id": event.session_id,
                     "payload": event.payload,
-                    "timestamp": event.timestamp.isoformat()
-                    if hasattr(event, "timestamp")
-                    else None,
+                    "timestamp": (
+                        event.timestamp.isoformat()
+                        if hasattr(event, "timestamp")
+                        else None
+                    ),
                 },
                 "event_type": event.event_type.value,
                 "context": context,

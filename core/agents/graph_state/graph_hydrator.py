@@ -36,8 +36,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Optional
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Optional
 
 import structlog
 
@@ -45,11 +45,9 @@ from .agent_graph_loader import AgentGraphLoader
 
 # Import kernel prompt builder for system prompt generation
 try:
-    from core.kernels.prompt_builder import (
-        build_system_prompt_from_kernels,
-        get_kernel_stack,
-        get_fallback_prompt,
-    )
+    from core.kernels.prompt_builder import (build_system_prompt_from_kernels,
+                                             get_fallback_prompt,
+                                             get_kernel_stack)
 
     _HAS_KERNEL_PROMPT_BUILDER = True
 except ImportError:
@@ -57,6 +55,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
+
     from core.kernels.kernel_loader import KernelStack
 
 logger = structlog.get_logger(__name__)

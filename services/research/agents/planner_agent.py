@@ -26,8 +26,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any
+
+import structlog
 
 from services.research.agents.base_agent import BaseAgent
 from services.research.graph_state import ResearchStep

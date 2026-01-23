@@ -6,8 +6,8 @@ This conftest.py at the project root ensures PYTHONPATH is set correctly
 before any test imports happen.
 """
 
-import sys
 import os
+import sys
 import warnings
 from pathlib import Path
 
@@ -55,8 +55,8 @@ except ImportError:
 # Pre-import runtime.kernel_state and runtime.execution_gate for pytest
 # (fixes ModuleNotFoundError in kernel runtime tests)
 try:
-    import runtime.kernel_state  # noqa: F401
     import runtime.execution_gate  # noqa: F401
+    import runtime.kernel_state  # noqa: F401
 except ImportError:
     pass  # Will be handled as test failure where needed
 

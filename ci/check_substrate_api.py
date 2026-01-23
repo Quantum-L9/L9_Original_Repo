@@ -35,9 +35,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
-import re
 import argparse
+import re
+import sys
 from pathlib import Path
 from typing import List, Tuple
 
@@ -86,9 +86,9 @@ class LintResult:
 
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.errors: List[
-            Tuple[int, str, str, str]
-        ] = []  # (line_num, pattern, message, correct)
+        self.errors: List[Tuple[int, str, str, str]] = (
+            []
+        )  # (line_num, pattern, message, correct)
 
     def add_error(self, line_num: int, pattern: str, message: str, correct: str):
         self.errors.append((line_num, pattern, message, correct))

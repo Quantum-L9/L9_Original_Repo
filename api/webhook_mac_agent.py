@@ -27,17 +27,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import List, Optional
+
 import structlog
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import Optional, List
 
-from orchestrators.agent_execution.task_queue import (
-    get_next_task,
-    mark_task_completed,
-    complete_task,  # Legacy API for backward compatibility
-    list_tasks,
-)
+from orchestrators.agent_execution.task_queue import \
+    complete_task  # Legacy API for backward compatibility
+from orchestrators.agent_execution.task_queue import (get_next_task,
+                                                      list_tasks,
+                                                      mark_task_completed)
 
 logger = structlog.get_logger(__name__)
 
@@ -119,8 +119,8 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
 
     # Ingest task result to memory (audit trail)
     try:
-        from memory.ingestion import ingest_packet
         from core.schemas import PacketEnvelopeIn
+        from memory.ingestion import ingest_packet
 
         # Get task source/user from legacy system if available, otherwise use defaults
         source = task.source if task else "unknown"
@@ -132,9 +132,9 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
             payload={
                 "task_id": task_id,
                 "status": payload.status,
-                "result": payload.result[:2000]
-                if payload.result
-                else None,  # Truncate large results
+                "result": (
+                    payload.result[:2000] if payload.result else None
+                ),  # Truncate large results
                 "has_screenshot": bool(payload.screenshot_path),
                 "log_count": len(payload.logs) if payload.logs else 0,
                 "source": source,
@@ -150,8 +150,10 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
     channel = task.channel if task else None
     if channel:
         try:
-            import httpx
             import os
+
+            import httpx
+
             from api.slack_client import SlackAPIClient
 
             # Create async client for this call

@@ -48,45 +48,35 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
-import json
-import time
 import argparse
-from pathlib import Path
-from dataclasses import dataclass, field, asdict
-from typing import Dict, List, Optional, Any
-from enum import Enum
+import json
+import sys
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import asdict, dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import structlog
 
 # Import audit components
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent / "tier1"))
-from audit_shared_core import Reporter, GMPIntegration, ObservabilityHooks
-
+from audit_capability_inventory import (EXCLUDED_METHODS, assess_capability,
+                                        get_async_methods, get_exposed_tools)
 # Import tier1 audit modules
 # Use CacheManager from audit_code_integrity (has result caching)
-from audit_code_integrity import (
-    find_python_files,
-    analyze_file_for_uncalled,
-    analyze_file_for_orphans,
-    detect_circular_imports,
-    CacheManager,  # Has load_results/save_results for full caching
-)
-from audit_capability_inventory import (
-    get_exposed_tools,
-    get_async_methods,
-    assess_capability,
-    EXCLUDED_METHODS,
-)
-from audit_infrastructure_health import (
-    TCPHealthProbe,
-    HTTPHealthProbe,
-    PythonModuleHealthProbe,
-    validate_config,
-    verify_dependency_dag,
-    SERVICES,
-)
+from audit_code_integrity import \
+    CacheManager  # Has load_results/save_results for full caching
+from audit_code_integrity import (analyze_file_for_orphans,
+                                  analyze_file_for_uncalled,
+                                  detect_circular_imports, find_python_files)
+from audit_infrastructure_health import (SERVICES, HTTPHealthProbe,
+                                         PythonModuleHealthProbe,
+                                         TCPHealthProbe, validate_config,
+                                         verify_dependency_dag)
+from audit_shared_core import GMPIntegration, ObservabilityHooks, Reporter
 
 logger = structlog.get_logger(__name__)
 
@@ -565,11 +555,13 @@ class AuditOrchestrator:
           Phase 4: generate_gmp_todos.auto_fix_dead_code() - Auto-fix + GMP report
         """
         try:
-            from find_dead_code import run_dead_code_audit as find_dead_code_baseline
-            from resolve_dead_code_refs import resolve_dead_code_refs
-            from categorize_dead_code import categorize_dead_code
-            from generate_gmp_todos import auto_fix_dead_code
             from datetime import datetime
+
+            from categorize_dead_code import categorize_dead_code
+            from find_dead_code import \
+                run_dead_code_audit as find_dead_code_baseline
+            from generate_gmp_todos import auto_fix_dead_code
+            from resolve_dead_code_refs import resolve_dead_code_refs
 
             # Phase 1: Baseline static analysis
             logger.info("Dead Code Phase 1: Baseline analysis...")

@@ -266,7 +266,9 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         # Force an exception in the schemas import (now at core.schemas)
-        with patch("memory.tool_audit.PacketEnvelopeIn", side_effect=Exception("Model error")):
+        with patch(
+            "memory.tool_audit.PacketEnvelopeIn", side_effect=Exception("Model error")
+        ):
             # Should not raise - errors are caught
             await log_tool_invocation(
                 call_id=call_id,
@@ -368,8 +370,8 @@ class TestIngestAuditPacket:
     @pytest.mark.asyncio
     async def test_ingest_audit_packet_success(self):
         """Contract: Successful ingestion completes silently."""
-        from memory.tool_audit import _ingest_audit_packet
         from core.schemas import PacketEnvelopeIn
+        from memory.tool_audit import _ingest_audit_packet
 
         # PacketEnvelopeIn expects dicts, not objects
         packet = PacketEnvelopeIn(
@@ -386,7 +388,9 @@ class TestIngestAuditPacket:
         mock_result.status = "ok"
 
         # Mock at the import source since it's imported inside the function
-        with patch("memory.ingestion.ingest_packet", new_callable=AsyncMock) as mock_ingest:
+        with patch(
+            "memory.ingestion.ingest_packet", new_callable=AsyncMock
+        ) as mock_ingest:
             mock_ingest.return_value = mock_result
             await _ingest_audit_packet(packet)
             mock_ingest.assert_called_once()
@@ -394,8 +398,8 @@ class TestIngestAuditPacket:
     @pytest.mark.asyncio
     async def test_ingest_audit_packet_handles_error(self):
         """Contract: Ingestion errors are logged but don't raise."""
-        from memory.tool_audit import _ingest_audit_packet
         from core.schemas import PacketEnvelopeIn
+        from memory.tool_audit import _ingest_audit_packet
 
         # PacketEnvelopeIn expects dicts, not objects
         packet = PacketEnvelopeIn(
@@ -409,7 +413,9 @@ class TestIngestAuditPacket:
         )
 
         # Mock at the import source since it's imported inside the function
-        with patch("memory.ingestion.ingest_packet", new_callable=AsyncMock) as mock_ingest:
+        with patch(
+            "memory.ingestion.ingest_packet", new_callable=AsyncMock
+        ) as mock_ingest:
             mock_ingest.side_effect = Exception("Database connection failed")
             # Should not raise
             await _ingest_audit_packet(packet)
@@ -417,8 +423,8 @@ class TestIngestAuditPacket:
     @pytest.mark.asyncio
     async def test_ingest_audit_packet_logs_partial_failure(self):
         """Contract: Partial ingestion status is logged."""
-        from memory.tool_audit import _ingest_audit_packet
         from core.schemas import PacketEnvelopeIn
+        from memory.tool_audit import _ingest_audit_packet
 
         # PacketEnvelopeIn expects dicts, not objects
         packet = PacketEnvelopeIn(
@@ -436,7 +442,9 @@ class TestIngestAuditPacket:
         mock_result.error_message = "Neo4j unavailable"
 
         # Mock at the import source since it's imported inside the function
-        with patch("memory.ingestion.ingest_packet", new_callable=AsyncMock) as mock_ingest:
+        with patch(
+            "memory.ingestion.ingest_packet", new_callable=AsyncMock
+        ) as mock_ingest:
             mock_ingest.return_value = mock_result
             await _ingest_audit_packet(packet)
 

@@ -48,22 +48,18 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from datetime import datetime
 from typing import Any, Optional, TypedDict
 from uuid import UUID, uuid4
 
-from langgraph.graph import StateGraph, END
+import structlog
 from langchain_core.runnables import RunnableConfig
+from langgraph.graph import END, StateGraph
 
-from core.schemas import PacketEnvelope, PacketWriteResult
 from core.decorators import must_stay_async
-from memory.substrate_models import (
-    EnrichmentResult,
-    ExtractedInsight,
-    KnowledgeFact,
-    StructuredReasoningBlock,
-)
+from core.schemas import PacketEnvelope, PacketWriteResult
+from memory.substrate_models import (EnrichmentResult, ExtractedInsight,
+                                     KnowledgeFact, StructuredReasoningBlock)
 
 logger = structlog.get_logger(__name__)
 

@@ -12,8 +12,9 @@ Version: 1.0.0
 Created: 2026-01-05
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 # =============================================================================
 # Test Schema Constants
@@ -22,19 +23,13 @@ from unittest.mock import AsyncMock, MagicMock
 
 def test_schema_constants():
     """Test that schema constants are defined correctly."""
-    from core.agents.graph_state.schema import (
-        AGENT_LABEL,
-        RESPONSIBILITY_LABEL,
-        DIRECTIVE_LABEL,
-        SOP_LABEL,
-        TOOL_LABEL,
-        HAS_RESPONSIBILITY,
-        HAS_DIRECTIVE,
-        HAS_SOP,
-        CAN_EXECUTE,
-        REPORTS_TO,
-        COLLABORATES_WITH,
-    )
+    from core.agents.graph_state.schema import (AGENT_LABEL, CAN_EXECUTE,
+                                                COLLABORATES_WITH,
+                                                DIRECTIVE_LABEL, HAS_DIRECTIVE,
+                                                HAS_RESPONSIBILITY, HAS_SOP,
+                                                REPORTS_TO,
+                                                RESPONSIBILITY_LABEL,
+                                                SOP_LABEL, TOOL_LABEL)
 
     assert AGENT_LABEL == "Agent"
     assert RESPONSIBILITY_LABEL == "Responsibility"
@@ -148,11 +143,7 @@ def test_l_tools():
 def test_agent_graph_state():
     """Test AgentGraphState dataclass."""
     from core.agents.graph_state.agent_graph_loader import (
-        AgentGraphState,
-        AgentResponsibility,
-        AgentDirective,
-        AgentTool,
-    )
+        AgentDirective, AgentGraphState, AgentResponsibility, AgentTool)
 
     state = AgentGraphState(
         agent_id="L",
@@ -269,11 +260,9 @@ def test_hydrated_agent_context():
 @pytest.mark.asyncio
 async def test_graph_hydrator_tool_approval_check():
     """Test GraphHydrator.check_tool_approval()."""
+    from core.agents.graph_state.agent_graph_loader import (AgentGraphState,
+                                                            AgentTool)
     from core.agents.graph_state.graph_hydrator import GraphHydrator
-    from core.agents.graph_state.agent_graph_loader import (
-        AgentGraphState,
-        AgentTool,
-    )
 
     # Mock the loader
     mock_driver = MagicMock()
@@ -315,12 +304,8 @@ async def test_graph_hydrator_tool_approval_check():
 
 def test_package_exports():
     """Test that __init__.py exports expected symbols."""
-    from core.agents.graph_state import (
-        AgentGraphLoader,
-        GraphHydrator,
-        bootstrap_l_graph,
-        AGENT_LABEL,
-    )
+    from core.agents.graph_state import (AGENT_LABEL, AgentGraphLoader,
+                                         GraphHydrator, bootstrap_l_graph)
 
     assert AgentGraphLoader is not None
     assert GraphHydrator is not None

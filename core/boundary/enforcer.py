@@ -53,10 +53,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

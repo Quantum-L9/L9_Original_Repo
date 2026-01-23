@@ -29,16 +29,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Optional, Any, Set
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Set
 
-from world_model.interfaces import (
-    IWorldModelRegistry,
-    EntityTypeSchema,
-    RelationTypeSchema,
-    Entity,
-    Relation,
-)
+from world_model.interfaces import (Entity, EntityTypeSchema,
+                                    IWorldModelRegistry, Relation,
+                                    RelationTypeSchema)
 
 
 @dataclass

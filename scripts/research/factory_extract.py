@@ -58,25 +58,19 @@ __dora_meta__ = {
 import argparse
 import asyncio
 import json
-import structlog
 import sys
 from pathlib import Path
+
+import structlog
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from services.research_factory import (
-    parse_schema,
-    validate_schema,
-    UniversalExtractor,
-    load_glue_config,
-)
-from core.security.path_safety import (
-    PathSafetyError,
-    resolve_base_dir,
-    safe_resolve_path,
-)
+from core.security.path_safety import (PathSafetyError, resolve_base_dir,
+                                       safe_resolve_path)
+from services.research_factory import (UniversalExtractor, load_glue_config,
+                                       parse_schema, validate_schema)
 
 logger = structlog.get_logger(__name__)
 

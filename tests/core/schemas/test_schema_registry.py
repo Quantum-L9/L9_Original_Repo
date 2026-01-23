@@ -17,17 +17,10 @@ from uuid import uuid4
 
 import pytest
 
-from core.schemas.schema_registry import (
-    SchemaRegistry,
-    read_packet,
-    read_packets,
-    write_packet,
-    detect_version,
-    upcast,
-)
-from core.schemas import (
-    PacketEnvelope,
-)
+from core.schemas import PacketEnvelope
+from core.schemas.schema_registry import (SchemaRegistry, detect_version,
+                                          read_packet, read_packets, upcast,
+                                          write_packet)
 
 
 class TestVersionDetection:

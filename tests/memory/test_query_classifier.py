@@ -51,7 +51,9 @@ class TestQueryClassifier:
 
         for query in queries:
             pattern = classifier.classify_query(query)
-            assert pattern == "reasoning_trace", f"Expected reasoning_trace for: {query}"
+            assert (
+                pattern == "reasoning_trace"
+            ), f"Expected reasoning_trace for: {query}"
 
     def test_classify_temporal(self):
         """Test temporal pattern classification."""

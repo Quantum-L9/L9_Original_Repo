@@ -30,8 +30,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Dict, Type
+
+import structlog
+
 from core.auto_registry import AutoRegistry
 
 logger = structlog.get_logger(__name__)

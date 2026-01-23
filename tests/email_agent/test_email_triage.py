@@ -8,10 +8,11 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -68,7 +69,9 @@ def test_priority_assignment():
                     mock_client.get_messages.return_value = []
 
                     # Try to call if available
-                    result = classify_priority("test@example.com", "Test subject", "Test body")
+                    result = classify_priority(
+                        "test@example.com", "Test subject", "Test body"
+                    )
                     assert isinstance(result, (str, dict))
         except (AttributeError, TypeError):
             # Function may not exist or have different signature

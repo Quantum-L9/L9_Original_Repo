@@ -55,12 +55,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+import structlog
 import yaml
 
 logger = structlog.get_logger(__name__)
@@ -185,7 +185,7 @@ class PolicyGenerator:
     ) -> str:
         """Generate DORA metadata header."""
         now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-        return f'''# ============================================================================
+        return f"""# ============================================================================
 # DORA META - AUTO-GENERATED
 # ============================================================================
 # component_name: "{component_name}"
@@ -199,14 +199,14 @@ class PolicyGenerator:
 # type: "{policy_type}"
 # status: "active"
 # ============================================================================
-'''
+"""
 
     def _generate_dora_footer(self, tags: List[str], keywords: List[str]) -> str:
         """Generate DORA metadata footer."""
         now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         tags_str = ", ".join(f'"{t}"' for t in tags)
         keywords_str = ", ".join(f'"{k}"' for k in keywords)
-        return f'''
+        return f"""
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================
@@ -214,7 +214,7 @@ class PolicyGenerator:
 # keywords: [{keywords_str}]
 # last_modified: "{now}"
 # ============================================================================
-'''
+"""
 
     # -------------------------------------------------------------------------
     # Simple Policy Templates
@@ -432,9 +432,11 @@ class PolicyGenerator:
                     self.generate_allow_policy(
                         id=f"allow-{scope}-scope",
                         name=f"Allow {scope.title()} Scope Access",
-                        subjects=allowed_subjects + ["*"]
-                        if "*" in allowed_subjects
-                        else allowed_subjects,
+                        subjects=(
+                            allowed_subjects + ["*"]
+                            if "*" in allowed_subjects
+                            else allowed_subjects
+                        ),
                         actions=["memory.read", "memory.write", "memory.delete"],
                         resources=[f"scope:{scope}"],
                         priority=100,

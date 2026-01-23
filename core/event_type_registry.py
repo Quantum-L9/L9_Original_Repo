@@ -33,10 +33,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Any, Dict, List, Optional, Set
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional, Set
+
+import structlog
 
 from core.auto_registry import AutoRegistry
 

@@ -37,8 +37,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
 import structlog
 
 if TYPE_CHECKING:
@@ -181,7 +181,6 @@ def guarded_execute(
     Raises:
         RuntimeError: If kernels not active or critical violation detected
     """
-    from runtime.kernel_state import KernelState
 
     # Step 1: Kernel activation check
     kernel_state: Optional[KernelState] = getattr(agent, "kernel_state", None)

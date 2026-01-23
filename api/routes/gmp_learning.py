@@ -41,16 +41,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
-import structlog
+from typing import Any, Dict, List, Optional
 
-from agents.cursor.gmp_meta_learning import (
-    GMPMetaLearningEngine,
-    AutonomyController,
-    GMPExecutionResult,
-)
+import structlog
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+
+from agents.cursor.gmp_meta_learning import (AutonomyController,
+                                             GMPExecutionResult,
+                                             GMPMetaLearningEngine)
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()

@@ -36,36 +36,29 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
 import base64
-import structlog
+import os
 import re
-from typing import Dict, Any, List, Optional
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
 from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from email.utils import parseaddr
+from typing import Any, Dict, List, Optional
+
+import structlog
 
 from email_agent.config import ensure_dirs
 
 try:
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
+
+    from email_agent.config import (ATTACHMENTS_DIR, GMAIL_ACCOUNT, SCOPES,
+                                    ensure_dirs, get_account_config)
     from email_agent.credentials import load_tokens
-    from email_agent.config import (
-        ATTACHMENTS_DIR,
-        SCOPES,
-        ensure_dirs,
-        get_account_config,
-        GMAIL_ACCOUNT,
-    )
-    from email_agent.parser import (
-        parse_headers,
-        parse_body,
-        parse_attachments,
-        html_to_text,
-    )
+    from email_agent.parser import (html_to_text, parse_attachments,
+                                    parse_body, parse_headers)
 
     GMAIL_AVAILABLE = True
 except ImportError:

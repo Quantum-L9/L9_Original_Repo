@@ -48,9 +48,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 import os
 from typing import Any, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -61,7 +62,8 @@ logger = structlog.get_logger(__name__)
 DEFAULT_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
 
 from core.decorators import must_stay_async
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+from core.singleton_auto_registry import (register_singleton,
+                                          register_singleton_closer)
 
 # Try to import Redis
 try:

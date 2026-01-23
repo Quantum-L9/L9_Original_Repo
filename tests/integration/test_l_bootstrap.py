@@ -13,13 +13,16 @@ End-to-end integration tests validating all L Hot Boot Load layers:
 Version: 1.0.0
 """
 
-import pytest
-import sys
 import os
+import sys
 from uuid import uuid4
 
+import pytest
+
 # Add project root to path
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
@@ -33,18 +36,18 @@ except ImportError:
     if memory_path not in sys.path:
         sys.path.insert(0, memory_path)
 
-from core.agents.executor import AgentExecutorService, _generate_tasks_from_query
-from core.agents.schemas import AgentTask, AgentType, AIOSResult, AIOSResultType
+from core.agents.executor import (AgentExecutorService,
+                                  _generate_tasks_from_query)
+from core.agents.schemas import (AgentTask, AgentType, AIOSResult,
+                                 AIOSResultType)
 from core.governance.approvals import ApprovalManager
-from core.tools.tool_graph import ToolGraph, ToolDefinition
-from orchestration.long_plan_graph import extract_tasks_from_plan
 from core.tools.base_registry import recall_task_history
-from tests.core.agents.test_executor import (
-    MockAIOSRuntime,
-    MockToolRegistry,
-    MockSubstrateService,
-    MockAgentRegistry,
-)
+from core.tools.tool_graph import ToolDefinition, ToolGraph
+from orchestration.long_plan_graph import extract_tasks_from_plan
+from tests.core.agents.test_executor import (MockAgentRegistry,
+                                             MockAIOSRuntime,
+                                             MockSubstrateService,
+                                             MockToolRegistry)
 
 # =============================================================================
 # Fixtures
@@ -148,7 +151,9 @@ def executor(
 
 
 @pytest.mark.asyncio
-async def test_tool_execution(executor: AgentExecutorService, mock_tool_registry: MockToolRegistry):
+async def test_tool_execution(
+    executor: AgentExecutorService, mock_tool_registry: MockToolRegistry
+):
     """
     Test 1: Execute 3+ non-destructive tools successfully.
 
@@ -163,8 +168,9 @@ async def test_tool_execution(executor: AgentExecutorService, mock_tool_registry
     )
 
     # Set up AIOS to return tool calls
-    from core.agents.schemas import ToolCallRequest
     from uuid import uuid4
+
+    from core.agents.schemas import ToolCallRequest
 
     tool_calls = [
         ToolCallRequest(
@@ -254,8 +260,9 @@ async def test_approval_gate_block(
     )
 
     # Set up AIOS to return gmp_run tool call
-    from core.agents.schemas import ToolCallRequest
     from uuid import uuid4
+
+    from core.agents.schemas import ToolCallRequest
 
     tool_call = ToolCallRequest(
         call_id=uuid4(),
@@ -323,8 +330,9 @@ async def test_approval_gate_allow(
     )
 
     # Set up AIOS to return gmp_run tool call
-    from core.agents.schemas import ToolCallRequest
     from uuid import uuid4
+
+    from core.agents.schemas import ToolCallRequest
 
     tool_call = ToolCallRequest(
         call_id=uuid4(),
@@ -393,7 +401,9 @@ async def test_long_plan_execution(mock_substrate: MockSubstrateService):
                     {"task_id": f"gmp-{i}", "summary": {"gmp_preview": f"GMP {i}"}}
                     for i in range(3)
                 ],
-                "pending_git_commits": [{"message": f"Commit {i}", "files": []} for i in range(2)],
+                "pending_git_commits": [
+                    {"message": f"Commit {i}", "files": []} for i in range(2)
+                ],
             },
         )
     )
@@ -456,7 +466,9 @@ async def test_reactive_dispatch():
 
 
 @pytest.mark.asyncio
-async def test_memory_binding(executor: AgentExecutorService, mock_substrate: MockSubstrateService):
+async def test_memory_binding(
+    executor: AgentExecutorService, mock_substrate: MockSubstrateService
+):
     """
     Test 6: Task context loaded, result persisted, and queryable.
 

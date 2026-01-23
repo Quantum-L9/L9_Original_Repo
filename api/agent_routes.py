@@ -32,14 +32,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, List, Optional
-from fastapi import APIRouter, HTTPException, Request, Depends
+
+import structlog
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
 from core.decorators import must_stay_async
-
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
 
@@ -151,8 +151,9 @@ async def submit_task(
     Requires authentication via L9_EXECUTOR_API_KEY.
     """
     from uuid import uuid4
-    from memory.ingestion import ingest_packet
+
     from core.schemas import PacketEnvelopeIn
+    from memory.ingestion import ingest_packet
 
     task_id = str(uuid4())
     logger.info("Task submitted: %s (id=%s)", payload.get("type", "unknown"), task_id)

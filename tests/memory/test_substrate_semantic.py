@@ -72,7 +72,9 @@ class TestOpenAIEmbeddingProviderRetry:
         assert mock_client.embeddings.create.call_count == 1
 
     @pytest.mark.asyncio
-    async def test_embed_text_retry_then_success(self, provider, mock_embedding_response):
+    async def test_embed_text_retry_then_success(
+        self, provider, mock_embedding_response
+    ):
         """Test that transient failure triggers retry and succeeds."""
         mock_client = MagicMock()
         mock_client.embeddings = MagicMock()
@@ -97,7 +99,9 @@ class TestOpenAIEmbeddingProviderRetry:
         mock_client = MagicMock()
         mock_client.embeddings = MagicMock()
         # All calls fail
-        mock_client.embeddings.create = AsyncMock(side_effect=Exception("Persistent API error"))
+        mock_client.embeddings.create = AsyncMock(
+            side_effect=Exception("Persistent API error")
+        )
 
         with patch.object(provider, "_get_client", return_value=mock_client):
             with pytest.raises(RuntimeError) as exc_info:
@@ -136,7 +140,9 @@ class TestOpenAIEmbeddingProviderRetry:
         mock_client = MagicMock()
         mock_client.embeddings = MagicMock()
         # All calls fail
-        mock_client.embeddings.create = AsyncMock(side_effect=Exception("Persistent API error"))
+        mock_client.embeddings.create = AsyncMock(
+            side_effect=Exception("Persistent API error")
+        )
 
         with patch.object(provider, "_get_client", return_value=mock_client):
             with pytest.raises(RuntimeError) as exc_info:

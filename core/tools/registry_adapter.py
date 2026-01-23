@@ -115,24 +115,23 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 import time
-from typing import Any, Optional, Protocol, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional, Protocol
 from uuid import uuid4
 
-from core.agents.schemas import (
-    ToolBinding,
-    ToolCallResult,
-)
+import structlog
 
+from core.agents.schemas import ToolBinding, ToolCallResult
 # GMP-45: Tool argument sanitization gate
-from core.tools.sanitizer import ToolInputSanitizer, ToolInputSanitizationError
+from core.tools.sanitizer import ToolInputSanitizationError, ToolInputSanitizer
+
 # NOTE: DEFAULT_L_CAPABILITIES is DEPRECATED - we now auto-discover from ToolDefinition.agent_id
 # NOTE: log_tool_invocation imported lazily in guarded_execute to avoid
 # test path shadowing issue (tests/memory shadows memory module)
 
 if TYPE_CHECKING:
     from core.governance.engine import GovernanceEngineService
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -204,10 +203,8 @@ class RiskLevel:
 
 
 # GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
-from core.governance.tool_risk_policy import (
-    get_high_risk_tools,
-    get_side_effect_tools,
-)
+from core.governance.tool_risk_policy import (get_high_risk_tools,
+                                              get_side_effect_tools)
 
 SIDE_EFFECT_TOOLS = get_side_effect_tools()
 HIGH_RISK_TOOLS = get_high_risk_tools()
@@ -264,9 +261,9 @@ class ExecutorToolRegistry:
 
         self._governance_enabled = governance_enabled
         self._governance_engine = governance_engine
-        self._approved_overrides: dict[
-            str, set[str]
-        ] = {}  # agent_id -> approved tool IDs
+        self._approved_overrides: dict[str, set[str]] = (
+            {}
+        )  # agent_id -> approved tool IDs
 
         logger.info(
             "ExecutorToolRegistry initialized: governance=%s, engine=%s, tools=%d",
@@ -1039,6 +1036,7 @@ class ExecutorToolRegistry:
         # GATE 6: Check tool approval for high-risk tools
         try:
             from core.governance.approvals import ApprovalManager
+
             # GMP-104: Uses module-level HIGH_RISK_TOOLS from tool_risk_policy (line 213)
 
             if tool_id in HIGH_RISK_TOOLS:
@@ -1116,9 +1114,11 @@ class ExecutorToolRegistry:
                     "arguments": arguments,
                     "principal_id": principal_id,
                     "kernel_version": kernel_version,
-                    "kernel_hash": next(iter(kernel_hashes.values()), "unknown")
-                    if kernel_hashes
-                    else "unknown",
+                    "kernel_hash": (
+                        next(iter(kernel_hashes.values()), "unknown")
+                        if kernel_hashes
+                        else "unknown"
+                    ),
                     "kernel_count": len(kernels),
                 },
                 output_data={
@@ -2772,13 +2772,10 @@ async def register_l_tools() -> int:
     Raises:
         Exception: If registration fails
     """
-    from core.tools.tool_graph import ToolGraph, ToolDefinition
+    from core.tools.base_registry import (ToolMetadata, ToolType,
+                                          get_tool_registry)
+    from core.tools.tool_graph import ToolDefinition, ToolGraph
     from runtime.l_tools import TOOL_EXECUTORS
-    from core.tools.base_registry import (
-        get_tool_registry,
-        ToolMetadata,
-        ToolType,
-    )
 
     # Get base registry for executor registration
     base_registry = get_tool_registry()
@@ -3614,9 +3611,11 @@ async def register_l_tools() -> int:
                     tool_type=ToolType.CUSTOM,
                     allowed_roles=["l-cto", "researcher", "agent"],
                     rate_limit=60,
-                    timeout_seconds=120
-                    if tool_def.name in ["gmp_run", "mac_agent_exec_task"]
-                    else 30,
+                    timeout_seconds=(
+                        120
+                        if tool_def.name in ["gmp_run", "mac_agent_exec_task"]
+                        else 30
+                    ),
                     enabled=True,
                     requires_api_key=False,
                     input_schema=tool_schema,  # LLM function calling schema

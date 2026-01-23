@@ -47,12 +47,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, AsyncGenerator, Optional, Sequence
-import os
 
 import structlog
 import yaml

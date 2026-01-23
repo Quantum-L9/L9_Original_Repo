@@ -1,0 +1,229 @@
+"""
+TensorGlobe Adapter: L9 External Cognitive Accelerator
+Gated by EOS + Accountability. Read-only. Evidence-producing.
+"""
+
+import logging
+import asyncio
+import hashlib
+from typing import Optional, List, Tuple
+from datetime import datetime
+
+from L9.core.eos import AccountabilityEngine
+from L9.core.eos.schemas import ActionEnvelope, ActionType, RiskClass, Environment, Verdict
+from L9.core.memory.substrate_service import MemorySubstrateService
+from L9.core.boundary_enforcer import BoundaryEnforcer
+
+from .schemas import TensorRequest, TensorResponse, TensorResponsePacket, AnomalySignal
+from .security import SignatureVerifier
+from .anomaly_guard import AnomalyDetector
+
+logger = logging.getLogger(__name__)
+
+
+class TensorGlobeBridgeAdapter:
+    """
+    L9 External Cognitive Accelerator.
+    
+    Responsibilities:
+    1. Validate incoming TensorRequest (schema, signature)
+    2. Submit to EOS gate (verdict required)
+    3. Call TensorGlobe provider (sandboxed)
+    4. Validate response (schema, confidence, latency)
+    5. Detect anomalies (statistical guards)
+    6. Emit evidence object → memory substrate
+    7. Log to accountability ledger
+    """
+    
+    def __init__(
+        self,
+        accountability_engine: AccountabilityEngine,
+        substrate_service: MemorySubstrateService,
+        boundary_enforcer: BoundaryEnforcer,
+        tensorglobe_endpoint: str,
+        tensorglobe_auth_key: str,
+    ):
+        self.accountability = accountability_engine
+        self.substrate = substrate_service
+        self.boundary = boundary_enforcer
+        self.tensorglobe_endpoint = tensorglobe_endpoint
+        self.tensorglobe_auth_key = tensorglobe_auth_key
+        
+        self.signature_verifier = SignatureVerifier()
+        self.anomaly_detector = AnomalyDetector()
+        
+        self.logger = logger.getChild(self.__class__.__name__)
+    
+    async def handle_tensor_request(
+        self,
+        request: TensorRequest,
+        requester_agent_id: str,
+    ) -> Tuple[bool, Optional[TensorResponse], Optional[str]]:
+        """
+        Main entry point for handling tensor requests.
+        
+        Returns:
+            (success, response, error_message)
+        """
+        
+        self.logger.info(f"TensorRequest {request.request_id} from {requester_agent_id}")
+        
+        try:
+            # Step 1: Validate request schema & signature
+            if not self._validate_request_schema(request):
+                raise ValueError("Request schema invalid")
+            
+            if not await self._verify_request_signature(request, requester_agent_id):
+                raise ValueError("Request signature verification failed")
+            
+            self.logger.debug(f"Request {request.request_id} validated")
+            
+            # Step 2: Submit to EOS gate (ActionEnvelope)
+            action_envelope = ActionEnvelope(
+                agent_id=requester_agent_id,
+                action_type=ActionType.TOOL_CALL,
+                payload_ref=f"tensor_request:{request.request_id}",
+                claimed_authority=requester_agent_id,
+                required_capabilities=["tensor_inference"],
+                environment=Environment.PROD,
+                risk_class=RiskClass.MEDIUM,  # External provider = medium risk
+                evidence_refs=[],
+                signature=request.signature,
+                signing_key_id=request.signing_key_id,
+            )
+            
+            verdict, violations = await self.accountability.evaluate_action(
+                action_envelope,
+                {"tensorglobe_request": True},
+            )
+            
+            if verdict.decision.value == "deny":
+                self.logger.error(f"EOS DENIED request {request.request_id}: {violations}")
+                return False, None, f"EOS gate denied: {violations[0] if violations else 'unknown'}"
+            
+            self.logger.info(f"EOS APPROVED request {request.request_id}")
+            
+            # Step 3: Call TensorGlobe (sandboxed)
+            response = await self._call_tensorglobe(request)
+            
+            # Step 4: Validate response
+            if not self._validate_response_schema(response):
+                raise ValueError("Response schema invalid")
+            
+            if not await self._verify_response_signature(response):
+                raise ValueError("Response signature verification failed")
+            
+            # Step 5: Detect anomalies
+            anomalies = await self.anomaly_detector.detect(request, response)
+            if anomalies:
+                for anomaly in anomalies:
+                    self.logger.warning(f"Anomaly detected: {anomaly.anomaly_type}")
+                    
+                    # Suspend provider if critical anomaly repeated
+                    if anomaly.severity == "critical":
+                        await self._suspend_provider()
+                        return False, None, "Provider suspended (critical anomaly)"
+            
+            # Step 6: Emit evidence object
+            evidence_obj = response.to_evidence_object(request)
+            evidence_id = await self.substrate.write_evidence(evidence_obj)
+            
+            # Step 7: Log to accountability ledger
+            await self._emit_ledger_event(
+                "tensor_response_received",
+                request_id=request.request_id,
+                response_id=evidence_id,
+            )
+            
+            self.logger.info(f"TensorRequest {request.request_id} completed successfully")
+            return True, response, None
+        
+        except Exception as e:
+            self.logger.error(f"TensorRequest {request.request_id} failed: {e}")
+            await self._emit_ledger_event(
+                "tensor_request_failed",
+                request_id=request.request_id,
+                error=str(e),
+            )
+            return False, None, str(e)
+    
+    def _validate_request_schema(self, request: TensorRequest) -> bool:
+        """Validate request against schema"""
+        try:
+            # Pydantic validation happens on model creation
+            return True
+        except Exception as e:
+            self.logger.error(f"Request validation failed: {e}")
+            return False
+    
+    async def _verify_request_signature(
+        self,
+        request: TensorRequest,
+        agent_id: str,
+    ) -> bool:
+        """Verify request signature (agent → adapter)"""
+        try:
+            canonical = request.compute_canonical()
+            # TODO: Fetch public key for agent_id, verify signature
+            return True  # Placeholder
+        except Exception as e:
+            self.logger.error(f"Request signature verification failed: {e}")
+            return False
+    
+    async def _call_tensorglobe(self, request: TensorRequest) -> TensorResponse:
+        """
+        Call TensorGlobe provider (sandboxed, egress-only).
+        Timeout: 5 seconds (kernel spec).
+        """
+        try:
+            # TODO: Implement HTTP call to TensorGlobe endpoint
+            # Must include: request_id, entities, operation, signature
+            # Response must include: results, confidence scores, latency_ms, signature
+            
+            # Placeholder: return dummy response
+            return TensorResponse(
+                request_id=request.request_id,
+                results=[],
+                model_metadata={"model_id": "tensorglobe-v1", "version": "1.0"},
+                latency_ms=100.0,
+                batch_processing_time_ms=50.0,
+                signature="placeholder_signature",
+                signing_key_id="tensorglobe_key_001",
+            )
+        except asyncio.TimeoutError:
+            raise ValueError("TensorGlobe timeout (5s exceeded)")
+    
+    def _validate_response_schema(self, response: TensorResponse) -> bool:
+        """Validate response schema"""
+        try:
+            return True  # Pydantic validation
+        except Exception as e:
+            self.logger.error(f"Response validation failed: {e}")
+            return False
+    
+    async def _verify_response_signature(self, response: TensorResponse) -> bool:
+        """Verify response signature (provider → adapter)"""
+        try:
+            # TODO: Verify TensorGlobe signature
+            return True  # Placeholder
+        except Exception as e:
+            self.logger.error(f"Response signature verification failed: {e}")
+            return False
+    
+    async def _suspend_provider(self) -> None:
+        """Suspend TensorGlobe provider (trigger revocation)"""
+        self.logger.critical("Suspending TensorGlobe provider due to anomaly")
+        # TODO: Emit revocation event to governance layer
+    
+    async def _emit_ledger_event(
+        self,
+        event_type: str,
+        **kwargs,
+    ) -> None:
+        """Emit accountability event to ledger"""
+        event = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "event_type": event_type,
+            **kwargs,
+        }
+        await self.substrate.write_audit_log(event)

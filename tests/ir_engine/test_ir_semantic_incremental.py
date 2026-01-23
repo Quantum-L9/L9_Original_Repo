@@ -85,7 +85,9 @@ class TestIncrementalCompilation:
 
         # Configure mock for incremental response
         mock_openai_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content=json.dumps(incremental_response)))]
+            choices=[
+                MagicMock(message=MagicMock(content=json.dumps(incremental_response)))
+            ]
         )
 
         # Act
@@ -97,7 +99,9 @@ class TestIncrementalCompilation:
         # Assert: Original intents preserved
         assert len(updated_graph.intents) > initial_intent_count
         for original_id in initial_intent_ids:
-            assert original_id in updated_graph.intents, "Original intent should be preserved"
+            assert (
+                original_id in updated_graph.intents
+            ), "Original intent should be preserved"
 
         # Assert: New intent added
         new_intent_ids = set(updated_graph.intents.keys()) - initial_intent_ids
@@ -122,7 +126,9 @@ class TestIncrementalCompilation:
         initial_constraint_ids = set(simple_valid_graph.constraints.keys())
 
         mock_openai_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content=json.dumps(incremental_response)))]
+            choices=[
+                MagicMock(message=MagicMock(content=json.dumps(incremental_response)))
+            ]
         )
 
         # Act
@@ -139,7 +145,9 @@ class TestIncrementalCompilation:
         assert len(updated_graph.constraints) > initial_constraint_count
 
         # Find the new constraint
-        new_constraint_ids = set(updated_graph.constraints.keys()) - initial_constraint_ids
+        new_constraint_ids = (
+            set(updated_graph.constraints.keys()) - initial_constraint_ids
+        )
         for cid in new_constraint_ids:
             constraint = updated_graph.constraints[cid]
             # New constraint should be from incremental response
@@ -161,7 +169,9 @@ class TestIncrementalCompilation:
         initial_action_ids = set(simple_valid_graph.actions.keys())
 
         mock_openai_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content=json.dumps(incremental_response)))]
+            choices=[
+                MagicMock(message=MagicMock(content=json.dumps(incremental_response)))
+            ]
         )
 
         # Act
@@ -192,7 +202,9 @@ class TestIncrementalCompilation:
         initial_log_length = len(simple_valid_graph.processing_log)
 
         mock_openai_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content=json.dumps(incremental_response)))]
+            choices=[
+                MagicMock(message=MagicMock(content=json.dumps(incremental_response)))
+            ]
         )
 
         # Act
@@ -229,7 +241,9 @@ class TestIncrementalCompilation:
         call_args = mock_openai_client.chat.completions.create.call_args
         prompt = call_args.kwargs["messages"][1]["content"]
 
-        assert "existing_intents" in prompt, "Prompt should include existing intents context"
+        assert (
+            "existing_intents" in prompt
+        ), "Prompt should include existing intents context"
 
 
 class TestIncrementalEdgeCases:

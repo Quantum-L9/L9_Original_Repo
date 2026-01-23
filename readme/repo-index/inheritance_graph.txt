@@ -63,8 +63,12 @@ AnomalyProcessRequest::BaseModel @ api/routes/workers.py
 AnomalyProcessResponse::BaseModel @ api/routes/workers.py
 AnomalyResponseMonitorRequest::BaseModel @ workers/anomaly_response_monitor.py
 AnomalyResponseMonitorResponse::BaseModel @ workers/anomaly_response_monitor.py
+AnomalySeverity::str,Enum @ adapters/tensorglobe_bridge/anomaly_guard.py
 AnomalySeverity::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py
+AnomalySeverity::str,Enum @ domain_tensor_bridge/anomaly_handler.py
 AnomalySeverity::str,Enum @ workers/anomaly_classifier.py
+AnomalySignal::BaseModel @ adapters/tensorglobe_bridge/schemas.py
+AnomalyType::str,Enum @ adapters/tensorglobe_bridge/anomaly_guard.py
 AnomalyType::str,Enum @ workers/anomaly_classifier.py
 AnonymizationStrategy::Enum @ core/packet_envelope/governance.py
 AnonymizationStrategy::Enum @ current_work/packetEnvelope - Phase 2-5/phase_5_governance.py
@@ -316,9 +320,11 @@ ErrorEvent::BaseModel @ igor/DONE!/audit-memory/core_schemas_ws_event_stream.py
 ErrorPolicy::BaseModel @ ir_engine/meta_ir.py
 ErrorStrategy::str,Enum @ ir_engine/meta_ir.py
 EscalationConfig::BaseModel @ ir_engine/meta_ir.py
+EscalationLevel::str,Enum @ domain_tensor_bridge/governance_bridge.py
 EscalationReason::str,Enum @ agents/codegenagent/compliance_auditor.py
 EscalationRequired::Exception @ codegen/dev_layer/runtime/enforcement.py
 EscalationTriggerType::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py
+EscalationTriggerType::str,Enum @ domain_tensor_bridge/escalation_handler.py
 EvaluateRequest::BaseModel @ services/symbolic_computation/api/routes.py
 EvaluationCriteria::BaseModel @ orchestrators/meta/interface.py
 EvaluationError::SymbolicComputationError @ _archived/symbolic_computation/exceptions.py
@@ -403,6 +409,7 @@ GovernanceBlockPattern::GapDetectionPattern @ core/agents/selfreflection.py
 GovernanceCheckSpan::Span @ core/observability/models.py
 GovernanceCheckSpan::Span @ current_work/DONE/Observability/observability_models.py
 GovernanceDecision::str,Enum @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py
+GovernanceDecision::str,Enum @ domain_tensor_bridge/governance_bridge.py
 GovernanceHarmonizationConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 GovernancePattern::BaseModel @ igor/DONE!/audit-memory/memory_governance_patterns.py
 GovernancePattern::BaseModel @ memory/governance_patterns.py
@@ -1060,6 +1067,12 @@ TemporalQueryRequest::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.
 TemporalQueryRequest::BaseModel @ mcp_memory/src/models.py
 TemporalQueryResponse::BaseModel @ igor/DONE!/audit-memory/mcp_memory_src_models.py
 TemporalQueryResponse::BaseModel @ mcp_memory/src/models.py
+TensorOperation::str,Enum @ adapters/tensorglobe_bridge/schemas.py
+TensorRequest::BaseModel @ adapters/tensorglobe_bridge/schemas.py
+TensorRequestPacket::PacketEnvelope @ adapters/tensorglobe_bridge/schemas.py
+TensorResponse::BaseModel @ adapters/tensorglobe_bridge/schemas.py
+TensorResponsePacket::PacketEnvelope @ adapters/tensorglobe_bridge/schemas.py
+TensorResult::BaseModel @ adapters/tensorglobe_bridge/schemas.py
 TestIntegration::TestCase @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/test_integration.py
 TestIntegration::TestCase @ world_model/_pack_staging/test_integration.py
 TestModel::BaseModel @ tests/memory/test_agent_persistence.py
@@ -1093,6 +1106,7 @@ ToolExecutor::Protocol @ core/protocols/agent_protocols.py
 ToolExecutor::Protocol @ core/tools/registry_adapter.py
 ToolExecutor::Protocol @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
 ToolInputSanitizationError::ValueError @ core/tools/sanitizer.py
+ToolMetadata::BaseModel @ core/tools/base_registry.py
 ToolMetadata::BaseModel @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolMetadata::BaseModel @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 ToolName::str,Enum @ core/schemas/capabilities.py
@@ -1103,8 +1117,10 @@ ToolRegistryProtocol::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/
 ToolRiskLevel::str,Enum @ core/worldmodel/l9_schema.py
 ToolSafetyLevel::str,Enum @ igor/DONE!/audit-tools/orchestrators_action_tool_interface.py
 ToolSafetyLevel::str,Enum @ orchestrators/action_tool/interface.py
+ToolSchema::BaseModel @ core/tools/base_registry.py
 ToolSchema::BaseModel @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolSchema::BaseModel @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
+ToolType::str,Enum @ core/tools/base_registry.py
 ToolType::str,Enum @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolType::str,Enum @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 TraceContext::BaseModel @ core/observability/models.py
@@ -1178,4 +1194,4 @@ WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
 WorldModelUpdater::IWorldModelUpdater @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1174 classes with inheritance
+# Total: 1190 classes with inheritance

@@ -1,0 +1,134 @@
+# ============================================================================
+# ACCOUNTABILITY LAYER SPECIFICATION (L9 Canonical)
+# ============================================================================
+# Source: EOS.md — SAIAL → Accountability Layer conversion
+# Purpose: Runtime authority for machine accountability
+# Version: 1.0.0
+# Authority: L=CTO
+# ============================================================================
+
+metadata:
+  name: accountability_layer
+  version: "1.0.0"
+  description: |
+    SAIAL is demoted to storage backing.
+    Accountability Layer (AL) is the runtime authority.
+    Every action, decision, inference, simulation, and mutation
+    must be provable, replayable, attributable, and constraint-checked.
+
+# -----------------------------------------------------------------------------
+# GUARANTEES (Non-Negotiable)
+# -----------------------------------------------------------------------------
+guarantees:
+  - cryptographic_attribution:
+      description: "Every action is attributable (agent key / signer set)"
+  
+  - immutability:
+      description: "Ledger entries cannot be modified after write"
+  
+  - causal_replay:
+      description: "Reconstruct 'why' and 'what happened next'"
+  
+  - quorum_validation:
+      description: "Multi-party decisions have verifiable consensus"
+  
+  - violation_detection:
+      description: "Constraint breaches are detected at runtime"
+  
+  - enforcement_hooks:
+      description: "Block execution if missing required proofs"
+
+# -----------------------------------------------------------------------------
+# MANDATORY FOR (Action Classes)
+# -----------------------------------------------------------------------------
+mandatory_for:
+  - high_risk_actions:
+      risk_class: high
+      requires: [signature, evidence, simulation_ref]
+  
+  - contract_diffs:
+      description: "Any change to governance contracts"
+      requires: [quorum_approval, diff_hash]
+  
+  - kernel_mutations:
+      description: "Changes to kernel YAML files"
+      requires: [igor_approval, rollback_plan]
+  
+  - production_deploys:
+      environment: prod
+      requires: [test_evidence, staging_pass, approval_chain]
+
+# -----------------------------------------------------------------------------
+# INTERFACE (Runtime API)
+# -----------------------------------------------------------------------------
+interface:
+  append:
+    signature: "accountability.append(action_envelope) -> ledger_ref"
+    description: "Record action to immutable ledger"
+    returns: hash
+  
+  verify:
+    signature: "accountability.verify(ledger_ref | action_envelope) -> verdict"
+    description: "Check if action is permitted"
+    returns: Verdict
+  
+  explain:
+    signature: "accountability.explain(action_id) -> explanation"
+    description: "Return rule chain, signers, causality for action"
+    returns:
+      rule_chain: list[rule_id]
+      signers: list[signer_id]
+      causality: list[action_id]
+  
+  replay:
+    signature: "accountability.replay(from, to, mode=idempotent) -> state"
+    description: "Reconstruct state from ledger entries"
+    returns: reconstructed_state
+  
+  query:
+    signature: "accountability.query(filters) -> list[action_refs]"
+    description: "Search ledger by filters"
+    returns: list[ledger_ref]
+
+# -----------------------------------------------------------------------------
+# AUDIT MECHANISMS BY LAYER
+# -----------------------------------------------------------------------------
+audit_mechanisms:
+  planning:
+    artifact: "action_envelopes + scored_alternatives"
+    description: "What options were considered"
+  
+  decision:
+    artifact: "verdict_objects"
+    description: "What was decided and why"
+  
+  execution:
+    artifact: "signed_ledger_entry"
+    description: "Proof that action occurred"
+  
+  memory_write:
+    artifact: "provenance + authority"
+    description: "Who wrote what memory"
+  
+  world_model_update:
+    artifact: "causal_chain"
+    description: "What caused the state change"
+  
+  contract_change:
+    artifact: "diff + quorum"
+    description: "What changed and who approved"
+  
+  simulation:
+    artifact: "replayable_trace"
+    description: "Full simulation can be re-run"
+
+# -----------------------------------------------------------------------------
+# DESIGN CONSTRAINT
+# -----------------------------------------------------------------------------
+design_constraint:
+  rule: "Ledger write is not optional"
+  description: |
+    The ledger write becomes a precondition for certain action classes
+    (high-risk tools, contract diffs, schema changes).
+    No verdict → no execution.
+    No ledger entry → no verdict.

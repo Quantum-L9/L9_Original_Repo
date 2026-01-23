@@ -57,22 +57,14 @@ from typing import Any, Dict, List, Optional, Protocol, Tuple
 import structlog
 import yaml
 
-from core.kernels.schemas import (
-    KernelActivationResult,
-    KernelManifest,
-    KernelState,
-    KernelValidationResult,
-    ValidationError,
-)
+from core.kernels.schemas import (KernelActivationResult, KernelManifest,
+                                  KernelState, KernelValidationResult,
+                                  ValidationError)
 
 # Optional: Observability spans (v3.4+ / GMP-KERNEL-BOOT)
 try:
-    from core.observability.models import (
-        KernelLifecycleSpan,
-        SpanKind,
-        SpanStatus,
-        TraceContext,
-    )
+    from core.observability.models import (KernelLifecycleSpan, SpanKind,
+                                           SpanStatus, TraceContext)
     from core.observability.service import get_observability_service
 
     _has_observability = True
@@ -111,9 +103,9 @@ def _create_kernel_span(
             name=name,
             trace_id=trace_id,
             parent_span_id=parent_span_id,
-            kind=SpanKind.KERNEL_LOAD
-            if phase == "load"
-            else SpanKind.KERNEL_ACTIVATION,
+            kind=(
+                SpanKind.KERNEL_LOAD if phase == "load" else SpanKind.KERNEL_ACTIVATION
+            ),
             kernel_id=kernel_id,
             phase=phase,
             **attributes,
@@ -450,9 +442,9 @@ def load_kernels_phase1(
         _finish_span(
             phase1_span,
             status="OK" if len(all_errors) == 0 else "ERROR",
-            error="; ".join([e.message for e in all_errors[:3]])
-            if all_errors
-            else None,
+            error=(
+                "; ".join([e.message for e in all_errors[:3]]) if all_errors else None
+            ),
         )
 
     return kernels_by_path, hashes, all_errors

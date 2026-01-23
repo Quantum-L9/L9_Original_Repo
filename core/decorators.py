@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Callable, TypeVar, Any
+from typing import Any, Callable, TypeVar
 
 F = TypeVar("F", bound=Callable[..., Any])
 

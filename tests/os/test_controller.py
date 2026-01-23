@@ -8,10 +8,11 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
-from unittest.mock import MagicMock
 import importlib.util
 from pathlib import Path
+from unittest.mock import MagicMock
+
+import pytest
 
 
 def get_os_module(module_name: str):
@@ -26,7 +27,9 @@ def get_os_module(module_name: str):
         return None
 
     try:
-        spec = importlib.util.spec_from_file_location(f"aios_{module_name}", str(module_path))
+        spec = importlib.util.spec_from_file_location(
+            f"aios_{module_name}", str(module_path)
+        )
         if spec is None or spec.loader is None:
             return None
 

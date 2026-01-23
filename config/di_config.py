@@ -71,20 +71,14 @@ __dora_meta__ = {
 
 import os
 from typing import Optional
+
 import structlog
 
 # DI container from PR #22
 from core.di.container import DIContainer, get_di_container
-
 # Protocol abstractions from PR #22
-from core.protocols import (
-    CacheClient,
-    GraphClient,
-    VectorStore,
-    MemoryRepository,
-    ObservabilityService,
-    ToolExecutor,
-)
+from core.protocols import (CacheClient, GraphClient, MemoryRepository,
+                            ObservabilityService, ToolExecutor, VectorStore)
 
 # Aliases for backward compatibility
 MemoryService = MemoryRepository

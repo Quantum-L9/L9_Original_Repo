@@ -40,20 +40,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from ir_engine.ir_schema import (
-    IRGraph,
-    IRStatus,
-    ActionNode,
-    ActionType,
-    NodePriority,
-)
+import structlog
+
 from ir_engine.ir_generator import IRGenerator
+from ir_engine.ir_schema import (ActionNode, ActionType, IRGraph, IRStatus,
+                                 NodePriority)
 
 logger = structlog.get_logger(__name__)
 

@@ -31,13 +31,11 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 import structlog
+
 from core.decorators import must_stay_async
 
-from .interface import (
-    IResearchSwarmOrchestrator,
-    ResearchSwarmRequest,
-    ResearchSwarmResponse,
-)
+from .interface import (IResearchSwarmOrchestrator, ResearchSwarmRequest,
+                        ResearchSwarmResponse)
 
 logger = structlog.get_logger(__name__)
 

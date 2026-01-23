@@ -37,8 +37,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-import structlog
 from typing import Any, Dict, List, Literal, Optional, TypedDict
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -207,7 +209,7 @@ def _format_context(context: Dict[str, Any]) -> str:
 
 # Try to import LangGraph
 try:
-    from langgraph.graph import StateGraph, START, END
+    from langgraph.graph import END, START, StateGraph
 
     LANGGRAPH_AVAILABLE = True
 except ImportError:
@@ -290,11 +292,9 @@ async def hydrate_memory_node(state: LongPlanState) -> LongPlanState:
     logger.info("hydrate_memory_node: Loading memory context")
 
     try:
-        from runtime.memory_helpers import (
-            memory_search,
-            MEMORY_SEGMENT_GOVERNANCE_META,
-            MEMORY_SEGMENT_PROJECT_HISTORY,
-        )
+        from runtime.memory_helpers import (MEMORY_SEGMENT_GOVERNANCE_META,
+                                            MEMORY_SEGMENT_PROJECT_HISTORY,
+                                            memory_search)
 
         agent_id = state.get("agent_id", "L")
 
@@ -751,9 +751,11 @@ async def execute_long_plan(
                 agent_id=agent_id,
                 success=len(final_state.get("errors", [])) == 0,
                 duration_ms=0,  # Would need timing
-                error="; ".join(final_state.get("errors", []))
-                if final_state.get("errors")
-                else None,
+                error=(
+                    "; ".join(final_state.get("errors", []))
+                    if final_state.get("errors")
+                    else None
+                ),
             )
         except Exception as e:
             logger.warning(f"Failed to log long plan execution: {e}")

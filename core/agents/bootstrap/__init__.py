@@ -12,20 +12,19 @@ This module implements frontier-lab grade agent initialization:
 
 from __future__ import annotations
 
+from .bootstrap_metrics import \
+    PROMETHEUS_AVAILABLE as BOOTSTRAP_PROMETHEUS_AVAILABLE
+from .bootstrap_metrics import BootstrapMetrics, get_bootstrap_metrics
+from .orchestrator import AgentBootstrapOrchestrator
 from .phase_0_validate import validate_agent_blueprint
-from .phase_1_load_kernels import load_and_parse_kernels, KernelParsed, KERNEL_ORDER
-from .phase_2_instantiate import instantiate_agent, BootstrapInstanceData
+from .phase_1_load_kernels import (KERNEL_ORDER, KernelParsed,
+                                   load_and_parse_kernels)
+from .phase_2_instantiate import BootstrapInstanceData, instantiate_agent
 from .phase_3_bind_kernels import bind_kernels_to_agent
 from .phase_4_load_identity import load_identity_persona
 from .phase_5_bind_tools import bind_tools_and_capabilities
 from .phase_6_wire_governance import wire_governance_gates
 from .phase_7_verify_and_lock import verify_and_lock
-from .orchestrator import AgentBootstrapOrchestrator
-from .bootstrap_metrics import (
-    BootstrapMetrics,
-    get_bootstrap_metrics,
-    PROMETHEUS_AVAILABLE as BOOTSTRAP_PROMETHEUS_AVAILABLE,
-)
 
 __all__ = [
     "AgentBootstrapOrchestrator",

@@ -1,6 +1,6 @@
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -19,7 +19,9 @@ if str(MCP_ROOT) not in sys.path:
     sys.path.insert(0, str(MCP_ROOT))
 
 from src.routes import memory_unified  # noqa: E402
-from memory.governance_gate import build_governance_context, governance_context  # noqa: E402
+
+from memory.governance_gate import (build_governance_context,  # noqa: E402
+                                    governance_context)
 
 
 @pytest.mark.asyncio

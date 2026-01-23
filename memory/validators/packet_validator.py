@@ -38,16 +38,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any, Iterable, Optional
 
+import structlog
 from pydantic import ValidationError
 
-from core.schemas import (
-    PacketEnvelopeIn,
-    VALID_DERIVE_TYPES,
-)
+from core.schemas import VALID_DERIVE_TYPES, PacketEnvelopeIn
 from memory.audit_utils import detect_injection_markers, detect_pii_types
 
 logger = structlog.get_logger(__name__)

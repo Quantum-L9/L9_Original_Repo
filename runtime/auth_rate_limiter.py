@@ -56,11 +56,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

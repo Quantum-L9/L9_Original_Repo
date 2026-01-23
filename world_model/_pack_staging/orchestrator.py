@@ -35,16 +35,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Any, Optional
-from enum import Enum
 import logging
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from world_model.interfaces import Entity, Relation, UpdateResult
+from world_model.neo4j_substrate import Neo4jConfig, Neo4jSubstrate
+from world_model.postgres_substrate import PostgresConfig, PostgresSubstrate
+from world_model.redis_substrate import RedisConfig, RedisSubstrate
 from world_model.state import WorldModelState
-from world_model.postgres_substrate import PostgresSubstrate, PostgresConfig
-from world_model.neo4j_substrate import Neo4jSubstrate, Neo4jConfig
-from world_model.redis_substrate import RedisSubstrate, RedisConfig
-
 
 logger = logging.getLogger(__name__)
 
@@ -462,20 +461,20 @@ class SubstrateOrchestrator:
         try:
             self.postgres._connection.ping()
             health["postgres"] = "healthy"
-        except:
+        except Exception:
             health["postgres"] = "unhealthy"
 
         try:
             with self.neo4j._driver.session() as session:
                 session.run("RETURN 1")
             health["neo4j"] = "healthy"
-        except:
+        except Exception:
             health["neo4j"] = "unhealthy"
 
         try:
             self.redis._client.ping()
             health["redis"] = "healthy"
-        except:
+        except Exception:
             health["redis"] = "unhealthy"
 
         return health

@@ -42,9 +42,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
 import argparse
+import sys
 from pathlib import Path
+
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -52,7 +53,9 @@ logger = structlog.get_logger(__name__)
 # Add L9 root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from core.governance.mistake_prevention import create_mistake_prevention, Violation
+from core.governance.mistake_prevention import (Violation,
+                                                create_mistake_prevention)
+
 
 def format_violation(v: Violation) -> str:
     """Format a violation for display."""
@@ -64,6 +67,7 @@ def format_violation(v: Violation) -> str:
    Blocked: {"YES" if v.blocked else "no"}
 """
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Check content against L9 mistake prevention rules"
@@ -74,7 +78,8 @@ def main():
         help="Content to check (inline)",
     )
     parser.add_argument(
-        "--file", "-f",
+        "--file",
+        "-f",
         type=str,
         help="File to check",
     )
@@ -93,11 +98,11 @@ def main():
         action="store_true",
         help="List all rules",
     )
-    
+
     args = parser.parse_args()
-    
+
     engine = create_mistake_prevention()
-    
+
     # List rules mode
     if args.list_rules:
         logger.info("L9 Mistake Prevention Rules:")
@@ -108,7 +113,7 @@ def main():
             logger.info(f"       Prevention: {rule.prevention}")
             logger.info()
         return 0
-    
+
     # Stats mode
     if args.stats:
         stats = engine.get_stats()
@@ -116,12 +121,12 @@ def main():
         logger.info(f"  Total rules: {stats['total_rules']}")
         logger.info(f"  Rules triggered: {stats['rules_triggered']}")
         logger.info(f"  Total occurrences: {stats['total_occurrences']}")
-        if stats['top_violations']:
+        if stats["top_violations"]:
             logger.info("  Top violations:")
-            for rule_id, name, count in stats['top_violations']:
+            for rule_id, name, count in stats["top_violations"]:
                 logger.info(f"    - {rule_id}: {name} ({count}x)")
         return 0
-    
+
     # Get content to check
     content = ""
     if args.stdin:
@@ -137,22 +142,22 @@ def main():
     else:
         parser.print_help()
         return 1
-    
+
     # Check content
     allowed, violations = engine.enforce(content)
-    
+
     if not violations:
         logger.info("✅ No mistake patterns detected")
         return 0
-    
+
     # Report violations
     logger.info(f"\n{'=' * 60}")
     logger.info(f"L9 MISTAKE CHECK — {len(violations)} violation(s) found")
     logger.info(f"{'=' * 60}")
-    
+
     for v in violations:
         logger.info(format_violation(v))
-    
+
     logger.info(f"{'=' * 60}")
     if not allowed:
         logger.info("🚫 BLOCKED: Critical violations would prevent execution")
@@ -160,6 +165,7 @@ def main():
     else:
         logger.info("⚠️  WARNINGS: Non-blocking violations detected")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -173,7 +179,15 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.governance.mistake_prevention"],
-    "tags": ["agent-execution", "api", "cli", "event-driven", "filesystem", "intelligence", "logging"],
+    "tags": [
+        "agent-execution",
+        "api",
+        "cli",
+        "event-driven",
+        "filesystem",
+        "intelligence",
+        "logging",
+    ],
     "keywords": ["check", "cursor", "format", "mistakes", "violation"],
     "business_value": "This script allows Cursor to check content against L9's mistake prevention rules before execution. p",
     "last_modified": "2026-01-07T13:35:58Z",

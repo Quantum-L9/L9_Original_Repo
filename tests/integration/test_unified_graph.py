@@ -14,11 +14,12 @@ Created: 2026-01-05
 GMP: GMP-UKG-2 (Graph Merge)
 """
 
-import pytest
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
 from types import ModuleType
+from unittest.mock import AsyncMock, patch
+
+import pytest
 
 # Ensure project root is on path
 project_root = Path(__file__).parent.parent.parent
@@ -31,14 +32,9 @@ if "memory.tool_audit" not in sys.modules:
     fake_tool_audit.log_tool_invocation = AsyncMock()
     sys.modules["memory.tool_audit"] = fake_tool_audit
 
-from core.tools.tool_graph import (
-    ToolGraph,
-    ToolDefinition,
-)
-from core.agents.graph_state.schema import (
-    ENSURE_AGENT_QUERY,
-    CREATE_AGENT_QUERY,
-)
+from core.agents.graph_state.schema import (CREATE_AGENT_QUERY,
+                                            ENSURE_AGENT_QUERY)
+from core.tools.tool_graph import ToolDefinition, ToolGraph
 
 # =============================================================================
 # Test Shared Schema Exports
@@ -260,7 +256,8 @@ def test_create_agent_query_uses_merge():
 
 def test_unified_relationship_type_consistency():
     """Test that Graph State and Tool Graph use same relationship type."""
-    from core.agents.graph_state.schema import CAN_EXECUTE as SCHEMA_CAN_EXECUTE
+    from core.agents.graph_state.schema import \
+        CAN_EXECUTE as SCHEMA_CAN_EXECUTE
 
     assert ToolGraph.AGENT_TOOL_REL == "CAN_EXECUTE"
     assert SCHEMA_CAN_EXECUTE == "CAN_EXECUTE"

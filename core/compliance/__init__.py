@@ -13,4 +13,3 @@ __all__ = [
     "AuditLogger",
     "log_command_to_audit",
 ]
-

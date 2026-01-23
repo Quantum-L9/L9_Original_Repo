@@ -32,73 +32,35 @@ Quick start:
     # All subsequent calls are automatically traced!
 """
 
+from .aggregation import KPITracker, MetricsAggregator
+from .circuit_breaker import (CircuitBreaker, CircuitBreakerConfig,
+                              CircuitBreakerState, CircuitOpenError)
 from .config import ObservabilitySettings, load_config
-from .models import (
-    TraceContext,
-    Span,
-    LLMGenerationSpan,
-    ToolCallSpan,
-    ContextAssemblySpan,
-    RAGRetrievalSpan,
-    GovernanceCheckSpan,
-    AgentTrajectorySpan,
-    FailureSignal,
-    RemediationAction,
-    SREMetric,
-    AgentKPI,
-    SpanKind,
-    SpanStatus,
-    FailureClass,
-)
-from .instrumentation import (
-    trace_span,
-    trace_llm_call,
-    trace_tool_call,
-    trace_governance_check,
-)
+from .context_strategies import (AdaptiveStrategySelector, ContextStrategy,
+                                 HierarchicalSummarizationStrategy,
+                                 HybridStrategy, NaiveTruncationStrategy,
+                                 RAGStrategy, RecencyBiasedWindowStrategy)
+from .exporters import (AsyncSpanExporter, CompositeExporter, ConsoleExporter,
+                        JSONFileExporter, SpanExporter, SubstrateExporter)
+from .failures import (FailureDetector, RecoveryAction, RecoveryExecutor,
+                       get_recovery_actions)
+from .instrumentation import (trace_governance_check, trace_llm_call,
+                              trace_span, trace_tool_call)
+from .jaeger_exporter import (JaegerExporter, get_jaeger_exporter,
+                              initialize_jaeger_exporter)
+from .l9_integration import (instrument_agent_executor,
+                             instrument_aios_runtime,
+                             instrument_governance_engine,
+                             instrument_memory_substrate,
+                             instrument_tool_registry)
+from .models import (AgentKPI, AgentTrajectorySpan, ContextAssemblySpan,
+                     FailureClass, FailureSignal, GovernanceCheckSpan,
+                     LLMGenerationSpan, RAGRetrievalSpan, RemediationAction,
+                     Span, SpanKind, SpanStatus, SREMetric, ToolCallSpan,
+                     TraceContext)
+from .prometheus_exporter import (ObservabilityPrometheusExporter,
+                                  get_exporter, initialize_exporter)
 from .service import ObservabilityService, initialize_observability
-from .prometheus_exporter import ObservabilityPrometheusExporter, initialize_exporter, get_exporter
-from .jaeger_exporter import JaegerExporter, initialize_jaeger_exporter, get_jaeger_exporter
-from .exporters import (
-    SpanExporter,
-    AsyncSpanExporter,
-    ConsoleExporter,
-    JSONFileExporter,
-    SubstrateExporter,
-    CompositeExporter,
-)
-from .aggregation import (
-    MetricsAggregator,
-    KPITracker,
-)
-from .context_strategies import (
-    ContextStrategy,
-    NaiveTruncationStrategy,
-    RecencyBiasedWindowStrategy,
-    HierarchicalSummarizationStrategy,
-    RAGStrategy,
-    HybridStrategy,
-    AdaptiveStrategySelector,
-)
-from .failures import (
-    FailureDetector,
-    RecoveryExecutor,
-    RecoveryAction,
-    get_recovery_actions,
-)
-from .circuit_breaker import (
-    CircuitBreaker,
-    CircuitBreakerConfig,
-    CircuitBreakerState,
-    CircuitOpenError,
-)
-from .l9_integration import (
-    instrument_agent_executor,
-    instrument_tool_registry,
-    instrument_governance_engine,
-    instrument_memory_substrate,
-    instrument_aios_runtime,
-)
 
 __version__ = "1.0.0"
 __all__ = [

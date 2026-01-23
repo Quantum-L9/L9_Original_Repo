@@ -51,76 +51,54 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from config.settings import settings
-
 import os
-from datetime import datetime
-import structlog
 from contextlib import asynccontextmanager
+from datetime import datetime
+
+import structlog
+
+from config.settings import settings
 
 # Initialize logger early for import error handling
 logger = structlog.get_logger(__name__)
-from fastapi import (  # noqa: E402
-    FastAPI,
-    WebSocket,
-    WebSocketDisconnect,
-    HTTPException,
-    Depends,
-    Header,
-)
-from pydantic import BaseModel
+from fastapi import (Depends, FastAPI, Header, HTTPException,  # noqa: E402
+                     WebSocket, WebSocketDisconnect)
 from openai import OpenAI
-from api.memory.router import router as memory_router
-from api.memory.graph import router as graph_router
-from api.memory.cache import router as cache_router
-from api.auth import verify_api_key
+from pydantic import BaseModel
+
+import api.agent_routes as agent_routes
 import api.db as db
 import api.os_routes as os_routes
-import api.agent_routes as agent_routes
-
-from core.decorators import must_stay_async
-
-# Singleton Auto-Registration (Phase 2 Auto-Wiring)
-from core.singleton_auto_registry import (
-    discover_singleton_services,
-    wire_singletons_to_registry,
-)
-from core.singleton_registry import get_singleton_registry
-
-# Event Type Auto-Registration (Phase 2 Auto-Wiring)
-from core.event_type_registry import (
-    register_core_event_types,
-    get_all_event_types,
-)
-
+from api.auth import verify_api_key
+from api.memory.cache import router as cache_router
+from api.memory.graph import router as graph_router
+from api.memory.router import router as memory_router
 # Router Auto-Registration (Phase 2 Auto-Wiring)
-from api.routes.registry import (
-    router_registry,
-    discover_routers,
-)
-
+from api.routes.registry import discover_routers, router_registry
+from core.decorators import must_stay_async
+# Event Type Auto-Registration (Phase 2 Auto-Wiring)
+from core.event_type_registry import (get_all_event_types,
+                                      register_core_event_types)
+# Singleton Auto-Registration (Phase 2 Auto-Wiring)
+from core.singleton_auto_registry import (discover_singleton_services,
+                                          wire_singletons_to_registry)
+from core.singleton_registry import get_singleton_registry
 # Background Task Registry (Auto-Wiring)
 from runtime.background_tasks import BackgroundTaskRegistry  # noqa: F401
-
-# Tool Executor Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
-from runtime.tool_registry import (  # noqa: F401
-    tool_executor_registry,
-    get_tool_executors,
-    get_tool_snapshot,
-)
-
 # MCP Server Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
-from runtime.mcp_server_registry import (  # noqa: F401
-    mcp_server_registry,
-    load_mcp_servers_from_yaml,
-    get_all_mcp_servers,
-    get_mcp_server_snapshot,
-)
+from runtime.mcp_server_registry import (get_all_mcp_servers,  # noqa: F401
+                                         get_mcp_server_snapshot,
+                                         load_mcp_servers_from_yaml,
+                                         mcp_server_registry)
+# Tool Executor Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
+from runtime.tool_registry import (get_tool_executors,  # noqa: F401
+                                   get_tool_snapshot, tool_executor_registry)
 
 # Telemetry / Prometheus metrics
 try:
-    from telemetry.memory_metrics import init_metrics, PROMETHEUS_AVAILABLE
     from prometheus_client import make_asgi_app as prometheus_make_asgi_app
+
+    from telemetry.memory_metrics import PROMETHEUS_AVAILABLE, init_metrics
 
     _has_prometheus = PROMETHEUS_AVAILABLE
 except ImportError:
@@ -148,10 +126,11 @@ except ImportError:
 
 # Optional: Slack Adapter (v2.0+)
 try:
+    import httpx
+
     from api.routes.slack import router as slack_router
     from api.slack_adapter import SlackRequestValidator
     from api.slack_client import SlackAPIClient
-    import httpx
 
     _has_slack = True
 except ImportError:
@@ -167,8 +146,8 @@ except ImportError:
 
 # Optional: Quantum Research Factory (v2.1+)
 try:
-    from services.research.research_api import router as research_router
     from services.research.graph_runtime import init_runtime, shutdown_runtime
+    from services.research.research_api import router as research_router
 
     _has_research = True
 except ImportError:
@@ -176,12 +155,9 @@ except ImportError:
 
 # Optional: World Model Runtime (v2.5+)
 try:
-    from world_model.runtime import (
-        create_runtime_with_substrate,
-        get_or_create_runtime,
-        WorldModelRuntime,
-        RuntimeConfig,
-    )
+    from world_model.runtime import (RuntimeConfig, WorldModelRuntime,
+                                     create_runtime_with_substrate,
+                                     get_or_create_runtime)
 
     _has_world_model_runtime = True
 except ImportError:
@@ -190,14 +166,9 @@ except ImportError:
 # Optional: Agent Executor (v2.2+)
 try:
     from core.agents.executor import AgentExecutorService
-    from core.agents.schemas import (
-        AgentConfig,
-        AgentTask,
-        AgentType,
-        DuplicateTaskResponse,
-        ExecutionResult,
-        ToolBinding,
-    )
+    from core.agents.schemas import (AgentConfig, AgentTask, AgentType,
+                                     DuplicateTaskResponse, ExecutionResult,
+                                     ToolBinding)
 
     _has_agent_executor = True
 except ImportError as e:
@@ -221,10 +192,8 @@ except Exception as e:
 
 # Optional: Tool Registry Adapter (v2.2+)
 try:
-    from core.tools.registry_adapter import (
-        ExecutorToolRegistry,
-        create_executor_tool_registry,
-    )
+    from core.tools.registry_adapter import (ExecutorToolRegistry,
+                                             create_executor_tool_registry)
 
     _has_tool_registry = True
 except ImportError as e:
@@ -270,7 +239,7 @@ except ImportError:
 # Optional: Pattern Orchestrator (v4.0+ / Agent Pattern System)
 try:
     from api.routes.pattern import router as pattern_router
-    from orchestrators.pattern import PatternOrchestrator, CellAgentAdapter
+    from orchestrators.pattern import CellAgentAdapter, PatternOrchestrator
 
     _has_pattern = True
 except ImportError:
@@ -279,7 +248,8 @@ except ImportError:
 # Optional: ResearchSwarm Orchestrator (v3.5+ / Stage 2.6 Phase 3)
 try:
     from api.routes.research import router as research_swarm_router
-    from orchestrators.research_swarm.orchestrator import ResearchSwarmOrchestrator
+    from orchestrators.research_swarm.orchestrator import \
+        ResearchSwarmOrchestrator
 
     _has_research_swarm = True
 except ImportError:
@@ -287,8 +257,8 @@ except ImportError:
 
 # Optional: ResearchAgent (Perplexity-based unified research-to-code agent)
 try:
-    from api.routes.research_agent import router as research_agent_router
     from agents.research_agent_impl import ResearchAgent, create_research_agent
+    from api.routes.research_agent import router as research_agent_router
 
     _has_research_agent = True
 except ImportError as e:
@@ -297,8 +267,9 @@ except ImportError as e:
 
 # Optional: ReflectionAgent (Meta-reasoning and self-improvement agent)
 try:
+    from agents.reflection_agent import (ReflectionAgent,
+                                         create_reflection_agent)
     from api.routes.reflection_agent import router as reflection_agent_router
-    from agents.reflection_agent import ReflectionAgent, create_reflection_agent
 
     _has_reflection_agent = True
 except ImportError as e:
@@ -307,14 +278,16 @@ except ImportError as e:
 
 # Optional: Cursor Executor (GMP-48)
 try:
-    from api.routes.cursor import router as cursor_router
     from agents.cursor.integrations.cursor_executor import CursorExecutor
     from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
-    from agents.cursor.integrations.cursor_langgraph import build_cursor_langgraph
-    from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
-    from memory.checkpoint.postgres_saver import L9PostgresSaver
-    from core.governance.approval_manager import ApprovalManager
+    from agents.cursor.integrations.cursor_langgraph import \
+        build_cursor_langgraph
+    from api.routes.cursor import router as cursor_router
     from config.cursor_langgraph_config import get_cursor_langgraph_config
+    from core.governance.approval_manager import ApprovalManager
+    from memory.checkpoint.cursor_checkpoint_manager import \
+        CursorCheckpointManager
+    from memory.checkpoint.postgres_saver import L9PostgresSaver
 
     _has_cursor_executor = True
 except ImportError as e:
@@ -323,8 +296,9 @@ except ImportError as e:
 
 # Optional: Governance Engine (v2.4+)
 try:
-    from core.governance.engine import GovernanceEngineService, create_governance_engine
-    from core.governance.loader import PolicyLoadError, InvalidPolicyError
+    from core.governance.engine import (GovernanceEngineService,
+                                        create_governance_engine)
+    from core.governance.loader import InvalidPolicyError, PolicyLoadError
 
     _has_governance = True
 except ImportError:
@@ -332,7 +306,8 @@ except ImportError:
 
 # Optional: Symbolic Computation Service (v2.9+ / GMP-SYMPY-TASK4)
 try:
-    from services.symbolic_computation.api.routes import router as symbolic_router
+    from services.symbolic_computation.api.routes import \
+        router as symbolic_router
 
     _has_symbolic = True
 except ImportError:
@@ -348,10 +323,8 @@ except ImportError:
 
 # Optional: Kernel-Aware Agent Registry (v2.5+)
 try:
-    from core.agents.kernel_registry import (
-        create_kernel_aware_registry,
-        KernelAwareAgentRegistry,
-    )
+    from core.agents.kernel_registry import (KernelAwareAgentRegistry,
+                                             create_kernel_aware_registry)
 
     _has_kernel_registry = True
 except ImportError as e:
@@ -373,9 +346,11 @@ try:
             sys.path.insert(0, str(startup_path.parent))
             from startup.session_startup import SessionStartup, StartupResult
         else:
-            from core.governance.session_startup import SessionStartup, StartupResult
+            from core.governance.session_startup import (SessionStartup,
+                                                         StartupResult)
     except ImportError:
-        from core.governance.session_startup import SessionStartup, StartupResult
+        from core.governance.session_startup import (SessionStartup,
+                                                     StartupResult)
 
     _has_session_startup = True
 except ImportError as e:
@@ -400,20 +375,13 @@ L9_GRAPH_AGENT_STATE = settings.l9_graph_agent_state
 
 # Optional: Graph-Backed Agent State (v3.2+ Stage 5)
 try:
-    from core.agents.graph_state import (
-        AgentGraphLoader,
-        GraphHydrator,
-        bootstrap_l_graph,
-    )
-    from core.tools.agent_self_modify import (
-        AgentSelfModifyTool,
-        create_self_modify_tool,
-    )
-    from services.research.graph_persistence import (
-        ResearchGraphPersistence,
-        create_graph_persistence,
-        init_graph_persistence,
-    )
+    from core.agents.graph_state import (AgentGraphLoader, GraphHydrator,
+                                         bootstrap_l_graph)
+    from core.tools.agent_self_modify import (AgentSelfModifyTool,
+                                              create_self_modify_tool)
+    from services.research.graph_persistence import (ResearchGraphPersistence,
+                                                     create_graph_persistence,
+                                                     init_graph_persistence)
 
     _has_graph_agent_state = True
     _has_research_graph_persistence = True
@@ -424,16 +392,11 @@ except ImportError:
 # Optional: Five-Tier Observability (v3.3+ GMP-OBS-DEPLOY)
 L9_OBSERVABILITY = settings.l9_observability
 try:
-    from core.observability.service import (
-        initialize_observability,
-        ObservabilityService,
-    )
     from core.observability.l9_integration import (
-        instrument_agent_executor,
-        instrument_tool_registry,
-        instrument_governance_engine,
-        instrument_memory_substrate,
-    )
+        instrument_agent_executor, instrument_governance_engine,
+        instrument_memory_substrate, instrument_tool_registry)
+    from core.observability.service import (ObservabilityService,
+                                            initialize_observability)
 
     _has_observability = True
 except ImportError:
@@ -450,7 +413,8 @@ except ImportError:
 
 # Optional: Event Queue (v3.1+ Stage 3)
 try:
-    from core.coordination.event_queue import EventQueue, init_event_driven_coordination
+    from core.coordination.event_queue import (EventQueue,
+                                               init_event_driven_coordination)
 
     _has_event_queue = True
 except ImportError:
@@ -490,7 +454,8 @@ else:
 
 # Optional: Housekeeping Engine (v2.4+)
 try:
-    from memory.housekeeping import HousekeepingEngine, init_housekeeping_engine
+    from memory.housekeeping import (HousekeepingEngine,
+                                     init_housekeeping_engine)
 
     _has_housekeeping = True
 except ImportError:
@@ -502,12 +467,12 @@ _has_mac_agent = settings.mac_agent_enabled
 # Optional: WABA/WhatsApp (from centralized settings)
 _has_waba = settings.waba_enabled
 
+from memory.agent_persistence import AgentPersistenceService
 # Memory system imports
 from memory.migration_runner import run_migrations
-from memory.substrate_service import init_service, close_service
-from memory.agent_persistence import AgentPersistenceService
-from memory.timeline_service import TimelineService
 from memory.state_manager import MemoryStateManager
+from memory.substrate_service import close_service, init_service
+from memory.timeline_service import TimelineService
 
 # Integration settings
 logger = structlog.get_logger(__name__)
@@ -558,7 +523,7 @@ async def lifespan(app: FastAPI):
     # GMP-45: ModuleRegistry (runtime truth)
     # ------------------------------------------------------------------------
     try:
-        from core.moduleregistry import ModuleRegistry, ModuleDefinition
+        from core.moduleregistry import ModuleDefinition, ModuleRegistry
 
         module_registry = ModuleRegistry()
         module_registry.register(
@@ -667,13 +632,10 @@ async def lifespan(app: FastAPI):
     # Register all tools: legacy TOOL_EXECUTORS + extension modules + @register_tool
     # ------------------------------------------------------------------------
     try:
-        from runtime.tool_registry import (
-            discover_tools,
-            register_extension_tool_executors,
-            get_tool_snapshot,
-        )
+        from runtime.tool_registry import (discover_tools, get_tool_snapshot,
+                                           register_extension_tool_executors)
 
-         # 1. All tools now use @register_tool decorator - legacy bridge removed
+        # 1. All tools now use @register_tool decorator - legacy bridge removed
         # 2. Register extension tools (research, reflection)
         extension_count = register_extension_tool_executors()
 
@@ -687,7 +649,6 @@ async def lifespan(app: FastAPI):
         snapshot = get_tool_snapshot()
         logger.info(
             "Tool executor auto-registration complete",
-
             extension_tools=extension_count,
             total_tools=snapshot["component_count"],
         )
@@ -700,11 +661,10 @@ async def lifespan(app: FastAPI):
     # Load MCP server configs from config/mcp_servers.yaml
     # ------------------------------------------------------------------------
     try:
-        from runtime.mcp_server_registry import (
-            load_mcp_servers_from_yaml,
-            get_all_mcp_servers,
-        )
         from pathlib import Path
+
+        from runtime.mcp_server_registry import (get_all_mcp_servers,
+                                                 load_mcp_servers_from_yaml)
 
         mcp_config_path = Path(__file__).parent.parent / "config" / "mcp_servers.yaml"
         if mcp_config_path.exists():
@@ -727,11 +687,8 @@ async def lifespan(app: FastAPI):
     # Register all agents: legacy exports + @register_agent decorated
     # ------------------------------------------------------------------------
     try:
-        from agents.agent_registry import (
-            register_legacy_agents,
-            discover_agents,
-            get_agent_snapshot,
-        )
+        from agents.agent_registry import (discover_agents, get_agent_snapshot,
+                                           register_legacy_agents)
 
         # 1. Register legacy agent classes
         legacy_agent_count = register_legacy_agents()
@@ -754,10 +711,8 @@ async def lifespan(app: FastAPI):
     # ------------------------------------------------------------------------
     try:
         from orchestrators.orchestrator_registry import (
-            register_legacy_orchestrators,
-            discover_orchestrators,
-            get_orchestrator_snapshot,
-        )
+            discover_orchestrators, get_orchestrator_snapshot,
+            register_legacy_orchestrators)
 
         # 1. Register legacy orchestrator classes
         legacy_orch_count = register_legacy_orchestrators()
@@ -779,11 +734,9 @@ async def lifespan(app: FastAPI):
     # Register all cells: legacy exports + @register_cell decorated
     # ------------------------------------------------------------------------
     try:
-        from collaborative_cells.cell_registry import (
-            register_legacy_cells,
-            discover_cells,
-            get_cell_snapshot,
-        )
+        from collaborative_cells.cell_registry import (discover_cells,
+                                                       get_cell_snapshot,
+                                                       register_legacy_cells)
 
         # 1. Register legacy cell classes
         legacy_cell_count = register_legacy_cells()
@@ -806,9 +759,7 @@ async def lifespan(app: FastAPI):
     # ------------------------------------------------------------------------
     try:
         from core.governance.policy_registry import (
-            register_default_policy_sources,
-            get_policy_source_snapshot,
-        )
+            get_policy_source_snapshot, register_default_policy_sources)
 
         # Register default policy directories
         policy_source_count = register_default_policy_sources()
@@ -971,8 +922,8 @@ async def lifespan(app: FastAPI):
             if str(mcp_path) not in sys.path:
                 sys.path.insert(0, str(mcp_path))
 
-            from src.db import init_db as mcp_init_db
             from src.config import settings as mcp_settings
+            from src.db import init_db as mcp_init_db
 
             # Set MCP config to use same database
             mcp_settings.MEMORY_DSN = database_url
@@ -1280,9 +1231,8 @@ async def lifespan(app: FastAPI):
 
             # Initialize ActionToolOrchestrator (for /tools/execute endpoint)
             try:
-                from orchestrators.action_tool.orchestrator import (
-                    ActionToolOrchestrator,
-                )
+                from orchestrators.action_tool.orchestrator import \
+                    ActionToolOrchestrator
 
                 gov_engine = getattr(app.state, "governance_engine", None)
                 action_tool_orchestrator = ActionToolOrchestrator(
@@ -1300,7 +1250,8 @@ async def lifespan(app: FastAPI):
 
             # Initialize MemoryOrchestrator (for /memory/batch, /memory/compact endpoints)
             try:
-                from orchestrators.memory.orchestrator import MemoryOrchestrator
+                from orchestrators.memory.orchestrator import \
+                    MemoryOrchestrator
 
                 memory_orchestrator = MemoryOrchestrator()
                 app.state.memory_orchestrator = memory_orchestrator
@@ -1600,7 +1551,7 @@ async def lifespan(app: FastAPI):
     neo4j_retry_delay = 3  # Start with 3 seconds
 
     try:
-        from memory.graph_client import get_neo4j_client, close_neo4j_client
+        from memory.graph_client import close_neo4j_client, get_neo4j_client
 
         neo4j = None
         for attempt in range(neo4j_max_retries):
@@ -1659,7 +1610,8 @@ async def lifespan(app: FastAPI):
         if neo4j and neo4j.is_available():
             # Bootstrap governance schema (creates Responsibility, Directive, SOP labels)
             try:
-                from scripts.bootstrap_neo4j_schema import bootstrap_l_governance
+                from scripts.bootstrap_neo4j_schema import \
+                    bootstrap_l_governance
 
                 bootstrap_result = await bootstrap_l_governance(neo4j.driver)
                 if bootstrap_result.get("success"):
@@ -1678,7 +1630,8 @@ async def lifespan(app: FastAPI):
 
             # Register L9 tools in graph (for dependency tracking)
             try:
-                from core.tools.tool_graph import register_l9_tools, register_l_tools
+                from core.tools.tool_graph import (register_l9_tools,
+                                                   register_l_tools)
 
                 tool_count = await register_l9_tools()
                 logger.info(f"Registered {tool_count} tools in Neo4j graph")
@@ -1700,7 +1653,8 @@ async def lifespan(app: FastAPI):
 
             # Initialize Strategy Memory Service (GMP-102: Phase 0-1)
             try:
-                from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
+                from memory.neo4j_strategy_memory import \
+                    Neo4jStrategyMemoryService
 
                 strategy_memory = Neo4jStrategyMemoryService(
                     neo4j_client=neo4j,
@@ -1727,7 +1681,7 @@ async def lifespan(app: FastAPI):
 
     # Initialize Redis client (optional, graceful if unavailable)
     try:
-        from runtime.redis_client import get_redis_client, close_redis_client
+        from runtime.redis_client import close_redis_client, get_redis_client
 
         redis = await get_redis_client()
         if redis and redis.is_available():
@@ -1933,7 +1887,9 @@ async def lifespan(app: FastAPI):
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
         else:
-            logger.warning("⚠️ Memory tools not registered: tool_registry not available")
+            logger.warning(
+                "⚠️ Memory tools not registered: tool_registry not available"
+            )
     except Exception as e:
         logger.error(f"❌ Memory tool registration failed: {e}", exc_info=True)
 
@@ -2052,8 +2008,8 @@ async def lifespan(app: FastAPI):
 
         try:
             from core.memory.virtual_context import MemoryConsolidationService
-            from memory.neural_decay_scheduler import NeuralDecayScheduler
             from memory.hierarchical_summarizer import HierarchicalSummarizer
+            from memory.neural_decay_scheduler import NeuralDecayScheduler
 
             substrate = getattr(app.state, "substrate_service", None) or getattr(
                 app.state, "memory_service", None
@@ -2287,9 +2243,7 @@ async def lifespan(app: FastAPI):
         else:
             try:
                 from core.integration.graph_to_wm_sync import (
-                    start_graph_wm_sync,
-                    get_graph_wm_sync,
-                )
+                    get_graph_wm_sync, start_graph_wm_sync)
 
                 # Use driver property from Neo4jClient (single source of truth)
                 await start_graph_wm_sync(neo4j_driver=neo4j_for_sync.driver)
@@ -2326,10 +2280,8 @@ async def lifespan(app: FastAPI):
         and neo4j_for_wm_sync.is_available()
     ):
         try:
-            from core.integration.wm_to_graph_sync import (
-                start_wm_graph_sync,
-                get_wm_graph_sync,
-            )
+            from core.integration.wm_to_graph_sync import (get_wm_graph_sync,
+                                                           start_wm_graph_sync)
             from world_model.causal_mapper import CausalMapper
 
             # Get CausalMapper from world_model_service if available (ensures we sync actual data)
@@ -2376,9 +2328,7 @@ async def lifespan(app: FastAPI):
     if L9_TOOL_PATTERN_EXTRACTION:
         try:
             from core.integration.tool_pattern_extractor import (
-                start_tool_pattern_extraction,
-                get_tool_pattern_extractor,
-            )
+                get_tool_pattern_extractor, start_tool_pattern_extraction)
 
             await start_tool_pattern_extraction()
             app.state.tool_pattern_extractor = get_tool_pattern_extractor()
@@ -2577,9 +2527,8 @@ async def lifespan(app: FastAPI):
         and app.state.tool_pattern_extractor
     ):
         try:
-            from core.integration.tool_pattern_extractor import (
-                stop_tool_pattern_extraction,
-            )
+            from core.integration.tool_pattern_extractor import \
+                stop_tool_pattern_extraction
 
             await stop_tool_pattern_extraction()
             logger.info("Tool Pattern Extraction stopped")
@@ -2762,8 +2711,9 @@ async def global_exception_handler(request: Request, exc: Exception):
     """
     # Log to Neo4j (best-effort, non-blocking)
     try:
-        from core.error_tracking import log_error_to_graph
         import asyncio
+
+        from core.error_tracking import log_error_to_graph
 
         asyncio.create_task(
             log_error_to_graph(
@@ -3079,7 +3029,8 @@ async def checkpoint_health():
 
     Pool stats are updated by L9RetryablePostgresSaver when available.
     """
-    from memory.checkpoint_metrics import get_pool_stats_dict, PROMETHEUS_AVAILABLE
+    from memory.checkpoint_metrics import (PROMETHEUS_AVAILABLE,
+                                           get_pool_stats_dict)
 
     pool_stats = get_pool_stats_dict()
 
@@ -3117,6 +3068,7 @@ class ChatResponse(BaseModel):
 # =============================================================================
 
 from typing import Any, Optional
+
 from pydantic import Field
 
 
@@ -3410,9 +3362,8 @@ async def on_shutdown():
 # =============================================================================
 
 from core.schemas.event_stream import AgentHandshake
-
 # Import the shared singleton orchestrator instance
-from runtime.websocket_orchestrator import ws_orchestrator, verify_ws_token
+from runtime.websocket_orchestrator import verify_ws_token, ws_orchestrator
 
 # =============================================================================
 # WebSocket Authentication Helper
@@ -3499,8 +3450,8 @@ async def agent_ws_endpoint(websocket: WebSocket) -> None:
 
             # Ingest WebSocket event as packet (canonical memory entrypoint)
             try:
-                from memory.ingestion import ingest_packet
                 from core.schemas import PacketEnvelopeIn
+                from memory.ingestion import ingest_packet
 
                 packet_in = PacketEnvelopeIn(
                     packet_type="websocket_event",

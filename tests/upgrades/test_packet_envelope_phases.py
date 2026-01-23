@@ -24,9 +24,7 @@ class TestPhase2Observability:
 
     def test_observability_config_defaults(self):
         """Test observability config has sensible defaults"""
-        from core.packet_envelope.observability import (
-            ObservabilityConfig,
-        )
+        from core.packet_envelope.observability import ObservabilityConfig
 
         config = ObservabilityConfig()
 
@@ -40,9 +38,7 @@ class TestPhase2Observability:
     def test_observability_disabled_mode(self):
         """Test observability can be disabled"""
         from core.packet_envelope.observability import (
-            ObservabilityConfig,
-            PacketEnvelopeObservability,
-        )
+            ObservabilityConfig, PacketEnvelopeObservability)
 
         config = ObservabilityConfig(enabled=False)
         obs = PacketEnvelopeObservability(config)
@@ -53,9 +49,7 @@ class TestPhase2Observability:
     def test_trace_context_extraction(self):
         """Test W3C trace context extraction from headers"""
         from core.packet_envelope.observability import (
-            ObservabilityConfig,
-            PacketEnvelopeObservability,
-        )
+            ObservabilityConfig, PacketEnvelopeObservability)
 
         config = ObservabilityConfig(enabled=False)  # Disabled to avoid init
         obs = PacketEnvelopeObservability(config)
@@ -163,10 +157,8 @@ class TestPhase3Standardization:
 
     def test_http_binary_binding_serialization(self):
         """Test HTTP binary binding serialization"""
-        from core.packet_envelope.standardization import (
-            CloudEvent,
-            HTTPBinaryBinding,
-        )
+        from core.packet_envelope.standardization import (CloudEvent,
+                                                          HTTPBinaryBinding)
 
         event = CloudEvent(
             type="l9.packet.ingested",
@@ -186,9 +178,7 @@ class TestPhase3Standardization:
     def test_http_structured_binding_serialization(self):
         """Test HTTP structured binding serialization"""
         from core.packet_envelope.standardization import (
-            CloudEvent,
-            HTTPStructuredBinding,
-        )
+            CloudEvent, HTTPStructuredBinding)
 
         event = CloudEvent(
             type="l9.packet.ingested",
@@ -228,10 +218,8 @@ class TestPhase3Standardization:
 
     def test_cloudevent_batch(self):
         """Test CloudEvent batch serialization"""
-        from core.packet_envelope.standardization import (
-            CloudEvent,
-            CloudEventBatch,
-        )
+        from core.packet_envelope.standardization import (CloudEvent,
+                                                          CloudEventBatch)
 
         events = [
             CloudEvent(type="l9.packet.ingested", source="l9/test", data={"id": i})
@@ -256,15 +244,17 @@ class TestPhase4Scalability:
     @pytest.mark.asyncio
     async def test_batch_ingestion_success(self):
         """Test batch ingestion with valid packets"""
-        from core.packet_envelope.scalability import (
-            BatchIngestRequest,
-            BatchIngestionEngine,
-        )
+        from core.packet_envelope.scalability import (BatchIngestionEngine,
+                                                      BatchIngestRequest)
 
         engine = BatchIngestionEngine(batch_size=10)
 
         packets = [
-            {"id": f"pkt-{i}", "payload": {"data": i}, "timestamp": "2026-01-05T12:00:00Z"}
+            {
+                "id": f"pkt-{i}",
+                "payload": {"data": i},
+                "timestamp": "2026-01-05T12:00:00Z",
+            }
             for i in range(5)
         ]
 
@@ -281,10 +271,8 @@ class TestPhase4Scalability:
     @pytest.mark.asyncio
     async def test_batch_ingestion_validation_failure(self):
         """Test batch ingestion with invalid packets"""
-        from core.packet_envelope.scalability import (
-            BatchIngestRequest,
-            BatchIngestionEngine,
-        )
+        from core.packet_envelope.scalability import (BatchIngestionEngine,
+                                                      BatchIngestRequest)
 
         engine = BatchIngestionEngine()
 
@@ -300,11 +288,8 @@ class TestPhase4Scalability:
     @pytest.mark.asyncio
     async def test_command_handler_ingest_packet(self):
         """Test command handler produces correct events"""
-        from core.packet_envelope.scalability import (
-            Command,
-            CommandHandler,
-            CommandType,
-        )
+        from core.packet_envelope.scalability import (Command, CommandHandler,
+                                                      CommandType)
 
         handler = CommandHandler()
 
@@ -379,10 +364,8 @@ class TestPhase5Governance:
 
     def test_retention_policy_expiration(self):
         """Test retention policy expiration calculation"""
-        from core.packet_envelope.governance import (
-            RetentionManager,
-            RetentionPolicy,
-        )
+        from core.packet_envelope.governance import (RetentionManager,
+                                                     RetentionPolicy)
 
         manager = RetentionManager()
 
@@ -399,10 +382,8 @@ class TestPhase5Governance:
 
     def test_retention_policy_permanent(self):
         """Test permanent retention never expires"""
-        from core.packet_envelope.governance import (
-            RetentionManager,
-            RetentionPolicy,
-        )
+        from core.packet_envelope.governance import (RetentionManager,
+                                                     RetentionPolicy)
 
         manager = RetentionManager()
         manager.set_retention_policy("pkt-002", RetentionPolicy.PERMANENT)
@@ -445,10 +426,8 @@ class TestPhase5Governance:
     @pytest.mark.asyncio
     async def test_erasure_requires_approval(self):
         """Test erasure fails without approval"""
-        from core.packet_envelope.governance import (
-            DataRetentionConfig,
-            ErasureEngine,
-        )
+        from core.packet_envelope.governance import (DataRetentionConfig,
+                                                     ErasureEngine)
 
         config = DataRetentionConfig(require_approval_for_delete=True)
         engine = ErasureEngine(config)
@@ -466,11 +445,9 @@ class TestPhase5Governance:
     @pytest.mark.asyncio
     async def test_anonymization_strategies(self):
         """Test anonymization strategies"""
-        from core.packet_envelope.governance import (
-            AnonymizationEngine,
-            AnonymizationRule,
-            AnonymizationStrategy,
-        )
+        from core.packet_envelope.governance import (AnonymizationEngine,
+                                                     AnonymizationRule,
+                                                     AnonymizationStrategy)
 
         engine = AnonymizationEngine()
 
@@ -482,7 +459,9 @@ class TestPhase5Governance:
             AnonymizationRule(field_name="phone", strategy=AnonymizationStrategy.MASK)
         )
         engine.register_rule(
-            AnonymizationRule(field_name="name", strategy=AnonymizationStrategy.GENERALIZE)
+            AnonymizationRule(
+                field_name="name", strategy=AnonymizationStrategy.GENERALIZE
+            )
         )
         engine.register_rule(
             AnonymizationRule(field_name="ssn", strategy=AnonymizationStrategy.SUPPRESS)
@@ -549,7 +528,8 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_upgrade_engine_phase_sequence(self):
         """Test upgrade engine activates phases in sequence"""
-        from core.packet_envelope.integration import PacketEnvelopeUpgradeEngine
+        from core.packet_envelope.integration import \
+            PacketEnvelopeUpgradeEngine
 
         engine = PacketEnvelopeUpgradeEngine()
 
@@ -585,7 +565,8 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_upgrade_engine_phase_dependency(self):
         """Test phase activation respects dependencies"""
-        from core.packet_envelope.integration import PacketEnvelopeUpgradeEngine
+        from core.packet_envelope.integration import \
+            PacketEnvelopeUpgradeEngine
 
         engine = PacketEnvelopeUpgradeEngine()
 
@@ -602,7 +583,8 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_upgrade_engine_all_phases(self):
         """Test activate_all_phases convenience method"""
-        from core.packet_envelope.integration import PacketEnvelopeUpgradeEngine
+        from core.packet_envelope.integration import \
+            PacketEnvelopeUpgradeEngine
 
         engine = PacketEnvelopeUpgradeEngine()
 

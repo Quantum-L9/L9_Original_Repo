@@ -31,10 +31,11 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Set, List
+from typing import List, Set
 from uuid import UUID
 
 import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

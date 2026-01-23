@@ -49,14 +49,9 @@ from typing import TYPE_CHECKING
 
 import structlog
 
-from .schema import (
-    CREATE_AGENT_QUERY,
-    CREATE_RESPONSIBILITY_QUERY,
-    CREATE_DIRECTIVE_QUERY,
-    CREATE_SOP_QUERY,
-    CREATE_TOOL_QUERY,
-    CREATE_REPORTS_TO_QUERY,
-)
+from .schema import (CREATE_AGENT_QUERY, CREATE_DIRECTIVE_QUERY,
+                     CREATE_REPORTS_TO_QUERY, CREATE_RESPONSIBILITY_QUERY,
+                     CREATE_SOP_QUERY, CREATE_TOOL_QUERY)
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver

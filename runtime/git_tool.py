@@ -33,11 +33,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict
 from uuid import uuid4
 
-from runtime.task_queue import TaskQueue, QueuedTask
+import structlog
+
+from runtime.task_queue import QueuedTask, TaskQueue
 
 logger = structlog.get_logger(__name__)
 

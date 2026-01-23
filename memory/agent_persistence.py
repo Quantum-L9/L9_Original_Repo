@@ -42,16 +42,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import json
 from datetime import datetime
-from typing import Any, Optional, List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from memory.substrate_repository import SubstrateRepository
+import structlog
+
 from core.schemas import PacketEnvelopeIn
+from memory.checkpoint_metrics import get_metrics
 from memory.checkpoint_validator import CheckpointValidator
-from memory.checkpoint_metrics import CheckpointMetrics, get_metrics
+from memory.substrate_repository import SubstrateRepository
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService

@@ -20,18 +20,19 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
+
 import structlog
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
 import api.db as db
 
 # Local dev mode flag
 LOCAL_DEV = os.getenv("LOCAL_DEV", "false").lower() == "true"
-from api.auth import verify_api_key
-from api.memory.router import router as memory_router
 from openai import OpenAI
 
+from api.auth import verify_api_key
+from api.memory.router import router as memory_router
 # Integration settings
 from config.settings import settings
 
@@ -86,8 +87,8 @@ async def chat(
     Basic LLM chat endpoint using OpenAI.
     Ingests both request and response to memory for audit trail.
     """
-    from memory.ingestion import ingest_packet
     from core.schemas import PacketEnvelopeIn
+    from memory.ingestion import ingest_packet
 
     try:
         messages = []
@@ -166,6 +167,7 @@ if settings.slack_app_enabled:
         try:
             # Initialize Slack adapter components (required for route dependencies)
             import httpx
+
             from api.slack_adapter import SlackRequestValidator
             from api.slack_client import SlackAPIClient
 

@@ -4,11 +4,9 @@ Tests for orchestrator auto-registration system.
 Tests the actual orchestrator_registry API which uses AutoRegistry.
 """
 
-from orchestrators.orchestrator_registry import (
-    register_legacy_orchestrators,
-    discover_orchestrators,
-    get_orchestrator_snapshot,
-)
+from orchestrators.orchestrator_registry import (discover_orchestrators,
+                                                 get_orchestrator_snapshot,
+                                                 register_legacy_orchestrators)
 
 
 def test_register_legacy_orchestrators():

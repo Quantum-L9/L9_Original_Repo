@@ -27,17 +27,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 import httpx
-from core.decorators import must_stay_async
+import structlog
 
-from services.research.tools.perplexity_client import (
-    PerplexityClient,
-    get_perplexity_client,
-)
+from core.decorators import must_stay_async
+from services.research.tools.perplexity_client import (PerplexityClient,
+                                                       get_perplexity_client)
 
 log = structlog.get_logger(__name__)
 

@@ -33,8 +33,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 
@@ -206,9 +207,11 @@ async def get_failures(
     return FailuresListResponse(
         failures=[
             FailureResponse(
-                failure_class=f.failure_class.value
-                if hasattr(f.failure_class, "value")
-                else str(f.failure_class),
+                failure_class=(
+                    f.failure_class.value
+                    if hasattr(f.failure_class, "value")
+                    else str(f.failure_class)
+                ),
                 span_id=f.span_id,
                 trace_id=f.trace_id,
                 timestamp=f.timestamp,

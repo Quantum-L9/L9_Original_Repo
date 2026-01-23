@@ -39,33 +39,22 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from core.decorators import must_stay_async
 
-from core.packet_envelope.observability import (
-    ObservabilityConfig,
-    PacketEnvelopeObservability,
-    WebSocketTracePropagator,
-)
-from core.packet_envelope.standardization import (
-    CloudEvent,
-    EventType,
-    HTTPBinaryBinding,
-    HTTPStructuredBinding,
-    SchemaRegistry,
-)
-from core.packet_envelope.scalability import (
-    BatchIngestionEngine,
-    CommandHandler,
-    EventStore,
-    ReadModel,
-)
-from core.packet_envelope.governance import (
-    AnonymizationEngine,
-    ComplianceAuditLog,
-    ComplianceExporter,
-    ErasureEngine,
-    RetentionManager,
-)
+from core.decorators import must_stay_async
+from core.packet_envelope.governance import (AnonymizationEngine,
+                                             ComplianceAuditLog,
+                                             ComplianceExporter, ErasureEngine,
+                                             RetentionManager)
+from core.packet_envelope.observability import (ObservabilityConfig,
+                                                PacketEnvelopeObservability,
+                                                WebSocketTracePropagator)
+from core.packet_envelope.scalability import (BatchIngestionEngine,
+                                              CommandHandler, EventStore,
+                                              ReadModel)
+from core.packet_envelope.standardization import (CloudEvent, EventType,
+                                                  HTTPBinaryBinding,
+                                                  HTTPStructuredBinding,
+                                                  SchemaRegistry)
 
 logger = logging.getLogger(__name__)
 

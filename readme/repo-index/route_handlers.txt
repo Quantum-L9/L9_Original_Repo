@@ -256,8 +256,9 @@ POST /{account}/reply → reply_email() @ email_agent/router.py
 POST /{account}/send → send_email() @ email_agent/router.py
 WEBSOCKET /lws → l_ws() @ api/server.py
 WEBSOCKET /lws → l_ws() @ current_work/DONE/Slack-Debug-2/server.py
+WEBSOCKET /ws → inject_trace_into_packet() @ api/middleware/websocket_tracing.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ api/server.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ current_work/DONE/GMP Stage 1 - Tools/server.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ current_work/DONE/Slack-Debug-2/server.py
 
-# Total: 256 route handlers
+# Total: 257 route handlers

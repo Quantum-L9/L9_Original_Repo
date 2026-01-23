@@ -60,28 +60,26 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import httpx
-from typing import Any, Dict, List, Optional, Tuple
-import structlog
 from time import time as current_time
+from typing import Any, Dict, List, Optional, Tuple
+
+import httpx
+import structlog
 
 from api.slack_adapter import SlackRequestNormalizer
 from api.slack_client import SlackAPIClient, SlackClientError
+from config.settings import settings
 from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
-from config.settings import settings
-
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
 
 # Optional telemetry - gracefully degrade if module not available
 try:
-    from telemetry.slack_metrics import (
-        record_aios_call,
-        record_idempotent_hit,
-        record_packet_write_error,
-        record_slack_reply_error,
-    )
+    from telemetry.slack_metrics import (record_aios_call,
+                                         record_idempotent_hit,
+                                         record_packet_write_error,
+                                         record_slack_reply_error)
 except ImportError:
     # Stub functions when telemetry not available
     def record_aios_call(*args, **kwargs):
@@ -157,12 +155,9 @@ async def handle_slack_with_l_agent(
     """
     try:
         # Import here to avoid circular imports
-        from core.agents.schemas import (
-            AgentTask,
-            AgentType,
-            ExecutionResult,
-            DuplicateTaskResponse,
-        )
+        from core.agents.schemas import (AgentTask, AgentType,
+                                         DuplicateTaskResponse,
+                                         ExecutionResult)
 
         # Check if agent executor is available
         agent_executor = getattr(app.state, "agent_executor", None)
@@ -387,7 +382,8 @@ async def _route_to_mac_task(
     """
     try:
         from orchestration.slack_task_router import route_slack_message
-        from orchestrators.agent_execution.task_queue import enqueue_mac_task_dict
+        from orchestrators.agent_execution.task_queue import \
+            enqueue_mac_task_dict
 
         # Route message + artifacts to mac_task structure
         task_dict = route_slack_message(text, file_artifacts, user_id)
@@ -447,8 +443,8 @@ async def _route_to_email_task(
     Returns response dict if routed, None if routing not applicable/failed.
     """
     try:
-        from orchestration.email_task_router import route_email_task
         from email_agent.client import execute_email_task
+        from orchestration.email_task_router import route_email_task
 
         # Route message + artifacts to email_task structure
         task_dict = route_email_task(text, file_artifacts, user_id)
@@ -626,7 +622,8 @@ async def handle_slack_events(
     command_response = None
 
     try:
-        from core.commands.parser import parse_command, is_l_command as check_l_command
+        from core.commands.parser import is_l_command as check_l_command
+        from core.commands.parser import parse_command
         from core.commands.schemas import Command, NLPPrompt
 
         if check_l_command(text):
@@ -914,9 +911,7 @@ async def handle_slack_events(
                         reply = (
                             "\n\n---\n\n".join(successful)
                             if len(successful) > 1
-                            else successful[0]
-                            if successful
-                            else "All tasks processed."
+                            else successful[0] if successful else "All tasks processed."
                         )
                         status = "completed"
                 else:
@@ -1541,8 +1536,9 @@ async def _retrieve_thread_context(
         )
         # Log to error telemetry (non-blocking)
         try:
-            from core.error_tracking import log_error_to_graph
             import asyncio
+
+            from core.error_tracking import log_error_to_graph
 
             asyncio.create_task(
                 log_error_to_graph(
@@ -1592,8 +1588,9 @@ async def _retrieve_semantic_hits(
         )
         # Log to error telemetry (non-blocking)
         try:
-            from core.error_tracking import log_error_to_graph
             import asyncio
+
+            from core.error_tracking import log_error_to_graph
 
             asyncio.create_task(
                 log_error_to_graph(

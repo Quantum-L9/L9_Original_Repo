@@ -52,9 +52,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-import structlog
 from dataclasses import dataclass
 from typing import Any
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -261,7 +263,7 @@ async def sync_all_tool_embeddings() -> int:
         Number of tools synced
     """
     try:
-        from core.tools.tool_graph import L_INTERNAL_TOOLS, L9_TOOLS
+        from core.tools.tool_graph import L9_TOOLS, L_INTERNAL_TOOLS
 
         all_tools = L_INTERNAL_TOOLS + L9_TOOLS
         count = 0

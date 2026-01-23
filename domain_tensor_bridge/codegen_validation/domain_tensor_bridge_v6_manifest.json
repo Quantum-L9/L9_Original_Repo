@@ -1,0 +1,110 @@
+{
+  "manifest_version": "1.0.0",
+  "agent_id": "domain_tensor_bridge",
+  "agent_name": "Domain-Tensor Bridge",
+  "version": "6.0.0",
+  "created_at": "2026-01-02T03:35:00Z",
+  "created_by": "L9_Codegen_Engine",
+  "schema_source": "docs/Roadmap-Upgrades/Factory Deployment Strategy (YAML->Code)/example-L9_Tensor_MainAgent_Schema_v6.yaml",
+  "extraction_root": "codegen/extractions/domain_tensor_bridge_v6_20260102",
+  
+  "metadata": {
+    "description": "Central orchestrator connecting domain data with TensorAIOS layer",
+    "layer": "operations",
+    "domain": "agent_orchestration",
+    "governance_level": "critical",
+    "compliance_required": true
+  },
+  
+  "modules": {
+    "total": 23,
+    "by_layer": {
+      "operations": 6,
+      "intelligence": 11,
+      "security": 5,
+      "foundation": 1
+    },
+    "files": [
+      "domain_tensor_bridge/__init__.py",
+      "domain_tensor_bridge/agent_controller.py",
+      "domain_tensor_bridge/reasoning_engine.py",
+      "domain_tensor_bridge/decision_synthesizer.py",
+      "domain_tensor_bridge/packet_router.py",
+      "domain_tensor_bridge/packet_validator.py",
+      "domain_tensor_bridge/domain_packet_handler.py",
+      "domain_tensor_bridge/packet_formatter.py",
+      "domain_tensor_bridge/context_enricher.py",
+      "domain_tensor_bridge/world_model_bridge.py",
+      "domain_tensor_bridge/domain_context_builder.py",
+      "domain_tensor_bridge/tensor_coordinator.py",
+      "domain_tensor_bridge/tensoraios_bridge.py",
+      "domain_tensor_bridge/embedding_processor.py",
+      "domain_tensor_bridge/anomaly_handler.py",
+      "domain_tensor_bridge/symbolic_reasoner.py",
+      "domain_tensor_bridge/causal_reasoner.py",
+      "domain_tensor_bridge/analogical_reasoner.py",
+      "domain_tensor_bridge/reflective_auditor.py",
+      "domain_tensor_bridge/governance_bridge.py",
+      "domain_tensor_bridge/compliance_checker.py",
+      "domain_tensor_bridge/escalation_handler.py",
+      "domain_tensor_bridge/memory_bridge.py"
+    ]
+  },
+  
+  "documentation": {
+    "total": 9,
+    "files": [
+      "domain_tensor_bridge/README.md",
+      "domain_tensor_bridge/docs/ARCHITECTURE.md",
+      "domain_tensor_bridge/docs/PACKET_SPEC.md",
+      "domain_tensor_bridge/docs/REASONING_PIPELINE.md",
+      "domain_tensor_bridge/docs/CONFIG.md",
+      "domain_tensor_bridge/docs/API_SPEC.md",
+      "domain_tensor_bridge/docs/INTEGRATION.md",
+      "domain_tensor_bridge/docs/AUTONOMYRULES.md",
+      "domain_tensor_bridge/docs/DEPLOYMENT.md"
+    ]
+  },
+  
+  "tests": {
+    "total": 8,
+    "coverage_target": 85,
+    "files": [
+      "tests/domain_tensor_bridge/test_bridge_controller.py",
+      "tests/domain_tensor_bridge/test_reasoning_engine.py",
+      "tests/domain_tensor_bridge/test_governance_integration.py",
+      "tests/domain_tensor_bridge/test_memory_integration.py",
+      "tests/domain_tensor_bridge/test_api_surfaces.py",
+      "tests/domain_tensor_bridge/test_packet_routing.py",
+      "tests/domain_tensor_bridge/test_tensor_coordination.py",
+      "tests/domain_tensor_bridge/test_context_enrichment.py"
+    ]
+  },
+  
+  "dependencies": {
+    "internal": [
+      "l9.core.schemas",
+      "l9.core.governance",
+      "l9.governance.approvals",
+      "l9.memory.substrate_service"
+    ],
+    "external": [
+      "structlog",
+      "httpx",
+      "pydantic"
+    ]
+  },
+  
+  "quality_gates": {
+    "three_block_system": true,
+    "no_todos_in_code": true,
+    "imports_resolvable": true,
+    "test_coverage_target": 85,
+    "test_pass_rate_target": 95
+  },
+  
+  "glue_file": "domain_tensor_bridge_extraction_glue.yaml",
+  "evidence_report": "evidence_report.md"
+}
+
+

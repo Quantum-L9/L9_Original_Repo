@@ -8,10 +8,11 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
 import sys
 from pathlib import Path
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent

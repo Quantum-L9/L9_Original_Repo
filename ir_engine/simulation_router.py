@@ -39,11 +39,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 from ir_engine.ir_schema import IRGraph
 

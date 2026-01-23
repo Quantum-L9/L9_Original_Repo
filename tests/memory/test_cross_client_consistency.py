@@ -16,9 +16,10 @@ Architecture:
 Run: pytest tests/memory/test_cross_client_consistency.py -v
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
+
+import pytest
 
 # =============================================================================
 # Shared Test Data
@@ -80,7 +81,8 @@ class TestLReadsCursorMemories:
 
             assert len(results) >= 1, "L should find Cursor's memory"
             assert any(
-                "Cursor saved" in str(r.get("envelope", {}).get("payload", {})) for r in results
+                "Cursor saved" in str(r.get("envelope", {}).get("payload", {}))
+                for r in results
             ), "L should see Cursor's content"
 
     @pytest.mark.asyncio
@@ -187,7 +189,9 @@ class TestCursorReadsLMemories:
             project_id="l9",
         )
 
-        assert "l-private" not in ctx.allowed_scopes, "Cursor context should not include l-private"
+        assert (
+            "l-private" not in ctx.allowed_scopes
+        ), "Cursor context should not include l-private"
         assert "developer" in ctx.allowed_scopes
         assert "global" in ctx.allowed_scopes
 
@@ -265,10 +269,8 @@ class TestScopeIsolationQuery:
 
     def test_build_scope_project_filter_parameterized(self):
         """Verify scope filter uses parameterized queries (SQL injection safe)."""
-        from memory.governance_gate import (
-            build_governance_context,
-            build_scope_project_filter,
-        )
+        from memory.governance_gate import (build_governance_context,
+                                            build_scope_project_filter)
 
         # Build context for Cursor first
         ctx = build_governance_context(

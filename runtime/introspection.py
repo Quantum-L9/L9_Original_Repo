@@ -37,7 +37,8 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
 import structlog
 
 if TYPE_CHECKING:

@@ -16,13 +16,14 @@ Run with: pytest tests/memory/test_e2e_memory_audit.py -v
 """
 
 import asyncio
-import structlog
 import os
 import sys
-import pytest
 from datetime import datetime
-from uuid import uuid4
 from typing import Any
+from uuid import uuid4
+
+import pytest
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -74,7 +75,9 @@ async def audit_redis() -> AuditResult:
         redis = await get_redis_client()
         if redis is None or not redis.is_available():
             result.add_check("redis_available", False, "Redis not available")
-            result.add_recommendation("Ensure Redis is running: docker-compose up -d redis")
+            result.add_recommendation(
+                "Ensure Redis is running: docker-compose up -d redis"
+            )
             result.finalize()
             return result
 
@@ -187,7 +190,9 @@ async def audit_neo4j() -> AuditResult:
         neo4j = await get_neo4j_client()
         if neo4j is None or not neo4j.is_available():
             result.add_check("neo4j_available", False, "Neo4j not available")
-            result.add_recommendation("Ensure Neo4j is running: docker-compose up -d neo4j")
+            result.add_recommendation(
+                "Ensure Neo4j is running: docker-compose up -d neo4j"
+            )
             result.add_recommendation("Set NEO4J_PASSWORD environment variable")
             result.finalize()
             return result
@@ -195,7 +200,9 @@ async def audit_neo4j() -> AuditResult:
         result.add_check("neo4j_available", True, "Neo4j is connected")
 
         # Check 2: Environment variables
-        neo4j_url = os.getenv("NEO4J_URL") or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        neo4j_url = os.getenv("NEO4J_URL") or os.getenv(
+            "NEO4J_URI", "bolt://localhost:7687"
+        )
         neo4j_user = os.getenv("NEO4J_USER", "neo4j")
         result.add_check(
             "neo4j_env_vars",
@@ -267,7 +274,9 @@ async def audit_neo4j() -> AuditResult:
         result.add_recommendation(
             "Neo4j is used for entity graphs and event timelines (best-effort sync)"
         )
-        result.add_recommendation("Failure to sync to Neo4j does NOT block packet ingestion")
+        result.add_recommendation(
+            "Failure to sync to Neo4j does NOT block packet ingestion"
+        )
 
     except Exception as e:
         result.add_check("neo4j_audit", False, f"Exception: {e}")
@@ -291,7 +300,9 @@ async def audit_postgresql() -> AuditResult:
         # Check 1: Service initialized
         try:
             service = await get_service()
-            result.add_check("service_initialized", True, "MemorySubstrateService active")
+            result.add_check(
+                "service_initialized", True, "MemorySubstrateService active"
+            )
         except RuntimeError:
             result.add_check(
                 "service_initialized",
@@ -389,8 +400,8 @@ async def audit_ingestion_pipeline() -> AuditResult:
     result = AuditResult("Ingestion Pipeline")
 
     try:
-        from memory.ingestion import ingest_packet
         from core.schemas import PacketEnvelopeIn
+        from memory.ingestion import ingest_packet
         from memory.substrate_service import get_service
 
         service = await get_service()
@@ -475,9 +486,9 @@ async def audit_retrieval_pipeline() -> AuditResult:
     result = AuditResult("Retrieval Pipeline")
 
     try:
+        from core.schemas import SemanticSearchRequest
         from memory.retrieval import init_retrieval_pipeline
         from memory.substrate_service import get_service
-        from core.schemas import SemanticSearchRequest
 
         service = await get_service()
 
@@ -507,7 +518,9 @@ async def audit_retrieval_pipeline() -> AuditResult:
         # Check 3: Thread search
         # Use a known thread_id or generate one
         test_thread_id = str(uuid4())
-        thread_packets = await service.search_packets_by_thread(thread_id=test_thread_id, limit=5)
+        thread_packets = await service.search_packets_by_thread(
+            thread_id=test_thread_id, limit=5
+        )
         result.add_check(
             "thread_search",
             isinstance(thread_packets, list),
@@ -515,7 +528,9 @@ async def audit_retrieval_pipeline() -> AuditResult:
         )
 
         # Check 4: Type search
-        type_packets = await service.search_packets_by_type(packet_type="e2e_audit_test", limit=5)
+        type_packets = await service.search_packets_by_type(
+            packet_type="e2e_audit_test", limit=5
+        )
         result.add_check(
             "type_search",
             isinstance(type_packets, list),
@@ -552,10 +567,10 @@ async def audit_e2e_flow() -> AuditResult:
     result = AuditResult("E2E Memory Flow")
 
     try:
-        from memory.ingestion import ingest_packet
         from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
-        from memory.substrate_service import get_service
         from memory.graph_client import get_neo4j_client
+        from memory.ingestion import ingest_packet
+        from memory.substrate_service import get_service
         from runtime.redis_client import get_redis_client
 
         service = await get_service()
@@ -595,7 +610,9 @@ async def audit_e2e_flow() -> AuditResult:
             search_result = await service.semantic_search(
                 SemanticSearchRequest(query="E2E flow test semantic content", top_k=5)
             )
-            found_in_semantic = any(e2e_id in str(hit.payload) for hit in search_result.hits)
+            found_in_semantic = any(
+                e2e_id in str(hit.payload) for hit in search_result.hits
+            )
             result.add_check(
                 "e2e_semantic_search",
                 found_in_semantic or len(search_result.hits) > 0,
@@ -646,8 +663,12 @@ async def audit_e2e_flow() -> AuditResult:
             )
 
         # Step 6: Verify retrieval by type
-        type_packets = await service.search_packets_by_type(packet_type="e2e_flow_test", limit=10)
-        found_by_type = any(p.get("payload", {}).get("e2e_id") == e2e_id for p in type_packets)
+        type_packets = await service.search_packets_by_type(
+            packet_type="e2e_flow_test", limit=10
+        )
+        found_by_type = any(
+            p.get("payload", {}).get("e2e_id") == e2e_id for p in type_packets
+        )
         result.add_check(
             "e2e_retrieval_by_type",
             found_by_type,
@@ -691,9 +712,11 @@ async def run_full_audit() -> dict[str, Any]:
         results[name] = result
 
         # Print results
-        status_icon = {"PASSED": "✅", "PASSED_WITH_WARNINGS": "⚠️", "FAILED": "❌"}.get(
-            result.status, "❓"
-        )
+        status_icon = {
+            "PASSED": "✅",
+            "PASSED_WITH_WARNINGS": "⚠️",
+            "FAILED": "❌",
+        }.get(result.status, "❓")
         print(f"Status: {status_icon} {result.status}")
 
         for check in result.checks:
@@ -753,7 +776,8 @@ async def memory_service():
     if not database_url:
         pytest.skip("MEMORY_DSN or DATABASE_URL not set")
 
-    from memory.substrate_service import init_service, get_service, close_service
+    from memory.substrate_service import (close_service, get_service,
+                                          init_service)
 
     await init_service(
         database_url=database_url,

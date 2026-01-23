@@ -61,15 +61,16 @@ __dora_meta__ = {
 
 import hashlib
 import json
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID, uuid4
 
-from world_model.state import WorldModelState, Entity, Relation
+import structlog
+
+from world_model.state import Entity, Relation, WorldModelState
 
 if TYPE_CHECKING:
     from world_model.service import WorldModelService

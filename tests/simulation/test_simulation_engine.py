@@ -8,9 +8,10 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -20,7 +21,9 @@ if str(project_root) not in sys.path:
 try:
     from simulation.simulation_engine import SimulationEngine
 except ImportError as e:
-    pytest.skip(f"Could not import simulation.simulation_engine: {e}", allow_module_level=True)
+    pytest.skip(
+        f"Could not import simulation.simulation_engine: {e}", allow_module_level=True
+    )
 
 
 # =============================================================================

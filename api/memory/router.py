@@ -49,28 +49,28 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
+import json
+from typing import AsyncGenerator, List, Optional
+from uuid import UUID
+
+import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
-from api.auth import verify_api_key
-from typing import Optional, List, AsyncGenerator
-from uuid import UUID
-import structlog
-import os
 
-from memory.substrate_service import get_service
+from api.auth import verify_api_key
+from core.decorators import must_stay_async
+from core.observability.circuit_breaker import (CircuitBreaker,
+                                                CircuitBreakerConfig)
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
+from memory.governance_gate import build_governance_context, governance_context
+from memory.housekeeping import get_housekeeping_engine
 from memory.ingestion import ingest_packet
 from memory.retrieval import get_retrieval_pipeline
-from memory.housekeeping import get_housekeeping_engine
-from orchestrators.memory.interface import MemoryRequest, MemoryOperation
-from orchestrators.memory.orchestrator import MemoryOrchestrator
 from memory.saga import SagaResult
-from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
-from core.decorators import must_stay_async
-from memory.governance_gate import (
-    build_governance_context,
-    governance_context,
-)
+from memory.substrate_service import get_service
+from orchestrators.memory.interface import MemoryOperation, MemoryRequest
+from orchestrators.memory.orchestrator import MemoryOrchestrator
 
 logger = structlog.get_logger(__name__)
 

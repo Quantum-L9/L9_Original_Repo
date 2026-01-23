@@ -1,0 +1,62 @@
+{
+  "dev_mode_enabled_at": "2026-01-13T15:34:00.105326",
+  "bridge": "domain_tensor_bridge_v6",
+  "phases": [
+    {
+      "phase": "Phase 0: Bootstrap",
+      "components": [
+        "Register domain_tensor_bridge agent (v6)",
+        "Validate module manifests and glue maps",
+        "Enable DevMode annotations"
+      ]
+    },
+    {
+      "phase": "Phase 1: Overlay",
+      "components": [
+        "Integrate MotifInstance tags into world_model_bridge",
+        "Attach motif metadata to domain_packet_handler",
+        "Extend packet_formatter to include motif IDs"
+      ]
+    },
+    {
+      "phase": "Phase 2: Coordination",
+      "components": [
+        "Update tensor_coordinator to route based on motif dropout",
+        "Add motif-tensor feedback hooks to embedding_processor",
+        "Patch tensoraios_bridge with motif-aware routing map"
+      ]
+    },
+    {
+      "phase": "Phase 3: Audit & Enforcement",
+      "components": [
+        "Import motif_kernel.yaml",
+        "Enable runtime enforcement via kernel_enforcer",
+        "Attach reflective_auditor to motif failures"
+      ]
+    },
+    {
+      "phase": "Phase 4: Observability",
+      "components": [
+        "Log motif-based tensor activations in motif_metrics",
+        "Expose Grafana dashboards for bridge-motif coordination",
+        "Log motif dropout events by domain and plan type"
+      ]
+    },
+    {
+      "phase": "Phase 5: Feedback Learning",
+      "components": [
+        "Create motif_learning_tracker",
+        "Wire tracker into decision_synthesizer and memory_bridge",
+        "Allow reweighting of motif-tensor paths based on episodic outcomes"
+      ]
+    },
+    {
+      "phase": "Phase 6: CI Validation",
+      "components": [
+        "Add motif-to-tensor regression tests",
+        "Run motif_kernel enforcement cases",
+        "Snapshot decision evolution over motif revision cycles"
+      ]
+    }
+  ]
+}

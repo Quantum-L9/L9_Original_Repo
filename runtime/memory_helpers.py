@@ -47,8 +47,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict, List, Optional
+
+import structlog
 
 from memory.governance_gate import require_governance_context
 
@@ -101,8 +102,8 @@ async def memory_search(
         raise RuntimeError("RLS scope required for memory_search")
 
     try:
-        from memory.substrate_service import get_service
         from core.schemas import SemanticSearchRequest
+        from memory.substrate_service import get_service
 
         service = await get_service()
 
@@ -186,8 +187,8 @@ async def memory_write(
         raise RuntimeError("RLS scope required for memory_write")
 
     try:
-        from memory.ingestion import ingest_packet
         from core.schemas import PacketEnvelopeIn, PacketMetadata
+        from memory.ingestion import ingest_packet
 
         # Create metadata with segment and agent
         packet_metadata = PacketMetadata(

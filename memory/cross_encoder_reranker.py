@@ -41,10 +41,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -171,7 +172,7 @@ class CrossEncoderReranker:
 
     def _load_model(self) -> bool:
         """
-        Lazy-load the cross-encoder model.
+        Load the cross-encoder model on first access.
 
         Returns:
             True if model loaded successfully

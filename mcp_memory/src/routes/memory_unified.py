@@ -34,22 +34,24 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-import time
 import json
-import asyncpg
-from typing import List, Optional, Dict, Any
+import time
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+import asyncpg
+import structlog
 from fastapi import APIRouter, HTTPException, Query, Request
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.main import CallerIdentity
+
 import asyncio
 
-from src.db import fetch_all, fetch_one, execute
-from src.embeddings import embed_text
 from src.config import settings
+from src.db import execute, fetch_all, fetch_one
+from src.embeddings import embed_text
+
 from memory.governance_gate import require_governance_context
 
 logger = structlog.get_logger(__name__)
@@ -209,8 +211,9 @@ async def _save_via_main_pipeline(
     substrate_service: Any,
 ) -> Dict[str, Any]:
     """Save memory via main L9 ingestion pipeline (full DAG)."""
-    from core.schemas import PacketEnvelopeIn, PacketProvenance
     from datetime import timedelta
+
+    from core.schemas import PacketEnvelopeIn, PacketProvenance
 
     # Map MCP scope to DB scope
     db_scope = map_mcp_scope_to_db_scope(scope)
@@ -414,13 +417,17 @@ async def search_memory_handler(
                     "kind": row.get("kind", "unknown"),
                     "scope": mcp_scope,
                     "similarity": float(row["similarity"]),
-                    "importance": float(row["importance_score"])
-                    if row["importance_score"]
-                    else 0.5,
+                    "importance": (
+                        float(row["importance_score"])
+                        if row["importance_score"]
+                        else 0.5
+                    ),
                     "tags": [],  # semantic_memory doesn't have tags
-                    "created_at": row["timestamp"].isoformat()
-                    if isinstance(row["timestamp"], datetime)
-                    else str(row["timestamp"]),
+                    "created_at": (
+                        row["timestamp"].isoformat()
+                        if isinstance(row["timestamp"], datetime)
+                        else str(row["timestamp"])
+                    ),
                 }
             )
 
@@ -667,14 +674,12 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
 
         if not dry_run and expired_count > 0:
             # Delete expired packets (embeddings deleted via CASCADE)
-            await execute(
-                """
+            await execute("""
                 DELETE FROM packet_store
                 WHERE packet_type LIKE 'memory_write_%'
                 AND ttl IS NOT NULL
                 AND ttl < CURRENT_TIMESTAMP
-                """
-            )
+                """)
             logger.info(f"Deleted {expired_count} expired memories")
 
         return {
@@ -852,8 +857,7 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
 
         if not dry_run and affected > 0:
             # Apply decay: importance *= decay_factor^(days_since_access)
-            await execute(
-                f"""
+            await execute(f"""
                 UPDATE packet_store
                 SET importance_score = importance_score * POWER(
                     {decay_factor},
@@ -862,8 +866,7 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
                 WHERE packet_type LIKE 'memory_write_%'
                 AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
                 AND importance_score > 0.01
-                """
-            )
+                """)
             logger.info(f"Applied decay to {affected} memories")
 
         return {
@@ -990,13 +993,17 @@ async def get_context_injection(
                         "content": payload.get("content", ""),
                         "kind": payload.get("kind", "unknown"),
                         "scope": payload.get("scope", "developer"),
-                        "importance": float(row["importance_score"])
-                        if row["importance_score"]
-                        else 0.5,
+                        "importance": (
+                            float(row["importance_score"])
+                            if row["importance_score"]
+                            else 0.5
+                        ),
                         "tags": row["tags"] or [],
-                        "created_at": row["timestamp"].isoformat()
-                        if isinstance(row["timestamp"], datetime)
-                        else str(row["timestamp"]),
+                        "created_at": (
+                            row["timestamp"].isoformat()
+                            if isinstance(row["timestamp"], datetime)
+                            else str(row["timestamp"])
+                        ),
                     }
                 )
 
@@ -1339,13 +1346,15 @@ async def query_temporal(
                     "content": payload.get("content", ""),
                     "kind": payload.get("kind", "unknown"),
                     "scope": payload.get("scope", "developer"),
-                    "importance": float(m["importance_score"])
-                    if m["importance_score"]
-                    else 0.5,
+                    "importance": (
+                        float(m["importance_score"]) if m["importance_score"] else 0.5
+                    ),
                     "tags": m["tags"] or [],
-                    "created_at": m["timestamp"].isoformat()
-                    if isinstance(m["timestamp"], datetime)
-                    else str(m["timestamp"]),
+                    "created_at": (
+                        m["timestamp"].isoformat()
+                        if isinstance(m["timestamp"], datetime)
+                        else str(m["timestamp"])
+                    ),
                 }
             )
 

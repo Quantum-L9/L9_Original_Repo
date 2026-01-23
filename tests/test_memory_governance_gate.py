@@ -1,8 +1,8 @@
 """Tests for memory governance gate (GMP-68)."""
 
+import importlib.util
 import sys
 from pathlib import Path
-import importlib.util
 
 import pytest
 

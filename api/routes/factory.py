@@ -41,13 +41,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Optional
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+import structlog
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
-from core.decorators import must_stay_async
+
 from api.routes.registry import router_registry
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -197,11 +198,8 @@ async def factory_health() -> HealthResponse:
 
 
 def _safe_output_dir(output_dir: str) -> str:
-    from core.security.path_safety import (
-        PathSafetyError,
-        resolve_base_dir,
-        safe_resolve_path,
-    )
+    from core.security.path_safety import (PathSafetyError, resolve_base_dir,
+                                           safe_resolve_path)
 
     base_root = resolve_base_dir()
     try:
@@ -344,9 +342,10 @@ async def extract_agent_file(
         ExtractResponse with extraction results
     """
     try:
+        import yaml
+
         from services.research_factory.extractor import UniversalExtractor
         from services.research_factory.glue_resolver import GlueConfig
-        import yaml
 
         # Read schema file
         schema_content = await schema_file.read()

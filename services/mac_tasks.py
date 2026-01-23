@@ -24,16 +24,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Optional, List, Dict, Any
-import threading
 import json
 import os
 import shutil
-import structlog
+import threading
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -114,8 +115,9 @@ def enqueue_mac_task(
     # Ingest task to memory (fire-and-forget)
     try:
         import asyncio
-        from memory.ingestion import ingest_packet
+
         from core.schemas import PacketEnvelopeIn
+        from memory.ingestion import ingest_packet
 
         packet_in = PacketEnvelopeIn(
             packet_type="mac_task_enqueued",
@@ -216,8 +218,9 @@ def enqueue_task(task_dict: Dict[str, Any]) -> str:
         # Ingest task to memory (fire-and-forget, don't block on failure)
         try:
             import asyncio
-            from memory.ingestion import ingest_packet
+
             from core.schemas import PacketEnvelopeIn
+            from memory.ingestion import ingest_packet
 
             packet_in = PacketEnvelopeIn(
                 packet_type="task_enqueued",

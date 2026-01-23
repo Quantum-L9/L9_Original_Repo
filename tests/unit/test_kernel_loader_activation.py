@@ -18,18 +18,13 @@ from typing import Any, Dict
 import pytest
 import yaml
 
-from core.kernels.schemas import (
-    KernelState,
-)
-from core.kernels.kernelloader import (
-    REQUIRED_KERNEL_COUNT,
-    activate_kernels_phase2,
-    load_kernels,
-    load_kernels_phase1,
-    require_kernel_activation,
-    verify_kernel_activation,
-    verify_kernel_integrity,
-)
+from core.kernels.kernelloader import (REQUIRED_KERNEL_COUNT,
+                                       activate_kernels_phase2, load_kernels,
+                                       load_kernels_phase1,
+                                       require_kernel_activation,
+                                       verify_kernel_activation,
+                                       verify_kernel_integrity)
+from core.kernels.schemas import KernelState
 
 # =============================================================================
 # Fixtures
@@ -123,7 +118,9 @@ def temp_kernel_dir() -> Path:
                 "08_safety_kernel.yaml",
                 {
                     "kernel": {"name": "safety", "version": "1.0.0", "priority": 8},
-                    "guardrails": {"destructive_ops": {"name": "destructive_ops", "enabled": True}},
+                    "guardrails": {
+                        "destructive_ops": {"name": "destructive_ops", "enabled": True}
+                    },
                 },
             ),
             (
@@ -136,7 +133,11 @@ def temp_kernel_dir() -> Path:
             (
                 "10_packet_protocol_kernel.yaml",
                 {
-                    "kernel": {"name": "packet_protocol", "version": "1.0.0", "priority": 10},
+                    "kernel": {
+                        "name": "packet_protocol",
+                        "version": "1.0.0",
+                        "priority": 10,
+                    },
                     "load_sequence": {"order": {}},
                 },
             ),
@@ -187,7 +188,11 @@ class TestPhase1Load:
         """Phase 1 should raise RuntimeError if kernels are missing."""
         # Delete one kernel file
         kernel_file = (
-            temp_kernel_dir / "private" / "kernels" / "00_system" / "01_master_kernel.yaml"
+            temp_kernel_dir
+            / "private"
+            / "kernels"
+            / "00_system"
+            / "01_master_kernel.yaml"
         )
         kernel_file.unlink()
 
@@ -208,7 +213,11 @@ class TestPhase1Load:
         """Phase 1 should handle YAML parse errors gracefully."""
         # Corrupt one kernel file
         kernel_file = (
-            temp_kernel_dir / "private" / "kernels" / "00_system" / "01_master_kernel.yaml"
+            temp_kernel_dir
+            / "private"
+            / "kernels"
+            / "00_system"
+            / "01_master_kernel.yaml"
         )
         kernel_file.write_text("invalid: yaml: content: [")
 
@@ -218,7 +227,9 @@ class TestPhase1Load:
         yaml_errors = [e for e in errors if "YAML" in e.message]
         assert len(yaml_errors) > 0
 
-    def test_phase1_skips_integrity_check_when_disabled(self, temp_kernel_dir: Path) -> None:
+    def test_phase1_skips_integrity_check_when_disabled(
+        self, temp_kernel_dir: Path
+    ) -> None:
         """Phase 1 should skip hash computation when verify_integrity=False."""
         kernels, hashes, _ = load_kernels_phase1(
             base_path=temp_kernel_dir,
@@ -282,7 +293,9 @@ class TestPhase2Activate:
         stored_hashes = getattr(mock_agent, "_kernel_hashes", {})
         assert len(stored_hashes) == REQUIRED_KERNEL_COUNT
 
-    def test_phase2_fails_on_insufficient_kernels(self, mock_agent: MockKernelAwareAgent) -> None:
+    def test_phase2_fails_on_insufficient_kernels(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """Phase 2 should fail if not enough kernels are provided."""
         # Only provide 5 kernels
         partial_kernels = {
@@ -354,18 +367,24 @@ class TestVerification:
 
         assert verify_kernel_activation(mock_agent) is True
 
-    def test_verify_kernel_activation_inactive(self, mock_agent: MockKernelAwareAgent) -> None:
+    def test_verify_kernel_activation_inactive(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """verify_kernel_activation should return False for inactive agent."""
         assert verify_kernel_activation(mock_agent) is False
 
-    def test_verify_kernel_activation_wrong_state(self, mock_agent: MockKernelAwareAgent) -> None:
+    def test_verify_kernel_activation_wrong_state(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """verify_kernel_activation should return False for wrong state."""
         mock_agent.kernel_state = "LOADING"
         mock_agent.kernels = {"test": {}}
 
         assert verify_kernel_activation(mock_agent) is False
 
-    def test_verify_kernel_activation_no_kernels(self, mock_agent: MockKernelAwareAgent) -> None:
+    def test_verify_kernel_activation_no_kernels(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """verify_kernel_activation should return False if no kernels."""
         mock_agent.kernel_state = "ACTIVE"
         mock_agent.kernels = {}
@@ -381,7 +400,9 @@ class TestVerification:
         # Should not raise
         require_kernel_activation(mock_agent)
 
-    def test_require_kernel_activation_failure(self, mock_agent: MockKernelAwareAgent) -> None:
+    def test_require_kernel_activation_failure(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """require_kernel_activation should raise for inactive agent."""
         with pytest.raises(RuntimeError, match="FATAL"):
             require_kernel_activation(mock_agent)
@@ -415,9 +436,15 @@ class TestIntegrityVerification:
 
         # Modify a kernel file
         kernel_file = (
-            temp_kernel_dir / "private" / "kernels" / "00_system" / "01_master_kernel.yaml"
+            temp_kernel_dir
+            / "private"
+            / "kernels"
+            / "00_system"
+            / "01_master_kernel.yaml"
         )
-        kernel_file.write_text(yaml.dump({"kernel": {"name": "modified", "version": "2.0.0"}}))
+        kernel_file.write_text(
+            yaml.dump({"kernel": {"name": "modified", "version": "2.0.0"}})
+        )
 
         results = verify_kernel_integrity(mock_agent, base_path=temp_kernel_dir)
 
@@ -433,7 +460,11 @@ class TestIntegrityVerification:
 
         # Delete a kernel file
         kernel_file = (
-            temp_kernel_dir / "private" / "kernels" / "00_system" / "01_master_kernel.yaml"
+            temp_kernel_dir
+            / "private"
+            / "kernels"
+            / "00_system"
+            / "01_master_kernel.yaml"
         )
         kernel_file.unlink()
 
@@ -511,7 +542,11 @@ class TestEdgeCases:
         """Should handle empty kernel files gracefully."""
         # Create an empty kernel file
         kernel_file = (
-            temp_kernel_dir / "private" / "kernels" / "00_system" / "01_master_kernel.yaml"
+            temp_kernel_dir
+            / "private"
+            / "kernels"
+            / "00_system"
+            / "01_master_kernel.yaml"
         )
         kernel_file.write_text("")
 

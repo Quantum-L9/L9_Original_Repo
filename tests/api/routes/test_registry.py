@@ -4,8 +4,9 @@ Tests for router auto-registration system.
 Tests the actual RouterRegistry API.
 """
 
-from fastapi import FastAPI, APIRouter
-from api.routes.registry import router_registry, discover_routers
+from fastapi import APIRouter, FastAPI
+
+from api.routes.registry import discover_routers, router_registry
 
 
 def test_router_registry_exists():

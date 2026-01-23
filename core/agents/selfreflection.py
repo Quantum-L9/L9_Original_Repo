@@ -39,11 +39,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -279,9 +281,11 @@ class ExcessiveIterationPattern(GapDetectionPattern):
                 gap_id=str(uuid4()),
                 gap_type="PERFORMANCE",
                 description=f"Task required {context.iterations} iterations (threshold: {ITERATION_THRESHOLD})",
-                severity="MEDIUM"
-                if context.iterations < ITERATION_THRESHOLD * 1.5
-                else "HIGH",
+                severity=(
+                    "MEDIUM"
+                    if context.iterations < ITERATION_THRESHOLD * 1.5
+                    else "HIGH"
+                ),
                 kernel_id=self.target_kernel,
                 evidence=[
                     f"Iterations: {context.iterations}",
@@ -312,9 +316,9 @@ class TokenOverusePattern(GapDetectionPattern):
                 gap_id=str(uuid4()),
                 gap_type="PERFORMANCE",
                 description=f"Task used {context.tokens_used} tokens (threshold: {TOKEN_THRESHOLD})",
-                severity="MEDIUM"
-                if context.tokens_used < TOKEN_THRESHOLD * 2
-                else "HIGH",
+                severity=(
+                    "MEDIUM" if context.tokens_used < TOKEN_THRESHOLD * 2 else "HIGH"
+                ),
                 kernel_id=self.target_kernel,
                 evidence=[
                     f"Tokens used: {context.tokens_used}",

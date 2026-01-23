@@ -33,11 +33,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import Any, Dict, List, Optional
+
+import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
+
 from api.auth import verify_api_key
-from typing import Any, Dict, List, Optional
-import structlog
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -214,7 +216,8 @@ async def execute_pattern(
 
         if orchestrator is None:
             # Create on-demand with defaults or provided configs
-            from orchestrators.pattern import PatternOrchestrator, CellAgentAdapter
+            from orchestrators.pattern import (CellAgentAdapter,
+                                               PatternOrchestrator)
 
             pattern_path = request.pattern_config or "config/patterns/pipeline_v1.yaml"
             subsystem_path = (
@@ -244,9 +247,9 @@ async def execute_pattern(
         node_results = [
             NodeResultResponse(
                 node_id=nr.node_id,
-                status=nr.status.value
-                if hasattr(nr.status, "value")
-                else str(nr.status),
+                status=(
+                    nr.status.value if hasattr(nr.status, "value") else str(nr.status)
+                ),
                 output=nr.output or {},
                 duration_ms=nr.duration_ms,
                 errors=nr.errors,
@@ -264,9 +267,11 @@ async def execute_pattern(
         return PatternExecuteResponse(
             success=result.success,
             pipeline_id=result.pipeline_id,
-            status=result.status.value
-            if hasattr(result.status, "value")
-            else str(result.status),
+            status=(
+                result.status.value
+                if hasattr(result.status, "value")
+                else str(result.status)
+            ),
             nodes_executed=len(node_results),
             node_results=node_results,
             final_output=result.final_output or {},

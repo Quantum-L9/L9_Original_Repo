@@ -18,35 +18,24 @@ Related PR: #23 (builds on PR #22 DI/DIP foundation)
 """
 
 import os
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 from core.di.container import DIContainer, get_di_container
-from core.protocols import (
-    CacheClient,
-    GraphClient,
-    VectorStore,
-    MemoryRepository,
-    ObservabilityService,
-    ToolExecutor,
-)
+from core.protocols import (CacheClient, GraphClient, MemoryRepository,
+                            ObservabilityService, ToolExecutor, VectorStore)
 
 # Aliases for test compatibility
 MemoryService = MemoryRepository
 WorldModelService = ObservabilityService  # Placeholder
 ToolRegistry = ToolExecutor  # Placeholder
-from config.di_config import (
-    configure_di_container,
-    initialize_di_container,
-    get_cache_client,
-    get_graph_client,
-    get_vector_store,
-    get_memory_service,
-    get_world_model_service_di,
-    is_di_enabled,
-    should_use_di_for_substrates,
-    get_environment,
-)
+from config.di_config import (configure_di_container, get_cache_client,
+                              get_environment, get_graph_client,
+                              get_memory_service, get_vector_store,
+                              get_world_model_service_di,
+                              initialize_di_container, is_di_enabled,
+                              should_use_di_for_substrates)
 
 # =============================================================================
 # Test Fixtures

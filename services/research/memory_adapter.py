@@ -41,21 +41,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from core.singleton_auto_registry import register_singleton
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from core.schemas import (
-    PacketConfidence,
-    PacketEnvelope,
-    PacketMetadata,
-    PacketProvenance,
-)
+import structlog
+
+from core.schemas import (PacketConfidence, PacketEnvelope, PacketMetadata,
+                          PacketProvenance)
+from core.singleton_auto_registry import register_singleton
 from memory.substrate_models import StructuredReasoningBlock
 from memory.substrate_repository import SubstrateRepository, get_repository
-
 from services.research.graph_state import ResearchGraphState
 
 logger = structlog.get_logger(__name__)

@@ -15,9 +15,10 @@ Note: Tests that require MCP imports will skip if mcp_memory module not in PYTHO
 Run with: PYTHONPATH=.:mcp_memory pytest tests/memory/test_governance_invariants.py -v
 """
 
-import pytest
 import os
 import sys
+
+import pytest
 
 # Add mcp_memory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "mcp_memory"))
@@ -58,10 +59,13 @@ class TestAuthenticationRequired:
         if not settings.GOVERNANCE_HARDENING_ENABLED:
             pytest.skip("Governance hardening not enabled")
 
-        from httpx import AsyncClient, ASGITransport
+        from httpx import ASGITransport, AsyncClient
+
         from mcp_memory.src.main import app
 
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
             resp = await client.post(
                 "/memory/save",
                 json={"content": "test", "kind": "fact", "duration": "long"},
@@ -79,10 +83,13 @@ class TestAuthenticationRequired:
         if not settings.GOVERNANCE_HARDENING_ENABLED:
             pytest.skip("Governance hardening not enabled")
 
-        from httpx import AsyncClient, ASGITransport
+        from httpx import ASGITransport, AsyncClient
+
         from mcp_memory.src.main import app
 
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
             resp = await client.post(
                 "/memory/save",
                 headers={"Authorization": "Bearer invalid-token"},
@@ -111,10 +118,13 @@ class TestCursorScopeRestrictions:
         if not settings.GOVERNANCE_HARDENING_ENABLED:
             pytest.skip("Governance hardening not enabled")
 
-        from httpx import AsyncClient, ASGITransport
+        from httpx import ASGITransport, AsyncClient
+
         from mcp_memory.src.main import app
 
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
             resp = await client.post(
                 "/mcp/call",
                 headers=cursor_auth,
@@ -141,10 +151,13 @@ class TestCursorScopeRestrictions:
         if not settings.GOVERNANCE_HARDENING_ENABLED:
             pytest.skip("Governance hardening not enabled")
 
-        from httpx import AsyncClient, ASGITransport
+        from httpx import ASGITransport, AsyncClient
+
         from mcp_memory.src.main import app
 
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
             resp = await client.post(
                 "/mcp/call",
                 headers=cursor_auth,
@@ -190,10 +203,10 @@ class TestProjectIsolation:
 
         # The implementation adds COALESCE(ps.envelope->'metadata'->>'project_id', 'l9')
         # to the search query. This test validates the code path exists.
-        from mcp_memory.src.routes.memory_unified import search_memory_handler
-
         # Verify function signature includes project_id parameter
         import inspect
+
+        from mcp_memory.src.routes.memory_unified import search_memory_handler
 
         sig = inspect.signature(search_memory_handler)
         assert (
@@ -201,7 +214,9 @@ class TestProjectIsolation:
         ), "search_memory_handler must accept project_id parameter"
 
         # Verify default is 'l9'
-        assert sig.parameters["project_id"].default == "l9", "project_id default must be 'l9'"
+        assert (
+            sig.parameters["project_id"].default == "l9"
+        ), "project_id default must be 'l9'"
 
 
 # =============================================================================
@@ -226,10 +241,13 @@ class TestCallerIdentityEnforcement:
         # Skip for now - validated via integration tests on VPS.
         pytest.skip("Requires full middleware setup (integration test)")
 
-        from httpx import AsyncClient, ASGITransport
+        from httpx import ASGITransport, AsyncClient
+
         from mcp_memory.src.main import app
 
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
             # Try to spoof creator in request body
             resp = await client.post(
                 "/memory/save",
@@ -329,9 +347,7 @@ class TestScopeSemantics:
     def test_scope_mapping_preserves_semantics(self):
         """map_mcp_scope_to_db_scope must preserve distinct scope values."""
         from mcp_memory.src.routes.memory_unified import (
-            map_mcp_scope_to_db_scope,
-            map_db_scope_to_mcp_scope,
-        )
+            map_db_scope_to_mcp_scope, map_mcp_scope_to_db_scope)
 
         # Verify scope semantics are NOT collapsed
         assert map_mcp_scope_to_db_scope("developer") == "developer"
@@ -359,6 +375,7 @@ class TestSQLInjectionPrevention:
     def test_query_temporal_uses_parameterized_scopes(self):
         """query_temporal must use = ANY($N) for scope filtering."""
         import inspect
+
         from mcp_memory.src.routes.memory_unified import query_temporal
 
         # Check function signature includes allowed_scopes
@@ -374,6 +391,7 @@ class TestSQLInjectionPrevention:
     def test_search_handler_uses_parameterized_project_filter(self):
         """search_memory_handler must use parameterized project_id filter."""
         import inspect
+
         from mcp_memory.src.routes.memory_unified import search_memory_handler
 
         # Verify project_id is a parameter

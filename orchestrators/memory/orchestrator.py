@@ -30,17 +30,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from .interface import (
-    IMemoryOrchestrator,
-    MemoryOperation,
-    MemoryRequest,
-    MemoryResponse,
-)
+import structlog
+
 from .housekeeping import Housekeeping
+from .interface import (IMemoryOrchestrator, MemoryOperation, MemoryRequest,
+                        MemoryResponse)
 
 logger = structlog.get_logger(__name__)
 

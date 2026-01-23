@@ -10,9 +10,10 @@ Tests for Row-Level Security (RLS) scope isolation:
 Version: 1.0.0
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
+
+import pytest
 
 # =============================================================================
 # Configuration
@@ -38,8 +39,9 @@ class TestRLSScopeTransaction:
     @pytest.mark.asyncio
     async def test_rls_scope_set_in_transaction(self):
         """Verify RLS scope is set within transaction."""
-        from memory.substrate_repository import SubstrateRepository
         from contextlib import asynccontextmanager
+
+        from memory.substrate_repository import SubstrateRepository
 
         # Mock connection pool with proper async context managers
         mock_pool = MagicMock()
@@ -50,7 +52,9 @@ class TestRLSScopeTransaction:
         async def mock_transaction_cm():
             yield mock_conn
 
-        mock_conn.transaction = MagicMock(return_value=mock_transaction_cm().__aenter__())
+        mock_conn.transaction = MagicMock(
+            return_value=mock_transaction_cm().__aenter__()
+        )
         # Make transaction return an async context manager
         mock_conn.transaction = lambda: mock_transaction_cm()
 
@@ -83,11 +87,10 @@ class TestRLSScopeTransaction:
     @pytest.mark.asyncio
     async def test_rls_connection_available_in_context(self):
         """Verify RLS connection is available in context variable during transaction."""
-        from memory.substrate_repository import (
-            SubstrateRepository,
-            _current_rls_connection,
-        )
         from contextlib import asynccontextmanager
+
+        from memory.substrate_repository import (SubstrateRepository,
+                                                 _current_rls_connection)
 
         # Mock connection pool with proper async context managers
         mock_pool = MagicMock()
@@ -137,11 +140,10 @@ class TestRLSIsolation:
     @pytest.mark.asyncio
     async def test_repository_uses_rls_connection_when_available(self):
         """Verify repository methods use RLS connection when available."""
-        from memory.substrate_repository import (
-            SubstrateRepository,
-            _current_rls_connection,
-        )
-        from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
+        from core.schemas import (PacketEnvelope, PacketMetadata,
+                                  PacketProvenance)
+        from memory.substrate_repository import (SubstrateRepository,
+                                                 _current_rls_connection)
 
         # Mock RLS connection in context
         mock_rls_conn = AsyncMock()
@@ -174,8 +176,9 @@ class TestRLSIsolation:
     @pytest.mark.asyncio
     async def test_repository_uses_pool_when_no_rls_connection(self):
         """Verify repository methods use pool when no RLS connection available."""
+        from core.schemas import (PacketEnvelope, PacketMetadata,
+                                  PacketProvenance)
         from memory.substrate_repository import SubstrateRepository
-        from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
 
         # Mock connection pool
         mock_pool = MagicMock()
@@ -213,10 +216,12 @@ class TestWritePacketWithRLS:
     @pytest.mark.asyncio
     async def test_write_packet_uses_transaction_with_rls(self):
         """Verify write_packet uses transaction when RLS scope provided."""
-        from memory.substrate_service import MemorySubstrateService
-        from core.schemas import PacketEnvelopeIn
         from unittest.mock import AsyncMock, MagicMock
-        from memory.governance_gate import build_governance_context, governance_context
+
+        from core.schemas import PacketEnvelopeIn
+        from memory.governance_gate import (build_governance_context,
+                                            governance_context)
+        from memory.substrate_service import MemorySubstrateService
 
         # Mock repository with transaction
         mock_repository = MagicMock()
@@ -224,7 +229,9 @@ class TestWritePacketWithRLS:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
+            return_value=None
+        )
 
         # Mock DAG
         mock_dag = AsyncMock()

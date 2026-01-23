@@ -76,9 +76,7 @@ async def main():
 
         # Run bootstrap
         from core.agents.graph_state.bootstrap_l_graph import (
-            bootstrap_l_graph,
-            verify_l_graph,
-        )
+            bootstrap_l_graph, verify_l_graph)
 
         print("\n🚀 Running bootstrap_l_graph()...")
         stats = await bootstrap_l_graph(driver)

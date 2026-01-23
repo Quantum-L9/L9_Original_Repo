@@ -15,6 +15,7 @@ All operations are async-safe with proper logging.
 """
 
 from __future__ import annotations
+
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -49,10 +50,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from functools import lru_cache
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import uuid4
+
+import structlog
 
 if TYPE_CHECKING:
     import asyncpg
@@ -61,17 +63,16 @@ if TYPE_CHECKING:
     from memory.substrate_semantic import SemanticService
     from memory.agent_persistence import AgentPersistenceService
 
-from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
-from memory.substrate_service import MemorySubstrateService
-from memory.graph_client import get_neo4j_client
-from memory.validators.packet_validator import PacketValidator, PacketValidationError
-from memory.audit_utils import prepare_packet_for_ingest
 from core.decorators import must_stay_async
-from memory.governance_gate import (
-    enforce_packet_governance,
-    require_governance_context,
-)
 from core.governance.rate_limit_policy import rate_limit
+from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
+from memory.audit_utils import prepare_packet_for_ingest
+from memory.governance_gate import (enforce_packet_governance,
+                                    require_governance_context)
+from memory.graph_client import get_neo4j_client
+from memory.substrate_service import MemorySubstrateService
+from memory.validators.packet_validator import (PacketValidationError,
+                                                PacketValidator)
 
 logger = structlog.get_logger(__name__)
 
@@ -882,10 +883,8 @@ async def on_task_completion(
         Dict with encoding results
     """
     from uuid import UUID
-    from memory.active_encoder import (
-        get_active_encoder,
-        TaskOutcome,
-    )
+
+    from memory.active_encoder import TaskOutcome, get_active_encoder
 
     logger.info(
         "Processing task completion for active encoding",
@@ -938,8 +937,9 @@ async def on_task_completion(
         if plan_payload and should_capture and impact_score >= min_impact_for_capture:
             try:
                 # Get Strategy Memory service
-                from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
                 from memory.graph_client import get_neo4j_client
+                from memory.neo4j_strategy_memory import \
+                    Neo4jStrategyMemoryService
 
                 neo4j = await get_neo4j_client()
                 if neo4j and await neo4j.is_available():

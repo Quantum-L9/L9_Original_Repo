@@ -48,7 +48,8 @@ import hashlib
 import hmac
 import time
 from typing import Any, Dict, Optional, Tuple
-from uuid import uuid5, NAMESPACE_DNS
+from uuid import NAMESPACE_DNS, uuid5
+
 import structlog
 
 logger = structlog.get_logger(__name__)

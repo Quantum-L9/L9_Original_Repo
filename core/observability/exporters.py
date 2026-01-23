@@ -25,13 +25,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import List, Any
 from abc import ABC, abstractmethod
+from typing import Any, List
 
-from core.schemas import PacketEnvelopeIn
-from .models import Span
+import structlog
+
 from core.decorators import must_stay_async
+from core.schemas import PacketEnvelopeIn
+
+from .models import Span
 
 logger = structlog.get_logger(__name__)
 

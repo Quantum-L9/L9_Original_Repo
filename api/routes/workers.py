@@ -38,10 +38,9 @@ __dora_meta__ = {
 
 from typing import Any, Dict, List, Optional
 
+import structlog
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-
-import structlog
 
 from api.dependencies import verify_api_key
 

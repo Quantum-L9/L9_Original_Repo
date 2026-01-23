@@ -10,13 +10,8 @@ Covers:
 
 from uuid import UUID
 
-
-from core.schemas.ws_event_stream import (
-    EventMessage,
-    EventType,
-    AgentHeartbeat,
-    ErrorEvent,
-)
+from core.schemas.ws_event_stream import (AgentHeartbeat, ErrorEvent,
+                                          EventMessage, EventType)
 
 
 class TestEventMessageBasics:

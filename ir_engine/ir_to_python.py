@@ -49,10 +49,7 @@ try:
 except ImportError:
     HAS_JINJA2 = False
 
-from ir_engine.compile_meta_to_ir import (
-    ModuleIR,
-    GenerationTarget,
-)
+from ir_engine.compile_meta_to_ir import GenerationTarget, ModuleIR
 
 logger = structlog.get_logger(__name__)
 
@@ -62,7 +59,8 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 try:
-    from services.symbolic_computation.core import CodeGenerator as SymPyCodeGenerator
+    from services.symbolic_computation.core import \
+        CodeGenerator as SymPyCodeGenerator
 
     HAS_SYMPY = True
 except ImportError:

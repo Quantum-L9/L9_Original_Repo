@@ -15,21 +15,26 @@ from pathlib import Path
 # Add project root to path for direct module imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-
 # Import directly to avoid core.tools.__init__.py chain
 import importlib.util
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 _spec = importlib.util.spec_from_file_location(
     "agent_self_modify",
-    Path(__file__).parent.parent.parent.parent / "core" / "tools" / "agent_self_modify.py",
+    Path(__file__).parent.parent.parent.parent
+    / "core"
+    / "tools"
+    / "agent_self_modify.py",
 )
 _agent_self_modify = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_agent_self_modify)
 
 AgentSelfModifyTool = _agent_self_modify.AgentSelfModifyTool
-AGENT_SELF_MODIFY_TOOL_DEFINITIONS = _agent_self_modify.AGENT_SELF_MODIFY_TOOL_DEFINITIONS
+AGENT_SELF_MODIFY_TOOL_DEFINITIONS = (
+    _agent_self_modify.AGENT_SELF_MODIFY_TOOL_DEFINITIONS
+)
 create_self_modify_tool = _agent_self_modify.create_self_modify_tool
 
 
@@ -69,7 +74,9 @@ def test_tool_definitions_structure():
 def test_add_directive_requires_approval():
     """Test that add_directive tool requires Igor approval."""
     add_directive = next(
-        t for t in AGENT_SELF_MODIFY_TOOL_DEFINITIONS if t["tool_id"] == "agent_add_directive"
+        t
+        for t in AGENT_SELF_MODIFY_TOOL_DEFINITIONS
+        if t["tool_id"] == "agent_add_directive"
     )
 
     assert add_directive["requires_igor_approval"] is True

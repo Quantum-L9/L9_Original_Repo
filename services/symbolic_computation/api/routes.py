@@ -46,23 +46,22 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
+from core.decorators import must_stay_async
 from services.symbolic_computation.config import get_config
-from services.symbolic_computation.core.models import (
-    CodeGenRequest,
-    CodeGenResult,
-    CodeLanguage,
-    ComputationResult,
-    HealthStatus,
-    MetricsSummary,
-    ValidationResult,
-)
-from services.symbolic_computation.core.expression_evaluator import ExpressionEvaluator
+from services.symbolic_computation.core.cache_manager import CacheManager
 from services.symbolic_computation.core.code_generator import CodeGenerator
+from services.symbolic_computation.core.expression_evaluator import \
+    ExpressionEvaluator
+from services.symbolic_computation.core.metrics import MetricsCollector
+from services.symbolic_computation.core.models import (CodeGenRequest,
+                                                       CodeGenResult,
+                                                       CodeLanguage,
+                                                       ComputationResult,
+                                                       HealthStatus,
+                                                       MetricsSummary,
+                                                       ValidationResult)
 from services.symbolic_computation.core.optimizer import Optimizer
 from services.symbolic_computation.core.validator import ExpressionValidator
-from services.symbolic_computation.core.cache_manager import CacheManager
-from services.symbolic_computation.core.metrics import MetricsCollector
-from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -243,9 +242,11 @@ async def generate_code(
     result = await generator.generate_code(
         expr=request.expression,
         variables=request.variables,
-        language=request.language.value
-        if isinstance(request.language, CodeLanguage)
-        else request.language,
+        language=(
+            request.language.value
+            if isinstance(request.language, CodeLanguage)
+            else request.language
+        ),
         function_name=request.function_name,
     )
 

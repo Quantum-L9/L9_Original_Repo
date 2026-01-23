@@ -35,11 +35,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
 import asyncio
 import logging
-import structlog
+import sys
 from pathlib import Path
+
+import structlog
 
 # Ensure repo root is in path
 REPO_ROOT = Path(__file__).parent.parent
@@ -91,7 +92,9 @@ def test_compileall() -> tuple[bool, str]:
         text=True,
     )
     if result.returncode != 0:
-        return False, result.stderr[:200] if result.stderr else "Compilation errors (see output)"
+        return False, (
+            result.stderr[:200] if result.stderr else "Compilation errors (see output)"
+        )
     return True, ""
 
 
@@ -123,7 +126,7 @@ def test_core_imports() -> tuple[bool, str]:
 def test_langgraph_not_shadowed() -> tuple[bool, str]:
     """Test that langgraph library is not shadowed by local package."""
     try:
-        from langgraph.graph import StateGraph, END
+        from langgraph.graph import END, StateGraph
 
         # Verify it's the actual library, not our local shim
         import langgraph
@@ -147,8 +150,8 @@ def test_server_module_imports() -> tuple[bool, str]:
 
         # API modules may need DB drivers
         try:
+            from api import agent_routes, os_routes
             from api.memory.router import router as memory_router
-            from api import os_routes, agent_routes
         except ImportError as e:
             if "asyncpg" in str(e) or "psycopg" in str(e):
                 pass  # DB drivers not installed, OK for smoke test
@@ -182,7 +185,9 @@ def test_core_modules_exist() -> tuple[bool, str]:
         return False, f"Missing directories: {missing}"
 
     # Check for __init__.py in each
-    missing_init = [d for d in required_dirs if not (REPO_ROOT / d / "__init__.py").exists()]
+    missing_init = [
+        d for d in required_dirs if not (REPO_ROOT / d / "__init__.py").exists()
+    ]
     if missing_init:
         return False, f"Missing __init__.py in: {missing_init}"
 
@@ -209,7 +214,9 @@ def test_no_nested_repos() -> tuple[bool, str]:
         text=True,
     )
     nested_dirs = [
-        d for d in result.stdout.strip().split("\n") if d and d.startswith(str(REPO_ROOT))
+        d
+        for d in result.stdout.strip().split("\n")
+        if d and d.startswith(str(REPO_ROOT))
     ]
 
     if nested_dirs:
@@ -227,7 +234,12 @@ def test_entrypoints_exist() -> tuple[bool, str]:
     missing = []
     for line in entrypoints_file.read_text().strip().split("\n"):
         # Only check lines that are actual file paths (not indented, end with .py, not comments)
-        if line and not line.startswith("#") and not line.startswith(" ") and line.endswith(".py"):
+        if (
+            line
+            and not line.startswith("#")
+            and not line.startswith(" ")
+            and line.endswith(".py")
+        ):
             path = REPO_ROOT / line
             if not path.exists():
                 missing.append(line)
@@ -242,6 +254,7 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
     """Test that memory pipeline components can be instantiated."""
     try:
         from uuid import uuid4
+
         from core.schemas import PacketEnvelope, PacketEnvelopeIn
 
         # Create a test packet

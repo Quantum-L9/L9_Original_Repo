@@ -41,12 +41,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import sys
-import re
-from pathlib import Path
-from typing import Dict, Any, Optional
 import asyncio
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Any, Dict, Optional
+
 import structlog
 from dotenv import load_dotenv
 
@@ -294,7 +295,7 @@ async def main(dry_run: bool = False, verbose: bool = False):
 
     # Initialize memory substrate service
     try:
-        from memory.substrate_service import init_service, close_service
+        from memory.substrate_service import close_service, init_service
 
         database_url = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
         if not database_url:

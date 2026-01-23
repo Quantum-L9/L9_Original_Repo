@@ -47,12 +47,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Callable, Coroutine, Dict, List, Optional
 from uuid import uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -134,9 +135,9 @@ class QueuedTask:
             "created_at": self.created_at.isoformat(),
             "status": self.status,
             "approved_by": self.approved_by,
-            "approval_timestamp": self.approval_timestamp.isoformat()
-            if self.approval_timestamp
-            else None,
+            "approval_timestamp": (
+                self.approval_timestamp.isoformat() if self.approval_timestamp else None
+            ),
             "approval_reason": self.approval_reason,
         }
 
@@ -156,9 +157,11 @@ class QueuedTask:
             ),
             status=data.get("status", "pending_igor_approval"),
             approved_by=data.get("approved_by"),
-            approval_timestamp=datetime.fromisoformat(data["approval_timestamp"])
-            if data.get("approval_timestamp")
-            else None,
+            approval_timestamp=(
+                datetime.fromisoformat(data["approval_timestamp"])
+                if data.get("approval_timestamp")
+                else None
+            ),
             approval_reason=data.get("approval_reason"),
         )
 

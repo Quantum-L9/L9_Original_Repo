@@ -3,8 +3,8 @@ Conftest for upgrades tests
 Ensures proper path resolution for imports
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Add project root to path for upgrades imports

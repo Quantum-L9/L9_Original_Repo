@@ -36,9 +36,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import time
 from typing import Any, Callable, Coroutine
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

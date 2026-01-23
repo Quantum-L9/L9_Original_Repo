@@ -46,7 +46,6 @@ from typing import Any, Dict, List, Optional
 import structlog
 import yaml
 
-
 logger = structlog.get_logger(__name__)
 
 

@@ -38,18 +38,10 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from core.agents.schemas import (
-    AgentTask,
-    AgentConfig,
-    AgentType,
-    AIOSResult,
-    DuplicateTaskResponse,
-    ExecutionResult,
-    ToolBinding,
-    ToolCallRequest,
-    ToolCallResult,
-)
 from core.agents.executor import AgentExecutorService
+from core.agents.schemas import (AgentConfig, AgentTask, AgentType, AIOSResult,
+                                 DuplicateTaskResponse, ExecutionResult,
+                                 ToolBinding, ToolCallRequest, ToolCallResult)
 
 # =============================================================================
 # Contract-Grade Mock Implementations
@@ -349,7 +341,9 @@ async def test_valid_task_instantiates_agent(
     - Result is ExecutionResult with completed status
     - Task ID preserved in result
     """
-    mock_aios.set_responses([AIOSResult.response("Hello! How can I help?", tokens_used=20)])
+    mock_aios.set_responses(
+        [AIOSResult.response("Hello! How can I help?", tokens_used=20)]
+    )
 
     result = await executor.start_agent_task(sample_task)
 
@@ -673,7 +667,9 @@ async def test_executor_terminates_on_final_answer(
     - Status is completed
     - Result content preserved exactly
     """
-    mock_aios.set_responses([AIOSResult.response("This is my final answer.", tokens_used=25)])
+    mock_aios.set_responses(
+        [AIOSResult.response("This is my final answer.", tokens_used=25)]
+    )
 
     result = await executor.start_agent_task(sample_task)
 

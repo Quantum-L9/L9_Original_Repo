@@ -8,9 +8,9 @@ Contains all extraction implementations:
 - ModuleSchemaExtractor: Extracts L9 module definitions
 """
 
+from .agent_config_extractor import AgentConfigExtractor
 from .code_extractor import CodeExtractor
 from .memory_extractor import MemoryExtractor
-from .agent_config_extractor import AgentConfigExtractor
 from .module_schema_extractor import ModuleSchemaExtractor
 
 __all__ = [

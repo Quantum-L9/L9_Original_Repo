@@ -27,18 +27,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict, List, Optional, Set
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
 # GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
 from core.governance.tool_risk_policy import (  # noqa: E402
-    get_high_risk_tools,
-    get_igor_approval_tools,
-    get_safe_tools,
-)
+    get_high_risk_tools, get_igor_approval_tools, get_safe_tools)
 
 HIGH_RISK_TOOLS: Set[str] = get_high_risk_tools()
 IGOR_APPROVAL_REQUIRED: Set[str] = get_igor_approval_tools()
@@ -101,7 +100,8 @@ class Validator:
         """Get or lazily load the tool registry."""
         if self._registry is None:
             try:
-                from core.tools.registry_adapter import get_executor_tool_registry
+                from core.tools.registry_adapter import \
+                    get_executor_tool_registry
 
                 self._registry = get_executor_tool_registry()
             except ImportError:

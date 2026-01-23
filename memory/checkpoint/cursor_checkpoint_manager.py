@@ -34,12 +34,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Any, Optional, Dict
+from typing import Any, Dict, Optional
 
-from memory.checkpoint.postgres_saver import L9PostgresSaver
+import structlog
+
 from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
 from agents.cursor.integrations.cursor_langgraph import CursorAgentState
+from memory.checkpoint.postgres_saver import L9PostgresSaver
 
 logger = structlog.get_logger(__name__)
 

@@ -40,8 +40,8 @@ from uuid import UUID, uuid4
 
 import structlog
 
-from core.testing.test_generator import TestGenerator
 from core.testing.test_executor import TestExecutor, TestResults
+from core.testing.test_generator import TestGenerator
 
 logger = structlog.get_logger(__name__)
 

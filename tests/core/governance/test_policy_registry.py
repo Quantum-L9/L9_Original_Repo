@@ -4,16 +4,16 @@ Tests for L9 Governance Policy Auto-Discovery System
 Note: Tests use proper Policy schema format with required fields.
 """
 
+from pathlib import Path
+
 import pytest
 import yaml
-from pathlib import Path
-from core.governance.policy_registry import (
-    policy_source_registry,
-    register_policy_source,
-    discover_policy_sources,
-    get_all_policy_sources,
-    get_policy_source_snapshot,
-)
+
+from core.governance.policy_registry import (discover_policy_sources,
+                                             get_all_policy_sources,
+                                             get_policy_source_snapshot,
+                                             policy_source_registry,
+                                             register_policy_source)
 
 
 @pytest.fixture(autouse=True)

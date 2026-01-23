@@ -10,9 +10,9 @@ Research agents for the multi-agent orchestration:
 """
 
 from services.research.agents.base_agent import BaseAgent
+from services.research.agents.critic_agent import CriticAgent
 from services.research.agents.planner_agent import PlannerAgent
 from services.research.agents.researcher_agent import ResearcherAgent
-from services.research.agents.critic_agent import CriticAgent
 
 __all__ = [
     "BaseAgent",

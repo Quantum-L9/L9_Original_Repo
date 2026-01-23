@@ -14,9 +14,9 @@ Rate Limiting Spec:
 Run: pytest mcp_memory/tests/test_rate_limiting_enforcement.py -v
 """
 
-import pytest
 import asyncio
 
+import pytest
 
 # =============================================================================
 # Test 1: Rate Limit Triggers After Threshold
@@ -133,9 +133,9 @@ class TestRateLimiterConfiguration:
         # Required methods
         assert hasattr(rate_limiter, "is_rate_limited"), "Should have is_rate_limited"
         assert hasattr(rate_limiter, "record_request"), "Should have record_request"
-        assert hasattr(rate_limiter, "record_failed_auth"), (
-            "Should have record_failed_auth"
-        )
+        assert hasattr(
+            rate_limiter, "record_failed_auth"
+        ), "Should have record_failed_auth"
         assert hasattr(rate_limiter, "is_auth_blocked"), "Should have is_auth_blocked"
         assert hasattr(rate_limiter, "snapshot"), "Should have snapshot"
 

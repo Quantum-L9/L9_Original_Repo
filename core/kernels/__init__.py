@@ -16,33 +16,21 @@ Version: 1.1.0
 
 import warnings
 
-from core.kernels.integrity import (
-    hash_file,
-    compute_kernel_hashes,
-    load_kernel_hashes,
-    save_kernel_hashes,
-    check_kernel_integrity,
-    get_detailed_changes,
-    verify_specific_file,
-    initialize_kernel_hashes,
-    IntegrityChange,
-    KERNEL_HASH_FILE,
-)
-
+from core.kernels.integrity import (KERNEL_HASH_FILE, IntegrityChange,
+                                    check_kernel_integrity,
+                                    compute_kernel_hashes,
+                                    get_detailed_changes, hash_file,
+                                    initialize_kernel_hashes,
+                                    load_kernel_hashes, save_kernel_hashes,
+                                    verify_specific_file)
 # Re-export from canonical location (runtime.kernel_loader)
 # Backward compatibility for code using core.kernels.private_loader
-from runtime.kernel_loader import (
-    load_kernel_file,
-    load_all_private_kernels,
-    load_layered_kernels,
-    get_kernel_by_name,
-    get_enabled_rules,
-    get_rules_by_type,
-    validate_kernel_structure,
-    validate_all_kernels,
-    DEFAULT_KERNEL_PATH,
-    KERNEL_EXTENSIONS,
-)
+from runtime.kernel_loader import (DEFAULT_KERNEL_PATH, KERNEL_EXTENSIONS,
+                                   get_enabled_rules, get_kernel_by_name,
+                                   get_rules_by_type, load_all_private_kernels,
+                                   load_kernel_file, load_layered_kernels,
+                                   validate_all_kernels,
+                                   validate_kernel_structure)
 
 
 # Emit deprecation warning when accessing via this module

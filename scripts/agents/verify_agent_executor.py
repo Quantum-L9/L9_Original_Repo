@@ -33,8 +33,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import sys
-import structlog
 from pathlib import Path
+
+import structlog
 
 # Add the repo root to the Python path
 repo_root = Path(__file__).parent.parent

@@ -15,9 +15,10 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-import pytest
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
+
+import pytest
 
 # Adapted import to match actual repo path - use absolute path
 # Use absolute path to project root

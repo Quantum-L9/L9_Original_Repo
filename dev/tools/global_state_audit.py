@@ -34,11 +34,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-
 import ast
 from pathlib import Path
 from typing import List, Tuple
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 ROOT = Path(__file__).resolve().parents[2]

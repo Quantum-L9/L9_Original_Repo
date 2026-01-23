@@ -22,11 +22,12 @@ __dora_meta__ = {
 import os
 import subprocess
 from typing import Literal, Optional
-from fastapi import FastAPI, HTTPException, Header
-from pydantic import BaseModel
-import uvicorn
+
 import httpx
 import requests
+import uvicorn
+from fastapi import FastAPI, Header, HTTPException
+from pydantic import BaseModel
 
 # Load from environment (required for server mode, optional for client imports)
 EXECUTOR_KEY = os.getenv("L9_EXECUTOR_API_KEY", "")

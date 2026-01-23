@@ -5,6 +5,7 @@ Tests the actual AutoRegistry API.
 """
 
 import pytest
+
 from core.auto_registry import AutoRegistry, DuplicateRegistrationError
 
 

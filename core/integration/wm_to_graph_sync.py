@@ -46,12 +46,13 @@ __dora_meta__ = {
 import asyncio
 import os
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 if TYPE_CHECKING:
     from world_model.causal_mapper import CausalMapper
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

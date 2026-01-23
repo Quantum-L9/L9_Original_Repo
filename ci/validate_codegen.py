@@ -43,9 +43,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
 import os
 import re
+import sys
 from pathlib import Path
 
 import structlog

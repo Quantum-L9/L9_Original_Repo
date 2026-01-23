@@ -13,18 +13,14 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
-import pytest
 from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
-from core.agents.schemas import (
-    AgentConfig,
-    AgentTask,
-    ToolBinding,
-    ToolCallRequest,
-    ToolCallResult,
-)
+import pytest
+
+from core.agents.schemas import (AgentConfig, AgentTask, ToolBinding,
+                                 ToolCallRequest, ToolCallResult)
 
 # =============================================================================
 # Fixtures
@@ -90,7 +86,9 @@ class TestGuardedExecute:
     """Tests for ExecutorToolRegistry.guarded_execute."""
 
     @pytest.mark.asyncio
-    async def test_guarded_execute_success(self, mock_agent: MockKernelAwareAgent) -> None:
+    async def test_guarded_execute_success(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """guarded_execute should succeed with active kernels."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 
@@ -197,7 +195,9 @@ class TestGuardedExecute:
         assert "prohibited" in result.error.lower()
 
     @pytest.mark.asyncio
-    async def test_guarded_execute_passes_context(self, mock_agent: MockKernelAwareAgent) -> None:
+    async def test_guarded_execute_passes_context(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """guarded_execute should pass context to dispatch_tool_call."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 
@@ -453,7 +453,9 @@ class TestGuardedExecuteEdgeCases:
         assert result.success is True
 
     @pytest.mark.asyncio
-    async def test_dispatch_failure_propagates(self, mock_agent: MockKernelAwareAgent) -> None:
+    async def test_dispatch_failure_propagates(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """guarded_execute should propagate dispatch failures."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 
@@ -493,9 +495,10 @@ class TestGovernanceEngineIntegration:
     @pytest.mark.asyncio
     async def test_guarded_execution_invokes_governance_engine(self) -> None:
         """guarded_execute should invoke governance engine when attached."""
-        from core.tools.registry_adapter import ExecutorToolRegistry
-        from core.governance.schemas import EvaluationResult, PolicyEffect
         from uuid import uuid4
+
+        from core.governance.schemas import EvaluationResult, PolicyEffect
+        from core.tools.registry_adapter import ExecutorToolRegistry
 
         registry = ExecutorToolRegistry(governance_enabled=True)
 
@@ -536,9 +539,10 @@ class TestGovernanceEngineIntegration:
     @pytest.mark.asyncio
     async def test_guarded_execution_denies_on_governance_deny(self) -> None:
         """guarded_execute should deny when governance engine denies."""
-        from core.tools.registry_adapter import ExecutorToolRegistry
-        from core.governance.schemas import EvaluationResult, PolicyEffect
         from uuid import uuid4
+
+        from core.governance.schemas import EvaluationResult, PolicyEffect
+        from core.tools.registry_adapter import ExecutorToolRegistry
 
         registry = ExecutorToolRegistry(governance_enabled=True)
 
@@ -577,7 +581,9 @@ class TestGovernanceEngineIntegration:
 
         # Create mock governance engine that raises exception
         mock_engine = MagicMock()
-        mock_engine.evaluate = AsyncMock(side_effect=RuntimeError("Governance unavailable"))
+        mock_engine.evaluate = AsyncMock(
+            side_effect=RuntimeError("Governance unavailable")
+        )
 
         registry.set_governance_engine(mock_engine)
         registry.dispatch_tool_call = AsyncMock(
@@ -743,7 +749,9 @@ class TestSafetyConstraints:
         assert result.success is False
 
     @pytest.mark.asyncio
-    async def test_allowed_tool_not_blocked(self, mock_agent: MockKernelAwareAgent) -> None:
+    async def test_allowed_tool_not_blocked(
+        self, mock_agent: MockKernelAwareAgent
+    ) -> None:
         """guarded_execute should allow tools not in prohibited lists."""
         from core.tools.registry_adapter import ExecutorToolRegistry
 

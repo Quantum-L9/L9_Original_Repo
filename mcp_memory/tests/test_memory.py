@@ -1,7 +1,8 @@
 """Memory operations tests."""
 
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 
 @pytest.mark.asyncio
@@ -107,7 +108,9 @@ async def test_duplicate_memory_compounds():
 @pytest.mark.asyncio
 async def test_context_injection_retrieves_relevant_memories():
     """Context injection should retrieve semantically relevant memories."""
-    with patch("src.routes.memory.search_memory_handler", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "src.routes.memory.search_memory_handler", new_callable=AsyncMock
+    ) as mock_search:
         with patch("src.routes.memory.fetch_all", new_callable=AsyncMock) as mock_fetch:
             with patch("src.routes.memory.execute", new_callable=AsyncMock):
                 mock_search.return_value = {
@@ -141,7 +144,9 @@ async def test_context_injection_retrieves_relevant_memories():
 @pytest.mark.asyncio
 async def test_session_learning_extraction():
     """Session learning extraction should store multiple memory types."""
-    with patch("src.routes.memory.save_memory_handler", new_callable=AsyncMock) as mock_save:
+    with patch(
+        "src.routes.memory.save_memory_handler", new_callable=AsyncMock
+    ) as mock_save:
         with patch("src.routes.memory.execute", new_callable=AsyncMock):
             mock_save.return_value = {"id": 1}
 
@@ -165,7 +170,9 @@ async def test_session_learning_extraction():
 @pytest.mark.asyncio
 async def test_proactive_suggestions():
     """Proactive suggestions should surface relevant past experiences."""
-    with patch("src.routes.memory.search_memory_handler", new_callable=AsyncMock) as mock_search:
+    with patch(
+        "src.routes.memory.search_memory_handler", new_callable=AsyncMock
+    ) as mock_search:
         with patch("src.routes.memory.execute", new_callable=AsyncMock):
             mock_search.return_value = {
                 "results": [
@@ -199,7 +206,9 @@ async def test_proactive_suggestions():
 async def test_temporal_query():
     """Temporal query should return memories in time range."""
     with patch("src.routes.memory.fetch_all", new_callable=AsyncMock) as mock_fetch:
-        with patch("src.routes.memory.fetch_one", new_callable=AsyncMock) as mock_fetch_one:
+        with patch(
+            "src.routes.memory.fetch_one", new_callable=AsyncMock
+        ) as mock_fetch_one:
             mock_fetch.return_value = [
                 {
                     "id": 1,
@@ -231,7 +240,9 @@ async def test_temporal_query():
 @pytest.mark.asyncio
 async def test_save_with_confidence():
     """Save with confidence should scale importance and add tags."""
-    with patch("src.routes.memory.save_memory_handler", new_callable=AsyncMock) as mock_save:
+    with patch(
+        "src.routes.memory.save_memory_handler", new_callable=AsyncMock
+    ) as mock_save:
         with patch("src.routes.memory.execute", new_callable=AsyncMock):
             mock_save.return_value = {"id": 1, "importance": 0.7}
 

@@ -18,23 +18,21 @@ Related PR: #23 (builds on PR #22 DI/DIP foundation)
 """
 
 import os
-import pytest
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 import yaml
 
-from runtime.kernel_config_loader import (
-    load_kernel_config,
-    get_kernel_order,
-    get_required_kernels,
-    get_minimum_kernel_count,
-    apply_environment_overrides,
-    validate_config,
-    is_config_loading_enabled,
-    should_use_env_overrides,
-    get_environment,
-    FALLBACK_CONFIG,
-)
+from runtime.kernel_config_loader import (FALLBACK_CONFIG,
+                                          apply_environment_overrides,
+                                          get_environment, get_kernel_order,
+                                          get_minimum_kernel_count,
+                                          get_required_kernels,
+                                          is_config_loading_enabled,
+                                          load_kernel_config,
+                                          should_use_env_overrides,
+                                          validate_config)
 
 # =============================================================================
 # Test Fixtures

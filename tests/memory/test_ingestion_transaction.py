@@ -10,8 +10,9 @@ Tests for transactional ingestion pipeline:
 Version: 1.0.1
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from memory.governance_gate import build_governance_context, governance_context
 
@@ -40,8 +41,8 @@ class TestTransactionalIngestion:
     @pytest.mark.asyncio
     async def test_ingestion_uses_transaction_for_core_writes(self, gov_ctx):
         """Verify ingestion uses transaction for packet_store and memory_events."""
-        from memory.ingestion import IngestionPipeline
         from core.schemas import PacketEnvelopeIn
+        from memory.ingestion import IngestionPipeline
 
         # Mock repository with transaction
         mock_repository = MagicMock()
@@ -49,7 +50,9 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
+            return_value=None
+        )
 
         pipeline = IngestionPipeline(repository=mock_repository)
 
@@ -73,8 +76,8 @@ class TestTransactionalIngestion:
     @pytest.mark.asyncio
     async def test_ingestion_rollback_on_core_write_failure(self, gov_ctx):
         """Verify transaction rolls back on core write failure."""
-        from memory.ingestion import IngestionPipeline
         from core.schemas import PacketEnvelopeIn
+        from memory.ingestion import IngestionPipeline
 
         # Mock repository with transaction that fails
         mock_repository = MagicMock()
@@ -82,7 +85,9 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
+            return_value=None
+        )
 
         # Make insert_packet fail
         mock_repository.insert_packet = AsyncMock(side_effect=Exception("DB error"))
@@ -109,8 +114,8 @@ class TestTransactionalIngestion:
     @pytest.mark.asyncio
     async def test_ingestion_best_effort_writes_outside_transaction(self, gov_ctx):
         """Verify embedding and lineage writes are outside transaction (best-effort)."""
-        from memory.ingestion import IngestionPipeline
         from core.schemas import PacketEnvelopeIn
+        from memory.ingestion import IngestionPipeline
 
         # Mock repository with transaction
         mock_repository = MagicMock()
@@ -118,7 +123,9 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
+            return_value=None
+        )
 
         # Mock semantic service
         mock_semantic = AsyncMock()
@@ -154,8 +161,8 @@ class TestTransactionalIngestion:
     @pytest.mark.asyncio
     async def test_ingestion_embedding_failure_doesnt_block(self, gov_ctx):
         """Verify embedding failure doesn't block core writes."""
-        from memory.ingestion import IngestionPipeline
         from core.schemas import PacketEnvelopeIn
+        from memory.ingestion import IngestionPipeline
 
         # Mock repository with transaction
         mock_repository = MagicMock()
@@ -163,11 +170,15 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
+            return_value=None
+        )
 
         # Mock semantic service that fails
         mock_semantic = AsyncMock()
-        mock_semantic.embed_and_store = AsyncMock(side_effect=Exception("Embedding failed"))
+        mock_semantic.embed_and_store = AsyncMock(
+            side_effect=Exception("Embedding failed")
+        )
 
         pipeline = IngestionPipeline(
             repository=mock_repository,

@@ -32,9 +32,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import time
 from typing import Any, Dict
+
+import structlog
 
 from runtime.mcp_client import get_mcp_client
 

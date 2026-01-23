@@ -33,11 +33,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import lru_cache
 from typing import Any, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

@@ -12,8 +12,8 @@ Version: 1.0.0
 import os
 from unittest.mock import patch
 
-import pytest
 import httpx
+import pytest
 
 # =============================================================================
 # Configuration
@@ -66,7 +66,9 @@ class TestAgentExecuteAuth:
 
         response = api_client_no_auth.post("/agent/execute", json=payload)
 
-        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+        assert (
+            response.status_code == 401
+        ), f"Expected 401 Unauthorized, got {response.status_code}"
         data = response.json()
         assert "Unauthorized" in data.get("detail", "")
 
@@ -108,9 +110,13 @@ class TestAgentExecuteAuth:
 
         headers = {"Authorization": "Bearer wrong-key"}
 
-        response = api_client_no_auth.post("/agent/execute", json=payload, headers=headers)
+        response = api_client_no_auth.post(
+            "/agent/execute", json=payload, headers=headers
+        )
 
-        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+        assert (
+            response.status_code == 401
+        ), f"Expected 401 Unauthorized, got {response.status_code}"
         data = response.json()
         assert "Unauthorized" in data.get("detail", "")
 
@@ -133,7 +139,9 @@ class TestAgentTaskAuth:
 
         response = api_client_no_auth.post("/agent/task", json=payload)
 
-        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+        assert (
+            response.status_code == 401
+        ), f"Expected 401 Unauthorized, got {response.status_code}"
         data = response.json()
         assert "Unauthorized" in data.get("detail", "")
 
@@ -167,6 +175,8 @@ class TestAgentTaskAuth:
 
         response = api_client_no_auth.post("/agent/task", json=payload, headers=headers)
 
-        assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+        assert (
+            response.status_code == 401
+        ), f"Expected 401 Unauthorized, got {response.status_code}"
         data = response.json()
         assert "Unauthorized" in data.get("detail", "")
