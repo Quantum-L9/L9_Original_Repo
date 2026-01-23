@@ -48,9 +48,7 @@ from uuid import UUID, uuid4
 import asyncpg
 import structlog
 
-from core.singleton_auto_registry import (register_singleton,
-                                          register_singleton_closer)
-from memory.query_cache import get_cache
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 from memory.vector_search_config import get_vector_config
 
 
@@ -70,12 +68,20 @@ _current_rls_connection: ContextVar[Optional[asyncpg.Connection]] = ContextVar(
 )
 
 from core.schemas import PacketEnvelope, SemanticHit
-from memory.governance_gate import (build_scope_project_filter,
-                                    require_governance_context)
-from memory.substrate_models import (AgentMemoryEventRow, EpisodicEventRow,
-                                     GraphCheckpointRow, KnowledgeFactRow,
-                                     PacketStoreRow, ReasoningTraceRow,
-                                     SemanticFactRow, StructuredReasoningBlock)
+from memory.governance_gate import (
+    build_scope_project_filter,
+    require_governance_context,
+)
+from memory.substrate_models import (
+    AgentMemoryEventRow,
+    EpisodicEventRow,
+    GraphCheckpointRow,
+    KnowledgeFactRow,
+    PacketStoreRow,
+    ReasoningTraceRow,
+    SemanticFactRow,
+    StructuredReasoningBlock,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -324,6 +330,27 @@ class SubstrateRepository:
             if row:
                 return self._row_to_packet_store(row)
             return None
+
+    async def check_packet_exists(self, packet_id: UUID) -> bool:
+        """
+        Check if a packet with the given ID already exists.
+
+        Used for duplicate detection in the ingestion pipeline.
+        This is a lightweight existence check without RLS filtering
+        since deduplication is global (same packet_id = same packet).
+
+        Args:
+            packet_id: The packet UUID to check
+
+        Returns:
+            True if packet exists, False otherwise
+        """
+        async with self.acquire() as conn:
+            result = await conn.fetchval(
+                "SELECT EXISTS(SELECT 1 FROM packet_store WHERE packet_id = $1)",
+                packet_id,
+            )
+            return bool(result)
 
     async def search_packets_by_thread(
         self,
@@ -972,7 +999,7 @@ class SubstrateRepository:
             # Apply vector search optimization
             config = get_vector_config()
             await config.apply(conn)
-            
+
             vector_str = f"[{','.join(str(v) for v in query_embedding)}]"
 
             if agent_id:
@@ -2035,7 +2062,7 @@ class SubstrateRepository:
                 )
                 for fact_id in fact_ids
             ]
-            
+
             try:
                 # Batch insert with ON CONFLICT
                 await conn.executemany(
@@ -2051,9 +2078,7 @@ class SubstrateRepository:
                 )
                 links_created = len(fact_ids)
             except Exception as e:
-                logger.warning(
-                    f"Failed to link event {event_id} to facts: {e}"
-                )
+                logger.warning(f"Failed to link event {event_id} to facts: {e}")
                 links_created = 0
 
         logger.debug(f"Linked event {event_id} to {links_created} facts")

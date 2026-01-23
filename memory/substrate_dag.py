@@ -58,8 +58,12 @@ from langgraph.graph import END, StateGraph
 
 from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, PacketWriteResult
-from memory.substrate_models import (EnrichmentResult, ExtractedInsight,
-                                     KnowledgeFact, StructuredReasoningBlock)
+from memory.substrate_models import (
+    EnrichmentResult,
+    ExtractedInsight,
+    KnowledgeFact,
+    StructuredReasoningBlock,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -208,6 +212,7 @@ async def intake_node(
 
     - Validates required fields
     - Ensures packet_id and timestamp are set
+    - Checks for duplicate packets (prevents reprocessing)
     - Prepares state for downstream processing
     """
     repository = _get_config_dependency(config, "repository")
@@ -238,6 +243,26 @@ async def intake_node(
             "agent": None,
             "domain": "plastic_brokerage",
         }
+
+    # Check for duplicate packet (prevents reprocessing already-ingested packets)
+    packet_id = envelope.get("packet_id")
+    if packet_id and repository:
+        try:
+            if hasattr(repository, "check_packet_exists"):
+                exists = await repository.check_packet_exists(UUID(str(packet_id)))
+                if exists:
+                    errors.append(f"Duplicate packet: {packet_id} already processed")
+                    logger.warning(
+                        "intake_node: Duplicate packet detected",
+                        packet_id=str(packet_id),
+                    )
+        except Exception as e:
+            # Non-fatal: log warning but continue processing
+            logger.warning(
+                "intake_node: Failed to check for duplicate",
+                packet_id=str(packet_id),
+                error=str(e),
+            )
 
     logger.debug(f"intake_node: Processed packet {envelope.get('packet_id')}")
 

@@ -698,8 +698,6 @@ async approve_gmp_task(task_id) @ runtime/gmp_approval.py
 async approve_task(task_id, approved_by, reason) @ current_work/DONE/GMP Stage 2 - Tools & Memory/approvals.py
 async approve_task(task_id, approved_by, reason, tool_name, task_type, context) @ core/governance/approvals.py
 async archive_packets_batch(packet_ids, tenant_id) @ memory/substrate_repository_batch_helpers.py
-async ask_l(query) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
-async ask_l(query) @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
 async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
 async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
@@ -1618,8 +1616,6 @@ async get_item(i) @ tests/memory/test_query_cache_and_vector.py
 async get_kernel_evolution_history(agent_id, event_type, limit) @ core/memory/runtime.py
 async get_knowledge_facts(limit, offset) @ memory/substrate_repository_cached.py
 async get_knowledge_facts(source_packet, subject, limit) @ memory/substrate_repository.py
-async get_l_memory_state() @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
-async get_l_memory_state() @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
 async get_l_tool_catalog() @ core/tools/tool_graph.py
 async get_l_tool_catalog() @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_graph.py
 async get_l_tool_catalog() @ igor/DONE!/audit-tools/core_tools_tool_graph.py
@@ -3001,7 +2997,6 @@ async synthesize(topic, context) @ agents/research_agent_impl.py
 async synthesize_decision(reasoning_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
 async synthesize_decision(reasoning_outputs) @ domain_tensor_bridge/decision_synthesizer.py
 async synthesize_evidence(evidence_list, query) @ services/research/agents/researcher_agent.py
-async task_loop() @ runtime/background_tasks.py
 async test_abductive_reasoning(toth_engine) @ tests/test_toth_integration.py
 async test_acknowledge_removes_entry() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_acknowledge_returns_false_if_not_found() @ tests/memory/test_dag_orchestrator_resilience.py
