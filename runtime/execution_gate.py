@@ -189,7 +189,7 @@ def guarded_execute(
         raise RuntimeError(
             "CRITICAL: Kernel set not active. Execution denied.\n"
             "Escalation: MASTER_KERNEL\n"
-            "Reason: kernel_state.initialized == False"
+            "Reason: kernel_state.initialized is False"
         )
 
     # Step 2: Owner verification (GODMODE Part 1.2)
