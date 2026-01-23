@@ -78,5 +78,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 # Expose ports
 EXPOSE 8000 9000
 
-# Default command - runs FastAPI via uvicorn
-CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+# Default command - runs FastAPI via uvicorn (api.server is the correct entrypoint)
+CMD ["uvicorn", "api.server:app", "--host", "0.0.0.0", "--port", "8000"]
