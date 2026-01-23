@@ -25,9 +25,7 @@ def clear_registries():
 
 def test_register_event_type():
     """Test that an event type can be registered."""
-    register_event_type(
-        name="test_event", category="testing", description="A test event"
-    )
+    register_event_type(name="test_event", category="testing", description="A test event")
 
     event_types = get_all_event_types()
     assert "test_event" in event_types

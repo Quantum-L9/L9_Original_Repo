@@ -226,6 +226,12 @@ api/routes/research_agent.py::SynthesizeResponse - Response model for synthesis 
 api/routes/simulation.py::SimulationMetricsResponse - Simulation metrics.
 api/routes/simulation.py::SimulationRequest - Request to run a simulation.
 api/routes/simulation.py::SimulationResponse - Response from simulation execution.
+api/routes/workers.py::AnomalyProcessRequest - Request to process telemetry events for anomalies.
+api/routes/workers.py::AnomalyProcessResponse - Response from anomaly processing.
+api/routes/workers.py::ViolationCountsResponse - Response with violation counts per lesson.
+api/routes/workers.py::ViolationScanRequest - Request to scan content for violations.
+api/routes/workers.py::ViolationScanResponse - Response from violation scan.
+api/routes/workers.py::WorkersHealthResponse - Health status of all workers.
 api/server.py::ChatRequest - No docstring
 api/server.py::ChatResponse - No docstring
 api/server.py::CursorGraphDeps - No docstring
@@ -556,33 +562,6 @@ config/rls_config.py::Config - No docstring
 config/rls_config.py::RLSConfig - RLS Configuration with deterministic UUID generation.
 config/settings.py::Config - No docstring
 config/settings.py::IntegrationSettings - Configuration for L9 external integrations.
-core/abstractions/agent_protocols.py::ActivatableAgent - Protocol for agents that can be activated with kernels.
-core/abstractions/agent_protocols.py::AgentContext - Protocol for agent execution context.
-core/abstractions/agent_protocols.py::AgentOrchestrator - Protocol for agent orchestration and coordination.
-core/abstractions/agent_protocols.py::AgentRegistry - Protocol for agent discovery and registration.
-core/abstractions/agent_protocols.py::AgentState - Agent state enumeration.
-core/abstractions/agent_protocols.py::StateManager - Protocol for agent state management.
-core/abstractions/agent_protocols.py::ToolExecutor - Protocol for tool execution interface.
-core/abstractions/kernel_protocols.py::IntegrityVerifier - Protocol for kernel file integrity verification.
-core/abstractions/kernel_protocols.py::KernelActivator - Protocol for kernel activation operations.
-core/abstractions/kernel_protocols.py::KernelAwareAgent - Protocol for agents that can be kernel-activated.
-core/abstractions/kernel_protocols.py::KernelDiscovery - Protocol for kernel file discovery.
-core/abstractions/kernel_protocols.py::KernelStateManager - Protocol for kernel lifecycle state management.
-core/abstractions/kernel_protocols.py::KernelValidator - Protocol for kernel YAML validation.
-core/abstractions/memory_protocols.py::CacheClient - Protocol for key-value cache operations.
-core/abstractions/memory_protocols.py::GraphClient - Protocol for graph database operations.
-core/abstractions/memory_protocols.py::IngestionPipeline - Protocol for memory ingestion and processing.
-core/abstractions/memory_protocols.py::MemoryRepository - Protocol for high-level memory CRUD operations.
-core/abstractions/memory_protocols.py::RetrievalStrategy - Protocol for memory retrieval and ranking.
-core/abstractions/memory_protocols.py::VectorStore - Protocol for vector similarity search operations.
-core/abstractions/observability_protocols.py::HealthChecker - Protocol for system health monitoring.
-core/abstractions/observability_protocols.py::LogExporter - Protocol for structured log export.
-core/abstractions/observability_protocols.py::MetricsCollector - Protocol for metrics collection and aggregation.
-core/abstractions/observability_protocols.py::ObservabilityService - Protocol for unified observability service.
-core/abstractions/observability_protocols.py::SpanEmitter - Protocol for distributed tracing span emission.
-core/abstractions/observability_protocols.py::SpanKind - Span kind enumeration.
-core/abstractions/observability_protocols.py::SpanStatus - Span status enumeration.
-core/abstractions/observability_protocols.py::TraceContext - Protocol for trace context propagation.
 core/agents/agent_instance.py::AgentInstance - Represents a running agent instance.
 core/agents/bootstrap/bootstrap_metrics.py::BootstrapMetrics - Helper class for bootstrap metric instrumentation.
 core/agents/bootstrap/bootstrap_metrics.py::Counter - No docstring
@@ -862,6 +841,35 @@ core/packet_envelope/standardization.py::HTTPBinaryBinding - HTTP Protocol Bindi
 core/packet_envelope/standardization.py::HTTPStructuredBinding - HTTP Protocol Binding (Structured Content Mode)
 core/packet_envelope/standardization.py::ProtocolBinding - Abstract base for protocol bindings
 core/packet_envelope/standardization.py::SchemaRegistry - Event schema registry
+core/protocols/agent_protocols.py::ActivatableAgent - Protocol for agents that can be activated with kernels.
+core/protocols/agent_protocols.py::AgentContext - Protocol for agent execution context.
+core/protocols/agent_protocols.py::AgentOrchestrator - Protocol for agent orchestration and coordination.
+core/protocols/agent_protocols.py::AgentRegistry - Protocol for agent discovery and registration.
+core/protocols/agent_protocols.py::AgentState - Agent state enumeration.
+core/protocols/agent_protocols.py::StateManager - Protocol for agent state management.
+core/protocols/agent_protocols.py::ToolExecutor - Protocol for tool execution interface.
+core/protocols/kernel_protocols.py::IntegrityVerifier - Protocol for kernel file integrity verification.
+core/protocols/kernel_protocols.py::KernelActivator - Protocol for kernel activation operations.
+core/protocols/kernel_protocols.py::KernelAwareAgent - Protocol for agents that can be kernel-activated.
+core/protocols/kernel_protocols.py::KernelDiscovery - Protocol for kernel file discovery.
+core/protocols/kernel_protocols.py::KernelStateManager - Protocol for kernel lifecycle state management.
+core/protocols/kernel_protocols.py::KernelValidator - Protocol for kernel YAML validation.
+core/protocols/memory_protocols.py::CacheClient - Protocol for key-value cache operations.
+core/protocols/memory_protocols.py::GraphClient - Protocol for graph database operations.
+core/protocols/memory_protocols.py::IngestionPipeline - Protocol for memory ingestion and processing.
+core/protocols/memory_protocols.py::MemoryRepository - Protocol for high-level memory CRUD operations.
+core/protocols/memory_protocols.py::RetrievalStrategy - Protocol for memory retrieval and ranking.
+core/protocols/memory_protocols.py::VectorStore - Protocol for vector similarity search operations.
+core/protocols/observability_protocols.py::HealthChecker - Protocol for system health monitoring.
+core/protocols/observability_protocols.py::LogExporter - Protocol for structured log export.
+core/protocols/observability_protocols.py::MetricsCollector - Protocol for metrics collection and aggregation.
+core/protocols/observability_protocols.py::ObservabilityService - Protocol for unified observability service.
+core/protocols/observability_protocols.py::SpanEmitter - Protocol for distributed tracing span emission.
+core/protocols/observability_protocols.py::SpanKind - Span kind enumeration.
+core/protocols/observability_protocols.py::SpanStatus - Span status enumeration.
+core/protocols/observability_protocols.py::TraceContext - Protocol for trace context propagation.
+core/protocols/secrets_protocols.py::SecretsClient - Protocol for secrets management operations.
+core/protocols/secrets_protocols.py::SecretsError - Base exception for secrets operations.
 core/resilience/mixin.py::ResilienceMixin - Mixin providing standard retry + circuit breaker + DLQ behav
 core/resilience/protocols.py::ResilientService - Protocol for services that support resilience patterns.
 core/resilience/retry.py::AsyncRetryConfig - Configuration for async retry behavior.
@@ -972,13 +980,6 @@ core/testing/test_executor.py::TestResult - Result of a single test.
 core/testing/test_executor.py::TestResults - Results of a test run.
 core/testing/test_generator.py::TestGenerator - Generates tests from code proposals.
 core/tools/agent_self_modify.py::AgentSelfModifyTool - Allow agents to modify their own graph state.
-core/tools/base_registry.py::Config - No docstring
-core/tools/base_registry.py::Config - No docstring
-core/tools/base_registry.py::RateLimitWindow - Sliding window rate limiter.
-core/tools/base_registry.py::ToolMetadata - Metadata for a registered tool.
-core/tools/base_registry.py::ToolRegistry - In-memory registry of available tools.
-core/tools/base_registry.py::ToolSchema - JSON Schema for tool parameters (OpenAI function calling com
-core/tools/base_registry.py::ToolType - Types of available tools.
 core/tools/memory_tools.py::MemorySearchResult - Result from memory search
 core/tools/memory_tools.py::MemorySegment - Memory segments available for agent queries
 core/tools/memory_tools.py::MemoryWriteResult - Result from memory write
@@ -1011,6 +1012,177 @@ core/worldmodel/l9_schema.py::L9Tool - Tool entity in the L9 world model.
 core/worldmodel/l9_schema.py::ToolCategory - Categories of tools.
 core/worldmodel/l9_schema.py::ToolRiskLevel - Risk levels for tools.
 core/worldmodel/service.py::WorldModelService - Service for L9 world model operations.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ArtifactExtractor - Base class for extracting structured data from documents.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ConstraintExtractor - Extracts constraint definitions from documents.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::DocumentClassifier - Classifies documents based on schema hints.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::HeuristicExtractor - Extracts heuristic/judgment rules.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::L9Compiler - Main compiler that orchestrates the compilation process.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::PatternExtractor - Extracts architectural pattern definitions.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ProtocolExtractor - Extracts protocol/workflow definitions.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::Schema - Schema definition for artifact classification.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::SourceMetadata - Metadata about the source document.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::CACodeChange - Orchestrates code changes with full governance.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::ChangeProposal - A proposed code change with all metadata.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::ChangeStatus - Status of a proposed change.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ConstraintValidator - Validate changes against governance constraints.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ValidationResult - Result of constraint validation.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::Violation - Represents a constraint violation.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ViolationSeverity - Severity levels for constraint violations.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::BatchDiff - Represents diffs for multiple files.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::DiffGenerator - Generate diffs for code changes.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::FileDiff - Represents a diff for a single file.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ChangeReport - Structured report for code changes.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ChangeType - Types of code changes.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ReportGenerator - Generate reports for code changes.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::GovernanceIntegration - Unified governance integration for L9.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::ActionRegistry - Simple registry for executable actions.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::ActionResult - Result of an action execution.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::AgentState - Canonical agent state structure (I-AGENT_STATE-001).
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::AgentStateManager - Manages agent state with persistence.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::ProactivityLevel - Agent proactivity levels.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::CandidateAction - A candidate action with predicted outcome.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::DecisionMode - Decision modes for the foresight engine.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::ForesightDecision - Result of foresight decision-making.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::ForesightEngine - Implements the Foresight Engine pattern.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::MemoryAdapter - Adapter to connect governance to existing memory substrate.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::ReflectionEngine - Implements the Reflection Loop protocol (P-REFLECT-001).
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::ReflectionResult - Result of reflecting on an action.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ConceptExtractor - Extracts concepts from files using aggressive pattern matchi
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ConceptYAML - Structured YAML representation of a concept.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ExtractedConcept - A concept extracted from a file.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::FileScanner - Scans directories and finds processable files.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::KnowledgeHarvester - Main orchestrator for knowledge harvesting.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::YAMLGenerator - Generates structured YAML from extracted concepts.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::ConceptReview - Review status for a concept.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::QCDashboard - Interactive dashboard for concept review.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::ConceptSpec - Parsed concept specification.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::L9SpecGenerator - Generates PLAN_Vn specs for CA from concepts.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::PlanSpec - PLAN_Vn specification for CA.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::ConceptSpec - Parsed concept specification.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::L9SpecGenerator - Generates PLAN_Vn specs for CA from concepts.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::PlanSpec - PLAN_Vn specification for CA.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::ConceptSpec - Parsed concept specification.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::GenerationResult - Result of code generation.
+current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::L9TextToCode - Main text-to-code generator.
+current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::Language - No docstring
+current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::RefactoringBootstrap - Main orchestrator for refactoring pipeline setup
+current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py::ToolConfig - Configuration for refactoring tools
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestIntegration - Integration tests - all tiers together
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier1MemoryEvolution - Test Tier 1: Differentiable Memory
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier2SwarmSync - Test Tier 2: Swarm Synchronicity
+current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py::TestTier3Governance - Test Tier 3: Meta-Cognitive Governance
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::AutonomicSteering - Autonomic Resource Steering
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::LeanVerifier - Lean theorem prover integration for formal verification
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::MetaEvolutionEngine - Meta-Evolution Engine
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::RecursiveSelfCoding - Recursive Self-Coding Engine
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py::UtilityScorer - Scores graph subregions by reasoning density
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::CanaryDeployment - Canary deployment system for schema mutations
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::GNNKernel - Graph Neural Network Kernel for latent pattern discovery
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py::SchemaDistiller - Schema Distillation Engine
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::AgentLearning - Represents a learning event from an agent
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::ConflictResolutionMode - How to resolve conflicts between agents
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::ConflictSuperposition - Stores disagreements between agents as probability distribut
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::Coordinator - Swarm Coordinator
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::DistributedIntuitionCache - Local intuition cache for agents
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py::VectorPubSub - Vector Pub/Sub system using Redis
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestIntegration - Integration tests - all tiers together
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier1MemoryEvolution - Test Tier 1: Differentiable Memory
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier2SwarmSync - Test Tier 2: Swarm Synchronicity
+current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py::TestTier3Governance - Test Tier 3: Meta-Cognitive Governance
+current_work/01-21-2026/governance.py::AutonomicSteering - Autonomic Resource Steering
+current_work/01-21-2026/governance.py::LeanVerifier - Lean theorem prover integration for formal verification
+current_work/01-21-2026/governance.py::MetaEvolutionEngine - Meta-Evolution Engine
+current_work/01-21-2026/governance.py::RecursiveSelfCoding - Recursive Self-Coding Engine
+current_work/01-21-2026/governance.py::UtilityScorer - Scores graph subregions by reasoning density
+current_work/01-21-2026/neural_substrate.py::CanaryDeployment - Canary deployment system for schema mutations
+current_work/01-21-2026/neural_substrate.py::GNNKernel - Graph Neural Network Kernel for latent pattern discovery
+current_work/01-21-2026/neural_substrate.py::SchemaDistiller - Schema Distillation Engine
+current_work/01-21-2026/swarm_sync.py::AgentLearning - Represents a learning event from an agent
+current_work/01-21-2026/swarm_sync.py::ConflictResolutionMode - How to resolve conflicts between agents
+current_work/01-21-2026/swarm_sync.py::ConflictSuperposition - Stores disagreements between agents as probability distribut
+current_work/01-21-2026/swarm_sync.py::Coordinator - Swarm Coordinator
+current_work/01-21-2026/swarm_sync.py::DistributedIntuitionCache - Local intuition cache for agents
+current_work/01-21-2026/swarm_sync.py::VectorPubSub - Vector Pub/Sub system using Redis
+current_work/Bayesian Upgrade/bayesian_kernel.py::BayesianKernel - Bayesian Reasoning Kernel for L9.
+current_work/Bayesian Upgrade/bayesian_kernel.py::BeliefState - Represents current belief about a variable.
+current_work/Bayesian Upgrade/bayesian_kernel.py::EvidenceStrength - Classification of evidence strength.
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::SubjectiveLogicAdapter - Adapter between Bayesian probabilities and Subjective Logic 
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::BayesianUncertainty - Complete Bayesian uncertainty quantification.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::DeepEnsemble - Deep ensemble for implicit Bayesian inference.
+current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::TestModel - No docstring
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::GovernanceDecision - Result of governance evaluation
+current_work/Bayesian Upgrade/foundation/hybrid_kernel.py::HybridInferenceKernel - Upgraded Universal Kernel with probabilistic reasoning.
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::CursorProbabilisticEngine - Lightweight probabilistic reasoning engine for Cursor govern
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::Evidence - Single piece of evidence for probabilistic inference
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::ProbabilisticAssessment - Complete assessment from probabilistic model
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::RiskLevel - Risk classification levels
+current_work/Bayesian Upgrade/foundation/probabilistic_engine.py::SubjectiveLogic - Subjective logic decomposition (Trust/Disbelief/Uncertainty)
+current_work/Bayesian Upgrade/hypergraph.py::BayesianNode - Bayesian belief state tracking node.
+current_work/Bayesian Upgrade/hypergraph.py::Evidence - Evidence item with strength assessment.
+current_work/Bayesian Upgrade/hypergraph.py::HypergraphNode - Base node in L9 hypergraph (directed acyclic graph).
+current_work/Bayesian Upgrade/hypergraph.py::NodeStatus - Node execution status.
+current_work/Bayesian Upgrade/hypergraph.py::NodeTemplate - Template for creating nodes of specific types.
+current_work/Bayesian Upgrade/hypergraph.py::NodeType - Node type enumeration.
+current_work/Bayesian Upgrade/hypergraph.py::ReasoningNode - Reasoning step node in task graph.
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::AutoCalibrator - Autonomous calibration system - no manual intervention requi
+current_work/Bayesian Upgrade/learning/auto_calibrator.py::CalibrationReport - Report generated from calibration run
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackCollector - Collects and processes user feedback on governance decisions
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackEvent - Single feedback event
+current_work/Bayesian Upgrade/learning/feedback_collector.py::FeedbackType - Types of user feedback
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::CalibrationDashboard - Monitoring and visualization for probabilistic governance.
+current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py::CalibrationMetrics - Calibration quality metrics
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ArtifactExtractor - Base class for extracting structured data from documents.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ConstraintExtractor - Extracts constraint definitions from documents.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::DocumentClassifier - Classifies documents based on schema hints.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::HeuristicExtractor - Extracts heuristic/judgment rules.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::L9Compiler - Main compiler that orchestrates the compilation process.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::PatternExtractor - Extracts architectural pattern definitions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::ProtocolExtractor - Extracts protocol/workflow definitions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::Schema - Schema definition for artifact classification.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py::SourceMetadata - Metadata about the source document.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::CACodeChange - Orchestrates code changes with full governance.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::ChangeProposal - A proposed code change with all metadata.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py::ChangeStatus - Status of a proposed change.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ConstraintValidator - Validate changes against governance constraints.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ValidationResult - Result of constraint validation.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::Violation - Represents a constraint violation.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py::ViolationSeverity - Severity levels for constraint violations.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::BatchDiff - Represents diffs for multiple files.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::DiffGenerator - Generate diffs for code changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py::FileDiff - Represents a diff for a single file.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ChangeReport - Structured report for code changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ChangeType - Types of code changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py::ReportGenerator - Generate reports for code changes.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py::GovernanceIntegration - Unified governance integration for L9.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::ActionRegistry - Simple registry for executable actions.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py::ActionResult - Result of an action execution.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::AgentState - Canonical agent state structure (I-AGENT_STATE-001).
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::AgentStateManager - Manages agent state with persistence.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py::ProactivityLevel - Agent proactivity levels.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::CandidateAction - A candidate action with predicted outcome.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::DecisionMode - Decision modes for the foresight engine.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::ForesightDecision - Result of foresight decision-making.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py::ForesightEngine - Implements the Foresight Engine pattern.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py::MemoryAdapter - Adapter to connect governance to existing memory substrate.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::ReflectionEngine - Implements the Reflection Loop protocol (P-REFLECT-001).
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py::ReflectionResult - Result of reflecting on an action.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ConceptExtractor - Extracts concepts from files using aggressive pattern matchi
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ConceptYAML - Structured YAML representation of a concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::ExtractedConcept - A concept extracted from a file.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::FileScanner - Scans directories and finds processable files.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::KnowledgeHarvester - Main orchestrator for knowledge harvesting.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py::YAMLGenerator - Generates structured YAML from extracted concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::ConceptReview - Review status for a concept.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py::QCDashboard - Interactive dashboard for concept review.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::ConceptSpec - Parsed concept specification.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::L9SpecGenerator - Generates PLAN_Vn specs for CA from concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py::PlanSpec - PLAN_Vn specification for CA.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::ConceptSpec - Parsed concept specification.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::L9SpecGenerator - Generates PLAN_Vn specs for CA from concepts.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py::PlanSpec - PLAN_Vn specification for CA.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::ConceptSpec - Parsed concept specification.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::GenerationResult - Result of code generation.
+current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py::L9TextToCode - Main text-to-code generator.
 current_work/DONE/AUTOWIRING/auto_registry.py::AutoRegistry - Generic auto-discovery and registration system for L9 compon
 current_work/DONE/AUTOWIRING/auto_registry.py::ComponentNotFoundError - Raised when a requested component is not found in the regist
 current_work/DONE/AUTOWIRING/auto_registry.py::DuplicateRegistrationError - Raised when attempting to register a component with a duplic
@@ -1681,6 +1853,8 @@ memory/cypher_templates.py::CypherTemplateCategory - Categories for Cypher templ
 memory/cypher_templates.py::CypherTemplateLibrary - Library for managing and executing parameterized Cypher temp
 memory/dead_letter.py::DeadLetterEntry - Entry in the dead letter queue.
 memory/dead_letter.py::DeadLetterQueue - Redis Stream-based dead letter queue for failed packets.
+memory/dead_letter_queue.py::DLQEntry - A single entry in the Dead-Letter Queue.
+memory/dead_letter_queue.py::DeadLetterQueue - Redis-backed Dead-Letter Queue for failed packet ingestions.
 memory/extractor/agent_config_extractor.py::AgentConfigExtractor - Extracts agent configuration (preferences, SOPs, roles).
 memory/extractor/base_extractor.py::BaseExtractor - Base class for all extractors.
 memory/extractor/code_extractor.py::CodeExtractor - Extracts code files from chat logs.
@@ -1953,6 +2127,16 @@ orchestrators/world_model/orchestrator.py::WorldModelOrchestrator - WorldModel O
 orchestrators/world_model/scheduler.py::WorldModelScheduler - Scheduler for WorldModel Orchestrator.
 orchestrators/ws_bridge.py::WSBridgeConfig - Phase 3: Configuration for the WS bridge.
 orchestrators/ws_bridge.py::WSEventRouter - Phase 3: Extensible event router with handler registration.
+readme/harvested/perplexity-refactor-2026-01-20/controller_profile_protocol.py::ControllerProfile - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/execution_profile_protocol.py::ExecutionProfile - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/executor_config.py::ExecutorConfig - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/loop_stage_protocol.py::LoopContext - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/loop_stage_protocol.py::LoopStage - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/memory_facade.py::MemorySubstrateService - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py::GraphHydrationPolicy - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py::MemoryWarmPolicy - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py::PromptDefensePolicy - No docstring
+readme/harvested/perplexity-refactor-2026-01-20/policy_protocols.py::ReflectionPolicy - No docstring
 runtime/auth_rate_limiter.py::AuthAttemptResult - Result of checking auth rate limit.
 runtime/auth_rate_limiter.py::AuthRateLimitConfig - Configuration for auth rate limiting.
 runtime/auth_rate_limiter.py::AuthRateLimiter - Authentication-specific rate limiter.
@@ -2090,6 +2274,10 @@ scripts/gmp-validate-stage.py::GMPStageValidator - Validates GMP stage execution
 scripts/gmp-validate-stage.py::ValidationResult - Result of a single validation check.
 scripts/memory/load_indexes_to_neo4j.py::RepoGraphLoader - Loads L9 repository indexes into Neo4j graph database.
 scripts/memory/load_indexes_to_neo4j_vps.py::VPSRepoGraphLoader - Loads L9 repository indexes into VPS Neo4j via HTTP API.
+scripts/refactoring/aios_validate.py::AOISCompliance - Verify AIOS architectural patterns
+scripts/refactoring/bootstrap_refactor.py::Language - No docstring
+scripts/refactoring/bootstrap_refactor.py::RefactoringBootstrap - Main orchestrator for refactoring pipeline setup
+scripts/refactoring/bootstrap_refactor.py::ToolConfig - Configuration for refactoring tools
 scripts/validate_gmp_report.py::GMPReportValidator - Validates GMP reports against the contract.
 scripts/validate_gmp_report.py::ValidationIssue - A single validation issue.
 scripts/validate_gmp_report.py::ValidationResult - Result of validating a report.
@@ -2312,6 +2500,7 @@ tests/core/observability/test_observability_integration.py::TestMetricsAggregati
 tests/core/observability/test_observability_integration.py::TestObservabilityConfig - Tests for observability configuration.
 tests/core/observability/test_observability_integration.py::TestObservabilityModels - Tests for observability data models.
 tests/core/observability/test_observability_integration.py::TestObservabilityService - Tests for ObservabilityService.
+tests/core/protocols/test_secrets_protocols.py::TestEnvSecretsClient - Test suite for EnvSecretsClient.
 tests/core/schemas/test_content_hash_integrity.py::TestContentHashComputation - Test content hash computation.
 tests/core/schemas/test_content_hash_integrity.py::TestHashAlgorithmProperties - Test properties of the hashing algorithm.
 tests/core/schemas/test_content_hash_integrity.py::TestUpcastingWithContentHash - Test that upcasting adds content hash.
@@ -2765,6 +2954,7 @@ tests/test_tool_registry.py::TestDefaultTools - Tests for default tool initializ
 tests/test_tool_registry.py::TestToolMetadata - Tests for ToolMetadata model.
 tests/test_tool_registry.py::TestToolRegistry - Tests for ToolRegistry class.
 tests/test_tool_registry.py::TestToolResolver - Tests for ToolResolver class.
+tests/tools/test_l9_cli.py::TestL9CLI - Test suite for l9-cli tool.
 tests/unit/di/test_container.py::CacheClient - Test cache client protocol.
 tests/unit/di/test_container.py::CircularA - Test class for circular dependency detection.
 tests/unit/di/test_container.py::CircularB - Test class for circular dependency detection.
@@ -2829,6 +3019,15 @@ tests/upgrades/test_packet_envelope_phases.py::TestPhase2Observability - Tests f
 tests/upgrades/test_packet_envelope_phases.py::TestPhase3Standardization - Tests for Phase 3 CloudEvents standardization
 tests/upgrades/test_packet_envelope_phases.py::TestPhase4Scalability - Tests for Phase 4 scalability features
 tests/upgrades/test_packet_envelope_phases.py::TestPhase5Governance - Tests for Phase 5 governance features
+tests/workers/test_anomaly_classifier.py::TestAnomalyClassifierInit - Test AnomalyClassifier initialization.
+tests/workers/test_anomaly_classifier.py::TestClassificationRules - Test classification rule matching.
+tests/workers/test_anomaly_classifier.py::TestConfidenceScoring - Test confidence score calculation.
+tests/workers/test_anomaly_classifier.py::TestHealthCheck - Test classifier health check.
+tests/workers/test_anomaly_classifier.py::TestRecommendedActions - Test recommended action generation.
+tests/workers/test_violation_tracker.py::TestViolationCounting - Test violation count tracking.
+tests/workers/test_violation_tracker.py::TestViolationRecord - Test ViolationRecord model.
+tests/workers/test_violation_tracker.py::TestViolationTrackerProcess - Test ViolationTrackerService.process().
+tests/workers/test_violation_tracker.py::TestViolationTrackerServiceInit - Test ViolationTrackerService initialization.
 tests/world_model/test_wm_scope.py::FakeConnection - No docstring
 tests/world_model/test_world_model_repository_basic.py::FakeConnection - No docstring
 tests/world_model/test_world_model_repository_basic.py::FakePool - No docstring

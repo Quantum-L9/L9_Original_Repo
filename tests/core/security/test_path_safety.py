@@ -1,4 +1,3 @@
-
 import pytest
 
 from core.security.path_safety import (

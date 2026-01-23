@@ -35,7 +35,6 @@ from memory.substrate_dag import (
 )
 from core.schemas import PacketEnvelope
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -157,10 +156,7 @@ class TestSkipEmbedding:
 
     def test_dont_skip_valid_content(self):
         """Valid content should NOT be skipped."""
-        assert (
-            _should_skip_embedding("This is a valid piece of content worth embedding.")
-            is False
-        )
+        assert _should_skip_embedding("This is a valid piece of content worth embedding.") is False
         assert _should_skip_embedding("User asked about memory systems in L9.") is False
 
 
@@ -202,9 +198,7 @@ class TestRoutingFunction:
         state = {
             "envelope": {
                 "packet_type": "memory",
-                "payload": {
-                    "text": "Sorry, I encountered a temporary error. Please try again."
-                },
+                "payload": {"text": "Sorry, I encountered a temporary error. Please try again."},
             }
         }
         assert route_after_memory_write(state) == "skip_embed"

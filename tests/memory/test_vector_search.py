@@ -18,7 +18,6 @@ import pytest
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
 from memory.substrate_service import init_service, close_service
 
-
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL")
 
 

@@ -35,7 +35,6 @@ from ir_engine.ir_schema import (
     NodePriority,
 )
 
-
 # =============================================================================
 # LLM Response Stubs
 # =============================================================================
@@ -392,11 +391,7 @@ def mock_openai_client():
 
     # Default response
     mock.chat.completions.create.return_value = MagicMock(
-        choices=[
-            MagicMock(
-                message=MagicMock(content=json.dumps(make_llm_extraction_response()))
-            )
-        ]
+        choices=[MagicMock(message=MagicMock(content=json.dumps(make_llm_extraction_response())))]
     )
 
     return mock
@@ -406,11 +401,7 @@ def mock_openai_client():
 def mock_openai_complex(mock_openai_client):
     """Mock client with complex multi-intent response."""
     mock_openai_client.chat.completions.create.return_value = MagicMock(
-        choices=[
-            MagicMock(
-                message=MagicMock(content=json.dumps(make_complex_llm_response()))
-            )
-        ]
+        choices=[MagicMock(message=MagicMock(content=json.dumps(make_complex_llm_response())))]
     )
     return mock_openai_client
 

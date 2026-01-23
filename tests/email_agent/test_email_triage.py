@@ -68,9 +68,7 @@ def test_priority_assignment():
                     mock_client.get_messages.return_value = []
 
                     # Try to call if available
-                    result = classify_priority(
-                        "test@example.com", "Test subject", "Test body"
-                    )
+                    result = classify_priority("test@example.com", "Test subject", "Test body")
                     assert isinstance(result, (str, dict))
         except (AttributeError, TypeError):
             # Function may not exist or have different signature

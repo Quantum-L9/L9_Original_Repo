@@ -19,9 +19,7 @@ import os
 from uuid import uuid4
 
 # Add project root to path
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
@@ -47,7 +45,6 @@ from tests.core.agents.test_executor import (
     MockSubstrateService,
     MockAgentRegistry,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -151,9 +148,7 @@ def executor(
 
 
 @pytest.mark.asyncio
-async def test_tool_execution(
-    executor: AgentExecutorService, mock_tool_registry: MockToolRegistry
-):
+async def test_tool_execution(executor: AgentExecutorService, mock_tool_registry: MockToolRegistry):
     """
     Test 1: Execute 3+ non-destructive tools successfully.
 
@@ -398,9 +393,7 @@ async def test_long_plan_execution(mock_substrate: MockSubstrateService):
                     {"task_id": f"gmp-{i}", "summary": {"gmp_preview": f"GMP {i}"}}
                     for i in range(3)
                 ],
-                "pending_git_commits": [
-                    {"message": f"Commit {i}", "files": []} for i in range(2)
-                ],
+                "pending_git_commits": [{"message": f"Commit {i}", "files": []} for i in range(2)],
             },
         )
     )
@@ -463,9 +456,7 @@ async def test_reactive_dispatch():
 
 
 @pytest.mark.asyncio
-async def test_memory_binding(
-    executor: AgentExecutorService, mock_substrate: MockSubstrateService
-):
+async def test_memory_binding(executor: AgentExecutorService, mock_substrate: MockSubstrateService):
     """
     Test 6: Task context loaded, result persisted, and queryable.
 

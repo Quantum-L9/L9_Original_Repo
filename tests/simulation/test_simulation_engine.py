@@ -20,9 +20,7 @@ if str(project_root) not in sys.path:
 try:
     from simulation.simulation_engine import SimulationEngine
 except ImportError as e:
-    pytest.skip(
-        f"Could not import simulation.simulation_engine: {e}", allow_module_level=True
-    )
+    pytest.skip(f"Could not import simulation.simulation_engine: {e}", allow_module_level=True)
 
 
 # =============================================================================

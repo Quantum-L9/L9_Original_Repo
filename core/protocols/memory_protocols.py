@@ -54,7 +54,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Protocol, Union, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -471,17 +471,6 @@ class RetrievalStrategy(Protocol):
         ...
 
 
-# Type aliases
-MemoryProtocols = Union[
-    CacheClient,
-    GraphClient,
-    VectorStore,
-    MemoryRepository,
-    IngestionPipeline,
-    RetrievalStrategy,
-]
-
-
 __all__ = [
     "CacheClient",
     "GraphClient",
@@ -489,5 +478,4 @@ __all__ = [
     "MemoryRepository",
     "IngestionPipeline",
     "RetrievalStrategy",
-    "MemoryProtocols",
 ]

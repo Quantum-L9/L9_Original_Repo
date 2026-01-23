@@ -2,7 +2,6 @@ import os
 import sys
 import pytest
 
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "mcp_memory"))
 
 os.environ.setdefault("OPENAI_API_KEY", "test-openai-key")

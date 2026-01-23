@@ -12,7 +12,6 @@ import pytest
 from memory.consolidation import ConsolidationPipeline, ConsolidationReport
 from memory.substrate_service import MemorySubstrateService, init_service, close_service
 
-
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 
@@ -59,7 +58,7 @@ class TestConsolidationPipeline:
             batch_size=100,
             sleep_between_batches_ms=10,
         )
-        
+
         assert isinstance(report, ConsolidationReport)
         assert report.start_time is not None
         assert report.end_time is not None
@@ -72,9 +71,9 @@ class TestConsolidationPipeline:
     async def test_run_consolidation_report_structure(self, consolidation_pipeline):
         """Test consolidation report structure."""
         report = await consolidation_pipeline.run_consolidation()
-        
+
         report_dict = report.to_dict()
-        
+
         assert "deduplication_count" in report_dict
         assert "archived_count" in report_dict
         assert "summarized_count" in report_dict
@@ -95,14 +94,14 @@ class TestConsolidationPipeline:
             repository=memory_substrate_service._repository,
             dry_run=False,
         )
-        
+
         # Run only TTL expiration
         # Note: This will only work if there are expired packets
         expired_count = await pipeline._run_ttl_expiration(
             batch_size=10,
             sleep_ms=0,
         )
-        
+
         # Should return count (may be 0 if no expired packets)
         assert isinstance(expired_count, int)
         assert expired_count >= 0
@@ -112,15 +111,18 @@ class TestConsolidationPipeline:
         # Check deduplication config
         assert consolidation_pipeline._deduplication_config["enabled"] is True
         assert consolidation_pipeline._deduplication_config["similarity_threshold"] == 0.95
-        assert consolidation_pipeline._deduplication_config["merge_policy"] == "keep_highest_confidence"
-        
+        assert (
+            consolidation_pipeline._deduplication_config["merge_policy"]
+            == "keep_highest_confidence"
+        )
+
         # Check archival config
         assert consolidation_pipeline._archival_config["enabled"] is True
         assert len(consolidation_pipeline._archival_config["triggers"]) > 0
-        
+
         # Check summarization config
         assert consolidation_pipeline._summarization_config["enabled"] is True
-        
+
         # Check TTL config
         assert consolidation_pipeline._ttl_config["enabled"] is True
         assert consolidation_pipeline._ttl_config["grace_period_hours"] == 24
@@ -129,8 +131,7 @@ class TestConsolidationPipeline:
     async def test_consolidation_with_repository_none(self):
         """Test consolidation handles missing repository gracefully."""
         pipeline = ConsolidationPipeline(repository=None, dry_run=True)
-        
+
         # Should raise RuntimeError when repository not set
         with pytest.raises(RuntimeError, match="Repository not set"):
             await pipeline.run_consolidation()
-

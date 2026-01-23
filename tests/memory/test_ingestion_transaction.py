@@ -49,9 +49,7 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
-            return_value=None
-        )
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
 
         pipeline = IngestionPipeline(repository=mock_repository)
 
@@ -84,9 +82,7 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
-            return_value=None
-        )
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
 
         # Make insert_packet fail
         mock_repository.insert_packet = AsyncMock(side_effect=Exception("DB error"))
@@ -122,9 +118,7 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
-            return_value=None
-        )
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
 
         # Mock semantic service
         mock_semantic = AsyncMock()
@@ -169,15 +163,11 @@ class TestTransactionalIngestion:
         mock_repository.transaction.return_value.__aenter__ = AsyncMock(
             return_value=mock_transaction
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
-            return_value=None
-        )
+        mock_repository.transaction.return_value.__aexit__ = AsyncMock(return_value=None)
 
         # Mock semantic service that fails
         mock_semantic = AsyncMock()
-        mock_semantic.embed_and_store = AsyncMock(
-            side_effect=Exception("Embedding failed")
-        )
+        mock_semantic.embed_and_store = AsyncMock(side_effect=Exception("Embedding failed"))
 
         pipeline = IngestionPipeline(
             repository=mock_repository,

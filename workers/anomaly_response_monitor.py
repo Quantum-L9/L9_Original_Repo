@@ -161,6 +161,7 @@ class AnomalyResponseMonitor:
         self._remediation_engine = remediation_engine or RemediationEngine()
         self._poll_interval = poll_interval_seconds
         self._running = False
+        self._telemetry_providers: Dict[str, callable] = {}
         self._stats = {
             "total_processed": 0,
             "anomalies_detected": 0,
@@ -259,13 +260,58 @@ class AnomalyResponseMonitor:
         """
         Collect telemetry from configured sources.
 
-        Override this method to integrate with actual telemetry sources.
+        Integrates with:
+        - Memory substrate (recent error packets)
+        - Custom telemetry providers (registered via add_telemetry_provider)
         """
-        # In production, this would:
-        # 1. Query memory substrate for recent packets
-        # 2. Check monitoring endpoints
-        # 3. Read from telemetry logs
-        return []
+        events: List[TelemetryEvent] = []
+
+        # Collect from registered providers
+        for provider_name, provider_fn in self._telemetry_providers.items():
+            try:
+                provider_events = await provider_fn()
+                events.extend(provider_events)
+                logger.debug(
+                    "telemetry_collected",
+                    provider=provider_name,
+                    event_count=len(provider_events),
+                )
+            except Exception as e:
+                logger.warning(
+                    "telemetry_provider_failed",
+                    provider=provider_name,
+                    error=str(e),
+                )
+
+        return events
+
+    def add_telemetry_provider(
+        self,
+        name: str,
+        provider_fn: callable,
+    ) -> None:
+        """
+        Register a telemetry provider function.
+
+        Args:
+            name: Unique provider name
+            provider_fn: Async function that returns List[TelemetryEvent]
+
+        Example:
+            async def prometheus_provider() -> List[TelemetryEvent]:
+                # Query Prometheus for high error rates
+                return [TelemetryEvent(...)]
+
+            monitor.add_telemetry_provider("prometheus", prometheus_provider)
+        """
+        self._telemetry_providers[name] = provider_fn
+        logger.info("telemetry_provider_registered", provider=name)
+
+    def remove_telemetry_provider(self, name: str) -> None:
+        """Remove a registered telemetry provider."""
+        if name in self._telemetry_providers:
+            del self._telemetry_providers[name]
+            logger.info("telemetry_provider_removed", provider=name)
 
     # =========================================================================
     # Main API

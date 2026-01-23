@@ -30,11 +30,11 @@ code:
   - type: template
     content: "logger.info('hello')"
 """)
-            
+
             # Create an invalid YAML file
             invalid_path = Path(tmpdir) / "invalid.yaml"
             invalid_path.write_text("invalid: yaml: content: [")
-            
+
             yield tmpdir
 
     def test_load_meta_success(self, temp_dir):
@@ -105,8 +105,3 @@ code:
         meta = load_meta(spec_path)
 
         assert meta["name"] == "test_module"
-
-
-
-
-

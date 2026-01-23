@@ -1,16 +1,16 @@
 # ============================================================================
-# GMP REPORT CONTRACT v3.2.0 — L9 CANONICAL REPORT SPECIFICATION
+# GMP REPORT CONTRACT v3.3.0 — L9 CANONICAL REPORT SPECIFICATION
 # ============================================================================
 # Purpose: Machine-readable contract for GMP report structure and validation
 # Status: PRODUCTION READY
-# Updated: 2026-01-18
+# Updated: 2026-01-20
 # ============================================================================
 
 contract:
   name: "L9 GMP Report Contract"
-  version: "3.2.0"
+  version: "3.3.0"
   status: "active"
-  created: "2026-01-18T00:00:00Z"
+  created: "2026-01-20T00:00:00Z"
 
 # ============================================================================
 # FILE NAMING
@@ -47,8 +47,14 @@ naming:
 sections:
   - id: "HEADER"
     required: true
-    description: "Single-line header with all metadata"
-    format: "**ID:** GMP-### | **Task:** ... | **Tier:** ..._TIER | **Date:** YYYY-MM-DD | **Status:** ✅"
+    description: "Multi-line header with each field on its own line"
+    format: |
+      **ID:** GMP-###
+      **Task:** ...
+      **Tier:** ..._TIER
+      **Date:** YYYY-MM-DD
+      **Time:** HH:MM EST
+      **Status:** ✅
     fields:
       - name: "ID"
         format: "GMP-{###}"
@@ -65,13 +71,17 @@ sections:
       - name: "Date"
         format: "YYYY-MM-DD"
         required: true
-        notes: "ISO 8601 date format, e.g., 2026-01-18"
+        notes: "ISO 8601 date format, e.g., 2026-01-20"
+      - name: "Time"
+        format: "HH:MM EST"
+        required: true
+        notes: "Eastern Standard Time, 24-hour format"
       - name: "Status"
         format: "enum"
         values: ["✅ COMPLETE", "⚠️ PARTIAL", "❌ FAILED"]
         required: true
 
-  - id: "TODO_PLAN"
+  - id: "PLAN"
     required: true
     description: "Locked TODO items from Phase 0"
     format: "table"
@@ -96,34 +106,6 @@ sections:
     hash:
       required: true
       format: "{N} TODOs | {key_files}"
-
-  - id: "PHASES"
-    required: true
-    description: "Phase completion status"
-    format: "table"
-    rows:
-      - phase: 0
-        name: "PLANNING"
-        required: true
-      - phase: 1
-        name: "BASELINE"
-        required: true
-      - phase: 2
-        name: "IMPLEMENTATION"
-        required: true
-      - phase: 3
-        name: "ENFORCEMENT"
-        required: true
-      - phase: 4
-        name: "VALIDATION"
-        required: true
-      - phase: 5
-        name: "RECURSION"
-        required: true
-      - phase: 6
-        name: "FINALIZATION"
-        required: true
-    status_values: ["✅", "❌", "⚠️", "N/A"]
 
   - id: "CHANGES"
     required: true
@@ -176,21 +158,10 @@ sections:
       - "py_compile"
       - "import test"
 
-  - id: "VERIFICATION"
-    required: true
-    description: "Phase 5 recursive verification checklist"
-    format: "checklist"
-    items:
-      - "All TODOs implemented"
-      - "No unauthorized changes"
-      - "No scope drift"
-      - "Protected files documented"
-    all_must_pass: true
-
   - id: "DECLARATION"
     required: true
     description: "Final declaration of completion"
-    format: "blockquote"
+    format: "text"
     must_contain:
       - "Phases 0-6 complete"
       - "No assumptions"

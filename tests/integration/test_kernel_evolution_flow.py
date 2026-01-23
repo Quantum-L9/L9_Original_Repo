@@ -2,7 +2,7 @@
 Integration Tests for Kernel Evolution Flow
 ============================================
 
-Tests the full flow from task execution → self-reflection → 
+Tests the full flow from task execution → self-reflection →
 gap detection → kernel evolution proposal generation.
 
 Version: 1.0.0
@@ -27,7 +27,6 @@ from core.agents.kernelevolution import (
     create_evolution_plan,
     generate_gmp_spec_from_plan,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -129,10 +128,10 @@ class TestGapDetection:
     def test_detects_repeated_tool_failures(self, problematic_task_context):
         """Should detect repeated tool failures."""
         gaps = detect_behavior_gaps(problematic_task_context)
-        
+
         tool_failure_gaps = [g for g in gaps if g.gap_type == "CAPABILITY"]
         assert len(tool_failure_gaps) >= 1
-        
+
         # Should identify write_file as the problematic tool
         gap = tool_failure_gaps[0]
         assert "write_file" in gap.description
@@ -141,10 +140,9 @@ class TestGapDetection:
     def test_detects_excessive_iterations(self, problematic_task_context):
         """Should detect excessive iteration count."""
         gaps = detect_behavior_gaps(problematic_task_context)
-        
+
         iteration_gaps = [
-            g for g in gaps 
-            if g.gap_type == "PERFORMANCE" and "iteration" in g.description.lower()
+            g for g in gaps if g.gap_type == "PERFORMANCE" and "iteration" in g.description.lower()
         ]
         assert len(iteration_gaps) == 1
         assert iteration_gaps[0].metadata.get("iterations") == 12
@@ -152,10 +150,9 @@ class TestGapDetection:
     def test_detects_token_overuse(self, problematic_task_context):
         """Should detect excessive token usage."""
         gaps = detect_behavior_gaps(problematic_task_context)
-        
+
         token_gaps = [
-            g for g in gaps 
-            if g.gap_type == "PERFORMANCE" and "token" in g.description.lower()
+            g for g in gaps if g.gap_type == "PERFORMANCE" and "token" in g.description.lower()
         ]
         assert len(token_gaps) == 1
         assert token_gaps[0].metadata.get("tokens_used") == 75000
@@ -163,7 +160,7 @@ class TestGapDetection:
     def test_detects_user_corrections(self, problematic_task_context):
         """Should detect user corrections as behavioral gaps."""
         gaps = detect_behavior_gaps(problematic_task_context)
-        
+
         correction_gaps = [g for g in gaps if g.gap_type == "CONSTRAINT"]
         assert len(correction_gaps) == 1
         assert correction_gaps[0].metadata.get("correction_count") == 2
@@ -176,7 +173,7 @@ class TestReflectionAnalysis:
     async def test_analyze_successful_task(self, successful_task_context):
         """Analyzing a successful task should produce minimal recommendations."""
         result = await analyze_task_execution(successful_task_context)
-        
+
         assert isinstance(result, ReflectionResult)
         assert result.task_id == successful_task_context.task_id
         assert result.agent_id == successful_task_context.agent_id
@@ -188,7 +185,7 @@ class TestReflectionAnalysis:
     async def test_analyze_problematic_task(self, problematic_task_context):
         """Analyzing a problematic task should detect multiple gaps."""
         result = await analyze_task_execution(problematic_task_context)
-        
+
         assert isinstance(result, ReflectionResult)
         assert len(result.gaps_detected) >= 3  # Tool failures, iterations, tokens
         assert result.kernel_update_needed is True  # HIGH severity gaps present
@@ -198,7 +195,7 @@ class TestReflectionAnalysis:
     async def test_reflection_includes_patterns_observed(self, failed_task_context):
         """Reflection should include observed patterns."""
         result = await analyze_task_execution(failed_task_context)
-        
+
         assert "Task failed" in result.patterns_observed
         assert any("tool failure" in p.lower() for p in result.patterns_observed)
 
@@ -223,9 +220,9 @@ class TestProposalGeneration:
             suggested_action="Add retry logic for write_file",
             confidence=0.85,
         )
-        
+
         proposal = generate_proposal_from_gap(gap)
-        
+
         assert isinstance(proposal, KernelUpdateProposal)
         assert proposal.kernel_id == "execution"
         assert proposal.update_type == "ADD_RULE"
@@ -245,9 +242,9 @@ class TestProposalGeneration:
             suggested_action="Add behavioral constraint",
             confidence=0.75,
         )
-        
+
         proposal = generate_proposal_from_gap(gap)
-        
+
         assert proposal.kernel_id == "behavioral"
         assert proposal.update_type == "ADD_CONSTRAINT"
         assert proposal.requires_igor_approval is False  # MEDIUM severity
@@ -264,9 +261,9 @@ class TestProposalGeneration:
             suggested_action="Add safety constraint",
             confidence=0.9,
         )
-        
+
         proposal = generate_proposal_from_gap(gap)
-        
+
         assert proposal.kernel_id == "safety"
         assert proposal.requires_igor_approval is True  # Safety always needs approval
 
@@ -279,7 +276,7 @@ class TestEvolutionPlan:
         """Should create comprehensive evolution plan from reflection."""
         reflection = await analyze_task_execution(problematic_task_context)
         plan = await create_evolution_plan(reflection)
-        
+
         assert isinstance(plan, EvolutionPlan)
         assert plan.reflection_id == reflection.reflection_id
         assert plan.agent_id == reflection.agent_id
@@ -291,12 +288,10 @@ class TestEvolutionPlan:
         """Plan should correctly assess impact level."""
         reflection = await analyze_task_execution(problematic_task_context)
         plan = await create_evolution_plan(reflection)
-        
+
         # With multiple HIGH severity gaps, impact should be HIGH
-        high_priority_count = sum(
-            1 for p in plan.proposals if p.priority in ("HIGH", "CRITICAL")
-        )
-        
+        high_priority_count = sum(1 for p in plan.proposals if p.priority in ("HIGH", "CRITICAL"))
+
         if high_priority_count >= 2:
             assert plan.estimated_impact == "HIGH"
         elif high_priority_count == 1 or len(plan.proposals) >= 3:
@@ -307,7 +302,7 @@ class TestEvolutionPlan:
         """Plan should require approval if any proposal does."""
         reflection = await analyze_task_execution(problematic_task_context)
         plan = await create_evolution_plan(reflection)
-        
+
         any_requires_approval = any(p.requires_igor_approval for p in plan.proposals)
         assert plan.requires_igor_approval == any_requires_approval
 
@@ -321,7 +316,7 @@ class TestGMPSpecGeneration:
         reflection = await analyze_task_execution(problematic_task_context)
         plan = await create_evolution_plan(reflection)
         spec = generate_gmp_spec_from_plan(plan)
-        
+
         assert isinstance(spec, str)
         assert "GMP Kernel Evolution Plan" in spec
         assert plan.plan_id in spec
@@ -341,10 +336,10 @@ class TestGMPSpecGeneration:
             suggested_action="Add rule",
             confidence=0.8,
         )
-        
+
         proposal = generate_proposal_from_gap(gap)
         spec = proposal.to_gmp_spec()
-        
+
         assert "GMP Kernel Evolution Proposal" in spec
         assert proposal.proposal_id in spec
         assert proposal.kernel_id in spec
@@ -365,15 +360,15 @@ class TestFullEvolutionFlow:
         # Step 1: Analyze task execution
         reflection = await analyze_task_execution(problematic_task_context)
         assert reflection.gaps_detected
-        
+
         # Step 2: Create evolution plan
         plan = await create_evolution_plan(reflection)
         assert plan.proposals
-        
+
         # Step 3: Generate GMP spec
         spec = generate_gmp_spec_from_plan(plan)
         assert spec
-        
+
         # Verify chain of custody
         assert plan.reflection_id == reflection.reflection_id
         for proposal in plan.proposals:
@@ -383,10 +378,10 @@ class TestFullEvolutionFlow:
     async def test_no_evolution_for_clean_execution(self, successful_task_context):
         """Clean executions should not generate evolution plans."""
         reflection = await analyze_task_execution(successful_task_context)
-        
+
         assert len(reflection.gaps_detected) == 0
         assert reflection.kernel_update_needed is False
-        
+
         # Plan should be empty
         plan = await create_evolution_plan(reflection)
         assert len(plan.proposals) == 0
@@ -401,6 +396,7 @@ class TestExecutorIntegration:
         """Executor should run self-reflection after task completion."""
         try:
             from core.agents.executor import AgentExecutorService, _has_self_reflection
+
             # Verify self-reflection is available
             assert _has_self_reflection is True
         except (ImportError, ModuleNotFoundError):
@@ -412,7 +408,7 @@ class TestExecutorIntegration:
         """Self-reflection errors should not cause task failure."""
         # This is a design requirement - self-reflection is observational only
         # and should never cause a task to fail
-        
+
         context = TaskExecutionContext(
             task_id=str(uuid4()),
             agent_id="test-agent",
@@ -427,10 +423,12 @@ class TestExecutorIntegration:
             governance_blocks=[],
             user_corrections=[],
         )
-        
+
         # Even with mocked errors, analysis should not raise
-        with patch("core.agents.selfreflection.DEFAULT_PATTERNS", [MagicMock(detect=MagicMock(side_effect=Exception("Test error")))]):
+        with patch(
+            "core.agents.selfreflection.DEFAULT_PATTERNS",
+            [MagicMock(detect=MagicMock(side_effect=Exception("Test error")))],
+        ):
             gaps = detect_behavior_gaps(context)
             # Should return empty list, not raise
             assert gaps == []
-

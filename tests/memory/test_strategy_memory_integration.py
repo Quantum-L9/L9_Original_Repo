@@ -218,17 +218,11 @@ class TestStrategyMemoryIntegration:
             min_confidence=0.0,
         )
 
-        candidates = await strategy_memory_service.retrieve_strategies(
-            request, limit=10
-        )
+        candidates = await strategy_memory_service.retrieve_strategies(request, limit=10)
 
         # Verify high_perf comes before low_perf
-        high_idx = next(
-            (i for i, c in enumerate(candidates) if c.strategy_id == high_perf_id), -1
-        )
-        low_idx = next(
-            (i for i, c in enumerate(candidates) if c.strategy_id == low_perf_id), -1
-        )
+        high_idx = next((i for i, c in enumerate(candidates) if c.strategy_id == high_perf_id), -1)
+        low_idx = next((i for i, c in enumerate(candidates) if c.strategy_id == low_perf_id), -1)
 
         if high_idx >= 0 and low_idx >= 0:
             assert high_idx < low_idx, "Higher performance strategy should rank higher"
@@ -414,9 +408,7 @@ class TestStrategyMemoryPerformance:
         max_time = max(times)
 
         # SLA: P50 < 100ms, P99 < 500ms
-        assert avg_time < 100, (
-            f"Average retrieval time {avg_time:.1f}ms exceeds 100ms SLA"
-        )
+        assert avg_time < 100, f"Average retrieval time {avg_time:.1f}ms exceeds 100ms SLA"
         assert max_time < 500, f"Max retrieval time {max_time:.1f}ms exceeds 500ms SLA"
 
 
@@ -513,9 +505,7 @@ class TestAutoCaptureIntegration:
 
         # Cleanup any captured strategies
         for c in candidates:
-            if "auto_capture_test" in c.tags or "auto_capture_test" in str(
-                c.description
-            ):
+            if "auto_capture_test" in c.tags or "auto_capture_test" in str(c.description):
                 cleanup_test_strategies.append(c.strategy_id)
 
         assert len(captured) >= 1, "Auto-captured strategy should be retrievable"
@@ -590,9 +580,7 @@ class TestAutoCaptureIntegration:
             min_confidence=0.0,
         )
 
-        candidates = await strategy_memory_service.retrieve_strategies(
-            request, limit=50
-        )
+        candidates = await strategy_memory_service.retrieve_strategies(request, limit=50)
 
         # Should only have the original strategy, not a duplicate
         existing_kind_strategies = [
@@ -605,9 +593,7 @@ class TestAutoCaptureIntegration:
                 cleanup_test_strategies.append(c.strategy_id)
 
         # Should be exactly 1 (the original, no auto-capture duplicate)
-        assert len(existing_kind_strategies) == 1, (
-            "Should not auto-capture when strategy was used"
-        )
+        assert len(existing_kind_strategies) == 1, "Should not auto-capture when strategy was used"
 
     @pytest.mark.asyncio
     async def test_auto_capture_skipped_below_threshold(

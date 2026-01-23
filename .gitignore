@@ -95,8 +95,8 @@ docker-compose.override.yml
 docker-compose.local.dev.yml
 docs/docker-compose.yaml
 
-# Secrets (NEVER commit)
-secrets/
+# Secrets (NEVER commit) - root level only, not core/secrets/
+/secrets/
 
 # Backup/reference files (local only)
 Repo-Files/

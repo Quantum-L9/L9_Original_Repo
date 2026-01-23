@@ -25,7 +25,6 @@ from memory.audit_utils import (
 )
 from core.schemas import PacketEnvelopeIn
 
-
 # Skip benchmarks if pytest-benchmark is not installed
 pytest_benchmark_available = True
 try:
@@ -81,7 +80,7 @@ class TestAuditBenchmarks:
     def test_benchmark_normalize_text(self, benchmark):
         """Benchmark text normalization."""
         text = "Hello\u200b  world\n\twith    multiple   spaces"
-        
+
         result = benchmark(lambda: normalize_text(text))
         assert "Hello" in result
 

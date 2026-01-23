@@ -1,0 +1,3 @@
+class ExecutionProfile(Protocol):
+    name: str
+    async def configure_executor(self, builder: ExecutorBuilder) -> None: ...

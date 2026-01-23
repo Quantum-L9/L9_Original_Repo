@@ -43,13 +43,11 @@ class TestNormalization:
         """Normalization should work recursively on nested structures."""
         payload = {
             "text": "Hello\u200b  world",
-            "nested": {
-                "value": "nested\u200btext"
-            },
+            "nested": {"value": "nested\u200btext"},
             "list": ["item\u200bone", "item  two"],
         }
         result = normalize_payload(payload)
-        
+
         assert result["text"] == "Hello world"
         assert result["nested"]["value"] == "nestedtext"
         assert result["list"][0] == "itemone"
@@ -83,7 +81,7 @@ class TestPIIDetection:
         """PII should be redacted with markers."""
         payload = {"text": "Email foo@example.com please"}
         redacted, count, types = redact_pii(payload)
-        
+
         assert "[REDACTED:email]" in redacted["text"]
         assert count == 1
         assert "email" in types
@@ -178,7 +176,10 @@ class TestPreparePacketForIngest:
         prepared, report = prepare_packet_for_ingest(packet, redact_pii_enabled=False)
 
         # Normalization may still occur, but PII not redacted
-        assert "user@example.com" in prepared.payload["text"] or "[REDACTED" not in prepared.payload["text"]
+        assert (
+            "user@example.com" in prepared.payload["text"]
+            or "[REDACTED" not in prepared.payload["text"]
+        )
 
 
 if __name__ == "__main__":

@@ -136,9 +136,7 @@ async def test_all_client_methods_mocked():
             "written_tables": [],
         }
         mock_client.post = AsyncMock(return_value=mock_response)
-        result = await client.write_packet(
-            packet_type="test.event", payload={"msg": "test"}
-        )
+        result = await client.write_packet(packet_type="test.event", payload={"msg": "test"})
         assert result.packet_id is not None
         assert result.status == "ok"
 
@@ -188,6 +186,4 @@ async def test_all_client_methods_mocked():
 
         # Verify all methods were called
         assert mock_client.post.call_count >= 3  # write, semantic, hybrid, gc
-        assert (
-            mock_client.get.call_count >= 5
-        )  # lineage, thread, facts, insights, gc_stats
+        assert mock_client.get.call_count >= 5  # lineage, thread, facts, insights, gc_stats

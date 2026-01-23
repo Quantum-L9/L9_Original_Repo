@@ -1,0 +1,54 @@
+# C1 RBAC - ServiceAccount, Role, RoleBinding for L9 services
+# Rollback: kubectl delete -f c1-rbac.yaml
+#
+# Security principle: Least privilege - only permissions needed for operation
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: l9-service-account
+  namespace: l9-c1
+  labels:
+    app: l9
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: l9-role
+  namespace: l9-c1
+rules:
+# Read secrets (for DB credentials)
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list"]
+  resourceNames: ["l9-secrets"]
+# Read configmaps
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list"]
+# Read pods (for health monitoring)
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+# Read services
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list"]
+# Read/write events (for logging)
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: l9-role-binding
+  namespace: l9-c1
+subjects:
+- kind: ServiceAccount
+  name: l9-service-account
+  namespace: l9-c1
+roleRef:
+  kind: Role
+  name: l9-role
+  apiGroup: rbac.authorization.k8s.io

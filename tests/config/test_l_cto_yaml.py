@@ -31,9 +31,7 @@ async def test_kernel_absorption():
         boot_overlay_path="config/boot_overlay.yaml",
     )
 
-    agent = LCTOAgent(
-        config_path="config/agents/L-CTO-Agent.yaml", kernel_loader=kernel_loader
-    )
+    agent = LCTOAgent(config_path="config/agents/L-CTO-Agent.yaml", kernel_loader=kernel_loader)
 
     await agent.absorb_kernel()
     assert len(agent.kernels) == 10
@@ -60,9 +58,7 @@ async def test_tool_registry():
         assert tool["approval_required"] == True
         assert tool.get("igor_approval_required") == True
 
-    print(
-        f"✅ Tool registry valid: {len(t1_tools)} T1, {len(t2_tools)} T2, {len(t3_tools)} T3"
-    )
+    print(f"✅ Tool registry valid: {len(t1_tools)} T1, {len(t2_tools)} T2, {len(t3_tools)} T3")
 
 
 # Run all tests

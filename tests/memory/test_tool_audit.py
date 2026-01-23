@@ -266,9 +266,7 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         # Force an exception in the schemas import (now at core.schemas)
-        with patch(
-            "memory.tool_audit.PacketEnvelopeIn", side_effect=Exception("Model error")
-        ):
+        with patch("memory.tool_audit.PacketEnvelopeIn", side_effect=Exception("Model error")):
             # Should not raise - errors are caught
             await log_tool_invocation(
                 call_id=call_id,
@@ -388,9 +386,7 @@ class TestIngestAuditPacket:
         mock_result.status = "ok"
 
         # Mock at the import source since it's imported inside the function
-        with patch(
-            "memory.ingestion.ingest_packet", new_callable=AsyncMock
-        ) as mock_ingest:
+        with patch("memory.ingestion.ingest_packet", new_callable=AsyncMock) as mock_ingest:
             mock_ingest.return_value = mock_result
             await _ingest_audit_packet(packet)
             mock_ingest.assert_called_once()
@@ -413,9 +409,7 @@ class TestIngestAuditPacket:
         )
 
         # Mock at the import source since it's imported inside the function
-        with patch(
-            "memory.ingestion.ingest_packet", new_callable=AsyncMock
-        ) as mock_ingest:
+        with patch("memory.ingestion.ingest_packet", new_callable=AsyncMock) as mock_ingest:
             mock_ingest.side_effect = Exception("Database connection failed")
             # Should not raise
             await _ingest_audit_packet(packet)
@@ -442,9 +436,7 @@ class TestIngestAuditPacket:
         mock_result.error_message = "Neo4j unavailable"
 
         # Mock at the import source since it's imported inside the function
-        with patch(
-            "memory.ingestion.ingest_packet", new_callable=AsyncMock
-        ) as mock_ingest:
+        with patch("memory.ingestion.ingest_packet", new_callable=AsyncMock) as mock_ingest:
             mock_ingest.return_value = mock_result
             await _ingest_audit_packet(packet)
 

@@ -30,9 +30,7 @@ def get_os_module(module_name: str):
         return None
 
     try:
-        spec = importlib.util.spec_from_file_location(
-            f"aios_{module_name}", str(module_path)
-        )
+        spec = importlib.util.spec_from_file_location(f"aios_{module_name}", str(module_path))
         if spec is None or spec.loader is None:
             return None
 
@@ -121,9 +119,7 @@ def test_bootstrap_has_load_settings():
     if Bootstrap is None:
         pytest.skip("Bootstrap class not found")
 
-    assert hasattr(Bootstrap, "load_settings"), (
-        "Bootstrap should have load_settings method"
-    )
+    assert hasattr(Bootstrap, "load_settings"), "Bootstrap should have load_settings method"
 
 
 def test_bootstrap_has_init_controller():
@@ -139,9 +135,7 @@ def test_bootstrap_has_init_controller():
     if Bootstrap is None:
         pytest.skip("Bootstrap class not found")
 
-    assert hasattr(Bootstrap, "init_controller"), (
-        "Bootstrap should have init_controller method"
-    )
+    assert hasattr(Bootstrap, "init_controller"), "Bootstrap should have init_controller method"
 
 
 def test_bootstrap_has_init_router():

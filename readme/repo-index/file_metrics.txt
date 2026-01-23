@@ -6,26 +6,25 @@
 | File | Lines | Classes | Functions | Async |
 |------|-------|---------|-----------|-------|
 | `core/tools/registry_adapter.py` | 3705 | 3 | 13 | 6 |
-| `api/server.py` | 3628 | 7 | 2 | 15 |
-| `runtime/l_tools.py` | 3033 | 0 | 9 | 73 |
+| `api/server.py` | 3632 | 7 | 2 | 15 |
+| `runtime/l_tools.py` | 2823 | 0 | 2 | 68 |
 | `current_work/DONE/Slack-Debug-2/server.py` | 2584 | 9 | 5 | 15 |
 | `memory/substrate_repository.py` | 2474 | 1 | 4 | 49 |
 | `core/agents/executor.py` | 2455 | 5 | 9 | 20 |
 | `scripts/audit/find_dead_code.py` | 2278 | 4 | 32 | 0 |
 | `scripts/audit/inject_dora_complete.py` | 2262 | 5 | 45 | 0 |
-| `tools/export_repo_indexes.py` | 2223 | 0 | 38 | 0 |
+| `tools/export_repo_indexes.py` | 2229 | 0 | 38 | 0 |
 | `world_model/runtime.py` | 2100 | 9 | 32 | 17 |
-| `core/tools/tool_graph.py` | 2032 | 2 | 2 | 13 |
+| `core/tools/tool_graph.py` | 2075 | 2 | 2 | 13 |
 | `world_model/knowledge_ingestor.py` | 1857 | 7 | 43 | 1 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/generate_module_code.py` | 1844 | 3 | 20 | 0 |
 | `memory/slack_ingest.py` | 1816 | 0 | 6 | 11 |
 | `agents/cursor/cursor_memory_client.py` | 1739 | 0 | 32 | 0 |
 | `world_model/causal_mapper.py` | 1600 | 11 | 46 | 0 |
+| `runtime/kernel_loader.py` | 1494 | 2 | 30 | 2 |
 | `mcp_memory/src/routes/memory_unified.py` | 1493 | 0 | 4 | 15 |
 | `memory/retrieval.py` | 1449 | 1 | 8 | 13 |
-| `runtime/kernel_loader.py` | 1448 | 2 | 30 | 2 |
-| `core/tools/base_registry.py` | 1429 | 7 | 21 | 9 |
-| `memory/substrate_service.py` | 1411 | 1 | 7 | 24 |
+| `memory/substrate_service.py` | 1430 | 1 | 7 | 24 |
 | `orchestration/unified_controller.py` | 1406 | 6 | 18 | 17 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/compile_module_spec.py` | 1372 | 6 | 42 | 0 |
 | `igor/DONE!/audit-tools/tools_export_repo_indexes.py` | 1361 | 0 | 21 | 0 |
@@ -33,8 +32,8 @@
 | `orchestration/plan_executor.py` | 1332 | 6 | 16 | 21 |
 | `memory/substrate_dag.py` | 1287 | 2 | 8 | 10 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py` | 1259 | 5 | 5 | 16 |
-| `tests/core/bootstrap/test_executor.py` | 1224 | 4 | 25 | 24 |
 | `agents/research_agent_impl.py` | 1222 | 11 | 15 | 14 |
+| `tests/core/bootstrap/test_executor.py` | 1219 | 4 | 25 | 24 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py` | 1176 | 4 | 25 | 23 |
 | `scripts/audit/run_all.py` | 1170 | 4 | 20 | 1 |
 | `orchestration/task_router.py` | 1143 | 8 | 28 | 0 |
@@ -70,24 +69,25 @@
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/tool_graph.py` | 875 | 2 | 1 | 12 |
 | `world_model/seed_loader.py` | 869 | 1 | 7 | 6 |
 | `scripts/generate_readme_superprompt.py` | 868 | 6 | 11 | 0 |
+| `tests/memory/test_e2e_memory_audit.py` | 867 | 1 | 5 | 16 |
 | `core/governance/credentials_policy.py` | 864 | 7 | 29 | 0 |
 | `email_agent/router.py` | 861 | 6 | 2 | 7 |
-| `tests/memory/test_e2e_memory_audit.py` | 855 | 1 | 5 | 16 |
-| `tests/memory/test_ingestion_pipeline_audit.py` | 845 | 10 | 41 | 11 |
 | `codegen/Perplexity-Search-Pack/autonomous-research-agent.py` | 840 | 8 | 12 | 2 |
+| `tests/memory/test_ingestion_pipeline_audit.py` | 838 | 10 | 41 | 11 |
 | `current_work/DONE/GMP Stage 1 - Tools/tool_graph.py` | 832 | 2 | 1 | 11 |
-| `tests/unit/test_guarded_execution.py` | 829 | 12 | 9 | 24 |
 | `api/e2e_slack_audit.py` | 825 | 1 | 5 | 9 |
 | `igor/DONE!/audit-memory/memory_substrate_repository.py` | 824 | 1 | 3 | 22 |
 | `agents/cursor/cursor_memory_kernel.py` | 823 | 4 | 33 | 0 |
 | `world_model/updater.py` | 821 | 3 | 15 | 0 |
 | `memory/saga_patterns.py` | 820 | 1 | 4 | 12 |
 | `memory/neo4j_strategy_memory.py` | 819 | 2 | 6 | 9 |
+| `tests/unit/test_guarded_execution.py` | 819 | 12 | 9 | 24 |
 | `current_work/Neural-Symbolic Collective Intelligence/script.py` | 809 | 0 | 0 | 0 |
 | `current_work/DONE/BOOTSTRAP_IMPLEMENTATION_GUIDE/Phase 1-7 implementation files.py` | 809 | 0 | 0 | 0 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/apply_policy_rules.py` | 808 | 3 | 19 | 0 |
 | `memory/saga.py` | 798 | 10 | 14 | 4 |
 | `agents/l_cto.py` | 798 | 1 | 16 | 2 |
+| `scripts/validate_gmp_report.py` | 798 | 3 | 16 | 0 |
 | `agents/codegenagent/readme_generator.py` | 794 | 5 | 11 | 0 |
 | `core/governance/session_startup.py` | 789 | 6 | 10 | 0 |
 | `igor/DONE!/audit-memory/memory_slack_ingest.py` | 789 | 0 | 1 | 5 |
@@ -97,24 +97,27 @@
 | `core/governance/policy_generator.py` | 776 | 4 | 15 | 0 |
 | `codegen/Perplexity-Search-Pack/SUPER_PROMPT_TEMPLATE.py` | 775 | 0 | 0 | 0 |
 | `memory/schema_introspection.py` | 771 | 9 | 3 | 15 |
-| `scripts/validate_gmp_report.py` | 764 | 3 | 18 | 0 |
 | `scripts/audit/tier1/audit_infrastructure_health.py` | 754 | 10 | 7 | 6 |
 | `memory/active_encoder.py` | 747 | 5 | 10 | 8 |
 | `runtime/mcp_client.py` | 747 | 3 | 10 | 9 |
+| `tests/api/test_e2e_slack_audit.py` | 741 | 1 | 5 | 9 |
 | `codegen/code-gen-files/schema_parser.py` | 740 | 21 | 7 | 0 |
 | `agents/cursor/extractors/cursor_action_extractor.py` | 738 | 1 | 11 | 0 |
 | `agents/codegenagent/codegen_agent.py` | 737 | 5 | 10 | 7 |
 | `world_model/causal_graph.py` | 731 | 3 | 18 | 0 |
 | `world_model/service.py` | 729 | 1 | 2 | 13 |
-| `tests/api/test_e2e_slack_audit.py` | 728 | 1 | 5 | 9 |
 | `codegen/code-gen-files/extractor.py` | 726 | 4 | 16 | 5 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/long_plan_graph.py` | 726 | 1 | 1 | 8 |
+| `scripts/refactoring/bootstrap_refactor.py` | 725 | 3 | 16 | 0 |
 | `igor/DONE!/audit-memory/memory_retrieval.py` | 725 | 1 | 6 | 8 |
+| `current_work/01-20-2026/Refactoring Suite/bootstrap_refactor.py` | 725 | 3 | 16 | 0 |
+| `current_work/Bayesian Upgrade/foundation/probabilistic_engine.py` | 725 | 5 | 26 | 0 |
 | `current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py` | 719 | 9 | 4 | 9 |
 | `igor/DONE!/audit-memory/memory_extractor_cursor_action_extractor.py` | 716 | 1 | 11 | 0 |
 | `memory/tool_router.py` | 715 | 4 | 8 | 12 |
 | `memory/substrate_semantic.py` | 714 | 4 | 9 | 19 |
 | `email_agent/gmail_client.py` | 714 | 1 | 10 | 0 |
+| `scripts/generate_gmp_report.py` | 712 | 6 | 13 | 0 |
 | `simulation/simulation_engine.py` | 709 | 6 | 16 | 6 |
 | `mac_agent/executor.py` | 709 | 1 | 2 | 7 |
 | `scripts/memory/load_indexes_to_neo4j_vps.py` | 706 | 1 | 2 | 12 |
@@ -122,102 +125,105 @@
 | `clients/memory_client.py` | 701 | 6 | 3 | 16 |
 | `local_dashboard/app.py` | 697 | 0 | 0 | 3 |
 | `scripts/audit/tier1/audit_capability_inventory.py` | 697 | 7 | 7 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py` | 693 | 6 | 25 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py` | 693 | 6 | 25 | 0 |
 | `runtime/superprompt_emitter.py` | 692 | 7 | 17 | 2 |
 | `igor/DONE!/audit-memory/memory_substrate_service.py` | 692 | 1 | 1 | 18 |
 | `memory/agent_persistence.py` | 683 | 2 | 7 | 6 |
 | `scripts/audit/resolve_dead_code_refs.py` | 683 | 3 | 23 | 0 |
 | `orchestrators/pattern/cell_adapter.py` | 678 | 2 | 9 | 3 |
-| `scripts/generate_gmp_report.py` | 678 | 6 | 13 | 0 |
 | `memory/cypher_templates.py` | 677 | 3 | 7 | 2 |
 | `memory/consolidation.py` | 677 | 2 | 5 | 5 |
-| `tests/core/governance/test_engine.py` | 673 | 0 | 13 | 7 |
 | `scripts/memory/bootstrap_neo4j_schema.py` | 670 | 0 | 0 | 8 |
 | `orchestration/ws_task_router.py` | 669 | 4 | 13 | 4 |
 | `services/research/graph_persistence.py` | 665 | 4 | 5 | 6 |
 | `core/governance/rate_limit_policy.py` | 664 | 7 | 12 | 9 |
+| `tests/core/governance/test_engine.py` | 664 | 0 | 13 | 7 |
 | `api/slack_client.py` | 662 | 2 | 1 | 4 |
 | `ci/validate_spec_v25.py` | 660 | 2 | 24 | 0 |
 | `scripts/audit/generate_gmp_todos.py` | 658 | 2 | 8 | 0 |
 | `memory/predictive_cache.py` | 652 | 1 | 2 | 9 |
+| `tests/telemetry/test_memory_metrics.py` | 651 | 11 | 39 | 0 |
 | `world_model/loader.py` | 650 | 1 | 12 | 0 |
 | `core/commands/executor.py` | 649 | 1 | 1 | 11 |
 | `orchestrators/pattern/orchestrator.py` | 649 | 3 | 7 | 5 |
 | `scripts/memory/load_indexes_to_neo4j.py` | 646 | 1 | 16 | 0 |
 | `tests/agents/codegenagent/test_symbolic_verification.py` | 645 | 9 | 12 | 14 |
 | `memory/audit_utils.py` | 642 | 1 | 16 | 0 |
-| `tests/telemetry/test_memory_metrics.py` | 636 | 11 | 39 | 0 |
+| `workers/violation_tracker_service.py` | 642 | 4 | 6 | 10 |
 | `world_model/_pack_staging/postgres_substrate.py` | 635 | 2 | 19 | 0 |
 | `scripts/audit/categorize_dead_code.py` | 635 | 4 | 6 | 0 |
 | `codegen/export_repo_indexes.py` | 633 | 0 | 22 | 0 |
-| `tests/upgrades/test_packet_envelope_phases.py` | 632 | 5 | 14 | 13 |
 | `agents/codegenagent/telemetry_codegen.py` | 632 | 6 | 18 | 0 |
-| `tests/memory/test_strategy_memory_integration.py` | 631 | 8 | 0 | 14 |
+| `tests/upgrades/test_packet_envelope_phases.py` | 631 | 5 | 14 | 13 |
 | `memory/importance_manager.py` | 629 | 4 | 5 | 5 |
 | `api/routes/reflection_agent.py` | 629 | 11 | 1 | 8 |
 | `core/packet_envelope/governance.py` | 626 | 13 | 11 | 12 |
+| `workers/anomaly_response_monitor.py` | 626 | 5 | 6 | 8 |
 | `codegen/code-gen-files/schema_validator.py` | 625 | 3 | 21 | 0 |
 | `codegen/code-gen-files/validate_spec_v25.py` | 625 | 2 | 23 | 0 |
 | `ci/check_syntax.py` | 624 | 1 | 12 | 0 |
-| `tests/integration/test_l_bootstrap.py` | 624 | 0 | 5 | 8 |
 | `scripts/memory/audit_graphs.py` | 624 | 0 | 1 | 5 |
 | `memory/identity_tier.py` | 623 | 4 | 5 | 7 |
-| `workers/violation_tracker_service.py` | 623 | 4 | 6 | 10 |
 | `current_work/DONE/GMP Stage 1 - Tools/long_plan_graph.py` | 622 | 1 | 1 | 7 |
 | `codegen/code-gen-files/glue_resolver.py` | 618 | 9 | 26 | 0 |
+| `tests/memory/test_strategy_memory_integration.py` | 617 | 8 | 0 | 14 |
 | `runtime/websocket_orchestrator.py` | 616 | 1 | 4 | 8 |
 | `ci/lint_forbidden_imports.py` | 615 | 1 | 10 | 0 |
+| `tests/integration/test_l_bootstrap.py` | 615 | 0 | 5 | 8 |
 | `ir_engine/compile_meta_to_ir.py` | 614 | 7 | 23 | 0 |
 | `igor/DONE!/L9 Memory Substrate Audit/script_9.py` | 612 | 0 | 0 | 0 |
 | `agents/codegenagent/compliance_auditor.py` | 610 | 7 | 18 | 0 |
-| `tests/memory/test_strategy_memory.py` | 609 | 9 | 15 | 16 |
 | `codegen/codegenAgent Spec/run_codegen_superprompt.py` | 608 | 6 | 9 | 4 |
 | `core/agents/registry.py` | 606 | 1 | 20 | 1 |
 | `ir_engine/deliberation_cell.py` | 605 | 3 | 8 | 4 |
 | `world_model/query_engine.py` | 603 | 2 | 21 | 0 |
 | `mcp_memory/tests/verify_main_pipeline_e2e.py` | 602 | 3 | 2 | 6 |
 | `runtime/redis_client.py` | 600 | 1 | 3 | 17 |
+| `tests/memory/test_strategy_memory.py` | 600 | 9 | 15 | 16 |
 | `services/research/research_graph.py` | 600 | 0 | 2 | 7 |
 | `igor/DONE!/audit-tools/runtime_l_tools.py` | 599 | 0 | 6 | 11 |
 | `memory/neural_decay_scheduler.py` | 597 | 3 | 2 | 4 |
 | `tests/codegen/test_codegen_pipeline.py` | 594 | 6 | 26 | 0 |
 | `current_work/packetEnvelope - Phase 2-5/phase_5_governance.py` | 591 | 13 | 11 | 12 |
-| `tests/integration/test_l_cto_end_to_end.py` | 590 | 3 | 7 | 11 |
 | `tests/ir_engine/test_ir_packet_formats.py` | 590 | 9 | 28 | 0 |
 | `core/agents/schemas.py` | 588 | 12 | 5 | 0 |
+| `tests/integration/test_l_cto_end_to_end.py` | 588 | 3 | 7 | 11 |
 | `scripts/generate_subsystem_readmes.py` | 587 | 3 | 4 | 0 |
-| `tests/memory/test_dag_orchestrator_resilience.py` | 586 | 6 | 4 | 23 |
 | `runtime/execution_gate.py` | 584 | 0 | 7 | 0 |
 | `agents/codegenagent/cursor_context_sync_engine.py` | 584 | 7 | 12 | 11 |
 | `mcp_memory/tests/test_all_layers.py` | 584 | 4 | 0 | 20 |
 | `igor/DONE!/audit-memory/memory_graph_client.py` | 583 | 1 | 2 | 13 |
 | `igor/DONE!/audit-memory/api_memory_router.py` | 582 | 5 | 1 | 15 |
 | `current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/postgres_substrate.py` | 582 | 2 | 19 | 0 |
-| `workers/anomaly_response_monitor.py` | 580 | 5 | 4 | 8 |
 | `memory/hierarchical_summarizer.py` | 577 | 4 | 3 | 6 |
-| `tests/integration/test_igor_commands.py` | 577 | 6 | 19 | 13 |
+| `tests/integration/test_igor_commands.py` | 576 | 6 | 19 | 13 |
+| `tests/memory/test_dag_orchestrator_resilience.py` | 575 | 6 | 4 | 23 |
 | `tests/ir_engine/test_ir_simulation_router_integration.py` | 575 | 7 | 9 | 17 |
 | `memory/substrate_models.py` | 574 | 16 | 0 | 0 |
 | `api/routes/commands.py` | 574 | 5 | 0 | 5 |
 | `igor/DONE!/audit-memory/memory_ingestion.py` | 574 | 1 | 7 | 9 |
+| `current_work/Bayesian Upgrade/learning/auto_calibrator.py` | 574 | 2 | 15 | 0 |
 | `agents/codegenagent/rollback_hook.py` | 573 | 6 | 19 | 0 |
 | `agents/codegenagent/ap_generator.py` | 573 | 7 | 14 | 0 |
 | `core/packet_envelope/scalability.py` | 572 | 11 | 6 | 19 |
 | `world_model/_pack_staging/neo4j_substrate.py` | 572 | 2 | 18 | 0 |
 | `core/governance/approvals.py` | 571 | 1 | 4 | 9 |
 | `agents/codegenagent/pipeline_validator.py` | 569 | 6 | 18 | 0 |
-| `tests/integration/test_governance_tracking_e2e.py` | 567 | 6 | 21 | 2 |
+| `tests/unit/test_kernel_loader_activation.py` | 567 | 10 | 39 | 0 |
+| `tests/integration/test_governance_tracking_e2e.py` | 566 | 6 | 21 | 2 |
 | `scripts/audit/ensure_logger_instantiated.py` | 565 | 1 | 8 | 0 |
 | `scripts/audit/audit_shared_core.py` | 564 | 10 | 28 | 0 |
-| `tests/ir_engine/test_ir_validation_and_status.py` | 563 | 9 | 27 | 0 |
 | `scripts/audit/audit_api_signatures.py` | 563 | 4 | 14 | 0 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/test_l_bootstrap.py` | 563 | 0 | 5 | 8 |
 | `workers/remediation_engine.py` | 562 | 6 | 3 | 10 |
 | `core/kernels/schemas.py` | 561 | 31 | 2 | 0 |
 | `ci/validate_codegen.py` | 561 | 1 | 15 | 0 |
-| `tests/memory/test_frontier_memory_pipeline.py` | 561 | 7 | 35 | 0 |
+| `tests/ir_engine/test_ir_validation_and_status.py` | 561 | 9 | 27 | 0 |
 | `world_model/state.py` | 559 | 3 | 19 | 0 |
+| `current_work/Bayesian Upgrade/causal_graph/script_6.py` | 559 | 0 | 0 | 0 |
 | `runtime/dora.py` | 558 | 3 | 9 | 2 |
-| `tests/unit/test_lcto_bootstrap.py` | 558 | 6 | 30 | 0 |
+| `tests/memory/test_frontier_memory_pipeline.py` | 558 | 7 | 35 | 0 |
 | `agents/cursor/integrations/cursor_langgraph.py` | 556 | 6 | 6 | 5 |
 | `agents/cursor/GMP-v2.0-Perplex-Py-Scripts/script_4.py` | 555 | 0 | 0 | 0 |
 | `core/packet_envelope/observability.py` | 554 | 4 | 13 | 1 |
@@ -225,21 +231,22 @@
 | `agents/codegenagent/CodeGenAgent Engine.py` | 552 | 2 | 7 | 4 |
 | `core/schemas/packet_envelope_v2.py` | 551 | 13 | 6 | 0 |
 | `memory/insight_extraction.py` | 551 | 1 | 8 | 4 |
-| `tests/unit/test_kernel_loader_activation.py` | 551 | 10 | 39 | 0 |
 | `runtime/construct_enhancer.py` | 550 | 4 | 8 | 5 |
 | `simulation/scenario_loader.py` | 550 | 4 | 14 | 0 |
 | `agents/reflection_agent.py` | 548 | 1 | 5 | 10 |
 | `ir_engine/ir_schema.py` | 547 | 14 | 28 | 0 |
 | `world_model/_pack_staging/orchestrator.py` | 545 | 2 | 16 | 0 |
-| `api/routes/factory.py` | 545 | 8 | 1 | 8 |
 | `ir_engine/ir_to_plan_adapter.py` | 544 | 3 | 14 | 0 |
 | `scripts/audit/verify_memory_spec_v3.py` | 542 | 0 | 11 | 0 |
+| `api/routes/factory.py` | 542 | 8 | 1 | 8 |
+| `current_work/Bayesian Upgrade/foundation/hybrid_kernel.py` | 542 | 2 | 9 | 0 |
+| `tests/unit/test_lcto_bootstrap.py` | 541 | 6 | 30 | 0 |
 | `codegen/code-gen-files/validate_codegen.py` | 541 | 1 | 15 | 0 |
+| `tests/core/observability/test_observability_integration.py` | 539 | 9 | 22 | 12 |
 | `services/research/tools/perplexity_client.py` | 536 | 5 | 5 | 8 |
 | `scripts/audit/validate_dora_complete.py` | 535 | 2 | 12 | 0 |
 | `core/agents/selfreflection.py` | 533 | 9 | 8 | 1 |
 | `core/governance/approval_manager.py` | 533 | 4 | 7 | 7 |
-| `tests/core/observability/test_observability_integration.py` | 532 | 9 | 22 | 12 |
 | `core/schemas/research_factory_nodes.py` | 531 | 0 | 1 | 5 |
 | `memory/retrieval_ranking.py` | 531 | 3 | 15 | 0 |
 | `core/packet_envelope/standardization.py` | 529 | 9 | 18 | 0 |
@@ -247,6 +254,7 @@
 | `services/slack_files.py` | 529 | 0 | 4 | 2 |
 | `core/agents/kernelevolution.py` | 527 | 2 | 8 | 1 |
 | `igor/DONE!/audit-memory/memory_insight_extraction.py` | 525 | 1 | 8 | 4 |
+| `current_work/Bayesian Upgrade/telemetry/calibration_dashboard.py` | 524 | 2 | 13 | 0 |
 | `telemetry/memory_metrics.py` | 523 | 0 | 13 | 0 |
 | `scripts/batch/batch_generate_specs.py` | 521 | 4 | 5 | 6 |
 | `workers/violation_patterns.py` | 520 | 6 | 5 | 5 |
@@ -259,6 +267,7 @@
 | `world_model/_pack_staging/query_engine.py` | 517 | 2 | 19 | 0 |
 | `simulation/outcome_evaluator.py` | 516 | 6 | 14 | 0 |
 | `scripts/audit/migrate_dora_legacy.py` | 516 | 2 | 18 | 0 |
+| `config/di_config.py` | 515 | 0 | 18 | 0 |
 | `igor/DONE!/audit-tools/Current Config/agents_l_cto.py` | 515 | 1 | 9 | 2 |
 | `orchestrators/memory/housekeeping.py` | 514 | 1 | 1 | 8 |
 | `api/agent_routes.py` | 514 | 5 | 0 | 7 |
@@ -270,19 +279,22 @@
 | `runtime/introspection.py` | 511 | 1 | 12 | 0 |
 | `agents/codegenagent/file_emitter.py` | 511 | 3 | 16 | 0 |
 | `scripts/memory/audit_graphs_vps.py` | 511 | 0 | 1 | 7 |
-| `tests/memory/test_tool_audit.py` | 510 | 5 | 14 | 14 |
 | `api/routes/pattern.py` | 509 | 6 | 1 | 5 |
 | `memory/warming_service.py` | 508 | 1 | 4 | 6 |
 | `core/integration/tool_pattern_extractor.py` | 507 | 1 | 6 | 8 |
 | `codegen/scripts/generate_spec.py` | 506 | 1 | 8 | 3 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py` | 506 | 3 | 11 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py` | 506 | 3 | 11 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_spec_generator.py` | 506 | 3 | 11 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_spec_generator.py` | 506 | 3 | 11 | 0 |
+| `tests/memory/test_unified_pipeline.py` | 505 | 10 | 9 | 13 |
 | `runtime/auth_rate_limiter.py` | 504 | 3 | 3 | 11 |
 | `api/world_model_api.py` | 504 | 12 | 1 | 9 |
 | `memory/checkpoint_metrics.py` | 503 | 4 | 23 | 0 |
-| `tests/smoke_email.py` | 503 | 2 | 12 | 10 |
+| `tests/memory/test_tool_audit.py` | 502 | 5 | 14 | 14 |
 | `world_model/registry.py` | 502 | 3 | 16 | 0 |
 | `memory/checkpoint/postgres_saver.py` | 500 | 2 | 4 | 7 |
 | `collaborative_cells/reflection_cell.py` | 500 | 1 | 5 | 6 |
-| `tests/memory/test_unified_pipeline.py` | 500 | 10 | 9 | 13 |
 | `core/packet_envelope/integration.py` | 499 | 4 | 4 | 8 |
 | `ir_engine/constraint_challenger.py` | 499 | 2 | 8 | 3 |
 | `agents/codegenagent/c_gmp_engine.py` | 498 | 2 | 7 | 4 |
@@ -290,11 +302,9 @@
 | `core/di/container.py` | 497 | 5 | 13 | 0 |
 | `workers/anomaly_classifier.py` | 497 | 7 | 5 | 5 |
 | `core/tools/agent_self_modify.py` | 496 | 1 | 2 | 4 |
-| `core/abstractions/agent_protocols.py` | 496 | 7 | 18 | 9 |
 | `scripts/workspace/init_workspace_NEW.py` | 496 | 0 | 6 | 0 |
 | `memory/context_builder.py` | 495 | 3 | 8 | 7 |
 | `scripts/memory/index_architecture.py` | 495 | 0 | 2 | 4 |
-| `core/abstractions/memory_protocols.py` | 494 | 6 | 3 | 22 |
 | `current_work/packetEnvelope - Phase 2-5/phase_2_observability.py` | 494 | 4 | 13 | 1 |
 | `core/governance/engine.py` | 492 | 2 | 11 | 3 |
 | `tests/codegen/test_sample_schemas.py` | 492 | 5 | 24 | 0 |
@@ -311,8 +321,11 @@
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/adapters/email_adapter_adapter.py` | 487 | 4 | 4 | 7 |
 | `runtime/response_tagger.py` | 486 | 5 | 20 | 0 |
 | `memory/reasoning_replay.py` | 485 | 2 | 3 | 6 |
+| `tests/smoke_email.py` | 485 | 2 | 12 | 10 |
+| `core/protocols/agent_protocols.py` | 484 | 7 | 18 | 9 |
 | `ir_engine/semantic_compiler.py` | 484 | 1 | 9 | 3 |
 | `igor/DONE!/audit-memory/mcp_memory_src_mcp_server.py` | 483 | 2 | 1 | 1 |
+| `core/protocols/memory_protocols.py` | 482 | 6 | 3 | 22 |
 | `agents/base_agent.py` | 482 | 5 | 15 | 5 |
 | `codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py` | 482 | 0 | 9 | 0 |
 | `core/tools/memory_tools.py` | 480 | 3 | 1 | 5 |
@@ -324,153 +337,167 @@
 | `current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py` | 476 | 9 | 18 | 0 |
 | `core/aios/runtime.py` | 473 | 1 | 5 | 2 |
 | `memory/gap_detector.py` | 473 | 1 | 3 | 3 |
-| `tests/memory/test_substrate_dag_native.py` | 472 | 9 | 26 | 10 |
+| `tests/memory/test_saga.py` | 472 | 7 | 12 | 23 |
 | `core/kernels/integrity.py` | 471 | 1 | 11 | 0 |
 | `core/compliance/audit_reporter.py` | 471 | 2 | 3 | 7 |
 | `orchestrators/pattern/master_orchestrator.py` | 470 | 4 | 5 | 3 |
 | `core/agents/graph_state/graph_hydrator.py` | 469 | 2 | 4 | 4 |
+| `current_work/Bayesian Upgrade/core/bayesian/uncertainty.py` | 469 | 3 | 14 | 0 |
 | `core/boundary/enforcer.py` | 468 | 2 | 14 | 0 |
 | `memory/state_manager.py` | 468 | 1 | 2 | 17 |
 | `codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py` | 468 | 4 | 8 | 5 |
 | `core/commands/intent_extractor.py` | 467 | 0 | 5 | 2 |
-| `tests/orchestrators/test_pattern_orchestrator.py` | 467 | 7 | 27 | 2 |
 | `igor/DONE!/audit-tools/services_research_tools_perplexity_client.py` | 467 | 5 | 5 | 7 |
 | `igor/DONE!/L9 Memory Substrate Audit/script.py` | 467 | 0 | 0 | 0 |
+| `tests/memory/test_substrate_dag_native.py` | 466 | 9 | 26 | 10 |
 | `scripts/memory/seed_golden_strategies.py` | 466 | 0 | 0 | 6 |
 | `services/research/memory_adapter.py` | 466 | 1 | 6 | 6 |
+| `tests/orchestrators/test_pattern_orchestrator.py` | 464 | 7 | 27 | 2 |
 | `igor/DONE!/audit-memory/memory_substrate_models.py` | 464 | 21 | 1 | 0 |
 | `ir_engine/ir_validator.py` | 464 | 1 | 11 | 0 |
 | `services/symbolic_computation/computation.py` | 464 | 4 | 8 | 5 |
+| `tests/email_agent/test_email_router.py` | 463 | 7 | 27 | 2 |
 | `current_work/DONE/AUTOWIRING/auto_registry/auto_registry.py` | 463 | 3 | 14 | 0 |
+| `tests/memory/test_tool_router.py` | 461 | 8 | 13 | 11 |
 | `agents/cursor/integrations/cursor_gateway.py` | 461 | 2 | 3 | 5 |
 | `core/observability/service.py` | 460 | 1 | 8 | 6 |
 | `_archived/symbolic_computation/core.py` | 460 | 4 | 8 | 5 |
 | `current_work/packetEnvelope - Phase 2-5/test_suite.py` | 460 | 5 | 17 | 10 |
-| `tests/memory/test_tool_router.py` | 459 | 8 | 13 | 11 |
 | `api/memory/cache.py` | 459 | 3 | 0 | 13 |
 | `ir_engine/simulation_router.py` | 458 | 4 | 10 | 3 |
 | `core/agents/graph_state/bootstrap_l_graph.py` | 457 | 0 | 0 | 2 |
 | `collaborative_cells/reviewer_cell.py` | 457 | 1 | 3 | 6 |
-| `tests/memory/test_saga.py` | 455 | 7 | 12 | 23 |
+| `current_work/Bayesian Upgrade/learning/feedback_collector.py` | 457 | 3 | 16 | 0 |
+| `tests/integration/test_recursive_self_testing.py` | 455 | 7 | 19 | 4 |
 | `mcp_memory/src/models.py` | 455 | 49 | 0 | 0 |
 | `collaborative_cells/coder_cell.py` | 453 | 1 | 3 | 6 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py` | 453 | 2 | 20 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_qc_dashboard.py` | 453 | 2 | 20 | 0 |
 | `world_model/_pack_staging/loader.py` | 451 | 1 | 12 | 0 |
 | `core/compliance/audit_log.py` | 450 | 1 | 1 | 5 |
 | `api/memory/graph.py` | 450 | 4 | 0 | 10 |
 | `current_work/DONE/GMP Stage 1 - Tools/agent_instance.py` | 450 | 1 | 21 | 0 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/agent_instance.py` | 450 | 1 | 21 | 0 |
-| `tests/integration/test_recursive_self_testing.py` | 447 | 7 | 19 | 4 |
 | `scripts/audit/verify_wiring_alignment.py` | 447 | 2 | 8 | 0 |
 | `core/memory/virtual_context.py` | 446 | 5 | 5 | 7 |
 | `services/symbolic_computation/core/metrics.py` | 443 | 1 | 3 | 6 |
 | `core/tools/tool_embeddings.py` | 442 | 1 | 0 | 8 |
+| `runtime/kernel_config_loader.py` | 442 | 0 | 11 | 0 |
 | `ir_engine/ir_generator.py` | 442 | 1 | 11 | 0 |
-| `tests/services/research/test_graph_persistence.py` | 441 | 2 | 17 | 12 |
 | `scripts/agents/neo4j_merge_agent_nodes.py` | 441 | 0 | 0 | 7 |
 | `core/worldmodel/insight_emitter.py` | 439 | 2 | 3 | 7 |
-| `tests/ir_engine/conftest.py` | 439 | 0 | 14 | 0 |
+| `tests/api/test_slack_adapter.py` | 438 | 8 | 24 | 7 |
 | `core/integration/graph_to_wm_sync.py` | 437 | 1 | 4 | 8 |
-| `tests/integration/test_kernel_evolution_flow.py` | 437 | 7 | 11 | 12 |
 | `current_work/Neural-Symbolic Orchestration/swarm_sync.py` | 437 | 6 | 7 | 9 |
 | `core/singleton_auto_registry.py` | 436 | 1 | 14 | 0 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/task_queue.py` | 436 | 2 | 4 | 8 |
+| `tests/integration/test_kernel_evolution_flow.py` | 435 | 7 | 11 | 12 |
 | `runtime/task_queue.py` | 434 | 2 | 4 | 8 |
-| `tests/email_agent/test_email_router.py` | 434 | 7 | 27 | 2 |
 | `current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/loader.py` | 434 | 1 | 12 | 0 |
 | `core/governance/schemas.py` | 433 | 6 | 5 | 0 |
 | `collaborative_cells/architect_cell.py` | 433 | 1 | 3 | 5 |
 | `scripts/memory/load_gmp_reports_to_graph.py` | 432 | 0 | 1 | 4 |
+| `core/tools/research_tools.py` | 431 | 0 | 1 | 4 |
 | `core/security/permission_graph.py` | 431 | 1 | 0 | 19 |
 | `agents/qa_agent.py` | 431 | 1 | 2 | 5 |
+| `tests/ir_engine/conftest.py` | 430 | 0 | 14 | 0 |
 | `world_model/_pack_staging/updater.py` | 430 | 3 | 14 | 0 |
 | `scripts/agents/neo4j_unify_relationships.py` | 430 | 0 | 0 | 8 |
 | `codegen/code-gen-files/examples_symbolic_computation.py` | 428 | 1 | 3 | 14 |
 | `current_work/DONE/AUTOWIRING/singleton_auto_registry.py` | 428 | 1 | 14 | 0 |
 | `memory/cross_encoder_reranker.py` | 425 | 3 | 8 | 0 |
-| `tests/api/test_slack_adapter.py` | 425 | 8 | 24 | 7 |
 | `core/schemas/tasks.py` | 424 | 7 | 9 | 0 |
-| `tests/core/bootstrap/test_bootstrap_phases.py` | 424 | 13 | 3 | 20 |
+| `tests/services/research/test_graph_persistence.py` | 424 | 2 | 17 | 12 |
 | `world_model/_pack_staging/test_integration.py` | 424 | 5 | 21 | 0 |
-| `core/abstractions/observability_protocols.py` | 423 | 8 | 23 | 3 |
 | `ci/check_schema_deprecation.py` | 423 | 1 | 8 | 0 |
-| `core/tools/research_tools.py` | 422 | 0 | 1 | 4 |
+| `tests/core/bootstrap/test_bootstrap_phases.py` | 422 | 13 | 3 | 20 |
 | `mac_agent/runner.py` | 422 | 0 | 3 | 2 |
+| `current_work/01-21-2026/governance.py` | 422 | 5 | 6 | 9 |
+| `current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py` | 422 | 5 | 6 | 9 |
 | `core/observability/instrumentation.py` | 421 | 0 | 12 | 4 |
 | `core/worldmodel/l9_schema.py` | 421 | 13 | 7 | 0 |
+| `tests/unit/kernel/test_kernel_config_loader.py` | 421 | 0 | 29 | 0 |
 | `memory/strategymemory.py` | 420 | 5 | 1 | 6 |
+| `tests/memory/test_graph_memory.py` | 420 | 7 | 11 | 13 |
 | `services/symbolic_computation/tools/symbolic_tool.py` | 420 | 1 | 5 | 2 |
 | `services/symbolic_computation/core/code_generator.py` | 420 | 1 | 6 | 1 |
-| `tests/smoke_test.py` | 419 | 1 | 12 | 3 |
-| `tests/smoke_test_root.py` | 419 | 1 | 12 | 3 |
 | `telemetry/slack_metrics.py` | 419 | 0 | 10 | 0 |
 | `current_work/packetEnvelope - Phase 2-5/integration.py` | 419 | 4 | 4 | 8 |
 | `core/kernels/prompt_builder.py` | 418 | 0 | 8 | 0 |
 | `scripts/memory/index_preferences.py` | 418 | 0 | 0 | 3 |
 | `world_model/nodes/service_nodes.py` | 417 | 1 | 1 | 3 |
-| `tests/memory/test_hierarchical_consolidation.py` | 416 | 8 | 23 | 6 |
-| `tests/ir_engine/test_ir_semantic_incremental.py` | 415 | 3 | 1 | 10 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py` | 416 | 9 | 34 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py` | 416 | 9 | 34 | 0 |
+| `tests/unit/adr/test_adr_tooling.py` | 415 | 0 | 20 | 0 |
+| `tests/memory/test_hierarchical_consolidation.py` | 415 | 8 | 23 | 6 |
 | `orchestrators/agent_execution/task_queue.py` | 414 | 1 | 7 | 0 |
-| `tests/memory/test_graph_memory.py` | 413 | 7 | 11 | 13 |
 | `codegen/dev_layer/am_engine/compile.py` | 413 | 4 | 6 | 0 |
 | `email_agent/client.py` | 413 | 0 | 1 | 0 |
+| `core/protocols/observability_protocols.py` | 411 | 8 | 23 | 3 |
 | `api/routes/observability.py` | 410 | 8 | 0 | 5 |
 | `core/schemas/event_stream.py` | 409 | 6 | 3 | 0 |
 | `current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py` | 409 | 3 | 14 | 0 |
+| `tests/smoke_test.py` | 408 | 1 | 12 | 3 |
+| `tests/smoke_test_root.py` | 408 | 1 | 12 | 3 |
 | `agents/coder_agent/coder_agent_b.py` | 407 | 1 | 2 | 7 |
 | `orchestrators/agent_execution/orchestrator.py` | 406 | 1 | 1 | 3 |
 | `tests/unit/di/test_container.py` | 405 | 19 | 43 | 0 |
 | `igor/DONE!/audit-memory/memory_substrate_semantic.py` | 405 | 4 | 8 | 10 |
-| `tests/conftest.py` | 404 | 4 | 30 | 14 |
+| `tests/unit/di/test_di_config.py` | 404 | 0 | 34 | 0 |
 | `scripts/memory/index_gmp_reports.py` | 404 | 0 | 1 | 2 |
 | `igor/DONE!/L9 Memory Substrate Audit/script_4.py` | 403 | 0 | 0 | 0 |
 | `core/governance/loader.py` | 402 | 3 | 13 | 0 |
-| `tests/memory/test_checkpoint_retry.py` | 400 | 7 | 11 | 16 |
+| `tests/ir_engine/test_ir_semantic_incremental.py` | 401 | 3 | 1 | 10 |
+| `core/tools/symbolic_tool.py` | 399 | 1 | 4 | 5 |
 | `core/governance/quick_fixes.py` | 399 | 3 | 9 | 0 |
-| `tests/memory/test_governance_invariants.py` | 398 | 7 | 5 | 9 |
 | `current_work/Neural-Symbolic Collective Intelligence/script_1.py` | 398 | 0 | 0 | 0 |
 | `current_work/DONE/BOOTSTRAP_IMPLEMENTATION_GUIDE/test suite.py` | 398 | 0 | 0 | 0 |
+| `tests/conftest.py` | 396 | 4 | 30 | 14 |
 | `tests/integration/test_compliance_audit.py` | 396 | 5 | 5 | 10 |
 | `agents/cursor/GMP-v2.0-Perplex-Py-Scripts/script_2.py` | 396 | 0 | 0 | 0 |
 | `agents/coder_agent/coder_agent_a.py` | 396 | 1 | 2 | 6 |
-| `core/tools/symbolic_tool.py` | 394 | 1 | 4 | 5 |
 | `orchestration/input_segmenter.py` | 394 | 3 | 12 | 0 |
 | `core/event_type_registry.py` | 393 | 1 | 14 | 0 |
+| `tests/integration/test_tool_observability_integration.py` | 392 | 7 | 10 | 12 |
 | `agents/codegenagent/meta_loader.py` | 392 | 2 | 12 | 0 |
 | `igor/DONE!/L9 Memory Substrate Audit/script_2.py` | 392 | 0 | 0 | 0 |
-| `tests/memory/test_cross_client_consistency.py` | 391 | 5 | 5 | 12 |
+| `tools/adr/adr_cli.py` | 391 | 0 | 12 | 0 |
+| `tests/memory/test_checkpoint_retry.py` | 391 | 7 | 11 | 16 |
 | `current_work/DONE/AUTOWIRING/event_type_registry.py` | 391 | 1 | 14 | 0 |
 | `memory/governance_gate.py` | 390 | 1 | 11 | 2 |
-| `tests/memory/test_consolidation_graph.py` | 390 | 0 | 4 | 8 |
 | `core/agents/prompt_defense.py` | 389 | 2 | 6 | 0 |
 | `core/testing/test_executor.py` | 389 | 3 | 3 | 3 |
-| `tests/mocks/world_model_mocks.py` | 389 | 3 | 3 | 8 |
-| `tests/integration/test_tool_observability_integration.py` | 389 | 7 | 10 | 12 |
 | `agents/research_agent/research_facade.py` | 389 | 0 | 4 | 2 |
 | `world_model/_pack_staging/state.py` | 389 | 1 | 13 | 0 |
 | `core/testing/test_agent.py` | 388 | 2 | 4 | 3 |
+| `tests/memory/test_governance_invariants.py` | 388 | 7 | 5 | 9 |
 | `agents/architect_agent/architect_agent_b.py` | 388 | 1 | 2 | 5 |
 | `api/dependencies.py` | 388 | 0 | 16 | 0 |
-| `tests/runtime/test_execution_gate.py` | 387 | 8 | 30 | 0 |
+| `tests/mocks/world_model_mocks.py` | 387 | 3 | 3 | 8 |
+| `tests/memory/test_cross_client_consistency.py` | 387 | 5 | 5 | 12 |
 | `core/agents/prompt_builder.py` | 386 | 1 | 9 | 0 |
 | `scripts/memory/index_error_patterns.py` | 386 | 0 | 1 | 3 |
 | `services/symbolic_computation/core/expression_evaluator.py` | 386 | 1 | 6 | 1 |
+| `tests/memory/test_consolidation_graph.py` | 385 | 0 | 4 | 8 |
 | `igor/DONE!/audit-tools/services_symbolic_computation_tools_symbolic_tool.py` | 385 | 1 | 5 | 2 |
 | `core/observability/models.py` | 384 | 16 | 5 | 0 |
+| `tests/memory/test_hybrid_rag.py` | 384 | 6 | 5 | 16 |
 | `igor/DONE!/audit-memory/core_schemas_event_stream.py` | 384 | 6 | 3 | 0 |
 | `current_work/DONE/Observability/observability_instrumentation.py` | 384 | 0 | 12 | 4 |
+| `tests/runtime/test_execution_gate.py` | 383 | 8 | 30 | 0 |
 | `current_work/DONE/AUTOWIRING/auto_registry/registry.py` | 383 | 2 | 11 | 0 |
-| `tests/core/bootstrap/test_prompt_builder.py` | 382 | 7 | 26 | 0 |
 | `world_model/_pack_staging/registry.py` | 382 | 1 | 14 | 0 |
 | `scripts/gmp-validate-stage.py` | 382 | 2 | 11 | 0 |
 | `api/slack_adapter.py` | 382 | 3 | 6 | 0 |
-| `tests/memory/test_hybrid_rag.py` | 380 | 6 | 5 | 16 |
+| `current_work/01-21-2026/swarm_sync.py` | 382 | 6 | 7 | 9 |
+| `current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py` | 382 | 6 | 7 | 9 |
 | `current_work/DONE/GMP Stage 1 - Tools/gmp_worker.py` | 380 | 1 | 1 | 12 |
 | `runtime/rate_limiter.py` | 379 | 1 | 1 | 6 |
 | `_archived/symbolic_computation/test_symbolic_computation.py` | 379 | 7 | 13 | 11 |
 | `services/symbolic_computation/test_symbolic_computation.py` | 379 | 7 | 13 | 11 |
 | `core/integration/wm_to_graph_sync.py` | 378 | 1 | 2 | 11 |
 | `core/observability/context_strategies.py` | 378 | 7 | 4 | 7 |
-| `core/abstractions/kernel_protocols.py` | 378 | 6 | 16 | 0 |
+| `api/routes/workers.py` | 378 | 6 | 0 | 8 |
 | `core/agents/adaptive_prompting.py` | 377 | 0 | 3 | 4 |
 | `igor/DONE!/L9 Memory Substrate Audit/script_6.py` | 377 | 0 | 0 | 0 |
 | `core/tools/sanitizer.py` | 376 | 3 | 12 | 0 |
@@ -486,34 +513,38 @@
 | `core/tools/tool_audit.py` | 373 | 3 | 3 | 7 |
 | `core/testing/test_generator.py` | 373 | 1 | 12 | 0 |
 | `igor/DONE!/tokenizer/core/tokenizer/tokenizer.py` | 373 | 1 | 11 | 0 |
-| `tests/test_code_facts_extraction.py` | 372 | 6 | 21 | 0 |
 | `tests/core/schemas/test_schema_registry.py` | 372 | 7 | 20 | 0 |
-| `tests/runtime/test_kernel_state.py` | 370 | 7 | 20 | 0 |
+| `tests/integration/test_kernel_hot_reload.py` | 370 | 6 | 14 | 4 |
 | `current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/registry.py` | 370 | 1 | 14 | 0 |
 | `core/agents/graph_state/agent_graph_loader.py` | 369 | 6 | 5 | 4 |
 | `memory/tool_audit.py` | 369 | 0 | 1 | 3 |
-| `tests/memory/test_predictive_warming.py` | 368 | 4 | 6 | 16 |
-| `tests/integration/test_kernel_hot_reload.py` | 366 | 6 | 14 | 4 |
+| `tests/runtime/test_kernel_state.py` | 368 | 7 | 20 | 0 |
+| `core/protocols/kernel_protocols.py` | 367 | 6 | 16 | 0 |
+| `tests/memory/test_predictive_warming.py` | 367 | 4 | 6 | 16 |
 | `api/routes/registry.py` | 366 | 2 | 11 | 0 |
 | `core/schemas/capabilities.py` | 365 | 3 | 5 | 0 |
+| `tests/core/test_resilience_mixin.py` | 365 | 7 | 3 | 15 |
 | `email_agent/parser.py` | 365 | 1 | 11 | 0 |
+| `memory/dead_letter_queue.py` | 364 | 2 | 3 | 6 |
 | `services/symbolic_computation/core/validator.py` | 364 | 1 | 8 | 0 |
 | `tests/mocks/memory_mocks.py` | 363 | 3 | 12 | 8 |
 | `core/schemas/packet_envelope.py` | 362 | 13 | 2 | 0 |
-| `tests/core/test_resilience_mixin.py` | 362 | 7 | 3 | 15 |
 | `email_agent/triage.py` | 362 | 0 | 3 | 0 |
 | `current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/state.py` | 362 | 1 | 13 | 0 |
 | `core/governance/mistake_prevention.py` | 361 | 4 | 9 | 0 |
+| `tests/core/bootstrap/test_prompt_builder.py` | 361 | 7 | 26 | 0 |
 | `agents/architect_agent/architect_agent_a.py` | 361 | 1 | 2 | 4 |
 | `core/agents/bootstrap/bootstrap_metrics.py` | 359 | 4 | 17 | 0 |
 | `ci/check_no_deprecated_services.py` | 359 | 1 | 4 | 0 |
+| `tests/core/tools/test_tool_graph_unified.py` | 359 | 0 | 9 | 7 |
+| `tests/integration/test_graph_wm_sync.py` | 358 | 0 | 9 | 7 |
 | `tests/agents/codegenagent/test_readme_generator.py` | 358 | 5 | 16 | 0 |
 | `core/observability/failures.py` | 357 | 3 | 3 | 6 |
 | `core/observability/circuit_breaker.py` | 357 | 4 | 12 | 0 |
-| `tests/cursor/test_gmp_meta_learning.py` | 357 | 8 | 22 | 2 |
 | `scripts/research/delegate_deep_research.py` | 357 | 0 | 2 | 3 |
 | `services/symbolic_computation/core/cache_manager.py` | 356 | 1 | 6 | 5 |
 | `core/security/path_safety.py` | 354 | 1 | 20 | 1 |
+| `tests/test_code_facts_extraction.py` | 352 | 6 | 21 | 0 |
 | `scripts/memory/test_all_graphs_access.py` | 352 | 0 | 0 | 1 |
 | `scripts/workspace/init_workspace.py` | 352 | 1 | 3 | 0 |
 | `orchestrators/pattern/interface.py` | 351 | 21 | 3 | 0 |
@@ -521,20 +552,21 @@
 | `scripts/memory/index_tool_usage.py` | 350 | 0 | 0 | 5 |
 | `current_work/DONE/BOOTSTRAP_IMPLEMENTATION_GUIDE/script_3.py` | 350 | 0 | 0 | 0 |
 | `services/mac_tasks.py` | 350 | 1 | 6 | 0 |
-| `tests/docker/test_stack_smoke.py` | 349 | 7 | 17 | 1 |
 | `current_work/Neural-Symbolic Collective Intelligence/script_3.py` | 349 | 0 | 0 | 0 |
 | `memory/query_classifier.py` | 348 | 1 | 5 | 0 |
-| `tests/integration/test_graph_wm_sync.py` | 348 | 0 | 9 | 7 |
+| `tests/cursor/test_gmp_meta_learning.py` | 348 | 8 | 22 | 2 |
 | `mcp_memory/tests/test_e2e.py` | 348 | 0 | 3 | 9 |
 | `scripts/run_pattern.py` | 347 | 0 | 4 | 1 |
 | `core/evaluation/evaluator.py` | 346 | 5 | 4 | 3 |
-| `tests/core/tools/test_tool_graph_unified.py` | 346 | 0 | 9 | 7 |
 | `igor/DONE!/L9 Memory Substrate Audit/script_3.py` | 345 | 0 | 0 | 0 |
 | `ci/check_tool_wiring.py` | 344 | 0 | 2 | 0 |
 | `core/governance/subsystem_detector.py` | 343 | 0 | 8 | 0 |
+| `tests/docker/test_stack_smoke.py` | 343 | 7 | 17 | 1 |
+| `tests/integration/test_tool_patterns.py` | 343 | 0 | 10 | 6 |
 | `core/governance/validation.py` | 342 | 0 | 5 | 0 |
 | `memory/validators/packet_validator.py` | 342 | 2 | 7 | 0 |
 | `runtime/local_api.py` | 342 | 1 | 6 | 0 |
+| `tests/integration/test_graph_state_integration.py` | 342 | 0 | 3 | 7 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/memory_bridge.py` | 342 | 3 | 1 | 7 |
 | `api/routes/compliance.py` | 341 | 2 | 0 | 3 |
 | `igor/DONE!/audit-memory/tests_mocks_memory_mocks.py` | 341 | 3 | 12 | 8 |
@@ -547,24 +579,24 @@
 | `core/memory/runtime.py` | 337 | 1 | 2 | 2 |
 | `orchestrators/orchestrator_registry.py` | 337 | 0 | 10 | 0 |
 | `scripts/memory/cleanup_trash_embeddings.py` | 337 | 0 | 1 | 2 |
+| `tests/core/bootstrap/test_agent_self_modify.py` | 336 | 0 | 6 | 8 |
 | `scripts/memory/inspect_embeddings.py` | 336 | 0 | 0 | 2 |
 | `core/governance/approval_gate.py` | 335 | 1 | 2 | 1 |
 | `orchestrators/evolution/orchestrator.py` | 335 | 1 | 6 | 5 |
-| `tests/integration/test_graph_state_integration.py` | 334 | 0 | 3 | 7 |
+| `current_work/Bayesian Upgrade/causal_graph/script_5.py` | 335 | 0 | 0 | 0 |
+| `tests/integration/test_world_model.py` | 334 | 4 | 5 | 14 |
 | `current_work/DONE/Observability/observability_failures.py` | 334 | 3 | 3 | 6 |
-| `tests/integration/test_world_model.py` | 333 | 4 | 5 | 14 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/governance_bridge.py` | 333 | 4 | 3 | 5 |
-| `tests/core/bootstrap/test_agent_self_modify.py` | 332 | 0 | 6 | 8 |
-| `tests/unit/test_startup_readiness.py` | 329 | 7 | 12 | 7 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py` | 331 | 3 | 9 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/l9_text_to_code.py` | 331 | 3 | 9 | 0 |
+| `tests/core/bootstrap/test_graph_state.py` | 329 | 0 | 10 | 3 |
 | `orchestration/quantum_swarm_loader.py` | 329 | 2 | 3 | 4 |
 | `config/settings.py` | 328 | 2 | 3 | 0 |
+| `tests/unit/test_startup_readiness.py` | 328 | 7 | 12 | 7 |
 | `core/agents/graph_state/schema.py` | 327 | 0 | 0 | 0 |
 | `email_agent/credentials.py` | 327 | 0 | 5 | 0 |
 | `current_work/Neural-Symbolic Orchestration/neural_substrate.py` | 327 | 3 | 16 | 0 |
 | `runtime/memory_helpers.py` | 326 | 0 | 0 | 2 |
-| `tests/integration/test_tool_patterns.py` | 326 | 0 | 10 | 6 |
-| `tests/core/bootstrap/test_graph_state.py` | 325 | 0 | 10 | 3 |
-| `tests/memory/test_mcp_bypass_compliance.py` | 325 | 5 | 13 | 0 |
 | `scripts/research/factory_extract.py` | 325 | 0 | 2 | 1 |
 | `tests/memory/test_packet_validation_v2.py` | 324 | 6 | 20 | 3 |
 | `scripts/fix_async_decorators.py` | 324 | 0 | 5 | 0 |
@@ -576,34 +608,34 @@
 | `core/observability/jaeger_exporter.py` | 319 | 1 | 6 | 2 |
 | `memory/graph_search_cache.py` | 319 | 2 | 3 | 1 |
 | `runtime/kernel_state.py` | 318 | 1 | 8 | 0 |
+| `tests/memory/test_mcp_bypass_compliance.py` | 318 | 5 | 13 | 0 |
+| `tests/runtime/test_slack_tools.py` | 318 | 0 | 3 | 10 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tests/test_pipeline.py` | 318 | 5 | 15 | 0 |
 | `mcp_memory/src/audit.py` | 318 | 1 | 3 | 2 |
 | `core/agents/kernel_registry.py` | 316 | 1 | 10 | 0 |
-| `tests/unit/test_kernel_observability.py` | 316 | 5 | 23 | 0 |
 | `igor/DONE!/audit-tools/tests_test_tool_registry.py` | 315 | 4 | 20 | 2 |
 | `current_work/DONE/GMP Stage 1 - Tools/capabilities.py` | 315 | 3 | 5 | 0 |
-| `tests/integration/test_cursor_langgraph_integration.py` | 314 | 6 | 1 | 6 |
+| `tests/unit/test_kernel_observability.py` | 314 | 5 | 23 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reasoning_engine.py` | 314 | 2 | 3 | 6 |
 | `igor/DONE!/audit-memory/core_schemas_tests_test_packet_envelope.py` | 314 | 7 | 24 | 0 |
+| `current_work/Bayesian Upgrade/test_bayesian_kernel.py` | 314 | 0 | 16 | 0 |
 | `services/symbolic_computation/core/optimizer.py` | 314 | 1 | 8 | 0 |
 | `core/schemas/research_factory_state.py` | 313 | 3 | 7 | 0 |
-| `runtime/tool_registry.py` | 313 | 0 | 9 | 0 |
 | `scripts/agents/verify_agent_executor.py` | 313 | 0 | 7 | 0 |
 | `igor/DONE!/audit-tools/Current Config/core_kernels_prompt_builder.py` | 313 | 0 | 8 | 0 |
 | `ci/dora_compliance_check.py` | 312 | 0 | 6 | 0 |
 | `api/server_memory.py` | 311 | 2 | 2 | 1 |
 | `igor/DONE!/L9 Memory Substrate Audit/script_8.py` | 311 | 0 | 0 | 0 |
 | `igor/DONE!/audit-memory/core_schemas_packet_envelope.py` | 310 | 13 | 2 | 0 |
-| `tests/test_slack_adapter.py` | 309 | 3 | 13 | 3 |
 | `current_work/DONE/GMP Stage 1 - Tools/mcp_client.py` | 309 | 2 | 8 | 2 |
 | `current_work/packetEnvelope - Phase 2-5/packetEnvelope - RollOut/feature_flags.py` | 309 | 3 | 13 | 0 |
+| `tests/integration/test_cursor_langgraph_integration.py` | 308 | 6 | 1 | 6 |
 | `agents/cursor/integrations/cursor_executor.py` | 308 | 3 | 1 | 2 |
 | `orchestrators/world_model/orchestrator.py` | 307 | 1 | 1 | 6 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/postgres_backend.py` | 307 | 1 | 1 | 8 |
 | `services/research/tools/tool_wrappers.py` | 307 | 4 | 1 | 4 |
 | `world_model/interfaces.py` | 306 | 5 | 18 | 0 |
 | `core/packet_envelope/config.py` | 305 | 11 | 5 | 0 |
-| `tests/ir_engine/test_ir_semantic_to_plan_integration.py` | 305 | 5 | 8 | 3 |
 | `services/research/research_api.py` | 304 | 5 | 1 | 3 |
 | `core/observability/aggregation.py` | 303 | 2 | 8 | 0 |
 | `runtime/mcp_server_registry.py` | 303 | 1 | 8 | 0 |
@@ -613,9 +645,12 @@
 | `current_work/DONE/AUTOWIRING/mcp_server_registry.py` | 303 | 1 | 8 | 0 |
 | `core/governance/policy_registry.py` | 302 | 1 | 8 | 0 |
 | `memory/extractor/agent_config_extractor.py` | 302 | 1 | 10 | 0 |
+| `tests/ir_engine/test_ir_semantic_to_plan_integration.py` | 301 | 5 | 8 | 3 |
+| `current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py` | 301 | 1 | 7 | 0 |
 | `ci/check_substrate_api.py` | 300 | 1 | 7 | 0 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py` | 300 | 2 | 8 | 2 |
 | `memory/substrate_dag_wrapper.py` | 299 | 2 | 2 | 1 |
+| `tests/test_slack_adapter.py` | 299 | 3 | 13 | 3 |
 | `orchestrators/evolution/apply_engine.py` | 299 | 1 | 1 | 15 |
 | `api/webhook_waba.py` | 299 | 0 | 1 | 4 |
 | `igor/DONE!/audit-memory/mcp_memory_tests_test_memory.py` | 299 | 0 | 0 | 8 |
@@ -626,19 +661,18 @@
 | `core/agents/bootstrap/orchestrator.py` | 297 | 1 | 1 | 2 |
 | `agents/codegenagent/cursor_sync.py` | 297 | 2 | 7 | 0 |
 | `core/coordination/event_queue.py` | 296 | 4 | 5 | 7 |
-| `tests/memory/test_rls_isolation.py` | 296 | 3 | 0 | 9 |
 | `api/vps_executor.py` | 295 | 3 | 6 | 1 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/websocket_orchestrator.py` | 294 | 1 | 4 | 6 |
 | `api/routes/upgrades.py` | 293 | 0 | 1 | 9 |
 | `current_work/DONE/Observability/observability_service.py` | 293 | 1 | 7 | 5 |
 | `core/agents/bootstrap/phase_2_instantiate.py` | 292 | 1 | 0 | 2 |
+| `tests/memory/test_rls_isolation.py` | 292 | 3 | 0 | 9 |
 | `orchestrators/reasoning/orchestrator.py` | 292 | 1 | 2 | 5 |
 | `memory/checkpoint_validator.py` | 291 | 2 | 8 | 0 |
 | `orchestrators/meta/orchestrator.py` | 291 | 1 | 3 | 4 |
 | `scripts/workspace/rename_l_to_l_cto.py` | 291 | 0 | 4 | 0 |
 | `core/schemas/l_tools.py` | 290 | 8 | 0 | 0 |
 | `orchestrators/meta/adapter.py` | 290 | 1 | 5 | 2 |
-| `tests/test_research_graph.py` | 289 | 3 | 9 | 3 |
 | `orchestrators/memory/orchestrator.py` | 288 | 1 | 1 | 6 |
 | `mcp_memory/tests/test_rate_limiting_enforcement.py` | 288 | 6 | 6 | 7 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/memory_helpers.py` | 288 | 0 | 0 | 2 |
@@ -658,29 +692,41 @@
 | `data/l9-phase0-to-pr.py` | 282 | 1 | 8 | 0 |
 | `data/l9-phase0-to-pr-example.py` | 282 | 1 | 8 | 0 |
 | `current_work/DONE/GMP Stage 1 - Tools/memory_helpers.py` | 282 | 0 | 0 | 2 |
-| `tests/memory/test_reasoning_replay.py` | 281 | 0 | 1 | 12 |
+| `tests/test_research_graph.py` | 281 | 3 | 9 | 3 |
 | `current_work/DONE/Slack-Debug-2/verify_agent_executor.py` | 281 | 0 | 7 | 0 |
 | `core/schemas/ws_event_stream.py` | 280 | 4 | 0 | 0 |
-| `tests/services/symbolic_computation/test_expression_evaluator.py` | 280 | 7 | 12 | 11 |
+| `tests/memory/test_reasoning_replay.py` | 280 | 0 | 1 | 12 |
+| `tests/services/symbolic_computation/test_expression_evaluator.py` | 279 | 7 | 12 | 11 |
 | `api/routes/cursor.py` | 278 | 3 | 1 | 3 |
 | `igor/DONE!/audit-memory/mcp_memory_src_main.py` | 278 | 1 | 7 | 7 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py` | 277 | 4 | 7 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/constraint_validator.py` | 277 | 4 | 7 | 0 |
 | `current_work/DONE/Observability/observability_aggregation.py` | 277 | 2 | 8 | 0 |
 | `orchestrators/action_tool/orchestrator.py` | 276 | 1 | 1 | 3 |
 | `scripts/audit/run_dead_code_audit.py` | 276 | 0 | 2 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py` | 276 | 3 | 5 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py` | 276 | 2 | 7 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py` | 276 | 3 | 5 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/reflection_engine.py` | 276 | 2 | 7 | 0 |
 | `mcp_memory/src/config.py` | 275 | 2 | 3 | 0 |
-| `tests/memory/test_packet_envelope_immutability.py` | 274 | 2 | 14 | 0 |
 | `codegen/dev_layer/modules/code_planning.py` | 274 | 5 | 8 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/agent_controller.py` | 274 | 1 | 3 | 3 |
-| `tests/core/schemas/test_content_hash_integrity.py` | 272 | 5 | 14 | 0 |
-| `tests/core/bootstrap/test_prompt_defense.py` | 271 | 10 | 31 | 0 |
+| `tests/memory/test_packet_envelope_immutability.py` | 273 | 2 | 14 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py` | 273 | 3 | 6 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/report_generator.py` | 273 | 3 | 6 | 0 |
+| `tests/core/bootstrap/test_prompt_defense.py` | 272 | 10 | 31 | 0 |
+| `current_work/01-21-2026/neural_substrate.py` | 272 | 3 | 16 | 0 |
+| `current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/neural_substrate.py` | 272 | 3 | 16 | 0 |
+| `tests/core/schemas/test_content_hash_integrity.py` | 271 | 5 | 14 | 0 |
 | `orchestrators/pattern/metrics.py` | 271 | 1 | 9 | 0 |
+| `current_work/Bayesian Upgrade/causal_graph/script_7.py` | 270 | 0 | 0 | 0 |
 | `agents/cursor/cursor_neo4j_query.py` | 269 | 0 | 3 | 0 |
 | `memory/substrate_alignment.py` | 268 | 2 | 3 | 7 |
+| `tests/integration/test_unified_graph.py` | 268 | 0 | 5 | 9 |
 | `current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py` | 268 | 4 | 2 | 8 |
 | `core/agents/bootstrap/phase_7_verify_and_lock.py` | 266 | 0 | 0 | 1 |
 | `core/schemas/tests/test_packet_envelope.py` | 266 | 7 | 24 | 0 |
 | `api/routes/reasoning.py` | 266 | 2 | 1 | 3 |
-| `tests/test_tool_registry.py` | 264 | 4 | 20 | 2 |
 | `igor/DONE!/tokenizer/core/tokenizer/validator.py` | 264 | 1 | 10 | 0 |
 | `igor/DONE!/audit-tools/orchestrators_action_tool_orchestrator.py` | 263 | 1 | 1 | 3 |
 | `runtime/long_plan_tool.py` | 262 | 0 | 0 | 3 |
@@ -694,45 +740,50 @@
 | `data/l9-phase0-to-6-execution.py` | 261 | 3 | 13 | 0 |
 | `services/research/tools/tool_resolver.py` | 261 | 1 | 6 | 1 |
 | `scripts/memory/execute_cleanup_and_reindex.py` | 260 | 0 | 0 | 3 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py` | 260 | 4 | 8 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/foresight_engine.py` | 260 | 4 | 8 | 0 |
 | `services/research/agents/base_agent.py` | 260 | 1 | 5 | 3 |
+| `core/tools/reflection_tools.py` | 259 | 0 | 0 | 5 |
 | `core/schemas/upcaster_registry.py` | 259 | 1 | 10 | 0 |
 | `igor/DONE!/audit-tools/tests_orchestrators_test_action_tool_orchestrator.py` | 259 | 1 | 4 | 4 |
 | `current_work/DONE/AUTOWIRING/upcaster_registry.py` | 259 | 1 | 10 | 0 |
-| `core/tools/reflection_tools.py` | 258 | 0 | 0 | 5 |
-| `tests/integration/test_unified_graph.py` | 257 | 0 | 5 | 9 |
-| `tests/services/symbolic_computation/test_integration.py` | 257 | 5 | 16 | 7 |
+| `tests/test_tool_registry.py` | 258 | 4 | 20 | 2 |
 | `igor/DONE!/tokenizer/core/tokenizer/tests/test_tokenizer.py` | 257 | 0 | 12 | 0 |
 | `services/research/graph_runtime.py` | 257 | 1 | 2 | 7 |
+| `tests/services/symbolic_computation/test_integration.py` | 256 | 5 | 16 | 7 |
 | `codegen/dev_layer/runtime/enforcement.py` | 256 | 6 | 10 | 0 |
 | `core/agents/bootstrap/phase_5_bind_tools.py` | 255 | 1 | 0 | 2 |
+| `tests/workers/test_anomaly_classifier.py` | 255 | 5 | 2 | 11 |
 | `igor/DONE!/tokenizer/core/tokenizer/classifier.py` | 255 | 1 | 8 | 0 |
-| `tests/integration/test_l_cto_memory_governance_integration.py` | 254 | 2 | 2 | 4 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/tests/test_twilio_adapter.py` | 254 | 3 | 5 | 8 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/tests/test_calendar_adapter.py` | 254 | 3 | 5 | 8 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/tests/test_email_adapter.py` | 254 | 3 | 5 | 8 |
 | `scripts/research/send_perplexity_spec_request.py` | 254 | 0 | 3 | 0 |
 | `api/webhook_mac_agent.py` | 254 | 1 | 2 | 1 |
+| `current_work/Bayesian Upgrade/causal_graph/script_1.py` | 254 | 0 | 0 | 0 |
+| `runtime/tool_registry.py` | 253 | 0 | 8 | 0 |
 | `mcp_memory/tests/test_memory.py` | 253 | 0 | 0 | 8 |
-| `tests/core/bootstrap/conftest.py` | 252 | 7 | 15 | 12 |
 | `igor/DONE!/audit-memory/orchestrators_memory_housekeeping.py` | 252 | 1 | 1 | 5 |
 | `igor/DONE!/tokenizer/core/tokenizer/task.py` | 252 | 5 | 11 | 0 |
+| `tests/core/bootstrap/conftest.py` | 251 | 7 | 15 | 12 |
+| `tests/workers/test_violation_tracker.py` | 251 | 4 | 11 | 4 |
 | `.github/scripts/generate-ai-collab-report.py` | 251 | 0 | 6 | 0 |
 | `igor/DONE!/audit-memory/memory_migration_runner.py` | 251 | 1 | 2 | 8 |
 | `runtime/gmp_tool.py` | 250 | 0 | 0 | 1 |
 | `api/tools/router.py` | 250 | 2 | 1 | 3 |
 | `igor/DONE!/audit-memory/core_schemas_ws_event_stream.py` | 250 | 4 | 0 | 0 |
-| `tests/runtime/test_mcp_server_registry.py` | 249 | 0 | 10 | 0 |
 | `current_work/DONE/AUTOWIRING/test_mcp_server_registry.py` | 249 | 0 | 10 | 0 |
 | `runtime/git_tool.py` | 248 | 0 | 0 | 1 |
+| `tests/runtime/test_mcp_server_registry.py` | 246 | 0 | 10 | 0 |
 | `memory/dead_letter.py` | 245 | 2 | 2 | 5 |
 | `scripts/setup_gmail_accounts.py` | 245 | 0 | 2 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_validator.py` | 244 | 2 | 5 | 0 |
+| `current_work/Bayesian Upgrade/hypergraph.py` | 244 | 7 | 9 | 0 |
 | `services/research/graph_state.py` | 244 | 3 | 1 | 0 |
 | `current_work/DONE/AUTOWIRING/orchestrator_registry.py` | 243 | 0 | 9 | 0 |
 | `scripts/research/extract_perplexity_pack.py` | 242 | 0 | 3 | 0 |
 | `api/routes/research.py` | 242 | 2 | 1 | 3 |
 | `current_work/DONE/AUTOWIRING/policy_registry.py` | 242 | 1 | 7 | 0 |
-| `tests/integration/test_closed_loop_learning.py` | 241 | 3 | 4 | 3 |
 | `igor/DONE!/audit-tools/runtime_long_plan_tool.py` | 241 | 0 | 0 | 3 |
 | `current_work/DONE/AUTOWIRING/agent_registry.py` | 241 | 0 | 9 | 0 |
 | `_archived/symbolic_computation/utils.py` | 240 | 1 | 8 | 0 |
@@ -740,13 +791,14 @@
 | `current_work/Governance Upgrade-Cursor/Cursor Governance Audit/script.py` | 240 | 0 | 0 | 0 |
 | `current_work/Governance Upgrade-Cursor/Cursor Governance Analysis & Activation Plan/script.py` | 240 | 0 | 0 | 0 |
 | `services/symbolic_computation/utils.py` | 240 | 1 | 8 | 0 |
+| `tests/integration/test_closed_loop_learning.py` | 238 | 3 | 4 | 3 |
 | `codegen/templates/python/module-template.py` | 238 | 0 | 0 | 3 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/long_plan_tool.py` | 237 | 0 | 0 | 3 |
 | `ci/check_tool_naming.py` | 235 | 0 | 4 | 0 |
 | `igor/DONE!/audit-memory/orchestrators_memory_orchestrator.py` | 235 | 1 | 1 | 6 |
 | `core/commands/schemas.py` | 234 | 8 | 2 | 0 |
-| `tests/memory/test_agent_persistence.py` | 234 | 3 | 7 | 8 |
 | `igor/DONE!/audit-tools/services_research_tools_tool_resolver.py` | 234 | 1 | 6 | 1 |
+| `tests/memory/test_agent_persistence.py` | 233 | 3 | 7 | 8 |
 | `services/research/insight_extractor.py` | 233 | 1 | 4 | 1 |
 | `memory/warming_models.py` | 232 | 10 | 1 | 0 |
 | `core/observability/exporters.py` | 231 | 6 | 7 | 6 |
@@ -756,8 +808,8 @@
 | `collaborative_cells/cell_registry.py` | 230 | 0 | 8 | 0 |
 | `agents/codegenagent/extract_yaml_specs.py` | 229 | 0 | 4 | 0 |
 | `tests/test_memory_adapter.py` | 227 | 2 | 8 | 7 |
-| `tests/test_l_cto_kernel_activation.py` | 227 | 3 | 12 | 0 |
 | `igor/DONE!/audit-tools/runtime_gmp_tool.py` | 227 | 0 | 0 | 1 |
+| `current_work/Bayesian Upgrade/causal_graph/script_8.py` | 227 | 0 | 0 | 0 |
 | `core/runtimes/react_runtime.py` | 226 | 2 | 5 | 1 |
 | `runtime/gmp_approval.py` | 226 | 0 | 0 | 7 |
 | `runtime/tool_call_wrapper.py` | 226 | 0 | 2 | 2 |
@@ -770,121 +822,138 @@
 | `memory/governance_patterns.py` | 224 | 2 | 3 | 0 |
 | `codegen/symbolic/candidates.py` | 224 | 1 | 5 | 0 |
 | `core/commands/parser.py` | 223 | 0 | 3 | 0 |
-| `tests/docker/test_migrations.py` | 223 | 3 | 9 | 0 |
-| `tests/memory/test_cypher_templates.py` | 223 | 3 | 10 | 4 |
 | `email_agent/config.py` | 223 | 1 | 6 | 0 |
-| `tests/agents/test_agent_registry.py` | 222 | 16 | 12 | 0 |
+| `tests/memory/test_cypher_templates.py` | 222 | 3 | 10 | 4 |
 | `codegen/symbolic/verifier.py` | 222 | 1 | 5 | 0 |
 | `current_work/DONE/AUTOWIRING/test_agent_registry.py` | 222 | 16 | 12 | 0 |
 | `services/ocr_engine.py` | 222 | 0 | 2 | 0 |
 | `memory/checkpoint/cursor_checkpoint_manager.py` | 221 | 1 | 1 | 2 |
 | `memory/extractor/code_extractor.py` | 221 | 1 | 3 | 0 |
+| `tests/test_l_cto_kernel_activation.py` | 221 | 3 | 12 | 0 |
+| `tests/agents/test_agent_registry.py` | 221 | 16 | 12 | 0 |
 | `codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py` | 220 | 6 | 2 | 0 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/telemetry.py` | 220 | 1 | 9 | 0 |
+| `tests/docker/test_migrations.py` | 218 | 3 | 9 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py` | 218 | 3 | 15 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py` | 218 | 3 | 15 | 0 |
 | `core/agents/bootstrap/phase_4_load_identity.py` | 217 | 0 | 0 | 1 |
 | `world_model/__init__.py` | 217 | 0 | 0 | 0 |
 | `api/llm.py` | 217 | 0 | 3 | 0 |
 | `ci/check_dependency_patterns.py` | 216 | 0 | 2 | 0 |
 | `services/symbolic_computation/core/models.py` | 216 | 10 | 0 | 0 |
+| `tests/integration/test_l_cto_memory_governance_integration.py` | 215 | 2 | 2 | 4 |
+| `current_work/Bayesian Upgrade/causal_graph/script_2.py` | 214 | 0 | 0 | 0 |
 | `services/research/agents/critic_agent.py` | 214 | 1 | 1 | 2 |
 | `memory/extractor/memory_extractor.py` | 213 | 1 | 5 | 0 |
 | `codegen/symbolic/analyzer.py` | 213 | 2 | 7 | 0 |
 | `scripts/memory/generate_delete_sql.py` | 213 | 0 | 1 | 2 |
 | `api/auth.py` | 213 | 1 | 2 | 1 |
 | `dev/tools/global_state_audit.py` | 213 | 1 | 5 | 0 |
+| `current_work/01-21-2026/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py` | 213 | 4 | 2 | 8 |
+| `current_work/01-21-2026/Infro As Code - IaC - K8s/test_c1_hetzner.py` | 213 | 4 | 2 | 8 |
 | `igor/DONE!/audit-memory/memory_extractor_code_extractor.py` | 212 | 1 | 3 | 0 |
 | `igor/DONE!/audit-tools/runtime_mcp_tool.py` | 212 | 0 | 0 | 1 |
 | `current_work/DONE/GMP Stage 1 - Tools/mcp_tool.py` | 212 | 0 | 0 | 1 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_tool.py` | 212 | 0 | 0 | 1 |
 | `api/routes/worldmodel.py` | 211 | 0 | 1 | 5 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py` | 211 | 1 | 8 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/memory_adapter.py` | 211 | 1 | 8 | 0 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/bootstrap.py` | 211 | 0 | 0 | 3 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py` | 209 | 2 | 2 | 7 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/clients/email_adapter_client.py` | 209 | 2 | 2 | 7 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py` | 209 | 3 | 6 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/diff_generator.py` | 209 | 3 | 6 | 0 |
 | `current_work/DONE/Observability/observability_exporters.py` | 209 | 6 | 7 | 6 |
 | `current_work/DONE/Observability/observability_init.py` | 209 | 0 | 0 | 0 |
 | `core/observability/config.py` | 208 | 1 | 2 | 0 |
 | `igor/DONE!/audit-memory/mcp_memory_src_models.py` | 208 | 15 | 0 | 0 |
 | `services/pdf_engine.py` | 208 | 0 | 1 | 0 |
-| `tests/services/symbolic_computation/test_validator.py` | 207 | 7 | 25 | 0 |
+| `tools/adr/adr_indexer.py` | 207 | 0 | 4 | 0 |
 | `orchestrators/evolution/interface.py` | 207 | 8 | 0 | 4 |
 | `mcp_memory/src/rate_limiter.py` | 207 | 3 | 4 | 5 |
+| `current_work/Bayesian Upgrade/causal_graph/script_4.py` | 207 | 0 | 0 | 0 |
 | `services/research/agents/planner_agent.py` | 207 | 1 | 2 | 2 |
 | `core/governance/protected_files_policy.py` | 206 | 0 | 7 | 0 |
-| `tests/memory/run_all_memory_tests.py` | 206 | 0 | 2 | 0 |
-| `tests/runtime/test_tool_registry.py` | 206 | 0 | 10 | 14 |
-| `tests/orchestrators/test_action_tool_orchestrator.py` | 206 | 1 | 4 | 4 |
+| `tests/services/symbolic_computation/test_validator.py` | 206 | 7 | 25 | 0 |
 | `igor/DONE!/audit-memory/memory_governance_patterns.py` | 206 | 2 | 3 | 0 |
 | `igor/DONE!/audit-tools/runtime_tool_call_wrapper.py` | 206 | 0 | 2 | 2 |
 | `current_work/DONE/AUTOWIRING/test_tool_registry.py` | 206 | 0 | 10 | 14 |
-| `tests/memory/test_ingestion_transaction.py` | 205 | 1 | 1 | 4 |
+| `tests/runtime/test_tool_registry.py` | 205 | 0 | 10 | 14 |
 | `mcp_memory/tests/test_mcp_server_smoke.py` | 205 | 0 | 6 | 3 |
 | `memory/smoke_test.py` | 204 | 0 | 0 | 2 |
+| `tests/memory/run_all_memory_tests.py` | 204 | 0 | 2 | 0 |
 | `current_work/DONE/GMP Stage 1 - Tools/gmp_approval.py` | 204 | 0 | 0 | 7 |
 | `current_work/DONE/GMP Stage 1 - Tools/tool_call_wrapper.py` | 204 | 0 | 2 | 2 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/gmp_approval.py` | 204 | 0 | 0 | 7 |
+| `tests/orchestrators/test_action_tool_orchestrator.py` | 203 | 1 | 4 | 4 |
 | `orchestrators/world_model/scheduler.py` | 203 | 1 | 3 | 1 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py` | 203 | 1 | 1 | 6 |
 | `scripts/diagnose_memory_search.py` | 202 | 0 | 2 | 0 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py` | 202 | 5 | 5 | 0 |
 | `codegen/dev_layer/tests/test_e2e_diff_generation.py` | 201 | 4 | 6 | 0 |
-| `tests/core/test_fail_closed_registry.py` | 200 | 1 | 2 | 7 |
-| `tests/api/test_auth.py` | 200 | 1 | 8 | 0 |
+| `current_work/Bayesian Upgrade/bayesian_kernel.py` | 201 | 3 | 11 | 0 |
 | `agents/cursor/scripts/cursor_check_mistakes.py` | 200 | 0 | 2 | 0 |
 | `orchestrators/reasoning/adapter_node.py` | 200 | 2 | 3 | 1 |
+| `current_work/__Continuous Improvement Loop/CONTINUOUS IMPROVEMENT LOOP SPECIFICATION v1.1/script.py` | 200 | 0 | 0 | 0 |
+| `tests/api/test_auth.py` | 199 | 1 | 8 | 0 |
+| `tools/adr/adr_validator.py` | 198 | 0 | 3 | 0 |
 | `config/rls_config.py` | 198 | 2 | 6 | 0 |
 | `core/graph/query/graph_search_query_builder.py` | 197 | 0 | 2 | 0 |
 | `igor/DONE!/audit-memory/memory_extractor_memory_extractor.py` | 197 | 1 | 5 | 0 |
+| `tools/l9_cli.py` | 196 | 0 | 4 | 0 |
+| `tests/core/test_fail_closed_registry.py` | 196 | 1 | 2 | 7 |
 | `tests/performance/test_state_bloat.py` | 196 | 1 | 8 | 0 |
 | `scripts/memory/delete_trash_via_service.py` | 196 | 0 | 0 | 2 |
+| `tests/memory/test_ingestion_transaction.py` | 195 | 1 | 1 | 4 |
 | `scripts/research/run_single_deep_research.py` | 195 | 0 | 1 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py` | 195 | 1 | 8 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/governance_integration.py` | 195 | 1 | 8 | 0 |
 | `core/schemas/universal_schema.py` | 194 | 0 | 1 | 0 |
 | `config/research_settings.py` | 194 | 2 | 2 | 0 |
-| `tests/clients/test_memory_client.py` | 194 | 0 | 1 | 3 |
-| `tests/performance/test_memory_benchmarks.py` | 194 | 2 | 11 | 0 |
 | `orchestrators/meta/interface.py` | 194 | 8 | 0 | 3 |
 | `igor/DONE!/audit-memory/tests_memory_test_memory_ingestion.py` | 194 | 0 | 0 | 10 |
 | `current_work/DONE/AUTOWIRING/tool_registry.py` | 194 | 0 | 7 | 0 |
 | `core/agents/bootstrap/phase_1_load_kernels.py` | 193 | 1 | 0 | 1 |
+| `tests/performance/test_memory_benchmarks.py` | 193 | 2 | 11 | 0 |
 | `igor/DONE!/L9 Memory Substrate Audit/script_7.py` | 193 | 0 | 0 | 0 |
 | `_archived/symbolic_computation/models.py` | 192 | 6 | 2 | 0 |
 | `igor/DONE!/audit-memory/memory_smoke_test.py` | 192 | 0 | 0 | 2 |
 | `services/symbolic_computation/models.py` | 192 | 6 | 2 | 0 |
 | `tests/core/bootstrap/test_executor_governance.py` | 191 | 1 | 5 | 5 |
 | `igor/DONE!/audit-tools/api_tools_router.py` | 191 | 2 | 1 | 2 |
-| `tests/core/governance/test_validation.py` | 188 | 4 | 12 | 0 |
+| `tests/clients/test_memory_client.py` | 190 | 0 | 1 | 3 |
+| `tests/memory/test_ingestion_audit.py` | 187 | 4 | 16 | 0 |
 | `igor/DONE!/audit-memory/core_schemas_universal_schema.py` | 187 | 0 | 1 | 0 |
 | `igor/DONE!/L9 Memory Substrate Audit/substrate_alignment.py` | 187 | 2 | 2 | 5 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py` | 187 | 1 | 2 | 6 |
-| `tests/memory/test_ingestion_audit.py` | 186 | 4 | 16 | 0 |
 | `scripts/memory/check_embeddings_via_api.py` | 185 | 0 | 0 | 1 |
-| `tests/api/test_agent_auth.py` | 184 | 2 | 8 | 0 |
 | `core/agents/bootstrap/phase_6_wire_governance.py` | 183 | 0 | 0 | 1 |
 | `codegen/templates/python/dora-template.py` | 182 | 0 | 0 | 1 |
 | `core/agents/bootstrap/phase_0_validate.py` | 181 | 0 | 0 | 1 |
 | `igor/DONE!/audit-memory/memory___init__.py` | 181 | 0 | 0 | 0 |
 | `current_work/DONE/Observability/observability_l9_integration.py` | 181 | 0 | 0 | 16 |
+| `tests/core/governance/test_validation.py` | 180 | 4 | 12 | 0 |
 | `tests/api/test_factory_path_safety.py` | 180 | 8 | 12 | 1 |
 | `codegen/symbolic/pipeline.py` | 180 | 1 | 2 | 0 |
 | `current_work/DONE/GMP Stage 1 - Tools/long_plan_tool.py` | 180 | 0 | 0 | 2 |
-| `tests/core/test_moduleregistry.py` | 179 | 0 | 11 | 0 |
 | `core/agents/bootstrap/phase_3_bind_kernels.py` | 178 | 0 | 0 | 1 |
-| `tests/os/test_bootstrap.py` | 177 | 0 | 9 | 0 |
+| `tests/core/test_moduleregistry.py` | 177 | 0 | 11 | 0 |
 | `core/observability/__init__.py` | 175 | 0 | 0 | 0 |
 | `core/schemas/__init__.py` | 175 | 0 | 0 | 0 |
-| `tests/memory/test_query_classifier.py` | 174 | 1 | 15 | 0 |
 | `codegen/dev_layer/am_engine/validate.py` | 174 | 2 | 4 | 0 |
 | `services/symbolic_computation/config.py` | 174 | 1 | 2 | 0 |
-| `tests/docker/test_env_validation.py` | 173 | 3 | 8 | 0 |
-| `tests/runtime/test_fail_closed_task_queue.py` | 173 | 1 | 2 | 6 |
+| `tests/api/test_agent_auth.py` | 173 | 2 | 8 | 0 |
 | `api/routes/modules.py` | 173 | 0 | 1 | 1 |
+| `tests/memory/test_query_classifier.py` | 172 | 1 | 15 | 0 |
 | `mcp_memory/src/embeddings.py` | 172 | 0 | 0 | 5 |
 | `memory/semantic_search.py` | 171 | 1 | 0 | 1 |
-| `tests/memory/test_checkpoint_metrics_pool.py` | 170 | 5 | 14 | 0 |
+| `tests/docker/test_env_validation.py` | 171 | 3 | 8 | 0 |
+| `tests/os/test_bootstrap.py` | 171 | 0 | 9 | 0 |
+| `tests/memory/test_checkpoint_metrics_pool.py` | 169 | 5 | 14 | 0 |
 | `current_work/DONE/GMP Stage 2 - Tools & Memory/approvals.py` | 169 | 1 | 1 | 3 |
 | `core/moduleregistry.py` | 168 | 3 | 6 | 0 |
-| `tests/memory/test_substrate_semantic.py` | 168 | 1 | 3 | 6 |
+| `scripts/refactoring/aios_validate.py` | 168 | 1 | 8 | 0 |
 | `current_work/DONE/AUTOWIRING/auto_registry/moduleregistry.py` | 168 | 3 | 6 | 0 |
-| `tests/services/symbolic_computation/test_c_gmp_engine.py` | 167 | 1 | 8 | 6 |
 | `tests/agents/codegenagent/test_c_gmp_engine.py` | 166 | 1 | 8 | 6 |
 | `codegen/symbolic/spec.py` | 166 | 5 | 2 | 0 |
 | `core/schemas/tests/test_discriminators.py` | 165 | 6 | 14 | 0 |
@@ -892,19 +961,22 @@
 | `config/memory_substrate_settings.py` | 164 | 2 | 2 | 0 |
 | `igor/DONE!/audit-memory/memory_state_manager.py` | 164 | 1 | 2 | 5 |
 | `api/webhook_twilio.py` | 163 | 0 | 1 | 1 |
-| `tests/test_imports.py` | 162 | 5 | 7 | 0 |
+| `tests/memory/test_substrate_semantic.py` | 162 | 1 | 3 | 6 |
+| `tests/runtime/test_fail_closed_task_queue.py` | 161 | 1 | 2 | 6 |
 | `scripts/agents/run_bootstrap_l_graph.py` | 161 | 0 | 0 | 1 |
 | `igor/DONE!/audit-memory/tests_memory_test_memory_adapter_basic.py` | 161 | 1 | 3 | 3 |
+| `tools/adr/adr_generator.py` | 160 | 0 | 3 | 0 |
 | `tests/world_model/test_wm_integrity.py` | 160 | 0 | 0 | 10 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/anomaly_handler.py` | 160 | 4 | 0 | 2 |
 | `current_work/Neural-Symbolic Collective Intelligence/script_2.py` | 160 | 0 | 0 | 0 |
 | `current_work/DONE/AUTOWIRING/auto_registry/server.py` | 160 | 0 | 0 | 0 |
 | `current_work/DONE/BOOTSTRAP_IMPLEMENTATION_GUIDE/Final delivery package - all files consolidated.py` | 160 | 0 | 0 | 0 |
-| `tests/memory/test_substrate_alignment.py` | 159 | 3 | 0 | 10 |
 | `codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_config.py` | 159 | 2 | 2 | 0 |
-| `tests/kernel/test_kernel_loader.py` | 158 | 0 | 10 | 0 |
+| `tests/services/symbolic_computation/test_c_gmp_engine.py` | 158 | 1 | 8 | 6 |
 | `current_work/DONE/Observability/observability_config.py` | 158 | 2 | 1 | 0 |
 | `runtime/__init__.py` | 157 | 0 | 0 | 0 |
+| `tests/test_imports.py` | 157 | 5 | 7 | 0 |
+| `tests/memory/test_substrate_alignment.py` | 157 | 3 | 0 | 10 |
 | `codegen/dev_layer/tests/test_determinism.py` | 156 | 3 | 6 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py` | 156 | 3 | 1 | 4 |
 | `memory/extractor/module_schema_extractor.py` | 155 | 1 | 2 | 0 |
@@ -913,6 +985,7 @@
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/routes/calendar_adapter.py` | 155 | 0 | 0 | 3 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/routes/email_adapter.py` | 155 | 0 | 0 | 3 |
 | `_archived/symbolic_computation/config.py` | 155 | 2 | 2 | 0 |
+| `tests/kernel/test_kernel_loader.py` | 154 | 0 | 10 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/escalation_handler.py` | 154 | 4 | 1 | 2 |
 | `graph_adapter/packet_node_adapter.py` | 153 | 1 | 2 | 1 |
 | `orchestration/__init__.py` | 153 | 0 | 0 | 0 |
@@ -920,12 +993,15 @@
 | `tests/performance/test_restart_recovery.py` | 151 | 0 | 0 | 10 |
 | `igor/DONE!/L9 Memory Substrate Audit/circuit_breaker.py` | 151 | 3 | 6 | 0 |
 | `current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py` | 151 | 1 | 2 | 5 |
-| `tests/services/symbolic_computation/test_code_generator.py` | 150 | 6 | 7 | 5 |
 | `tests/memory/test_memory_ingestion.py` | 149 | 0 | 0 | 10 |
+| `tests/services/symbolic_computation/test_code_generator.py` | 149 | 6 | 7 | 5 |
 | `igor/DONE!/audit-memory/config_memory_substrate_settings.py` | 149 | 2 | 2 | 0 |
 | `tools/mac_protocol.py` | 148 | 4 | 2 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/compliance_checker.py` | 147 | 3 | 2 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py` | 147 | 2 | 7 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/action_registry.py` | 147 | 2 | 7 | 0 |
 | `core/decorators.py` | 145 | 0 | 5 | 0 |
+| `tests/agents/test_l_cto_memory_emission.py` | 145 | 1 | 0 | 4 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_packet_handler.py` | 145 | 1 | 2 | 3 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/context_enricher.py` | 145 | 2 | 1 | 1 |
 | `mcp_memory/src/db.py` | 145 | 0 | 0 | 7 |
@@ -937,15 +1013,17 @@
 | `.github/scripts/validate-protected-files.py` | 143 | 0 | 3 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/reflective_auditor.py` | 142 | 2 | 1 | 0 |
 | `ir_engine/__init__.py` | 142 | 0 | 0 | 0 |
-| `tests/agents/test_l_cto_memory_emission.py` | 141 | 1 | 0 | 4 |
+| `current_work/Bayesian Upgrade/script.py` | 142 | 0 | 0 | 0 |
+| `tests/memory/test_extraction_pipeline.py` | 141 | 0 | 0 | 4 |
+| `core/protocols/secrets_protocols.py` | 140 | 2 | 0 | 4 |
 | `igor/DONE!/audit-memory/tests_memory_test_pruning.py` | 140 | 0 | 0 | 5 |
 | `tests/core/test_auto_registry.py` | 139 | 0 | 11 | 0 |
 | `tests/memory/test_retrieval_audit.py` | 139 | 2 | 12 | 0 |
 | `orchestrators/world_model/interface.py` | 139 | 4 | 0 | 2 |
 | `igor/DONE!/audit-tools/tools_mac_protocol.py` | 139 | 4 | 2 | 0 |
+| `tests/memory/test_consolidation.py` | 138 | 1 | 4 | 5 |
 | `orchestrators/memory/interface.py` | 138 | 4 | 0 | 1 |
 | `igor/DONE!/L9 Memory Substrate Audit/query_injection.py` | 138 | 1 | 3 | 0 |
-| `tests/memory/test_consolidation.py` | 137 | 1 | 4 | 5 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/config.py` | 137 | 1 | 3 | 0 |
 | `services/symbolic_computation/logger.py` | 137 | 1 | 4 | 0 |
 | `mac_agent/config.py` | 136 | 1 | 2 | 0 |
@@ -954,7 +1032,6 @@
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/symbolic_reasoner.py` | 136 | 2 | 2 | 0 |
 | `orchestrators/agent_execution/interface.py` | 136 | 4 | 0 | 2 |
 | `igor/DONE!/audit-memory/tests_memory_test_blob_offload.py` | 136 | 0 | 0 | 6 |
-| `tests/memory/test_extraction_pipeline.py` | 135 | 0 | 0 | 4 |
 | `codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/config.py` | 135 | 1 | 3 | 0 |
 | `agents/cursor/cursor_client.py` | 134 | 1 | 5 | 0 |
 | `memory/index_syncer.py` | 133 | 1 | 1 | 3 |
@@ -967,25 +1044,23 @@
 | `igor/DONE!/audit-tools/tools_cursor_client.py` | 132 | 1 | 5 | 0 |
 | `igor/DONE!/audit-memory/mcp_memory_src_config.py` | 131 | 2 | 0 | 0 |
 | `core/retrievers/substrate_retriever.py` | 130 | 1 | 2 | 1 |
-| `tests/integration/test_api_memory_integration.py` | 130 | 1 | 14 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/tensoraios_bridge.py` | 130 | 1 | 1 | 5 |
 | `igor/DONE!/audit-memory/memory_extractor_base_extractor.py` | 130 | 1 | 5 | 0 |
 | `igor/DONE!/audit-tools/tests_core_tools_test_tool_graph.py` | 130 | 0 | 1 | 1 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/analogical_reasoner.py` | 127 | 2 | 0 | 1 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/causal_reasoner.py` | 126 | 2 | 2 | 1 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/domain_context_builder.py` | 126 | 2 | 1 | 0 |
-| `tests/world_model/test_world_model_repository_basic.py` | 125 | 3 | 2 | 13 |
 | `tests/api/routes/test_registry.py` | 125 | 0 | 9 | 0 |
 | `_archived/symbolic_computation/logger.py` | 125 | 1 | 4 | 0 |
+| `tests/integration/test_api_memory_integration.py` | 124 | 1 | 14 | 0 |
 | `codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_logger.py` | 124 | 1 | 4 | 0 |
 | `igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py` | 124 | 5 | 0 | 3 |
+| `tests/world_model/test_world_model_repository_basic.py` | 123 | 3 | 2 | 13 |
 | `.github/scripts/validate-readme-sections.py` | 123 | 0 | 2 | 0 |
 | `igor/DONE!/audit-memory/memory_index_syncer.py` | 123 | 1 | 1 | 3 |
 | `tests/core/governance/test_policy_registry.py` | 122 | 0 | 6 | 0 |
 | `codegen/code-gen-files/__init__.py` | 122 | 0 | 0 | 0 |
-| `tests/test_anomaly_response_monitor.py` | 121 | 0 | 9 | 0 |
-| `tests/test_violation_tracker_service.py` | 121 | 0 | 9 | 0 |
-| `tests/test_anomaly_classifier.py` | 121 | 0 | 9 | 0 |
+| `current_work/Bayesian Upgrade/causal_graph/script.py` | 122 | 0 | 0 | 0 |
 | `tests/orchestrators/test_kernel_injection.py` | 121 | 0 | 10 | 0 |
 | `conftest.py` | 120 | 0 | 1 | 0 |
 | `memory/packet_serializer.py` | 120 | 0 | 5 | 0 |
@@ -997,15 +1072,14 @@
 | `orchestrators/action_tool/interface.py` | 119 | 4 | 0 | 1 |
 | `orchestrators/reasoning/interface.py` | 119 | 4 | 0 | 1 |
 | `memory/timeline_service.py` | 118 | 1 | 1 | 2 |
-| `tests/core/test_fail_closed_executor.py` | 118 | 1 | 0 | 4 |
 | `current_work/DONE/AUTOWIRING/test_singleton_auto_registry.py` | 116 | 0 | 13 | 0 |
 | `services/symbolic_computation/health_check.py` | 116 | 0 | 0 | 1 |
+| `tests/core/test_fail_closed_executor.py` | 115 | 1 | 0 | 4 |
 | `tests/orchestration/test_input_segmenter.py` | 115 | 2 | 10 | 0 |
 | `tests/kernel/test_kernel_merge.py` | 115 | 0 | 7 | 0 |
 | `tests/runtime/test_websocket_orchestrator_basic.py` | 114 | 2 | 1 | 7 |
 | `tests/world_model/test_wm_nodes.py` | 114 | 0 | 0 | 9 |
 | `tests/runtime/test_ws_protocol_static.py` | 113 | 3 | 5 | 0 |
-| `tests/services/symbolic_computation/test_meta_loader.py` | 113 | 1 | 9 | 0 |
 | `igor/DONE!/audit-memory/mcp_memory_src_db.py` | 113 | 0 | 0 | 6 |
 | `tests/agents/codegenagent/test_meta_loader.py` | 112 | 1 | 9 | 0 |
 | `tests/scripts/test_factory_extract_cli.py` | 112 | 6 | 10 | 1 |
@@ -1013,13 +1087,13 @@
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py` | 111 | 2 | 2 | 6 |
 | `igor/DONE!/audit-memory/memory_validators_packet_validator.py` | 111 | 2 | 2 | 0 |
 | `igor/DONE!/audit-tools/services_research_tools___init__.py` | 111 | 0 | 0 | 0 |
-| `core/abstractions/__init__.py` | 110 | 0 | 0 | 0 |
 | `tests/memory/test_memory_adapter_basic.py` | 110 | 1 | 3 | 3 |
-| `tests/os/test_controller.py` | 110 | 0 | 3 | 0 |
 | `igor/DONE!/audit-memory/memory_timeline_service.py` | 110 | 1 | 1 | 2 |
 | `tests/core/test_singleton_auto_registry.py` | 109 | 0 | 13 | 0 |
 | `_archived/symbolic_computation/exceptions.py` | 109 | 5 | 1 | 0 |
 | `services/symbolic_computation/exceptions.py` | 109 | 5 | 1 | 0 |
+| `tests/os/test_controller.py` | 108 | 0 | 3 | 0 |
+| `tests/services/symbolic_computation/test_meta_loader.py` | 108 | 1 | 9 | 0 |
 | `codegen/compiler/transcript_compiler.py` | 108 | 1 | 1 | 0 |
 | `tests/docker/conftest.py` | 107 | 0 | 2 | 0 |
 | `igor/DONE!/audit-memory/memory_packet_serializer.py` | 107 | 0 | 5 | 0 |
@@ -1031,18 +1105,19 @@
 | `igor/DONE!/audit-memory/tests_memory_test_vector_search.py` | 106 | 0 | 0 | 2 |
 | `igor/DONE!/audit-memory/orchestrators_memory_interface.py` | 106 | 4 | 0 | 1 |
 | `igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py` | 106 | 6 | 0 | 0 |
-| `tests/integration/test_kernel_router_orchestrator_end_to_end.py` | 105 | 1 | 6 | 1 |
 | `igor/DONE!/audit-memory/tests_memory_test_vector_index.py` | 105 | 0 | 5 | 0 |
 | `igor/DONE!/audit-memory/mcp_memory_tests_test_search.py` | 105 | 0 | 0 | 2 |
+| `tests/integration/test_kernel_router_orchestrator_end_to_end.py` | 104 | 1 | 6 | 1 |
 | `codegen/compiler/schemas.py` | 104 | 0 | 1 | 0 |
 | `orchestrators/research_swarm/interface.py` | 104 | 3 | 0 | 1 |
 | `igor/DONE!/L9 Memory Substrate Audit/script_10.py` | 104 | 0 | 0 | 0 |
+| `core/protocols/__init__.py` | 102 | 0 | 0 | 0 |
 | `igor/DONE!/audit-memory/tests_memory_test_packet_envelope.py` | 102 | 1 | 2 | 0 |
 | `core/resilience/protocols.py` | 101 | 1 | 0 | 0 |
 | `core/kernel_wiring/packet_protocol_wiring.py` | 100 | 0 | 4 | 0 |
-| `tests/core/security/test_path_safety.py` | 99 | 0 | 9 | 1 |
 | `mac_agent/helpers/logging.py` | 99 | 0 | 2 | 0 |
 | `igor/DONE!/audit-memory/mcp_memory_tests_test_embeddings.py` | 99 | 0 | 0 | 2 |
+| `tests/core/security/test_path_safety.py` | 98 | 0 | 9 | 1 |
 | `core/kernel_wiring/cognitive_wiring.py` | 97 | 0 | 3 | 0 |
 | `codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_init.py` | 97 | 0 | 0 | 0 |
 | `tests/agents/test_base_agent.py` | 96 | 0 | 4 | 0 |
@@ -1052,12 +1127,12 @@
 | `igor/DONE!/audit-memory/mcp_memory_tests_test_connection.py` | 96 | 0 | 0 | 1 |
 | `codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py` | 95 | 5 | 1 | 0 |
 | `api/db.py` | 95 | 0 | 2 | 0 |
+| `tests/mac_agent/test_executor.py` | 94 | 0 | 1 | 2 |
 | `scripts/research/test_research_factory.py` | 94 | 0 | 0 | 2 |
 | `core/kernel_wiring/execution_wiring.py` | 93 | 0 | 3 | 0 |
 | `core/kernel_wiring/memory_wiring.py` | 93 | 0 | 3 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py` | 93 | 3 | 1 | 6 |
 | `core/kernels/__init__.py` | 92 | 0 | 1 | 0 |
-| `tests/mac_agent/test_executor.py` | 92 | 0 | 1 | 2 |
 | `tests/kernel/test_kernel_constraints.py` | 92 | 0 | 6 | 0 |
 | `tests/api/test_server_health.py` | 91 | 1 | 3 | 0 |
 | `mcp_memory/src/routes/health.py` | 91 | 0 | 0 | 1 |
@@ -1073,81 +1148,88 @@
 | `tests/orchestrators/test_rate_limit_persistence.py` | 88 | 0 | 0 | 8 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py` | 88 | 4 | 1 | 5 |
 | `igor/DONE!/Memory - Strategic Memory/Harvested Files/rafa_adapter_interface.py` | 88 | 0 | 1 | 0 |
+| `current_work/Bayesian Upgrade/causal_graph/script_3.py` | 88 | 0 | 0 | 0 |
 | `tests/memory/test_blob_offload.py` | 87 | 0 | 0 | 6 |
 | `api/os_routes.py` | 87 | 0 | 0 | 2 |
 | `core/kernel_wiring/identity_wiring.py` | 86 | 0 | 3 | 0 |
+| `tests/memory/test_embedding_filter.py` | 86 | 1 | 9 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_context_enrichment.py` | 86 | 2 | 2 | 4 |
 | `core/kernel_wiring/safety_wiring.py` | 85 | 0 | 3 | 0 |
-| `tests/email_agent/test_email_triage.py` | 84 | 0 | 2 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_packet_routing.py` | 84 | 2 | 2 | 4 |
 | `igor/DONE!/audit-memory/mcp_memory_src_routes_health.py` | 84 | 0 | 0 | 1 |
 | `igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_feedback_updater.py` | 84 | 0 | 1 | 0 |
 | `tests/test_memory_governance_gate.py` | 83 | 0 | 3 | 1 |
 | `tests/integration/test_api_agent_integration.py` | 83 | 1 | 6 | 0 |
 | `current_work/DONE/AUTOWIRING/test_policy_registry.py` | 83 | 0 | 4 | 0 |
-| `tests/core/security/test_permission_graph.py` | 82 | 0 | 0 | 2 |
+| `tests/core/protocols/test_secrets_protocols.py` | 82 | 1 | 1 | 6 |
+| `tests/email_agent/test_email_triage.py` | 82 | 0 | 2 | 0 |
 | `agents/research_agent/__init__.py` | 82 | 0 | 0 | 0 |
 | `current_work/DONE/AUTOWIRING/test_event_type_registry.py` | 82 | 0 | 6 | 0 |
-| `tests/core/test_event_type_registry.py` | 81 | 0 | 6 | 0 |
 | `tests/core/aios/test_runtime.py` | 81 | 0 | 1 | 1 |
 | `tests/orchestrators/test_ws_task_router_routing.py` | 81 | 1 | 3 | 0 |
 | `agents/codegenagent/__init__.py` | 81 | 0 | 0 | 0 |
 | `core/commands/__init__.py` | 80 | 0 | 2 | 3 |
 | `core/kernel_wiring/master_wiring.py` | 79 | 0 | 2 | 0 |
-| `tests/core/tools/test_tool_graph.py` | 79 | 0 | 1 | 1 |
-| `tests/integration/test_memory_packet_golden_path.py` | 79 | 0 | 0 | 1 |
+| `tests/core/test_event_type_registry.py` | 79 | 0 | 6 | 0 |
 | `core/kernel_wiring/developer_wiring.py` | 78 | 0 | 2 | 0 |
 | `core/kernel_wiring/worldmodel_wiring.py` | 78 | 0 | 2 | 0 |
+| `tests/integration/test_memory_packet_golden_path.py` | 78 | 0 | 0 | 1 |
 | `igor/DONE!/audit-memory/orchestrators_memory___init__.py` | 78 | 0 | 0 | 0 |
 | `igor/DONE!/audit-tools/orchestrators_action_tool___init__.py` | 78 | 0 | 0 | 0 |
 | `services/research/__init__.py` | 78 | 0 | 0 | 0 |
-| `tests/collaborative_cells/test_base_cell.py` | 77 | 0 | 3 | 0 |
+| `tests/core/tools/test_tool_graph.py` | 77 | 0 | 1 | 1 |
 | `igor/DONE!/audit-memory/memory_extractor___init__.py` | 77 | 0 | 0 | 0 |
-| `tests/integration/test_slack_dispatch_integration.py` | 76 | 1 | 3 | 0 |
-| `tests/integration/test_ws_task_routing_integration.py` | 76 | 1 | 0 | 3 |
+| `tests/core/security/test_permission_graph.py` | 76 | 0 | 0 | 2 |
 | `codegen/compiler/validator_bridge.py` | 76 | 0 | 1 | 0 |
-| `tests/memory/test_embedding_filter.py` | 75 | 1 | 9 | 0 |
-| `tests/config/test_l_cto_yaml.py` | 75 | 0 | 2 | 2 |
+| `tests/collaborative_cells/test_base_cell.py` | 75 | 0 | 3 | 0 |
 | `tests/agents/test_architect_agents.py` | 75 | 0 | 3 | 0 |
+| `tests/integration/test_slack_dispatch_integration.py` | 74 | 1 | 3 | 0 |
+| `tests/integration/test_ws_task_routing_integration.py` | 74 | 1 | 0 | 3 |
 | `codegen/compiler/classifier.py` | 72 | 0 | 1 | 0 |
 | `codegen/compiler/emitters/ial_candidates.py` | 72 | 0 | 1 | 0 |
+| `tests/config/test_l_cto_yaml.py` | 71 | 0 | 2 | 2 |
 | `codegen/compiler/emitters/lexer.py` | 71 | 0 | 1 | 0 |
 | `igor/DONE!/Memory - Strategic Memory/Harvested Files/agent_q_strategy_selector.py` | 71 | 1 | 2 | 0 |
 | `tests/memory/test_mcp_hardening_startup.py` | 70 | 0 | 2 | 1 |
-| `tests/integration/test_world_model_repository_integration.py` | 70 | 1 | 2 | 1 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py` | 70 | 2 | 1 | 3 |
+| `tests/tools/test_l9_cli.py` | 69 | 1 | 4 | 0 |
 | `tests/integration/test_research_tool_integration.py` | 69 | 1 | 2 | 1 |
-| `tests/simulation/test_simulation_engine.py` | 69 | 0 | 1 | 1 |
 | `codegen/compiler/emitters/invariants.py` | 69 | 0 | 1 | 0 |
 | `igor/DONE!/audit-memory/mcp_memory_src___init__.py` | 69 | 0 | 0 | 0 |
 | `tests/collaborative_cells/test_cell_registry.py` | 68 | 1 | 6 | 0 |
 | `tests/integration/test_orchestrator_memory_integration.py` | 68 | 2 | 2 | 4 |
 | `tests/integration/test_kernel_agent_activation_integration.py` | 68 | 1 | 4 | 0 |
+| `tests/integration/test_world_model_repository_integration.py` | 68 | 1 | 2 | 1 |
 | `agents/__init__.py` | 68 | 0 | 0 | 0 |
 | `igor/DONE!/audit-tools/services_symbolic_computation_tools___init__.py` | 68 | 0 | 0 | 0 |
+| `tests/simulation/test_simulation_engine.py` | 67 | 0 | 1 | 1 |
 | `codegen/compiler/emitters/decisions.py` | 67 | 0 | 1 | 0 |
 | `codegen/compiler/emitters/work_packets.py` | 67 | 0 | 1 | 0 |
-| `tests/unit/test_tool_input_sanitizer.py` | 66 | 0 | 5 | 0 |
 | `agents/cursor/GMP-v2.0-Perplex-Py-Scripts/script_1.py` | 66 | 0 | 0 | 0 |
 | `orchestrators/pattern/__init__.py` | 66 | 0 | 0 | 0 |
 | `igor/DONE!/audit-tools/api_tools___init__.py` | 66 | 0 | 0 | 0 |
 | `codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py` | 65 | 2 | 1 | 4 |
+| `tests/unit/test_tool_input_sanitizer.py` | 64 | 0 | 5 | 0 |
 | `tests/orchestrators/test_orchestrator_registry.py` | 64 | 0 | 5 | 0 |
 | `workers/__init__.py` | 64 | 0 | 0 | 0 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/__init__.py` | 64 | 0 | 0 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/__init__.py` | 64 | 0 | 0 | 0 |
 | `tests/world_model/test_wm_scope.py` | 63 | 1 | 2 | 3 |
 | `tests/world_model/test_wm_boot.py` | 63 | 0 | 6 | 0 |
 | `igor/DONE!/audit-memory/memory_validators___init__.py` | 61 | 0 | 0 | 0 |
 | `igor/DONE!/audit-memory/mcp_memory_src_routes___init__.py` | 61 | 0 | 0 | 0 |
 | `current_work/DONE/AUTOWIRING/test_upcaster_registry.py` | 60 | 1 | 5 | 0 |
 | `igor/DONE!/audit-tools/tools___init__.py` | 59 | 0 | 0 | 0 |
-| `tests/memory/test_substrate_api.py` | 57 | 0 | 0 | 3 |
 | `tests/mcp_memory/test_mcp_server_governance.py` | 57 | 1 | 3 | 2 |
+| `current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/__init__.py` | 57 | 0 | 0 | 0 |
+| `current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/__init__.py` | 57 | 0 | 0 | 0 |
+| `tests/memory/test_substrate_api.py` | 56 | 0 | 0 | 3 |
 | `igor/DONE!/audit-memory/tests_memory___init__.py` | 56 | 0 | 0 | 0 |
 | `igor/DONE!/audit-memory/api_memory___init__.py` | 56 | 0 | 0 | 0 |
 | `igor/DONE!/audit-memory/mcp_memory_tests___init__.py` | 56 | 0 | 0 | 0 |
 | `services/research/tools/__init__.py` | 56 | 0 | 0 | 0 |
-| `tests/memory/test_vector_search.py` | 55 | 0 | 0 | 2 |
 | `tests/memory/test_vector_index.py` | 55 | 0 | 5 | 0 |
+| `tests/memory/test_vector_search.py` | 54 | 0 | 0 | 2 |
 | `core/agents/__init__.py` | 53 | 0 | 1 | 0 |
 | `tests/mcp_memory/test_query_temporal_parameterization.py` | 53 | 0 | 0 | 2 |
 | `agents/cursor/__init__.py` | 53 | 0 | 0 | 0 |
@@ -1157,5 +1239,5 @@
 | `mcp_memory/tests/test_search.py` | 52 | 0 | 0 | 2 |
 | `world_model/nodes/__init__.py` | 51 | 0 | 0 | 0 |
 
-# Total: 1151 Python files (>50 lines)
-# Total lines: 447,843
+# Total: 1233 Python files (>50 lines)
+# Total lines: 472,782

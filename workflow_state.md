@@ -27,6 +27,20 @@
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
 **COMPLETED THIS SESSION (2026-01-20)**:
+- ✅ **ADR Creation + Harvest: Perplexity Refactor Patterns** — Created 11 ADRs (0040-0050) for architectural patterns L9 lacks:
+  - **ADRs Created:** 0040 (Loop Stage Protocol), 0041 (Executor Builder), 0042 (Execution Profiles), 0043 (Controller Profiles), 0044 (Agent Policy Protocols), 0045 (Online/Offline Split), 0046 (Pipeline Stage Organization), 0047 (Memory Facade Decomposition), 0048 (Tool Dispatch Strategy), 0049 (Checkpoint Plan Snapshots), 0050 (Tool Registry Cache)
+  - **Code Harvested:** 11 code samples via `sed` extraction → `readme/harvested/perplexity-refactor-2026-01-20/`
+  - **Source:** `current_work/01-20-2026/Refactor/PHASE 1_Refactor Plan.md`
+  - **Value:** Patterns for decomposing monolithic executor/controller/memory into testable micro-stages
+- ✅ **GMP-112: Merge PR #24 + Fix Python 3.9 Compatibility** — .pre-commit-config.yaml, .gitignore, env_secrets_client.py. Report: `GMP-Report-112-Merge-Pr-24-Fix-Python-39-Compatibility.md`
+- ✅ **GMP-111: Fix PR #23 Python 3.9 Compatibility + Code Quality** — Merged PR #23 (Week 2 Kernel Config + DI Bindings):
+  - **Issue:** PR #23 used Python 3.10+ `|` union syntax in 4 protocol files (same issue as PR #22)
+  - **Fixes:** Changed `|` to `Union[]` in all 4 files, removed confusing WorldModelService/ToolRegistry aliases, changed None-returning factories to raise `NotImplementedError` (fail-loud), fixed `container._bindings` → `get_bindings()`
+  - **Lesson Capture:** Added 🚨 ULTRA-CRITICAL warning to `92-learned-lessons.mdc` about Python 3.9 union syntax
+  - **Validation:** py_compile ✅, 74 tests pass
+  - **PR Merged:** #23 at 2026-01-21 (+3,056 lines)
+  - **Report:** `reports/GMP-Report-111-Fix-Pr-23-Python-39-Compatibility-Code-Quality.md`
+- ✅ **GMP-110: Wire workers package: MCP Memory integration, telemetry hooks, unit tests** — anomaly_response_monitor.py, violation_tracker_service.py. Report: `GMP-Report-110-Wire-Workers-Package-Mcp-Memory-Integration.md`
 - ✅ **GMP-WIRE: World Model Pipeline Unification** — Unified 3 memory pipelines into single flow:
   - **Problem:** World Model had 2 isolated systems: in-memory `KnowledgeIngestor` → lost on restart, and DB-backed `WorldModelService` → PostgreSQL (never called from in-memory path)
   - **Analysis:** Traced all 3 memory pipelines: `ingest_packet()`, `_emit_packet()`, World Model `ingest()`. Found first two converge to `write_packet()` → DAG, but World Model was isolated.
@@ -315,6 +329,8 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-20] **GMP-112: Merge PR #24 + Fix Python 3.9 Compatibility** — Merged PR #24 (secrets protocol, L9 CLI, test formatting) and fixed Python 3.9 compatibility issue
+- [2026-01-20] **GMP-110: Wire workers package: MCP Memory integration, telemetry hooks, unit tests** — Wired MCP Memory integration to ViolationTrackerService, added telemetry provider hooks to AnomalyResponseMonitor, created unit tests
 - [2026-01-20] **World Model Pipeline Unification** — Unified 3 memory pipelines. Traced `ingest_packet()` (external), `_emit_packet()` (executor), and World Model `ingest()`. Found World Model in-memory path was isolated (entities lost on restart). Solution: Added `sync_to_db()` method to `KnowledgeIngestor`, wired to callers (`runtime.py`, `engine.py`, `seed_loader.py`), connected `WorldModelService` to `WorldModelRuntime` at startup via `set_world_model_service()`. All World Model entities now automatically persist to PostgreSQL. Files: `world_model/knowledge_ingestor.py`, `world_model/runtime.py`, `world_model/engine.py`, `world_model/seed_loader.py`, `api/server.py`. Report: `reports/WIRE-Report-WorldModelService-Pipeline-20260120.md`.
 - [2026-01-20] **Policy Generator Utility** — Created `core/governance/policy_generator.py` (~550 LOC) for declarative YAML policy generation. Features: 3 template presets (`scope-access`, `tool-approval`, `resource-access`), auto DORA metadata, CLI (`python -m core.governance.policy_generator`), programmatic API. Generated example at `config/policies/tool_approval_generated.yaml`. Added exports to `core/governance/__init__.py` (`PolicyGenerator`, `PolicySpec`, `ScopeAccessSpec`).
 - [2026-01-20] **Gap Analysis: TODO Memory Files** — Analyzed 6 files in `current_work/TODO Memory Files/` against L9 production. Results: chunking-protocol (N/A), Data_Pipeline_v4.0 (N/A - Odoo), DSL_Compiler (not needed - L9 has semantic compiler), recursive_extractor (partial), belief_calibration (foundational only), IRL (N/A - research). L9 has extensive memory infrastructure: LangGraph DAG pipeline, insight extraction, consolidation, importance manager, retrieval strategies, closed-loop learning via adaptive prompting.
@@ -408,31 +424,37 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Embedding Dimensions**: ALL systems aligned at **1536** (text-embedding-3-large truncated, text-embedding-3-small native)
 
 ---
-*Last updated: 2026-01-20 (World Model Pipeline Unification + GMP-WIRE)*
+*Last updated: 2026-01-21 (PRs #28-30 Analysis + Merge Prep)*
 
 ## Next Steps (Current Session)
 
-### README Gold Standard Project (GMP-100)
-1. **Phase 2: Template System** — Implement `--template agent/api/service/module/kernel` in superprompt script
-2. **Phase 3: YAML Support** — Parse `*.yaml` files for kernel/config documentation
-3. **Start Generating READMEs** — Pick a category from GMP-100 tracker and run workflow:
-   ```bash
-   python scripts/generate_readme_superprompt.py --path memory -v
-   # Copy to Perplexity → Validate → Deploy
-   ```
+### 🔴 BLOCKED: PRs #28, #29, #30 Merge
+**Status:** All 3 PRs have CI failures (CI Gates, Docker Validation, Path Safety Tests)
+**Action:** Manus fixing — prompts already sent
+**Merge Order (when CI passes):** PR #28 → PR #29 → PR #30
 
-### Deferred/Lower Priority
-4. **🚨 DEPLOY GMP-94 FIX** — Embedding dimension fix MUST be deployed for semantic search:
-   ```bash
-   ssh admin@157.180.73.53 "cd /opt/l9 && git pull && docker compose build l9-api && docker compose up -d l9-api"
-   ```
-5. **World Model Engine Integration** — Wire QueryEngine into WorldModelEngine for unified API
-6. **CodeGenAgent (CGA) System** — Resume CGA work now that governance is verified
+### Post-Merge Wiring Checklist (after PRs land)
+| Component | Wire To | File |
+|-----------|---------|------|
+| `ExecutorComposer` | `api/server.py` | Replace scattered `os.getenv` |
+| `DeduplicationEngine` | `memory/consolidation.py` | Call from `_run_deduplication()` |
+| `registry_cache.py` | `core/tools/registry_adapter.py` | Add cache layer |
+| Tracing decorators | High-traffic routes | `@traced`, `@timed` |
+
+### 🟠 DEFERRED: api/server.py Refactor
+**Decision:** Separate future PR after PRs 28-30 merged
+**Scope:** Replace remaining `os.getenv()` with `ExecutorConfig`, wire `ExecutorComposer`
+
+### Lower Priority
+- **World Model Engine Integration** — Wire QueryEngine into WorldModelEngine
+- **CodeGenAgent (CGA) System** — Resume after governance verified on VPS
+- **README Gold Standard (GMP-100)** — Template system + YAML support
 
 ~~**IaC Deployment**~~ ✅ DONE — One-click VPS provisioning complete
 ~~**S3 Backup Automation**~~ ✅ DONE — VPS cron job set for 12-hour backups
 
 **Recent Sessions (7-day window):**
+- 2026-01-21: **PRs #28-30 Analysis + Merge Prep** — Combined `/analyze_evaluate` of 3 PRs (ExecutorComposer, Observability, Memory & Governance). All blocked on CI (Gates, Docker, Path Safety). Identified: bootstrap.py non-existent factory imports (Manus fixing), deduplication.py integration needed with consolidation.py. Added adaptive cache to TODO. DEFERRED: api/server.py refactor to separate PR.
 - 2026-01-20: **World Model Pipeline Unification + GMP-106 PR #22** — Unified 3 memory pipelines: traced `ingest_packet()`, `_emit_packet()`, World Model `ingest()`. Found World Model in-memory path was isolated. Added `sync_to_db()` to `KnowledgeIngestor`, wired to callers, connected `WorldModelService` to `WorldModelRuntime` at startup. All World Model entities now persist to PostgreSQL. Also: Fixed Python 3.9 union syntax, merged PR #22 (+5,133 lines).
 - ✅ 2026-01-20: **GMP-105 Checkpoint Resilience + Research Protocol** — Completed GMP-105 Batch 1+2: `L9RetryablePostgresSaver` with retry logic, proper `list()` implementation, Prometheus pool gauges, `/health/checkpoint` endpoint. 34 new tests. Established Perplexity Research Protocol rule (docs-first, Perplexity for gaps only). Also: Gap Analysis + Policy Generator utility.
 - 2026-01-20: **Gap Analysis + Policy Generator** — Analyzed 6 TODO Memory Files vs L9 production (most N/A or already implemented). Created `core/governance/policy_generator.py` (~550 LOC) with template presets (`scope-access`, `tool-approval`, `resource-access`), DORA metadata, CLI + programmatic API. Generated `config/policies/tool_approval_generated.yaml`. **New utility for declarative policy creation.**

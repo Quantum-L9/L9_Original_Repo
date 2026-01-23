@@ -31,7 +31,6 @@ from core.kernels.kernelloader import (
     verify_kernel_integrity,
 )
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -71,46 +70,76 @@ def temp_kernel_dir() -> Path:
 
         # Create all 10 required kernel files
         kernel_files = [
-            ("01_master_kernel.yaml", {
-                "kernel": {"name": "master", "version": "1.0.0", "priority": 1},
-                "sovereignty": {"owner": "Igor", "allegiance": "Igor-only"},
-            }),
-            ("02_identity_kernel.yaml", {
-                "kernel": {"name": "identity", "version": "1.0.0", "priority": 2},
-                "identity": {"designation": "L", "primary_role": "CTO"},
-            }),
-            ("03_cognitive_kernel.yaml", {
-                "kernel": {"name": "cognitive", "version": "1.0.0", "priority": 3},
-                "reasoning": {"mode": "analytical"},
-            }),
-            ("04_behavioral_kernel.yaml", {
-                "kernel": {"name": "behavioral", "version": "1.0.0", "priority": 4},
-                "thresholds": {"execute": 0.8},
-            }),
-            ("05_memory_kernel.yaml", {
-                "kernel": {"name": "memory", "version": "1.0.0", "priority": 5},
-                "memory": {"retention": "persistent"},
-            }),
-            ("06_worldmodel_kernel.yaml", {
-                "kernel": {"name": "worldmodel", "version": "1.0.0", "priority": 6},
-                "worldmodel": {"entities": ["Igor", "L"]},
-            }),
-            ("07_execution_kernel.yaml", {
-                "kernel": {"name": "execution", "version": "1.0.0", "priority": 7},
-                "state_machine": {"initial_state": "IDLE"},
-            }),
-            ("08_safety_kernel.yaml", {
-                "kernel": {"name": "safety", "version": "1.0.0", "priority": 8},
-                "guardrails": {"destructive_ops": {"name": "destructive_ops", "enabled": True}},
-            }),
-            ("09_developer_kernel.yaml", {
-                "kernel": {"name": "developer", "version": "1.0.0", "priority": 9},
-                "developer": {"coding_rules": ["no_any"]},
-            }),
-            ("10_packet_protocol_kernel.yaml", {
-                "kernel": {"name": "packet_protocol", "version": "1.0.0", "priority": 10},
-                "load_sequence": {"order": {}},
-            }),
+            (
+                "01_master_kernel.yaml",
+                {
+                    "kernel": {"name": "master", "version": "1.0.0", "priority": 1},
+                    "sovereignty": {"owner": "Igor", "allegiance": "Igor-only"},
+                },
+            ),
+            (
+                "02_identity_kernel.yaml",
+                {
+                    "kernel": {"name": "identity", "version": "1.0.0", "priority": 2},
+                    "identity": {"designation": "L", "primary_role": "CTO"},
+                },
+            ),
+            (
+                "03_cognitive_kernel.yaml",
+                {
+                    "kernel": {"name": "cognitive", "version": "1.0.0", "priority": 3},
+                    "reasoning": {"mode": "analytical"},
+                },
+            ),
+            (
+                "04_behavioral_kernel.yaml",
+                {
+                    "kernel": {"name": "behavioral", "version": "1.0.0", "priority": 4},
+                    "thresholds": {"execute": 0.8},
+                },
+            ),
+            (
+                "05_memory_kernel.yaml",
+                {
+                    "kernel": {"name": "memory", "version": "1.0.0", "priority": 5},
+                    "memory": {"retention": "persistent"},
+                },
+            ),
+            (
+                "06_worldmodel_kernel.yaml",
+                {
+                    "kernel": {"name": "worldmodel", "version": "1.0.0", "priority": 6},
+                    "worldmodel": {"entities": ["Igor", "L"]},
+                },
+            ),
+            (
+                "07_execution_kernel.yaml",
+                {
+                    "kernel": {"name": "execution", "version": "1.0.0", "priority": 7},
+                    "state_machine": {"initial_state": "IDLE"},
+                },
+            ),
+            (
+                "08_safety_kernel.yaml",
+                {
+                    "kernel": {"name": "safety", "version": "1.0.0", "priority": 8},
+                    "guardrails": {"destructive_ops": {"name": "destructive_ops", "enabled": True}},
+                },
+            ),
+            (
+                "09_developer_kernel.yaml",
+                {
+                    "kernel": {"name": "developer", "version": "1.0.0", "priority": 9},
+                    "developer": {"coding_rules": ["no_any"]},
+                },
+            ),
+            (
+                "10_packet_protocol_kernel.yaml",
+                {
+                    "kernel": {"name": "packet_protocol", "version": "1.0.0", "priority": 10},
+                    "load_sequence": {"order": {}},
+                },
+            ),
         ]
 
         for filename, content in kernel_files:
@@ -189,9 +218,7 @@ class TestPhase1Load:
         yaml_errors = [e for e in errors if "YAML" in e.message]
         assert len(yaml_errors) > 0
 
-    def test_phase1_skips_integrity_check_when_disabled(
-        self, temp_kernel_dir: Path
-    ) -> None:
+    def test_phase1_skips_integrity_check_when_disabled(self, temp_kernel_dir: Path) -> None:
         """Phase 1 should skip hash computation when verify_integrity=False."""
         kernels, hashes, _ = load_kernels_phase1(
             base_path=temp_kernel_dir,
@@ -255,13 +282,13 @@ class TestPhase2Activate:
         stored_hashes = getattr(mock_agent, "_kernel_hashes", {})
         assert len(stored_hashes) == REQUIRED_KERNEL_COUNT
 
-    def test_phase2_fails_on_insufficient_kernels(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    def test_phase2_fails_on_insufficient_kernels(self, mock_agent: MockKernelAwareAgent) -> None:
         """Phase 2 should fail if not enough kernels are provided."""
         # Only provide 5 kernels
         partial_kernels = {
-            f"private/kernels/00_system/0{i}_kernel.yaml": {"kernel": {"name": f"kernel{i}", "version": "1.0.0"}}
+            f"private/kernels/00_system/0{i}_kernel.yaml": {
+                "kernel": {"name": f"kernel{i}", "version": "1.0.0"}
+            }
             for i in range(1, 6)
         }
 
@@ -327,24 +354,18 @@ class TestVerification:
 
         assert verify_kernel_activation(mock_agent) is True
 
-    def test_verify_kernel_activation_inactive(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    def test_verify_kernel_activation_inactive(self, mock_agent: MockKernelAwareAgent) -> None:
         """verify_kernel_activation should return False for inactive agent."""
         assert verify_kernel_activation(mock_agent) is False
 
-    def test_verify_kernel_activation_wrong_state(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    def test_verify_kernel_activation_wrong_state(self, mock_agent: MockKernelAwareAgent) -> None:
         """verify_kernel_activation should return False for wrong state."""
         mock_agent.kernel_state = "LOADING"
         mock_agent.kernels = {"test": {}}
 
         assert verify_kernel_activation(mock_agent) is False
 
-    def test_verify_kernel_activation_no_kernels(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    def test_verify_kernel_activation_no_kernels(self, mock_agent: MockKernelAwareAgent) -> None:
         """verify_kernel_activation should return False if no kernels."""
         mock_agent.kernel_state = "ACTIVE"
         mock_agent.kernels = {}
@@ -360,9 +381,7 @@ class TestVerification:
         # Should not raise
         require_kernel_activation(mock_agent)
 
-    def test_require_kernel_activation_failure(
-        self, mock_agent: MockKernelAwareAgent
-    ) -> None:
+    def test_require_kernel_activation_failure(self, mock_agent: MockKernelAwareAgent) -> None:
         """require_kernel_activation should raise for inactive agent."""
         with pytest.raises(RuntimeError, match="FATAL"):
             require_kernel_activation(mock_agent)
@@ -521,9 +540,7 @@ class TestEdgeCases:
         assert result.success is True
         assert hasattr(agent, "activation_context")
 
-    def test_absorption_error_handling(
-        self, temp_kernel_dir: Path
-    ) -> None:
+    def test_absorption_error_handling(self, temp_kernel_dir: Path) -> None:
         """Should handle absorption errors gracefully."""
 
         class FailingAgent:
@@ -547,4 +564,3 @@ class TestEdgeCases:
         # Should fail due to insufficient kernels absorbed
         assert result.success is False
         assert len(result.validation_errors) > 0
-

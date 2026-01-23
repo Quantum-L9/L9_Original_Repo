@@ -91,9 +91,7 @@ def test_compileall() -> tuple[bool, str]:
         text=True,
     )
     if result.returncode != 0:
-        return False, result.stderr[
-            :200
-        ] if result.stderr else "Compilation errors (see output)"
+        return False, result.stderr[:200] if result.stderr else "Compilation errors (see output)"
     return True, ""
 
 
@@ -184,9 +182,7 @@ def test_core_modules_exist() -> tuple[bool, str]:
         return False, f"Missing directories: {missing}"
 
     # Check for __init__.py in each
-    missing_init = [
-        d for d in required_dirs if not (REPO_ROOT / d / "__init__.py").exists()
-    ]
+    missing_init = [d for d in required_dirs if not (REPO_ROOT / d / "__init__.py").exists()]
     if missing_init:
         return False, f"Missing __init__.py in: {missing_init}"
 
@@ -213,9 +209,7 @@ def test_no_nested_repos() -> tuple[bool, str]:
         text=True,
     )
     nested_dirs = [
-        d
-        for d in result.stdout.strip().split("\n")
-        if d and d.startswith(str(REPO_ROOT))
+        d for d in result.stdout.strip().split("\n") if d and d.startswith(str(REPO_ROOT))
     ]
 
     if nested_dirs:
@@ -233,12 +227,7 @@ def test_entrypoints_exist() -> tuple[bool, str]:
     missing = []
     for line in entrypoints_file.read_text().strip().split("\n"):
         # Only check lines that are actual file paths (not indented, end with .py, not comments)
-        if (
-            line
-            and not line.startswith("#")
-            and not line.startswith(" ")
-            and line.endswith(".py")
-        ):
+        if line and not line.startswith("#") and not line.startswith(" ") and line.endswith(".py"):
             path = REPO_ROOT / line
             if not path.exists():
                 missing.append(line)

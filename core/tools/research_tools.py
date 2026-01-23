@@ -40,6 +40,7 @@ __dora_meta__ = {
 from typing import Any, Optional
 
 import structlog
+from runtime.tool_registry import register_tool
 
 logger = structlog.get_logger(__name__)
 
@@ -74,6 +75,8 @@ def _get_research_agent():
 # Tool Executors
 
 
+@register_tool(category="research", priority=10, description="run_research_query tool")
+@register_tool(category="research", priority=10, description="run_research_query tool")
 async def run_research_query(
     query: str,
     user_id: str = "l_agent",
@@ -153,6 +156,8 @@ async def run_research_query(
         }
 
 
+@register_tool(category="research", priority=10, description="research_agent_synthesize tool")
+@register_tool(category="research", priority=10, description="research_agent_synthesize tool")
 async def research_agent_synthesize(
     topic: str,
     context: Optional[dict[str, Any]] = None,
@@ -213,6 +218,8 @@ async def research_agent_synthesize(
         }
 
 
+@register_tool(category="research", priority=10, description="research_agent_discover tool")
+@register_tool(category="research", priority=10, description="research_agent_discover tool")
 async def research_agent_discover(
     topic: str,
     domain: str = "general",
@@ -283,6 +290,8 @@ async def research_agent_discover(
         }
 
 
+@register_tool(category="research", priority=10, description="research_agent_generate_spec tool")
+@register_tool(category="research", priority=10, description="research_agent_generate_spec tool")
 async def research_agent_generate_spec(
     topic: str,
     description: Optional[str] = None,

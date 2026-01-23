@@ -137,8 +137,6 @@
 # api
   api.
   api.agent_routes
-  api.anomaly_classifier_adapter
-  api.anomaly_response_monitor_adapter
   api.auth
   api.circuit_breaker
   api.db
@@ -152,7 +150,6 @@
   api.slack_adapter
   api.slack_client
   api.tools.router
-  api.violation_tracker_service_adapter
 # apply_policy_rules
   apply_policy_rules
 # argparse
@@ -175,6 +172,8 @@
   base64
 # chat
   chat
+# click
+  click
 # clients
   clients.memory_client
 # codegen
@@ -197,6 +196,7 @@
 # concurrent
   concurrent.futures
 # config
+  config.di_config
   config.memory_substrate_settings
   config.research_settings
   config.rls_config
@@ -208,10 +208,6 @@
 # copy
   copy
 # core
-  core.abstractions.agent_protocols
-  core.abstractions.kernel_protocols
-  core.abstractions.memory_protocols
-  core.abstractions.observability_protocols
   core.agents.agent_instance
   core.agents.bootstrap.phase1_loadkernels
   core.agents.executor
@@ -226,9 +222,15 @@
   core.aios.runtime
   core.auto_registry
   core.boundary.enforcer
+  core.ca_governance
+  core.ca_governance.ca_code_change
+  core.ca_governance.constraint_validator
+  core.ca_governance.diff_generator
+  core.ca_governance.report_generator
   core.commands.schemas
   core.compliance.audit_log
   core.compliance.audit_reporter
+  core.config
   core.decorators
   core.di.container
   core.event_type_registry
@@ -246,9 +248,16 @@
   core.governance.tool_risk_policy
   core.governance.validation
   core.kernel_wiring.packet_protocol_wiring
+  core.kernels.bayesian_kernel
   core.kernels.integrity
   core.kernels.kernelloader
   core.kernels.schemas
+  core.l_agent_runtime
+  core.l_agent_runtime.action_registry
+  core.l_agent_runtime.agent_state
+  core.l_agent_runtime.foresight_engine
+  core.l_agent_runtime.memory_adapter
+  core.l_agent_runtime.reflection_engine
   core.moduleregistry
   core.observability.circuit_breaker
   core.observability.models
@@ -258,6 +267,12 @@
   core.packet_envelope.observability
   core.packet_envelope.scalability
   core.packet_envelope.standardization
+  core.protocols
+  core.protocols.agent_protocols
+  core.protocols.kernel_protocols
+  core.protocols.memory_protocols
+  core.protocols.observability_protocols
+  core.protocols.secrets_protocols
   core.registry.models
   core.resilience.mixin
   core.resilience.protocols
@@ -267,6 +282,7 @@
   core.schemas
   core.schemas.capabilities
   core.schemas.event_stream
+  core.schemas.hypergraph
   core.schemas.packet_envelope
   core.schemas.packet_envelope_v2
   core.schemas.research_factory_models
@@ -276,6 +292,7 @@
   core.schemas.tasks
   core.schemas.upcaster_registry
   core.schemas.ws_event_stream
+  core.secrets.env_secrets_client
   core.security.path_safety
   core.singleton_auto_registry
   core.singleton_registry
@@ -303,6 +320,8 @@
   dev_layer.modules.code_planning
   dev_layer.runtime
   dev_layer.runtime.enforcement
+# difflib
+  difflib
 # domain_tensor_bridge
   domain_tensor_bridge.agent_controller
   domain_tensor_bridge.context_enricher
@@ -558,8 +577,10 @@
   runtime.dora
   runtime.execution_gate
   runtime.gmp_worker
+  runtime.kernel_config_loader
   runtime.kernel_loader
   runtime.kernel_state
+  runtime.l_tools
   runtime.long_plan_tool
   runtime.mcp_client
   runtime.mcp_server_registry
@@ -682,6 +703,11 @@
   threading
 # time
   time
+# tools
+  tools.adr.adr_cli
+  tools.adr.adr_generator
+  tools.adr.adr_indexer
+  tools.adr.adr_validator
 # torch
   torch
   torch.nn
@@ -743,3 +769,5 @@
   world_model.world_model_service
 # yaml
   yaml
+# zoneinfo
+  zoneinfo

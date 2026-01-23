@@ -49,24 +49,8 @@ VALID_TIERS = ["KERNEL_TIER", "RUNTIME_TIER", "INFRA_TIER", "UX_TIER"]
 VALID_ACTIONS = ["CREATE", "INSERT", "REPLACE", "DELETE", "WRAP"]
 VALID_STATUSES = ["✅ COMPLETE", "⚠️ PARTIAL", "❌ FAILED"]
 VALID_TODO_STATUSES = ["✅", "❌", "⚠️"]
-VALID_PHASE_STATUSES = ["✅", "❌", "⚠️", "N/A"]
 VALID_VALIDATION_RESULTS = ["✅", "✅ PASS", "❌", "❌ FAIL", "⚠️ SKIP", "N/A"]
 MINIMUM_VALIDATION_GATES = ["py_compile", "import test"]
-REQUIRED_PHASES = [
-    (0, "PLANNING"),
-    (1, "BASELINE"),
-    (2, "IMPLEMENTATION"),
-    (3, "ENFORCEMENT"),
-    (4, "VALIDATION"),
-    (5, "RECURSION"),
-    (6, "FINALIZATION"),
-]
-REQUIRED_VERIFICATION_ITEMS = [
-    "All TODOs implemented",
-    "No unauthorized changes",
-    "No scope drift",
-    "Protected files documented",
-]
 DECLARATION_MUST_CONTAIN = [
     "Phases 0-6 complete",
     "No assumptions",
@@ -111,10 +95,10 @@ class ValidationResult:
     task: Optional[str] = None
     tier: Optional[str] = None
     date: Optional[str] = None
+    time: Optional[str] = None
     status: Optional[str] = None
     todo_count: int = 0
     change_count: int = 0
-    phase_count: int = 0
     validation_count: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
@@ -129,10 +113,10 @@ class ValidationResult:
                 "task": self.task,
                 "tier": self.tier,
                 "date": self.date,
+                "time": self.time,
                 "status": self.status,
                 "todo_count": self.todo_count,
                 "change_count": self.change_count,
-                "phase_count": self.phase_count,
                 "validation_count": self.validation_count,
             },
             "summary": {
@@ -194,12 +178,10 @@ class GMPReportValidator:
 
         # Validate sections
         self._validate_header(lines, result)
-        self._validate_todo_plan(lines, result)
-        self._validate_phases(lines, result)
+        self._validate_plan(lines, result)
         self._validate_changes(lines, result)
         self._validate_todo_change_map(lines, result)
         self._validate_validation_section(lines, result)
-        self._validate_verification(lines, result)
         self._validate_declaration(lines, result)
 
         # Check for forbidden sections
@@ -240,20 +222,18 @@ class GMPReportValidator:
                 )
 
     def _validate_header(self, lines: List[str], result: ValidationResult):
-        """Validate the header section."""
+        """Validate the header section (supports both old single-line and new multi-line format)."""
+        # Try old single-line format first (has pipe separators)
         header_pattern = r"\*\*ID:\*\*\s*GMP-(\d+)\s*\|\s*\*\*Task:\*\*\s*(.+?)\s*\|\s*\*\*Tier:\*\*\s*(\w+_TIER)\s*\|\s*\*\*Date:\*\*\s*(\d{4}-\d{2}-\d{2})\s*\|\s*\*\*Status:\*\*\s*(.+)"
-
-        header_found = False
         for i, line in enumerate(lines):
             match = re.search(header_pattern, line)
             if match:
-                header_found = True
                 result.gmp_id = f"GMP-{match.group(1)}"
                 result.task = match.group(2).strip()
                 result.tier = match.group(3)
                 result.date = match.group(4)
                 result.status = match.group(5).strip()
-
+                
                 # Validate ID format
                 if len(match.group(1)) != 3:
                     result.warnings.append(
@@ -264,7 +244,7 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-
+                
                 # Validate tier
                 if result.tier not in VALID_TIERS:
                     result.errors.append(
@@ -275,7 +255,7 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-
+                
                 # Validate date
                 try:
                     datetime.strptime(result.date, "%Y-%m-%d")
@@ -288,7 +268,7 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-
+                
                 # Validate status
                 if result.status not in VALID_STATUSES:
                     result.warnings.append(
@@ -299,7 +279,7 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-
+                
                 # Validate task length
                 if len(result.task) > 80:
                     result.warnings.append(
@@ -310,10 +290,86 @@ class GMPReportValidator:
                             line=i + 1,
                         )
                     )
-
                 break
+        
+        # If old format not found, try new multi-line format
+        if not result.gmp_id:
+            for i, line in enumerate(lines):
+                # Only match lines that are standalone (no pipe separator for other fields)
+                if line.startswith("**ID:**") and "|" not in line:
+                    id_match = re.search(r"\*\*ID:\*\*\s*GMP-(\d+)", line)
+                    if id_match:
+                        result.gmp_id = f"GMP-{id_match.group(1)}"
+                        if len(id_match.group(1)) != 3:
+                            result.warnings.append(
+                                ValidationIssue(
+                                    severity="warning",
+                                    section="HEADER",
+                                    message=f"GMP ID should be 3 digits: {id_match.group(1)}",
+                                    line=i + 1,
+                                )
+                            )
+                elif line.startswith("**Task:**") and "|" not in line:
+                    task_match = re.search(r"\*\*Task:\*\*\s*(.+)", line)
+                    if task_match:
+                        result.task = task_match.group(1).strip()
+                        if len(result.task) > 80:
+                            result.warnings.append(
+                                ValidationIssue(
+                                    severity="warning",
+                                    section="HEADER",
+                                    message=f"Task exceeds 80 chars: {len(result.task)} chars",
+                                    line=i + 1,
+                                )
+                            )
+                elif line.startswith("**Tier:**") and "|" not in line:
+                    tier_match = re.search(r"\*\*Tier:\*\*\s*(\w+_TIER)", line)
+                    if tier_match:
+                        result.tier = tier_match.group(1)
+                        if result.tier not in VALID_TIERS:
+                            result.errors.append(
+                                ValidationIssue(
+                                    severity="error",
+                                    section="HEADER",
+                                    message=f"Invalid tier: {result.tier}. Must be one of: {VALID_TIERS}",
+                                    line=i + 1,
+                                )
+                            )
+                elif line.startswith("**Date:**") and "|" not in line:
+                    date_match = re.search(r"\*\*Date:\*\*\s*(\d{4}-\d{2}-\d{2})", line)
+                    if date_match:
+                        result.date = date_match.group(1)
+                        try:
+                            datetime.strptime(result.date, "%Y-%m-%d")
+                        except ValueError:
+                            result.errors.append(
+                                ValidationIssue(
+                                    severity="error",
+                                    section="HEADER",
+                                    message=f"Invalid date format: {result.date}. Expected: YYYY-MM-DD",
+                                    line=i + 1,
+                                )
+                            )
+                elif line.startswith("**Time:**"):
+                    time_match = re.search(r"\*\*Time:\*\*\s*(\d{1,2}:\d{2}\s*EST)", line)
+                    if time_match:
+                        result.time = time_match.group(1)
+                elif line.startswith("**Status:**") and "|" not in line:
+                    status_match = re.search(r"\*\*Status:\*\*\s*(.+)", line)
+                    if status_match:
+                        result.status = status_match.group(1).strip()
+                        if result.status not in VALID_STATUSES:
+                            result.warnings.append(
+                                ValidationIssue(
+                                    severity="warning",
+                                    section="HEADER",
+                                    message=f"Non-standard status: {result.status}. Expected: {VALID_STATUSES}",
+                                    line=i + 1,
+                                )
+                            )
 
-        if not header_found:
+        # Final check
+        if not result.gmp_id:
             result.errors.append(
                 ValidationIssue(
                     severity="error",
@@ -322,15 +378,16 @@ class GMPReportValidator:
                 )
             )
 
-    def _validate_todo_plan(self, lines: List[str], result: ValidationResult):
-        """Validate TODO PLAN section."""
+    def _validate_plan(self, lines: List[str], result: ValidationResult):
+        """Validate PLAN section (accepts both 'PLAN' and 'TODO PLAN' headers)."""
         in_section = False
         in_table = False
         todos = []
         hash_found = False
 
         for i, line in enumerate(lines):
-            if re.match(r"^##\s*TODO\s*PLAN", line, re.IGNORECASE):
+            # Accept both "## PLAN" and "## TODO PLAN"
+            if re.match(r"^##\s*(TODO\s*)?PLAN", line, re.IGNORECASE):
                 in_section = True
                 continue
 
@@ -371,7 +428,7 @@ class GMPReportValidator:
                             result.errors.append(
                                 ValidationIssue(
                                     severity="error",
-                                    section="TODO_PLAN",
+                                    section="PLAN",
                                     message=f"Hash claims {claimed_count} TODOs but found {len(todos)}",
                                     line=i + 1,
                                 )
@@ -383,15 +440,15 @@ class GMPReportValidator:
             result.errors.append(
                 ValidationIssue(
                     severity="error",
-                    section="TODO_PLAN",
-                    message="TODO PLAN section not found",
+                    section="PLAN",
+                    message="PLAN section not found",
                 )
             )
         elif len(todos) == 0:
             result.warnings.append(
                 ValidationIssue(
                     severity="warning",
-                    section="TODO_PLAN",
+                    section="PLAN",
                     message="No TODO items found in table",
                 )
             )
@@ -400,7 +457,7 @@ class GMPReportValidator:
             result.warnings.append(
                 ValidationIssue(
                     severity="warning",
-                    section="TODO_PLAN",
+                    section="PLAN",
                     message="Hash line not found",
                 )
             )
@@ -411,89 +468,8 @@ class GMPReportValidator:
                 result.warnings.append(
                     ValidationIssue(
                         severity="warning",
-                        section="TODO_PLAN",
+                        section="PLAN",
                         message=f"Invalid action '{todo['action']}' for {todo['id']}",
-                    )
-                )
-
-    def _validate_phases(self, lines: List[str], result: ValidationResult):
-        """Validate PHASES section."""
-        in_section = False
-        phases = []
-
-        for i, line in enumerate(lines):
-            if re.match(r"^##\s*PHASES", line, re.IGNORECASE):
-                in_section = True
-                continue
-
-            if in_section and line.startswith("## "):
-                break
-
-            if (
-                in_section
-                and line.startswith("|")
-                and "---" not in line
-                and "Phase" not in line
-                and "#" not in line.split("|")[1]
-            ):
-                parts = [p.strip() for p in line.split("|")[1:-1]]
-                if len(parts) >= 3:
-                    try:
-                        phase_num = int(parts[0])
-                        phases.append(
-                            {"phase": phase_num, "name": parts[1], "status": parts[2]}
-                        )
-                    except ValueError:
-                        pass
-
-        result.phase_count = len(phases)
-
-        if not in_section:
-            result.errors.append(
-                ValidationIssue(
-                    severity="error",
-                    section="PHASES",
-                    message="PHASES section not found",
-                )
-            )
-        elif len(phases) != 7:
-            result.warnings.append(
-                ValidationIssue(
-                    severity="warning",
-                    section="PHASES",
-                    message=f"Expected 7 phases (0-6), found {len(phases)}",
-                )
-            )
-
-        # Check each required phase
-        for expected_num, expected_name in REQUIRED_PHASES:
-            found = False
-            for p in phases:
-                if p["phase"] == expected_num:
-                    found = True
-                    if p["name"].upper() != expected_name.upper():
-                        result.warnings.append(
-                            ValidationIssue(
-                                severity="warning",
-                                section="PHASES",
-                                message=f"Phase {expected_num} should be '{expected_name}', got '{p['name']}'",
-                            )
-                        )
-                    if p["status"] not in VALID_PHASE_STATUSES:
-                        result.warnings.append(
-                            ValidationIssue(
-                                severity="warning",
-                                section="PHASES",
-                                message=f"Invalid status '{p['status']}' for phase {expected_num}",
-                            )
-                        )
-                    break
-            if not found:
-                result.errors.append(
-                    ValidationIssue(
-                        severity="error",
-                        section="PHASES",
-                        message=f"Missing phase {expected_num} ({expected_name})",
                     )
                 )
 
@@ -635,47 +611,6 @@ class GMPReportValidator:
                         )
                     )
 
-    def _validate_verification(self, lines: List[str], result: ValidationResult):
-        """Validate VERIFICATION section."""
-        in_section = False
-        items_found = []
-
-        for line in lines:
-            if re.match(r"^##\s*VERIFICATION", line, re.IGNORECASE):
-                in_section = True
-                continue
-
-            if in_section and line.startswith("## "):
-                break
-
-            if in_section and line.strip().startswith("- ["):
-                # Extract item text
-                match = re.search(r"\- \[[x ]\]\s*(.+)", line, re.IGNORECASE)
-                if match:
-                    items_found.append(match.group(1).strip())
-
-        if not in_section:
-            result.errors.append(
-                ValidationIssue(
-                    severity="error",
-                    section="VERIFICATION",
-                    message="VERIFICATION section not found",
-                )
-            )
-        else:
-            for required_item in REQUIRED_VERIFICATION_ITEMS:
-                found = any(
-                    required_item.lower() in item.lower() for item in items_found
-                )
-                if not found:
-                    result.warnings.append(
-                        ValidationIssue(
-                            severity="warning",
-                            section="VERIFICATION",
-                            message=f"Missing checklist item: {required_item}",
-                        )
-                    )
-
     def _validate_declaration(self, lines: List[str], result: ValidationResult):
         """Validate DECLARATION section."""
         in_section = False
@@ -740,17 +675,6 @@ class GMPReportValidator:
                     )
                 )
 
-        # Check status matches phases
-        if result.status:
-            if "COMPLETE" in result.status and result.phase_count < 7:
-                result.warnings.append(
-                    ValidationIssue(
-                        severity="warning",
-                        section="CONSISTENCY",
-                        message=f"Status is COMPLETE but only {result.phase_count} phases found",
-                    )
-                )
-
 
 # ============================================================================
 # CLI Interface
@@ -763,13 +687,14 @@ def print_result(result: ValidationResult, verbose: bool = False):
     print(f"\n{status_icon} {result.filepath}")
 
     if result.gmp_id:
-        print(
-            f"   ID: {result.gmp_id} | Task: {result.task[:50]}{'...' if len(result.task or '') > 50 else ''}"
-        )
-        print(f"   Tier: {result.tier} | Date: {result.date} | Status: {result.status}")
+        task_str = (result.task or "")[:50]
+        task_ellipsis = "..." if len(result.task or "") > 50 else ""
+        print(f"   ID: {result.gmp_id} | Task: {task_str}{task_ellipsis}")
+        time_str = f" | Time: {result.time}" if result.time else ""
+        print(f"   Tier: {result.tier} | Date: {result.date}{time_str} | Status: {result.status}")
 
     print(
-        f"   TODOs: {result.todo_count} | Changes: {result.change_count} | Phases: {result.phase_count} | Validations: {result.validation_count}"
+        f"   TODOs: {result.todo_count} | Changes: {result.change_count} | Validations: {result.validation_count}"
     )
 
     if result.errors:

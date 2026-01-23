@@ -44,9 +44,7 @@ class TestWSTaskRoutingIntegration:
         router = WSTaskRouter()
 
         # Create a custom event type (not in default handlers)
-        message = EventMessage(
-            type=EventType.CONTROL, agent_id="test-agent", payload={"data": {}}
-        )
+        message = EventMessage(type=EventType.CONTROL, agent_id="test-agent", payload={"data": {}})
 
         # Should not raise
         result = router.route(message)

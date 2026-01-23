@@ -418,6 +418,4 @@ class TestBootstrapOrchestrator:
         with pytest.raises(RuntimeError) as exc_info:
             await orchestrator.bootstrap_agent(config)
 
-        assert (
-            "Phase 0" in str(exc_info.value) or "failed" in str(exc_info.value).lower()
-        )
+        assert "Phase 0" in str(exc_info.value) or "failed" in str(exc_info.value).lower()
