@@ -222,6 +222,7 @@ async def _save_via_main_pipeline(
     # This ensures RLS isolation uses the correct project_id per environment.
     ctx = require_governance_context("mcp_memory._save_via_main_pipeline")
     project_id = ctx.project_id
+    logger.info(f"DEBUG: _save_via_main_pipeline ctx.project_id={project_id!r}, ctx.scope={ctx.scope!r}")
 
     # Calculate TTL based on duration
     ttl = None
@@ -271,6 +272,10 @@ async def _save_via_main_pipeline(
         tags=tags or [],
         ttl=ttl,
     )
+
+    # DEBUG: Log packet metadata before write
+    logger.info(f"DEBUG: packet_in.metadata={packet_in.metadata}")
+    logger.info(f"DEBUG: packet_in.payload={packet_in.payload}")
 
     # Use main ingestion pipeline (runs full DAG)
     start_time = time.time()
