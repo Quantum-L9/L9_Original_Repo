@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -33,7 +33,7 @@ logger = structlog.get_logger(__name__)
 
 # Try to import prometheus_client
 try:
-    from prometheus_client import Counter, Gauge, Histogram, Summary
+    from prometheus_client import Counter, Gauge, Histogram
 
     PROMETHEUS_AVAILABLE = True
 except ImportError:
@@ -140,7 +140,7 @@ class ObservabilityPrometheusExporter:
         self.llm_tokens_total = Counter(
             "l9_observability_llm_tokens_total",
             "Total LLM tokens consumed",
-            ["model", "type"],  # type: prompt, completion
+            ["model", "type"],  # labels: model name, token type (prompt/completion)
         )
 
         self.llm_cost_usd = Counter(
@@ -177,7 +177,7 @@ class ObservabilityPrometheusExporter:
         span_name: str,
         status: str,
         kind: str,
-        duration_ms: Optional[float] = None,
+        duration_ms: float | None = None,
     ) -> None:
         """Record a span observation."""
         if not self.enabled:
@@ -214,7 +214,7 @@ class ObservabilityPrometheusExporter:
         except Exception as e:
             logger.warning(f"Failed to record failure signal: {e}")
 
-    def update_sre_metrics(self, metrics: Dict[str, Any]) -> None:
+    def update_sre_metrics(self, metrics: dict[str, Any]) -> None:
         """Update SRE-level metrics from computed metrics."""
         if not self.enabled:
             return
@@ -299,15 +299,15 @@ class ObservabilityPrometheusExporter:
 
 
 # Global exporter instance
-_exporter: Optional[ObservabilityPrometheusExporter] = None
+_exporter: ObservabilityPrometheusExporter | None = None
 
 
-def get_exporter() -> Optional[ObservabilityPrometheusExporter]:
+def get_exporter() -> ObservabilityPrometheusExporter | None:
     """Get the global Prometheus exporter instance."""
     return _exporter
 
 
-def initialize_exporter() -> Optional[ObservabilityPrometheusExporter]:
+def initialize_exporter() -> ObservabilityPrometheusExporter | None:
     """Initialize the global Prometheus exporter."""
     global _exporter
     if PROMETHEUS_AVAILABLE:

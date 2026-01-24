@@ -119,10 +119,7 @@ def _should_skip_embedding(text: str) -> bool:
             return True
 
     # Skip very short content (less than 10 chars, likely noise)
-    if len(text_stripped) < 10:
-        return True
-
-    return False
+    return len(text_stripped) < 10
 
 
 # =============================================================================
@@ -171,7 +168,9 @@ class SubstrateGraphState(TypedDict):
     reasoning_block: dict[str, Any] | None  # StructuredReasoningBlock if generated
     written_tables: list[str]
     embedding_id: str | None
-    saved_checkpoint_id: str | None  # Renamed from checkpoint_id (reserved in LangGraph)
+    saved_checkpoint_id: (
+        str | None
+    )  # Renamed from checkpoint_id (reserved in LangGraph)
 
     # Insight extraction results (v1.1.0+)
     insights: list[dict[str, Any]]  # ExtractedInsight objects as dicts
@@ -284,7 +283,7 @@ async def reasoning_node(
     - Generates confidence scores
     - Determines memory write operations
     """
-    repository = _get_config_dependency(config, "repository")
+    # Note: repository not used in this node (reserved for future reasoning persistence)
     logger.debug("reasoning_node: Generating reasoning block")
 
     envelope = state.get("envelope", {})
@@ -542,7 +541,7 @@ async def semantic_embed_node(
 
     Only embeds if payload contains text content suitable for semantic search.
     """
-    repository = _get_config_dependency(config, "repository")
+    # Note: repository not used in this node (embedding via semantic_service)
     semantic_service = _get_config_dependency(config, "semantic_service")
     logger.debug("semantic_embed_node: Processing embedding")
 
@@ -695,7 +694,7 @@ async def extract_insights_node(
     - Conclusion-like statements in text
     - Entity mentions and relationships
     """
-    repository = _get_config_dependency(config, "repository")
+    # Note: repository not used in this node (extraction is stateless)
     logger.debug("extract_insights_node: Extracting insights")
 
     envelope = state.get("envelope", {})
@@ -917,7 +916,7 @@ async def world_model_trigger_node(
     - Uses world_model.service.WorldModelService for DB-backed updates
     - Falls back to orchestrator if service not available
     """
-    repository = _get_config_dependency(config, "repository")
+    # Note: repository not used in this node (world_model_service handles persistence)
     world_model_service = _get_config_dependency(config, "world_model_service")
     logger.debug("world_model_trigger_node: Checking for world model updates")
 
