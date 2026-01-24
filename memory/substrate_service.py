@@ -44,19 +44,24 @@ from typing import Any, Optional
 import structlog
 
 from core.decorators import must_stay_async
-from core.observability.circuit_breaker import (CircuitBreaker,
-                                                CircuitBreakerConfig)
-from core.schemas import (PacketEnvelopeIn, PacketWriteResult, SemanticHit,
-                          SemanticSearchRequest, SemanticSearchResult)
-from core.singleton_auto_registry import (register_singleton,
-                                          register_singleton_closer)
+from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+from core.schemas import (
+    PacketEnvelopeIn,
+    PacketWriteResult,
+    SemanticHit,
+    SemanticSearchRequest,
+    SemanticSearchResult,
+)
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 from memory.agent_persistence import AgentPersistenceService
 from memory.audit_utils import prepare_packet_for_ingest
 from memory.consolidation import ConsolidationPipeline
-from memory.governance_gate import (enforce_packet_governance,
-                                    ensure_governance_context,
-                                    governance_context,
-                                    require_governance_context)
+from memory.governance_gate import (
+    enforce_packet_governance,
+    ensure_governance_context,
+    governance_context,
+    require_governance_context,
+)
 from memory.query_classifier import QueryClassifier, get_query_classifier
 from memory.reasoning_replay import ReasoningReplayPipeline
 from memory.retention_engine import RetentionEngine
@@ -64,16 +69,19 @@ from memory.saga import SagaExecutor, SagaResult
 from memory.saga_patterns import SagaPatterns
 from memory.substrate_dag import SubstrateDAG
 from memory.substrate_repository import SubstrateRepository
-from memory.substrate_semantic import (EmbeddingProvider, SemanticService,
-                                       StubEmbeddingProvider,
-                                       create_embedding_provider)
-from memory.validators.packet_validator import (PacketValidationError,
-                                                PacketValidator)
-from telemetry.memory_metrics import (record_memory_ingest,
-                                      record_memory_quarantine,
-                                      record_memory_search,
-                                      record_memory_write,
-                                      set_memory_substrate_health)
+from memory.substrate_semantic import (
+    EmbeddingProvider,
+    SemanticService,
+    StubEmbeddingProvider,
+)
+from memory.validators.packet_validator import PacketValidationError, PacketValidator
+from telemetry.memory_metrics import (
+    record_memory_ingest,
+    record_memory_quarantine,
+    record_memory_search,
+    record_memory_write,
+    set_memory_substrate_health,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -1189,112 +1197,87 @@ class MemorySubstrateService:
 async def create_substrate_service(
     database_url: str,
     embedding_provider_type: str = "openai",
-    embedding_model: str = "text-embedding-3-large",
-    openai_api_key: Optional[str] = None,
-    db_pool_size: int = 5,
-    db_max_overflow: int = 10,
+    **kwargs,
 ) -> MemorySubstrateService:
     """
-    Factory function to create a fully configured MemorySubstrateService.
+    Factory function delegating to DI container for proper dependency wiring.
+
+    This function creates a MemorySubstrateService using the DI container,
+    which handles lazy initialization, dependency wiring, and lifecycle management.
 
     Args:
-        database_url: Postgres DSN
-        embedding_provider_type: "openai" or "stub"
-        embedding_model: Model name for OpenAI
-        openai_api_key: API key for OpenAI
-        db_pool_size: Connection pool size
-        db_max_overflow: Pool overflow limit
+        database_url: PostgreSQL connection URL
+        embedding_provider_type: Type of embedding provider ("openai", "cohere", etc.)
+        **kwargs: Additional configuration options passed to container:
+            - embedding_model: Model name (e.g., "text-embedding-3-large")
+            - openai_api_key: API key for OpenAI
+            - db_pool_size: Connection pool size
+            - db_max_overflow: Pool overflow limit
+            - enable_protocol_validation: Enable runtime protocol validation
+            - And any other container-supported options
 
     Returns:
-        Configured MemorySubstrateService
+        Fully-wired MemorySubstrateService instance
 
-    Raises:
-        RuntimeError: With detailed diagnostic info if initialization fails
+    Example:
+        ```python
+        # Simple usage
+        service = await create_substrate_service(
+            database_url="postgresql://localhost/l9",
+        )
+
+        # With custom configuration
+        service = await create_substrate_service(
+            database_url="postgresql://localhost/l9",
+            embedding_provider_type="openai",
+            embedding_model="text-embedding-3-large",
+            db_pool_size=20,
+        )
+        ```
+
+    Note:
+        For long-lived services, consider using MemorySubstrateContainer directly
+        to manage the container lifecycle:
+
+        ```python
+        from core.di.container import MemorySubstrateContainer
+
+        container = MemorySubstrateContainer(config)
+        service = await container.get_service()
+        # ... use service ...
+        await container.close()
+        ```
     """
-    # === DIAGNOSTIC LOGGING ===
+    from core.di.container import MemorySubstrateContainer
+
+    # Build config from parameters
+    config = {
+        "database_url": database_url,
+        "embedding_provider_type": embedding_provider_type,
+        **kwargs,
+    }
+
+    # Log factory invocation
     logger.info(
-        "substrate_service.init_start",
+        "substrate_service.factory_create",
         database_url_set=bool(database_url),
-        database_url_prefix=database_url[:30] + "..." if database_url else "NONE",
         embedding_provider_type=embedding_provider_type,
-        embedding_model=embedding_model,
-        openai_api_key_set=bool(openai_api_key),
-        openai_api_key_prefix=openai_api_key[:8] + "..." if openai_api_key else "NONE",
-        db_pool_size=db_pool_size,
+        config_keys=list(config.keys()),
     )
 
-    # Step 1: Create repository
+    # Delegate to DI container
     try:
-        logger.info("substrate_service.step1_repository_create")
-        repository = SubstrateRepository(
-            database_url=database_url,
-            pool_size=db_pool_size,
-            max_overflow=db_max_overflow,
-        )
-    except Exception as e:
-        logger.error(
-            "substrate_service.step1_repository_create_FAILED",
-            error=str(e),
-            error_type=type(e).__name__,
-        )
-        raise RuntimeError(f"SubstrateRepository creation failed: {e}") from e
-
-    # Step 2: Connect repository to database
-    try:
-        logger.info("substrate_service.step2_repository_connect")
-        await repository.connect()
-        logger.info("substrate_service.step2_repository_connect_SUCCESS")
-    except Exception as e:
-        logger.error(
-            "substrate_service.step2_repository_connect_FAILED",
-            error=str(e),
-            error_type=type(e).__name__,
-            database_url_prefix=database_url[:30] + "..." if database_url else "NONE",
-        )
-        raise RuntimeError(f"Database connection failed: {e}") from e
-
-    # Step 3: Create embedding provider
-    try:
-        logger.info(
-            "substrate_service.step3_embedding_provider_create",
-            provider_type=embedding_provider_type,
-            model=embedding_model,
-        )
-        embedding_provider = create_embedding_provider(
-            provider_type=embedding_provider_type,
-            model=embedding_model,
-            api_key=openai_api_key,
-        )
-        logger.info(
-            "substrate_service.step3_embedding_provider_create_SUCCESS",
-            provider_class=type(embedding_provider).__name__,
-        )
-    except Exception as e:
-        logger.error(
-            "substrate_service.step3_embedding_provider_FAILED",
-            error=str(e),
-            error_type=type(e).__name__,
-            provider_type=embedding_provider_type,
-            api_key_set=bool(openai_api_key),
-        )
-        raise RuntimeError(f"Embedding provider creation failed: {e}") from e
-
-    # Step 4: Create and return service
-    try:
-        logger.info("substrate_service.step4_service_create")
-        service = MemorySubstrateService(
-            repository=repository,
-            embedding_provider=embedding_provider,
-        )
-        logger.info("substrate_service.init_SUCCESS")
+        container = MemorySubstrateContainer(config)
+        service = await container.get_service()
+        logger.info("substrate_service.factory_SUCCESS")
         return service
     except Exception as e:
         logger.error(
-            "substrate_service.step4_service_create_FAILED",
+            "substrate_service.factory_FAILED",
             error=str(e),
             error_type=type(e).__name__,
         )
-        raise RuntimeError(f"MemorySubstrateService creation failed: {e}") from e
+        raise
 
 
 # Singleton instance
