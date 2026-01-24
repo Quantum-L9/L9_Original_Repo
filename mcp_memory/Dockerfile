@@ -39,6 +39,9 @@ COPY telemetry/ /app/telemetry/
 # Copy private kernels (needed for governance context)
 COPY private/ /app/private/
 
+# Copy SQL migrations (needed for MigrationRunner startup)
+COPY migrations/ /app/migrations/
+
 # Set Python path (include /app/mcp_memory for 'from src.xxx' imports)
 ENV PYTHONPATH=/app:/app/mcp_memory
 
