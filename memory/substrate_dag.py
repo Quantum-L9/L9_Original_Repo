@@ -6,7 +6,7 @@ NOTE: This is a LangGraph processing DAG for packet ingestion, NOT a Neo4j graph
       For Neo4j graph operations, see graph_client.py.
 
 Implements the substrate processing pipeline as a LangGraph DAG:
-  intake_node → reasoning_node → memory_write_node → semantic_embed_node → checkpoint_node
+  intake_node → reasoning_node → memory_write_node → graph_sync_node → semantic_embed_node → checkpoint_node
 
 The DAG routes PacketEnvelopes through processing stages with state accumulation.
 
@@ -49,7 +49,7 @@ __dora_meta__ = {
 
 import asyncio
 from datetime import datetime
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 from uuid import UUID, uuid4
 
 import structlog
@@ -58,6 +58,7 @@ from langgraph.graph import END, StateGraph
 
 from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, PacketWriteResult
+from memory.graph_client import get_neo4j_client
 from memory.substrate_models import (
     EnrichmentResult,
     ExtractedInsight,
@@ -167,12 +168,10 @@ class SubstrateGraphState(TypedDict):
     envelope: dict[str, Any]  # PacketEnvelope as dict
 
     # Processing results
-    reasoning_block: Optional[dict[str, Any]]  # StructuredReasoningBlock if generated
+    reasoning_block: dict[str, Any] | None  # StructuredReasoningBlock if generated
     written_tables: list[str]
-    embedding_id: Optional[str]
-    saved_checkpoint_id: Optional[
-        str
-    ]  # Renamed from checkpoint_id (reserved in LangGraph)
+    embedding_id: str | None
+    saved_checkpoint_id: str | None  # Renamed from checkpoint_id (reserved in LangGraph)
 
     # Insight extraction results (v1.1.0+)
     insights: list[dict[str, Any]]  # ExtractedInsight objects as dicts
@@ -416,7 +415,117 @@ async def memory_write_node(
 
     except Exception as e:
         logger.error(f"memory_write_node: Write failed: {e}")
-        errors.append(f"memory_write_node error: {str(e)}")
+        errors.append(f"memory_write_node error: {e!s}")
+
+    return {
+        **state,
+        "written_tables": written_tables,
+        "errors": errors,
+    }
+
+
+@must_stay_async("callers use await")
+async def graph_sync_node(
+    state: SubstrateGraphState, config: RunnableConfig = None
+) -> SubstrateGraphState:
+    """
+    Neo4j graph sync node: syncs packet to knowledge graph.
+
+    Creates:
+    - Event node for the packet
+    - Agent entity (if agent_id present)
+    - Thread entity (if thread_id present)
+    - Relationships between Event ↔ Agent ↔ Thread
+
+    This is best-effort - failures don't block the pipeline.
+    GMP-NEO4J-DAG: Added to enable WorldModel graph queries.
+    """
+    logger.debug("graph_sync_node: Syncing to Neo4j")
+
+    envelope = state.get("envelope", {})
+    errors = list(state.get("errors", []))
+    written_tables = list(state.get("written_tables", []))
+
+    # Skip if previous errors (core writes failed)
+    if errors:
+        logger.warning("graph_sync_node: Skipping due to previous errors")
+        return state
+
+    # Best-effort Neo4j sync - don't fail pipeline on graph errors
+    try:
+        neo4j = await get_neo4j_client()
+        if not neo4j or not neo4j.is_available():
+            logger.debug("graph_sync_node: Neo4j not available, skipping")
+            return state
+
+        packet_id = envelope.get("packet_id", str(uuid4()))
+        packet_type = envelope.get("packet_type", "unknown")
+        timestamp = envelope.get("timestamp", datetime.utcnow().isoformat())
+        metadata = envelope.get("metadata", {})
+        agent_id = metadata.get("agent") if metadata else None
+        thread_id = (
+            str(envelope.get("thread_id")) if envelope.get("thread_id") else None
+        )
+        tags = envelope.get("tags", [])
+
+        # Extract parent event ID from lineage (if present)
+        lineage = envelope.get("lineage", {})
+        parent_ids = lineage.get("parent_ids", []) if lineage else []
+        parent_event_id = str(parent_ids[0]) if parent_ids else None
+
+        # Create Event node for this packet
+        await neo4j.create_event(
+            event_id=str(packet_id),
+            event_type=packet_type,
+            timestamp=timestamp
+            if isinstance(timestamp, str)
+            else timestamp.isoformat(),
+            properties={
+                "packet_type": packet_type,
+                "agent": agent_id,
+                "thread_id": thread_id,
+                "tags": tags,
+            },
+            parent_event_id=parent_event_id,
+        )
+
+        # Link to Agent entity (create if not exists)
+        if agent_id:
+            await neo4j.create_entity(
+                entity_type="Agent",
+                entity_id=agent_id,
+                properties={"name": agent_id, "type": "agent"},
+            )
+            await neo4j.create_relationship(
+                from_type="Event",
+                from_id=str(packet_id),
+                to_type="Agent",
+                to_id=agent_id,
+                rel_type="PROCESSED_BY",
+            )
+
+        # Link to Thread (conversation grouping)
+        if thread_id:
+            await neo4j.create_entity(
+                entity_type="Thread",
+                entity_id=thread_id,
+                properties={"id": thread_id, "type": "conversation"},
+            )
+            await neo4j.create_relationship(
+                from_type="Event",
+                from_id=str(packet_id),
+                to_type="Thread",
+                to_id=thread_id,
+                rel_type="PART_OF",
+            )
+
+        written_tables.append("neo4j_graph")
+        logger.debug(f"graph_sync_node: Synced packet {packet_id} to Neo4j")
+
+    except Exception as e:
+        # Best-effort: log warning but don't fail pipeline
+        logger.warning(f"graph_sync_node: Neo4j sync failed (non-critical): {e}")
+        # Don't append to errors - Neo4j is optional enhancement
 
     return {
         **state,
@@ -507,7 +616,7 @@ async def semantic_embed_node(
 
     except Exception as e:
         logger.error(f"semantic_embed_node: Embedding failed: {e}")
-        errors.append(f"semantic_embed_node error: {str(e)}")
+        errors.append(f"semantic_embed_node error: {e!s}")
 
     return {
         **state,
@@ -559,7 +668,7 @@ async def checkpoint_node(
 
     except Exception as e:
         logger.error(f"checkpoint_node: Checkpoint failed: {e}")
-        errors.append(f"checkpoint_node error: {str(e)}")
+        errors.append(f"checkpoint_node error: {e!s}")
 
     return {
         **state,
@@ -786,7 +895,7 @@ async def store_insights_node(
 
     except Exception as e:
         logger.error(f"store_insights_node: Failed to store: {e}")
-        errors.append(f"store_insights_node error: {str(e)}")
+        errors.append(f"store_insights_node error: {e!s}")
 
     return {
         **state,
@@ -854,7 +963,7 @@ async def world_model_trigger_node(
 
     except Exception as e:
         logger.error(f"world_model_trigger_node: Update failed: {e}")
-        errors.append(f"world_model_trigger_node error: {str(e)}")
+        errors.append(f"world_model_trigger_node error: {e!s}")
         return {
             **state,
             "world_model_triggered": False,
@@ -944,13 +1053,14 @@ def build_substrate_graph() -> StateGraph:
     """
     Build the LangGraph DAG for memory substrate processing with conditional routing.
 
-    Graph structure (v2.0.0 - Native LangGraph Execution):
-        intake_node → reasoning_node → memory_write_node → [CONDITIONAL]
-                                                            ├─ do_embed → semantic_embed_node → extract_insights_node
-                                                            └─ skip_embed → extract_insights_node
+    Graph structure (v2.1.0 - Neo4j Graph Sync):
+        intake_node → reasoning_node → memory_write_node → graph_sync_node → [CONDITIONAL]
+                                                                              ├─ do_embed → semantic_embed_node → extract_insights_node
+                                                                              └─ skip_embed → extract_insights_node
         extract_insights_node → store_insights_node → world_model_trigger_node → checkpoint_node
 
     GMP-42: Conditional routing skips semantic_embed_node for low-value content.
+    GMP-NEO4J-DAG: graph_sync_node syncs packets to Neo4j knowledge graph.
 
     Returns:
         Compiled StateGraph
@@ -962,20 +1072,22 @@ def build_substrate_graph() -> StateGraph:
     graph.add_node("intake_node", intake_node)
     graph.add_node("reasoning_node", reasoning_node)
     graph.add_node("memory_write_node", memory_write_node)
+    graph.add_node("graph_sync_node", graph_sync_node)  # GMP-NEO4J-DAG: Neo4j sync
     graph.add_node("semantic_embed_node", semantic_embed_node)
     graph.add_node("extract_insights_node", extract_insights_node)
     graph.add_node("store_insights_node", store_insights_node)
     graph.add_node("world_model_trigger_node", world_model_trigger_node)
     graph.add_node("checkpoint_node", checkpoint_node)
 
-    # Linear edges (entry through memory_write)
+    # Linear edges (entry through memory_write, then graph_sync)
     graph.set_entry_point("intake_node")
     graph.add_edge("intake_node", "reasoning_node")
     graph.add_edge("reasoning_node", "memory_write_node")
+    graph.add_edge("memory_write_node", "graph_sync_node")  # GMP-NEO4J-DAG: Neo4j sync
 
-    # CONDITIONAL: Route after memory_write based on content (GMP-42)
+    # CONDITIONAL: Route after graph_sync based on content (GMP-42)
     graph.add_conditional_edges(
-        "memory_write_node",
+        "graph_sync_node",  # Changed from memory_write_node (GMP-NEO4J-DAG)
         route_after_memory_write,
         {
             "do_embed": "semantic_embed_node",
@@ -1101,7 +1213,7 @@ class SubstrateDAG:
                 self._graph.ainvoke(initial_state, config=config),
                 timeout=60.0,  # 60 second timeout for DAG execution
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error(f"DAG execution timed out for packet {envelope.packet_id}")
             return PacketWriteResult(
                 packet_id=envelope.packet_id,
@@ -1141,7 +1253,7 @@ class SubstrateDAG:
     async def enrich(
         self,
         envelope: PacketEnvelope,
-        preload_state: Optional[dict[str, Any]] = None,
+        preload_state: dict[str, Any] | None = None,
     ) -> EnrichmentResult:
         """
         Run ENRICHMENT ONLY pipeline using native LangGraph execution (v2.1.0 - GMP-67).
@@ -1206,7 +1318,7 @@ class SubstrateDAG:
                 self._enrichment_graph.ainvoke(initial_state, config=config),
                 timeout=30.0,  # 30 second timeout for enrichment
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error(f"Enrichment timed out for packet {envelope.packet_id}")
             raise
         except Exception as e:
@@ -1283,7 +1395,7 @@ __dora_footer__ = {
         "enrich",
         "enrichment",
     ],
-    "business_value": "intake_node → reasoning_node → memory_write_node → semantic_embed_node → checkpoint_node",
+    "business_value": "intake_node → reasoning_node → memory_write_node → graph_sync_node → semantic_embed_node → checkpoint_node",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",
