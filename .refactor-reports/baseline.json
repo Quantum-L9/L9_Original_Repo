@@ -1,0 +1,15 @@
+{
+  "project": ".",
+  "language": "python",
+  "timestamp": "2026-01-24T07:43:27.298670",
+  "analysis": {
+    "python": {
+      "tools_available": [
+        "ruff",
+        "mypy"
+      ],
+      "file_count": 9481,
+      "total_lines": 3317600
+    }
+  }
+}

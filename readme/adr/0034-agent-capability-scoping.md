@@ -4,11 +4,11 @@
 Accepted
 
 ## Pattern
-Agent capabilities scoped by tenant ID; L uses `l-cto`, Cursor uses `cursor-ide`; capabilities differ per agent.
+Agent capabilities scoped by tenant ID; L uses `l-cto`, Cursor uses `cursor`; capabilities differ per agent.
 
 ## Files
 - `core/tools/tool_graph.py` - `L9_TENANT_ID = 'l-cto'`
-- `agents/cursor/cursor_memory_kernel.py` - `CURSOR_TENANT_ID = 'cursor-ide'`
+- `agents/cursor/cursor_memory_kernel.py` - `CURSOR_TENANT_ID = 'cursor'`
 - `core/schemas/capabilities.py` - Capability definitions
 - `core/governance/approval_manager.py` - Approval flow
 
@@ -20,7 +20,7 @@ from dataclasses import dataclass
 
 # Tenant IDs
 L9_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
-CURSOR_TENANT_ID = "cursor-ide"
+CURSOR_TENANT_ID = "cursor"
 ```
 
 ## Minimal Implementation
@@ -35,7 +35,7 @@ logger = structlog.get_logger(__name__)
 
 # Tenant IDs
 L9_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
-CURSOR_TENANT_ID = "cursor-ide"
+CURSOR_TENANT_ID = "cursor"
 
 
 class Capability(str, Enum):
@@ -79,7 +79,7 @@ L_CTO_CAPABILITIES = AgentCapabilities(
 )
 
 CURSOR_CAPABILITIES = AgentCapabilities(
-    agent_id="cursor-ide",
+    agent_id="cursor",
     tenant_id=CURSOR_TENANT_ID,
     capabilities={
         Capability.MEMORY_READ,
@@ -223,7 +223,7 @@ Igor (Human)
 L-CTO (l-cto tenant)
     │ Almost full, needs Igor for git_push/deploy
     ▼
-Cursor IDE (cursor-ide tenant)
+Cursor IDE (cursor tenant)
     │ Read + write memory, limited tools
     ▼
 Research Agents
@@ -236,7 +236,7 @@ Mac Agent
 ## Rules
 1. ALWAYS check tenant_id before operations
 2. L-CTO uses `l-cto` tenant
-3. Cursor uses `cursor-ide` tenant
+3. Cursor uses `cursor` tenant
 4. Check capability before tool dispatch
 5. High-risk tools need Igor approval regardless
 

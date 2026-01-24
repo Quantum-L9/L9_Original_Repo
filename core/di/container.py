@@ -60,7 +60,8 @@ __dora_meta__ = {
 
 import inspect
 import threading
-from typing import Any, Callable, Dict, Optional, Set, Type, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 import structlog
 
@@ -115,15 +116,15 @@ class DIContainer:
 
     def __init__(self):
         """Initialize DI container."""
-        self._bindings: Dict[Type, Callable] = {}
-        self._singletons: Dict[Type, Any] = {}
-        self._singleton_bindings: Set[Type] = set()
-        self._building: Set[Type] = set()
+        self._bindings: dict[type, Callable] = {}
+        self._singletons: dict[type, Any] = {}
+        self._singleton_bindings: set[type] = set()
+        self._building: set[type] = set()
         self._lock = threading.RLock()
 
         logger.info("di_container.initialized")
 
-    def bind_singleton(self, interface: Type[T], factory: Callable[[], T]) -> None:
+    def bind_singleton(self, interface: type[T], factory: Callable[[], T]) -> None:
         """
         Bind interface to singleton factory.
 
@@ -147,7 +148,7 @@ class DIContainer:
                 lifecycle="singleton",
             )
 
-    def bind_transient(self, interface: Type[T], factory: Callable[[], T]) -> None:
+    def bind_transient(self, interface: type[T], factory: Callable[[], T]) -> None:
         """
         Bind interface to transient factory.
 
@@ -172,7 +173,7 @@ class DIContainer:
                 lifecycle="transient",
             )
 
-    def bind_instance(self, interface: Type[T], instance: T) -> None:
+    def bind_instance(self, interface: type[T], instance: T) -> None:
         """
         Bind interface to existing instance.
 
@@ -197,7 +198,7 @@ class DIContainer:
                 instance_type=type(instance).__name__,
             )
 
-    def resolve(self, interface: Type[T]) -> T:
+    def resolve(self, interface: type[T]) -> T:
         """
         Resolve dependency by interface type.
 
@@ -294,12 +295,12 @@ class DIContainer:
                 if isinstance(e, (CircularDependencyError, BindingNotFoundError)):
                     raise
                 raise ResolutionError(
-                    f"Failed to resolve {interface.__name__}: {str(e)}"
+                    f"Failed to resolve {interface.__name__}: {e!s}"
                 ) from e
             finally:
                 self._building.discard(interface)
 
-    def _create_instance(self, factory: Callable, interface: Type) -> Any:
+    def _create_instance(self, factory: Callable, interface: type) -> Any:
         """
         Create instance using factory with automatic dependency injection.
 
@@ -337,11 +338,18 @@ class DIContainer:
                         # Try to resolve string annotation using get_type_hints (safer than eval)
                         try:
                             from typing import get_type_hints
+
                             if inspect.isclass(factory):
-                                hints = get_type_hints(factory.__init__, globalns=factory.__init__.__globals__, localns=None)
+                                hints = get_type_hints(
+                                    factory.__init__,
+                                    globalns=factory.__init__.__globals__,
+                                    localns=None,
+                                )
                                 annotation = hints.get(param.name, annotation)
                             else:
-                                hints = get_type_hints(factory, globalns=factory.__globals__, localns=None)
+                                hints = get_type_hints(
+                                    factory, globalns=factory.__globals__, localns=None
+                                )
                                 annotation = hints.get(param.name, annotation)
                         except Exception as e:
                             logger.debug(
@@ -373,7 +381,7 @@ class DIContainer:
             )
             raise
 
-    def has_binding(self, interface: Type) -> bool:
+    def has_binding(self, interface: type) -> bool:
         """
         Check if binding exists for interface.
 
@@ -386,7 +394,7 @@ class DIContainer:
         with self._lock:
             return interface in self._bindings or interface in self._singletons
 
-    def get_optional(self, interface: Type[T]) -> Optional[T]:
+    def get_optional(self, interface: type[T]) -> T | None:
         """
         Resolve dependency optionally (returns None if not registered).
 
@@ -420,7 +428,7 @@ class DIContainer:
             )
             return None
 
-    def list_registrations(self) -> Dict[str, Dict[str, Any]]:
+    def list_registrations(self) -> dict[str, dict[str, Any]]:
         """
         List all registered services with metadata.
 
@@ -497,7 +505,7 @@ class DIContainer:
                 singletons_cleared=singleton_count,
             )
 
-    def get_bindings(self) -> Dict[str, str]:
+    def get_bindings(self) -> dict[str, str]:
         """
         Get all registered bindings.
 
@@ -526,7 +534,7 @@ class DIContainer:
 
 
 # Global container instance
-_global_container: Optional[DIContainer] = None
+_global_container: DIContainer | None = None
 _container_lock = threading.Lock()
 
 
@@ -565,11 +573,313 @@ def reset_di_container() -> None:
         logger.info("di_container.global_instance_reset")
 
 
+# ============================================================================
+# Memory Substrate Container (PR #52 / GMP-116 DI/DIP Refactoring)
+# ============================================================================
+
+
+class MemorySubstrateContainer:
+    """
+    DI Container for Memory Substrate components.
+
+    Manages lifecycle of memory substrate stack with protocol-based wiring:
+    - Repository (PostgreSQL + pgvector connection pool)
+    - Embedding Provider (OpenAI API client or stub)
+    - Semantic Service (vector similarity search)
+    - DAG (packet processing pipeline)
+    - Service (orchestration layer)
+
+    **Compliance:**
+    - ADR-0052: Dependency injection
+    - ADR-0026: Protocol-based abstractions
+    - ADR-0004: Singleton pattern for shared resources
+
+    **Usage:**
+        config = {
+            "database_url": "postgresql://...",
+            "embedding_provider_type": "openai",
+            "embedding_model": "text-embedding-3-large",
+            "openai_api_key": os.getenv("OPENAI_API_KEY"),
+        }
+        container = MemorySubstrateContainer(config)
+        service = await container.get_service()
+
+    **Lifecycle:**
+    - Repository: Singleton (connection pool shared across requests)
+    - Embedding Provider: Singleton (API client reused)
+    - Semantic Service: Singleton (depends on repository + embedding provider)
+    - DAG: Singleton (depends on repository + semantic service)
+    - Service: Singleton (depends on all above)
+
+    **Thread Safety:** All getters use locks for safe concurrent access.
+
+    Version: 1.0.0
+    Created: 2026-01-24
+    """
+
+    def __init__(self, config: dict[str, Any]):
+        """
+        Initialize container with configuration.
+
+        Args:
+            config: Dictionary with keys:
+                - database_url (str): PostgreSQL DSN
+                - db_pool_size (int, optional): Connection pool size (default: 5)
+                - db_max_overflow (int, optional): Max overflow connections (default: 10)
+                - embedding_provider_type (str, optional): "openai" or "stub" (default: "openai")
+                - embedding_model (str, optional): Model name (default: "text-embedding-3-large")
+                - openai_api_key (str, optional): OpenAI API key (required if type=openai)
+        """
+        self._config = config
+        self._lock = threading.Lock()
+
+        # Singleton instances
+        self._repository: Any | None = None  # SubstrateRepositoryProtocol
+        self._embedding_provider: Any | None = None  # EmbeddingProviderProtocol
+        self._semantic_service: Any | None = None  # SemanticServiceProtocol
+        self._dag: Any | None = None  # DAGProtocol
+        self._service: Any | None = None  # MemorySubstrateService
+
+        logger.info(
+            "MemorySubstrateContainer.initialized",
+            database_url_set=bool(config.get("database_url")),
+            embedding_provider=config.get("embedding_provider_type", "openai"),
+        )
+
+    async def get_repository(self) -> Any:  # Returns SubstrateRepositoryProtocol
+        """
+        Get or create singleton repository instance.
+
+        Returns:
+            SubstrateRepositoryProtocol implementation (SubstrateRepository)
+
+        Raises:
+            DIContainerError: If repository initialization fails
+        """
+        if self._repository is None:
+            with self._lock:
+                if self._repository is None:  # Double-checked locking
+                    try:
+                        from memory.substrate_repository import SubstrateRepository
+
+                        self._repository = SubstrateRepository(
+                            database_url=self._config["database_url"],
+                            pool_size=self._config.get("db_pool_size", 5),
+                            max_overflow=self._config.get("db_max_overflow", 10),
+                        )
+                        await self._repository.connect()
+
+                        logger.info(
+                            "MemorySubstrateContainer.repository_initialized",
+                            pool_size=self._config.get("db_pool_size", 5),
+                        )
+                    except Exception as e:
+                        logger.error(
+                            "MemorySubstrateContainer.repository_failed",
+                            error=str(e),
+                        )
+                        raise DIContainerError(
+                            f"Failed to initialize repository: {e}"
+                        ) from e
+
+        return self._repository
+
+    async def get_embedding_provider(self) -> Any:  # Returns EmbeddingProviderProtocol
+        """
+        Get or create singleton embedding provider instance.
+
+        Returns:
+            EmbeddingProviderProtocol implementation (OpenAIEmbeddingProvider or StubEmbeddingProvider)
+
+        Raises:
+            DIContainerError: If embedding provider initialization fails
+        """
+        if self._embedding_provider is None:
+            with self._lock:
+                if self._embedding_provider is None:  # Double-checked locking
+                    try:
+                        from memory.substrate_semantic import create_embedding_provider
+
+                        provider_type = self._config.get(
+                            "embedding_provider_type", "openai"
+                        )
+                        model = self._config.get(
+                            "embedding_model", "text-embedding-3-large"
+                        )
+                        api_key = self._config.get("openai_api_key")
+
+                        self._embedding_provider = create_embedding_provider(
+                            provider_type=provider_type,
+                            model=model,
+                            api_key=api_key,
+                        )
+
+                        logger.info(
+                            "MemorySubstrateContainer.embedding_provider_initialized",
+                            provider_type=provider_type,
+                            model=model,
+                        )
+                    except Exception as e:
+                        logger.error(
+                            "MemorySubstrateContainer.embedding_provider_failed",
+                            error=str(e),
+                        )
+                        raise DIContainerError(
+                            f"Failed to initialize embedding provider: {e}"
+                        ) from e
+
+        return self._embedding_provider
+
+    async def get_semantic_service(self) -> Any:  # Returns SemanticServiceProtocol
+        """
+        Get or create singleton semantic service instance.
+
+        Returns:
+            SemanticServiceProtocol implementation (SemanticService)
+
+        Raises:
+            DIContainerError: If semantic service initialization fails
+        """
+        if self._semantic_service is None:
+            with self._lock:
+                if self._semantic_service is None:  # Double-checked locking
+                    try:
+                        from memory.substrate_semantic import SemanticService
+
+                        repository = await self.get_repository()
+                        embedding_provider = await self.get_embedding_provider()
+
+                        self._semantic_service = SemanticService(
+                            embedding_provider=embedding_provider,
+                            repository=repository,
+                        )
+
+                        logger.info(
+                            "MemorySubstrateContainer.semantic_service_initialized"
+                        )
+                    except Exception as e:
+                        logger.error(
+                            "MemorySubstrateContainer.semantic_service_failed",
+                            error=str(e),
+                        )
+                        raise DIContainerError(
+                            f"Failed to initialize semantic service: {e}"
+                        ) from e
+
+        return self._semantic_service
+
+    async def get_dag(self) -> Any:  # Returns DAGProtocol
+        """
+        Get or create singleton DAG instance.
+
+        Returns:
+            DAGProtocol implementation (SubstrateDAG)
+
+        Raises:
+            DIContainerError: If DAG initialization fails
+        """
+        if self._dag is None:
+            with self._lock:
+                if self._dag is None:  # Double-checked locking
+                    try:
+                        from memory.substrate_dag import SubstrateDAG
+
+                        repository = await self.get_repository()
+                        semantic_service = await self.get_semantic_service()
+
+                        self._dag = SubstrateDAG(
+                            repository=repository,
+                            semantic_service=semantic_service,
+                        )
+
+                        logger.info("MemorySubstrateContainer.dag_initialized")
+                    except Exception as e:
+                        logger.error(
+                            "MemorySubstrateContainer.dag_failed",
+                            error=str(e),
+                        )
+                        raise DIContainerError(f"Failed to initialize DAG: {e}") from e
+
+        return self._dag
+
+    async def get_service(self) -> Any:  # Returns MemorySubstrateService
+        """
+        Get or create fully wired service instance.
+
+        This is the main entry point for getting a complete MemorySubstrateService
+        with all dependencies wired via protocols.
+
+        Returns:
+            MemorySubstrateService with protocol-based dependencies
+
+        Raises:
+            DIContainerError: If service initialization fails
+        """
+        if self._service is None:
+            with self._lock:
+                if self._service is None:  # Double-checked locking
+                    try:
+                        from memory.substrate_service import MemorySubstrateService
+
+                        repository = await self.get_repository()
+                        embedding_provider = await self.get_embedding_provider()
+                        semantic_service = await self.get_semantic_service()
+                        dag = await self.get_dag()
+
+                        self._service = MemorySubstrateService(
+                            repository=repository,
+                            embedding_provider=embedding_provider,
+                            semantic_service=semantic_service,
+                            dag=dag,
+                        )
+
+                        logger.info("MemorySubstrateContainer.service_initialized")
+                    except Exception as e:
+                        logger.error(
+                            "MemorySubstrateContainer.service_failed",
+                            error=str(e),
+                        )
+                        raise DIContainerError(
+                            f"Failed to initialize service: {e}"
+                        ) from e
+
+        return self._service
+
+    async def close(self) -> None:
+        """
+        Graceful shutdown of all components.
+
+        Closes connections and releases resources in reverse dependency order:
+        1. Service (no resources to close)
+        2. DAG (no resources to close)
+        3. Semantic Service (no resources to close)
+        4. Embedding Provider (no resources to close)
+        5. Repository (closes database connection pool)
+        """
+        try:
+            if self._repository:
+                await self._repository.disconnect()
+                logger.info("MemorySubstrateContainer.repository_disconnected")
+
+            # Clear all references
+            self._service = None
+            self._dag = None
+            self._semantic_service = None
+            self._embedding_provider = None
+            self._repository = None
+
+            logger.info("MemorySubstrateContainer.closed")
+        except Exception as e:
+            logger.error("MemorySubstrateContainer.close_failed", error=str(e))
+            raise DIContainerError(f"Failed to close container: {e}") from e
+
+
 __all__ = [
+    "BindingNotFoundError",
+    "CircularDependencyError",
     "DIContainer",
     "DIContainerError",
-    "CircularDependencyError",
-    "BindingNotFoundError",
+    "MemorySubstrateContainer",
     "ResolutionError",
     "get_di_container",
     "reset_di_container",

@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
@@ -236,9 +236,7 @@ async def get_error_stats(hours: int = 24) -> dict[str, int]:
         return {}
 
     try:
-        cutoff = (
-            datetime.utcnow() - __import__("datetime").timedelta(hours=hours)
-        ).isoformat()
+        cutoff = (datetime.utcnow() - timedelta(hours=hours)).isoformat()
 
         result = await neo4j.run_query(
             """
@@ -258,10 +256,10 @@ async def get_error_stats(hours: int = 24) -> dict[str, int]:
 
 
 __all__ = [
-    "log_error_to_graph",
     "get_error_chain",
-    "get_errors_by_type",
     "get_error_stats",
+    "get_errors_by_type",
+    "log_error_to_graph",
 ]
 
 # ============================================================================

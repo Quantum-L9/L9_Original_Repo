@@ -53,7 +53,7 @@ import hashlib
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol, Tuple
+from typing import TYPE_CHECKING, Any, Protocol
 
 import structlog
 import yaml
@@ -152,10 +152,10 @@ except Exception as e:
 class KernelAwareAgent(Protocol):
     """Protocol for agents that can absorb kernels."""
 
-    kernels: Dict[str, Dict[str, Any]]
+    kernels: dict[str, dict[str, Any]]
     kernel_state: Any  # Can be str "ACTIVE" or KernelState object
 
-    def absorb_kernel(self, kernel_data: Dict[str, Any]) -> None:
+    def absorb_kernel(self, kernel_data: dict[str, Any]) -> None:
         """Absorb a kernel into the agent's configuration."""
         ...
 
@@ -163,7 +163,7 @@ class KernelAwareAgent(Protocol):
         """Set the agent's system context after kernel activation."""
         ...
 
-    def apply_boot_overlay(self, overlay: Dict[str, Any]) -> None:
+    def apply_boot_overlay(self, overlay: dict[str, Any]) -> None:
         """Apply boot overlay configuration."""
         ...
 
@@ -173,7 +173,7 @@ class KernelAwareAgent(Protocol):
 # =============================================================================
 
 
-def verify_kernel_integrity(agent: Any) -> Tuple[bool, List[str]]:
+def verify_kernel_integrity(agent: Any) -> tuple[bool, list[str]]:
     """
     Verify that all required kernels are loaded and valid.
 
@@ -189,7 +189,7 @@ def verify_kernel_integrity(agent: Any) -> Tuple[bool, List[str]]:
     Returns:
         Tuple of (is_valid, list of error messages)
     """
-    errors: List[str] = []
+    errors: list[str] = []
 
     # Check kernel dict exists
     kernels = getattr(agent, "kernels", None)
@@ -281,16 +281,16 @@ def ensure_kernel_integrity(agent: Any) -> None:
 
 
 @lru_cache(maxsize=32)
-def _load_kernel_yaml_cached(kernel_path_str: str) -> Dict[str, Any]:
+def _load_kernel_yaml_cached(kernel_path_str: str) -> dict[str, Any]:
     """
     Cache kernel YAML loading.
-    
+
     Kernels are immutable after load, so caching is safe.
     This provides 99% faster access for repeated kernel loads.
-    
+
     Args:
         kernel_path_str: String path to kernel YAML file
-        
+
     Returns:
         Parsed kernel data
     """
@@ -298,7 +298,7 @@ def _load_kernel_yaml_cached(kernel_path_str: str) -> Dict[str, Any]:
     return yaml.safe_load(kernel_path.read_text())
 
 
-def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
+def load_kernels(agent: Any, base_path: Path | None = None) -> Any:
     """
     Load all kernels into an agent in the correct order.
 
@@ -442,7 +442,7 @@ def load_kernels(agent: Any, base_path: Optional[Path] = None) -> Any:
     return agent
 
 
-def _inject_activation_context(agent: Any, boot_overlay: Dict[str, Any] = None) -> None:
+def _inject_activation_context(agent: Any, boot_overlay: dict[str, Any] = None) -> None:
     """
     Inject the activation context that makes L aware of kernels.
 
@@ -505,7 +505,7 @@ async def _bootstrap_memory(agent: Any) -> None:
     This is what gives L "memory" across sessions - without this, L has amnesia.
 
     IMPORTANT: Only loads lessons owned by L (agent = l9-standard-v1, l-cto, or L).
-    Cursor lessons (agent = cursor-ide) are NOT loaded - scope separation.
+    Cursor lessons (agent = cursor) are NOT loaded - scope separation.
 
     Note: This is async and best-effort. Kernel loading continues if memory fails.
     """
@@ -526,7 +526,7 @@ async def _bootstrap_memory(agent: Any) -> None:
             logger.info("kernel_loader.memory_bootstrap: no lessons found")
             return
 
-        # Filter for L's lessons only (exclude cursor-ide)
+        # Filter for L's lessons only (exclude cursor)
         l_lessons = []
         for packet in all_lessons:
             envelope = packet.get("envelope", {})
@@ -534,8 +534,8 @@ async def _bootstrap_memory(agent: Any) -> None:
             agent_id = metadata.get("agent", "")
 
             # Include if: owned by L, or no owner (legacy)
-            # Exclude if: owned by cursor-ide
-            if agent_id == "cursor-ide":
+            # Exclude if: owned by cursor
+            if agent_id == "cursor":
                 continue
             if agent_id in ("l9-standard-v1", "l-cto", "L", "", None):
                 payload = envelope.get("payload", {})
@@ -574,7 +574,7 @@ async def _bootstrap_memory(agent: Any) -> None:
         # Don't fail kernel loading - memory is enhancement, not requirement
 
 
-async def _sync_kernels_to_graph(agent: Any, kernel_paths: List[str]) -> None:
+async def _sync_kernels_to_graph(agent: Any, kernel_paths: list[str]) -> None:
     """
     Sync loaded kernels to Neo4j graph for influence tracking.
 
@@ -664,7 +664,7 @@ async def _sync_kernels_to_graph(agent: Any, kernel_paths: List[str]) -> None:
         logger.warning(f"kernel_loader.graph_sync_failed: {e}")
 
 
-def _extract_kernel_rules(kernel_data: Dict[str, Any]) -> List[str]:
+def _extract_kernel_rules(kernel_data: dict[str, Any]) -> list[str]:
     """Extract key rule names from kernel data for graph storage."""
     rules = []
 
@@ -690,7 +690,7 @@ def _extract_kernel_rules(kernel_data: Dict[str, Any]) -> List[str]:
 # =============================================================================
 
 
-def guarded_execute(agent: Any, tool_id: str, payload: Dict[str, Any]) -> Any:
+def guarded_execute(agent: Any, tool_id: str, payload: dict[str, Any]) -> Any:
     """
     Execute a tool call with kernel enforcement.
 
@@ -824,9 +824,9 @@ class KernelStack:
 
     def __init__(
         self,
-        kernels_by_id: Dict[str, Dict[str, Any]],
-        kernels_by_file: Dict[str, Dict[str, Any]],
-        hashes: Dict[str, str],
+        kernels_by_id: dict[str, dict[str, Any]],
+        kernels_by_file: dict[str, dict[str, Any]],
+        hashes: dict[str, str],
         base_dir: Path,
     ) -> None:
         self.kernels_by_id = kernels_by_id
@@ -834,13 +834,13 @@ class KernelStack:
         self.hashes = hashes
         self.base_dir = base_dir
 
-    def get_kernel(self, kernel_id: str) -> Optional[Dict[str, Any]]:
+    def get_kernel(self, kernel_id: str) -> dict[str, Any] | None:
         return self.kernels_by_id.get(kernel_id)
 
-    def get_hash(self, filename: str) -> Optional[str]:
+    def get_hash(self, filename: str) -> str | None:
         return self.hashes.get(filename)
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "kernels_by_id": self.kernels_by_id,
             "kernels_by_file": self.kernels_by_file,
@@ -869,7 +869,7 @@ class KernelStack:
 
 
 # Kernel ID to filename mapping (matches KERNEL_ORDER)
-KERNEL_ID_MAP: Dict[str, str] = {
+KERNEL_ID_MAP: dict[str, str] = {
     "master": "01_master_kernel.yaml",
     "identity": "02_identity_kernel.yaml",
     "cognitive": "03_cognitive_kernel.yaml",
@@ -890,7 +890,7 @@ def _sha256_of_file(path: Path) -> str:
 
 
 def load_kernel_stack(
-    base_dir: Optional[Path] = None,
+    base_dir: Path | None = None,
     verify_integrity: bool = True,
 ) -> KernelStack:
     """
@@ -918,9 +918,9 @@ def load_kernel_stack(
         repo_root = Path(__file__).resolve().parent.parent
         base_dir = repo_root / "private" / "kernels" / "00_system"
 
-    kernels_by_id: Dict[str, Dict[str, Any]] = {}
-    kernels_by_file: Dict[str, Dict[str, Any]] = {}
-    hashes: Dict[str, str] = {}
+    kernels_by_id: dict[str, dict[str, Any]] = {}
+    kernels_by_file: dict[str, dict[str, Any]] = {}
+    hashes: dict[str, str] = {}
 
     for kernel_id, filename in KERNEL_ID_MAP.items():
         full_path = base_dir / filename
@@ -974,7 +974,7 @@ def load_kernel_stack(
 
 
 @lru_cache(maxsize=64)
-def load_kernel_file(file_path: Path) -> Optional[Dict[str, Any]]:
+def load_kernel_file(file_path: Path) -> dict[str, Any] | None:
     """
     Load a single kernel YAML file. CACHED.
 
@@ -991,7 +991,7 @@ def load_kernel_file(file_path: Path) -> Optional[Dict[str, Any]]:
         RuntimeError: If YAML parse fails or file cannot be read (LOUD failure)
     """
     try:
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             content = yaml.safe_load(f)
 
         if content is None:
@@ -1006,7 +1006,7 @@ def load_kernel_file(file_path: Path) -> Optional[Dict[str, Any]]:
     except yaml.YAMLError as e:
         logger.error(f"YAML parse error in {file_path}: {e}")
         raise RuntimeError(f"Kernel YAML parse error in {file_path}: {e}") from e
-    except (IOError, OSError) as e:
+    except OSError as e:
         logger.error(f"Failed to read {file_path}: {e}")
         raise RuntimeError(f"Kernel file read error in {file_path}: {e}") from e
 
@@ -1015,7 +1015,7 @@ def load_all_private_kernels(
     base_path: str = DEFAULT_KERNEL_PATH,
     check_integrity: bool = True,
     fail_on_tamper: bool = False,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Load all private kernel YAML files from a directory with layer support.
 
@@ -1045,8 +1045,7 @@ def load_all_private_kernels(
     # Integrity check
     if check_integrity:
         try:
-            from core.kernels.integrity import (IntegrityChange,
-                                                check_kernel_integrity)
+            from core.kernels.integrity import IntegrityChange, check_kernel_integrity
 
             changes = check_kernel_integrity(base_path)
             if changes:
@@ -1075,14 +1074,14 @@ def load_all_private_kernels(
         ("90_project", 90),
     ]
 
-    layer_dirs: List[Tuple[Path, int, str]] = []
+    layer_dirs: list[tuple[Path, int, str]] = []
     for name, order in LAYER_DEFS:
         layer_path = kernel_root / name
         if layer_path.exists() and layer_path.is_dir():
             layer_dirs.append((layer_path, order, name))
 
     use_layered = len(layer_dirs) > 0
-    kernels: List[Dict[str, Any]] = []
+    kernels: list[dict[str, Any]] = []
 
     if use_layered:
         # Layered mode: iterate layers in order
@@ -1107,7 +1106,7 @@ def load_all_private_kernels(
                     kernels.append(kernel)
 
     # Sort kernels by (layer_order, kernel.priority)
-    def _sort_key(k: Dict[str, Any]) -> Tuple[int, int]:
+    def _sort_key(k: dict[str, Any]) -> tuple[int, int]:
         layer_order = 50
         meta = k.get("_meta") or {}
         if isinstance(meta, dict):
@@ -1130,7 +1129,7 @@ def load_all_private_kernels(
 def load_layered_kernels(
     base_path: str = DEFAULT_KERNEL_PATH,
     check_integrity: bool = False,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Convenience alias for load_all_private_kernels.
 
@@ -1157,7 +1156,7 @@ def load_layered_kernels(
 def get_kernel_by_name(
     name: str,
     base_path: str = DEFAULT_KERNEL_PATH,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Get a specific kernel by name.
 
@@ -1180,7 +1179,7 @@ def get_kernel_by_name(
 
 def get_enabled_rules(
     base_path: str = DEFAULT_KERNEL_PATH,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Get all enabled rules from all kernels.
 
@@ -1193,7 +1192,7 @@ def get_enabled_rules(
         List of enabled rule dicts
     """
     kernels = load_all_private_kernels(base_path)
-    rules: List[Dict[str, Any]] = []
+    rules: list[dict[str, Any]] = []
 
     for kernel in kernels:
         kernel_info = kernel.get("kernel", {})
@@ -1215,7 +1214,7 @@ def get_enabled_rules(
 def get_rules_by_type(
     rule_type: str,
     base_path: str = DEFAULT_KERNEL_PATH,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Get all enabled rules of a specific type.
 
@@ -1235,7 +1234,7 @@ def get_rules_by_type(
 # =============================================================================
 
 
-def validate_kernel_structure(kernel: Dict[str, Any]) -> List[str]:
+def validate_kernel_structure(kernel: dict[str, Any]) -> list[str]:
     """
     Validate kernel structure against expected schema.
 
@@ -1245,7 +1244,7 @@ def validate_kernel_structure(kernel: Dict[str, Any]) -> List[str]:
     Returns:
         List of validation errors (empty if valid)
     """
-    errors: List[str] = []
+    errors: list[str] = []
 
     # Must have kernel key
     if "kernel" not in kernel:
@@ -1277,7 +1276,7 @@ def validate_kernel_structure(kernel: Dict[str, Any]) -> List[str]:
     return errors
 
 
-def validate_all_kernels(base_path: str = DEFAULT_KERNEL_PATH) -> Dict[str, List[str]]:
+def validate_all_kernels(base_path: str = DEFAULT_KERNEL_PATH) -> dict[str, list[str]]:
     """
     Validate all kernels in a directory.
 
@@ -1288,7 +1287,7 @@ def validate_all_kernels(base_path: str = DEFAULT_KERNEL_PATH) -> Dict[str, List
         Dict mapping file paths to list of validation errors
     """
     base = Path(base_path)
-    results: Dict[str, List[str]] = {}
+    results: dict[str, list[str]] = {}
 
     for ext in KERNEL_EXTENSIONS:
         for file in base.rglob(f"*{ext}"):
@@ -1301,7 +1300,7 @@ def validate_all_kernels(base_path: str = DEFAULT_KERNEL_PATH) -> Dict[str, List
     return results
 
 
-def validate_packet_protocol_rules() -> Dict[str, Any]:
+def validate_packet_protocol_rules() -> dict[str, Any]:
     """
     Validate kernel load order against 10_packet_protocol_kernel.yaml.
 
@@ -1324,7 +1323,7 @@ def validate_packet_protocol_rules() -> Dict[str, Any]:
             "mismatches": [],
         }
 
-    with open(kernel_path, "r") as f:
+    with open(kernel_path) as f:
         protocol_data = yaml.safe_load(f)
 
     # Extract ordered filenames from load_sequence.order (dict with numeric keys)
@@ -1369,7 +1368,7 @@ def validate_packet_protocol_rules() -> Dict[str, Any]:
 
 
 @lru_cache(maxsize=64)
-def get_kernel_cached(kernel_id: str) -> Optional[Dict[str, Any]]:
+def get_kernel_cached(kernel_id: str) -> dict[str, Any] | None:
     """
     Get kernel by ID from the default kernel stack. CACHED.
 

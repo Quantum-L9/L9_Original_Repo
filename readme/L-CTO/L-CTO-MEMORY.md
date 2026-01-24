@@ -24,7 +24,7 @@ You set it up correctly. Here's how it works:
 │  ┌─────────────────────────┐   ┌─────────────────────────┐     │
 │  │  L's Memories           │   │  Cursor's Memories      │     │
 │  │  creator: "L-CTO"       │   │  creator: "Cursor-IDE"  │     │
-│  │  source: "l9-kernel"    │   │  source: "cursor-ide"   │     │
+│  │  source: "l9-kernel"    │   │  source: "cursor"   │     │
 │  └─────────────────────────┘   └─────────────────────────┘     │
 │                                                                 │
 │  L can READ: ████████████████████████████████████████████      │

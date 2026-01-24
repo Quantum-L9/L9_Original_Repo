@@ -26,7 +26,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List
+import os
+from typing import Any
 
 import structlog
 
@@ -43,7 +44,7 @@ except ImportError:
     logger.warning("Gmail client or OpenAI not available")
 
 
-def summarize_inbox(limit: int = 20) -> Dict[str, Any]:
+def summarize_inbox(limit: int = 20) -> dict[str, Any]:
     """
     Summarize recent inbox messages using LLM.
 
@@ -107,7 +108,7 @@ def summarize_inbox(limit: int = 20) -> Dict[str, Any]:
 
         # Use LLM to analyze and categorize
         try:
-            api_key = __import__("os").getenv("OPENAI_API_KEY")
+            api_key = os.getenv("OPENAI_API_KEY")
             if not api_key:
                 logger.warning("OPENAI_API_KEY not set, skipping LLM analysis")
                 return _simple_summary(message_details)
@@ -190,7 +191,7 @@ Return JSON format:
         }
 
 
-def _simple_summary(message_details: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _simple_summary(message_details: list[dict[str, Any]]) -> dict[str, Any]:
     """Fallback simple summary without LLM."""
     urgent = []
     replies_needed = []
@@ -316,7 +317,7 @@ def run_daily_digest() -> str:
 
     except Exception as e:
         logger.error(f"Daily digest failed: {e}", exc_info=True)
-        return f"❌ Error generating digest: {str(e)}"
+        return f"❌ Error generating digest: {e!s}"
 
 
 # ============================================================================

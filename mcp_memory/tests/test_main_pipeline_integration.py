@@ -8,9 +8,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-from src.routes.memory_unified import (_save_via_direct_db,
-                                       _save_via_main_pipeline,
-                                       save_memory_handler)
+from src.routes.memory_unified import (
+    _save_via_direct_db,
+    _save_via_main_pipeline,
+    save_memory_handler,
+)
 
 from core.schemas import PacketWriteResult
 
@@ -52,7 +54,7 @@ async def test_save_memory_uses_main_pipeline_when_service_available():
         importance=0.8,
         caller_id="C",
         creator="Cursor-IDE",
-        source="cursor-ide",
+        source="cursor",
         substrate_service=mock_service,  # ✅ Service provided
     )
 
@@ -68,7 +70,7 @@ async def test_save_memory_uses_main_pipeline_when_service_available():
     call_args = mock_service.write_packet.call_args[0][0]
     assert call_args.packet_type == "memory.preference"
     assert call_args.payload["content"] == "Test memory content"
-    assert call_args.metadata.agent == "cursor-ide"
+    assert call_args.metadata.agent == "cursor"
 
 
 @pytest.mark.asyncio
@@ -86,7 +88,6 @@ async def test_save_memory_falls_back_to_direct_db_when_service_unavailable():
             "src.routes.memory_unified.execute", new_callable=AsyncMock
         ) as mock_execute,
     ):
-
         # Mock embedding generation
         mock_embed.return_value = [0.1] * 1536
 
@@ -111,7 +112,7 @@ async def test_save_memory_falls_back_to_direct_db_when_service_unavailable():
             importance=0.8,
             caller_id="C",
             creator="Cursor-IDE",
-            source="cursor-ide",
+            source="cursor",
             substrate_service=None,  # ❌ No service - should fallback
         )
 
@@ -214,7 +215,7 @@ async def test_save_via_main_pipeline_handles_ttl_correctly():
         metadata=None,
         caller_id="C",
         creator="Cursor-IDE",
-        source="cursor-ide",
+        source="cursor",
         substrate_service=mock_service,
     )
 
@@ -255,7 +256,7 @@ async def test_save_via_main_pipeline_handles_errors_gracefully():
             metadata=None,
             caller_id="C",
             creator="Cursor-IDE",
-            source="cursor-ide",
+            source="cursor",
             substrate_service=mock_service,
         )
 
@@ -275,7 +276,6 @@ async def test_save_via_direct_db_still_works():
             "src.routes.memory_unified.fetch_one", new_callable=AsyncMock
         ) as mock_fetch,
     ):
-
         mock_embed.return_value = [0.1] * 1536
         mock_fetch.side_effect = [
             {"packet_id": uuid4(), "timestamp": "2026-01-09T00:00:00Z"},
@@ -293,7 +293,7 @@ async def test_save_via_direct_db_still_works():
             metadata=None,
             caller_id="C",
             creator="Cursor-IDE",
-            source="cursor-ide",
+            source="cursor",
         )
 
         assert result["pipeline"] == "direct_db"
@@ -319,7 +319,7 @@ async def test_mcp_tool_call_passes_substrate_service():
     mock_caller = MagicMock(
         caller_id="C",
         creator="Cursor-IDE",
-        source="cursor-ide",
+        source="cursor",
     )
 
     mock_service = MagicMock()

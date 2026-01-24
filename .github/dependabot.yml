@@ -1,0 +1,39 @@
+# Dependabot configuration for L9 AI OS
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+    groups:
+      fastapi-ecosystem:
+        patterns: ["fastapi*", "uvicorn*", "pydantic*", "starlette*"]
+      langchain-ecosystem:
+        patterns: ["langchain*", "langgraph*"]
+      database-drivers:
+        patterns: ["psycopg*", "asyncpg*", "sqlalchemy*", "redis*", "neo4j*"]
+      testing:
+        patterns: ["pytest*", "coverage*"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"

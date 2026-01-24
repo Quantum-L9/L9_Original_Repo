@@ -32,7 +32,7 @@ class DummyCaller:
 
     @property
     def source(self) -> str:
-        return "cursor-ide" if self.caller_id == "C" else "l9-kernel"
+        return "cursor" if self.caller_id == "C" else "l9-kernel"
 
 
 @pytest.mark.asyncio

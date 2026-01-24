@@ -37,8 +37,8 @@ __dora_meta__ = {
 
 import asyncio
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, List, Optional
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -87,8 +87,8 @@ class RetentionResult:
     checkpoints_deleted: int
     checkpoints_after: int
     policy_applied: RetentionPolicy
-    executed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    error: Optional[str] = None
+    executed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    error: str | None = None
 
     @property
     def success(self) -> bool:
@@ -106,9 +106,9 @@ class RetentionEngine:
 
     def __init__(
         self,
-        persistence: Optional[AgentPersistenceService] = None,
-        repository: Optional[SubstrateRepository] = None,
-        policy: Optional[RetentionPolicy] = None,
+        persistence: AgentPersistenceService | None = None,
+        repository: SubstrateRepository | None = None,
+        policy: RetentionPolicy | None = None,
     ):
         """
         Initialize retention engine.
@@ -121,7 +121,7 @@ class RetentionEngine:
         self._persistence = persistence
         self._repository = repository
         self._policy = policy or RetentionPolicy()
-        self._scheduler_task: Optional[asyncio.Task] = None
+        self._scheduler_task: asyncio.Task | None = None
         self._running = False
 
         logger.info(
@@ -216,7 +216,7 @@ class RetentionEngine:
                 error=str(e),
             )
 
-    async def run_cleanup_all(self, agent_ids: List[str]) -> List[RetentionResult]:
+    async def run_cleanup_all(self, agent_ids: list[str]) -> list[RetentionResult]:
         """
         Run retention cleanup for multiple agents.
 
@@ -279,8 +279,8 @@ class RetentionEngine:
 
                 # Get all unique agent IDs from repository
                 # For now, use a default list - in production, query from DB
-                # Canonical agent IDs: l-cto (L's primary), cursor-ide (Cursor's primary)
-                default_agents = ["l-cto", "cursor-ide"]
+                # Canonical agent IDs: l-cto (L's primary), cursor (Cursor's primary)
+                default_agents = ["l-cto", "cursor"]
 
                 logger.info(
                     "Scheduled retention cleanup starting",

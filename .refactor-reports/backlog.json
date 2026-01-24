@@ -1,0 +1,52 @@
+{
+  "generated": "2026-01-24T07:43:29.799194",
+  "refactoring_opportunities": [
+    {
+      "id": "RF-001",
+      "category": "Dead Code",
+      "priority": "HIGH",
+      "effort_hours": 1,
+      "impact": "Improves maintainability",
+      "action": "Run: ruff check --fix (Python) or eslint --fix (TS)",
+      "automation_level": "FULL"
+    },
+    {
+      "id": "RF-002",
+      "category": "Type Annotations",
+      "priority": "HIGH",
+      "effort_hours": 4,
+      "impact": "Reduces runtime errors by 40-60%",
+      "action": "Use: Cursor refactoring mode or pyright infer",
+      "automation_level": "SEMI"
+    },
+    {
+      "id": "RF-003",
+      "category": "Cyclomatic Complexity",
+      "priority": "MEDIUM",
+      "effort_hours": 6,
+      "impact": "Improves testability, cognitive load",
+      "action": "Identify functions with CC > 10, extract methods",
+      "automation_level": "SEMI"
+    },
+    {
+      "id": "RF-004",
+      "category": "Code Duplication",
+      "priority": "MEDIUM",
+      "effort_hours": 8,
+      "impact": "Reduces maintenance cost",
+      "action": "Use AI to suggest DRY refactoring",
+      "automation_level": "SEMI"
+    },
+    {
+      "id": "RF-005",
+      "category": "Security Vulnerabilities",
+      "priority": "CRITICAL",
+      "effort_hours": 12,
+      "impact": "Eliminates known exploits",
+      "action": "Run Bandit (Python) or SonarQube (JS/Java)",
+      "automation_level": "FULL"
+    }
+  ],
+  "estimated_total_effort_hours": 31,
+  "estimated_timeline": "4-6 weeks at 20% sprint capacity"
+}

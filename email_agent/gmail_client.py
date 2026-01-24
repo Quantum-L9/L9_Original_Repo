@@ -44,7 +44,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import parseaddr
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -54,11 +54,20 @@ try:
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
 
-    from email_agent.config import (ATTACHMENTS_DIR, GMAIL_ACCOUNT, SCOPES,
-                                    ensure_dirs, get_account_config)
+    from email_agent.config import (
+        ATTACHMENTS_DIR,
+        GMAIL_ACCOUNT,
+        SCOPES,
+        ensure_dirs,
+        get_account_config,
+    )
     from email_agent.credentials import load_tokens
-    from email_agent.parser import (html_to_text, parse_attachments,
-                                    parse_body, parse_headers)
+    from email_agent.parser import (
+        html_to_text,
+        parse_attachments,
+        parse_body,
+        parse_headers,
+    )
 
     GMAIL_AVAILABLE = True
 except ImportError:
@@ -95,7 +104,7 @@ def sanitize_filename(filename: str) -> str:
 class GmailClient:
     """Gmail API client wrapper with multi-account support."""
 
-    def __init__(self, account: Optional[str] = None):
+    def __init__(self, account: str | None = None):
         """
         Initialize Gmail client.
 
@@ -142,7 +151,7 @@ class GmailClient:
         account_label = self.account or "legacy"
         logger.info(f"Gmail API authenticated (account={account_label})")
 
-    def list_messages(self, query: str = "", limit: int = 20) -> List[Dict[str, Any]]:
+    def list_messages(self, query: str = "", limit: int = 20) -> list[dict[str, Any]]:
         """
         List messages matching query.
 
@@ -202,7 +211,7 @@ class GmailClient:
             logger.error(f"Gmail API error listing messages: {e}")
             return []
 
-    def get_message(self, msg_id: str) -> Optional[Dict[str, Any]]:
+    def get_message(self, msg_id: str) -> dict[str, Any] | None:
         """
         Get full message content with parsed body and attachments.
 
@@ -238,7 +247,7 @@ class GmailClient:
             body_html = ""
             attachments = []
 
-            def extract_part(part: Dict[str, Any], parent_path: str = ""):
+            def extract_part(part: dict[str, Any], parent_path: str = ""):
                 """Recursively extract body and attachments from message parts."""
                 nonlocal body_plain, body_html
 
@@ -366,8 +375,8 @@ class GmailClient:
             return None
 
     def send_email(
-        self, to: str, subject: str, body: str, attachments: Optional[List[str]] = None
-    ) -> Optional[Dict[str, Any]]:
+        self, to: str, subject: str, body: str, attachments: list[str] | None = None
+    ) -> dict[str, Any] | None:
         """
         Send email with optional attachments.
 
@@ -436,8 +445,8 @@ class GmailClient:
             return None
 
     def draft_email(
-        self, to: str, subject: str, body: str, attachments: Optional[List[str]] = None
-    ) -> Optional[str]:
+        self, to: str, subject: str, body: str, attachments: list[str] | None = None
+    ) -> str | None:
         """
         Create email draft with optional attachments.
 
@@ -497,7 +506,7 @@ class GmailClient:
             logger.error(f"Gmail API error creating draft: {e}")
             return None
 
-    def reply_to_email(self, msg_id: str, body: str) -> Optional[Dict[str, Any]]:
+    def reply_to_email(self, msg_id: str, body: str) -> dict[str, Any] | None:
         """
         Reply to an email message.
 
@@ -568,7 +577,7 @@ class GmailClient:
 
     def forward_email(
         self, msg_id: str, to: str, body: str = ""
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Forward an email message.
 
@@ -622,8 +631,15 @@ class GmailClient:
                     .execute()
                 )
                 thread_id = original_msg.get("threadId")
-            except Exception:
+            except Exception as e:
+                # ACCEPTABLE FALLBACK: If thread lookup fails, forward appears as new thread
                 thread_id = None
+                logger.warning(
+                    "Thread lookup failed for forward",
+                    original_message_id=msg_id,
+                    impact="Forward will appear as new thread instead of reply",
+                    error=str(e),
+                )
 
             raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
 

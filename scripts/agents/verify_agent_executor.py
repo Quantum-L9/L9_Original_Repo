@@ -38,7 +38,8 @@ from pathlib import Path
 import structlog
 
 # Add the repo root to the Python path
-repo_root = Path(__file__).parent.parent
+# scripts/agents/verify_agent_executor.py -> scripts/agents -> scripts -> L9 (root)
+repo_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(repo_root))
 
 
@@ -198,7 +199,7 @@ def check_health_checks():
         logger.info(f"✗ server.py not found: {server_file}")
         return False
 
-    with open(server_file, "r") as f:
+    with open(server_file) as f:
         content = f.read()
 
     checks = [
@@ -249,11 +250,10 @@ def main():
         logger.info("  The agent_executor fix has been successfully applied.")
         logger.info("=" * 70 + "\n")
         return 0
-    else:
-        logger.error("  ✗ SOME CHECKS FAILED")
-        logger.error("  Please review the errors above and fix the issues.")
-        logger.info("=" * 70 + "\n")
-        return 1
+    logger.error("  ✗ SOME CHECKS FAILED")
+    logger.error("  Please review the errors above and fix the issues.")
+    logger.info("=" * 70 + "\n")
+    return 1
 
 
 if __name__ == "__main__":

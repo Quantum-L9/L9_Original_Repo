@@ -1,0 +1,41 @@
+name: Refactoring Validation
+
+on: [pull_request, push]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install refactoring tools
+        run: |
+          pip install -r .refactor-config/requirements-refactor.txt
+      
+      - name: Run Ruff linter
+        run: ruff check src/ --statistics
+      
+      - name: Run Black formatter check
+        run: black --check src/
+      
+      - name: Run mypy type checker
+        run: mypy src/ --strict
+      
+      - name: Run Bandit security scan
+        run: bandit -r src/ -f json | jq '.results | length'
+      
+      - name: Run pytest
+        run: pytest tests/ -v --tb=short
+      
+      - name: Run mutation tests
+        run: mutmut run --tests-dir tests/ --paths-to-mutate src/
+      
+      - name: Report metrics
+        run: |
+          echo "Refactoring validation passed ✓"
+          ruff check src/ --statistics

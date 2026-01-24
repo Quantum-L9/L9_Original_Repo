@@ -116,14 +116,14 @@ L (L-CTO) and Cursor share a **unified memory substrate** with scope-based acces
    - Determines caller = "C" (Cursor)
    - Enforces scope = "developer" (server-side, not client)
    - Sets metadata.creator = "Cursor-IDE"
-   - Sets metadata.source = "cursor-ide"
+   - Sets metadata.source = "cursor"
 
 3. Insert into packet_store:
    INSERT INTO packet_store (
      project_id,      -- 'l9' (or current project)
      scope,           -- 'developer' (enforced)
      envelope,        -- {content, kind, ...}
-     metadata,        -- {creator: "Cursor-IDE", source: "cursor-ide"}
+     metadata,        -- {creator: "Cursor-IDE", source: "cursor"}
      ...
    )
 

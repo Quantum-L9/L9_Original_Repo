@@ -1,0 +1,33 @@
+# Bandit Security Configuration for L9 AI OS
+# https://bandit.readthedocs.io/
+
+[bandit]
+# Exclude paths
+exclude_dirs = [
+    '/tests/',
+    '/.venv/',
+    '/venv/',
+    '/build/',
+    '/dist/',
+    '/.pytest_cache/',
+    '/.mypy_cache/',
+    '/.ruff_cache/',
+    '/world_model/_pack_staging/',
+    '/agents/codegenagent/',
+]
+
+# Test IDs to skip
+skips = [
+    'B101',  # assert_used - common in tests
+    'B601',  # paramiko_calls - false positives
+    'B602',  # subprocess_popen_with_shell_equals_true - reviewed manually
+]
+
+# Severity level
+severity = 'MEDIUM'
+
+# Confidence level
+confidence = 'MEDIUM'
+
+# Tests to run (empty = all tests)
+tests = []
