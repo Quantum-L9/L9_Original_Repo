@@ -58,6 +58,9 @@ cryptography>=41.0.0
 sympy>=1.12
 numpy>=1.24.0
 
+# Cross-encoder reranking for hybrid retrieval
+sentence-transformers>=2.2.0
+
 # Browser Automation (Mac Agent - local only, not Docker)
 playwright>=1.40.0
 
