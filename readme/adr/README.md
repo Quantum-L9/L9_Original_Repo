@@ -150,3 +150,17 @@ DO NOT: [What not to do]
 1. Use next sequential number: `XXXX-short-title.md`
 2. Include: Status, Pattern, Files, Rules, AI Guidance
 3. Update this README and `readme/repo-index/adr_catalog.txt`
+
+## Design Pattern ADRs (2026-01-23)
+
+### Implemented (PR #53)
+- [ADR-0056: Singleton Class Decorator Pattern](0056-singleton-class-decorator.md) - Thread-safe singleton decorator for utility classes
+- [ADR-0057: Decorator Metadata Preservation with functools.wraps](0057-decorator-metadata-preservation.md) - Mandate @wraps for all decorators
+- [ADR-0058: Mediator Pattern for Agent Communication](0058-mediator-pattern-agent-communication.md) - Decouple agent-to-agent communication
+- [ADR-0059: Facade Pattern for Simplified L9 API](0059-facade-pattern-simplified-api.md) - Simplified unified interface to L9 AIOS
+
+### Proposed (Deferred)
+- [ADR-0060: Observer Pattern for Agent Monitoring](0060-observer-pattern-agent-monitoring.md) - Reactive monitoring of agent state changes
+- [ADR-0061: Composite Pattern for Agent Hierarchies](0061-composite-pattern-agent-hierarchies.md) - Tree structure for agent teams
+- [ADR-0062: Factory Pattern Consolidation](0062-factory-pattern-consolidation.md) - Standardize all factory functions
+
