@@ -1,0 +1,44 @@
+# Codecov configuration for L9
+
+coverage:
+  precision: 2
+  round: down
+  range: [70, 100]
+  status:
+    project:
+      default:
+        target: 75
+        threshold: 3
+        base: auto
+    patch:
+      default:
+        target: 70
+        threshold: 5
+        base: auto
+
+comment:
+  layout: reach,diff,flags,tree,files
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+flags:
+  - name: core
+    paths: [core/]
+  - name: memory
+    paths: [core/memory/]
+  - name: kernels
+    paths: [core/kernels/]
+  - name: orchestrators
+    paths: [orchestrators/]
+  - name: agents
+    paths: [agents/]
+
+ignore: [tests/, "**/*_test.py", "**/mocks/**"]
+
+fail:
+  - type: coverage
+    target: 75
+    branches: 50
+    if: head

@@ -1,30 +1,63 @@
-# Gitleaks configuration for L9
-# This file tells gitleaks which paths to ignore (false positives)
+# .gitleaks configuration with L9-specific patterns
 
-title = "L9 Gitleaks Config"
+[source]
+name = "gitleaks"
+url = "https://github.com/gitleaks/gitleaks"
+version = "8.18.1"
+date = "2024-01-15"
+
+[[rules]]
+id = "sendgrid-api-key"
+description = "SendGrid API Key"
+regex = "SG\\.[a-zA-Z0-9_-]{22}\\.[a-zA-Z0-9_-]{43}"
+keywords = ["sendgrid", "sg_"]
+
+[[rules]]
+id = "slack-bot-token"
+description = "Slack Bot Token"
+regex = "xoxb-[0-9]{10,13}-[0-9]{10,13}-[a-zA-Z0-9_-]{24,34}"
+keywords = ["slack", "xoxb"]
+
+[[rules]]
+id = "postgres-connection"
+description = "PostgreSQL Connection String (L9 Memory Substrate)"
+regex = "postgres://[a-zA-Z0-9:@/_.-]+"
+keywords = ["postgres", "postgresql", "database"]
+
+[[rules]]
+id = "redis-connection"
+description = "Redis Connection String (L9 Memory Substrate)"
+regex = "redis://([a-zA-Z0-9:@/_.-]+)"
+keywords = ["redis", "cache"]
+
+[[rules]]
+id = "aws-api-key"
+description = "AWS API Key (L9 External Integration)"
+regex = "AKIA[0-9A-Z]{16}"
+keywords = ["aws", "akia"]
+
+[[rules]]
+id = "neo4j-password"
+description = "Neo4j Credentials (L9 Graph Substrate)"
+regex = 'neo4j://[a-zA-Z0-9:@/_.-]+'
+keywords = ["neo4j", "graph"]
 
 [allowlist]
-description = "Paths and patterns to ignore"
-
-# Ignore entire directories that contain false positives
+description = "Whitelisted paths and patterns"
 paths = [
-    '''.cursor/''',
-    '''readme/''',
-    '''reports/''',
-    '''mcp_memory/docs/''',
-    '''agents/cursor/gmp-v2-prompts/''',
-    '''research_results_cursor/''',
-    '''.audit_cache/''',
-    '''tests/''',
-    '''config/agents/''',
-    '''prompts/''',
+  ".cursor/",
+  "readme/",
+  "reports/",
+  "mcp_memory/docs/",
+  "agents/cursor/gmp-v2-prompts/",
+  "research_results_cursor/",
+  ".audit_cache/",
+  "tests/mocks/",
+  ".github/scripts/",
+  "docs/",
+  "config/templates/",
+  "prompts/",
+  "config/agents/",
 ]
-
-# Ignore specific file patterns
-regexTarget = "match"
-regexes = [
-    '''\.example$''',
-    '''\.md$''',
-    '''\.yaml$''',
-    '''\.txt$''',
-]
+commits = []
+regexes = []

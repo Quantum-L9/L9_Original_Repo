@@ -1,0 +1,43 @@
+language: "python"
+reviews:
+  profile: "chill"
+  review_status: "comment"
+  auto_review: true
+  auto_approval: false
+  require_human_approval: true
+
+patterns:
+  - path: "core/kernels/**"
+    description: "Kernel API (Type safety + async/await)"
+    review_rules:
+      - "Verify PacketEnvelope serialization"
+      - "Check async/await patterns"
+      - "Validate kernel lifecycle hooks"
+
+  - path: "core/memory/**"
+    description: "Memory substrates (Critical)"
+    review_rules:
+      - "Ensure backward compatibility"
+      - "Check SQL injection vectors"
+      - "Validate cache invalidation"
+
+  - path: "core/packet_envelope/**"
+    description: "Packet protocol (Foundational)"
+    review_rules:
+      - "Schema versioning compliance"
+      - "Serialization safety"
+      - "Compatibility checks"
+
+  - path: "orchestrators/**"
+    description: "Orchestrator patterns"
+    review_rules:
+      - "State management consistency"
+      - "Error handling + retry logic"
+
+  - path: "agents/**"
+    description: "Agent implementations"
+    review_rules:
+      - "Tool integration compliance"
+      - "API client error handling"
+
+blocklist: ["**.md", "docs/**", ".github/workflows/**", "*.txt"]
