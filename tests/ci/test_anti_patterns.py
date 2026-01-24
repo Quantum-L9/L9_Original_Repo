@@ -16,9 +16,12 @@ Prevents common anti-patterns from being reintroduced into the codebase.
 Version: 1.0.0
 """
 
+from __future__ import annotations
+
 import ast
 import re
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -72,7 +75,7 @@ def get_python_files(directories: list[str]) -> list[Path]:
         List of Path objects for Python files
     """
     repo_root = Path(__file__).parent.parent.parent
-    python_files = []
+    python_files: list[Path] = []
 
     for directory in directories:
         dir_path = repo_root / directory
@@ -99,7 +102,7 @@ def is_allowed_exception(file_path: Path, exception_type: str) -> bool:
     return any(pattern in file_str for pattern in allowed)
 
 
-def parse_python_file(file_path: Path) -> tuple[ast.Module, str]:
+def parse_python_file(file_path: Path) -> tuple[ast.Module | None, str]:
     """
     Parse Python file into AST.
 
@@ -107,7 +110,7 @@ def parse_python_file(file_path: Path) -> tuple[ast.Module, str]:
         file_path: Path to Python file
 
     Returns:
-        Tuple of (AST module, file content)
+        Tuple of (AST module or None, file content)
     """
     try:
         content = file_path.read_text(encoding="utf-8")
@@ -134,32 +137,30 @@ class FrozenModelMutationVisitor(ast.NodeVisitor):
         envelope = envelope.model_copy(update={"metadata": {...}})  # ✅
     """
 
-    def __init__(self):
-        self.violations = []
+    def __init__(self) -> None:
+        self.violations: list[dict[str, Any]] = []
 
-    def visit_Subscript(self, node):
+    def visit_Subscript(self, node: ast.Subscript) -> None:
         """Check for subscript assignment to frozen models."""
         # Look for patterns like: obj.attr[key] = value
-        if isinstance(node.ctx, ast.Store):
-            # Check if this is a known frozen model field
-            if isinstance(node.value, ast.Attribute):
-                attr_name = node.value.attr
-                # Known frozen model fields that should not be mutated
-                frozen_fields = ["metadata", "envelope", "packet"]
+        if isinstance(node.ctx, ast.Store) and isinstance(node.value, ast.Attribute):
+            attr_name = node.value.attr
+            # Known frozen model fields that should not be mutated
+            frozen_fields = ["metadata", "envelope", "packet"]
 
-                if attr_name in frozen_fields:
-                    self.violations.append(
-                        {
-                            "line": node.lineno,
-                            "col": node.col_offset,
-                            "pattern": f"Subscript assignment to frozen field '{attr_name}'",
-                        }
-                    )
+            if attr_name in frozen_fields:
+                self.violations.append(
+                    {
+                        "line": node.lineno,
+                        "col": node.col_offset,
+                        "pattern": f"Subscript assignment to frozen field '{attr_name}'",
+                    }
+                )
 
         self.generic_visit(node)
 
 
-def test_no_frozen_model_mutation():
+def test_no_frozen_model_mutation() -> None:
     """
     Test 1: Detect frozen model mutation (GMP-58).
 
@@ -172,13 +173,13 @@ def test_no_frozen_model_mutation():
         envelope = envelope.model_copy(update={"metadata": {...}})
     """
     python_files = get_python_files(CORE_MODULES)
-    violations = []
+    violations: list[dict[str, Any]] = []
 
     for file_path in python_files:
         if is_allowed_exception(file_path, "frozen_mutation"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -205,7 +206,7 @@ def test_no_frozen_model_mutation():
 # ============================================================================
 
 
-def test_no_hardcoded_user_paths():
+def test_no_hardcoded_user_paths() -> None:
     """
     Test 2: Detect hardcoded user paths.
 
@@ -219,7 +220,7 @@ def test_no_hardcoded_user_paths():
         # or use Path.home()
     """
     python_files = get_python_files(CORE_MODULES)
-    violations = []
+    violations: list[dict[str, Any]] = []
 
     # Patterns to detect
     hardcoded_path_patterns = [
@@ -232,7 +233,7 @@ def test_no_hardcoded_user_paths():
         if is_allowed_exception(file_path, "hardcoded_paths"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        _tree, content = parse_python_file(file_path)
         if not content:
             continue
 
@@ -268,10 +269,10 @@ def test_no_hardcoded_user_paths():
 class BareExceptVisitor(ast.NodeVisitor):
     """Detect bare except blocks."""
 
-    def __init__(self):
-        self.violations = []
+    def __init__(self) -> None:
+        self.violations: list[dict[str, int]] = []
 
-    def visit_Try(self, node):
+    def visit_Try(self, node: ast.Try) -> None:
         """Check for bare except blocks."""
         for handler in node.handlers:
             if handler.type is None:
@@ -282,7 +283,7 @@ class BareExceptVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def test_no_bare_except_in_core():
+def test_no_bare_except_in_core() -> None:
     """
     Test 3: Detect bare except blocks.
 
@@ -301,13 +302,13 @@ def test_no_bare_except_in_core():
             logger.error("Error", error=str(e))
     """
     python_files = get_python_files(CORE_MODULES)
-    violations = []
+    violations: list[dict[str, Any]] = []
 
     for file_path in python_files:
         if is_allowed_exception(file_path, "bare_except"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -337,10 +338,10 @@ def test_no_bare_except_in_core():
 class PrintStatementVisitor(ast.NodeVisitor):
     """Detect print() statements."""
 
-    def __init__(self):
-        self.violations = []
+    def __init__(self) -> None:
+        self.violations: list[dict[str, int]] = []
 
-    def visit_Call(self, node):
+    def visit_Call(self, node: ast.Call) -> None:
         """Check for print() calls."""
         if isinstance(node.func, ast.Name) and node.func.id == "print":
             self.violations.append({"line": node.lineno, "col": node.col_offset})
@@ -348,7 +349,7 @@ class PrintStatementVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def test_no_print_in_core_modules():
+def test_no_print_in_core_modules() -> None:
     """
     Test 4: Detect print() in core modules.
 
@@ -361,13 +362,13 @@ def test_no_print_in_core_modules():
         logger.debug("Debug info")  # ✅ Use structlog
     """
     python_files = get_python_files(CORE_MODULES)
-    violations = []
+    violations: list[dict[str, Any]] = []
 
     for file_path in python_files:
         if is_allowed_exception(file_path, "print_statements"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -394,7 +395,7 @@ def test_no_print_in_core_modules():
 # ============================================================================
 
 
-def test_no_stdlib_logging_in_core():
+def test_no_stdlib_logging_in_core() -> None:
     """
     Test 5: Detect stdlib logging vs structlog.
 
@@ -409,13 +410,13 @@ def test_no_stdlib_logging_in_core():
         logger = structlog.get_logger(__name__)  # ✅ structlog
     """
     python_files = get_python_files(CORE_MODULES)
-    violations = []
+    violations: list[dict[str, str]] = []
 
     for file_path in python_files:
         if is_allowed_exception(file_path, "stdlib_logging"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        _tree, content = parse_python_file(file_path)
         if not content:
             continue
 
@@ -441,7 +442,7 @@ def test_no_stdlib_logging_in_core():
 # ============================================================================
 
 
-def test_anti_pattern_summary():
+def test_anti_pattern_summary() -> None:
     """
     Summary test: Run all anti-pattern checks and report counts.
 
@@ -450,7 +451,7 @@ def test_anti_pattern_summary():
     python_files = get_python_files(CORE_MODULES)
 
     # Count violations
-    counts = {
+    counts: dict[str, int] = {
         "frozen_mutation": 0,
         "hardcoded_paths": 0,
         "bare_except": 0,
@@ -465,9 +466,9 @@ def test_anti_pattern_summary():
 
         # Count frozen mutation
         if not is_allowed_exception(file_path, "frozen_mutation"):
-            visitor = FrozenModelMutationVisitor()
-            visitor.visit(tree)
-            counts["frozen_mutation"] += len(visitor.violations)
+            frozen_visitor = FrozenModelMutationVisitor()
+            frozen_visitor.visit(tree)
+            counts["frozen_mutation"] += len(frozen_visitor.violations)
 
         # Count hardcoded paths
         if not is_allowed_exception(file_path, "hardcoded_paths"):
@@ -477,20 +478,21 @@ def test_anti_pattern_summary():
 
         # Count bare except
         if not is_allowed_exception(file_path, "bare_except"):
-            visitor = BareExceptVisitor()
-            visitor.visit(tree)
-            counts["bare_except"] += len(visitor.violations)
+            bare_visitor = BareExceptVisitor()
+            bare_visitor.visit(tree)
+            counts["bare_except"] += len(bare_visitor.violations)
 
         # Count print statements
         if not is_allowed_exception(file_path, "print_statements"):
-            visitor = PrintStatementVisitor()
-            visitor.visit(tree)
-            counts["print_statements"] += len(visitor.violations)
+            print_visitor = PrintStatementVisitor()
+            print_visitor.visit(tree)
+            counts["print_statements"] += len(print_visitor.violations)
 
         # Count stdlib logging
-        if not is_allowed_exception(file_path, "stdlib_logging"):
-            if re.search(r"^import logging$", content, re.MULTILINE):
-                counts["stdlib_logging"] += 1
+        if not is_allowed_exception(file_path, "stdlib_logging") and re.search(
+            r"^import logging$", content, re.MULTILINE
+        ):
+            counts["stdlib_logging"] += 1
 
     # Print summary (always passes)
     print("\n" + "=" * 60)
