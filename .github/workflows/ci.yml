@@ -315,15 +315,8 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v4
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.organization=cryptoxdog
-            -Dsonar.projectKey=cryptoxdog_L9
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+      # SonarCloud removed - 439K LOC exceeds free tier limit for private repos
+      # Config preserved in sonar-project.properties for future use if repo goes public
 
   # ===========================================================================
   # JOB 3B: PATH-SAFETY — Targeted Tests + Semgrep Guard
