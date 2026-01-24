@@ -293,14 +293,37 @@ jobs:
           pip install -e .
           pip install pytest pytest-asyncio pytest-cov httpx structlog pydantic tenacity asyncpg redis
 
-      - name: Run pytest
+      - name: Run pytest with coverage
         env:
           DATABASE_URL: postgresql://l9:l9test@localhost:5432/l9_test
           REDIS_URL: redis://localhost:6379
           TESTING: "true"
         run: |
-          echo "🧪 Running pytest..."
-          pytest tests/ -v --tb=short --ignore=tests/e2e || true
+          echo "🧪 Running pytest with coverage..."
+          pytest tests/ -v --tb=short --ignore=tests/e2e \
+            --cov=core --cov=memory --cov=runtime --cov=api \
+            --cov-report=xml --cov-report=term-missing \
+            || true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: unittests
+          name: l9-coverage
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=cryptoxdog
+            -Dsonar.projectKey=cryptoxdog_L9
+            -Dsonar.python.coverage.reportPaths=coverage.xml
 
   # ===========================================================================
   # JOB 3B: PATH-SAFETY — Targeted Tests + Semgrep Guard
