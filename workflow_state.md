@@ -27,6 +27,7 @@
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
 **COMPLETED THIS SESSION (2026-01-24)**:
+- ✅ **PR #58 Partial** — CI Marketplace Integrations (5 files adopted). Deferred: strict linting. See ADR-0062.
 - ✅ **PR #45 Closed** — Anti-Pattern Regression Tests adopted (Gate 14, 6 tests). Realigned: type annotations, lint fixes.
 - ✅ **PR #52 Closed** — DI/DIP Three-Track Refactoring. 7 files adopted, 3 skipped. Realigned: protocol location, DEBUG code removed.
 - ✅ **GMP-115 + GMP-116** — High-Level Service Protocol Implementations:
@@ -47,6 +48,7 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-24] **PR #58 Partial** — CI Marketplace (5 files adopted): codecov.yml, coderabbit.yaml, sonar-project.properties, .datree-policy.yaml, tests/test_ci_configuration.py. Deferred: strict linting (ADR-0062).
 - [2026-01-24] **PR #45 Closed** — Anti-Pattern Tests (100% adopted). Gate 14 + 6 tests for frozen model mutation, hardcoded paths, bare except, print(), stdlib logging.
 - [2026-01-24] **PR #52 Closed** — DI/DIP Three-Track (70% adopted). `MemorySubstrateContainer`, runtime config, substrate protocols. Skipped: `core/abstractions/`, PR docs.
 - [2026-01-24] **GMP-114-116** — Service Protocol Implementations. `MemoryServiceAdapter`, `OpenAILLMService`, `MockLLMService`. DI bindings wired.
@@ -56,6 +58,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Decision Log (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-24] **ADR-0062 Deferred Strict Linting**: Incremental adoption of strict mypy/ruff. Keep line-length=88. Adopt strictness per-module via future GMPs.
 - [2026-01-24] **PR Realignment Pattern**: PRs require type annotations (strict mypy), lint compliance (ruff), correct file locations (existing package structure), no DEBUG code.
 - [2026-01-20] **Unified Memory Pipeline**: Three entry points → PostgreSQL. `ingest_packet()` and `_emit_packet()` → `write_packet()` → DAG.
 - [2026-01-19] **BackgroundTaskRegistry Pattern**: All periodic tasks use `bg_tasks.register()`.
