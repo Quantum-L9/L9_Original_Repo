@@ -46,10 +46,9 @@ import sympy
 from sympy import sympify
 from sympy.utilities.lambdify import lambdify
 
-from services.symbolic_computation.config import SymbolicComputationConfig, get_config
-from services.symbolic_computation.core.models import (
-    ComputationResult,
-)
+from services.symbolic_computation.config import (SymbolicComputationConfig,
+                                                  get_config)
+from services.symbolic_computation.core.models import ComputationResult
 
 logger = structlog.get_logger(__name__)
 

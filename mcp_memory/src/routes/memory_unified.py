@@ -34,23 +34,25 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-import time
 import json
-import asyncpg
-from typing import List, Optional, Dict, Any
+import os
+import time
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any
+
+import asyncpg
+import structlog
 from fastapi import APIRouter, HTTPException, Query, Request
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.main import CallerIdentity
+
 import asyncio
 
-from src.db import fetch_all, fetch_one, execute
-from src.embeddings import embed_text
-from src.config import settings
 from memory.governance_gate import require_governance_context
+from src.config import settings
+from src.db import execute, fetch_all, fetch_one
+from src.embeddings import embed_text
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
@@ -102,16 +104,16 @@ async def save_memory_handler(
     kind: str,
     scope: str = "developer",  # MCP scope: developer/l-private/global
     duration: str = "long",
-    tags: Optional[List[str]] = None,
+    tags: list[str] | None = None,
     importance: float = 1.0,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: dict[str, Any] | None = None,
     # Governance fields (enforced server-side, not client-provided)
     caller_id: str = "unknown",
     creator: str = "unknown",
     source: str = "unknown",
     # REQUIRED: substrate service from app state (main ingestion pipeline)
-    substrate_service: Optional[Any] = None,
-) -> Dict[str, Any]:
+    substrate_service: Any | None = None,
+) -> dict[str, Any]:
     """
     Save memory via main L9 ingestion pipeline (GMP-89: NO FALLBACK).
 
@@ -126,7 +128,7 @@ async def save_memory_handler(
         scope: MCP scope ('developer', 'l-private', 'global')
         caller_id: "L" or "C" (from API key)
         creator: "L-CTO" or "Cursor-IDE" (server-enforced)
-        source: "l9-kernel" or "cursor-ide" (server-enforced)
+        source: "l9-kernel" or "cursor" (server-enforced)
         substrate_service: REQUIRED MemorySubstrateService instance
 
     Returns:
@@ -190,7 +192,7 @@ async def save_memory_handler(
         )
         raise HTTPException(
             status_code=500,
-            detail=f"Memory ingestion failed: {str(e)}",
+            detail=f"Memory ingestion failed: {e!s}",
         )
 
 
@@ -200,27 +202,26 @@ async def _save_via_main_pipeline(
     kind: str,
     scope: str,
     duration: str,
-    tags: Optional[List[str]],
+    tags: list[str] | None,
     importance: float,
-    metadata: Optional[Dict[str, Any]],
+    metadata: dict[str, Any] | None,
     caller_id: str,
     creator: str,
     source: str,
     substrate_service: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Save memory via main L9 ingestion pipeline (full DAG)."""
-    from core.schemas import PacketEnvelopeIn, PacketProvenance
     from datetime import timedelta
+
+    from core.schemas import PacketEnvelopeIn, PacketProvenance
 
     # Map MCP scope to DB scope
     db_scope = map_mcp_scope_to_db_scope(scope)
 
-    # Determine project_id
-    project_id = None
-    if metadata:
-        project_id = metadata.get("project_id")
-    if project_id is None:
-        project_id = "l9" if scope != "global" else None
+    # GMP-C1-GOVERNANCE: Get project_id from governance context (not hardcoded).
+    # This ensures RLS isolation uses the correct project_id per environment.
+    ctx = require_governance_context("mcp_memory._save_via_main_pipeline")
+    project_id = ctx.project_id
 
     # Calculate TTL based on duration
     ttl = None
@@ -234,9 +235,9 @@ async def _save_via_main_pipeline(
         "creator": creator,
         "source": source,
         "caller": caller_id,
-        "agent": "l-cto" if caller_id == "L" else "cursor-ide",
+        "agent": "l-cto" if caller_id == "L" else "cursor",
         "user_id": user_id,
-        "project_id": project_id,
+        "project_id": project_id,  # GMP-C1-GOVERNANCE: from governance context
         "importance": importance,
         "duration": duration,
         "scope": scope,  # MCP scope preserved
@@ -247,7 +248,7 @@ async def _save_via_main_pipeline(
     # Build provenance
     provenance = PacketProvenance(
         source=source,
-        source_agent="l-cto" if caller_id == "L" else "cursor-ide",
+        source_agent="l-cto" if caller_id == "L" else "cursor",
     )
 
     # Create PacketEnvelopeIn for main ingestion pipeline
@@ -259,7 +260,7 @@ async def _save_via_main_pipeline(
             "content": content,
             "kind": kind,
             "scope": scope,
-            "project_id": project_id,
+            "project_id": project_id,  # GMP-C1-GOVERNANCE: from governance context
         },
         metadata={
             "schema_version": "2.0.0",
@@ -324,17 +325,15 @@ async def _save_via_main_pipeline(
 async def search_memory_handler(
     user_id: str,
     query: str,
-    scopes: Optional[
-        List[str]
-    ] = None,  # MCP scopes: ['developer', 'global'] for Cursor
-    kinds: Optional[List[str]] = None,
+    scopes: list[str] | None = None,  # MCP scopes: ['developer', 'global'] for Cursor
+    kinds: list[str] | None = None,
     top_k: int = 5,
     threshold: float = 0.7,
     duration: str = "all",
     caller_id: str = "unknown",  # For audit logging
     track_access: bool = False,
-    project_id: str = "l9",  # GOVERNANCE: project isolation (default to l9)
-) -> Dict[str, Any]:
+    project_id: str | None = None,  # GMP-JSONB-GOV-FIX: defaults to L9_PROJECT_ID env
+) -> dict[str, Any]:
     """
     Search unified L9 substrate using memory_embeddings with packet_store join.
 
@@ -345,6 +344,11 @@ async def search_memory_handler(
     memories from the specified project_id. Uses COALESCE for backward compatibility
     with legacy packets that don't have project_id set (defaults to 'l9').
     """
+    # GMP-JSONB-GOV-FIX: Default project_id from env var if not explicitly provided
+    # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
+    if project_id is None:
+        project_id = os.getenv("L9_PROJECT_ID", "l9")
+
     try:
         embed_start = time.time()
         query_embedding = await embed_text(query)
@@ -414,13 +418,17 @@ async def search_memory_handler(
                     "kind": row.get("kind", "unknown"),
                     "scope": mcp_scope,
                     "similarity": float(row["similarity"]),
-                    "importance": float(row["importance_score"])
-                    if row["importance_score"]
-                    else 0.5,
+                    "importance": (
+                        float(row["importance_score"])
+                        if row["importance_score"]
+                        else 0.5
+                    ),
                     "tags": [],  # semantic_memory doesn't have tags
-                    "created_at": row["timestamp"].isoformat()
-                    if isinstance(row["timestamp"], datetime)
-                    else str(row["timestamp"]),
+                    "created_at": (
+                        row["timestamp"].isoformat()
+                        if isinstance(row["timestamp"], datetime)
+                        else str(row["timestamp"])
+                    ),
                 }
             )
 
@@ -483,9 +491,9 @@ def _get_caller_from_request(request: Request) -> "CallerIdentity":
 
 @router.post("/save")
 async def save_memory_route(
-    req: Dict[str, Any],
+    req: dict[str, Any],
     request: Request,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """REST endpoint for saving memory.
 
     GOVERNANCE: Caller identity is derived from authentication token, NOT request body.
@@ -522,9 +530,9 @@ async def save_memory_route(
 
 @router.post("/search")
 async def search_memory_route(
-    req: Dict[str, Any],
+    req: dict[str, Any],
     request: Request,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """REST endpoint for searching memory.
 
     GOVERNANCE: Scope filtering is enforced based on caller identity.
@@ -557,8 +565,8 @@ async def search_memory_route(
 
 @router.get("/stats")
 async def get_memory_stats(
-    user_id: Optional[str] = Query(None), duration: str = Query("all")
-) -> Dict[str, Any]:
+    user_id: str | None = Query(None), duration: str = Query("all")
+) -> dict[str, Any]:
     """
     Get memory statistics from unified substrate.
 
@@ -638,15 +646,15 @@ async def get_memory_stats(
         logger.error(
             "Database error getting stats", error=str(e), error_code=error_code
         )
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {e!s}")
     except Exception as e:
         logger.exception(
             "Unexpected error getting stats from unified substrate", error=str(e)
         )
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
-async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
+async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
     """
     Delete expired memories from unified substrate.
 
@@ -667,14 +675,12 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
 
         if not dry_run and expired_count > 0:
             # Delete expired packets (embeddings deleted via CASCADE)
-            await execute(
-                """
+            await execute("""
                 DELETE FROM packet_store
                 WHERE packet_type LIKE 'memory_write_%'
                 AND ttl IS NOT NULL
                 AND ttl < CURRENT_TIMESTAMP
-                """
-            )
+                """)
             logger.info(f"Deleted {expired_count} expired memories")
 
         return {
@@ -689,7 +695,7 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
 
 async def compound_similar_memories(
     user_id: str, threshold: float = 0.92
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Merge highly similar memories using memory_embeddings for similarity.
 
@@ -827,7 +833,7 @@ async def compound_similar_memories(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
+async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
     """
     Apply importance decay to unused memories in unified substrate.
 
@@ -852,8 +858,7 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
 
         if not dry_run and affected > 0:
             # Apply decay: importance *= decay_factor^(days_since_access)
-            await execute(
-                f"""
+            await execute(f"""
                 UPDATE packet_store
                 SET importance_score = importance_score * POWER(
                     {decay_factor},
@@ -862,8 +867,7 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
                 WHERE packet_type LIKE 'memory_write_%'
                 AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
                 AND importance_score > 0.01
-                """
-            )
+                """)
             logger.info(f"Applied decay to {affected} memories")
 
         return {
@@ -878,10 +882,10 @@ async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
         logger.error(
             "Database error applying decay", error=str(e), error_code=error_code
         )
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {e!s}")
     except Exception as e:
         logger.exception("Unexpected error applying importance decay", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
 
 
 async def cleanup_task():
@@ -918,12 +922,12 @@ async def get_context_injection(
     user_id: str,
     top_k: int = 5,
     include_recent: bool = True,
-    kinds: Optional[List[str]] = None,
-    allowed_scopes: Optional[List[str]] = None,
+    kinds: list[str] | None = None,
+    allowed_scopes: list[str] | None = None,
     caller_id: str = "unknown",
     creator: str = "unknown",
     source: str = "unknown",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Auto-retrieve relevant memories for context injection before a task.
 
@@ -990,13 +994,17 @@ async def get_context_injection(
                         "content": payload.get("content", ""),
                         "kind": payload.get("kind", "unknown"),
                         "scope": payload.get("scope", "developer"),
-                        "importance": float(row["importance_score"])
-                        if row["importance_score"]
-                        else 0.5,
+                        "importance": (
+                            float(row["importance_score"])
+                            if row["importance_score"]
+                            else 0.5
+                        ),
                         "tags": row["tags"] or [],
-                        "created_at": row["timestamp"].isoformat()
-                        if isinstance(row["timestamp"], datetime)
-                        else str(row["timestamp"]),
+                        "created_at": (
+                            row["timestamp"].isoformat()
+                            if isinstance(row["timestamp"], datetime)
+                            else str(row["timestamp"])
+                        ),
                     }
                 )
 
@@ -1017,13 +1025,13 @@ async def extract_session_learnings(
     user_id: str,
     session_id: str,
     session_summary: str,
-    key_decisions: Optional[List[str]] = None,
-    errors_encountered: Optional[List[str]] = None,
-    successes: Optional[List[str]] = None,
+    key_decisions: list[str] | None = None,
+    errors_encountered: list[str] | None = None,
+    successes: list[str] | None = None,
     caller_id: str = "unknown",
     creator: str = "unknown",
     source: str = "unknown",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Extract and store learnings from a completed session.
 
@@ -1126,8 +1134,8 @@ async def get_proactive_suggestions(
     include_error_fixes: bool = True,
     include_preferences: bool = True,
     top_k: int = 3,
-    allowed_scopes: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    allowed_scopes: list[str] | None = None,
+) -> dict[str, Any]:
     """
     Get proactive memory suggestions based on current context.
 
@@ -1208,12 +1216,12 @@ async def get_proactive_suggestions(
 
 async def query_temporal(
     user_id: str,
-    since: Optional[str] = None,
-    until: Optional[str] = None,
-    kinds: Optional[List[str]] = None,
+    since: str | None = None,
+    until: str | None = None,
+    kinds: list[str] | None = None,
     operation: str = "changes",
-    allowed_scopes: Optional[List[str]] = None,  # GOVERNANCE: scope filter
-) -> Dict[str, Any]:
+    allowed_scopes: list[str] | None = None,  # GOVERNANCE: scope filter
+) -> dict[str, Any]:
     """
     Query memory changes over time in unified substrate.
 
@@ -1239,7 +1247,7 @@ async def query_temporal(
             "ps.timestamp >= $2",
             "ps.timestamp <= $3",
         ]
-        params: List[Any] = [user_id, since_dt, until_dt]
+        params: list[Any] = [user_id, since_dt, until_dt]
         param_idx = 4
 
         # GOVERNANCE: Add scope filter using parameterized array
@@ -1339,13 +1347,15 @@ async def query_temporal(
                     "content": payload.get("content", ""),
                     "kind": payload.get("kind", "unknown"),
                     "scope": payload.get("scope", "developer"),
-                    "importance": float(m["importance_score"])
-                    if m["importance_score"]
-                    else 0.5,
+                    "importance": (
+                        float(m["importance_score"]) if m["importance_score"] else 0.5
+                    ),
                     "tags": m["tags"] or [],
-                    "created_at": m["timestamp"].isoformat()
-                    if isinstance(m["timestamp"], datetime)
-                    else str(m["timestamp"]),
+                    "created_at": (
+                        m["timestamp"].isoformat()
+                        if isinstance(m["timestamp"], datetime)
+                        else str(m["timestamp"])
+                    ),
                 }
             )
 
@@ -1370,16 +1380,14 @@ async def save_memory_with_confidence(
     duration: str = "long",
     confidence: float = 1.0,
     source: str = "cursor",
-    related_memory_ids: Optional[
-        List[Any]
-    ] = None,  # Can be UUIDs (str) or ints (legacy)
-    tags: Optional[List[str]] = None,
+    related_memory_ids: list[Any] | None = None,  # Can be UUIDs (str) or ints (legacy)
+    tags: list[str] | None = None,
     importance: float = 1.0,
     caller_id: str = "unknown",
     creator: str = "unknown",
     # GMP-89: REQUIRED substrate_service for main pipeline
-    substrate_service: Optional[Any] = None,
-) -> Dict[str, Any]:
+    substrate_service: Any | None = None,
+) -> dict[str, Any]:
     """
     Save memory with explicit confidence scoring and relationship linking.
 

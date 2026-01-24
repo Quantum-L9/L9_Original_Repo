@@ -19,6 +19,7 @@ Requirements:
 """
 
 import os
+
 import pytest
 
 # Skip all tests if Neo4j not available
@@ -36,7 +37,7 @@ pytestmark = pytest.mark.skipif(
 @pytest.fixture(scope="module")
 async def neo4j_client():
     """Get Neo4j client for integration tests."""
-    from memory.graph_client import get_neo4j_client, close_neo4j_client
+    from memory.graph_client import close_neo4j_client, get_neo4j_client
 
     client = await get_neo4j_client()
     if not client or not await client.is_available():
@@ -177,7 +178,8 @@ class TestStrategyMemoryIntegration:
         cleanup_test_strategies,
     ):
         """Test that strategies are ranked by performance score."""
-        from memory.strategymemory import StrategyRetrievalRequest, StrategyFeedback
+        from memory.strategymemory import (StrategyFeedback,
+                                           StrategyRetrievalRequest)
 
         # Create two strategies
         high_perf_id = await strategy_memory_service.record_new_strategy(
@@ -218,11 +220,17 @@ class TestStrategyMemoryIntegration:
             min_confidence=0.0,
         )
 
-        candidates = await strategy_memory_service.retrieve_strategies(request, limit=10)
+        candidates = await strategy_memory_service.retrieve_strategies(
+            request, limit=10
+        )
 
         # Verify high_perf comes before low_perf
-        high_idx = next((i for i, c in enumerate(candidates) if c.strategy_id == high_perf_id), -1)
-        low_idx = next((i for i, c in enumerate(candidates) if c.strategy_id == low_perf_id), -1)
+        high_idx = next(
+            (i for i, c in enumerate(candidates) if c.strategy_id == high_perf_id), -1
+        )
+        low_idx = next(
+            (i for i, c in enumerate(candidates) if c.strategy_id == low_perf_id), -1
+        )
 
         if high_idx >= 0 and low_idx >= 0:
             assert high_idx < low_idx, "Higher performance strategy should rank higher"
@@ -375,6 +383,7 @@ class TestStrategyMemoryPerformance:
     ):
         """Test that retrieval completes within latency SLA (<100ms)."""
         import time
+
         from memory.strategymemory import StrategyRetrievalRequest
 
         # Create a few strategies
@@ -408,7 +417,9 @@ class TestStrategyMemoryPerformance:
         max_time = max(times)
 
         # SLA: P50 < 100ms, P99 < 500ms
-        assert avg_time < 100, f"Average retrieval time {avg_time:.1f}ms exceeds 100ms SLA"
+        assert (
+            avg_time < 100
+        ), f"Average retrieval time {avg_time:.1f}ms exceeds 100ms SLA"
         assert max_time < 500, f"Max retrieval time {max_time:.1f}ms exceeds 500ms SLA"
 
 
@@ -429,11 +440,9 @@ class TestAutoCaptureIntegration:
         """Test that successful executions are auto-captured as strategies."""
         from dataclasses import dataclass, field
         from uuid import uuid4
-        from orchestration.plan_executor import (
-            PlanExecutor,
-            ExecutorConfig,
-            ExecutionStatus,
-        )
+
+        from orchestration.plan_executor import (ExecutionStatus,
+                                                 ExecutorConfig, PlanExecutor)
 
         # Create executor with auto-capture enabled
         config = ExecutorConfig(
@@ -505,7 +514,9 @@ class TestAutoCaptureIntegration:
 
         # Cleanup any captured strategies
         for c in candidates:
-            if "auto_capture_test" in c.tags or "auto_capture_test" in str(c.description):
+            if "auto_capture_test" in c.tags or "auto_capture_test" in str(
+                c.description
+            ):
                 cleanup_test_strategies.append(c.strategy_id)
 
         assert len(captured) >= 1, "Auto-captured strategy should be retrievable"
@@ -519,11 +530,9 @@ class TestAutoCaptureIntegration:
         """Test that auto-capture is skipped when an existing strategy was used."""
         from dataclasses import dataclass, field
         from uuid import uuid4
-        from orchestration.plan_executor import (
-            PlanExecutor,
-            ExecutorConfig,
-            ExecutionStatus,
-        )
+
+        from orchestration.plan_executor import (ExecutionStatus,
+                                                 ExecutorConfig, PlanExecutor)
 
         # First, create a strategy manually
         existing_strategy_id = await strategy_memory_service.record_new_strategy(
@@ -580,7 +589,9 @@ class TestAutoCaptureIntegration:
             min_confidence=0.0,
         )
 
-        candidates = await strategy_memory_service.retrieve_strategies(request, limit=50)
+        candidates = await strategy_memory_service.retrieve_strategies(
+            request, limit=50
+        )
 
         # Should only have the original strategy, not a duplicate
         existing_kind_strategies = [
@@ -593,7 +604,9 @@ class TestAutoCaptureIntegration:
                 cleanup_test_strategies.append(c.strategy_id)
 
         # Should be exactly 1 (the original, no auto-capture duplicate)
-        assert len(existing_kind_strategies) == 1, "Should not auto-capture when strategy was used"
+        assert (
+            len(existing_kind_strategies) == 1
+        ), "Should not auto-capture when strategy was used"
 
     @pytest.mark.asyncio
     async def test_auto_capture_skipped_below_threshold(
@@ -601,7 +614,7 @@ class TestAutoCaptureIntegration:
         strategy_memory_service,
     ):
         """Test that auto-capture is skipped when success ratio is below threshold."""
-        from orchestration.plan_executor import PlanExecutor, ExecutorConfig
+        from orchestration.plan_executor import ExecutorConfig, PlanExecutor
 
         # Create executor with high threshold
         config = ExecutorConfig(

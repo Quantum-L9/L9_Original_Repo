@@ -4,8 +4,9 @@ Orchestrator → Memory Integration Tests
 Tests the flow: Orchestrator Action → Memory Write → Verification
 """
 
-import pytest
 from uuid import uuid4
+
+import pytest
 
 pytestmark = pytest.mark.integration
 
@@ -30,8 +31,9 @@ class TestOrchestratorMemoryIntegration:
     @pytest.mark.asyncio
     async def test_memory_orchestrator_writes_packet(self):
         """Memory orchestrator can write to substrate."""
+        from orchestrators.memory.interface import (MemoryOperation,
+                                                    MemoryRequest)
         from orchestrators.memory.orchestrator import MemoryOrchestrator
-        from orchestrators.memory.interface import MemoryRequest, MemoryOperation
 
         orchestrator = MemoryOrchestrator()
 

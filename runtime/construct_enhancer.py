@@ -50,13 +50,9 @@ import yaml
 
 from ir_engine.meta_ir import MetaContract, MetaContractValidationResult
 from ir_engine.schema_validator import SchemaValidator
-from runtime.superprompt_emitter import (
-    GapAnalysis,
-    GapDetector,
-    SuperPromptEmitter,
-    PerplexityEnricher,
-    SpecPatcher,
-)
+from runtime.superprompt_emitter import (GapAnalysis, GapDetector,
+                                         PerplexityEnricher, SpecPatcher,
+                                         SuperPromptEmitter)
 
 logger = structlog.get_logger(__name__)
 

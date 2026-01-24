@@ -20,21 +20,24 @@ No environment variables required. Manual override still works:
 """
 
 import os
-import pytest
+
 import httpx
+import pytest
+
+# Import auto-detection from conftest
+from .conftest import \
+    MEMORY_API_BASE_URL  # DEPRECATED alias for MCP_MEMORY_URL
+from .conftest import API_BASE_URL
 
 # =============================================================================
 # Configuration (Auto-detected)
 # =============================================================================
 
-# Import auto-detection from conftest
-from .conftest import (
-    API_BASE_URL,
-    MEMORY_API_BASE_URL,  # DEPRECATED alias for MCP_MEMORY_URL
-)
 
 # API key for authenticated endpoints
-API_KEY = os.environ.get("L9_EXECUTOR_API_KEY", os.environ.get("L9_API_KEY", "YOUR_API_KEY_HERE"))
+API_KEY = os.environ.get(
+    "L9_EXECUTOR_API_KEY", os.environ.get("L9_API_KEY", "YOUR_API_KEY_HERE")
+)
 
 
 # =============================================================================
@@ -246,8 +249,12 @@ class TestDatabaseConnectivity:
         # At least one should be set
         url = database_url or memory_dsn
         if url:
-            assert "127.0.0.1" not in url, f"DATABASE_URL contains localhost (127.0.0.1): {url}"
-            assert "localhost:5432" not in url, f"DATABASE_URL contains localhost: {url}"
+            assert (
+                "127.0.0.1" not in url
+            ), f"DATABASE_URL contains localhost (127.0.0.1): {url}"
+            assert (
+                "localhost:5432" not in url
+            ), f"DATABASE_URL contains localhost: {url}"
 
     @pytest.mark.asyncio
     async def test_database_connection(self):
@@ -303,7 +310,9 @@ class TestMemorySystem:
 class TestSmokeSummary:
     """Final summary test to confirm all critical paths work."""
 
-    def test_all_critical_paths(self, api_client: httpx.Client, memory_client: httpx.Client):
+    def test_all_critical_paths(
+        self, api_client: httpx.Client, memory_client: httpx.Client
+    ):
         """
         Single test that validates all critical paths quickly.
 

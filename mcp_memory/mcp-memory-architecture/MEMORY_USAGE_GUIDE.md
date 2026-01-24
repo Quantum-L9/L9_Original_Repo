@@ -73,7 +73,7 @@ POST /api/v1/memory/packet
     "kind": "milestone|lesson|pattern|decision|preference"
   },
   "metadata": {
-    "source": "cursor-ide|l-cto|slack",
+    "source": "cursor|l-cto|slack",
     "creator": "Agent identifier",
     "domain": "l9"
   },
@@ -107,7 +107,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
       "kind": "milestone"
     },
     "metadata": {
-      "source": "cursor-ide",
+      "source": "cursor",
       "creator": "Cursor-IDE"
     },
     "tags": ["mcp", "milestone", "first-day"]
@@ -282,7 +282,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
       "fix": "Use Path.home() or os.path.expanduser(\"~\")"
     },
     "metadata": {
-      "source": "cursor-ide",
+      "source": "cursor",
       "creator": "Cursor-IDE",
       "workspace": "L9"
     },
@@ -305,7 +305,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
       "example": "search_replace(file_path, old_string, new_string)"
     },
     "metadata": {
-      "source": "cursor-ide",
+      "source": "cursor",
       "domain": "l9"
     },
     "tags": ["pattern", "editing", "best-practice"]
@@ -327,7 +327,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
       "rationale": "Faster, simpler, aligned with existing infrastructure"
     },
     "metadata": {
-      "source": "cursor-ide",
+      "source": "cursor",
       "user": "igor"
     },
     "tags": ["preference", "docker", "deployment"]
@@ -437,7 +437,7 @@ If `confidence` is provided as a number instead of dict:
 ```json
 {
   "metadata": {
-    "source": "cursor-ide",
+    "source": "cursor",
     "creator": "Cursor-IDE",
     "workspace": "L9",
     "domain": "l9",

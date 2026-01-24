@@ -15,6 +15,7 @@ All operations are async-safe with proper logging.
 """
 
 from __future__ import annotations
+
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -49,29 +50,28 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from functools import lru_cache
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
+
+import structlog
 
 if TYPE_CHECKING:
     import asyncpg
+
+    from memory.agent_persistence import AgentPersistenceService
     from memory.substrate_dag import SubstrateDAG
     from memory.substrate_repository import SubstrateRepository
     from memory.substrate_semantic import SemanticService
-    from memory.agent_persistence import AgentPersistenceService
 
-from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
-from memory.substrate_service import MemorySubstrateService
-from memory.graph_client import get_neo4j_client
-from memory.validators.packet_validator import PacketValidator, PacketValidationError
-from memory.audit_utils import prepare_packet_for_ingest
 from core.decorators import must_stay_async
-from memory.governance_gate import (
-    enforce_packet_governance,
-    require_governance_context,
-)
 from core.governance.rate_limit_policy import rate_limit
+from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
+from memory.audit_utils import prepare_packet_for_ingest
+from memory.governance_gate import enforce_packet_governance, require_governance_context
+from memory.graph_client import get_neo4j_client
+from memory.substrate_service import MemorySubstrateService
+from memory.validators.packet_validator import PacketValidationError, PacketValidator
 
 logger = structlog.get_logger(__name__)
 
@@ -79,6 +79,10 @@ logger = structlog.get_logger(__name__)
 class IngestionPipeline:
     """
     PacketEnvelope ingestion pipeline.
+
+    .. deprecated:: 1.2.0
+        Use MemorySubstrateService.write_packet() instead, which uses
+        the SubstrateDAG for proper LangGraph-based execution.
 
     Handles the full lifecycle of packet ingestion:
     1. Validation
@@ -106,7 +110,7 @@ class IngestionPipeline:
         auto_embed: bool = True,
         auto_tag: bool = True,
         # DAG enrichment params (v2.1.0 - GMP-67 unified pipeline)
-        dag: Optional["SubstrateDAG"] = None,
+        dag: SubstrateDAG | None = None,
         enable_enrichment: bool = False,
         enrichment_timeout: float = 30.0,
     ):
@@ -140,19 +144,19 @@ class IngestionPipeline:
             enrichment_timeout=enrichment_timeout,
         )
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_semantic_service(self, service: "SemanticService") -> None:
+    def set_semantic_service(self, service: SemanticService) -> None:
         """Set or update the semantic service reference."""
         self._semantic_service = service
 
-    def set_agent_persistence(self, service: "AgentPersistenceService") -> None:
+    def set_agent_persistence(self, service: AgentPersistenceService) -> None:
         """Set or update the agent persistence service reference."""
         self._agent_persistence = service
 
-    def set_dag(self, dag: "SubstrateDAG") -> None:
+    def set_dag(self, dag: SubstrateDAG) -> None:
         """Set or update the DAG reference for enrichment (v2.1.0)."""
         self._dag = dag
 
@@ -163,8 +167,8 @@ class IngestionPipeline:
     async def ingest(
         self,
         packet_in: PacketEnvelopeIn,
-        embed: Optional[bool] = None,
-        generate_tags: Optional[bool] = None,
+        embed: bool | None = None,
+        generate_tags: bool | None = None,
     ) -> PacketWriteResult:
         """
         Ingest a PacketEnvelope into the memory substrate.
@@ -238,7 +242,7 @@ class IngestionPipeline:
                 embedding_payload = await self._prepare_embedding(envelope)
             except Exception as e:
                 logger.error(f"Failed to generate embedding vector: {e}")
-                errors.append(f"embedding: {str(e)}")
+                errors.append(f"embedding: {e!s}")
 
         # Core writes in transaction (atomic)
         # Wrap packet_store and agent_memory_events in transaction for atomicity
@@ -278,7 +282,7 @@ class IngestionPipeline:
                     # Transaction commits here (or rolls back on exception)
             except Exception as e:
                 logger.error(f"Transaction failed for core writes: {e}")
-                errors.append(f"transaction: {str(e)}")
+                errors.append(f"transaction: {e!s}")
                 # Transaction auto-rolls back on exception
         else:
             # Fallback if repository not available (should not happen)
@@ -292,14 +296,14 @@ class IngestionPipeline:
                 written_tables.append("artifacts")
         except Exception as e:
             logger.error(f"Failed to store artifacts: {e}")
-            errors.append(f"artifacts: {str(e)}")
+            errors.append(f"artifacts: {e!s}")
 
         # Update lineage
         try:
             await self._update_lineage(envelope)
         except Exception as e:
             logger.error(f"Failed to update lineage: {e}")
-            errors.append(f"lineage: {str(e)}")
+            errors.append(f"lineage: {e!s}")
 
         # Sync to Neo4j knowledge graph (non-blocking, best-effort)
         try:
@@ -354,7 +358,7 @@ class IngestionPipeline:
                     facts_count=enrichment_facts_count,
                     duration_ms=enrichment_result.enrichment_duration_ms,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 enrichment_status = "failed"
                 enrichment_error = (
                     f"Enrichment timed out after {self._enrichment_timeout}s"
@@ -517,7 +521,7 @@ class IngestionPipeline:
         await self._repository.insert_packet(envelope)
 
     async def _store_packet_with_connection(
-        self, envelope: PacketEnvelope, conn: "asyncpg.Connection"
+        self, envelope: PacketEnvelope, conn: asyncpg.Connection
     ) -> None:
         """Store packet using provided connection (for transactions)."""
         if self._repository is None:
@@ -543,7 +547,7 @@ class IngestionPipeline:
         )
 
     async def _store_memory_event_with_connection(
-        self, envelope: PacketEnvelope, conn: "asyncpg.Connection"
+        self, envelope: PacketEnvelope, conn: asyncpg.Connection
     ) -> None:
         """Store memory event using provided connection (for transactions)."""
         if self._repository is None:
@@ -563,7 +567,7 @@ class IngestionPipeline:
 
     async def _prepare_embedding(
         self, envelope: PacketEnvelope
-    ) -> Optional[tuple[list[float], dict[str, Any], Optional[str]]]:
+    ) -> tuple[list[float], dict[str, Any], str | None] | None:
         """
         Generate embedding vector and payload for packet content.
 
@@ -760,8 +764,8 @@ def get_ingestion_pipeline() -> IngestionPipeline:
 
 
 def init_ingestion_pipeline(
-    repository: "SubstrateRepository",
-    semantic_service: Optional["SemanticService"] = None,
+    repository: SubstrateRepository,
+    semantic_service: SemanticService | None = None,
 ) -> IngestionPipeline:
     """Initialize the ingestion pipeline with dependencies."""
     pipeline = get_ingestion_pipeline()
@@ -779,7 +783,7 @@ def init_ingestion_pipeline(
 @rate_limit("memory.ingest")
 async def ingest_packet(
     packet_in: PacketEnvelopeIn,
-    service: Optional[MemorySubstrateService] = None,
+    service: MemorySubstrateService | None = None,
 ) -> PacketWriteResult:
     """
     Canonical packet ingestion entrypoint.
@@ -850,13 +854,13 @@ async def on_task_completion(
     description: str = "",
     outcome_text: str = "",
     success: bool = True,
-    learnings: Optional[list[str]] = None,
-    entities: Optional[list[str]] = None,
+    learnings: list[str] | None = None,
+    entities: list[str] | None = None,
     impact_score: float = 0.5,
-    agent_id: Optional[str] = None,
-    project_id: Optional[str] = None,
-    session_id: Optional[str] = None,
-    metadata: Optional[dict] = None,
+    agent_id: str | None = None,
+    project_id: str | None = None,
+    session_id: str | None = None,
+    metadata: dict | None = None,
 ) -> dict:
     """
     Process task completion and trigger active memory encoding.
@@ -882,10 +886,8 @@ async def on_task_completion(
         Dict with encoding results
     """
     from uuid import UUID
-    from memory.active_encoder import (
-        get_active_encoder,
-        TaskOutcome,
-    )
+
+    from memory.active_encoder import TaskOutcome, get_active_encoder
 
     logger.info(
         "Processing task completion for active encoding",
@@ -938,8 +940,8 @@ async def on_task_completion(
         if plan_payload and should_capture and impact_score >= min_impact_for_capture:
             try:
                 # Get Strategy Memory service
-                from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
                 from memory.graph_client import get_neo4j_client
+                from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
 
                 neo4j = await get_neo4j_client()
                 if neo4j and await neo4j.is_available():

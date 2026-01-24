@@ -37,11 +37,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import re
-import structlog
-import sys
 import argparse
+import re
+import sys
 from pathlib import Path
+
+import structlog
 
 # OpenAI function name pattern: only alphanumeric, underscore, hyphen
 

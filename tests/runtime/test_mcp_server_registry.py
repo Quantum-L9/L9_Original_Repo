@@ -4,19 +4,17 @@ Tests for runtime.mcp_server_registry module.
 Test suite for the MCP server auto-registration system.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
 
-from runtime.mcp_server_registry import (
-    mcp_server_registry,
-    MCPServerConfig,
-    register_mcp_server,
-    load_mcp_servers_from_yaml,
-    get_all_mcp_servers,
-    get_mcp_servers_by_category,
-    get_mcp_server_snapshot,
-)
+import pytest
+
+from runtime.mcp_server_registry import (MCPServerConfig, get_all_mcp_servers,
+                                         get_mcp_server_snapshot,
+                                         get_mcp_servers_by_category,
+                                         load_mcp_servers_from_yaml,
+                                         mcp_server_registry,
+                                         register_mcp_server)
 
 # =============================================================================
 # Test Fixtures
@@ -95,7 +93,9 @@ def test_register_multiple_servers(clean_registry):
         server_id="github", command=["npx", "-y", "@modelcontextprotocol/server-github"]
     )
 
-    register_mcp_server(server_id="custom", command=["python", "-m", "custom_mcp_server"])
+    register_mcp_server(
+        server_id="custom", command=["python", "-m", "custom_mcp_server"]
+    )
 
     servers = get_all_mcp_servers()
     assert len(servers) == 3

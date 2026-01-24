@@ -38,7 +38,11 @@ __dora_meta__ = {
     "status": "active",
     "integrates_with": {
         "api_endpoints": [],
-        "datasources": ["HashiCorp Vault", "AWS Secrets Manager", "Environment Variables"],
+        "datasources": [
+            "HashiCorp Vault",
+            "AWS Secrets Manager",
+            "Environment Variables",
+        ],
         "memory_layers": [],
         "imported_by": [
             "memory.graph_client",

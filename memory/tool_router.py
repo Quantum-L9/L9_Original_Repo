@@ -43,13 +43,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import hashlib
 import asyncio
-import structlog
+import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

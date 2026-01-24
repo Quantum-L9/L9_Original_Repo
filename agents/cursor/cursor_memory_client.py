@@ -79,14 +79,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import json
 import argparse
-import urllib.request
-import urllib.error
-import ssl
-import uuid
 import hashlib
+import json
+import os
+import ssl
+import urllib.error
+import urllib.request
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -282,9 +282,9 @@ def cmd_health():
         results["mcp_endpoint"] = {
             "status": "healthy",
             "method": "PRIMARY",
-            "response_keys": list(mcp_result.keys())
-            if isinstance(mcp_result, dict)
-            else "ok",
+            "response_keys": (
+                list(mcp_result.keys()) if isinstance(mcp_result, dict) else "ok"
+            ),
         }
 
     # TEST 2: Direct API Health (FALLBACK)
@@ -1205,9 +1205,11 @@ def cmd_dedupe_check(content: str):
         "is_duplicate": is_duplicate,
         "similar_count": len(duplicates),
         "similar_items": duplicates,
-        "recommendation": "SKIP - similar content exists"
-        if is_duplicate
-        else "OK - content is unique",
+        "recommendation": (
+            "SKIP - similar content exists"
+            if is_duplicate
+            else "OK - content is unique"
+        ),
         "message": f"{'⚠️ Duplicate detected' if is_duplicate else '✅ Content is unique'}",
     }
 

@@ -39,12 +39,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -431,9 +432,9 @@ class HierarchicalSummarizer:
             ),  # Boost importance slightly
             source_ids=[s for s in source_ids if s],
             metadata={
-                "window_start": items[0].get("created_at").isoformat()
-                if items
-                else None,
+                "window_start": (
+                    items[0].get("created_at").isoformat() if items else None
+                ),
                 "total_source_chars": total_chars,
             },
         )

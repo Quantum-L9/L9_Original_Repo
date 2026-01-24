@@ -13,13 +13,13 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
-from core.agents.schemas import AgentTask, AgentType
+import pytest
+
 from core.agents.executor import AgentExecutorService
-from core.agents.schemas import AgentConfig
+from core.agents.schemas import AgentConfig, AgentTask, AgentType
 
 
 class TestExecutorGovernanceValidation:

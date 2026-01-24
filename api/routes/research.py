@@ -26,17 +26,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import Any, Dict, List, Optional
+
+import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
-from api.auth import verify_api_key
-from typing import List, Dict, Any, Optional
-import structlog
 
-from orchestrators.research_swarm.interface import (
-    ResearchSwarmRequest,
-)
-from orchestrators.research_swarm.orchestrator import ResearchSwarmOrchestrator
+from api.auth import verify_api_key
 from core.decorators import must_stay_async
+from orchestrators.research_swarm.interface import ResearchSwarmRequest
+from orchestrators.research_swarm.orchestrator import ResearchSwarmOrchestrator
 
 logger = structlog.get_logger(__name__)
 

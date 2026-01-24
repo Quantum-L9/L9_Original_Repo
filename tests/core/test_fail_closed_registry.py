@@ -14,8 +14,9 @@ GMP-95: PR #11 Fail-Closed Enforcement Tests
 
 from __future__ import annotations
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
 
 class TestRegistryAdapterFailClosed:
@@ -68,8 +69,8 @@ class TestRegistryAdapterFailClosed:
     @pytest.mark.asyncio
     async def test_get_relevant_tools_raises_on_semantic_failure(self):
         """get_relevant_tools raises RuntimeError on semantic retrieval failure."""
-        from core.tools.registry_adapter import ExecutorToolRegistry
         from core.tools import tool_embeddings
+        from core.tools.registry_adapter import ExecutorToolRegistry
 
         mock_base = MagicMock()
         registry = ExecutorToolRegistry(base_registry=mock_base)
@@ -83,7 +84,9 @@ class TestRegistryAdapterFailClosed:
         tool_embeddings.find_relevant_tools = mock_fail
 
         try:
-            with pytest.raises(RuntimeError, match="Semantic tool retrieval unavailable"):
+            with pytest.raises(
+                RuntimeError, match="Semantic tool retrieval unavailable"
+            ):
                 await registry.get_relevant_tools(
                     agent_id="test",
                     principal_id="test",
@@ -95,8 +98,8 @@ class TestRegistryAdapterFailClosed:
     @pytest.mark.asyncio
     async def test_guarded_execute_returns_failure_on_governance_error(self):
         """guarded_execute returns ToolCallResult failure on governance check error."""
-        from core.tools.registry_adapter import ExecutorToolRegistry
         from core.agents.schemas import ToolCallResult
+        from core.tools.registry_adapter import ExecutorToolRegistry
 
         mock_base = MagicMock()
         registry = ExecutorToolRegistry(
@@ -116,7 +119,9 @@ class TestRegistryAdapterFailClosed:
 
         # Mock governance engine that fails
         mock_gov_engine = MagicMock()
-        mock_gov_engine.evaluate = AsyncMock(side_effect=Exception("Governance unavailable"))
+        mock_gov_engine.evaluate = AsyncMock(
+            side_effect=Exception("Governance unavailable")
+        )
         registry._governance_engine = mock_gov_engine
 
         result = await registry.guarded_execute(
@@ -144,8 +149,8 @@ class TestRegistryAdapterFailClosed:
     @pytest.mark.asyncio
     async def test_guarded_execute_kernel_state_object_with_initialized_false(self):
         """guarded_execute fails when kernel_state.initialized is False."""
-        from core.tools.registry_adapter import ExecutorToolRegistry
         from core.agents.schemas import ToolCallResult
+        from core.tools.registry_adapter import ExecutorToolRegistry
 
         mock_base = MagicMock()
         registry = ExecutorToolRegistry(
@@ -173,8 +178,8 @@ class TestRegistryAdapterFailClosed:
     @pytest.mark.asyncio
     async def test_guarded_execute_fails_on_inactive_kernel(self):
         """guarded_execute returns failure when kernel_state is not ACTIVE."""
-        from core.tools.registry_adapter import ExecutorToolRegistry
         from core.agents.schemas import ToolCallResult
+        from core.tools.registry_adapter import ExecutorToolRegistry
 
         mock_base = MagicMock()
         registry = ExecutorToolRegistry(base_registry=mock_base)

@@ -28,12 +28,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional, Dict, Any, List, TYPE_CHECKING
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-import re
 import structlog
 
 if TYPE_CHECKING:

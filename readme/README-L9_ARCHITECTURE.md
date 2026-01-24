@@ -54,7 +54,7 @@ Your system has **two completely separate execution contexts** that MUST NOT cro
 - Files: `runtime/l_tools.py`, `core/agents/executor.py`
 
 #### **Cursor's Namespace (Cursor-IDE)**
-- Tenant ID: `'cursor-ide'`
+- Tenant ID: `'cursor'`
 - Uses: PostgreSQL for lessons/TODOs (Docker-based)
 - Does NOT use: Neo4j (Cursor doesn't need tool graph)
 - Authority: Cursor identity kernel
@@ -118,7 +118,7 @@ PacketEnvelope = {
         # Domain-specific content (lesson, todo, command, etc)
     },
     "metadata": {
-        "agent": "l-cto" | "cursor-ide",  # Tenant identifier
+        "agent": "l-cto" | "cursor",  # Tenant identifier
         "domain": "l9",                    # System identifier
         "timestamp": ISO8601,
         "schema_version": "1.0.0"
@@ -138,7 +138,7 @@ PacketEnvelope = {
 envelope = {
     "payload": lesson_content,
     "metadata": {
-        "agent": "cursor-ide",  # ← Cursor's namespace
+        "agent": "cursor",  # ← Cursor's namespace
         "domain": "l9",
         "schema_version": "1.0.0"
     }
@@ -333,7 +333,7 @@ Before analyzing, read: L9_ARCHITECTURE_FOR_AI.md
 
 Key points to remember:
 1. kernel_loader.py is the choke point (intentional)
-2. Cursor (tenant: cursor-ide) and L (tenant: l-cto) are separate contexts
+2. Cursor (tenant: cursor) and L (tenant: l-cto) are separate contexts
 3. RLS on every query is intentional security, not a code smell
 4. 10 kernels must load in order, 4 are required
 5. Packet envelope wraps all messages with metadata

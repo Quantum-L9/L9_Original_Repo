@@ -44,19 +44,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import os
 from datetime import datetime
 from typing import Any, Optional, Protocol
 
-from core.governance.schemas import (
-    Policy,
-    PolicyEffect,
-    EvaluationRequest,
-    EvaluationResult,
-)
-from core.governance.loader import PolicyLoader, PolicyLoadError, InvalidPolicyError
+import structlog
+
 from core.decorators import must_stay_async
+from core.governance.loader import (InvalidPolicyError, PolicyLoader,
+                                    PolicyLoadError)
+from core.governance.schemas import (EvaluationRequest, EvaluationResult,
+                                     Policy, PolicyEffect)
 
 logger = structlog.get_logger(__name__)
 

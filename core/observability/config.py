@@ -30,8 +30,9 @@ __dora_meta__ = {
 # ============================================================================
 
 from typing import List, Optional
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
 from pydantic import Field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class ObservabilitySettings(BaseSettings):

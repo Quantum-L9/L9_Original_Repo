@@ -23,17 +23,10 @@ from typing import Any
 import pytest
 import yaml
 
-from core.governance.schemas import (
-    PolicyEffect,
-    Condition,
-    ConditionOperator,
-    EvaluationRequest,
-)
-from core.governance.loader import (
-    PolicyLoadError,
-    InvalidPolicyError,
-)
 from core.governance.engine import GovernanceEngineService
+from core.governance.loader import InvalidPolicyError, PolicyLoadError
+from core.governance.schemas import (Condition, ConditionOperator,
+                                     EvaluationRequest, PolicyEffect)
 
 # =============================================================================
 # Fixtures
@@ -584,14 +577,20 @@ def test_condition_operators() -> None:
     }
 
     # EQUALS
-    cond_equals = Condition(field="role", operator=ConditionOperator.EQUALS, value="admin")
+    cond_equals = Condition(
+        field="role", operator=ConditionOperator.EQUALS, value="admin"
+    )
     assert cond_equals.evaluate(context) is True
 
-    cond_equals_fail = Condition(field="role", operator=ConditionOperator.EQUALS, value="user")
+    cond_equals_fail = Condition(
+        field="role", operator=ConditionOperator.EQUALS, value="user"
+    )
     assert cond_equals_fail.evaluate(context) is False
 
     # NOT_EQUALS
-    cond_not_equals = Condition(field="role", operator=ConditionOperator.NOT_EQUALS, value="user")
+    cond_not_equals = Condition(
+        field="role", operator=ConditionOperator.NOT_EQUALS, value="user"
+    )
     assert cond_not_equals.evaluate(context) is True
 
     # CONTAINS
@@ -601,7 +600,9 @@ def test_condition_operators() -> None:
     assert cond_contains.evaluate(context) is True
 
     # IN
-    cond_in = Condition(field="role", operator=ConditionOperator.IN, value=["admin", "superuser"])
+    cond_in = Condition(
+        field="role", operator=ConditionOperator.IN, value=["admin", "superuser"]
+    )
     assert cond_in.evaluate(context) is True
 
     # GREATER_THAN

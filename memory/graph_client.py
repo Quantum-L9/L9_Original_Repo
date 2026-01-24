@@ -14,7 +14,9 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+
+from core.singleton_auto_registry import (register_singleton,
+                                          register_singleton_closer)
 
 # ============================================================================
 __dora_meta__ = {
@@ -48,9 +50,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import os
 from typing import Any, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -58,8 +61,8 @@ from core.decorators import must_stay_async
 
 # Try to import Neo4j driver
 try:
-    from neo4j import AsyncGraphDatabase, AsyncDriver, AsyncSession, basic_auth
-    from neo4j.exceptions import ServiceUnavailable, AuthError
+    from neo4j import AsyncDriver, AsyncGraphDatabase, AsyncSession, basic_auth
+    from neo4j.exceptions import AuthError, ServiceUnavailable
 
     _has_neo4j = True
 except ImportError:

@@ -24,24 +24,25 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-import time
-import json
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException, Query, Depends
 import asyncio
+import json
+import time
+from datetime import datetime, timedelta
+from typing import Any
 
-from src.db import fetch_all, fetch_one, execute
+import structlog
+from fastapi import APIRouter, Depends, HTTPException, Query
+
+from src.config import settings
+from src.db import execute, fetch_all, fetch_one
 from src.embeddings import embed_text
 from src.models import (
-    SaveMemoryRequest,
     MemoryResponse,
+    MemoryStatsResponse,
+    SaveMemoryRequest,
     SearchMemoryRequest,
     SearchMemoryResponse,
-    MemoryStatsResponse,
 )
-from src.config import settings
 
 logger = structlog.get_logger(__name__)
 
@@ -76,14 +77,14 @@ async def save_memory_handler(
     kind: str,
     scope: str = "user",
     duration: str = "long",
-    tags: Optional[List[str]] = None,
+    tags: list[str] | None = None,
     importance: float = 1.0,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: dict[str, Any] | None = None,
     # Governance fields (enforced server-side, not client-provided)
     caller_id: str = "unknown",
     creator: str = "unknown",
     source: str = "unknown",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Save memory with caller-enforced governance.
 
     See: mcp_memory/memory-setup-instructions.md for governance spec.
@@ -91,7 +92,7 @@ async def save_memory_handler(
     Args:
         caller_id: "L" or "C" (from API key)
         creator: "L-CTO" or "Cursor-IDE" (server-enforced)
-        source: "l9-kernel" or "cursor-ide" (server-enforced)
+        source: "l9-kernel" or "cursor" (server-enforced)
     """
     try:
         embedding_list = await embed_text(content)
@@ -193,13 +194,13 @@ async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
 async def search_memory_handler(
     user_id: str,
     query: str,
-    scopes: Optional[List[str]] = None,
-    kinds: Optional[List[str]] = None,
+    scopes: list[str] | None = None,
+    kinds: list[str] | None = None,
     top_k: int = 5,
     threshold: float = 0.7,
     duration: str = "all",
     track_access: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         embed_start = time.time()
         query_embedding = await embed_text(query)
@@ -283,7 +284,7 @@ async def search_memory_handler(
 
 @router.get("/stats", response_model=MemoryStatsResponse)
 async def get_memory_stats(
-    user_id: Optional[str] = Query(None), duration: str = Query("all")
+    user_id: str | None = Query(None), duration: str = Query("all")
 ) -> MemoryStatsResponse:
     try:
         short_count = medium_count = long_count = unique_users = 0
@@ -331,7 +332,7 @@ async def get_memory_stats(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
+async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
     short_r = await fetch_one(
         "SELECT COUNT(*) as cnt FROM memory.short_term WHERE expires_at < CURRENT_TIMESTAMP"
     )
@@ -370,7 +371,7 @@ async def delete_expired_memories(dry_run: bool = True) -> Dict[str, Any]:
 
 async def compound_similar_memories(
     user_id: str, threshold: float = 0.92
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if not settings.COMPOUNDING_ENABLED:
         return {"status": "disabled", "message": "Memory compounding is disabled"}
 
@@ -446,7 +447,7 @@ async def compound_similar_memories(
     }
 
 
-async def apply_importance_decay(dry_run: bool = True) -> Dict[str, Any]:
+async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
     if not settings.DECAY_ENABLED:
         return {"status": "disabled", "message": "Importance decay is disabled"}
 
@@ -502,9 +503,9 @@ async def get_context_injection(
     user_id: str,
     top_k: int = 5,
     include_recent: bool = True,
-    kinds: Optional[List[str]] = None,
-    allowed_scopes: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    kinds: list[str] | None = None,
+    allowed_scopes: list[str] | None = None,
+) -> dict[str, Any]:
     """
     Auto-retrieve relevant memories for context injection before a task.
     This is the key leverage point - automatically surface relevant context.
@@ -591,10 +592,10 @@ async def extract_session_learnings(
     user_id: str,
     session_id: str,
     session_summary: str,
-    key_decisions: Optional[List[str]] = None,
-    errors_encountered: Optional[List[str]] = None,
-    successes: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    key_decisions: list[str] | None = None,
+    errors_encountered: list[str] | None = None,
+    successes: list[str] | None = None,
+) -> dict[str, Any]:
     """
     Extract and store learnings from a completed session.
     This is the cross-session learning loop - every session makes us smarter.
@@ -699,8 +700,8 @@ async def get_proactive_suggestions(
     include_error_fixes: bool = True,
     include_preferences: bool = True,
     top_k: int = 3,
-    allowed_scopes: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    allowed_scopes: list[str] | None = None,
+) -> dict[str, Any]:
     """
     Get proactive memory suggestions based on current context.
     Surfaces relevant past experiences, error fixes, and preferences.
@@ -803,11 +804,11 @@ async def get_proactive_suggestions(
 
 async def query_temporal(
     user_id: str,
-    since: Optional[str] = None,
-    until: Optional[str] = None,
-    kinds: Optional[List[str]] = None,
+    since: str | None = None,
+    until: str | None = None,
+    kinds: list[str] | None = None,
     operation: str = "changes",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Query memory changes over time.
     Answer 'what changed since X' or 'show timeline of Y'.
@@ -905,13 +906,13 @@ async def save_memory_with_confidence(
     duration: str = "long",
     confidence: float = 1.0,
     source: str = "cursor",  # Now enforced server-side
-    related_memory_ids: Optional[List[int]] = None,
-    tags: Optional[List[str]] = None,
+    related_memory_ids: list[int] | None = None,
+    tags: list[str] | None = None,
     importance: float = 1.0,
     # Governance fields (enforced server-side)
     caller_id: str = "unknown",
     creator: str = "unknown",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Save a memory with explicit confidence scoring and relationship linking.
 

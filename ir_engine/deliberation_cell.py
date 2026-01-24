@@ -34,27 +34,19 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
+import structlog
 from openai import AsyncOpenAI
 
-from ir_engine.ir_schema import (
-    IRGraph,
-    IRStatus,
-    IntentNode,
-    IntentType,
-    ConstraintNode,
-    ConstraintType,
-    ActionNode,
-    ActionType,
-    NodePriority,
-)
-from ir_engine.semantic_compiler import SemanticCompiler
+from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
+                                 ConstraintType, IntentNode, IntentType,
+                                 IRGraph, IRStatus, NodePriority)
 from ir_engine.ir_validator import IRValidator
+from ir_engine.semantic_compiler import SemanticCompiler
 
 logger = structlog.get_logger(__name__)
 

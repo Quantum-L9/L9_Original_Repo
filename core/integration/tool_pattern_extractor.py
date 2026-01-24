@@ -48,6 +48,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -197,6 +198,7 @@ class ToolPatternExtractor:
         """Query tool audit log from PostgreSQL."""
         try:
             import os
+
             from memory.substrate_repository import SubstrateRepository
 
             # Get database URL from environment
@@ -312,12 +314,12 @@ class ToolPatternExtractor:
         return {
             "tool_stats": tool_stats,
             "total_invocations": total_invocations,
-            "success_rate": total_successes / total_invocations
-            if total_invocations > 0
-            else 0.0,
-            "avg_duration_ms": total_duration / total_invocations
-            if total_invocations > 0
-            else 0,
+            "success_rate": (
+                total_successes / total_invocations if total_invocations > 0 else 0.0
+            ),
+            "avg_duration_ms": (
+                total_duration / total_invocations if total_invocations > 0 else 0
+            ),
             "total_cost_usd": total_cost,
             "lookback_hours": self.lookback_hours,
             "extracted_at": datetime.utcnow().isoformat(),
@@ -326,8 +328,8 @@ class ToolPatternExtractor:
     async def _store_patterns(self, patterns: dict[str, Any]) -> None:
         """Store patterns in World Model."""
         try:
-            from world_model.service import WorldModelService
             from config.rls_config import get_rls_config
+            from world_model.service import WorldModelService
 
             # GMP-94: World Model operations require RLS scope
             rls_config = get_rls_config()

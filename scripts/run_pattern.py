@@ -203,16 +203,18 @@ async def run_pattern(args: argparse.Namespace) -> dict:
     return {
         "success": result.is_success,
         "pipeline_id": str(result.trace_id),
-        "status": result.status.value
-        if hasattr(result.status, "value")
-        else str(result.status),
+        "status": (
+            result.status.value
+            if hasattr(result.status, "value")
+            else str(result.status)
+        ),
         "nodes_executed": len(result.node_results),
         "node_results": [
             {
                 "node_id": nr.node_id,
-                "status": nr.status.value
-                if hasattr(nr.status, "value")
-                else str(nr.status),
+                "status": (
+                    nr.status.value if hasattr(nr.status, "value") else str(nr.status)
+                ),
                 "duration_ms": nr.duration_ms,
                 "error": nr.error,
             }

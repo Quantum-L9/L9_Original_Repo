@@ -33,14 +33,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
-from typing import List, Optional, Dict, Any
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import structlog
+
+from core.decorators import must_stay_async
 
 from .config import ObservabilitySettings, load_config
-from .models import Span, TraceContext, FailureSignal, FailureClass
-from core.decorators import must_stay_async
+from .models import FailureClass, FailureSignal, Span, TraceContext
 
 logger = structlog.get_logger(__name__)
 
@@ -94,13 +96,10 @@ class ObservabilityService:
     @must_stay_async("callers use await")
     async def initialize_exporters(self) -> None:
         """Initialize configured exporters."""
-        from .exporters import (
-            ConsoleExporter,
-            JSONFileExporter,
-            SubstrateExporter,
-        )
-        from .prometheus_exporter import initialize_exporter
+        from .exporters import (ConsoleExporter, JSONFileExporter,
+                                SubstrateExporter)
         from .jaeger_exporter import initialize_jaeger_exporter
+        from .prometheus_exporter import initialize_exporter
 
         # Initialize Prometheus exporter (always available if prometheus_client installed)
         self._prometheus_exporter = initialize_exporter()
@@ -175,14 +174,17 @@ class ObservabilityService:
                 self._prometheus_exporter.record_span(
                     span_name=span.name,
                     status=span.status.value,
-                    kind=span.kind.value
-                    if hasattr(span.kind, "value")
-                    else str(span.kind),
+                    kind=(
+                        span.kind.value
+                        if hasattr(span.kind, "value")
+                        else str(span.kind)
+                    ),
                     duration_ms=span.duration_ms,
                 )
 
                 # Record specialized span types
-                from .models import LLMGenerationSpan, ToolCallSpan, ContextAssemblySpan
+                from .models import (ContextAssemblySpan, LLMGenerationSpan,
+                                     ToolCallSpan)
 
                 if isinstance(span, LLMGenerationSpan):
                     self._prometheus_exporter.record_llm_call(
@@ -348,9 +350,11 @@ class ObservabilityService:
             for signal in signals:
                 try:
                     self._prometheus_exporter.record_failure_signal(
-                        failure_class=signal.failure_class.value
-                        if hasattr(signal.failure_class, "value")
-                        else str(signal.failure_class)
+                        failure_class=(
+                            signal.failure_class.value
+                            if hasattr(signal.failure_class, "value")
+                            else str(signal.failure_class)
+                        )
                     )
                 except Exception as exc:
                     logger.debug(

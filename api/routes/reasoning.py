@@ -26,18 +26,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import List, Optional
+
+import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
-from api.auth import verify_api_key
-from typing import List, Optional
-import structlog
 
-from orchestrators.reasoning.interface import (
-    ReasoningRequest,
-    ReasoningMode,
-)
-from orchestrators.reasoning.orchestrator import ReasoningOrchestrator
+from api.auth import verify_api_key
 from core.decorators import must_stay_async
+from orchestrators.reasoning.interface import ReasoningMode, ReasoningRequest
+from orchestrators.reasoning.orchestrator import ReasoningOrchestrator
 
 logger = structlog.get_logger(__name__)
 

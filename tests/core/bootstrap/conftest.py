@@ -20,10 +20,11 @@ try:
 except Exception:
     pass  # Ignore if unavailable - tests will fail gracefully
 
-from typing import Any, Dict, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any, Dict, Optional
 from unittest.mock import MagicMock, patch
+
 import pytest
 
 # =============================================================================

@@ -39,16 +39,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
 
 import httpx
+import structlog
 
-from core.resilience.retry import async_retry, AsyncRetryConfig
 from core.decorators import must_stay_async
 from core.governance.rate_limit_policy import rate_limit
+from core.resilience.retry import AsyncRetryConfig, async_retry
 
 log = structlog.get_logger(__name__)
 

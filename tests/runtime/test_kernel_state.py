@@ -171,7 +171,9 @@ class TestEscalationLogging:
         state = KernelState()
 
         state.log_escalation("CAT1", "Issue 1", "HIGH")  # Pending
-        state.log_escalation("CAT2", "Issue 2", "LOW", resolution="Resolved")  # Resolved
+        state.log_escalation(
+            "CAT2", "Issue 2", "LOW", resolution="Resolved"
+        )  # Resolved
         state.log_escalation("CAT3", "Issue 3", "CRITICAL")  # Pending
 
         pending = state.get_pending_escalations()

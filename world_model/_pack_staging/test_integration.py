@@ -33,12 +33,12 @@ __dora_meta__ = {
 
 import unittest
 
-from world_model.loader import WorldModelLoader
-from world_model.state import WorldModelState
-from world_model.updater import WorldModelUpdater, UpdateOperation
-from world_model.query_engine import QueryEngine
-from world_model.orchestrator import SubstrateOrchestrator, ConsistencyMode
 from world_model.interfaces import Entity, Relation
+from world_model.loader import WorldModelLoader
+from world_model.orchestrator import ConsistencyMode, SubstrateOrchestrator
+from world_model.query_engine import QueryEngine
+from world_model.state import WorldModelState
+from world_model.updater import UpdateOperation, WorldModelUpdater
 
 
 class TestYAMLLoading(unittest.TestCase):

@@ -66,14 +66,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, List
+from typing import Any, List, Optional
 from uuid import UUID, uuid4
-from core.decorators import must_stay_async
 
+import structlog
+
+from core.decorators import must_stay_async
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import SegmentResult, get_segmenter
 
@@ -309,10 +310,11 @@ class UnifiedController:
             return
 
         # Orchestration components
-        from orchestration.task_router import TaskRouter
-        from orchestration.orchestrator_kernel import OrchestratorKernel, KernelConfig
         from orchestration.cell_orchestrator import CellOrchestrator
-        from orchestration.plan_executor import PlanExecutor, ExecutorConfig
+        from orchestration.orchestrator_kernel import (KernelConfig,
+                                                       OrchestratorKernel)
+        from orchestration.plan_executor import ExecutorConfig, PlanExecutor
+        from orchestration.task_router import TaskRouter
 
         self._router = TaskRouter()
 
@@ -343,12 +345,12 @@ class UnifiedController:
 
         # IR Engine components
         try:
-            from ir_engine.semantic_compiler import SemanticCompiler
-            from ir_engine.ir_validator import IRValidator
             from ir_engine.constraint_challenger import ConstraintChallenger
-            from ir_engine.simulation_router import SimulationRouter
-            from ir_engine.ir_to_plan_adapter import IRToPlanAdapter
             from ir_engine.deliberation_cell import DeliberationCell
+            from ir_engine.ir_to_plan_adapter import IRToPlanAdapter
+            from ir_engine.ir_validator import IRValidator
+            from ir_engine.semantic_compiler import SemanticCompiler
+            from ir_engine.simulation_router import SimulationRouter
 
             self._compiler = SemanticCompiler(
                 api_key=self._config.api_key,
@@ -888,9 +890,11 @@ class UnifiedController:
                         "risk": result.risk,
                         "simulation_score": result.simulation_score,
                         "corrections_made": result.corrections_made,
-                        "duration_ms": self._elapsed_ms(self._state.started_at)
-                        if self._state.started_at
-                        else 0,
+                        "duration_ms": (
+                            self._elapsed_ms(self._state.started_at)
+                            if self._state.started_at
+                            else 0
+                        ),
                     },
                     session_id=context.get("session_id"),
                 )
@@ -1083,9 +1087,9 @@ class UnifiedController:
             {
                 "insight_id": str(uuid4()),
                 "insight_type": "controller_execution",
-                "entities": [result.task_type, result.route_target]
-                if result.task_type
-                else [],
+                "entities": (
+                    [result.task_type, result.route_target] if result.task_type else []
+                ),
                 "content": f"Controller executed {result.task_type} task via {result.route_target}",
                 "confidence": 0.8,
                 "trigger_world_model": result.success,
@@ -1282,8 +1286,9 @@ async def dispatch_task_to_agent(
     Raises:
         RuntimeError: If agent is not connected
     """
-    from core.schemas.ws_event_stream import EventMessage, EventType
     from uuid import uuid4
+
+    from core.schemas.ws_event_stream import EventMessage, EventType
 
     ws = get_ws_orchestrator()
 
@@ -1324,8 +1329,9 @@ async def broadcast_task(
     Returns:
         Number of agents task was sent to
     """
-    from core.schemas.ws_event_stream import EventMessage, EventType
     from uuid import uuid4
+
+    from core.schemas.ws_event_stream import EventMessage, EventType
 
     ws = get_ws_orchestrator()
 

@@ -41,9 +41,10 @@ __dora_meta__ = {
 import os
 from functools import lru_cache
 from pathlib import Path
-from pydantic_settings import BaseSettings
-from pydantic import Field
 from typing import Optional
+
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class IntegrationSettings(BaseSettings):

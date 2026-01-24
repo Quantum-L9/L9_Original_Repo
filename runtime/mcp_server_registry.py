@@ -33,10 +33,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-import yaml
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+import structlog
+import yaml
 
 from core.auto_registry import AutoRegistry
 

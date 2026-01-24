@@ -36,9 +36,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from typing import Any, Optional
 
+import structlog
 from openai import AsyncOpenAI
 
 from collaborative_cells.base_cell import BaseCell, CellConfig

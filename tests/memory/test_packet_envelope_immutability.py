@@ -19,13 +19,8 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from core.schemas import (
-    PacketConfidence,
-    PacketEnvelope,
-    PacketLineage,
-    PacketMetadata,
-    PacketProvenance,
-)
+from core.schemas import (PacketConfidence, PacketEnvelope, PacketLineage,
+                          PacketMetadata, PacketProvenance)
 
 
 class TestPacketEnvelopeImmutability:

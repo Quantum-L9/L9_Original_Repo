@@ -99,24 +99,28 @@ class ModuleRegistry:
             modules.append(
                 {
                     "module_id": module_id,
-                    "definition": None
-                    if definition is None
-                    else {
-                        "display_name": definition.display_name,
-                        "route_prefix": definition.route_prefix,
-                        "owner": definition.owner,
-                        "version": definition.version,
-                        "required_env": list(definition.required_env),
-                    },
-                    "status": None
-                    if status is None
-                    else {
-                        "enabled": status.enabled,
-                        "available": status.available,
-                        "initialized": status.initialized,
-                        "notes": status.notes,
-                        "metadata": status.metadata,
-                    },
+                    "definition": (
+                        None
+                        if definition is None
+                        else {
+                            "display_name": definition.display_name,
+                            "route_prefix": definition.route_prefix,
+                            "owner": definition.owner,
+                            "version": definition.version,
+                            "required_env": list(definition.required_env),
+                        }
+                    ),
+                    "status": (
+                        None
+                        if status is None
+                        else {
+                            "enabled": status.enabled,
+                            "available": status.available,
+                            "initialized": status.initialized,
+                            "notes": status.notes,
+                            "metadata": status.metadata,
+                        }
+                    ),
                 }
             )
 

@@ -61,15 +61,9 @@ from uuid import UUID
 
 import structlog
 
-from core.schemas import (
-    PacketEnvelope,
-    PacketMetadata,
-    PacketLineage,
-    PacketProvenance,
-    PacketConfidence,
-    SCHEMA_VERSION,
-    SUPPORTED_VERSIONS,
-)
+from core.schemas import (SCHEMA_VERSION, SUPPORTED_VERSIONS, PacketConfidence,
+                          PacketEnvelope, PacketLineage, PacketMetadata,
+                          PacketProvenance)
 
 logger = structlog.get_logger(__name__)
 

@@ -10,22 +10,16 @@ Phase: 4 (VALIDATE)
 """
 
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from workers.violation_tracker_service import (
-    ViolationTrackerService,
-    ViolationTrackerServiceRequest,
-    ViolationTrackerServiceResponse,
-    ViolationRecord,
-)
-from workers.violation_patterns import (
-    ViolationPatterns,
-    ViolationPatternsResponse,
-    ViolationMatch,
-    ViolationSeverity,
-)
+from workers.violation_patterns import (ViolationMatch, ViolationPatterns,
+                                        ViolationPatternsResponse,
+                                        ViolationSeverity)
+from workers.violation_tracker_service import (ViolationRecord,
+                                               ViolationTrackerService,
+                                               ViolationTrackerServiceRequest)
 
 
 class TestViolationTrackerServiceInit:

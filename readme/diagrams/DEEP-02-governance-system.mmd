@@ -1,0 +1,101 @@
+%% L9 Governance System - DEEP GRANULAR IMPLEMENTATION DIAGRAM
+%% Shows actual policy evaluation, enforcement gates, and fail-closed behavior
+%% Version: 2.0 (Deep Implementation Level)
+%% Generated: 2026-01-20
+
+graph TB
+    subgraph "Request Entry"
+        REQ["Tool/Action Request<br/>resource='tool.execute'<br/>action='invoke'<br/>context={'tool_id': 'xyz'}"]
+    end
+
+    subgraph "GovernanceEngineService"
+        ENGINE["GovernanceEngineService<br/>policy_count=15<br/>default_effect=DENY"]
+        EVAL_METHOD["async evaluate()<br/>EvaluationResult"]
+    end
+
+    subgraph "Policy Loading"
+        POLICY_DIR["POLICY_MANIFEST_DIR<br/>config/policies/"]
+        LOADER["PolicyLoader<br/>load_from_directory()"]
+        YAML_PARSE["Parse YAML files"]
+        VALIDATE_SCHEMA["Validate policy schema"]
+        LOAD_ERROR["PolicyLoadError<br/>CRITICAL fail"]
+        LOAD_SUCCESS["Policies loaded"]
+    end
+
+    subgraph "PolicyRegistry"
+        REGISTRY["PolicyRegistry<br/>policies List"]
+        POLICY_1["Policy tool_execution<br/>effect ALLOW"]
+        POLICY_2["Policy memory_write<br/>effect ALLOW"]
+        POLICY_3["Policy kernel_load<br/>effect DENY"]
+        DEFAULT["Default Policy<br/>effect DENY"]
+    end
+
+    subgraph "Evaluation Flow"
+        MATCH_LOOP["for policy in policies"]
+        CONDITION_CHECK["Evaluate conditions"]
+        FIRST_MATCH["First match wins"]
+        NO_MATCH["No policy matched"]
+    end
+
+    subgraph "Effect Application"
+        EFFECT_ALLOW["PolicyEffect ALLOW"]
+        EFFECT_DENY["PolicyEffect DENY"]
+        EFFECT_AUDIT["PolicyEffect AUDIT"]
+    end
+
+    subgraph "Enforcement Gates"
+        GATE_PRE["Pre-execution gate"]
+        GATE_POST["Post-execution gate"]
+        GATE_FAIL["Fail-closed behavior"]
+    end
+
+    subgraph "Audit Logging"
+        AUDIT_LOG["write_packet governance_eval"]
+        AUDIT_DB["INSERT INTO audit_log"]
+    end
+
+    %% Request Flow
+    REQ --> ENGINE
+    ENGINE --> EVAL_METHOD
+
+    %% Initialization
+    POLICY_DIR --> LOADER
+    LOADER --> YAML_PARSE
+    YAML_PARSE --> VALIDATE_SCHEMA
+    VALIDATE_SCHEMA -.invalid.-> LOAD_ERROR
+    VALIDATE_SCHEMA -.valid.-> LOAD_SUCCESS
+    LOAD_SUCCESS --> REGISTRY
+
+    %% Registry
+    REGISTRY --> POLICY_1
+    REGISTRY --> POLICY_2
+    REGISTRY --> POLICY_3
+    REGISTRY --> DEFAULT
+
+    %% Evaluation
+    EVAL_METHOD --> MATCH_LOOP
+    MATCH_LOOP --> CONDITION_CHECK
+    CONDITION_CHECK -.match.-> FIRST_MATCH
+    CONDITION_CHECK -.no match.-> NO_MATCH
+
+    %% Effects
+    FIRST_MATCH --> EFFECT_ALLOW
+    FIRST_MATCH --> EFFECT_DENY
+    FIRST_MATCH --> EFFECT_AUDIT
+    NO_MATCH --> EFFECT_DENY
+
+    %% Enforcement
+    EFFECT_ALLOW --> GATE_PRE
+    EFFECT_DENY --> GATE_FAIL
+    GATE_PRE --> GATE_POST
+
+    %% Audit
+    EFFECT_ALLOW --> AUDIT_LOG
+    EFFECT_DENY --> AUDIT_LOG
+    AUDIT_LOG --> AUDIT_DB
+
+    style ENGINE fill:#4ecdc4
+    style EFFECT_DENY fill:#ff6b6b
+    style EFFECT_ALLOW fill:#95e1d3
+    style GATE_FAIL fill:#ff6b6b
+    style LOAD_ERROR fill:#ff6b6b

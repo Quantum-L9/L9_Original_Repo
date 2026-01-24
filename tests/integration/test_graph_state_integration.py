@@ -17,8 +17,9 @@ Created: 2026-01-05
 """
 
 import os
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 # Mark all tests as integration tests
 pytestmark = pytest.mark.integration
@@ -62,7 +63,11 @@ def sample_graph_result(sample_agent_node):
     return {
         "a": sample_agent_node,
         "responsibilities": [
-            {"title": "Architecture Design", "description": "Design systems", "priority": 0},
+            {
+                "title": "Architecture Design",
+                "description": "Design systems",
+                "priority": 0,
+            },
             {"title": "Code Quality", "description": "Ensure quality", "priority": 0},
         ],
         "directives": [
@@ -264,13 +269,10 @@ async def test_directive_compliance_check(mock_neo4j_driver, sample_graph_result
 @pytest.mark.asyncio
 async def test_bootstrap_defaults():
     """Test that bootstrap defaults are complete and valid."""
-    from core.agents.graph_state.bootstrap_l_graph import (
-        L_AGENT_CONFIG,
-        L_RESPONSIBILITIES,
-        L_DIRECTIVES,
-        L_SOPS,
-        L_TOOLS,
-    )
+    from core.agents.graph_state.bootstrap_l_graph import (L_AGENT_CONFIG,
+                                                           L_DIRECTIVES,
+                                                           L_RESPONSIBILITIES,
+                                                           L_SOPS, L_TOOLS)
 
     # Agent config complete
     assert L_AGENT_CONFIG["agent_id"] == "L"
@@ -315,9 +317,13 @@ async def test_real_neo4j_bootstrap():
     docker compose up -d l9-neo4j
     """
     from neo4j import AsyncGraphDatabase, basic_auth
-    from core.agents.graph_state.bootstrap_l_graph import bootstrap_l_graph, verify_l_graph
 
-    neo4j_uri = os.getenv("NEO4J_URL") or os.getenv("NEO4J_URI", "bolt://localhost:7687")
+    from core.agents.graph_state.bootstrap_l_graph import (bootstrap_l_graph,
+                                                           verify_l_graph)
+
+    neo4j_uri = os.getenv("NEO4J_URL") or os.getenv(
+        "NEO4J_URI", "bolt://localhost:7687"
+    )
     neo4j_user = os.getenv("NEO4J_USER", "neo4j")
     neo4j_password = os.getenv("NEO4J_PASSWORD", "password")
 

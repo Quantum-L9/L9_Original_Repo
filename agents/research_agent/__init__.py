@@ -30,32 +30,19 @@ See Also:
 """
 
 # Facade functions (simple interface)
-from agents.research_agent.research_facade import (
-    run_research,
-    run_quick_research,
-    generate_superprompt,
-    extract_facts,
-)
-
+from agents.research_agent.research_facade import (extract_facts,
+                                                   generate_superprompt,
+                                                   run_quick_research,
+                                                   run_research)
 # Re-export from services.research for advanced use
-from services.research import (
-    # State
-    ResearchGraphState,
-    ResearchStep,
-    Evidence,
-    create_initial_state,
-    # Memory
-    ResearchMemoryAdapter,
-    get_memory_adapter,
-    # Graph
-    build_research_graph,
-    run_research as run_research_full,
-    # Runtime
-    ResearchGraphRuntime,
-    get_runtime,
-    init_runtime,
-    shutdown_runtime,
-)
+from services.research import (Evidence, ResearchGraphRuntime,
+                               ResearchGraphState, ResearchMemoryAdapter,
+                               ResearchStep, build_research_graph,
+                               create_initial_state, get_memory_adapter,
+                               get_runtime, init_runtime)
+from services.research import \
+    run_research as run_research_full  # State; Memory; Graph; Runtime
+from services.research import shutdown_runtime
 
 __all__ = [
     # Facade (simple)

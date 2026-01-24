@@ -51,7 +51,6 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-
 # =============================================================================
 # Enums
 # =============================================================================
@@ -237,9 +236,9 @@ class TaskEnvelope(BaseModel):
             "task": self.task.to_dict(),
             "agent_id": self.agent_id,
             "assigned_at": self.assigned_at.isoformat() if self.assigned_at else None,
-            "source_event_id": str(self.source_event_id)
-            if self.source_event_id
-            else None,
+            "source_event_id": (
+                str(self.source_event_id) if self.source_event_id else None
+            ),
             "retry_count": self.retry_count,
         }
 

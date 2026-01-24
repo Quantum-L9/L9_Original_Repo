@@ -2,9 +2,10 @@
 Tests for CodeGenAgent c_gmp_engine module.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
+
+import pytest
 import structlog
 
 logger = structlog.get_logger(__name__)

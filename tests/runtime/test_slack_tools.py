@@ -33,14 +33,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from typing import Any, Dict
+from unittest.mock import AsyncMock, patch
 
+import pytest
+
+from api.slack_client import SlackClientError
 # Import the tool under test
 from runtime.l_tools import slack_send
-from api.slack_client import SlackClientError
-
 
 # =============================================================================
 # Test Fixtures
@@ -189,9 +188,7 @@ async def test_slack_send_slack_client_error(mock_env_with_token, mock_slack_cli
 async def test_slack_send_generic_exception(mock_env_with_token, mock_slack_client):
     """Test error handling for generic exceptions."""
     # Setup mock to raise generic exception
-    mock_slack_client.post_message.side_effect = Exception(
-        "Unexpected network error"
-    )
+    mock_slack_client.post_message.side_effect = Exception("Unexpected network error")
 
     # Patch SlackAPIClient
     with patch("runtime.l_tools.SlackAPIClient", return_value=mock_slack_client):

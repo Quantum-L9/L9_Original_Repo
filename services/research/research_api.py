@@ -26,14 +26,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, Depends
+import structlog
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from services.research.graph_runtime import get_runtime, ResearchGraphRuntime
+from services.research.graph_runtime import ResearchGraphRuntime, get_runtime
 
 logger = structlog.get_logger(__name__)
 

@@ -37,6 +37,7 @@ AnomalyProcessRequest @ api/routes/workers.py - Request to process telemetry eve
 AnomalyProcessResponse @ api/routes/workers.py - Response from anomaly processing.
 AnomalyResponseMonitorRequest @ workers/anomaly_response_monitor.py - Input request for AnomalyResponseMonitor.
 AnomalyResponseMonitorResponse @ workers/anomaly_response_monitor.py - Output response from AnomalyResponseMonitor.
+AnomalySignal @ adapters/tensorglobe_bridge/schemas.py - Anomaly detection output
 ApplyDecayArgs @ mcp_memory/src/models.py - Validation model for apply_decay tool arguments.
 ApprovalFeedbackRequest @ api/routes/commands.py - Request to record approval/rejection feedback.
 ApprovalFeedbackResponse @ api/routes/commands.py - Response from approval feedback.
@@ -52,6 +53,7 @@ BatchRequest @ api/memory/router.py - Request model for batch packet ingestion.
 BatchRequest @ igor/DONE!/audit-memory/api_memory_router.py - Request model for batch packet ingestion.
 BatchResponse @ api/memory/router.py - Response model for batch operations.
 BatchResponse @ igor/DONE!/audit-memory/api_memory_router.py - Response model for batch operations.
+BlindSpot @ core/codegen/gatekeeper/codegen_gatekeeper.py - Detected blind spot or missing information
 Blueprint @ orchestrators/meta/interface.py - A candidate blueprint/design.
 BlueprintEvaluation @ orchestrators/meta/interface.py - Complete evaluation of a blueprint.
 BlueprintScore @ orchestrators/meta/interface.py - Score for a single criterion.
@@ -82,6 +84,7 @@ ChatResponse @ current_work/DONE/Slack-Debug-2/server.py -
 CircuitBreakerStatus @ api/routes/observability.py - Status of a circuit breaker.
 CircuitBreakersResponse @ api/routes/observability.py - Response for circuit breakers endpoint.
 ClassificationResult @ workers/anomaly_classifier.py - Result of anomaly classification.
+CodeGenOutput @ core/codegen/gatekeeper/codegen_gatekeeper.py - Generated code output
 CodeGenRequest @ _archived/symbolic_computation/models.py - Request model for code generation.
 CodeGenRequest @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py - Request model for code generation.
 CodeGenRequest @ services/symbolic_computation/core/models.py - Request model for code generation.
@@ -102,6 +105,7 @@ CompactResponse @ api/memory/router.py - Response model for compact operation.
 CompactResponse @ igor/DONE!/audit-memory/api_memory_router.py - Response model for compact operation.
 CompareApproachesRequest @ api/routes/reflection_agent.py - Request model for approach comparison.
 CompareApproachesResponse @ api/routes/reflection_agent.py - Response model for approach comparison.
+CompilationResult @ core/codegen/compiler/module_compiler.py - Result of module compilation
 ComplianceReportResponse @ api/routes/compliance.py - Compliance report response.
 CompositeTask @ api/vps_executor.py - 
 CompoundMemoriesArgs @ mcp_memory/src/models.py - Validation model for compound_memories tool argume
@@ -134,6 +138,7 @@ CursorResumeRequest @ api/routes/cursor.py - Request model for resuming a thread
 CursorTaskRequest @ api/routes/cursor.py - Request model for Cursor task execution.
 CursorTaskResponse @ api/routes/cursor.py - Response model for Cursor task execution.
 CursorTaskSpec @ agents/cursor/integrations/cursor_executor.py - Task specification for Cursor executor.
+DORABlock @ core/codegen/utilities.py - DORA metadata block
 DeleteExpiredMemoriesArgs @ mcp_memory/src/models.py - Validation model for delete_expired_memories tool 
 DependencySpec @ ir_engine/meta_ir.py - Section 5: Explicit dependencies with endpoints.
 DeploymentBlock @ codegen/code-gen-files/schema_parser.py - Runtime, endpoints, and telemetry configuration.
@@ -323,6 +328,7 @@ NLPPrompt @ core/commands/schemas.py - Natural language prompt requiring intent 
 NodeDefinition @ orchestrators/pattern/interface.py - Definition of a pipeline node from pattern YAML.
 NodeResult @ orchestrators/pattern/interface.py - Result of executing a single node.
 NodeResultResponse @ api/routes/pattern.py - Response model for a single node result.
+NormalizedSpec @ core/codegen/gatekeeper/codegen_gatekeeper.py - Normalized specification ready for code generation
 ObservabilityConfig @ orchestrators/pattern/interface.py - Observability configuration from pattern YAML.
 ObservabilitySettings @ core/observability/config.py - Central configuration for observability subsystem.
 ObservabilitySettings @ current_work/DONE/Observability/observability_config.py - Central configuration for observability subsystem.
@@ -419,6 +425,7 @@ ReplyRequest @ email_agent/router.py - Request model for replying to email.
 RepoSpec @ ir_engine/meta_ir.py - Section 15: File manifest for code generation.
 ResearchExecuteRequest @ api/routes/research.py - Request model for research swarm execution.
 ResearchExecuteResponse @ api/routes/research.py - Response model for research swarm execution.
+ResearchFinding @ core/codegen/gatekeeper/codegen_gatekeeper.py - Research result from Perplexity
 ResearchJobSpec @ core/schemas/research_factory_models.py - Input specification for a research job.
 ResearchMetrics @ core/schemas/research_factory_models.py - Metrics collected during research execution.
 ResearchRequest @ services/research/research_api.py - Request model for research endpoint.
@@ -545,6 +552,9 @@ TemporalQueryRequest @ igor/DONE!/audit-memory/mcp_memory_src_models.py - Reques
 TemporalQueryRequest @ mcp_memory/src/models.py - Request for temporal memory queries.
 TemporalQueryResponse @ igor/DONE!/audit-memory/mcp_memory_src_models.py - Temporal query results showing memory evolution.
 TemporalQueryResponse @ mcp_memory/src/models.py - Temporal query results showing memory evolution.
+TensorRequest @ adapters/tensorglobe_bridge/schemas.py - TensorRequest: Untrusted query to external tensor 
+TensorResponse @ adapters/tensorglobe_bridge/schemas.py - TensorResponse from external provider.
+TensorResult @ adapters/tensorglobe_bridge/schemas.py - Single tensor result (similarity score, prediction
 TestModel @ tests/memory/test_agent_persistence.py - 
 TestScope @ ir_engine/meta_ir.py - Section 11: Required test coverage.
 TokenUsage @ core/schemas/packet_envelope.py - Token usage tracking for LLM calls.
@@ -576,6 +586,8 @@ ValidateRequest @ api/routes/factory.py - Request model for schema validation.
 ValidateRequest @ services/symbolic_computation/api/routes.py - Request model for /validate endpoint.
 ValidateResponse @ api/routes/factory.py - Response model for schema validation.
 ValidationError @ ir_engine/ir_schema.py - A single validation error.
+ValidationGate @ core/codegen/utilities.py - Single validation gate result
+ValidationReport @ core/codegen/utilities.py - Complete validation report
 ValidationResult @ services/symbolic_computation/core/models.py - Result model for expression validation.
 ViolationCountsResponse @ api/routes/workers.py - Response with violation counts per lesson.
 ViolationMatch @ workers/violation_patterns.py - A single violation match.
@@ -596,4 +608,4 @@ WorldModelQueryInput @ igor/DONE!/audit-tools/core_schemas_l_tools.py - Input sc
 WorldModelRequest @ orchestrators/world_model/interface.py - Request to world_model orchestrator.
 WorldModelResponse @ orchestrators/world_model/interface.py - Response from world_model orchestrator.
 
-# Total: 592 Pydantic models
+# Total: 604 Pydantic models

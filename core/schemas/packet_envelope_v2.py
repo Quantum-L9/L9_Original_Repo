@@ -53,7 +53,6 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-
 # =============================================================================
 # Schema Version Constants
 # =============================================================================
@@ -249,6 +248,20 @@ class PacketEnvelope(BaseModel):
         None, description="Optional expiry timestamp for memory hygiene/GC"
     )
 
+    # v2.0.1+ Tracing Fields (Phase 0 Plan 2 - Observability)
+    trace_id: Optional[str] = Field(
+        None,
+        description="Distributed trace ID (UUID format) for request chain tracing (OpenTelemetry compatible)"
+    )
+    correlation_id: Optional[str] = Field(
+        None,
+        description="Groups related packets in same task/batch for correlation"
+    )
+    source_location: Optional[dict[str, Any]] = Field(
+        None,
+        description="Source code location where packet was created: {file, line, function}"
+    )
+
     # v2.0.0 Fields
     content_hash: Optional[str] = Field(
         None, description="SHA-256 hash of payload+metadata for integrity verification"
@@ -405,9 +418,9 @@ class PacketEnvelopeIn(BaseModel):
             packet_type=self.packet_type,
             payload=self.payload,
             timestamp=self.timestamp or datetime.utcnow(),
-            metadata=PacketMetadata(**self.metadata)
-            if self.metadata
-            else PacketMetadata(),
+            metadata=(
+                PacketMetadata(**self.metadata) if self.metadata else PacketMetadata()
+            ),
             provenance=PacketProvenance(**self.provenance) if self.provenance else None,
             confidence=PacketConfidence(**self.confidence) if self.confidence else None,
             reasoning_block=self.reasoning_block,

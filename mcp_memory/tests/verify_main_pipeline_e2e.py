@@ -38,16 +38,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 import json
 import os
 import sys
 from datetime import datetime
+from typing import Any, Dict, Optional
 from uuid import UUID
-from typing import Dict, Any, Optional
 
 import asyncpg
 import httpx
+import structlog
 
 # =============================================================================
 # Configuration
@@ -199,9 +199,11 @@ class PipelineTracer:
                 "packet_type": packet_row["packet_type"],
                 "timestamp": str(packet_row["timestamp"]),
                 "scope": packet_row["scope"],
-                "importance": float(packet_row["importance_score"])
-                if packet_row["importance_score"]
-                else None,
+                "importance": (
+                    float(packet_row["importance_score"])
+                    if packet_row["importance_score"]
+                    else None
+                ),
                 "tags": packet_row["tags"] or [],
             }
 
@@ -234,9 +236,11 @@ class PipelineTracer:
                 "found": True,
                 "embedding_id": str(embedding_row["embedding_id"]),
                 "embedding_type": embedding_row["embedding_type"],
-                "chunk_text": embedding_row["chunk_text"][:100]
-                if embedding_row["chunk_text"]
-                else None,
+                "chunk_text": (
+                    embedding_row["chunk_text"][:100]
+                    if embedding_row["chunk_text"]
+                    else None
+                ),
                 "created_at": str(embedding_row["created_at"]),
             }
         else:
@@ -270,9 +274,9 @@ class PipelineTracer:
                         "subject": f["subject"],
                         "predicate": f["predicate"],
                         "object": str(f["object"])[:100],
-                        "confidence": float(f["confidence"])
-                        if f["confidence"]
-                        else None,
+                        "confidence": (
+                            float(f["confidence"]) if f["confidence"] else None
+                        ),
                     }
                     for f in facts
                 ],
@@ -335,7 +339,9 @@ async def verify_main_pipeline():
         sys.exit(1)
 
     if not Config.MEMORY_DSN:
-        logger.warning("⚠️  WARNING: MEMORY_DSN not set. Cannot trace through database.")
+        logger.warning(
+            "⚠️  WARNING: MEMORY_DSN not set. Cannot trace through database."
+        )
         logger.info("   Set MEMORY_DSN to enable full pipeline tracing.")
         trace_db = False
     else:
@@ -490,7 +496,9 @@ async def verify_main_pipeline():
                 )
                 stages_ok.append("reasoning_traces")
             else:
-                logger.info("⚠️  Stage 4: reasoning_traces - No reasoning trace created")
+                logger.info(
+                    "⚠️  Stage 4: reasoning_traces - No reasoning trace created"
+                )
                 logger.info(
                     "   (This is OK - reasoning traces may not be created for all packets)"
                 )

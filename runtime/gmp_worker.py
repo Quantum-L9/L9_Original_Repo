@@ -38,13 +38,14 @@ __dora_meta__ = {
 
 import asyncio
 import os
-import structlog
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
-from datetime import datetime
 
-from runtime.task_queue import TaskQueue, QueuedTask
+import structlog
+
 from core.decorators import must_stay_async
+from runtime.task_queue import QueuedTask, TaskQueue
 
 logger = structlog.get_logger(__name__)
 

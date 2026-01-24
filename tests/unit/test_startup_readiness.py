@@ -8,15 +8,13 @@ Verifies:
 4. Health endpoints expose startup status
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Always use core.governance.session_startup which has check_kernel_readiness()
 # Note: .cursor-commands/startup/session_startup.py has check_cursor_workflow_kernel() instead
-from core.governance.session_startup import (
-    SessionStartup,
-    StartupResult,
-)
+from core.governance.session_startup import SessionStartup, StartupResult
 
 # Default workspace root for tests
 TEST_WORKSPACE_ROOT = Path("/Users/ib-mac/Projects/L9")

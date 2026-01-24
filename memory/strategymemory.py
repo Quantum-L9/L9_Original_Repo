@@ -47,11 +47,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+import structlog
 from pydantic import BaseModel, Field
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

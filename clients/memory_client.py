@@ -40,13 +40,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import os
 from typing import Any, Optional
 from uuid import UUID
 
 import httpx
+import structlog
 from pydantic import BaseModel, Field
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

@@ -49,12 +49,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -114,9 +115,9 @@ class Reflection:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Reflection:
         return cls(
-            reflection_id=UUID(data["reflection_id"])
-            if "reflection_id" in data
-            else uuid4(),
+            reflection_id=(
+                UUID(data["reflection_id"]) if "reflection_id" in data else uuid4()
+            ),
             reflection_type=ReflectionType(data.get("reflection_type", "lesson")),
             content=data.get("content", ""),
             context=data.get("context", ""),
@@ -234,9 +235,9 @@ class TaskReflection:
     def from_dict(cls, data: dict[str, Any]) -> "TaskReflection":
         return cls(
             task_id=data.get("task_id", ""),
-            reflection_id=UUID(data["reflection_id"])
-            if "reflection_id" in data
-            else uuid4(),
+            reflection_id=(
+                UUID(data["reflection_id"]) if "reflection_id" in data else uuid4()
+            ),
             task_description=data.get("task_description", ""),
             outcome=data.get("outcome", "unknown"),
             what_worked=data.get("what_worked", []),

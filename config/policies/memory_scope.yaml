@@ -108,7 +108,7 @@ policies:
     description: "Explicitly denies Cursor from accessing l-private memories."
     effect: "deny"
     priority: 250
-    subjects: ["C", "cursor", "cursor-ide"]
+    subjects: ["C", "cursor", "cursor"]
     actions: ["memory.read", "memory.write", "memory.delete"]
     resources: ["scope:l-private"]
     enabled: true

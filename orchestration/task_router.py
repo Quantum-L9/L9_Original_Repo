@@ -56,7 +56,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -64,8 +63,10 @@ from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
+import structlog
+
 # Security imports
-from core.schemas.capabilities import ToolName, AgentCapabilities
+from core.schemas.capabilities import AgentCapabilities, ToolName
 
 logger = structlog.get_logger(__name__)
 
@@ -147,9 +148,9 @@ class TaskRoute:
             "requires_simulation": self.requires_simulation,
             "requires_collaboration": self.requires_collaboration,
             "cell_types": self.cell_types,
-            "fallback_target": self.fallback_target.value
-            if self.fallback_target
-            else None,
+            "fallback_target": (
+                self.fallback_target.value if self.fallback_target else None
+            ),
         }
 
 
@@ -533,9 +534,11 @@ class TaskRouter:
                 priority=8,
                 requires_simulation=True,
                 requires_collaboration=task_type in (TaskType.DESIGN, TaskType.REVIEW),
-                cell_types=self._get_cell_types_for_task(task_type)
-                if task_type in (TaskType.DESIGN, TaskType.REVIEW)
-                else [],
+                cell_types=(
+                    self._get_cell_types_for_task(task_type)
+                    if task_type in (TaskType.DESIGN, TaskType.REVIEW)
+                    else []
+                ),
                 fallback_target=ExecutionTarget.IR_ENGINE_ONLY,
                 estimated_duration_ms=60000,
             )

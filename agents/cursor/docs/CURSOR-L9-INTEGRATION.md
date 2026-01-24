@@ -149,7 +149,7 @@ curl -X POST http://localhost:8000/api/memory/ingest \
     "packet_type": "cursor_memory",
     "envelope": {
       "content": "Memory content",
-      "agent": "cursor-ide"
+      "agent": "cursor"
     }
   }'
 ```
@@ -184,7 +184,7 @@ Cursor cannot write to memory directly via MCP. This is by design (security).
 | NOT Shared | Details |
 |------------|---------|
 | **Neo4j Tool Graph** | L uses direct tools; Cursor uses CLI script |
-| **Redis Session** | Separate tenant IDs (cursor-ide vs l-cto) |
+| **Redis Session** | Separate tenant IDs (cursor vs l-cto) |
 | **Private Kernels** | Cursor reads summary only |
 
 ---

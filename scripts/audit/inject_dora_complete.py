@@ -13,8 +13,8 @@ Usage:
     python scripts/audit/inject_dora_complete.py --repo /path/to/L9 --execute --file path/to/file.py
 """
 
-import ast
 import argparse
+import ast
 import json
 import re
 import subprocess
@@ -1209,7 +1209,7 @@ class DoraCompleteInjector:
             file_path, header.domain, header.layer
         )
 
-        return f'''# ============================================================================
+        return f"""# ============================================================================
 __dora_meta__ = {{
     "component_name": "{header.component_name}",
     "module_version": "{header.module_version}",
@@ -1229,7 +1229,7 @@ __dora_meta__ = {{
     }},
 }}
 # ============================================================================
-'''
+"""
 
     def _format_header_meta_yaml(
         self, header: HeaderMeta, file_path: str, modified_at: str
@@ -1237,7 +1237,7 @@ __dora_meta__ = {{
         """Format Header Meta block for YAML file (TOP)."""
         file_name = Path(file_path).stem
 
-        return f'''# ============================================================================
+        return f"""# ============================================================================
 # DORA META - AUTO-GENERATED
 # ============================================================================
 # component_name: "{header.component_name}"
@@ -1252,7 +1252,7 @@ __dora_meta__ = {{
 # status: "{header.status}"
 # ============================================================================
 
-'''
+"""
 
     def _format_footer_meta_yaml(
         self, footer: FooterMeta, header: HeaderMeta, file_path: str
@@ -1263,7 +1263,7 @@ __dora_meta__ = {{
         )
         keywords = self._generate_smart_keywords_yaml(file_path, header.component_name)
 
-        return f'''
+        return f"""
 
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
@@ -1272,7 +1272,7 @@ __dora_meta__ = {{
 # keywords: {json.dumps(keywords)}
 # last_modified: "{footer.last_modified}"
 # ============================================================================
-'''
+"""
 
     def _generate_smart_tags_yaml(
         self, file_path: str, domain: str, comp_type: str, layer: str
@@ -1451,7 +1451,7 @@ __dora_meta__ = {{
             tags = self._generate_tags(header.domain, header.type, header.layer)
             keywords = self._generate_keywords(header.component_name, header.domain)
 
-        return f'''
+        return f"""
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -1468,7 +1468,7 @@ __dora_footer__ = {{
     "last_modified": "{footer.last_modified}",
     "modified_by": "{footer.modified_by}",
     "change_summary": "{footer.change_summary}",
-}}'''
+}}"""
 
     def _generate_tags(self, domain: str, comp_type: str, layer: str) -> List[str]:
         """Generate tags based on domain, type, and layer."""
@@ -1965,7 +1965,7 @@ __dora_footer__ = {{
 
     def _format_trace_block(self, trace: DoraTraceBlock) -> str:
         """Format DORA Trace Block for Python file (VERY END)."""
-        return f'''
+        return f"""
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
 # Runtime execution trace - updated automatically on every execution
@@ -1983,7 +1983,7 @@ __l9_trace__ = {{
 # ============================================================================
 # END L9 DORA BLOCK
 # ============================================================================
-'''
+"""
 
     def _find_insertion_point(self, content: str) -> int:
         """Find the correct insertion point for header (after shebang, encoding, docstring, __future__ imports)."""

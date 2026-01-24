@@ -42,16 +42,18 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 import random
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID, uuid4
+
+import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -257,7 +259,8 @@ class SimulationEngine:
             return  # No substrate attached, skip emission
 
         try:
-            from core.schemas import PacketConfidence, PacketEnvelope, PacketProvenance
+            from core.schemas import (PacketConfidence, PacketEnvelope,
+                                      PacketProvenance)
 
             packet = PacketEnvelope(
                 packet_type="simulation_result",
@@ -276,12 +279,12 @@ class SimulationEngine:
                         "bottlenecks": run.metrics.bottlenecks,
                     },
                     "failure_modes": run.failure_modes,
-                    "started_at": run.started_at.isoformat()
-                    if run.started_at
-                    else None,
-                    "completed_at": run.completed_at.isoformat()
-                    if run.completed_at
-                    else None,
+                    "started_at": (
+                        run.started_at.isoformat() if run.started_at else None
+                    ),
+                    "completed_at": (
+                        run.completed_at.isoformat() if run.completed_at else None
+                    ),
                 },
                 provenance=PacketProvenance(
                     source="simulation_engine",

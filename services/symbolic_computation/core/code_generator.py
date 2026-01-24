@@ -43,7 +43,8 @@ import structlog
 import sympy
 from sympy import sympify
 
-from services.symbolic_computation.config import SymbolicComputationConfig, get_config
+from services.symbolic_computation.config import (SymbolicComputationConfig,
+                                                  get_config)
 from services.symbolic_computation.core.models import CodeGenResult
 
 logger = structlog.get_logger(__name__)
@@ -306,7 +307,22 @@ def {function_name}({args}):
         try:
             if language.upper() == "PYTHON":
                 # Execute Python code and extract function
-                namespace: dict = {}
+                # SECURITY: exec() is required here for symbolic computation
+                # The source_code should be validated before reaching this point
+                # Restrict namespace to minimize attack surface
+                namespace: dict = {
+                    "__builtins__": {
+                        # Only allow safe built-ins
+                        "abs": abs,
+                        "min": min,
+                        "max": max,
+                        "sum": sum,
+                        "len": len,
+                        "range": range,
+                        "enumerate": enumerate,
+                        "zip": zip,
+                    }
+                }
                 exec(source_code, namespace)
                 # Find the first function defined
                 for name, obj in namespace.items():

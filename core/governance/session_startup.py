@@ -60,11 +60,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -459,8 +460,9 @@ class SessionStartup:
         # Try to get kernel state from agent registry
         kernel_state = "NOT_LOADED"
         try:
-            from core.agents.kernel_registry import KernelAwareAgentRegistry
             import os
+
+            from core.agents.kernel_registry import KernelAwareAgentRegistry
 
             # Only check if USE_KERNELS is enabled
             if os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes"):

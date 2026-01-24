@@ -22,20 +22,22 @@ Version: 1.0.0
 """
 
 from core.di.container import (
+    BindingNotFoundError,
+    CircularDependencyError,
     DIContainer,
     DIContainerError,
-    CircularDependencyError,
-    BindingNotFoundError,
+    MemorySubstrateContainer,
     ResolutionError,
     get_di_container,
     reset_di_container,
 )
 
 __all__ = [
+    "BindingNotFoundError",
+    "CircularDependencyError",
     "DIContainer",
     "DIContainerError",
-    "CircularDependencyError",
-    "BindingNotFoundError",
+    "MemorySubstrateContainer",
     "ResolutionError",
     "get_di_container",
     "reset_di_container",

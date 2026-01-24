@@ -12,15 +12,10 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from memory.audit_utils import (
-    prepare_packet_for_ingest,
-    normalize_text,
-    normalize_payload,
-    detect_pii_types,
-    redact_pii,
-    detect_injection_markers,
-)
 from core.schemas import PacketEnvelopeIn
+from memory.audit_utils import (detect_injection_markers, detect_pii_types,
+                                normalize_payload, normalize_text,
+                                prepare_packet_for_ingest, redact_pii)
 
 
 class TestNormalization:

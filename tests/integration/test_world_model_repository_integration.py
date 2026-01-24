@@ -4,8 +4,9 @@ World Model → Repository Integration Tests
 Tests the flow: Entity Creation → Repository Storage → Graph Update
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
 
 pytestmark = pytest.mark.integration
 
@@ -34,7 +35,9 @@ class TestWorldModelRepositoryIntegration:
             mock_pool.return_value.acquire.return_value.__aenter__ = AsyncMock(
                 return_value=mock_conn
             )
-            mock_pool.return_value.acquire.return_value.__aexit__ = AsyncMock(return_value=None)
+            mock_pool.return_value.acquire.return_value.__aexit__ = AsyncMock(
+                return_value=None
+            )
 
             from world_model.repository import WorldModelRepository
 

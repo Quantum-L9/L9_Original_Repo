@@ -6,12 +6,14 @@ Tests to verify that extraction pipelines (extract_insights_node, store_insights
 execute automatically on packet ingestion and create knowledge facts.
 """
 
-import os
-import pytest
 import asyncio
+import os
+
+import pytest
 
 from core.schemas import PacketEnvelopeIn
-from memory.substrate_service import MemorySubstrateService, init_service, close_service
+from memory.substrate_service import (MemorySubstrateService, close_service,
+                                      init_service)
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
@@ -29,7 +31,9 @@ async def memory_substrate_service():
 
 
 @pytest.mark.asyncio
-async def test_extraction_pipeline_creates_facts(memory_substrate_service: MemorySubstrateService):
+async def test_extraction_pipeline_creates_facts(
+    memory_substrate_service: MemorySubstrateService,
+):
     """
     Contract: When a packet is ingested, extract_insights_node and store_insights_node
     execute automatically and create knowledge facts in knowledge_facts table.
@@ -61,7 +65,9 @@ async def test_extraction_pipeline_creates_facts(memory_substrate_service: Memor
     )
 
     # Should have at least one fact (status, version, or description)
-    assert len(facts) > 0, "Extraction pipeline should create at least one knowledge fact"
+    assert (
+        len(facts) > 0
+    ), "Extraction pipeline should create at least one knowledge fact"
 
     # Verify facts contain expected predicates
     predicates = [f["predicate"] for f in facts]
@@ -112,7 +118,9 @@ async def test_extraction_pipeline_with_reasoning_block(
 
     # Find facts from this packet
     packet_facts = [f for f in all_facts if f["source_packet"] == str(result.packet_id)]
-    assert len(packet_facts) > 0, "Should have created facts from packet with reasoning block"
+    assert (
+        len(packet_facts) > 0
+    ), "Should have created facts from packet with reasoning block"
 
 
 @pytest.mark.asyncio

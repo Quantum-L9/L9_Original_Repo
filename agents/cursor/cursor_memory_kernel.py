@@ -32,16 +32,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import json
 import os
 import subprocess
-import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
-import yaml
 
 import structlog
+import yaml
+
 from core.singleton_auto_registry import register_singleton
 
 logger = structlog.get_logger(__name__)
@@ -72,13 +72,13 @@ DOCKER_REDIS = "l9-redis"
 # This prevents session state cross-contamination when Igor talks to both
 #
 # L uses:      L9_TENANT_ID = 'l-cto'     (in runtime/redis_client.py, core/tools/tool_graph.py)
-# Cursor uses: CURSOR_TENANT_ID = 'cursor-ide' (here)
+# Cursor uses: CURSOR_TENANT_ID = 'cursor' (here)
 #
 # They do NOT share:
 # - Redis session state (short-term memory)
 # - Neo4j data (Cursor doesn't use tool graph at all)
 # - PostgreSQL scoped by 'agent' field in metadata
-CURSOR_TENANT_ID = os.getenv("CURSOR_TENANT_ID", "cursor-ide")
+CURSOR_TENANT_ID = os.getenv("CURSOR_TENANT_ID", "cursor")
 
 
 # =============================================================================
@@ -102,7 +102,7 @@ class TodoItem:
     id: str
     content: str
     status: str  # pending, in_progress, completed, cancelled
-    milestone: Optional[str] = None
+    milestone: str | None = None
 
 
 @dataclass
@@ -114,7 +114,7 @@ class SessionState:
     lessons: list[Lesson] = field(default_factory=list)
     todos: list[TodoItem] = field(default_factory=list)
     prompt_count: int = 0
-    activated_at: Optional[datetime] = None
+    activated_at: datetime | None = None
 
 
 # =============================================================================
@@ -133,7 +133,7 @@ def _get_rls_prefix() -> str:
     This ensures Docker Postgres mirrors VPS RLS behavior:
     - app.tenant_id: Top-level tenant isolation
     - app.org_id: Organization isolation
-    - app.user_id: User isolation (cursor-ide vs l-cto)
+    - app.user_id: User isolation (cursor vs l-cto)
     - app.role: Role for permission checks
     """
     return f"""
@@ -144,7 +144,7 @@ def _get_rls_prefix() -> str:
     """
 
 
-def _run_psql(sql: str, with_rls: bool = True) -> Optional[str]:
+def _run_psql(sql: str, with_rls: bool = True) -> str | None:
     """
     Execute SQL via docker exec and return result.
 
@@ -188,7 +188,7 @@ def _run_psql(sql: str, with_rls: bool = True) -> Optional[str]:
 # =============================================================================
 
 
-def _run_cypher(query: str, tenant_id: str = CURSOR_TENANT_ID) -> Optional[str]:
+def _run_cypher(query: str, tenant_id: str = CURSOR_TENANT_ID) -> str | None:
     """Execute Cypher query via docker exec with tenant filtering."""
     try:
         cmd = [
@@ -218,7 +218,7 @@ def neo4j_query(query: str, tenant_id: str = CURSOR_TENANT_ID) -> list[dict]:
 
     NOTE: Cursor typically does NOT use Neo4j. The tool graph is L's domain.
     These functions exist for completeness but are rarely called.
-    If used, they would query Cursor's OWN tenant space (cursor-ide),
+    If used, they would query Cursor's OWN tenant space (cursor),
     completely separate from L's tool graph (l-cto).
 
     Injects tenant_id filter into WHERE clause.
@@ -270,7 +270,7 @@ def neo4j_get_graph_stats(tenant_id: str = CURSOR_TENANT_ID) -> dict:
 # =============================================================================
 
 
-def _run_redis(cmd_parts: list[str]) -> Optional[str]:
+def _run_redis(cmd_parts: list[str]) -> str | None:
     """Execute Redis command via docker exec."""
     try:
         cmd = ["docker", "exec", DOCKER_REDIS, "redis-cli"] + cmd_parts
@@ -291,7 +291,7 @@ def redis_key(key: str, tenant_id: str = CURSOR_TENANT_ID) -> str:
     return f"{tenant_id}:{key}"
 
 
-def redis_get(key: str, tenant_id: str = CURSOR_TENANT_ID) -> Optional[str]:
+def redis_get(key: str, tenant_id: str = CURSOR_TENANT_ID) -> str | None:
     """Get value from Redis (tenant-isolated)."""
     prefixed_key = redis_key(key, tenant_id)
     return _run_redis(["GET", prefixed_key])
@@ -351,7 +351,7 @@ def load_lessons() -> list[Lesson]:
     Load LESSON packets from memory - CURSOR SCOPE ONLY.
 
     Scope Separation:
-    - Cursor loads: agent = 'cursor-ide' OR no agent (legacy shared lessons)
+    - Cursor loads: agent = 'cursor' OR no agent (legacy shared lessons)
     - L loads: agent = 'l9-standard-v1', 'l-cto', 'L' (see runtime/kernel_loader.py)
 
     This prevents L from loading Cursor's lessons and vice versa.
@@ -364,7 +364,7 @@ def load_lessons() -> list[Lesson]:
         FROM packet_store 
         WHERE packet_type = 'LESSON'
         AND (
-            envelope->'metadata'->>'agent' = 'cursor-ide'
+            envelope->'metadata'->>'agent' = 'cursor'
             OR envelope->'metadata'->>'agent' IS NULL
         )
         ORDER BY 
@@ -404,7 +404,7 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
     payload = {
         "kernel_id": kernel_id,
         "session_id": session_id,
-        "activated_by": "cursor-ide",
+        "activated_by": "cursor",
         "activated_at": datetime.utcnow().isoformat(),
         "behaviors_enabled": [
             "todo_tracker",
@@ -415,7 +415,7 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
     }
     envelope = {
         "payload": payload,
-        "metadata": {"agent": "cursor-ide", "domain": "l9", "schema_version": "1.0.0"},
+        "metadata": {"agent": "cursor", "domain": "l9", "schema_version": "1.0.0"},
     }
 
     sql = f"""
@@ -438,7 +438,7 @@ def write_lesson(
     }
     envelope = {
         "payload": payload,
-        "metadata": {"agent": "cursor-ide", "domain": "l9", "schema_version": "1.0.0"},
+        "metadata": {"agent": "cursor", "domain": "l9", "schema_version": "1.0.0"},
     }
 
     sql = f"""
@@ -467,7 +467,7 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
     envelope = {
         "payload": payload,
         "metadata": {
-            "agent": "cursor-ide",
+            "agent": "cursor",
             "domain": "l9",
             "schema_version": "1.0.0",
             "kernel": "l9.workflow_todo_kernel.v2",
@@ -501,7 +501,7 @@ class CursorMemoryKernel:
     def __init__(self, config_path: Path = KERNEL_CONFIG_PATH):
         self.config_path = config_path
         self.config: dict = {}
-        self.session_state: Optional[SessionState] = None
+        self.session_state: SessionState | None = None
         self.kernel_id = "l9.workflow_todo_kernel.v2"
         self._load_config()
 
@@ -650,7 +650,7 @@ class CursorMemoryKernel:
                 "execute": True,
                 "band": "high",
             }
-        elif confidence >= 0.50:
+        if confidence >= 0.50:
             return {
                 "ask_questions": True,
                 "max_questions": 1,
@@ -658,15 +658,14 @@ class CursorMemoryKernel:
                 "question_style": "high-leverage_multiple_choice",
                 "band": "medium",
             }
-        else:
-            return {
-                "ask_questions": True,
-                "max_questions": 5,
-                "execute": False,
-                "question_style": "multi_pass_all_at_once",
-                "include_suggestions": True,
-                "band": "low",
-            }
+        return {
+            "ask_questions": True,
+            "max_questions": 5,
+            "execute": False,
+            "question_style": "multi_pass_all_at_once",
+            "include_suggestions": True,
+            "band": "low",
+        }
 
     def get_execution_style(self) -> dict:
         """Get execution style preferences."""
@@ -691,7 +690,7 @@ class CursorMemoryKernel:
 # Factory Function (for setup-new-workspace.yaml)
 # =============================================================================
 
-_kernel_instance: Optional[CursorMemoryKernel] = None
+_kernel_instance: CursorMemoryKernel | None = None
 
 
 def create_cursor_memory_kernel() -> CursorMemoryKernel:
@@ -718,7 +717,7 @@ def activate_session(session_id: str = None) -> SessionState:
     lifecycle="lazy",
     description="Cursor IDE memory kernel",
 )
-def get_active_kernel() -> Optional[CursorMemoryKernel]:
+def get_active_kernel() -> CursorMemoryKernel | None:
     """Get the active kernel instance."""
     return _kernel_instance
 

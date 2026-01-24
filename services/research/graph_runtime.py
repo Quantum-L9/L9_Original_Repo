@@ -31,14 +31,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from core.singleton_auto_registry import register_singleton
 from typing import Any, Optional
 from uuid import uuid4
 
+import structlog
+
+from core.singleton_auto_registry import register_singleton
+from memory.substrate_repository import close_repository, init_repository
+from services.research.memory_adapter import (get_memory_adapter,
+                                              init_memory_adapter)
 from services.research.research_graph import build_research_graph, run_research
-from services.research.memory_adapter import get_memory_adapter, init_memory_adapter
-from memory.substrate_repository import init_repository, close_repository
 
 logger = structlog.get_logger(__name__)
 

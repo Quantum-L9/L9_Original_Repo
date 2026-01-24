@@ -49,6 +49,7 @@ from datetime import datetime
 from typing import Any
 
 import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -307,8 +308,8 @@ class GraphToWorldModelSync:
     async def _upsert_to_world_model(self, entity: dict[str, Any]) -> None:
         """Upsert entity to World Model."""
         try:
-            from world_model.service import WorldModelService
             from config.rls_config import get_rls_config
+            from world_model.service import WorldModelService
 
             # GMP-94: World Model operations require RLS scope
             rls_config = get_rls_config()

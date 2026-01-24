@@ -25,16 +25,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
+import json
+import logging
 import os
+import subprocess
 import sys
 import time
-import asyncio
-import logging
-import subprocess
-import structlog
-import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import structlog
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -163,12 +164,10 @@ async def poll_and_execute():
     if parent_dir not in sys.path:
         sys.path.insert(0, parent_dir)
 
-    from orchestrators.agent_execution.task_queue import (
-        get_next_task,
-        mark_task_completed,
-    )
     from api.slack_client import post_result_async
     from mac_agent.executor import AutomationExecutor
+    from orchestrators.agent_execution.task_queue import (get_next_task,
+                                                          mark_task_completed)
 
     # Import pyautogui for desktop screenshots on failure
     try:

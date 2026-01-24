@@ -36,15 +36,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict, List, Optional
 
-from runtime.gmp_worker import (
-    list_pending_tasks,
-    get_pending_task,
-    remove_pending_task,
-    approve_and_enqueue,
-)
+import structlog
+
+from runtime.gmp_worker import (approve_and_enqueue, get_pending_task,
+                                list_pending_tasks, remove_pending_task)
 
 logger = structlog.get_logger(__name__)
 

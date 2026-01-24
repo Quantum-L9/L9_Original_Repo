@@ -32,11 +32,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import re
-import structlog
 import os
+import re
 from pathlib import Path
 from typing import List, Tuple
+
+import structlog
 
 # Directories to process
 REPO_ROOT = Path(__file__).parent.parent
@@ -101,10 +102,12 @@ CONTEXTUAL_REPLACEMENTS = [
     ),
 ]
 
+
 def should_skip_file(filepath: Path) -> bool:
     """Check if file should be skipped."""
     path_str = str(filepath)
     return any(re.search(pattern, path_str) for pattern in SKIP_PATTERNS)
+
 
 def replace_in_file(
     filepath: Path, dry_run: bool = False
@@ -157,6 +160,7 @@ def replace_in_file(
 
     return changes
 
+
 def process_directory(directory: Path, dry_run: bool = False) -> dict:
     """Process all files in a directory."""
     stats = {
@@ -190,7 +194,9 @@ def process_directory(directory: Path, dry_run: bool = False) -> dict:
             if changes:
                 stats["files_changed"] += 1
                 stats["total_changes"] += len(changes)
-                logger.info(f"  ✏️  {filepath.relative_to(REPO_ROOT)}: {len(changes)} changes")
+                logger.info(
+                    f"  ✏️  {filepath.relative_to(REPO_ROOT)}: {len(changes)} changes"
+                )
                 if dry_run:
                     for line_num, old, new in changes[:3]:  # Show first 3
                         logger.info(f"      Line {line_num}:")
@@ -201,6 +207,7 @@ def process_directory(directory: Path, dry_run: bool = False) -> dict:
 
     return stats
 
+
 def main():
     """Main entry point."""
     import sys
@@ -210,7 +217,9 @@ def main():
     logger.info("=" * 70)
     logger.info("L → l-cto Rename Script")
     logger.info("=" * 70)
-    logger.info(f"Mode: {'DRY RUN (no changes)' if dry_run else 'LIVE (will modify files)'}")
+    logger.info(
+        f"Mode: {'DRY RUN (no changes)' if dry_run else 'LIVE (will modify files)'}"
+    )
     logger.info(f"Repo root: {REPO_ROOT}")
 
     total_stats = {
@@ -232,7 +241,9 @@ def main():
         for key in total_stats:
             total_stats[key] += stats[key]
 
-        logger.info(f"   {stats['files_changed']} files changed, {stats['total_changes']} total replacements")
+        logger.info(
+            f"   {stats['files_changed']} files changed, {stats['total_changes']} total replacements"
+        )
 
     logger.info("=" * 70)
     logger.info("Summary:")
@@ -249,7 +260,10 @@ def main():
         logger.info("  1. Review changes with: git diff")
         logger.info("  2. Test imports: python -c 'from l_cto import ...'")
         logger.info("  3. Update any remaining references manually")
-        logger.info("  4. Rename directory: mv l-cto l_cto (if needed for Python imports)")
+        logger.info(
+            "  4. Rename directory: mv l-cto l_cto (if needed for Python imports)"
+        )
+
 
 logger = structlog.get_logger(__name__)
 if __name__ == "__main__":
@@ -264,7 +278,17 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
-    "tags": ["api", "authorization", "caching", "cli", "filesystem", "logging", "operations", "scripts", "testing"],
+    "tags": [
+        "api",
+        "authorization",
+        "caching",
+        "cli",
+        "filesystem",
+        "logging",
+        "operations",
+        "scripts",
+        "testing",
+    ],
     "keywords": ["cto", "directory", "process", "rename", "replace", "should", "skip"],
     "business_value": "Import paths: `from l.` → `from l_cto.` (Python modules use underscores) Agent IDs: `agent_id=` → `a",
     "last_modified": "2026-01-07T13:35:58Z",

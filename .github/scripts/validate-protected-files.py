@@ -31,8 +31,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
 import subprocess
+import sys
 from pathlib import Path
 from typing import Set
 
@@ -42,10 +42,8 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 # GMP-104: Load protected files from config/policies/protected_files.yaml
 from core.governance.protected_files_policy import (  # noqa: E402
-    get_lcto_controlled_files,
-    get_subsystem_protected_files,
-    get_all_protected_files,
-)
+    get_all_protected_files, get_lcto_controlled_files,
+    get_subsystem_protected_files)
 
 PROTECTED_BY_LCTO = get_lcto_controlled_files()
 SUBSYSTEM_PROTECTED = get_subsystem_protected_files()

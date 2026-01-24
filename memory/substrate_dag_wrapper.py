@@ -35,12 +35,13 @@ __dora_meta__ = {
 
 import asyncio
 import random
-import structlog
 from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from memory.substrate_dag import SubstrateDAG
+import structlog
+
 from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
+from memory.substrate_dag import SubstrateDAG
 
 if TYPE_CHECKING:
     from core.observability.circuit_breaker import CircuitBreaker

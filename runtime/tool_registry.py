@@ -34,8 +34,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Callable, Dict, Optional
+
+import structlog
 
 from core.auto_registry import AutoRegistry
 
@@ -180,8 +181,6 @@ def get_tools_by_category(category: str) -> Dict[str, Callable]:
 def get_tool_snapshot() -> dict:
     """Get a snapshot of all registered tools for observability."""
     return tool_executor_registry.snapshot()
-
-
 
 
 def register_extension_tool_executors() -> int:

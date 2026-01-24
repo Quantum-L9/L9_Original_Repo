@@ -30,14 +30,12 @@ __dora_meta__ = {
     "status": "active",
 }
 
-import structlog
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from core.agents.schemas import (
-    AgentTask,
-    ExecutionResult,
-)
+import structlog
+
+from core.agents.schemas import AgentTask, ExecutionResult
 from core.aios.runtime import AIOSRuntime
 
 logger = structlog.get_logger(__name__)

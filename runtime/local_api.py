@@ -29,11 +29,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import subprocess
 import shlex
-import structlog
+import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

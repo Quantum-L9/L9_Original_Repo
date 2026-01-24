@@ -80,7 +80,7 @@ def check_tool_wiring() -> tuple[bool, list[str]]:
         return False, errors
 
     try:
-        from core.schemas.capabilities import ToolName, DEFAULT_L_CAPABILITIES
+        from core.schemas.capabilities import DEFAULT_L_CAPABILITIES, ToolName
 
         toolname_values = {t.value for t in ToolName}
         l_capability_tools = {

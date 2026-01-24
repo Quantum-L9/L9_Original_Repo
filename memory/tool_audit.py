@@ -43,15 +43,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID, uuid4
 
+import structlog
+
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelopeIn
 from memory.substrate_models import MemorySegment
 from telemetry.memory_metrics import record_tool_invocation
-from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -223,9 +224,10 @@ async def _write_to_audit_table(
     Runs in background, catches all exceptions to prevent impact on calling code.
     """
     try:
-        import os
-        import asyncpg
         import json
+        import os
+
+        import asyncpg
 
         database_url = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
         if not database_url:

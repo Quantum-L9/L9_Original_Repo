@@ -34,9 +34,11 @@ __dora_meta__ = {
 
 import asyncio
 import random
-import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
+
+import structlog
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

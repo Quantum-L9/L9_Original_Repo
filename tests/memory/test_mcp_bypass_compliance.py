@@ -84,7 +84,9 @@ class TestMCPArchitectureCompliance:
             source = f.read()
 
         # MCP should use direct execute() calls
-        assert "execute(" in source, "MCP should use direct execute() calls for DB operations"
+        assert (
+            "execute(" in source
+        ), "MCP should use direct execute() calls for DB operations"
 
         # MCP should insert into packet_store
         assert "packet_store" in source, "MCP should write to packet_store table"
@@ -261,7 +263,9 @@ class TestMCPPacketEnvelopeCompliance:
             source = f.read()
 
         # Should write to memory_embeddings
-        assert "memory_embeddings" in source, "MCP should write to memory_embeddings table"
+        assert (
+            "memory_embeddings" in source
+        ), "MCP should write to memory_embeddings table"
 
 
 # =============================================================================
@@ -294,7 +298,9 @@ class TestMCPL9PipelineSeparation:
 
         # Check substrate_dag.py or substrate_graph.py
         for filename in ["substrate_dag.py", "substrate_graph.py"]:
-            dag_path = os.path.join(os.path.dirname(__file__), "..", "..", "memory", filename)
+            dag_path = os.path.join(
+                os.path.dirname(__file__), "..", "..", "memory", filename
+            )
             if os.path.exists(dag_path):
                 with open(dag_path, "r") as f:
                     source = f.read()

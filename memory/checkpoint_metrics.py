@@ -36,12 +36,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-import structlog
 from contextlib import contextmanager
 from typing import Generator
 
+import structlog
+
 try:
-    from prometheus_client import Counter, Histogram, Gauge, REGISTRY
+    from prometheus_client import REGISTRY, Counter, Gauge, Histogram
 
     PROMETHEUS_AVAILABLE = True
 except ImportError:

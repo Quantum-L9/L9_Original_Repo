@@ -20,7 +20,8 @@ Updated: 2026-01-16 (added WMToGraphSync)
 
 from .graph_to_wm_sync import GraphToWorldModelSync
 from .tool_pattern_extractor import ToolPatternExtractor
-from .wm_to_graph_sync import WMToGraphSync, start_wm_graph_sync, stop_wm_graph_sync
+from .wm_to_graph_sync import (WMToGraphSync, start_wm_graph_sync,
+                               stop_wm_graph_sync)
 
 __all__ = [
     "GraphToWorldModelSync",

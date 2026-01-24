@@ -21,6 +21,17 @@ Author: Top Frontier AI Lab
 
 from __future__ import annotations
 
+# Agent protocols
+from core.protocols.agent_protocols import (
+    ActivatableAgent,
+    AgentContext,
+    AgentOrchestrator,
+    AgentRegistry,
+    AgentState,
+    StateManager,
+    ToolExecutor,
+)
+
 # Kernel protocols
 from core.protocols.kernel_protocols import (
     IntegrityVerifier,
@@ -53,15 +64,19 @@ from core.protocols.observability_protocols import (
     TraceContext,
 )
 
-# Agent protocols
-from core.protocols.agent_protocols import (
-    ActivatableAgent,
-    AgentContext,
-    AgentOrchestrator,
-    AgentRegistry,
-    AgentState,
-    StateManager,
-    ToolExecutor,
+# High-level service protocols (PR #49 / GMP-114)
+from core.protocols.service_protocols import (
+    GovernanceService,
+    LLMService,
+    MemoryService,
+)
+
+# Substrate protocols (PR #52 / GMP-116) - lower-level memory substrate abstractions
+from core.protocols.substrate_protocols import (
+    DAGProtocol,
+    EmbeddingProviderProtocol,
+    SemanticServiceProtocol,
+    SubstrateRepositoryProtocol,
 )
 
 __all__ = [
@@ -96,6 +111,15 @@ __all__ = [
     "AgentRegistry",
     "AgentContext",
     "AgentState",
+    # High-level service protocols (PR #49 / GMP-114)
+    "MemoryService",
+    "LLMService",
+    "GovernanceService",
+    # Substrate protocols (PR #52 / GMP-116)
+    "SubstrateRepositoryProtocol",
+    "EmbeddingProviderProtocol",
+    "SemanticServiceProtocol",
+    "DAGProtocol",
 ]
 
 __version__ = "1.0.0"

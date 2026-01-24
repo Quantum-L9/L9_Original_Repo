@@ -35,13 +35,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import argparse
-import structlog
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Optional
+from urllib.parse import parse_qs, urlparse
 
-from email_agent.credentials import create_flow, exchange_code_for_tokens
+import structlog
+
 from email_agent.config import VALID_ACCOUNTS
+from email_agent.credentials import create_flow, exchange_code_for_tokens
 
 logger = structlog.get_logger(__name__)
 
@@ -149,8 +150,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-                self.wfile.write(
-                    f"""
+                self.wfile.write(f"""
                     <html>
                     <head><title>Gmail OAuth Complete</title></head>
                     <body>
@@ -161,8 +161,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
                         <p>You can close this window.</p>
                     </body>
                     </html>
-                """.encode("utf-8")
-                )
+                """.encode("utf-8"))
 
                 logger.info(
                     f"✅ OAuth completed for account: {CURRENT_ACCOUNT or 'legacy'}"
@@ -223,7 +222,8 @@ def main():
         print(f"Client Secret: {config.client_secret_file}")
         print(f"Tokens:        {config.tokens_file}")
     else:
-        from email_agent.config import GMAIL_ACCOUNT, CLIENT_SECRET_FILE, TOKENS_FILE
+        from email_agent.config import (CLIENT_SECRET_FILE, GMAIL_ACCOUNT,
+                                        TOKENS_FILE)
 
         print("Mode:          LEGACY (no account specified)")
         print(f"Email:         {GMAIL_ACCOUNT}")

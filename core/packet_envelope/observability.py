@@ -59,9 +59,8 @@ try:
     from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry.trace.propagation.tracecontext import (
-        TraceContextTextMapPropagator,
-    )
+    from opentelemetry.trace.propagation.tracecontext import \
+        TraceContextTextMapPropagator
 
     OPENTELEMETRY_AVAILABLE = True
 except ImportError:

@@ -1,0 +1,104 @@
+# ============================================================================
+# L9 Runtime DI Configuration
+# ============================================================================
+#
+# This file configures dependency injection for L9 memory substrate at runtime.
+# Enables A/B testing of different embedding models, repository implementations,
+# and feature flags for phased rollout without code changes.
+#
+# **Environment Variable Substitution:**
+# Use ${VAR_NAME} syntax to reference environment variables.
+# Fails loudly if referenced variable is not set (ADR-0055).
+#
+# **Usage:**
+#   from config.di_runtime_config import get_runtime_config_loader
+#   loader = get_runtime_config_loader()
+#   config = loader.get_memory_substrate_config()
+#
+# Version: 1.0.0
+# Created: 2026-01-24
+# Compliance: ADR-0052 (DI), ADR-0055 (Fail-loudly)
+# ============================================================================
+
+# Memory Substrate Configuration
+memory_substrate:
+  # PostgreSQL connection string (from environment)
+  database_url: "${DATABASE_URL}"
+
+  # Connection pool settings
+  db_pool_size: 10
+  db_max_overflow: 20
+
+  # Embedding provider configuration
+  embedding_provider:
+    # Provider type: "openai" or "stub" (for testing)
+    type: "openai"
+
+    # OpenAI embedding model
+    # Options: text-embedding-3-large, text-embedding-3-small, text-embedding-ada-002
+    model: "text-embedding-3-large"
+
+    # OpenAI API key (from environment)
+    api_key: "${OPENAI_API_KEY}"
+
+# Feature Flags for Phased Rollout
+feature_flags:
+  # Enable protocol validation at runtime (ADR-0026)
+  # When true, validates that injected dependencies implement required protocols
+  enable_protocol_validation: true
+
+  # Enable lazy DAG initialization (deferred until first use)
+  # When false, DAG is initialized eagerly during service construction
+  enable_lazy_dag_init: false
+
+  # Enable retry logic for repository connections (Track 3, File 7)
+  # When true, wraps repository.connect() with exponential backoff retry
+  enable_connection_retry: true
+
+  # Maximum retry attempts for connection failures
+  max_connection_retries: 3
+
+  # Backoff multiplier in seconds (2^attempt * backoff_seconds)
+  connection_backoff_seconds: 2
+
+# ============================================================================
+# Environment-Specific Overrides
+# ============================================================================
+#
+# Override settings based on L9_ENV environment variable:
+# - dev: Relaxed settings, stub embedding provider
+# - test: Mock implementations, in-memory databases
+# - staging: Production-like settings with lower limits
+# - production: Full production settings
+#
+# To use environment-specific config, set L9_ENV environment variable:
+#   export L9_ENV=dev
+#   export L9_ENV=test
+#   export L9_ENV=staging
+#   export L9_ENV=production (default)
+# ============================================================================
+
+# Development Environment Overrides
+# (Uncomment and set L9_ENV=dev to use)
+# memory_substrate:
+#   embedding_provider:
+#     type: "stub"  # Use stub provider in dev for faster iteration
+#   db_pool_size: 2  # Smaller pool for local development
+
+# Test Environment Overrides
+# (Uncomment and set L9_ENV=test to use)
+# memory_substrate:
+#   database_url: "postgresql://localhost/l9_test"
+#   embedding_provider:
+#     type: "stub"  # Always use stub in tests
+#   db_pool_size: 1
+# feature_flags:
+#   enable_protocol_validation: false  # Skip validation in tests for speed
+
+# ============================================================================
+# DORA FOOTER
+# ============================================================================
+# tags: ["config", "dependency-injection", "runtime", "yaml"]
+# keywords: ["config", "di", "embedding", "memory", "substrate"]
+# last_modified: "2026-01-24T08:00:00Z"
+# ============================================================================

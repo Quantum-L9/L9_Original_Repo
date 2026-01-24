@@ -26,8 +26,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+from typing import Any, Dict
+
 import structlog
-from typing import Dict, Any
 from symbolic_computation import SymbolicComputation
 
 logger = structlog.get_logger(__name__)

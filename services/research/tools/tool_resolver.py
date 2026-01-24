@@ -31,15 +31,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from core.singleton_auto_registry import register_singleton
 from typing import Any, Optional
 
-from core.tools.base_registry import (
-    ToolRegistry,
-    ToolMetadata,
-    get_tool_registry,
-)
+import structlog
+
+from core.singleton_auto_registry import register_singleton
+from core.tools.base_registry import (ToolMetadata, ToolRegistry,
+                                      get_tool_registry)
 
 logger = structlog.get_logger(__name__)
 

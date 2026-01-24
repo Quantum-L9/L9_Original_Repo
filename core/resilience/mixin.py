@@ -49,8 +49,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional, Union
+
 import structlog
-from typing import Any, Awaitable, Callable, Optional, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from core.observability.circuit_breaker import CircuitBreaker

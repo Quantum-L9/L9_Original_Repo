@@ -13,8 +13,9 @@ Tests cover:
 - L9 service instrumentation
 """
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
 # =============================================================================
 # Configuration Tests
@@ -26,7 +27,8 @@ class TestObservabilityConfig:
 
     def test_load_config_returns_settings(self):
         """Test that load_config returns ObservabilitySettings."""
-        from core.observability.config import load_config, ObservabilitySettings
+        from core.observability.config import (ObservabilitySettings,
+                                               load_config)
 
         config = load_config()
         assert isinstance(config, ObservabilitySettings)
@@ -56,7 +58,9 @@ class TestObservabilityConfig:
         """Test that substrate exporter is not duplicated if already present."""
         from core.observability.config import ObservabilitySettings
 
-        config = ObservabilitySettings(substrate_enabled=True, exporters=["console", "substrate"])
+        config = ObservabilitySettings(
+            substrate_enabled=True, exporters=["console", "substrate"]
+        )
 
         assert config.exporters.count("substrate") == 1
 
@@ -152,7 +156,8 @@ class TestObservabilityService:
     @pytest.mark.asyncio
     async def test_initialize_observability_creates_service(self):
         """Test that initialize_observability creates and returns service."""
-        from core.observability.service import initialize_observability, ObservabilityService
+        from core.observability.service import (ObservabilityService,
+                                                initialize_observability)
 
         # Clear any existing instance
         ObservabilityService._instance = None
@@ -177,8 +182,8 @@ class TestObservabilityService:
 
     def test_current_trace_context_creates_new(self):
         """Test that current_trace_context creates new context if none exists."""
-        from core.observability.service import ObservabilityService
         from core.observability.models import TraceContext
+        from core.observability.service import ObservabilityService
 
         service = ObservabilityService()
 
@@ -189,8 +194,8 @@ class TestObservabilityService:
 
     def test_set_trace_context(self):
         """Test setting trace context."""
-        from core.observability.service import ObservabilityService
         from core.observability.models import TraceContext
+        from core.observability.service import ObservabilityService
 
         service = ObservabilityService()
         custom_ctx = TraceContext(user_id="test-user")
@@ -211,7 +216,8 @@ class TestFailureDetection:
     def test_detect_tool_timeout(self):
         """Test detection of tool timeout failure."""
         from core.observability.failures import FailureDetector
-        from core.observability.models import Span, SpanKind, SpanStatus, FailureClass
+        from core.observability.models import (FailureClass, Span, SpanKind,
+                                               SpanStatus)
 
         # Use start() factory method, then set duration_ms manually
         span = Span.start(
@@ -230,7 +236,8 @@ class TestFailureDetection:
     def test_detect_tool_error(self):
         """Test detection of tool error failure."""
         from core.observability.failures import FailureDetector
-        from core.observability.models import Span, SpanKind, SpanStatus, FailureClass
+        from core.observability.models import (FailureClass, Span, SpanKind,
+                                               SpanStatus)
 
         # Use start() factory method
         span = Span.start(
@@ -266,7 +273,8 @@ class TestFailureDetection:
 
     def test_recovery_actions_mapping(self):
         """Test that failure classes map to recovery actions."""
-        from core.observability.failures import get_recovery_actions, RecoveryAction
+        from core.observability.failures import (RecoveryAction,
+                                                 get_recovery_actions)
         from core.observability.models import FailureClass
 
         # Tool timeout should suggest retry (returns list of RemediationAction)
@@ -378,7 +386,8 @@ class TestL9Integration:
     @pytest.mark.asyncio
     async def test_instrument_memory_substrate_wraps_methods(self):
         """Test that instrument_memory_substrate wraps write_packet and semantic_search."""
-        from core.observability.l9_integration import instrument_memory_substrate
+        from core.observability.l9_integration import \
+            instrument_memory_substrate
 
         # Mock substrate with methods
         mock_substrate = MagicMock()
@@ -408,11 +417,8 @@ class TestL9Integration:
     async def test_instrument_handles_none_service(self):
         """Test that instrumentation handles None services gracefully."""
         from core.observability.l9_integration import (
-            instrument_agent_executor,
-            instrument_tool_registry,
-            instrument_governance_engine,
-            instrument_memory_substrate,
-        )
+            instrument_agent_executor, instrument_governance_engine,
+            instrument_memory_substrate, instrument_tool_registry)
 
         # Should not raise for None
         await instrument_agent_executor(None)
@@ -478,7 +484,8 @@ class TestContextStrategies:
     @pytest.mark.asyncio
     async def test_naive_truncation_strategy(self):
         """Test NaiveTruncationStrategy."""
-        from core.observability.context_strategies import NaiveTruncationStrategy
+        from core.observability.context_strategies import \
+            NaiveTruncationStrategy
 
         strategy = NaiveTruncationStrategy()
 
@@ -495,7 +502,8 @@ class TestContextStrategies:
     @pytest.mark.asyncio
     async def test_recency_biased_window_strategy(self):
         """Test RecencyBiasedWindowStrategy."""
-        from core.observability.context_strategies import RecencyBiasedWindowStrategy
+        from core.observability.context_strategies import \
+            RecencyBiasedWindowStrategy
 
         strategy = RecencyBiasedWindowStrategy()
 

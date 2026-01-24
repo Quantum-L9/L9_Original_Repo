@@ -31,8 +31,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 from fastapi import Header, HTTPException, Request
 
@@ -80,10 +80,9 @@ def verify_api_key(authorization: str = Header(None)) -> CallerIdentity:
             caller_id="C",
             allowed_scopes=("developer", "global"),
             creator="Cursor-IDE",
-            source="cursor-ide",
+            source="cursor",
         )
-    else:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 async def verify_api_key_with_rate_limit(
@@ -146,7 +145,7 @@ async def verify_api_key_with_rate_limit(
             caller_id="C",
             allowed_scopes=("developer", "global"),
             creator="Cursor-IDE",
-            source="cursor-ide",
+            source="cursor",
         )
 
     # Invalid token - record failure

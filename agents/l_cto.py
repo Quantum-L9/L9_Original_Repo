@@ -40,10 +40,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Any, Dict, Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
-from agents.base_agent import BaseAgent, AgentResponse, AgentConfig
+import structlog
+
+from agents.base_agent import AgentConfig, AgentResponse, BaseAgent
 
 if TYPE_CHECKING:
     from runtime.kernel_state import KernelState
@@ -467,9 +468,10 @@ class LCTOAgent(BaseAgent):
             # Try to get substrate service (may not be available in all contexts)
             # Note: Service is typically injected via executor, but we try to get it here
             # for direct agent memory emission
-            from memory.substrate_service import init_service
-            from core.schemas import PacketEnvelopeIn, PacketMetadata
             import os
+
+            from core.schemas import PacketEnvelopeIn, PacketMetadata
+            from memory.substrate_service import init_service
 
             # Try to initialize service (will use existing if already initialized)
             # This is best-effort - if it fails, executor will still emit packets
@@ -583,7 +585,8 @@ def create_l_cto_agent(
     agent = LCTOAgent(agent_id=agent_id, config=config)
 
     if load_kernels_on_create:
-        from runtime.kernel_loader import load_kernels, require_kernel_activation
+        from runtime.kernel_loader import (load_kernels,
+                                           require_kernel_activation)
 
         agent = load_kernels(agent)
         require_kernel_activation(agent)
@@ -653,8 +656,9 @@ def create_l_cto_research_agent(
     Returns:
         LCTOAgent configured for research mode
     """
-    import yaml
     from pathlib import Path
+
+    import yaml
 
     # Load research overlay config
     overlay_path = Path(RESEARCH_OVERLAY_PATH)
@@ -683,7 +687,8 @@ def create_l_cto_research_agent(
         agent._model_config = research_config["model"]
 
     if load_kernels_on_create:
-        from runtime.kernel_loader import load_kernels, require_kernel_activation
+        from runtime.kernel_loader import (load_kernels,
+                                           require_kernel_activation)
 
         agent = load_kernels(agent)
         require_kernel_activation(agent)

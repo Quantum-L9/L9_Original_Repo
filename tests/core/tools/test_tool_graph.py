@@ -8,10 +8,11 @@ No external services required - uses mocks.
 Version: 1.0.0
 """
 
-import pytest
 import sys
 from pathlib import Path
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
+
+import pytest
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -19,7 +20,7 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 try:
-    from core.tools.tool_graph import ToolGraph, ToolDefinition
+    from core.tools.tool_graph import ToolDefinition, ToolGraph
 except ImportError as e:
     pytest.skip(f"Could not import core.tools.tool_graph: {e}", allow_module_level=True)
 
@@ -73,4 +74,6 @@ async def test_register_tool_mock():
         # Try to register tool
         # Note: ToolGraph methods are static, so we test the structure
         assert ToolGraph is not None
-        assert hasattr(ToolGraph, "register_tool") or hasattr(ToolGraph, "_register_tool")
+        assert hasattr(ToolGraph, "register_tool") or hasattr(
+            ToolGraph, "_register_tool"
+        )

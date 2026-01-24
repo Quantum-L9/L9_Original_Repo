@@ -26,21 +26,18 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import List, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List
 
-from .interface import (
-    IEvolutionOrchestrator,
-    EvolutionOrchestratorRequest,
-    EvolutionOrchestratorResponse,
-    Upgrade,
-    UpgradeValidation,
-    UpgradeExecution,
-    UpgradeStatus,
-)
-from .apply_engine import ApplyEngine
+import structlog
+
 from core.decorators import must_stay_async
+
+from .apply_engine import ApplyEngine
+from .interface import (EvolutionOrchestratorRequest,
+                        EvolutionOrchestratorResponse, IEvolutionOrchestrator,
+                        Upgrade, UpgradeExecution, UpgradeStatus,
+                        UpgradeValidation)
 
 logger = structlog.get_logger(__name__)
 

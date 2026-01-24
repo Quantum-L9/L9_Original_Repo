@@ -40,11 +40,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import os
 from pathlib import Path
 from typing import Any, Optional
 
+import structlog
 import yaml
 
 from core.agents.schemas import AgentConfig, ToolBinding
@@ -61,7 +61,8 @@ def _get_kernel_system_prompt() -> Optional[str]:
     if not USE_KERNELS:
         return None
     try:
-        from core.kernels.prompt_builder import build_system_prompt_from_kernels
+        from core.kernels.prompt_builder import \
+            build_system_prompt_from_kernels
 
         prompt = build_system_prompt_from_kernels()
         logger.info("Using kernel-based system prompt for agent")

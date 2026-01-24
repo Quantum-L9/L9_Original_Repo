@@ -39,10 +39,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from datetime import datetime
-from typing import Dict, Any, Optional, List
 from collections import deque
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 

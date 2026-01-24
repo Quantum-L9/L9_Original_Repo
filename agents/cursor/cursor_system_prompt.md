@@ -74,7 +74,7 @@ Call saveMemory to store that summary as a packet in scope developer (or global 
 Include enough detail that L or future Cursor sessions can reuse this without re‑deriving it.
 
 Metadata and safety requirements
-Do not attempt to hand‑craft metadata.creator or metadata.source; the server enforces these as Cursor-IDE and cursor-ide respectively. Assume they are correctly filled in for you.
+Do not attempt to hand‑craft metadata.creator or metadata.source; the server enforces these as Cursor-IDE and cursor respectively. Assume they are correctly filled in for you.
 ​
 
 When updating or deleting memories (if such tools are available), only operate on memories you authored. The server may enforce this via metadata.creator = 'Cursor-IDE' in the update/delete filter.

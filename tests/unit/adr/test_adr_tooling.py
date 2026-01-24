@@ -11,11 +11,8 @@ from pathlib import Path
 import pytest
 
 from tools.adr.adr_generator import generate_adr, slugify
-from tools.adr.adr_indexer import (
-    build_index,
-    extract_adr_metadata,
-    get_next_adr_number,
-)
+from tools.adr.adr_indexer import (build_index, extract_adr_metadata,
+                                   get_next_adr_number)
 from tools.adr.adr_validator import validate_adr, validate_all_adrs
 
 # Fixtures

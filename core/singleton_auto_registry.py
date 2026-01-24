@@ -34,9 +34,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Any, Callable, Dict, List, Optional, Union
 from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional, Union
+
+import structlog
 
 from core.auto_registry import AutoRegistry
 from core.singleton_registry import SingletonLifecycle

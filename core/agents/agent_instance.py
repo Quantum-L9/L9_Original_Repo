@@ -83,17 +83,14 @@ __dora_meta__ = {
 
 import hashlib
 import re
-import structlog
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from core.agents.schemas import (
-    AgentConfig,
-    AgentTask,
-    ExecutorState,
-    ToolBinding,
-)
+import structlog
+
+from core.agents.schemas import (AgentConfig, AgentTask, ExecutorState,
+                                 ToolBinding)
 
 logger = structlog.get_logger(__name__)
 

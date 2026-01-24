@@ -29,13 +29,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import List, Optional
 from uuid import UUID
+
+import structlog
 from pydantic import BaseModel, Field
 
-from memory.substrate_service import MemorySubstrateService
 from core.schemas import SemanticSearchRequest
+from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)
 

@@ -22,3 +22,53 @@ mypy_path = "."
 ignore_missing_imports = true
 warn_return_any = false
 warn_unused_ignores = false
+
+[tool.ruff]
+exclude = [
+    "l9_private/kernels",
+    "readme",
+    "_archived",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".git",
+    "*.egg-info",
+]
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "F",      # Pyflakes (undefined names, unused imports)
+    "E7",     # pycodestyle errors (statements)
+    "E9",     # pycodestyle errors (runtime)
+    "W",      # pycodestyle warnings
+    "I",      # isort (import sorting) - ADR-0002
+    "B",      # flake8-bugbear (common bugs)
+    "UP",     # pyupgrade (modern Python syntax)
+    "TCH",    # flake8-type-checking (TYPE_CHECKING imports) - ADR-0002
+]
+ignore = [
+    "E402",   # Module level import not at top (DORA metadata pattern - ADR-0014)
+    "F841",   # Unused variable (future-proofing)
+    "E501",   # Line too long (handled by Black)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*.py" = ["F821", "F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "agents", "memory", "runtime", "api", "tools", "world_model", "orchestration"]
+
+[tool.ruff.lint.flake8-type-checking]
+runtime-evaluated-base-classes = ["pydantic.BaseModel", "typing.Protocol"]
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+exclude = '''/(\.git|\.venv|venv|l9_private/kernels|readme|_archived)/'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = ["l9_private/kernels", "readme", "_archived", ".venv", "venv"]

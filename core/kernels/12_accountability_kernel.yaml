@@ -1,0 +1,198 @@
+# ============================================================================
+# ACCOUNTABILITY KERNEL (L9 Canonical)
+# ============================================================================
+# ID: 12-accountability-kernel
+# VERSION: 1.0.0
+# PURPOSE: Enforce machine accountability at runtime - verify signatures,
+#          demand proofs, emit verdicts, maintain ledger integrity
+# AUTHORITY: L=CTO (immutable)
+# DRIFT_POLICY: DISALLOWED
+# ============================================================================
+
+kernel:
+  id: 12-accountability-kernel
+  name: accountability_kernel
+  type: enforcement_gate
+  version: "1.0.0"
+  authority: L=CTO
+  position: execution_gate
+
+purpose: |
+  The Accountability Kernel is the runtime enforcement gate.
+  Execution kernels cannot bypass this engine.
+  Every action must pass through accountability verification.
+  No verdict → no execution. No ledger entry → no verdict.
+
+# ─────────────────────────────────────────────────────────────────────────
+# ACCOUNTABILITY ENGINE RESPONSIBILITIES
+# ─────────────────────────────────────────────────────────────────────────
+
+responsibilities:
+  verify_signatures:
+    description: "Validate cryptographic signatures on action envelopes"
+    on_failure: hard_reject
+
+  query_hypergraph:
+    description: "Check constraints in accountability hypergraph"
+    on_violation: emit_violation
+
+  demand_proofs:
+    description: "Request missing evidence before allowing execution"
+    timeout_action: deny
+
+  emit_verdicts:
+    description: "Produce allow/deny/conditional decisions"
+    always_log: true
+
+  write_ledger:
+    description: "Record all verdicts to immutable ledger"
+    required_for: [high_risk, contract_change, production]
+
+# ─────────────────────────────────────────────────────────────────────────
+# BEHAVIORAL RULES
+# ─────────────────────────────────────────────────────────────────────────
+
+behavioral:
+  - rule: no_unsigned_actions
+    condition: "action_envelope.signature == null"
+    action: hard_reject
+    authority: L=CTO
+    enforceability: hard
+
+  - rule: high_risk_requires_evidence
+    condition: "action_envelope.risk_class == 'high' AND action_envelope.evidence_refs.length == 0"
+    action: demand_evidence
+    authority: L=CTO
+    enforceability: hard
+
+  - rule: production_requires_approval
+    condition: "action_envelope.environment == 'prod' AND verdict.issuing_authority.tier < required_tier"
+    action: escalate
+    authority: L=CTO
+    enforceability: hard
+
+  - rule: contract_change_requires_quorum
+    condition: "action_envelope.action_type == 'contract_diff' AND quorum.satisfied == false"
+    action: block_await_quorum
+    authority: L=CTO
+    enforceability: hard
+
+  - rule: kernel_mutation_requires_igor
+    condition: "action_envelope.action_type == 'kernel_mutation' AND action_envelope.claimed_authority != 'IGOR'"
+    action: hard_reject
+    authority: L=CTO
+    enforceability: hard
+
+# ─────────────────────────────────────────────────────────────────────────
+# VERDICT EMISSION RULES
+# ─────────────────────────────────────────────────────────────────────────
+
+verdict_rules:
+  allow:
+    conditions:
+      - signature_valid
+      - authority_sufficient
+      - constraints_satisfied
+      - evidence_provided (if required)
+    output:
+      decision: allow
+      ledger_ref: auto_generated
+
+  deny:
+    conditions:
+      - signature_invalid OR
+      - authority_insufficient OR
+      - hard_constraint_violated
+    output:
+      decision: deny
+      justification_refs: [violation_details]
+
+  conditional:
+    conditions:
+      - soft_constraint_pending OR
+      - evidence_missing (non-critical) OR
+      - simulation_recommended
+    output:
+      decision: conditional
+      conditions: [what_is_needed]
+      deadline: optional
+
+# ─────────────────────────────────────────────────────────────────────────
+# ENFORCEMENT ACTIONS
+# ─────────────────────────────────────────────────────────────────────────
+
+enforcement_actions:
+  hard_block:
+    description: "Immediately stop execution"
+    emit: violation_event
+    log_to: accountability_ledger
+
+  force_dry_run:
+    description: "Downgrade to DRY_RUN_ONLY mode"
+    emit: mode_change_event
+
+  trigger_rollback:
+    description: "Initiate rollback procedure"
+    requires: rollback_plan
+
+  emit_violation:
+    description: "Log violation to memory + ledger"
+    target: [accountability_ledger, violation_log, world_model]
+
+  escalate:
+    description: "Route to higher authority"
+    channels: [igor_dm, governance_queue]
+
+# ─────────────────────────────────────────────────────────────────────────
+# AUDIT REQUIREMENTS
+# ─────────────────────────────────────────────────────────────────────────
+
+audit:
+  every_action_envelope:
+    - log_receipt
+    - log_verdict
+    - log_ledger_ref
+
+  every_verdict:
+    - log_justification
+    - log_authority_chain
+    - log_evidence_refs
+
+  retention:
+    policy: immutable
+    duration: indefinite
+
+# ─────────────────────────────────────────────────────────────────────────
+# INTEGRATION POINTS
+# ─────────────────────────────────────────────────────────────────────────
+
+integration:
+  consults:
+    - accountability_hypergraph
+    - epistemic_kernel.constraints
+    - governance.approval_status
+
+  gates:
+    - execution_kernel
+    - memory_write
+    - world_model_update
+
+  emits_to:
+    - accountability_ledger
+    - governance.verdict_log
+    - observability.metrics
+
+# ─────────────────────────────────────────────────────────────────────────
+# HARD CONSTRAINT
+# ─────────────────────────────────────────────────────────────────────────
+
+hard_constraint:
+  rule: execution_kernels_cannot_bypass
+  description: |
+    No execution path may skip accountability verification.
+    This kernel is inline, not advisory.
+  enforcement: architectural
+
+# ─────────────────────────────────────────────────────────────────────────
+# END KERNEL
+# ─────────────────────────────────────────────────────────────────────────

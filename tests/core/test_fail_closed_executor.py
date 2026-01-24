@@ -14,9 +14,10 @@ GMP-95: PR #11 Fail-Closed Enforcement Tests
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
+
+import pytest
 
 
 class TestExecutorFailClosed:
@@ -29,7 +30,9 @@ class TestExecutorFailClosed:
 
         # Create executor with mock substrate that fails
         mock_substrate = MagicMock()
-        mock_substrate.write_packet = AsyncMock(side_effect=Exception("Substrate unavailable"))
+        mock_substrate.write_packet = AsyncMock(
+            side_effect=Exception("Substrate unavailable")
+        )
 
         executor = AgentExecutorService(
             aios_runtime=MagicMock(),

@@ -1,0 +1,133 @@
+# ============================================================================
+# EPISTEMIC KERNEL (L9 Canonical)
+# ============================================================================
+# ID: 11-epistemic-kernel
+# VERSION: 1.0.0
+# PURPOSE: Validate epistemic objects, enforce normative embeddings during
+#          planning, block execution paths that violate high-authority constraints
+# AUTHORITY: L=CTO (immutable)
+# DRIFT_POLICY: DISALLOWED
+# ============================================================================
+
+kernel:
+  id: 11-epistemic-kernel
+  name: epistemic_kernel
+  type: governance_gate
+  version: "1.0.0"
+  authority: L=CTO
+  position: between_planning_and_execution
+
+purpose: |
+  The Epistemic Kernel sits between planning and execution.
+  It validates epistemic objects, enforces normative embeddings,
+  and blocks execution paths that violate high-authority constraints.
+  SAIAL entries are emitted automatically for audit.
+
+# ─────────────────────────────────────────────────────────────────────────
+# EPISTEMIC OBJECT VALIDATION
+# ─────────────────────────────────────────────────────────────────────────
+
+validation:
+  rules:
+    - rule: epistemic_object_must_have_authority
+      condition: "epistemic_object.authority_id == null"
+      action: reject
+      message: "Epistemic object requires authority attribution"
+
+    - rule: hard_enforceability_requires_ledger
+      condition: "epistemic_object.enforceability == 'hard' AND epistemic_object.provenance.ledger_ref == null"
+      action: reject
+      message: "Hard-enforceable objects must have ledger provenance"
+
+    - rule: contract_requires_quorum
+      condition: "epistemic_object.type == 'contract' AND epistemic_object.authority.quorum == null"
+      action: warn
+      message: "Contracts should have quorum authority"
+
+# ─────────────────────────────────────────────────────────────────────────
+# NORMATIVE ENFORCEMENT
+# ─────────────────────────────────────────────────────────────────────────
+
+enforcement:
+  during_planning:
+    - check: constraint_compatibility
+      description: "Proposed actions must not violate active constraints"
+      on_violation: score_penalty
+
+    - check: authority_sufficiency
+      description: "Agent authority must meet action requirements"
+      on_violation: block
+
+  during_execution:
+    - check: prohibition_check
+      description: "Action must not match any active prohibition"
+      on_violation: hard_block
+
+    - check: evidence_requirement
+      description: "High-risk actions require evidence_refs"
+      on_violation: request_evidence
+
+# ─────────────────────────────────────────────────────────────────────────
+# BEHAVIORAL RULES
+# ─────────────────────────────────────────────────────────────────────────
+
+behavioral:
+  - rule: facts_are_immutable
+    condition: "action.type == 'modify' AND target.type == 'fact'"
+    constraint: "facts cannot be modified, only deprecated"
+    action: reject
+    authority: L=CTO
+    enforceability: hard
+
+  - rule: beliefs_decay
+    condition: "belief.age > belief.ttl"
+    action: mark_stale
+    authority: L=CTO
+    enforceability: soft
+
+  - rule: invariants_block_violations
+    condition: "action VIOLATES invariant"
+    action: hard_block
+    authority: L=CTO
+    enforceability: hard
+
+  - rule: contracts_require_simulation
+    condition: "action.type == 'modify_contract'"
+    constraint: "must have simulation_ref"
+    action: demand_simulation
+    authority: L=CTO
+    enforceability: hard
+
+# ─────────────────────────────────────────────────────────────────────────
+# AUDIT EMISSION
+# ─────────────────────────────────────────────────────────────────────────
+
+audit:
+  auto_emit:
+    - epistemic_object_created
+    - epistemic_object_deprecated
+    - constraint_violation_detected
+    - authority_check_performed
+    - enforcement_action_taken
+
+  ledger_target: accountability_ledger
+  signature_required: true
+
+# ─────────────────────────────────────────────────────────────────────────
+# INTEGRATION POINTS
+# ─────────────────────────────────────────────────────────────────────────
+
+integration:
+  consults:
+    - accountability_hypergraph
+    - world_model.epistemic_status
+    - memory.epistemic_objects
+
+  emits_to:
+    - accountability_ledger
+    - world_model.state_updates
+    - governance.violation_log
+
+# ─────────────────────────────────────────────────────────────────────────
+# END KERNEL
+# ─────────────────────────────────────────────────────────────────────────

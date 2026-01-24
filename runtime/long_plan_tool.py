@@ -32,14 +32,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Dict, List, Optional
 
-from orchestration.long_plan_graph import (
-    execute_long_plan,
-    simulate_long_plan,
-    extract_tasks_from_plan,
-)
+import structlog
+
+from orchestration.long_plan_graph import (execute_long_plan,
+                                           extract_tasks_from_plan,
+                                           simulate_long_plan)
 from runtime.task_queue import enqueue_long_plan_tasks
 from runtime.tool_call_wrapper import tool_call_wrapper
 

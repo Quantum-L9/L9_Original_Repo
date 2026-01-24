@@ -21,23 +21,26 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
+import asyncio
 import time
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from fastapi import FastAPI, HTTPException, Depends, Header, Request
+
+import asyncpg
+import structlog
+from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-import asyncpg
-from contextlib import asynccontextmanager
-import asyncio
-
-from fastapi import APIRouter
 from src.config import settings
-from src.db import init_db, close_db
-from src.mcp_server import get_mcp_tools, MCPToolCall, handle_tool_call
-from src.routes import memory_unified as memory, health
+from src.db import close_db, init_db
+from src.mcp_server import MCPToolCall, get_mcp_tools, handle_tool_call
 from src.rate_limiter import RateLimiter
+from src.routes import health
+from src.routes import memory_unified as memory
+
 from core.decorators import must_stay_async
+from memory.governance_gate import build_governance_context, governance_context
+from config.rls_config import get_rls_config
 
 # Configure structlog
 # Use structlog log levels (no need for logging module)
@@ -255,7 +258,7 @@ class CallerIdentity:
     @property
     def source(self) -> str:
         """Metadata source value for this caller."""
-        return "l9-kernel" if self.is_l else "cursor-ide"
+        return "l9-kernel" if self.is_l else "cursor"
 
 
 async def verify_api_key(
@@ -314,7 +317,7 @@ async def verify_api_key(
     token = authorization.replace("Bearer ", "")
 
     # Determine caller from API key (with legacy fallback support)
-    from src.config import get_api_key_l, get_api_key_c
+    from src.config import get_api_key_c, get_api_key_l
 
     api_key_l = get_api_key_l()
     api_key_c = get_api_key_c()
@@ -370,7 +373,12 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
     - metadata.creator: "L-CTO" or "Cursor-IDE" (enforced server-side)
     - metadata.source: "l9-kernel" or "cursor-ide" (enforced server-side)
     - write/delete scope: C can only modify own memories (creator="Cursor-IDE")
+
+    GMP-C1-GOVERNANCE: Sets MemoryGovernanceContext before tool execution.
+    This ensures all downstream DB operations have proper RLS context.
     """
+    import os
+
     try:
         payload = await request.json()
         # MCP protocol uses "name" for tool name, but support "tool_name" for backwards compat
@@ -382,7 +390,35 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
         tool_call = MCPToolCall(name=tool_name, arguments=tool_args)
         # Get substrate service from app state (if initialized)
         substrate_service = getattr(request.app.state, "substrate_service", None)
-        result = await handle_tool_call(tool_call, user_id, caller, substrate_service)
+
+        # GMP-C1-GOVERNANCE: Build governance context from CallerIdentity + RLS config
+        # This MUST be set before any DB operations that call require_governance_context()
+        rls = get_rls_config()
+        scope = os.getenv("L9_MEMORY_SCOPE", "developer")
+        project_id = os.getenv("L9_PROJECT_ID", "l9-default")
+
+        # L gets all scopes, C gets developer + global only (no l-private)
+        allowed_scopes = (
+            ["developer", "global", "l-private"] if caller.is_l else ["developer", "global"]
+        )
+
+        ctx = build_governance_context(
+            caller_id=caller.caller_id,
+            role="end_user",
+            scope=scope,
+            project_id=project_id,
+            allowed_scopes=allowed_scopes,
+            tenant_id=rls.tenant_uuid,
+            org_id=rls.org_uuid,
+            user_id=rls.user_uuid,
+            creator=caller.creator,
+            source=caller.source,
+        )
+
+        # Execute tool call within governance context
+        async with governance_context(ctx):
+            result = await handle_tool_call(tool_call, user_id, caller, substrate_service)
+
         return {"status": "success", "result": result, "caller": caller.caller_id}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

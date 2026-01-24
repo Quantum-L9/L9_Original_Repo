@@ -12,28 +12,29 @@ Tests:
 Run: pytest tests/memory/test_substrate_dag_native.py -v
 """
 
-import pytest
-from typing import TypedDict
-from unittest.mock import MagicMock, AsyncMock
-from uuid import uuid4
 from datetime import datetime
+from typing import TypedDict
+from unittest.mock import AsyncMock, MagicMock
+from uuid import uuid4
 
-from langgraph.graph import StateGraph, END
+import pytest
+from langgraph.graph import END, StateGraph
+
+from core.schemas import PacketEnvelope
 
 # Import from substrate_dag
 from memory.substrate_dag import (
+    SKIP_EMBEDDING_PATTERNS,
+    SubstrateDAG,
     _get_config_dependency,
     _should_skip_embedding,
-    route_after_memory_write,
-    build_substrate_graph,
     build_enrichment_graph,
-    SubstrateDAG,
+    build_substrate_graph,
     intake_node,
     reasoning_node,
+    route_after_memory_write,
     semantic_embed_node,
-    SKIP_EMBEDDING_PATTERNS,
 )
-from core.schemas import PacketEnvelope
 
 # =============================================================================
 # Test Fixtures
@@ -156,7 +157,10 @@ class TestSkipEmbedding:
 
     def test_dont_skip_valid_content(self):
         """Valid content should NOT be skipped."""
-        assert _should_skip_embedding("This is a valid piece of content worth embedding.") is False
+        assert (
+            _should_skip_embedding("This is a valid piece of content worth embedding.")
+            is False
+        )
         assert _should_skip_embedding("User asked about memory systems in L9.") is False
 
 
@@ -198,7 +202,9 @@ class TestRoutingFunction:
         state = {
             "envelope": {
                 "packet_type": "memory",
-                "payload": {"text": "Sorry, I encountered a temporary error. Please try again."},
+                "payload": {
+                    "text": "Sorry, I encountered a temporary error. Please try again."
+                },
             }
         }
         assert route_after_memory_write(state) == "skip_embed"
@@ -455,6 +461,114 @@ class TestLangGraphConfigPattern:
 
         assert result["config_received"] is True
         assert result["config_value"] == "INJECTED"
+
+
+# =============================================================================
+# Test 9: Duplicate Packet Detection
+# =============================================================================
+
+
+class TestDuplicatePacketDetection:
+    """Tests for duplicate packet detection in intake_node."""
+
+    @pytest.mark.asyncio
+    async def test_intake_detects_duplicate(self):
+        """intake_node adds error when packet already exists."""
+        mock_repo = MagicMock()
+        mock_repo.check_packet_exists = AsyncMock(return_value=True)
+
+        state = {
+            "envelope": {
+                "packet_id": str(uuid4()),
+                "packet_type": "test",
+                "payload": {"key": "value"},
+            },
+            "errors": [],
+        }
+        config = {"configurable": {"repository": mock_repo}}
+
+        result = await intake_node(state, config=config)
+
+        assert len(result["errors"]) == 1
+        assert "Duplicate packet" in result["errors"][0]
+        mock_repo.check_packet_exists.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_intake_allows_new_packet(self):
+        """intake_node allows packet when it doesn't exist."""
+        mock_repo = MagicMock()
+        mock_repo.check_packet_exists = AsyncMock(return_value=False)
+
+        state = {
+            "envelope": {
+                "packet_id": str(uuid4()),
+                "packet_type": "test",
+                "payload": {"key": "value"},
+            },
+            "errors": [],
+        }
+        config = {"configurable": {"repository": mock_repo}}
+
+        result = await intake_node(state, config=config)
+
+        assert len(result["errors"]) == 0
+        mock_repo.check_packet_exists.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_intake_handles_missing_check_method(self):
+        """intake_node gracefully handles repository without check_packet_exists."""
+        mock_repo = MagicMock(spec=[])  # No check_packet_exists method
+
+        state = {
+            "envelope": {
+                "packet_id": str(uuid4()),
+                "packet_type": "test",
+                "payload": {"key": "value"},
+            },
+            "errors": [],
+        }
+        config = {"configurable": {"repository": mock_repo}}
+
+        result = await intake_node(state, config=config)
+
+        # Should not error, just skip the check
+        assert len(result["errors"]) == 0
+
+    @pytest.mark.asyncio
+    async def test_intake_handles_check_exception(self):
+        """intake_node handles exception from check_packet_exists gracefully."""
+        mock_repo = MagicMock()
+        mock_repo.check_packet_exists = AsyncMock(side_effect=Exception("DB error"))
+
+        state = {
+            "envelope": {
+                "packet_id": str(uuid4()),
+                "packet_type": "test",
+                "payload": {"key": "value"},
+            },
+            "errors": [],
+        }
+        config = {"configurable": {"repository": mock_repo}}
+
+        result = await intake_node(state, config=config)
+
+        # Should not error, exception is logged but processing continues
+        assert len(result["errors"]) == 0
+
+    @pytest.mark.asyncio
+    async def test_dag_rejects_duplicate(self):
+        """Full DAG run rejects duplicate packet."""
+        mock_repo = make_mock_repository()
+        mock_repo.check_packet_exists = AsyncMock(return_value=True)
+
+        dag = SubstrateDAG(repository=mock_repo)
+
+        envelope = make_test_envelope("This is duplicate content.")
+        result = await dag.run(envelope)
+
+        # Should have error status due to duplicate detection
+        assert result.status == "error"
+        assert "Duplicate packet" in result.error_message
 
 
 # =============================================================================

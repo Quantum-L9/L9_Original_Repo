@@ -46,7 +46,6 @@ from pydantic import BaseModel, Field
 
 from core.schemas.capabilities import AgentCapabilities, ToolName
 
-
 # =============================================================================
 # Enums
 # =============================================================================

@@ -36,22 +36,19 @@ __dora_meta__ = {
 
 import asyncio
 import logging
-import structlog
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 from uuid import uuid4
 
+import structlog
 import yaml
 
-from core.schemas import (
-    PacketEnvelope,
-    PacketEnvelopeIn,
-    PacketMetadata,
-    PacketProvenance,
-)
+from core.schemas import (PacketEnvelope, PacketEnvelopeIn, PacketMetadata,
+                          PacketProvenance)
 from memory.substrate_service import MemorySubstrateService
-from world_model.knowledge_ingestor import KnowledgeIngestor, SourceType, IngestResult
+from world_model.knowledge_ingestor import (IngestResult, KnowledgeIngestor,
+                                            SourceType)
 from world_model.state import WorldModelState
 
 logger = structlog.get_logger(__name__)
@@ -217,9 +214,9 @@ class SeedLoader:
                 packet_type=packet.packet_type,
                 payload=packet.payload,
                 metadata=packet.metadata.model_dump() if packet.metadata else None,
-                provenance=packet.provenance.model_dump()
-                if packet.provenance
-                else None,
+                provenance=(
+                    packet.provenance.model_dump() if packet.provenance else None
+                ),
             )
 
             result = await self.substrate.write_packet(packet_in)
@@ -576,11 +573,9 @@ class SeedLoader:
                 await self.write_packet_to_substrate(packet)
 
             # Load into reflection memory directly
-            from world_model.reflection_memory import (
-                ReflectionMemory,
-                ReflectionType,
-                ReflectionPriority,
-            )
+            from world_model.reflection_memory import (ReflectionMemory,
+                                                       ReflectionPriority,
+                                                       ReflectionType)
 
             # Get or create reflection memory instance
             reflection_memory = None

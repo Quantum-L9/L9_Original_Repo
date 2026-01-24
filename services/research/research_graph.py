@@ -36,26 +36,22 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from datetime import datetime
 from typing import Any, Literal
 from uuid import uuid4
 
-from langgraph.graph import StateGraph, START, END
-
-from services.research.graph_state import (
-    ResearchGraphState,
-    Evidence,
-    create_initial_state,
-)
-from services.research.agents import PlannerAgent, ResearcherAgent, CriticAgent
-from services.research.memory_adapter import get_memory_adapter
-from services.research.tools import get_tool_registry
-from services.research.insight_extractor import InsightExtractorAgent
-from services.research.graph_persistence import get_graph_persistence
+import structlog
+from langgraph.graph import END, START, StateGraph
 
 # Memory client for substrate writes
-from clients.memory_client import get_memory_client, PacketWriteResult
+from clients.memory_client import PacketWriteResult, get_memory_client
+from services.research.agents import CriticAgent, PlannerAgent, ResearcherAgent
+from services.research.graph_persistence import get_graph_persistence
+from services.research.graph_state import (Evidence, ResearchGraphState,
+                                           create_initial_state)
+from services.research.insight_extractor import InsightExtractorAgent
+from services.research.memory_adapter import get_memory_adapter
+from services.research.tools import get_tool_registry
 
 logger = structlog.get_logger(__name__)
 

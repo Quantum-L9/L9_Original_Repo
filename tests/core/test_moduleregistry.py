@@ -5,7 +5,8 @@ Tests the actual ModuleRegistry API using ModuleDefinition objects.
 """
 
 import pytest
-from core.moduleregistry import ModuleRegistry, ModuleDefinition, ModuleStatus
+
+from core.moduleregistry import ModuleDefinition, ModuleRegistry, ModuleStatus
 
 
 def test_module_registry_creation():
@@ -122,7 +123,9 @@ def test_module_registry_set_status():
     registry = ModuleRegistry()
 
     # Register module first
-    registry.register(ModuleDefinition(module_id="status_test", display_name="Status Test"))
+    registry.register(
+        ModuleDefinition(module_id="status_test", display_name="Status Test")
+    )
 
     # Set status
     status = ModuleStatus(

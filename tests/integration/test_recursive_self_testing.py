@@ -7,17 +7,17 @@ Tests for test generation, execution, and integration with approvals.
 Version: 1.0.0
 """
 
-import pytest
 from datetime import datetime
 from uuid import uuid4
 
-from core.testing.test_generator import (
-    TestGenerator,
-    generate_unit_tests,
-    generate_integration_tests,
-)
+import pytest
+
+from core.testing.test_agent import (TestAgent, TestAgentResult,
+                                     spawn_test_agent)
 from core.testing.test_executor import TestResults
-from core.testing.test_agent import TestAgent, TestAgentResult, spawn_test_agent
+from core.testing.test_generator import (TestGenerator,
+                                         generate_integration_tests,
+                                         generate_unit_tests)
 
 
 class TestTestGenerator:
@@ -288,7 +288,9 @@ class TestTestAgentRecommendations:
         recommendations = agent._generate_recommendations(results)
 
         assert len(recommendations) >= 1
-        assert any("failing" in r.lower() or "fix" in r.lower() for r in recommendations)
+        assert any(
+            "failing" in r.lower() or "fix" in r.lower() for r in recommendations
+        )
 
     def test_generates_coverage_recommendations(self):
         """Test that low coverage triggers recommendations."""
@@ -322,7 +324,9 @@ class TestTestAgentRecommendations:
 
         recommendations = agent._generate_recommendations(results)
 
-        assert any("passed" in r.lower() or "proceed" in r.lower() for r in recommendations)
+        assert any(
+            "passed" in r.lower() or "proceed" in r.lower() for r in recommendations
+        )
 
 
 class TestApprovalIntegration:
@@ -330,7 +334,7 @@ class TestApprovalIntegration:
 
     def test_format_approval_request_with_tests(self):
         """Test formatting approval request with test results."""
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
 
         # Mock the imports in approvals module
         with patch.dict(
@@ -356,7 +360,9 @@ class TestApprovalIntegration:
                         parts.append(f"- Tests Failed: {test_summary['tests_failed']}")
 
                         if test_summary.get("coverage_percent") is not None:
-                            parts.append(f"- Coverage: {test_summary['coverage_percent']}%")
+                            parts.append(
+                                f"- Coverage: {test_summary['coverage_percent']}%"
+                            )
 
                         if test_summary["tests_failed"] > 0:
                             parts.append("\n⚠️ **WARNING: Tests failed.**")

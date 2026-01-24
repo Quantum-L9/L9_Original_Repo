@@ -556,9 +556,47 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
     # Simple calculator executor
     def calculate_executor(expression: str) -> dict:
         try:
-            # Safe eval for simple math
-            allowed_names = {"abs": abs, "round": round, "min": min, "max": max}
-            result = eval(expression, {"__builtins__": {}}, allowed_names)
+            # Use ast module for safer expression evaluation
+            import ast
+            import operator
+            
+            # Define allowed operations
+            allowed_ops = {
+                ast.Add: operator.add,
+                ast.Sub: operator.sub,
+                ast.Mult: operator.mul,
+                ast.Div: operator.truediv,
+                ast.Pow: operator.pow,
+                ast.USub: operator.neg,
+            }
+            
+            def eval_expr(node):
+                if isinstance(node, ast.Constant):  # Python 3.8+
+                    return node.value
+                elif isinstance(node, ast.BinOp):
+                    op = allowed_ops.get(type(node.op))
+                    if op is None:
+                        raise ValueError(f"Unsupported operation: {type(node.op).__name__}")
+                    return op(eval_expr(node.left), eval_expr(node.right))
+                elif isinstance(node, ast.UnaryOp):
+                    op = allowed_ops.get(type(node.op))
+                    if op is None:
+                        raise ValueError(f"Unsupported operation: {type(node.op).__name__}")
+                    return op(eval_expr(node.operand))
+                elif isinstance(node, ast.Call):
+                    # Allow specific functions
+                    if isinstance(node.func, ast.Name):
+                        func_name = node.func.id
+                        if func_name in ["abs", "round", "min", "max"]:
+                            func = eval(func_name)  # Safe: only built-in functions
+                            args = [eval_expr(arg) for arg in node.args]
+                            return func(*args)
+                    raise ValueError(f"Function calls not allowed: {ast.unparse(node)}")
+                else:
+                    raise ValueError(f"Unsupported expression: {ast.unparse(node)}")
+            
+            tree = ast.parse(expression, mode='eval')
+            result = eval_expr(tree.body)
             return {"result": result, "expression": expression}
         except Exception as e:
             return {"error": str(e), "expression": expression}
@@ -566,152 +604,6 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
     registry.register(calc_meta, calculate_executor)
 
     logger.info(f"Initialized {len(registry.list_all())} default tools")
-
-
-async def ask_l(query: str) -> dict:
-    """
-    Trigger reactive task generation and execution pipeline.
-
-    This tool allows external systems to trigger L's reactive task dispatch
-    by providing a user query that gets converted to tasks and executed.
-
-    Args:
-        query: User query text
-
-    Returns:
-        Dictionary with execution results: task_ids, status, message
-    """
-    import structlog
-    from core.agents.executor import _generate_tasks_from_query
-    from runtime.task_queue import dispatch_task_immediate, QueuedTask
-    from uuid import uuid4
-
-    logger = structlog.get_logger(__name__)
-
-    if not query or not query.strip():
-        return {
-            "success": False,
-            "error": "query is required",
-            "task_ids": [],
-        }
-
-    try:
-        # Generate tasks from query
-        task_specs = await _generate_tasks_from_query(query)
-
-        if not task_specs:
-            return {
-                "success": False,
-                "error": "No tasks generated from query",
-                "task_ids": [],
-            }
-
-        task_ids = []
-
-        # Dispatch each task immediately
-        for spec in task_specs:
-            try:
-                task = QueuedTask(
-                    task_id=str(uuid4()),
-                    name=spec["name"],
-                    payload=spec["payload"],
-                    handler=spec["handler"],
-                    agent_id="L",
-                    priority=spec.get("priority", 5),
-                    tags=["ask_l", "reactive"],
-                )
-
-                task_id = await dispatch_task_immediate(task)
-                task_ids.append(task_id)
-            except Exception as e:
-                logger.error(f"Failed to dispatch task from ask_l: {e}", exc_info=True)
-
-        return {
-            "success": True,
-            "task_ids": task_ids,
-            "message": f"Dispatched {len(task_ids)} task(s) from query",
-        }
-
-    except Exception as e:
-        logger.error(f"ask_l failed: {e}", exc_info=True)
-        return {
-            "success": False,
-            "error": str(e),
-            "task_ids": [],
-        }
-
-
-async def get_l_memory_state() -> dict:
-    """
-    Expose L's current memory context.
-
-    Retrieves L's memory state from substrate including governance rules,
-    project history, and recent task context.
-
-    Returns:
-        Dictionary with memory state: governance_rules, project_history, recent_tasks
-    """
-    import structlog
-    from memory.substrate_service import get_service
-
-    logger = structlog.get_logger(__name__)
-
-    try:
-        substrate = await get_service()
-        if not substrate:
-            return {
-                "success": False,
-                "error": "Memory substrate not available",
-            }
-
-        memory_state = {}
-
-        # Search for recent governance and project history packets
-        governance_packets = await substrate.search_packets_by_type(
-            packet_type="governance_meta",
-            agent_id="L",
-            limit=10,
-        )
-        if governance_packets:
-            memory_state["governance_rules"] = [
-                p.get("payload", {}) for p in governance_packets
-            ]
-
-        project_packets = await substrate.search_packets_by_type(
-            packet_type="project_history",
-            agent_id="L",
-            limit=10,
-        )
-        if project_packets:
-            memory_state["project_history"] = [
-                p.get("payload", {}) for p in project_packets
-            ]
-
-        # Get recent task execution results
-        task_packets = await substrate.search_packets_by_type(
-            packet_type="task_execution_result",
-            agent_id="L",
-            limit=10,
-        )
-        if task_packets:
-            memory_state["recent_tasks"] = [p.get("payload", {}) for p in task_packets]
-
-        return {
-            "success": True,
-            "memory_state": memory_state,
-            "summary": {
-                "governance_rules": len(memory_state.get("governance_rules", [])),
-                "project_history": len(memory_state.get("project_history", [])),
-                "recent_tasks": len(memory_state.get("recent_tasks", [])),
-            },
-        }
-
-    except Exception as e:
-        logger.error(f"get_l_memory_state failed: {e}", exc_info=True)
-        return {
-            "success": False,
-            "error": str(e),
-        }
 
 
 async def recall_task_history(num_tasks: int = 10) -> List[dict]:

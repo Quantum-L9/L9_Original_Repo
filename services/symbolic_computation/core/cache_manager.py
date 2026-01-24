@@ -42,8 +42,9 @@ from typing import Any, Callable, Dict, Optional
 
 import structlog
 
-from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from core.decorators import must_stay_async
+from services.symbolic_computation.config import (SymbolicComputationConfig,
+                                                  get_config)
 
 logger = structlog.get_logger(__name__)
 

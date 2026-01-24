@@ -40,11 +40,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
 from unittest.mock import MagicMock, patch
+
+import structlog
 
 # Ensure repo root is in path
 REPO_ROOT = Path(__file__).parent.parent
@@ -80,7 +81,9 @@ class MockGmailClient:
         """Mock draft_email - returns fake draft ID."""
         return "draft_123"
 
-    def send_email(self, to: str, subject: str, body: str, attachments=None) -> Dict[str, Any]:
+    def send_email(
+        self, to: str, subject: str, body: str, attachments=None
+    ) -> Dict[str, Any]:
         """Mock send_email - returns fake result."""
         return {"message_id": "sent_123", "thread_id": "thread_123"}
 
@@ -130,7 +133,7 @@ class IngestTracker:
 async def test_email_query_ingestion():
     """Test that /email/query ingests pre and post events."""
     try:
-        from email_agent.router import query_emails, QueryRequest
+        from email_agent.router import QueryRequest, query_emails
 
         tracker = IngestTracker()
 
@@ -157,7 +160,9 @@ async def test_email_query_ingestion():
 
                 # Verify trace_id consistency
                 trace_calls = tracker.find_by_trace_id(trace_id)
-                assert len(trace_calls) == 2, "Trace ID not consistent across ingestions"
+                assert (
+                    len(trace_calls) == 2
+                ), "Trace ID not consistent across ingestions"
 
                 return True, ""
 
@@ -171,7 +176,7 @@ async def test_email_query_ingestion():
 async def test_email_get_ingestion():
     """Test that /email/get ingests pre and post events."""
     try:
-        from email_agent.router import get_email, GetRequest
+        from email_agent.router import GetRequest, get_email
 
         tracker = IngestTracker()
 
@@ -190,7 +195,9 @@ async def test_email_get_ingestion():
                 assert "pre" in phases and "post" in phases
 
                 # Verify message_id is in payload
-                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
+                pre_call = next(
+                    c for c in action_calls if c["payload"]["phase"] == "pre"
+                )
                 assert pre_call["payload"]["message_id"] == "msg_test_123"
 
                 return True, ""
@@ -205,7 +212,7 @@ async def test_email_get_ingestion():
 async def test_email_draft_ingestion():
     """Test that /email/draft ingests pre and post events."""
     try:
-        from email_agent.router import draft_email, DraftRequest
+        from email_agent.router import DraftRequest, draft_email
 
         tracker = IngestTracker()
 
@@ -226,9 +233,15 @@ async def test_email_draft_ingestion():
                 assert len(action_calls) == 2
 
                 # Verify sensitive content is NOT in payload (only length)
-                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
-                assert "body" not in pre_call["payload"], "Body content should not be ingested"
-                assert "body_length" in pre_call["payload"], "Body length should be ingested"
+                pre_call = next(
+                    c for c in action_calls if c["payload"]["phase"] == "pre"
+                )
+                assert (
+                    "body" not in pre_call["payload"]
+                ), "Body content should not be ingested"
+                assert (
+                    "body_length" in pre_call["payload"]
+                ), "Body length should be ingested"
 
                 return True, ""
 
@@ -242,7 +255,7 @@ async def test_email_draft_ingestion():
 async def test_email_send_ingestion():
     """Test that /email/send ingests pre and post events."""
     try:
-        from email_agent.router import send_email, SendRequest
+        from email_agent.router import SendRequest, send_email
 
         tracker = IngestTracker()
 
@@ -261,7 +274,9 @@ async def test_email_send_ingestion():
                 action_calls = tracker.find_by_action("email.send")
                 assert len(action_calls) == 2
 
-                post_call = next(c for c in action_calls if c["payload"]["phase"] == "post")
+                post_call = next(
+                    c for c in action_calls if c["payload"]["phase"] == "post"
+                )
                 assert post_call["payload"]["status"] == "success"
                 assert post_call["payload"]["send_mode"] == "direct"
 
@@ -277,7 +292,7 @@ async def test_email_send_ingestion():
 async def test_email_reply_ingestion():
     """Test that /email/reply ingests pre and post events."""
     try:
-        from email_agent.router import reply_email, ReplyRequest
+        from email_agent.router import ReplyRequest, reply_email
 
         tracker = IngestTracker()
 
@@ -292,7 +307,9 @@ async def test_email_reply_ingestion():
                 action_calls = tracker.find_by_action("email.reply")
                 assert len(action_calls) == 2
 
-                pre_call = next(c for c in action_calls if c["payload"]["phase"] == "pre")
+                pre_call = next(
+                    c for c in action_calls if c["payload"]["phase"] == "pre"
+                )
                 assert pre_call["payload"]["original_message_id"] == "msg_original"
 
                 return True, ""
@@ -307,7 +324,7 @@ async def test_email_reply_ingestion():
 async def test_email_forward_ingestion():
     """Test that /email/forward ingests pre and post events."""
     try:
-        from email_agent.router import forward_email, ForwardRequest
+        from email_agent.router import ForwardRequest, forward_email
 
         tracker = IngestTracker()
 
@@ -326,7 +343,9 @@ async def test_email_forward_ingestion():
                 action_calls = tracker.find_by_action("email.forward")
                 assert len(action_calls) == 2
 
-                post_call = next(c for c in action_calls if c["payload"]["phase"] == "post")
+                post_call = next(
+                    c for c in action_calls if c["payload"]["phase"] == "post"
+                )
                 assert post_call["payload"]["to"] == "forward@example.com"
 
                 return True, ""
@@ -341,8 +360,9 @@ async def test_email_forward_ingestion():
 async def test_ingestion_fail_loud():
     """Test that ingestion failure causes HTTP 500."""
     try:
-        from email_agent.router import query_emails, QueryRequest
         from fastapi import HTTPException
+
+        from email_agent.router import QueryRequest, query_emails
 
         async def failing_ingest(packet_in):
             raise Exception("Simulated ingestion failure")

@@ -37,21 +37,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from datetime import datetime
-from typing import Optional, Any
+from typing import Any, Optional
 
+import structlog
 from openai import AsyncOpenAI, OpenAI
 
-from core.commands.schemas import (
-    Command,
-    CommandType,
-    ConfirmationResult,
-    IntentModel,
-    IntentType,
-    NLPPrompt,
-    RiskLevel,
-)
+from core.commands.schemas import (Command, CommandType, ConfirmationResult,
+                                   IntentModel, IntentType, NLPPrompt,
+                                   RiskLevel)
 
 logger = structlog.get_logger(__name__)
 

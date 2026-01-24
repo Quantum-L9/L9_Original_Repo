@@ -40,16 +40,9 @@ import structlog
 
 from core.agents.agent_instance import AgentInstance
 
-from . import (
-    phase_0_validate,
-    phase_1_load_kernels,
-    phase_2_instantiate,
-    phase_3_bind_kernels,
-    phase_4_load_identity,
-    phase_5_bind_tools,
-    phase_6_wire_governance,
-    phase_7_verify_and_lock,
-)
+from . import (phase_0_validate, phase_1_load_kernels, phase_2_instantiate,
+               phase_3_bind_kernels, phase_4_load_identity, phase_5_bind_tools,
+               phase_6_wire_governance, phase_7_verify_and_lock)
 from .bootstrap_metrics import get_bootstrap_metrics
 
 if TYPE_CHECKING:

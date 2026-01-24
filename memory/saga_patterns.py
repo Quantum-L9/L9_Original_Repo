@@ -40,19 +40,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any, Optional
-from core.decorators import must_stay_async
 
-from memory.saga import (
-    Saga,
-    SagaBuilder,
-    SagaContext,
-    SagaExecutor,
-    SagaResult,
-    DatabaseType,
-    get_saga_executor,
-)
+import structlog
+
+from core.decorators import must_stay_async
+from memory.saga import (DatabaseType, Saga, SagaBuilder, SagaContext,
+                         SagaExecutor, SagaResult, get_saga_executor)
 
 logger = structlog.get_logger(__name__)
 
@@ -132,9 +126,7 @@ async def _extract_entities_step(
             entity_type = (
                 "User"
                 if source.startswith("user:")
-                else "Agent"
-                if source.startswith("agent:")
-                else "System"
+                else "Agent" if source.startswith("agent:") else "System"
             )
             entities.append(
                 {

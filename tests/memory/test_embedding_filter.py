@@ -10,7 +10,8 @@ from pathlib import Path
 # Ensure project root is in path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from memory.substrate_dag import _should_skip_embedding, SKIP_EMBEDDING_PATTERNS
+from memory.substrate_dag import (SKIP_EMBEDDING_PATTERNS,
+                                  _should_skip_embedding)
 
 
 class TestShouldSkipEmbedding:
@@ -24,15 +25,21 @@ class TestShouldSkipEmbedding:
     def test_skip_error_pattern_with_whitespace(self):
         """Patterns with leading/trailing whitespace should still be skipped."""
         assert (
-            _should_skip_embedding("  Sorry, I encountered a temporary error. Please try again.  ")
+            _should_skip_embedding(
+                "  Sorry, I encountered a temporary error. Please try again.  "
+            )
             is True
         )
 
     def test_skip_error_prefix_variants(self):
         """Error messages starting with known prefixes should be skipped."""
-        assert _should_skip_embedding("Sorry, I encountered an unexpected issue.") is True
+        assert (
+            _should_skip_embedding("Sorry, I encountered an unexpected issue.") is True
+        )
         assert _should_skip_embedding("❌ Mac command error: timeout") is True
-        assert _should_skip_embedding("❌ Please provide a command after `!mac`") is True
+        assert (
+            _should_skip_embedding("❌ Please provide a command after `!mac`") is True
+        )
 
     def test_skip_empty_content(self):
         """Empty or None content should be skipped."""
@@ -50,23 +57,37 @@ class TestShouldSkipEmbedding:
         """Legitimate content should NOT be skipped."""
         # Normal user messages
         assert _should_skip_embedding("What is the status of the deployment?") is False
-        assert _should_skip_embedding("Please analyze the memory substrate performance.") is False
+        assert (
+            _should_skip_embedding("Please analyze the memory substrate performance.")
+            is False
+        )
 
         # Agent responses with actual content
         assert (
-            _should_skip_embedding("The deployment completed successfully at 14:32 EST.") is False
+            _should_skip_embedding(
+                "The deployment completed successfully at 14:32 EST."
+            )
+            is False
         )
         assert (
-            _should_skip_embedding("I found 3 relevant documents in the knowledge base.") is False
+            _should_skip_embedding(
+                "I found 3 relevant documents in the knowledge base."
+            )
+            is False
         )
 
         # Technical content
         assert (
-            _should_skip_embedding("ERROR: Connection timeout to database l9-postgres:5432")
+            _should_skip_embedding(
+                "ERROR: Connection timeout to database l9-postgres:5432"
+            )
             is False
         )
         assert (
-            _should_skip_embedding("def process_packet(envelope): return envelope.payload") is False
+            _should_skip_embedding(
+                "def process_packet(envelope): return envelope.payload"
+            )
+            is False
         )
 
     def test_allow_content_at_boundary(self):

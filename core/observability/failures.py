@@ -26,12 +26,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
-from typing import List, Dict, Optional
 from enum import Enum
+from typing import Dict, List, Optional
 
-from .models import FailureSignal, RemediationAction, FailureClass, Span
+import structlog
+
 from core.decorators import must_stay_async
+
+from .models import FailureClass, FailureSignal, RemediationAction, Span
 
 logger = structlog.get_logger(__name__)
 

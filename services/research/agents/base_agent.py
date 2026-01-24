@@ -32,10 +32,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
+import structlog
 from openai import AsyncOpenAI
 
 from config.research_settings import get_research_settings
@@ -105,9 +105,9 @@ class BaseAgent(ABC):
             kwargs: dict[str, Any] = {
                 "model": self.model,
                 "messages": messages,
-                "temperature": temperature
-                if temperature is not None
-                else self.temperature,
+                "temperature": (
+                    temperature if temperature is not None else self.temperature
+                ),
                 "max_tokens": max_tokens,
             }
 

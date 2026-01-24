@@ -2,8 +2,8 @@
 Tests for memory retrieval utilities - ranking and temporal decay.
 """
 
-from datetime import datetime, timedelta
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -11,7 +11,7 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from memory.retrieval import reciprocal_rank_fusion, apply_temporal_decay
+from memory.retrieval import apply_temporal_decay, reciprocal_rank_fusion
 
 
 class TestReciprocalRankFusion:
@@ -87,7 +87,9 @@ class TestTemporalDecay:
         half_life = 30
         old = now - timedelta(days=half_life)
 
-        score = apply_temporal_decay(1.0, old, half_life_days=half_life, reference_time=now)
+        score = apply_temporal_decay(
+            1.0, old, half_life_days=half_life, reference_time=now
+        )
 
         assert 0.49 < score < 0.51  # Approximately 0.5
 
@@ -97,7 +99,9 @@ class TestTemporalDecay:
         half_life = 30
         very_old = now - timedelta(days=half_life * 2)
 
-        score = apply_temporal_decay(1.0, very_old, half_life_days=half_life, reference_time=now)
+        score = apply_temporal_decay(
+            1.0, very_old, half_life_days=half_life, reference_time=now
+        )
 
         assert 0.24 < score < 0.26  # Approximately 0.25
 
@@ -107,8 +111,12 @@ class TestTemporalDecay:
         recent = now - timedelta(days=1)
         old = now - timedelta(days=60)
 
-        recent_score = apply_temporal_decay(1.0, recent, half_life_days=30, reference_time=now)
-        old_score = apply_temporal_decay(1.0, old, half_life_days=30, reference_time=now)
+        recent_score = apply_temporal_decay(
+            1.0, recent, half_life_days=30, reference_time=now
+        )
+        old_score = apply_temporal_decay(
+            1.0, old, half_life_days=30, reference_time=now
+        )
 
         assert recent_score > old_score
 
@@ -117,8 +125,12 @@ class TestTemporalDecay:
         now = datetime.utcnow()
         timestamp = now - timedelta(days=15)
 
-        high_decayed = apply_temporal_decay(1.0, timestamp, half_life_days=30, reference_time=now)
-        low_decayed = apply_temporal_decay(0.5, timestamp, half_life_days=30, reference_time=now)
+        high_decayed = apply_temporal_decay(
+            1.0, timestamp, half_life_days=30, reference_time=now
+        )
+        low_decayed = apply_temporal_decay(
+            0.5, timestamp, half_life_days=30, reference_time=now
+        )
 
         assert high_decayed > low_decayed
         # Ratio should be preserved

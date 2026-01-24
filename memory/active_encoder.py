@@ -43,15 +43,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import UUID, uuid4
 
+import structlog
+
 if TYPE_CHECKING:
-    from memory.substrate_repository import SubstrateRepository
     from memory.consolidation import ConsolidationPipeline
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -559,9 +560,11 @@ class ActiveMemoryEncoder:
                 importance=learning.importance,
                 confidence=learning.confidence,
                 tags=learning.tags,
-                source=f"task_{learning.source_task_id}"
-                if learning.source_task_id
-                else "active_encoder",
+                source=(
+                    f"task_{learning.source_task_id}"
+                    if learning.source_task_id
+                    else "active_encoder"
+                ),
             )
             logger.debug(
                 "Created new fact",

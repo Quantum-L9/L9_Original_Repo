@@ -99,9 +99,11 @@ async def get_modules_status(
                 enabled=slack_validator is not None,
                 available=slack_validator is not None,
                 initialized=slack_validator is not None,
-                notes=None
-                if slack_validator is not None
-                else "Slack adapter not initialized",
+                notes=(
+                    None
+                    if slack_validator is not None
+                    else "Slack adapter not initialized"
+                ),
             )
         )
 
@@ -114,9 +116,11 @@ async def get_modules_status(
                 enabled=research_swarm_orchestrator is not None,
                 available=research_swarm_orchestrator is not None,
                 initialized=research_swarm_orchestrator is not None,
-                notes=None
-                if research_swarm_orchestrator is not None
-                else "ResearchSwarm orchestrator not initialized",
+                notes=(
+                    None
+                    if research_swarm_orchestrator is not None
+                    else "ResearchSwarm orchestrator not initialized"
+                ),
             )
         )
 
@@ -127,9 +131,11 @@ async def get_modules_status(
                 enabled=world_model_runtime is not None,
                 available=world_model_runtime is not None,
                 initialized=world_model_runtime is not None,
-                notes=None
-                if world_model_runtime is not None
-                else "World model runtime not initialized",
+                notes=(
+                    None
+                    if world_model_runtime is not None
+                    else "World model runtime not initialized"
+                ),
             )
         )
     except Exception:

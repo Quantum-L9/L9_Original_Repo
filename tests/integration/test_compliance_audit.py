@@ -7,9 +7,10 @@ Tests for audit logging, compliance reporting, and export.
 Version: 1.0.0
 """
 
-import pytest
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 
 class TestAuditLogger:

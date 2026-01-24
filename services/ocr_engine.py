@@ -28,15 +28,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Dict, Any
 from pathlib import Path
+from typing import Any, Dict
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
 try:
-    from PIL import Image
     import pytesseract
+    from PIL import Image
 
     OCR_AVAILABLE = True
 except ImportError:

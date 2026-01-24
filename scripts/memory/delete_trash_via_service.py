@@ -31,11 +31,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
 import os
 import sys
-import asyncio
-import structlog
 from pathlib import Path
+
+import structlog
 from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).parent.parent

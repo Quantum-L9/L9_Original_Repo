@@ -27,10 +27,10 @@ Version: 1.1.0
 """
 
 import argparse
-import subprocess
 import json
 import os
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -172,7 +172,7 @@ class GMPReportGenerator:
         # Auto-populate missing data
         if not data.gmp_id:
             data.gmp_id = self.find_next_gmp_id()
-        
+
         # Use EST timezone for accurate timestamps
         est = ZoneInfo("America/New_York")
         now_est = datetime.now(est)

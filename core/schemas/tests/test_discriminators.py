@@ -7,19 +7,14 @@ Memory.yaml v1.0.1 note:
 - Validation focuses on required fields and data types
 """
 
-import pytest
 from uuid import uuid4
 
-from core.schemas.packet_envelope import (
-    PacketEnvelope,
-    PacketEnvelopeIn,
-    PacketMetadata,
-    SemanticSearchRequest,
-)
-from core.schemas.research_factory_models import (
-    ParsedObject,
-    ValidationStatus,
-)
+import pytest
+
+from core.schemas.packet_envelope import (PacketEnvelope, PacketEnvelopeIn,
+                                          PacketMetadata,
+                                          SemanticSearchRequest)
+from core.schemas.research_factory_models import ParsedObject, ValidationStatus
 
 
 class TestPacketTypeValidation:

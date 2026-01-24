@@ -4,11 +4,11 @@ Golden-path integration test for memory packet ingestion.
 Flow: API -> routing -> ingest_packet (stub) -> response.
 """
 
-from pathlib import Path
 import importlib
 import sys
-from uuid import uuid4
+from pathlib import Path
 from unittest.mock import AsyncMock
+from uuid import uuid4
 
 import pytest
 from fastapi import FastAPI

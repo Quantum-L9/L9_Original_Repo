@@ -48,17 +48,22 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["HTTP API"],
         "memory_layers": [],
-        "imported_by": ["clients.world_model_client", "core.singleton_registry", "runtime.l_tools"],
+        "imported_by": [
+            "clients.world_model_client",
+            "core.singleton_registry",
+            "runtime.l_tools",
+        ],
     },
 }
 # ============================================================================
 
-import structlog
 import os
 from typing import Any, Optional
 
 import httpx
+import structlog
 from pydantic import BaseModel
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -477,6 +482,7 @@ async def close_world_model_client() -> None:
         await _client.close()
         _client = None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -486,8 +492,28 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["core.decorators"],
-    "tags": ["api", "async", "client", "data-models", "debugging", "http-client", "integration", "logging", "pydantic", "rest-api"],
-    "keywords": ["await", "check", "client", "close", "entities", "entity", "health", "insights"],
+    "tags": [
+        "api",
+        "async",
+        "client",
+        "data-models",
+        "debugging",
+        "http-client",
+        "integration",
+        "logging",
+        "pydantic",
+        "rest-api",
+    ],
+    "keywords": [
+        "await",
+        "check",
+        "client",
+        "close",
+        "entities",
+        "entity",
+        "health",
+        "insights",
+    ],
     "business_value": "the World Model API. from clients.world_model_client import get_world_model_client client = get_worl",
     "last_modified": "2026-01-17T23:47:56Z",
     "modified_by": "L9_Codegen_Engine",

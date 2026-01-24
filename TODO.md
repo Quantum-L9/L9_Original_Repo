@@ -57,18 +57,18 @@
 | `l-cto` | L's agent_id | ✅ PRIMARY |
 | `l9-standard-v1` | Alias for l-cto (config name) | Keep as alias |
 | `l9-kernel` | MCP memory source field | Different concept (source, not agent) |
-| `cursor-ide` | Cursor's agent_id | ✅ PRIMARY |
-| `cursor-agent` | Folder name for Cursor files | Should rename to `cursor-ide`? |
+| `cursor` | Cursor's agent_id | ✅ PRIMARY |
+| `cursor-agent` | Folder name for Cursor files | Should rename to `cursor`? |
 
 **Questions to resolve:**
-1. Should `agents/cursor/` folder be renamed to `agents/cursor-ide/`? (consistency)
+1. Should `agents/cursor/` folder be renamed to `agents/cursor/`? (consistency)
 2. Should `l9-kernel` MCP source be changed to `l-cto`? (reduce confusion)
 3. Should we deprecate `l9-standard-v1` eventually or keep as permanent alias?
 
 **Files using these identifiers:**
 - `core/agents/kernel_registry.py` — Aliases l-cto ↔ l9-standard-v1
 - `mcp_memory/src/main.py` — Uses `l9-kernel` as source
-- `agents/cursor/cursor_memory_kernel.py` — Uses `cursor-ide`
+- `agents/cursor/cursor_memory_kernel.py` — Uses `cursor`
 - `runtime/kernel_loader.py` — Checks for multiple L aliases
 
 ---

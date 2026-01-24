@@ -27,14 +27,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import base64
-import structlog
 import re
-from typing import Dict, Any, List
 from email.header import decode_header
+from typing import Any, Dict, List
+
+import structlog
 
 try:
-    from html.parser import HTMLParser
     import html
+    from html.parser import HTMLParser
 
     HTML_AVAILABLE = True
 except ImportError:

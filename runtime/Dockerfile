@@ -28,6 +28,11 @@ RUN python -m pip install -U pip setuptools wheel \
 
 # Create non-root user for security
 RUN useradd -m -u 1000 l9user
+
+# Create data directory for container-safe path (email_agent, etc.)
+# email_agent.config uses /app/data/.l9/gmail when /app/data exists
+RUN mkdir -p /app/data/.l9/gmail/attachments && chown -R l9user:l9user /app/data
+
 USER l9user
 
 EXPOSE 8000

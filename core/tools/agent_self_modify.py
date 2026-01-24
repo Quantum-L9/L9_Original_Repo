@@ -42,13 +42,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Literal, Optional
 from datetime import datetime
+from typing import TYPE_CHECKING, Literal, Optional
 
 import structlog
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
+
     from memory.substrate_service import MemorySubstrateService
 
 logger = structlog.get_logger(__name__)

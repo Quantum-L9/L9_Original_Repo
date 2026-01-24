@@ -30,10 +30,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import subprocess
 import sys
 from pathlib import Path
-from typing import Set, Dict, List
-import subprocess
+from typing import Dict, List, Set
+
 import yaml
 
 

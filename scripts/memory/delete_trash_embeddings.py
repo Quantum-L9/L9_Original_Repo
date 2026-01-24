@@ -31,12 +31,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
 import os
 import sys
-import asyncio
+from pathlib import Path
+
 import structlog
 from dotenv import load_dotenv
-from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -63,8 +64,9 @@ async def delete_trash_embeddings(
 ) -> dict:
     """Delete trash embeddings using direct DB connection."""
     try:
-        import asyncpg
         import json as json_lib
+
+        import asyncpg
 
         conn = await asyncpg.connect(database_url)
         try:
@@ -170,7 +172,8 @@ async def main(dry_run: bool = False, verbose: bool = False):
         logger.error("DATABASE_URL or TEST_DATABASE_URL not set")
         logger.info("Trying to use VPS API instead...")
         # Fallback to API-based detection
-        from cleanup_trash_embeddings_via_api import find_trash_embeddings_via_search
+        from cleanup_trash_embeddings_via_api import \
+            find_trash_embeddings_via_search
 
         result = await find_trash_embeddings_via_search(
             dry_run=dry_run, verbose=verbose

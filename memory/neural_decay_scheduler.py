@@ -46,11 +46,12 @@ __dora_meta__ = {
 
 import asyncio
 import math
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -148,7 +149,7 @@ class NeuralDecayScheduler:
             Current salience score (0.0-1.0)
         """
         # Clamp initial importance
-        I = max(0.0, min(1.0, initial_importance))
+        importance = max(0.0, min(1.0, initial_importance))
 
         # Calculate time decay: exp(-λt)
         decay_factor = math.exp(-self._config.decay_constant * days_since_access)
@@ -158,7 +159,7 @@ class NeuralDecayScheduler:
         reinforcement = min(reinforcement, self._config.max_reinforcement)
 
         # Calculate final salience
-        salience = I * decay_factor * reinforcement
+        salience = importance * decay_factor * reinforcement
 
         # Clamp to valid range
         return max(0.0, min(1.0, salience))

@@ -15,15 +15,12 @@ Everything runs with local mocks.
 
 import pytest
 
+# Wiring layer (direct imports)
+from core.kernel_wiring.packet_protocol_wiring import (get_allowed_event_types,
+                                                       get_default_channel,
+                                                       get_packet_protocol)
 # Kernel loader (direct import to avoid lazy import issues)
 from runtime.kernel_loader import load_kernel_stack
-
-# Wiring layer (direct imports)
-from core.kernel_wiring.packet_protocol_wiring import (
-    get_packet_protocol,
-    get_allowed_event_types,
-    get_default_channel,
-)
 
 # ------------------------------------------------------------
 # FIXTURES

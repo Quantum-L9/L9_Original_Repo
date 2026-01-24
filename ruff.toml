@@ -1,0 +1,36 @@
+# Ruff Configuration for L9 AI OS
+target-version = "py312"
+line-length = 88  # Black compatibility
+
+[lint]
+select = [
+    "E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "RUF",
+    "ASYNC", "S", "PT", "RET", "ARG",
+]
+ignore = [
+    "E501",    # Line too long (formatter handles)
+    "B008",    # Function call in defaults (FastAPI Depends)
+    "N802",    # Function name lowercase (LangGraph)
+    "S101",    # Assert in tests
+    "S104",    # Bind 0.0.0.0 (containers)
+    "S105", "S106", "S107",  # Hardcoded password false positives
+    "ARG001", "ARG002",  # Unused args (FastAPI/abstract)
+]
+fixable = ["ALL"]
+
+exclude = [
+    ".git", ".venv", "venv", "__pycache__", ".pytest_cache",
+    ".ruff_cache", "build", "dist", ".mypy_cache", "_pack_staging",
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "F403", "E402"]
+"tests/**/*.py" = ["S101", "ARG001"]
+
+[lint.isort]
+known-first-party = ["core", "api", "memory", "agents", "orchestrators", "runtime", "world_model", "tools", "workers"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true

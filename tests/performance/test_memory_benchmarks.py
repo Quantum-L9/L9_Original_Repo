@@ -15,15 +15,10 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from memory.audit_utils import (
-    prepare_packet_for_ingest,
-    normalize_text,
-    normalize_payload,
-    detect_pii_types,
-    redact_pii,
-    detect_injection_markers,
-)
 from core.schemas import PacketEnvelopeIn
+from memory.audit_utils import (detect_injection_markers, detect_pii_types,
+                                normalize_payload, normalize_text,
+                                prepare_packet_for_ingest, redact_pii)
 
 # Skip benchmarks if pytest-benchmark is not installed
 pytest_benchmark_available = True
@@ -33,7 +28,9 @@ except ImportError:
     pytest_benchmark_available = False
 
 
-@pytest.mark.skipif(not pytest_benchmark_available, reason="pytest-benchmark not installed")
+@pytest.mark.skipif(
+    not pytest_benchmark_available, reason="pytest-benchmark not installed"
+)
 class TestAuditBenchmarks:
     """Performance benchmarks for audit utilities."""
 
@@ -73,7 +70,9 @@ class TestAuditBenchmarks:
             },
         )
 
-        result = benchmark(lambda: prepare_packet_for_ingest(packet, redact_pii_enabled=True))
+        result = benchmark(
+            lambda: prepare_packet_for_ingest(packet, redact_pii_enabled=True)
+        )
         assert result[1].redaction_count > 0
 
     @pytest.mark.benchmark(group="normalize")
@@ -171,7 +170,9 @@ class TestAuditPerformanceBaseline:
         import time
 
         large_payload = {
-            "items": [{"text": f"Item {i} with some text content"} for i in range(1000)],
+            "items": [
+                {"text": f"Item {i} with some text content"} for i in range(1000)
+            ],
             "metadata": {"key": "value" * 100},
         }
         packet = PacketEnvelopeIn(

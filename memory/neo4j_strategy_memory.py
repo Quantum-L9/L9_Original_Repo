@@ -49,12 +49,8 @@ from typing import Any, Dict, List, Optional
 import structlog
 
 from core.decorators import must_stay_async
-from memory.strategymemory import (
-    IStrategyMemoryService,
-    StrategyCandidate,
-    StrategyFeedback,
-    StrategyRetrievalRequest,
-)
+from memory.strategymemory import (IStrategyMemoryService, StrategyCandidate,
+                                   StrategyFeedback, StrategyRetrievalRequest)
 
 logger = structlog.get_logger(__name__)
 

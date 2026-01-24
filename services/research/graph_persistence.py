@@ -267,9 +267,11 @@ class ResearchGraphPersistence:
                 finding_id=finding_id,
                 finding_type=finding_type,
                 confidence=params["confidence"],
-                source_query=params["source_query"][:50] + "..."
-                if len(params["source_query"]) > 50
-                else params["source_query"],
+                source_query=(
+                    params["source_query"][:50] + "..."
+                    if len(params["source_query"]) > 50
+                    else params["source_query"]
+                ),
             )
 
             return finding_id

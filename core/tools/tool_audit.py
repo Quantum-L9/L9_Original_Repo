@@ -33,13 +33,14 @@ import json
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, List, Optional
 from uuid import uuid4
 
 import structlog
 
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)

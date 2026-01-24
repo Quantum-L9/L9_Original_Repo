@@ -33,14 +33,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
+from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
-from datetime import datetime
 
+import structlog
+
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelopeIn, PacketWriteResult
 from memory.substrate_service import MemorySubstrateService
-from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 

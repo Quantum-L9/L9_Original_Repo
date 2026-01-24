@@ -41,12 +41,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import sys
-import re
-from pathlib import Path
-from typing import Dict, Any, List
 import asyncio
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Any, Dict, List
+
 import structlog
 from dotenv import load_dotenv
 
@@ -101,8 +102,9 @@ async def query_failure_packets(
         List of dicts with packet_id, error_message, error_type, payload, metadata
     """
     try:
-        import asyncpg
         import json as json_lib
+
+        import asyncpg
 
         conn = await asyncpg.connect(database_url)
         try:
@@ -166,9 +168,11 @@ async def query_failure_packets(
                             "fix_applied": fix_applied,
                             "payload": payload,
                             "metadata": metadata,
-                            "created_at": row["created_at"].isoformat()
-                            if row["created_at"]
-                            else None,
+                            "created_at": (
+                                row["created_at"].isoformat()
+                                if row["created_at"]
+                                else None
+                            ),
                         }
                     )
                 except Exception as e:
@@ -289,7 +293,7 @@ async def main(dry_run: bool = False, verbose: bool = False):
 
     # Initialize memory substrate service
     try:
-        from memory.substrate_service import init_service, close_service
+        from memory.substrate_service import close_service, init_service
 
         service = await init_service(DATABASE_URL)
         logger.info("Memory substrate service initialized")

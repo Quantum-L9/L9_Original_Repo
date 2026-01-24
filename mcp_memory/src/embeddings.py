@@ -31,8 +31,9 @@ __dora_meta__ = {
 
 import asyncio
 import random
-import structlog
 from typing import List
+
+import structlog
 from openai import AsyncOpenAI
 from src.config import settings
 

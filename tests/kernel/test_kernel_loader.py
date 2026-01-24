@@ -11,7 +11,7 @@ from pathlib import Path
 # Add tests directory to path for mock imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "tests"))
 
-from mocks.kernel_mocks import load_kernels, KernelState
+from mocks.kernel_mocks import KernelState, load_kernels
 
 
 def test_loader_runs():
@@ -79,8 +79,9 @@ def test_load_missing_kernel_file():
     # Note: This test verifies error handling when kernel files are missing
     # The actual implementation may raise FileNotFoundError or similar
     try:
-        from pathlib import Path
         import sys
+        from pathlib import Path
+
         from mocks.kernel_mocks import load_kernels
 
         # Attempt to load with non-existent path (if supported)
@@ -108,7 +109,11 @@ def test_load_invalid_yaml_kernel():
         assert ks is not None
     except (ValueError, TypeError, Exception) as e:
         # Expected behavior: invalid YAML should raise appropriate error
-        assert "yaml" in str(e).lower() or "parse" in str(e).lower() or "invalid" in str(e).lower()
+        assert (
+            "yaml" in str(e).lower()
+            or "parse" in str(e).lower()
+            or "invalid" in str(e).lower()
+        )
 
 
 def test_packet_protocol_validation_matches_runtime_order():
@@ -123,7 +128,9 @@ def test_packet_protocol_validation_matches_runtime_order():
     result = validate_packet_protocol_rules()
 
     # Core validation: orders must match
-    assert result["valid"] is True, f"Kernel order validation failed: {result['mismatches']}"
+    assert (
+        result["valid"] is True
+    ), f"Kernel order validation failed: {result['mismatches']}"
     assert result["expected_order"] == result["actual_order"]
     assert result["mismatches"] == []
 

@@ -41,10 +41,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import TYPE_CHECKING, Optional
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-import uuid
+from typing import TYPE_CHECKING, Optional
 
 import structlog
 

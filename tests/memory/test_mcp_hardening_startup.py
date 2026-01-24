@@ -2,6 +2,7 @@
 
 import os
 import sys
+
 import pytest
 
 # Add mcp_memory to path for imports
@@ -14,11 +15,9 @@ os.environ.setdefault("MCP_API_KEY_L", "test-lcto-key-all-scopes")
 os.environ.setdefault("MCP_API_KEY_C", "test-cursor-key-dev-global")
 
 
-from mcp_memory.src.main import (
-    is_non_dev_environment,
-    should_fail_hardening_disabled,
-    should_fail_hardening_disabled_async,
-)
+from mcp_memory.src.main import (is_non_dev_environment,
+                                 should_fail_hardening_disabled,
+                                 should_fail_hardening_disabled_async)
 
 
 def test_is_non_dev_environment():

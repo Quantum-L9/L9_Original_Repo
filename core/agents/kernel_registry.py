@@ -93,11 +93,9 @@ class KernelAwareAgentRegistry:
         """
         try:
             # Import from new two-phase loader (core/kernels/kernelloader.py)
-            from core.kernels.kernelloader import (
-                load_kernels,
-                require_kernel_activation,
-            )
             from agents.l_cto import LCTOAgent
+            from core.kernels.kernelloader import (load_kernels,
+                                                   require_kernel_activation)
 
             logger.info(
                 "kernel_registry: initializing L-CTO with two-phase kernel activation..."

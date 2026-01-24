@@ -41,13 +41,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-import asyncio
-import structlog
+from typing import Any, Dict, List, Optional
+
 import httpx
+import structlog
 from dotenv import load_dotenv
 
 # Add project root to path
@@ -112,12 +113,12 @@ async def query_tool_usage_stats(database_url: str) -> List[Dict[str, Any]]:
                         "total_duration_ms": float(row["total_duration_ms"] or 0),
                         "avg_cost_usd": float(row["avg_cost_usd"] or 0),
                         "total_cost_usd": float(row["total_cost_usd"] or 0),
-                        "first_used": row["first_used"].isoformat()
-                        if row["first_used"]
-                        else None,
-                        "last_used": row["last_used"].isoformat()
-                        if row["last_used"]
-                        else None,
+                        "first_used": (
+                            row["first_used"].isoformat() if row["first_used"] else None
+                        ),
+                        "last_used": (
+                            row["last_used"].isoformat() if row["last_used"] else None
+                        ),
                     }
                 )
 

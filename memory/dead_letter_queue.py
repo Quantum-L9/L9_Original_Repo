@@ -35,11 +35,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import json
-from typing import Any, Dict, List, Optional
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
+from typing import Any, Dict, Optional
+
+import structlog
 
 from core.schemas import PacketEnvelopeIn
 
@@ -55,7 +56,7 @@ logger = structlog.get_logger(__name__)
 class DLQEntry:
     """
     A single entry in the Dead-Letter Queue.
-    
+
     Attributes:
         packet_id: Unique identifier for the packet
         packet_data: Serialized PacketEnvelopeIn
@@ -65,7 +66,7 @@ class DLQEntry:
         last_failed_at: ISO timestamp of most recent failure
         retry_after: ISO timestamp when retry should be attempted
     """
-    
+
     packet_id: str
     packet_data: Dict[str, Any]
     failure_reason: str
@@ -73,11 +74,11 @@ class DLQEntry:
     first_failed_at: str
     last_failed_at: str
     retry_after: str
-    
+
     def to_json(self) -> str:
         """Serialize to JSON for Redis storage."""
         return json.dumps(asdict(self))
-    
+
     @classmethod
     def from_json(cls, json_str: str) -> "DLQEntry":
         """Deserialize from JSON."""
@@ -93,19 +94,19 @@ class DLQEntry:
 class DeadLetterQueue:
     """
     Redis-backed Dead-Letter Queue for failed packet ingestions.
-    
+
     Architecture:
     - Uses Redis LIST for FIFO queue: `queue:dead_letter:memory_ingest`
     - Uses Redis HASH for metadata: `dlq:meta:{packet_id}`
     - Implements exponential backoff for retries
     - Provides observability metrics
-    
+
     Usage:
         dlq = DeadLetterQueue(redis_client)
-        
+
         # Push failed packet
         await dlq.push(packet_envelope, error_message)
-        
+
         # Pop for reprocessing
         entry = await dlq.pop()
         if entry:
@@ -116,27 +117,27 @@ class DeadLetterQueue:
             else:
                 await dlq.requeue(entry, new_error)
     """
-    
+
     # Redis keys
     QUEUE_KEY = "queue:dead_letter:memory_ingest"
     META_KEY_PREFIX = "dlq:meta:"
     STATS_KEY = "dlq:stats"
-    
+
     # Retry configuration
     MAX_RETRIES = 5
     INITIAL_BACKOFF_SECONDS = 60  # 1 minute
     MAX_BACKOFF_SECONDS = 3600  # 1 hour
-    
+
     def __init__(self, redis_client: Any):
         """
         Initialize the Dead-Letter Queue.
-        
+
         Args:
             redis_client: Redis client instance (aioredis or redis-py)
         """
         self._redis = redis_client
         logger.info("DeadLetterQueue initialized")
-    
+
     async def push(
         self,
         packet: PacketEnvelopeIn,
@@ -145,19 +146,19 @@ class DeadLetterQueue:
     ) -> bool:
         """
         Push a failed packet to the DLQ.
-        
+
         Args:
             packet: The packet that failed to ingest
             failure_reason: Error message or reason for failure
             failure_count: Number of times this packet has failed
-        
+
         Returns:
             True if successfully pushed, False otherwise
         """
         try:
             packet_id = str(packet.packet_id) if packet.packet_id else "unknown"
             now = datetime.utcnow().isoformat()
-            
+
             # Calculate retry backoff
             backoff_seconds = min(
                 self.INITIAL_BACKOFF_SECONDS * (2 ** (failure_count - 1)),
@@ -166,7 +167,7 @@ class DeadLetterQueue:
             retry_after = (
                 datetime.utcnow() + timedelta(seconds=backoff_seconds)
             ).isoformat()
-            
+
             # Create DLQ entry
             entry = DLQEntry(
                 packet_id=packet_id,
@@ -177,10 +178,10 @@ class DeadLetterQueue:
                 last_failed_at=now,
                 retry_after=retry_after,
             )
-            
+
             # Push to Redis LIST (FIFO)
             await self._redis.lpush(self.QUEUE_KEY, entry.to_json())
-            
+
             # Store metadata
             meta_key = f"{self.META_KEY_PREFIX}{packet_id}"
             await self._redis.hset(
@@ -193,11 +194,11 @@ class DeadLetterQueue:
                 },
             )
             await self._redis.expire(meta_key, 86400 * 7)  # 7 days TTL
-            
+
             # Update stats
             await self._redis.hincrby(self.STATS_KEY, "total_pushed", 1)
             await self._redis.hincrby(self.STATS_KEY, "current_size", 1)
-            
+
             logger.warning(
                 "dlq.packet_pushed",
                 packet_id=packet_id,
@@ -205,32 +206,32 @@ class DeadLetterQueue:
                 retry_after=retry_after,
                 reason=failure_reason[:100],
             )
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to push to DLQ: {e}", exc_info=True)
             return False
-    
+
     async def pop(self, wait_for_retry: bool = True) -> Optional[DLQEntry]:
         """
         Pop a packet from the DLQ for reprocessing.
-        
+
         Args:
             wait_for_retry: If True, only pop packets whose retry_after has passed
-        
+
         Returns:
             DLQEntry if available, None if queue is empty
         """
         try:
             # Pop from the right (FIFO)
             entry_json = await self._redis.rpop(self.QUEUE_KEY)
-            
+
             if not entry_json:
                 return None
-            
+
             entry = DLQEntry.from_json(entry_json)
-            
+
             # Check if retry time has passed
             if wait_for_retry:
                 retry_after = datetime.fromisoformat(entry.retry_after)
@@ -238,30 +239,30 @@ class DeadLetterQueue:
                     # Not ready yet, push back to queue
                     await self._redis.rpush(self.QUEUE_KEY, entry_json)
                     return None
-            
+
             # Update stats
             await self._redis.hincrby(self.STATS_KEY, "total_popped", 1)
             await self._redis.hincrby(self.STATS_KEY, "current_size", -1)
-            
+
             logger.info(
                 "dlq.packet_popped",
                 packet_id=entry.packet_id,
                 failure_count=entry.failure_count,
             )
-            
+
             return entry
-            
+
         except Exception as e:
             logger.error(f"Failed to pop from DLQ: {e}", exc_info=True)
             return None
-    
+
     async def acknowledge(self, packet_id: str) -> bool:
         """
         Acknowledge successful reprocessing of a packet.
-        
+
         Args:
             packet_id: ID of the successfully reprocessed packet
-        
+
         Returns:
             True if acknowledged, False otherwise
         """
@@ -269,17 +270,17 @@ class DeadLetterQueue:
             # Delete metadata
             meta_key = f"{self.META_KEY_PREFIX}{packet_id}"
             await self._redis.delete(meta_key)
-            
+
             # Update stats
             await self._redis.hincrby(self.STATS_KEY, "total_acknowledged", 1)
-            
+
             logger.info("dlq.packet_acknowledged", packet_id=packet_id)
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to acknowledge DLQ entry: {e}", exc_info=True)
             return False
-    
+
     async def requeue(
         self,
         entry: DLQEntry,
@@ -287,17 +288,17 @@ class DeadLetterQueue:
     ) -> bool:
         """
         Requeue a packet that failed reprocessing.
-        
+
         Args:
             entry: The DLQ entry that failed again
             new_failure_reason: New error message
-        
+
         Returns:
             True if requeued, False if max retries exceeded
         """
         try:
             new_failure_count = entry.failure_count + 1
-            
+
             # Check if max retries exceeded
             if new_failure_count > self.MAX_RETRIES:
                 logger.error(
@@ -306,25 +307,27 @@ class DeadLetterQueue:
                     failure_count=new_failure_count,
                 )
                 await self._redis.hincrby(self.STATS_KEY, "total_dead", 1)
-                
+
                 # Move to permanent dead-letter storage
                 dead_key = f"dlq:dead:{entry.packet_id}"
-                await self._redis.set(dead_key, entry.to_json(), ex=86400 * 30)  # 30 days
-                
+                await self._redis.set(
+                    dead_key, entry.to_json(), ex=86400 * 30
+                )  # 30 days
+
                 return False
-            
+
             # Reconstruct packet and push with incremented count
             packet = PacketEnvelopeIn(**entry.packet_data)
             return await self.push(packet, new_failure_reason, new_failure_count)
-            
+
         except Exception as e:
             logger.error(f"Failed to requeue DLQ entry: {e}", exc_info=True)
             return False
-    
+
     async def get_stats(self) -> Dict[str, int]:
         """
         Get DLQ statistics.
-        
+
         Returns:
             Dictionary with stats: total_pushed, total_popped, total_acknowledged,
             total_dead, current_size
@@ -341,7 +344,7 @@ class DeadLetterQueue:
         except Exception as e:
             logger.error(f"Failed to get DLQ stats: {e}", exc_info=True)
             return {}
-    
+
     async def get_size(self) -> int:
         """Get current size of the DLQ."""
         try:

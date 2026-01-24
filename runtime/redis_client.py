@@ -48,15 +48,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 import os
-from typing import Any, Optional
+from typing import Any
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
 # L's tenant ID for key prefixing - SEPARATE from Cursor's
 # L uses:      L9_TENANT_ID = 'l-cto' (here)
-# Cursor uses: CURSOR_TENANT_ID = 'cursor-ide' (agents/cursor/cursor_memory_kernel.py)
+# Cursor uses: CURSOR_TENANT_ID = 'cursor' (agents/cursor/cursor_memory_kernel.py)
 # This prevents session state cross-contamination when Igor talks to both simultaneously
 DEFAULT_TENANT_ID = os.getenv("L9_TENANT_ID", "l-cto")
 
@@ -82,10 +83,10 @@ class RedisClient:
 
     def __init__(
         self,
-        host: Optional[str] = None,
-        port: Optional[int] = None,
+        host: str | None = None,
+        port: int | None = None,
         db: int = 0,
-        password: Optional[str] = None,
+        password: str | None = None,
         decode_responses: bool = True,
     ):
         """
@@ -109,7 +110,7 @@ class RedisClient:
         self._db = db
         self._password = password or os.getenv("REDIS_PASSWORD")
         self._decode_responses = decode_responses
-        self._client: Optional[aioredis.Redis] = None
+        self._client: aioredis.Redis | None = None
         self._available = False
 
     async def connect(self) -> bool:
@@ -164,7 +165,7 @@ class RedisClient:
         """Check if Redis is available."""
         return self._available and self._client is not None
 
-    def _prefixed_key(self, key: str, tenant_id: Optional[str] = None) -> str:
+    def _prefixed_key(self, key: str, tenant_id: str | None = None) -> str:
         """
         Create a tenant-prefixed key for multi-tenant isolation.
 
@@ -190,7 +191,7 @@ class RedisClient:
         queue_name: str,
         task_data: dict[str, Any],
         priority: int = 5,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Enqueue a task in Redis sorted set (priority queue).
 
@@ -235,7 +236,7 @@ class RedisClient:
             logger.error(f"Redis enqueue failed: {e}")
             return None
 
-    async def dequeue_task(self, queue_name: str) -> Optional[dict[str, Any]]:
+    async def dequeue_task(self, queue_name: str) -> dict[str, Any] | None:
         """
         Dequeue highest priority task from Redis.
 
@@ -422,7 +423,7 @@ class RedisClient:
     # Generic Key-Value Operations (all tenant-prefixed by default)
     # =========================================================================
 
-    async def get(self, key: str, raw: bool = False) -> Optional[str]:
+    async def get(self, key: str, raw: bool = False) -> str | None:
         """
         Get value by key.
 
@@ -441,7 +442,7 @@ class RedisClient:
             return None
 
     async def set(
-        self, key: str, value: str, ttl: Optional[int] = None, raw: bool = False
+        self, key: str, value: str, ttl: int | None = None, raw: bool = False
     ) -> bool:
         """
         Set key-value with optional TTL.
@@ -509,7 +510,7 @@ class RedisClient:
 # Singleton Factory
 # =============================================================================
 
-_redis_client: Optional[RedisClient] = None
+_redis_client: RedisClient | None = None
 
 
 @register_singleton(
@@ -517,7 +518,7 @@ _redis_client: Optional[RedisClient] = None
     lifecycle="startup",
     description="Redis cache/queue client for task queue and rate limiting",
 )
-async def get_redis_client() -> Optional[RedisClient]:
+async def get_redis_client() -> RedisClient | None:
     """
     Get or create singleton Redis client.
 
@@ -542,7 +543,7 @@ async def close_redis_client() -> None:
         _redis_client = None
 
 
-__all__ = ["RedisClient", "get_redis_client", "close_redis_client"]
+__all__ = ["RedisClient", "close_redis_client", "get_redis_client"]
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

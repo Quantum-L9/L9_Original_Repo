@@ -35,14 +35,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from typing import Any
 
-from .instrumentation import (
-    trace_span,
-    trace_tool_call,
-    trace_governance_check,
-)
+import structlog
+
+from .instrumentation import (trace_governance_check, trace_span,
+                              trace_tool_call)
 from .models import SpanKind
 
 logger = structlog.get_logger(__name__)

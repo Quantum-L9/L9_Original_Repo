@@ -23,9 +23,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
+from datetime import UTC
+from typing import Any
+
 import structlog
-from typing import Any, Dict, List
 from pydantic import BaseModel, ValidationError
+
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -34,15 +38,15 @@ logger = structlog.get_logger(__name__)
 class MCPTool(BaseModel):
     name: str
     description: str
-    inputSchema: Dict[str, Any]
+    inputSchema: dict[str, Any]
 
 
 class MCPToolCall(BaseModel):
     name: str
-    arguments: Dict[str, Any]
+    arguments: dict[str, Any]
 
 
-def get_mcp_tools() -> List[MCPTool]:
+def get_mcp_tools() -> list[MCPTool]:
     return [
         MCPTool(
             name="save_memory",
@@ -456,7 +460,7 @@ async def handle_tool_call(
     user_id: str,
     caller: Any = None,
     substrate_service: Any = None,  # Optional: MemorySubstrateService for main pipeline
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Handle MCP tool call with caller-enforced governance.
 
     Args:
@@ -470,29 +474,28 @@ async def handle_tool_call(
         ValidationError: If tool arguments don't match expected schema
         ValueError: If governance rules are violated (e.g., Cursor writing l-private)
     """
-    import time
     import json
+    import time
+
     from src.db import execute
-    from src.models import (
-        SaveMemoryArgs,
-        SearchMemoryArgs,
-        GetMemoryStatsArgs,
-        DeleteExpiredMemoriesArgs,
-        CompoundMemoriesArgs,
+    from src.models import (  # Graph (Neo4j) tool args; Cache (Redis) tool args
         ApplyDecayArgs,
-        GetContextArgs,
-        ExtractSessionLearningsArgs,
-        GetProactiveSuggestionsArgs,
-        QueryTemporalArgs,
-        SaveMemoryWithConfidenceArgs,
-        # Graph (Neo4j) tool args
-        GraphQueryArgs,
-        GraphGetEntityArgs,
-        GraphGetContextArgs,
-        # Cache (Redis) tool args
         CacheGetArgs,
-        CacheSetArgs,
         CacheGetSessionContextArgs,
+        CacheSetArgs,
+        CompoundMemoriesArgs,
+        DeleteExpiredMemoriesArgs,
+        ExtractSessionLearningsArgs,
+        GetContextArgs,
+        GetMemoryStatsArgs,
+        GetProactiveSuggestionsArgs,
+        GraphGetContextArgs,
+        GraphGetEntityArgs,
+        GraphQueryArgs,
+        QueryTemporalArgs,
+        SaveMemoryArgs,
+        SaveMemoryWithConfidenceArgs,
+        SearchMemoryArgs,
     )
 
     # Extract caller metadata for enforcement
@@ -500,8 +503,9 @@ async def handle_tool_call(
     creator = caller.creator if caller else "unknown"
     source = caller.source if caller else "unknown"
 
-    # Determine project_id (default: 'l9' for developer/l-private scope)
-    project_id = "l9"  # Default for L9 repo
+    # GMP-JSONB-GOV-FIX: Get project_id from env var (not hardcoded)
+    # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
+    project_id = os.getenv("L9_PROJECT_ID", "l9")
 
     # Track execution time for audit
     start_time = time.time()
@@ -599,6 +603,7 @@ async def handle_tool_call(
                 # L can explicitly request l-private, but default includes it
                 pass  # Don't auto-add, respect explicit request
 
+            # GMP-JSONB-GOV-FIX: Pass project_id from env var for project isolation
             result = await search_memory_handler(
                 user_id=user_id,
                 query=validated_args.query,
@@ -606,11 +611,14 @@ async def handle_tool_call(
                 kinds=validated_args.kinds,
                 top_k=validated_args.top_k or 5,
                 # FIX: threshold=0.0 is valid (no filtering), don't treat as falsy
-                threshold=validated_args.threshold
-                if validated_args.threshold is not None
-                else 0.7,
+                threshold=(
+                    validated_args.threshold
+                    if validated_args.threshold is not None
+                    else 0.7
+                ),
                 duration=validated_args.duration or "all",
                 caller_id=caller_id,  # Perplexity: pass caller for audit logging
+                project_id=project_id,  # From env: L9_PROJECT_ID
             )
         elif tool.name == "get_memory_stats":
             from src.routes.memory_unified import get_memory_stats
@@ -623,9 +631,11 @@ async def handle_tool_call(
             from src.routes.memory_unified import delete_expired_memories
 
             result = await delete_expired_memories(
-                dry_run=validated_args.dry_run
-                if validated_args.dry_run is not None
-                else True
+                dry_run=(
+                    validated_args.dry_run
+                    if validated_args.dry_run is not None
+                    else True
+                )
             )
         elif tool.name == "compound_memories":
             from src.routes.memory_unified import compound_similar_memories
@@ -638,9 +648,11 @@ async def handle_tool_call(
             from src.routes.memory_unified import apply_importance_decay
 
             result = await apply_importance_decay(
-                dry_run=validated_args.dry_run
-                if validated_args.dry_run is not None
-                else True
+                dry_run=(
+                    validated_args.dry_run
+                    if validated_args.dry_run is not None
+                    else True
+                )
             )
         # =============================================================================
         # 10x Memory Upgrade Tool Handlers
@@ -655,9 +667,11 @@ async def handle_tool_call(
                 task_description=validated_args.task_description,
                 user_id=user_id,
                 top_k=validated_args.top_k or 5,
-                include_recent=validated_args.include_recent
-                if validated_args.include_recent is not None
-                else True,
+                include_recent=(
+                    validated_args.include_recent
+                    if validated_args.include_recent is not None
+                    else True
+                ),
                 kinds=validated_args.kinds,
                 allowed_scopes=allowed_scopes,
                 caller_id=caller_id,
@@ -687,12 +701,16 @@ async def handle_tool_call(
             result = await get_proactive_suggestions(
                 current_context=validated_args.current_context,
                 user_id=user_id,
-                include_error_fixes=validated_args.include_error_fixes
-                if validated_args.include_error_fixes is not None
-                else True,
-                include_preferences=validated_args.include_preferences
-                if validated_args.include_preferences is not None
-                else True,
+                include_error_fixes=(
+                    validated_args.include_error_fixes
+                    if validated_args.include_error_fixes is not None
+                    else True
+                ),
+                include_preferences=(
+                    validated_args.include_preferences
+                    if validated_args.include_preferences is not None
+                    else True
+                ),
                 top_k=validated_args.top_k or 3,
                 allowed_scopes=allowed_scopes,
             )
@@ -855,8 +873,9 @@ async def handle_tool_call(
         # =============================================================================
         elif tool.name == "cache_get":
             try:
-                from api.memory.cache import get_redis
                 import json as json_lib
+
+                from api.memory.cache import get_redis
 
                 client = await get_redis()
                 if client is None or not client.is_available():
@@ -879,8 +898,9 @@ async def handle_tool_call(
 
         elif tool.name == "cache_set":
             try:
-                from api.memory.cache import get_redis
                 import json as json_lib
+
+                from api.memory.cache import get_redis
 
                 client = await get_redis()
                 if client is None or not client.is_available():
@@ -905,10 +925,11 @@ async def handle_tool_call(
 
         elif tool.name == "cache_get_session_context":
             try:
-                from api.memory.cache import get_redis
                 import json as json_lib
                 import uuid
                 from datetime import datetime, timezone
+
+                from api.memory.cache import get_redis
 
                 client = await get_redis()
                 if client is None or not client.is_available():
@@ -921,7 +942,7 @@ async def handle_tool_call(
                         CURSOR_SESSION_NAMESPACE = uuid.UUID(
                             "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
                         )
-                        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                        today = datetime.now(UTC).strftime("%Y-%m-%d")
                         session_id = str(
                             uuid.uuid5(
                                 CURSOR_SESSION_NAMESPACE, f"cursor-session-{today}"
@@ -987,9 +1008,11 @@ async def handle_tool_call(
                     caller_id,
                     project_id,
                     json.dumps(tool.arguments),
-                    json.dumps(result)
-                    if result
-                    else json.dumps({"error": "No result"}),
+                    (
+                        json.dumps(result)
+                        if result
+                        else json.dumps({"error": "No result"})
+                    ),
                     duration_ms,
                 )
             except Exception as audit_err:
