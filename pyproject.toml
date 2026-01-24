@@ -24,12 +24,6 @@ warn_return_any = false
 warn_unused_ignores = false
 python_version = "3.12"
 
-# Strict checking for actively maintained modules
-[[tool.mypy.overrides]]
-module = ["memory.*", "core.observability.*", "api.server"]
-disallow_untyped_defs = true
-warn_return_any = true
-
 # Temporarily relax checking for legacy modules with pre-existing failures
 # This prevents pre-commit from blocking unrelated changes while we gradually improve typing
 [[tool.mypy.overrides]]

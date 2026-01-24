@@ -6,6 +6,8 @@ Thin repository for Postgres + pgvector database access.
 Provides async functions for all memory substrate operations.
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Repository Layer",

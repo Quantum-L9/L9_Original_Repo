@@ -119,23 +119,40 @@ def discover_from_packages() -> int:
     which causes their @register_tool decorators to execute
     and register tools with the tool_executor_registry.
 
+    Skips packages already imported (avoids duplicate registration).
+
     Returns:
         Number of packages successfully imported
     """
+    import sys
+
+    from core.auto_registry import DuplicateRegistrationError
     from runtime.tool_registry import tool_executor_registry
 
     imported = 0
+    skipped = 0
     for package in TOOL_PACKAGES:
+        # Skip if already imported (tools already registered via decorator)
+        if package in sys.modules:
+            logger.debug("tool_package_already_imported", package=package)
+            skipped += 1
+            continue
+
         try:
             count = tool_executor_registry.discover(package, recursive=False)
             logger.info("tool_package_discovered", package=package, tools=count)
             imported += 1
         except ImportError as e:
             logger.warning("tool_package_import_failed", package=package, error=str(e))
+        except DuplicateRegistrationError as e:
+            # Tools already registered from this package (race condition or re-import)
+            logger.debug("tool_package_already_registered", package=package, error=str(e))
+            skipped += 1
 
     logger.info(
         "tool_packages_discovery_complete",
         packages_imported=imported,
+        packages_skipped=skipped,
         total_packages=len(TOOL_PACKAGES),
     )
     return imported
