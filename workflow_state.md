@@ -48,6 +48,9 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-24] **✅ GMP-122 Complete** — Status: PASS. Report: `reports/GMP-Report-122-*.md`
+- [2026-01-24] **GMP-122 Started** — Tool packages infrastructure + redis_tools proof-of-concept
+- [2026-01-24] **✅ GMP-121 Complete** — Status: PASS. Report: `reports/GMP-Report-121-*.md`
 - [2026-01-24] **PR #58 Partial** — CI Marketplace (5 files adopted): codecov.yml, coderabbit.yaml, sonar-project.properties, .datree-policy.yaml, tests/test_ci_configuration.py. Deferred: strict linting (ADR-0062).
 - [2026-01-24] **PR #45 Closed** — Anti-Pattern Tests (100% adopted). Gate 14 + 6 tests for frozen model mutation, hardcoded paths, bare except, print(), stdlib logging.
 - [2026-01-24] **PR #52 Closed** — DI/DIP Three-Track (70% adopted). `MemorySubstrateContainer`, runtime config, substrate protocols. Skipped: `core/abstractions/`, PR docs.
