@@ -380,7 +380,7 @@ class ReasoningReplayPipeline:
         # In production, would query packetstore with agent_id filter
         orphaned = []
 
-        # TODO: Implement actual orphan detection query
+        # TODO(GMP-119): Implement actual orphan detection query
         # For now, return empty list
         logger.warning("Orphan detection not fully implemented", agent_id=agent_id)
 

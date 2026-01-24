@@ -357,7 +357,7 @@ class ConsolidationPipeline:
                 for row in rows:
                     packet_id = row["packet_id"]
                     # Archive packet (move to archive table)
-                    # TODO: Implement actual archival logic
+                    # TODO(GMP-118): Implement actual archival logic
                     logger.debug("Would archive packet", packet_id=str(packet_id))
                     archived += 1
 

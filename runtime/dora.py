@@ -264,7 +264,7 @@ def update_dora_block_in_file(
             logger.info(f"dora.update_block: updated {file_path}")
             return True
 
-        # TODO: Add YAML and JSON support
+        # TODO(GMP-117): Add YAML and JSON support
         logger.debug(f"dora.update_block: {suffix} support not yet implemented")
         return False
 

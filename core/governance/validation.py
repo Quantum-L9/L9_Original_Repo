@@ -48,7 +48,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 # In-memory audit trail (for drift detection)
-# TODO: Migrate to MemorySubstrateService for persistence
+# TODO(GMP-100): Migrate to MemorySubstrateService for persistence
 _audit_trail: deque = deque(maxlen=1000)
 
 # =============================================================================

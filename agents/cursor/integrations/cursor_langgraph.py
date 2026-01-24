@@ -426,7 +426,7 @@ class CursorDecisionGateNode:
         logger.info("High-impact decision detected, escalating to Igor")
         try:
             escalation_result = await self._approval_gate.escalate_to_igor(
-                decision_packet=None  # TODO: Build PacketEnvelope from decision
+                decision_packet=None  # TODO(GMP-120): Build PacketEnvelope from decision
             )
 
             # Handle governance result
@@ -494,7 +494,7 @@ def build_cursor_langgraph(
 
     # Compile with checkpoint manager (if provided)
     if hasattr(deps, "checkpoint_manager") and deps.checkpoint_manager:
-        # TODO: Wire checkpoint manager
+        # TODO(GMP-121): Wire checkpoint manager
         pass
 
     return graph.compile()
