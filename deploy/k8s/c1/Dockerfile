@@ -59,6 +59,8 @@ COPY orchestrators/ ./orchestrators/
 COPY telemetry/ ./telemetry/
 COPY world_model/ ./world_model/
 COPY private/ ./private/
+# Copy SQL migrations for memory substrate
+COPY migrations/ ./migrations/
 
 # Create necessary directories
 RUN mkdir -p /app/logs /app/data && \
