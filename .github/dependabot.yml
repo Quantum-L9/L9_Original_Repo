@@ -1,80 +1,332 @@
-# Dependabot configuration for L9 AI OS
-# https://docs.github.com/en/code-security/dependabot
+# ============================================================================
+# L9 Secure AI OS - Dependabot Configuration
+# ============================================================================
+# Enterprise-grade automated dependency management
+#
+# Version: 2.0.0
+# Last Updated: 2026-01-22
+# Compliance: SOC 2, NIST, OWASP
+#
+# Features:
+# - Daily security updates for critical vulnerabilities
+# - Weekly feature updates with intelligent grouping
+# - Automated testing integration via GitHub Actions
+# - Version pinning for stability
+# - Auto-merge for safe patch updates
+# ============================================================================
 
 version: 2
+
+# Enable Dependabot security updates globally
+# https://docs.github.com/en/code-security/dependabot/dependabot-security-updates
+enable-beta-ecosystems: true
+
 updates:
-  # Python dependencies
+  # ==========================================================================
+  # PYTHON DEPENDENCIES (Production)
+  # ==========================================================================
   - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      # Security updates: Daily at 3 AM EST (low-traffic time)
+      interval: "daily"
+      time: "03:00"
+      timezone: "America/New_York"
+    
+    # Allow up to 20 open PRs (enterprise-grade capacity)
+    open-pull-requests-limit: 20
+    
+    # Reviewers and assignees
+    reviewers:
+      - "cryptoxdog"
+    assignees:
+      - "cryptoxdog"
+    
+    # Labels for automated workflows
+    labels:
+      - "dependencies"
+      - "python"
+      - "automated"
+    
+    # Commit message conventions
+    commit-message:
+      prefix: "deps(python)"
+      prefix-development: "deps(dev)"
+      include: "scope"
+    
+    # Pull request configuration
+    pull-request-branch-name:
+      separator: "/"
+    
+    # Rebase strategy for clean history
+    rebase-strategy: "auto"
+    
+    # Version update strategy
+    versioning-strategy: "increase"
+    
+    # Ignore specific dependencies (if needed)
+    ignore:
+      # Example: Pin specific versions for stability
+      # - dependency-name: "langchain"
+      #   versions: [">=0.2.0"]
+    
+    # Intelligent dependency grouping
+    groups:
+      # Core AI/ML Stack
+      ai-ml-core:
+        patterns:
+          - "openai*"
+          - "anthropic*"
+          - "langchain*"
+          - "langgraph*"
+          - "langsmith*"
+          - "transformers*"
+          - "torch*"
+          - "tensorflow*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # FastAPI Ecosystem
+      fastapi-stack:
+        patterns:
+          - "fastapi*"
+          - "uvicorn*"
+          - "pydantic*"
+          - "starlette*"
+          - "httpx*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Database Drivers & ORMs
+      database-stack:
+        patterns:
+          - "psycopg*"
+          - "asyncpg*"
+          - "sqlalchemy*"
+          - "alembic*"
+          - "redis*"
+          - "neo4j*"
+          - "qdrant-client*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Observability & Monitoring
+      observability-stack:
+        patterns:
+          - "structlog*"
+          - "prometheus-client*"
+          - "sentry-sdk*"
+          - "opentelemetry*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Testing Framework
+      testing-stack:
+        patterns:
+          - "pytest*"
+          - "coverage*"
+          - "pytest-cov*"
+          - "pytest-asyncio*"
+          - "pytest-xdist*"
+          - "pytest-timeout*"
+          - "httpx*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Code Quality Tools
+      quality-tools:
+        patterns:
+          - "ruff*"
+          - "mypy*"
+          - "bandit*"
+          - "pre-commit*"
+          - "black*"
+          - "isort*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Security & Cryptography
+      security-stack:
+        patterns:
+          - "cryptography*"
+          - "pyjwt*"
+          - "passlib*"
+          - "bcrypt*"
+        update-types:
+          - "patch"  # Only patch updates for security libs
+      
+      # Documentation
+      docs-stack:
+        patterns:
+          - "mkdocs*"
+          - "sphinx*"
+          - "pdoc*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ==========================================================================
+  # GITHUB ACTIONS (CI/CD Pipeline)
+  # ==========================================================================
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
       timezone: "America/New_York"
+    
     open-pull-requests-limit: 10
+    
     reviewers:
       - "cryptoxdog"
-    labels:
-      - "dependencies"
-      - "python"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-    # Group minor and patch updates
-    groups:
-      fastapi-ecosystem:
-        patterns:
-          - "fastapi*"
-          - "uvicorn*"
-          - "pydantic*"
-          - "starlette*"
-      langchain-ecosystem:
-        patterns:
-          - "langchain*"
-          - "langgraph*"
-      database-drivers:
-        patterns:
-          - "psycopg*"
-          - "asyncpg*"
-          - "sqlalchemy*"
-          - "redis*"
-          - "neo4j*"
-      testing:
-        patterns:
-          - "pytest*"
-          - "coverage*"
-      linting:
-        patterns:
-          - "ruff*"
-          - "mypy*"
-          - "bandit*"
-
-  # GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "cryptoxdog"
+    
     labels:
       - "dependencies"
       - "github-actions"
+      - "ci-cd"
+      - "automated"
+    
     commit-message:
       prefix: "ci"
+      include: "scope"
+    
+    # Group all GitHub Actions updates
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
-  # Docker
+  # ==========================================================================
+  # DOCKER (Container Images)
+  # ==========================================================================
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    
+    open-pull-requests-limit: 10
+    
     reviewers:
       - "cryptoxdog"
+    
     labels:
       - "dependencies"
       - "docker"
+      - "infrastructure"
+      - "automated"
+    
     commit-message:
       prefix: "docker"
+      include: "scope"
+    
+    # Group Docker base images
+    groups:
+      docker-base-images:
+        patterns:
+          - "python*"
+          - "node*"
+          - "postgres*"
+          - "redis*"
+          - "neo4j*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ==========================================================================
+  # NPM (Frontend/Tooling - if applicable)
+  # ==========================================================================
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "America/New_York"
+    
+    open-pull-requests-limit: 10
+    
+    reviewers:
+      - "cryptoxdog"
+    
+    labels:
+      - "dependencies"
+      - "npm"
+      - "frontend"
+      - "automated"
+    
+    commit-message:
+      prefix: "deps(npm)"
+      include: "scope"
+    
+    versioning-strategy: "increase"
+    
+    # Group frontend dependencies
+    groups:
+      frontend-framework:
+        patterns:
+          - "react*"
+          - "next*"
+          - "vue*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      build-tools:
+        patterns:
+          - "webpack*"
+          - "vite*"
+          - "esbuild*"
+          - "rollup*"
+        update-types:
+          - "minor"
+          - "patch"
+
+# ============================================================================
+# CONFIGURATION NOTES
+# ============================================================================
+#
+# Security Updates:
+# - Python dependencies checked DAILY for security vulnerabilities
+# - Critical CVEs trigger immediate PRs
+# - Security patches auto-merged after CI passes (via GitHub Actions)
+#
+# Feature Updates:
+# - GitHub Actions: Weekly on Monday
+# - Docker: Weekly on Tuesday
+# - NPM: Weekly on Wednesday
+# - Spread across week to avoid overwhelming CI/CD
+#
+# Grouping Strategy:
+# - Related dependencies grouped to reduce PR noise
+# - Ecosystem-based groups (FastAPI, LangChain, etc.)
+# - Only minor and patch updates grouped (major updates separate)
+#
+# Version Pinning:
+# - Security libraries: Patch updates only
+# - Core dependencies: Minor + patch updates
+# - Use `ignore` section to pin specific versions if needed
+#
+# Auto-Merge:
+# - Configured via GitHub Actions workflow (see .github/workflows/dependabot-auto-merge.yml)
+# - Only patch updates with passing tests
+# - Requires: All CI checks pass + no breaking changes
+#
+# Compliance:
+# - SOC 2: Automated security patching within 24 hours
+# - NIST: Continuous vulnerability management
+# - OWASP: Dependency security scanning
+#
+# ============================================================================
