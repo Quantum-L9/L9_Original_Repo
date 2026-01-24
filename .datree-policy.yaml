@@ -1,0 +1,23 @@
+policies:
+  - name: "L9 Configuration Policy"
+    rules:
+      - identifier: "WORKFLOWRULES_001"
+        messageOnFailure: "All workflow jobs must have timeout-minutes"
+        severity: error
+        match:
+          resources: ["WorkflowFile"]
+          selector: ["$.jobs[*].timeout-minutes"]
+
+      - identifier: "WORKFLOWRULES_002"
+        messageOnFailure: "GitHub Actions must use concrete versions (no @latest)"
+        severity: error
+        match:
+          resources: ["WorkflowFile"]
+          selector: ["$.jobs[*].steps[*].uses"]
+
+      - identifier: "COMPOSERULES_001"
+        messageOnFailure: "Services must have resource limits"
+        severity: warning
+        match:
+          resources: ["ComposeFile"]
+          selector: ["$.services[*].deploy.resources.limits"]
