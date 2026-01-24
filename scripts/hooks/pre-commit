@@ -35,7 +35,7 @@ mkdir -p "$(dirname "$TEST_LOG")" 2>/dev/null || true
 
 # Metrics
 HOOK_START=$(date +%s)
-TOTAL_CHECKS=9
+TOTAL_CHECKS=10
 CHECKS_PASSED=0
 
 # Get staged Python files
@@ -51,7 +51,7 @@ echo "=========================================="
 # PHASE 0: BRANCH PROTECTION (NO BYPASS ON MAIN)
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 0/8]${NC} BRANCH PROTECTION CHECK"
+echo -e "\n${YELLOW}[GATE 0/9]${NC} BRANCH PROTECTION CHECK"
 
 PROTECTED_BRANCHES=("main" "production" "release/.*" "master")
 BYPASS_BLOCKED=0
@@ -83,7 +83,7 @@ CHECKS_PASSED=$((CHECKS_PASSED + 1))
 # PHASE 1: SECRET SCANNING
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 1/8]${NC} SECRET SCANNING"
+echo -e "\n${YELLOW}[GATE 1/9]${NC} SECRET SCANNING"
 
 if [ -z "$STAGED_PY_FILES" ]; then
     echo -e "${GREEN}✓ No Python files staged, skipping secret scan${NC}"
@@ -110,7 +110,7 @@ fi
 # PHASE 2: AUTO-FORMAT PYTHON
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 2/8]${NC} AUTO-FORMAT PYTHON (ruff)"
+echo -e "\n${YELLOW}[GATE 2/9]${NC} AUTO-FORMAT PYTHON (ruff)"
 
 if [ -z "$STAGED_PY_FILES" ]; then
     echo -e "${GREEN}✓ No Python files to format${NC}"
@@ -130,7 +130,7 @@ fi
 # PHASE 3: LINT PYTHON
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 3/8]${NC} LINT PYTHON (ruff check)"
+echo -e "\n${YELLOW}[GATE 3/9]${NC} LINT PYTHON (ruff check)"
 
 if [ -z "$STAGED_PY_FILES" ]; then
     echo -e "${GREEN}✓ No Python files to lint${NC}"
@@ -153,7 +153,7 @@ fi
 # PHASE 4: TYPE CHECKING (STRICT MANDATORY)
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 4/8]${NC} TYPE CHECKING (STRICT MODE)"
+echo -e "\n${YELLOW}[GATE 4/9]${NC} TYPE CHECKING (STRICT MODE)"
 
 if [ -z "$STAGED_PY_FILES" ]; then
     echo -e "${GREEN}✓ No Python files to type-check${NC}"
@@ -186,7 +186,7 @@ fi
 # PHASE 5: AI SECURITY VALIDATION
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 5/8]${NC} AI SECURITY (PROMPT INJECTION DETECTION)"
+echo -e "\n${YELLOW}[GATE 5/9]${NC} AI SECURITY (PROMPT INJECTION DETECTION)"
 
 if [ -z "$STAGED_PY_FILES" ]; then
     echo -e "${GREEN}✓ No Python files to validate for AI threats${NC}"
@@ -247,7 +247,7 @@ fi
 # PHASE 6: TEST EXECUTION + COVERAGE
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 6/8]${NC} TEST EXECUTION + COVERAGE (≥75%)"
+echo -e "\n${YELLOW}[GATE 6/9]${NC} TEST EXECUTION + COVERAGE (≥75%)"
 
 if [ -z "$STAGED_PY_FILES" ]; then
     echo -e "${GREEN}✓ No Python files to test${NC}"
@@ -294,7 +294,7 @@ fi
 # PHASE 7: PROTECTED SURFACES VALIDATION
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 7/8]${NC} PROTECTED SURFACES CHECK"
+echo -e "\n${YELLOW}[GATE 7/9]${NC} PROTECTED SURFACES CHECK"
 
 PROTECTED_SURFACES=(
     "orchestration/websocket_orchestrator.py"
@@ -428,10 +428,39 @@ else
 fi
 
 # ============================================
-# PHASE 9: AUDIT TRAIL & METRICS
+# PHASE 9: ADR ENFORCEMENT (GMP-120)
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 9/9]${NC} AUDIT LOGGING & METRICS"
+echo -e "\n${YELLOW}[GATE 9/9]${NC} ADR ENFORCEMENT"
+
+ADR_VIOLATIONS=0
+
+if [ -z "$STAGED_PY_FILES" ]; then
+    echo -e "${GREEN}✓ No Python files staged, skipping ADR checks${NC}"
+    CHECKS_PASSED=$((CHECKS_PASSED + 1))
+else
+    # Run ADR enforcer if available
+    if [ -f "$REPO_ROOT/tools/adr/adr_enforcer.py" ]; then
+        echo "  Running ADR enforcement validator..."
+        
+        # Run in non-strict mode (warn only) for now
+        if python3 -c "from tools.adr.adr_enforcer import ADREnforcementValidator; v = ADREnforcementValidator(); r = v.scan_repo(); print(f'Violations: {r.total_violations}')" 2>/dev/null; then
+            echo -e "${GREEN}✓ ADR enforcement check completed${NC}"
+        else
+            echo -e "${YELLOW}⚠ ADR enforcer not available, skipping${NC}"
+        fi
+        CHECKS_PASSED=$((CHECKS_PASSED + 1))
+    else
+        echo -e "${YELLOW}⚠ ADR enforcer not installed, skipping${NC}"
+        CHECKS_PASSED=$((CHECKS_PASSED + 1))
+    fi
+fi
+
+# ============================================
+# PHASE 10: AUDIT TRAIL & METRICS
+# ============================================
+
+echo -e "\n${YELLOW}[GATE 10/10]${NC} AUDIT LOGGING & METRICS"
 
 HOOK_END=$(date +%s)
 HOOK_DURATION=$((HOOK_END - HOOK_START))

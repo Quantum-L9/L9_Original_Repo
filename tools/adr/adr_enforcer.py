@@ -117,7 +117,11 @@ class ADREnforcementValidator:
 
     def _read(self, path: Path) -> str:
         if path not in self._file_cache:
-            self._file_cache[path] = path.read_text(encoding="utf-8", errors="ignore")
+            # Guard against directories named .py (edge case)
+            if not path.is_file():
+                self._file_cache[path] = ""
+            else:
+                self._file_cache[path] = path.read_text(encoding="utf-8", errors="ignore")
         return self._file_cache[path]
 
     def _should_skip(self, path: Path) -> bool:
@@ -189,7 +193,8 @@ class ADREnforcementValidator:
         graph: dict[str, set[str]] = {}
 
         for py_file in self.repo_root.rglob("*.py"):
-            if self._should_skip(py_file):
+            # Skip directories named .py (edge case) and skipped paths
+            if not py_file.is_file() or self._should_skip(py_file):
                 continue
 
             rel = py_file.relative_to(self.repo_root)
@@ -535,7 +540,8 @@ class ADREnforcementValidator:
         files_scanned = 0
 
         for py in sorted(self.repo_root.rglob("*.py")):
-            if self._should_skip(py):
+            # Skip directories named .py (edge case) and skipped paths
+            if not py.is_file() or self._should_skip(py):
                 continue
             files_scanned += 1
             all_violations.extend(self.scan_file(py))
