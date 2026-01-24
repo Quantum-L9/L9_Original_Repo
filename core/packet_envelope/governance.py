@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 upgrades/packet_envelope/governance.py
 TTL enforcement, GDPR right-to-delete, compliance exports
@@ -95,6 +96,7 @@ class DataRetentionConfig:
     require_approval_for_delete: bool = True
 
 
+@singleton
 class RetentionManager:
     """
     Manages data retention and TTL enforcement

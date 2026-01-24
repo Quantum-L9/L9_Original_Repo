@@ -14,6 +14,8 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 from core.singleton_auto_registry import (register_singleton,
                                           register_singleton_closer)
@@ -72,6 +74,7 @@ except ImportError:
     )
 
 
+@singleton
 class Neo4jClient:
     """
     Production Neo4j client with connection management.

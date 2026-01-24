@@ -17,6 +17,7 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -78,6 +79,7 @@ class SubstrateProtocol(Protocol):
 # =============================================================================
 
 
+@singleton
 class GovernanceEngineService:
     """
     Stateless policy evaluation engine.

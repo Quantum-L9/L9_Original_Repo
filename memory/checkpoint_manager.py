@@ -7,6 +7,8 @@ API suitable for LangGraph graphs and agent controllers.
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -34,6 +36,7 @@ from typing import Any, Optional
 from memory.substrate_service import MemorySubstrateService
 
 
+@singleton
 class CheckpointManager:
     """
     Simple manager for saving/loading checkpoints per agent.

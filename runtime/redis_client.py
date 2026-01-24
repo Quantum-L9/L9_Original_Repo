@@ -14,6 +14,8 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -75,6 +77,7 @@ except ImportError:
     logger.warning("Redis not available - install with: pip install redis>=5.0.0")
 
 
+@singleton
 class RedisClient:
     """
     Production Redis client with connection pooling.

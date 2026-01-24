@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 L9 Memory Substrate - Service Layer
 Version: 1.0.0
@@ -78,6 +79,7 @@ from telemetry.memory_metrics import (record_memory_ingest,
 logger = structlog.get_logger(__name__)
 
 
+@singleton
 class MemorySubstrateService:
     """
     Main service class for the Memory Substrate.

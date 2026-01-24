@@ -6,6 +6,8 @@ Purpose: Audit trail for all tool executions with cost estimation.
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -94,6 +96,7 @@ class ToolCostEstimator:
         return base_cost + token_cost
 
 
+@singleton
 class ToolAuditService:
     """Audit trail for all tool executions"""
 

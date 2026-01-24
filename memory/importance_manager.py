@@ -12,6 +12,8 @@ Based on frontier AI lab patterns for adaptive memory management.
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -126,6 +128,7 @@ class ImportanceUpdate:
 # =============================================================================
 
 
+@singleton
 class ImportanceManager:
     """
     Manages dynamic importance scores for memory facts.

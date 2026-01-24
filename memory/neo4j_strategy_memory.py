@@ -18,6 +18,8 @@ GMP: GMP-102 Strategy Memory Phase 0-1
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -87,6 +89,7 @@ class StrategyMemoryConfig:
 # =============================================================================
 
 
+@singleton
 class Neo4jStrategyMemoryService(IStrategyMemoryService):
     """
     Production Neo4j-backed Strategy Memory Service.

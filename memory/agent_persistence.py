@@ -14,6 +14,8 @@ Responsibilities:
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -78,6 +80,7 @@ class Checkpoint:
         self.created_at = created_at
 
 
+@singleton
 class AgentPersistenceService:
     """
     Agent persistence service for checkpoint management.

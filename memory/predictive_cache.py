@@ -16,6 +16,8 @@ Research source: Perplexity deep_research (2026-01-15)
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -96,6 +98,7 @@ except ImportError:
     logger.warning("prometheus_client not available - metrics disabled")
 
 
+@singleton
 class PredictiveCache:
     """
     Redis-backed predictive cache for knowledge graph entities.

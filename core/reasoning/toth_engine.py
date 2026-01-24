@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 L9 Production ToTh Engine
 Production-ready ToTh integration using cloud APIs and lightweight ML libraries
@@ -176,6 +177,7 @@ class FormalReasoningGraph:
             path.append((data['conclusion'], data['confidence']))
         return path
 
+@singleton
 class CloudModelClient:
     """Client for cloud-based language models"""
     

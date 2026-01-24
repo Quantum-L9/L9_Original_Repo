@@ -7,6 +7,8 @@ for a given agent. Built on top of SubstrateRepository.get_memory_events.
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -35,6 +37,7 @@ from memory.substrate_models import AgentMemoryEventRow
 from memory.substrate_repository import SubstrateRepository
 
 
+@singleton
 class TimelineService:
     """
     Read-only service for reconstructing an agent's memory timeline.

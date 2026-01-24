@@ -14,6 +14,8 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -88,6 +90,7 @@ class SecurityAlert:
         }
 
 
+@singleton
 class SecurityAlertService:
     """
     Security alert service for L9.

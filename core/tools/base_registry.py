@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 L9 Core Tools - Base Registry
 Version: 2.1.0
@@ -171,6 +172,7 @@ class RateLimitWindow:
             self._calls.clear()
 
 
+@singleton
 class ToolRegistry:
     """
     In-memory registry of available tools.

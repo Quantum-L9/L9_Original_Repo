@@ -14,6 +14,7 @@ GMP: kernel_boot_frontier_phase1
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -58,6 +59,7 @@ logger = structlog.get_logger(__name__)
 USE_KERNELS = os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes")
 
 
+@singleton
 class KernelAwareAgentRegistry:
     """
     Agent registry that integrates kernel loading.

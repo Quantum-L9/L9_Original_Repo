@@ -9,6 +9,7 @@ Implements Decision 3 + Decision 6 from design clarifications.
 from __future__ import annotations
 
 # ============================================================================
+from core.patterns.singleton import singleton
 __dora_meta__ = {
     "component_name": "Cursor Checkpoint Manager",
     "module_version": "1.0.0",
@@ -45,6 +46,7 @@ from memory.checkpoint.postgres_saver import L9PostgresSaver
 logger = structlog.get_logger(__name__)
 
 
+@singleton
 class CursorCheckpointManager:
     """
     Dual checkpoint manager per Decision 3 + Decision 6.

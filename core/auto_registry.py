@@ -19,6 +19,7 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -87,6 +88,7 @@ class ValidationError(RegistryError):
 # =============================================================================
 
 
+@singleton
 class AutoRegistry(Generic[T]):
     """
     Generic auto-discovery and registration system for L9 components.

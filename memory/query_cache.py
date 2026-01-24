@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 Query Result Caching Module
 
@@ -20,6 +21,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+@singleton
 class QueryCache:
     """
     Query result caching with TTL and LRU strategies.

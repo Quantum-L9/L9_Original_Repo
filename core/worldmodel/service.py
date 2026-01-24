@@ -9,6 +9,8 @@ Version: 1.0.0 (GMP-18)
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -52,6 +54,7 @@ from core.worldmodel.l9_schema import (ConnectionStatus, EntityType,
 logger = structlog.get_logger(__name__)
 
 
+@singleton
 class WorldModelService:
     """
     Service for L9 world model operations.

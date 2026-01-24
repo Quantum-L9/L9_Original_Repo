@@ -21,6 +21,7 @@ ARCHITECTURE NOTE (GMP-104):
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -115,6 +116,7 @@ class ApprovalDecision:
         return self.status == ApprovalStatus.APPROVED
 
 
+@singleton
 class ApprovalManager:
     """
     Manages Igor approval workflow for high-risk tool executions.

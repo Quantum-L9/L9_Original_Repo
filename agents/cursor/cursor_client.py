@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 L9 Cursor Client
 HTTP client wrapper for Cursor remote API.
@@ -33,6 +34,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+@singleton
 class CursorClient:
     """Client for Cursor remote API."""
 

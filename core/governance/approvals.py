@@ -22,6 +22,7 @@ Version: 1.2.1 (GMP-104: Architecture documentation)
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
 
 # ============================================================================
 __dora_meta__ = {
@@ -68,6 +69,7 @@ from core.governance.tool_risk_policy import \
 HIGH_RISK_TOOLS = get_high_risk_tools_with_descriptions()
 
 
+@singleton
 class ApprovalManager:
     """Manages approval of high-risk tasks."""
 

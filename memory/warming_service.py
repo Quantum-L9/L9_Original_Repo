@@ -15,6 +15,8 @@ Research source: Perplexity deep_research (2026-01-15)
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -87,6 +89,7 @@ except ImportError:
     logger.warning("prometheus_client not available - metrics disabled")
 
 
+@singleton
 class MemoryWarmingService:
     """
     Orchestrates predictive memory warming for AI agent operating systems.

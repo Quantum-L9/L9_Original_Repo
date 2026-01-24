@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 L9 Memory Substrate - Semantic Layer
 Version: 1.0.0
@@ -228,6 +229,7 @@ class StubEmbeddingProvider(EmbeddingProvider):
         return self._dimensions
 
 
+@singleton
 class SemanticService:
     """
     Service for semantic operations on the memory substrate.

@@ -23,6 +23,8 @@ GMP: refactor-phase0-plan8
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 # DORA HEADER META
@@ -178,6 +180,7 @@ class CacheMetrics:
 # =============================================================================
 
 
+@singleton
 class ToolRegistryCache:
     """
     High-performance caching layer for tool registry.
@@ -427,6 +430,7 @@ class ToolRegistryCache:
 # =============================================================================
 
 
+@singleton
 class CachedToolRegistry:
     """
     Wrapper for tool registry with caching.

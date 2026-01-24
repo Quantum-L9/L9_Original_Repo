@@ -82,6 +82,8 @@ Version: 2.1.0 (Governance Integration + Architecture Docs)
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -215,6 +217,7 @@ HIGH_RISK_TOOLS = get_high_risk_tools()
 # =============================================================================
 
 
+@singleton
 class ExecutorToolRegistry:
     """
     Tool registry adapter for AgentExecutorService.

@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 upgrades/packet_envelope/standardization.py
 CloudEvents wrapper & HTTP bindings
@@ -357,6 +358,7 @@ class EventSchema:
     deprecated_at: Optional[datetime] = None
 
 
+@singleton
 class SchemaRegistry:
     """
     Event schema registry

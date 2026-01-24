@@ -6,6 +6,8 @@ Purpose: MemGPT-style virtual context with automatic tier management.
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -74,6 +76,7 @@ class Context:
     archival_memory: Optional[List[Memory]] = None
 
 
+@singleton
 class VirtualContextManager:
     """MemGPT-style virtual context with automatic tier management"""
 
@@ -236,6 +239,7 @@ class VirtualContextManager:
         return self.metrics
 
 
+@singleton
 class MemoryConsolidationService:
     """Automatic memory consolidation"""
 

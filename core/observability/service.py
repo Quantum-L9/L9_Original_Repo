@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 Main observability service orchestration.
 
@@ -47,6 +48,7 @@ from .models import FailureClass, FailureSignal, Span, TraceContext
 logger = structlog.get_logger(__name__)
 
 
+@singleton
 class ObservabilityService:
     """Main service for observability subsystem."""
 

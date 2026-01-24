@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 Slack API Client: Async wrapper for posting messages back to Slack.
 
@@ -62,6 +63,7 @@ class SlackClientError(Exception):
     pass
 
 
+@singleton
 class SlackAPIClient:
     """
     Async Slack API client for posting messages.

@@ -11,6 +11,8 @@ agent_state, long_term_flags, and contradiction_tracking.
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -46,6 +48,7 @@ from memory.substrate_service import MemorySubstrateService
 logger = structlog.get_logger(__name__)
 
 
+@singleton
 class MemoryStateManager:
     """
     High-level state manager for agent / graph state.

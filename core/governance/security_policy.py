@@ -14,6 +14,8 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -111,6 +113,7 @@ class SecurityScanResult:
         }
 
 
+@singleton
 class SecurityPolicyService:
     """
     Security policy enforcement service for L9 governance.

@@ -18,6 +18,8 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
+
 
 # ============================================================================
 __dora_meta__ = {
@@ -139,6 +141,7 @@ class IdentityFact:
 # =============================================================================
 
 
+@singleton
 class IdentityTierService:
     """
     Service for managing Identity Tier facts.

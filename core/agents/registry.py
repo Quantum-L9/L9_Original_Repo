@@ -14,6 +14,7 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
 
 # ============================================================================
 # DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -84,6 +85,7 @@ DEFAULT_AGENT_ID = "l9-standard-v1"
 # =============================================================================
 
 
+@singleton
 class AgentRegistry:
     """
     Registry for agent configurations.

@@ -11,6 +11,7 @@ Version: 1.0.0
 Created: 2025-12-31
 """
 
+from core.patterns.singleton import singleton
 import asyncio
 import hashlib
 import json
@@ -462,6 +463,7 @@ class DORABlockGenerator:
 # GIT SAFETY MANAGER
 # ═══════════════════════════════════════════════════════════════
 
+@singleton
 class GitSafetyManager:
     """
     Git-based safety and rollback system.

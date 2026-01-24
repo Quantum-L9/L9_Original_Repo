@@ -21,6 +21,7 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+from core.patterns.singleton import singleton
 
 # ============================================================================
 # DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -354,6 +355,7 @@ class AgentRegistryProtocol(Protocol):
 # =============================================================================
 
 
+@singleton
 class AgentExecutorService:
     """
     Service for executing agent tasks.

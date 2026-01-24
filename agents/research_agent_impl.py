@@ -1,3 +1,4 @@
+from core.patterns.singleton import singleton
 """
 L9 Research Agent
 =================
@@ -241,6 +242,7 @@ Provide: Fusion architectures, cross-modal patterns, modality-specific benchmark
 # ============================================================================
 
 
+@singleton
 class PerplexityClient:
     """
     Compatibility wrapper around the production PerplexityClient.
