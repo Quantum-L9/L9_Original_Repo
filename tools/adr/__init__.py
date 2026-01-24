@@ -11,5 +11,6 @@ Usage:
 """
 
 from tools.adr.adr_cli import main
+from tools.adr.adr_enforcer import ADREnforcementValidator, Violation, ValidationReport
 
-__all__ = ["main"]
+__all__ = ["main", "ADREnforcementValidator", "Violation", "ValidationReport"]
