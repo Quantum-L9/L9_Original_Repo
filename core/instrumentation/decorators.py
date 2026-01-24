@@ -22,6 +22,7 @@ GMP: refactor-phase0-plan10
 """
 
 from __future__ import annotations
+from functools import wraps
 
 # ============================================================================
 # DORA HEADER META
@@ -482,7 +483,7 @@ def with_source_location(func: F) -> F:
         >>>         source_location=source_location,
         >>>     )
     """
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*args, **kwargs):
         # Capture source location
         stack = inspect.stack()

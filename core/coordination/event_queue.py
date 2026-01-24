@@ -36,6 +36,7 @@ from typing import Any, Callable, Dict, List, Optional
 from uuid import uuid4
 
 import structlog
+from core.patterns.singleton import singleton
 
 from core.decorators import must_stay_async
 
@@ -72,6 +73,7 @@ class Event:
             self.timestamp = datetime.utcnow().isoformat()
 
 
+@singleton
 class EventQueue:
     """Async message queue for agent coordination"""
 

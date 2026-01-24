@@ -37,6 +37,7 @@ __dora_meta__ = {
 from typing import Any, Callable, Dict, Optional
 
 import structlog
+from core.patterns.singleton import singleton
 
 from core.auto_registry import AutoRegistry
 

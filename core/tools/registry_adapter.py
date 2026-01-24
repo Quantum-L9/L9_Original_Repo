@@ -122,6 +122,7 @@ from uuid import uuid4
 import structlog
 
 from core.agents.schemas import ToolBinding, ToolCallResult
+from core.patterns.singleton import singleton
 # GMP-45: Tool argument sanitization gate
 from core.tools.sanitizer import ToolInputSanitizationError, ToolInputSanitizer
 
@@ -215,6 +216,7 @@ HIGH_RISK_TOOLS = get_high_risk_tools()
 # =============================================================================
 
 
+@singleton
 class ExecutorToolRegistry:
     """
     Tool registry adapter for AgentExecutorService.
