@@ -43,6 +43,17 @@ from runtime.long_plan_tool import long_plan_execute_tool, long_plan_simulate_to
 from core.decorators import must_stay_async
 from runtime.tool_registry import register_tool
 
+# L9 Exception Hierarchy
+from core.exceptions import (
+    L9ToolError,
+    L9ToolExecutionError,
+    L9ToolTimeoutError,
+    L9ToolValidationError,
+    L9MemoryError,
+    L9ConnectionError,
+    L9DatabaseError,
+)
+
 # Lazy import for symbolic tools (requires sympy)
 symbolic_compute = None
 symbolic_codegen = None
@@ -151,9 +162,12 @@ async def memory_search(
                 for hit in result.hits
             ],
         }
-    except Exception as e:
-        logger.error(f"Memory search failed: {e}")
+    except (L9MemoryError, L9ConnectionError, L9DatabaseError) as e:
+        logger.error(f"Memory search failed: {e}", exc_info=True)
         return {"error": str(e), "hits": []}
+    except (ValueError, TypeError) as e:
+        logger.error(f"Invalid memory search parameters: {e}")
+        return {"error": f"Invalid parameters: {e}", "hits": []}
 
 
 async def memory_write(
@@ -196,9 +210,12 @@ async def memory_write(
             "segment": segment,
             "written_tables": result.written_tables,
         }
-    except Exception as e:
-        logger.error(f"Memory write failed: {e}")
+    except (L9MemoryError, L9ConnectionError, L9DatabaseError) as e:
+        logger.error(f"Memory write failed: {e}", exc_info=True)
         return {"error": str(e), "status": "error"}
+    except (ValueError, TypeError) as e:
+        logger.error(f"Invalid memory write parameters: {e}")
+        return {"error": f"Invalid parameters: {e}", "status": "error"}
 
 
 # ============================================================================

@@ -81,6 +81,18 @@ from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerCon
 # Initialize logger early for import error handling
 logger = structlog.get_logger(__name__)
 
+# L9 Exception Hierarchy
+from core.exceptions import (
+    L9AgentError,
+    L9AgentExecutionError,
+    L9AgentTimeoutError,
+    L9AgentConfigurationError,
+    L9ToolError,
+    L9ToolExecutionError,
+    L9MemoryError,
+    L9ConnectionError,
+)
+
 # Self-reflection imports (optional - graceful degradation if not available)
 try:
     from core.agents.selfreflection import (
@@ -533,10 +545,17 @@ class AgentExecutorService:
                 task_count=len(self._processed_tasks),
             )
 
-        except Exception as e:
+        except (L9MemoryError, L9ConnectionError, L9DatabaseError) as e:
             # Best-effort: don't fail shutdown due to checkpoint failure
             logger.error(
-                "agent.executor.shutdown: checkpoint creation failed",
+                "agent.executor.shutdown: checkpoint creation failed (infrastructure)",
+                error=str(e),
+                exc_info=True,
+            )
+        except (ValueError, TypeError) as e:
+            # Configuration or data error
+            logger.error(
+                "agent.executor.shutdown: checkpoint creation failed (invalid data)",
                 error=str(e),
                 exc_info=True,
             )

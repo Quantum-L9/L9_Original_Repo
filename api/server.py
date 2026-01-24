@@ -80,6 +80,21 @@ import api.agent_routes as agent_routes
 
 from core.decorators import must_stay_async
 
+# L9 Exception Hierarchy
+from core.exceptions import (
+    L9APIError,
+    L9ValidationError,
+    L9NotFoundError,
+    L9ConfigurationError,
+    L9ConnectionError,
+    L9TimeoutError,
+    L9DatabaseError,
+    L9MemoryError,
+    L9AgentError,
+    L9ToolError,
+    L9ExternalServiceError,
+)
+
 # Singleton Auto-Registration (Phase 2 Auto-Wiring)
 from core.singleton_auto_registry import (
     discover_singleton_services,
@@ -200,11 +215,11 @@ try:
     )
 
     _has_agent_executor = True
-except ImportError as e:
+except (ImportError, ModuleNotFoundError) as e:
     logger.error(f"Failed to import AgentExecutorService: {e}", exc_info=True)
     _has_agent_executor = False
-except Exception as e:
-    logger.error(f"Unexpected error importing AgentExecutorService: {e}", exc_info=True)
+except (AttributeError, TypeError) as e:
+    logger.error(f"Configuration error importing AgentExecutorService: {e}", exc_info=True)
     _has_agent_executor = False
 
 # Optional: AIOS Runtime (v2.2+)
@@ -212,11 +227,11 @@ try:
     from core.aios.runtime import AIOSRuntime, create_aios_runtime
 
     _has_aios_runtime = True
-except ImportError as e:
+except (ImportError, ModuleNotFoundError) as e:
     logger.debug(f"AIOS Runtime not available: {e}")
     _has_aios_runtime = False
-except Exception as e:
-    logger.error(f"Unexpected error importing AIOS Runtime: {e}", exc_info=True)
+except (AttributeError, TypeError) as e:
+    logger.error(f"Configuration error importing AIOS Runtime: {e}", exc_info=True)
     _has_aios_runtime = False
 
 # Optional: Tool Registry Adapter (v2.2+)
@@ -227,11 +242,11 @@ try:
     )
 
     _has_tool_registry = True
-except ImportError as e:
+except (ImportError, ModuleNotFoundError) as e:
     logger.debug(f"Tool Registry not available: {e}")
     _has_tool_registry = False
-except Exception as e:
-    logger.error(f"Unexpected error importing Tool Registry: {e}", exc_info=True)
+except (AttributeError, TypeError) as e:
+    logger.error(f"Configuration error importing Tool Registry: {e}", exc_info=True)
     _has_tool_registry = False
 
 # Optional: Research Factory (v2.3+)
@@ -354,11 +369,11 @@ try:
     )
 
     _has_kernel_registry = True
-except ImportError as e:
+except (ImportError, ModuleNotFoundError) as e:
     logger.debug(f"Kernel Registry not available: {e}")
     _has_kernel_registry = False
-except Exception as e:
-    logger.error(f"Unexpected error importing Kernel Registry: {e}", exc_info=True)
+except (AttributeError, TypeError) as e:
+    logger.error(f"Configuration error importing Kernel Registry: {e}", exc_info=True)
     _has_kernel_registry = False
 
 # Optional: Session Startup (v3.4+ / GMP-KERNEL-BOOT)
@@ -378,11 +393,11 @@ try:
         from core.governance.session_startup import SessionStartup, StartupResult
 
     _has_session_startup = True
-except ImportError as e:
+except (ImportError, ModuleNotFoundError) as e:
     logger.debug(f"Session Startup not available: {e}")
     _has_session_startup = False
-except Exception as e:
-    logger.error(f"Unexpected error importing Session Startup: {e}", exc_info=True)
+except (AttributeError, TypeError) as e:
+    logger.error(f"Configuration error importing Session Startup: {e}", exc_info=True)
     _has_session_startup = False
 
 # Optional: Agent Bootstrap Orchestrator (v3.0+ Paradigm Shift)
