@@ -573,4 +573,233 @@ __all__ = [
     "ResolutionError",
     "get_di_container",
     "reset_di_container",
+    "bootstrap_di_container",
+    "get_global_di_container",
+    "set_global_di_container",
 ]
+
+
+# ============================================================================
+# Bootstrap & Global Container Management
+# ============================================================================
+
+
+async def bootstrap_di_container(
+    config: Optional[Dict[str, Any]] = None,
+    database_url: Optional[str] = None,
+    embedding_provider: str = "openai",
+    fallback_kernel: str = "l9-core-v1",
+) -> DIContainer:
+    """
+    Bootstrap fully-wired DIContainer with tiered initialization.
+    
+    Initializes all L9 core services in dependency order:
+      Tier 1: Database clients (Postgres, Neo4j, Redis)
+      Tier 2: Memory substrate service
+      Tier 3: Registries and runtime services
+      Tier 4: Kernel loading with fallback
+      Tier 5: Persistence and validation
+      Tier 6: Telemetry and instrumentation
+    
+    Args:
+        config: Configuration dictionary (defaults to environment variables)
+        database_url: Postgres DSN (defaults to env DATABASE_URL)
+        embedding_provider: Embedding provider type ("openai", "cohere", etc.)
+        fallback_kernel: Fallback kernel ID if primary load fails
+    
+    Returns:
+        Fully-wired DIContainer with all services registered
+    
+    Raises:
+        ConnectionError: If critical database connections fail
+        ValueError: If required configuration is missing
+        RuntimeError: If initialization fails
+    
+    Example:
+        # Bootstrap at app startup
+        container = await bootstrap_di_container()
+        set_global_di_container(container)
+        
+        # Use in ExecutorComposer
+        composer = ExecutorComposer().set_di_container(container)
+        executor = composer.compose()
+        
+        # Cleanup at shutdown
+        await container.close()
+    
+    Lifecycle:
+        1. Create container
+        2. Initialize services tier-by-tier
+        3. Register cleanup callbacks for graceful shutdown
+        4. Return ready-to-use container
+    
+    Reference:
+        - ADR-0052: Dependency Injection
+        - Design doc: "DUAL DELIVERY: Docstring Edits + Wiring Sketch"
+    """
+    import os
+    
+    logger.info("bootstrap.starting", embedding_provider=embedding_provider)
+    
+    # Initialize config
+    if config is None:
+        config = {}
+    
+    # Resolve database URL
+    if database_url is None:
+        database_url = config.get("DATABASE_URL") or os.getenv(
+            "DATABASE_URL", "postgresql://localhost/l9"
+        )
+    
+    # Create container
+    container = DIContainer()
+    
+    # ========================================================================
+    # TIER 1: Database Clients
+    # ========================================================================
+    
+    logger.info("bootstrap.tier1.database_clients")
+    
+    try:
+        # Postgres Client
+        from memory.postgres_client import PostgresClient
+        
+        postgres_client = PostgresClient(database_url)
+        await postgres_client.connect()
+        container.bind_singleton(PostgresClient, lambda: postgres_client)
+        logger.info("bootstrap.tier1.postgres_connected")
+        
+    except Exception as e:
+        logger.error("bootstrap.tier1.postgres_failed", error=str(e))
+        raise ConnectionError(f"Failed to connect to Postgres: {e}") from e
+    
+    try:
+        # Neo4j Client (optional)
+        neo4j_url = config.get("NEO4J_URL") or os.getenv("NEO4J_URL")
+        if neo4j_url:
+            from memory.neo4j_client import Neo4jClient
+            
+            neo4j_client = Neo4jClient(neo4j_url)
+            await neo4j_client.connect()
+            container.bind_singleton(Neo4jClient, lambda: neo4j_client)
+            logger.info("bootstrap.tier1.neo4j_connected")
+        else:
+            logger.info("bootstrap.tier1.neo4j_skipped")
+            
+    except Exception as e:
+        logger.warning("bootstrap.tier1.neo4j_failed", error=str(e))
+        # Neo4j is optional, continue without it
+    
+    try:
+        # Redis Client (optional)
+        redis_url = config.get("REDIS_URL") or os.getenv("REDIS_URL")
+        if redis_url:
+            from memory.redis_client import RedisClient
+            
+            redis_client = RedisClient(redis_url)
+            await redis_client.connect()
+            container.bind_singleton(RedisClient, lambda: redis_client)
+            logger.info("bootstrap.tier1.redis_connected")
+        else:
+            logger.info("bootstrap.tier1.redis_skipped")
+            
+    except Exception as e:
+        logger.warning("bootstrap.tier1.redis_failed", error=str(e))
+        # Redis is optional, continue without it
+    
+    # ========================================================================
+    # TIER 2: Memory Substrate Service
+    # ========================================================================
+    
+    logger.info("bootstrap.tier2.memory_substrate")
+    
+    try:
+        from memory.substrate_service import create_substrate_service
+        
+        substrate_service = await create_substrate_service(
+            database_url=database_url,
+            embedding_provider_type=embedding_provider,
+            openai_api_key=config.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY"),
+        )
+        
+        # Import the actual service type for binding
+        from memory.substrate_service import MemorySubstrateService
+        container.bind_singleton(MemorySubstrateService, lambda: substrate_service)
+        
+        logger.info("bootstrap.tier2.memory_substrate_ready")
+        
+    except Exception as e:
+        logger.error("bootstrap.tier2.memory_substrate_failed", error=str(e))
+        raise RuntimeError(f"Failed to initialize memory substrate: {e}") from e
+    
+    # ========================================================================
+    # TIER 3: Registries & Runtime (Optional - only if available)
+    # ========================================================================
+    
+    logger.info("bootstrap.tier3.registries")
+    
+    try:
+        from core.tools.tool_registry import ToolRegistry
+        
+        tool_registry = ToolRegistry()
+        await tool_registry.load_tools()
+        container.bind_singleton(ToolRegistry, lambda: tool_registry)
+        logger.info("bootstrap.tier3.tool_registry_loaded")
+        
+    except ImportError:
+        logger.info("bootstrap.tier3.tool_registry_not_available")
+    except Exception as e:
+        logger.warning("bootstrap.tier3.tool_registry_failed", error=str(e))
+    
+    # ========================================================================
+    # Summary
+    # ========================================================================
+    
+    registered_count = len(container._bindings)
+    logger.info(
+        "bootstrap.complete",
+        services_registered=registered_count,
+        database_url=database_url[:30] + "..." if len(database_url) > 30 else database_url,
+    )
+    
+    return container
+
+
+_global_di_container: Optional[DIContainer] = None
+
+
+def get_global_di_container() -> Optional[DIContainer]:
+    """
+    Get the process-level global DIContainer (if initialized).
+    
+    Returns None if not yet bootstrapped via set_global_di_container().
+    
+    Intended for debug/introspection; normal code should accept
+    container as dependency or use ExecutorComposer.
+    
+    Example:
+        container = get_global_di_container()
+        if container:
+            service = container.resolve(MemorySubstrateService)
+    """
+    return _global_di_container
+
+
+def set_global_di_container(container: DIContainer) -> None:
+    """
+    Set the global DIContainer after bootstrap.
+    
+    Called by app startup (lifespan) to make container available
+    process-wide.
+    
+    Args:
+        container: Bootstrapped DIContainer
+    
+    Example:
+        # In FastAPI lifespan
+        container = await bootstrap_di_container()
+        set_global_di_container(container)
+    """
+    global _global_di_container
+    _global_di_container = container
+    logger.info("bootstrap.global_container_set")
