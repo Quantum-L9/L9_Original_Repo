@@ -45,7 +45,8 @@ import asyncio
 import json
 import os
 from functools import lru_cache
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any
 
 import httpx
 import structlog
@@ -68,17 +69,17 @@ class MCPServerProcess:
     def __init__(
         self,
         server_id: str,
-        command: List[str],
-        env: Optional[Dict[str, str]] = None,
+        command: list[str],
+        env: dict[str, str] | None = None,
     ):
         self.server_id = server_id
         self.command = command
         self.env = env or {}
-        self._process: Optional[asyncio.subprocess.Process] = None
+        self._process: asyncio.subprocess.Process | None = None
         self._lock = asyncio.Lock()
         self._request_id = 0
-        self._pending_requests: Dict[str, asyncio.Future] = {}
-        self._reader_task: Optional[asyncio.Task] = None
+        self._pending_requests: dict[str, asyncio.Future] = {}
+        self._reader_task: asyncio.Task | None = None
 
     async def start(self) -> bool:
         """Start the MCP server process."""
@@ -132,7 +133,7 @@ class MCPServerProcess:
                 self._process.terminate()
                 try:
                     await asyncio.wait_for(self._process.wait(), timeout=5.0)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     self._process.kill()
                     await self._process.wait()
 
@@ -189,7 +190,7 @@ class MCPServerProcess:
     async def send_request(
         self,
         method: str,
-        params: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
         timeout: float = 30.0,
     ) -> Any:
         """
@@ -231,7 +232,7 @@ class MCPServerProcess:
             result = await asyncio.wait_for(future, timeout=timeout)
             return result
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             self._pending_requests.pop(request_id, None)
             raise Exception(f"MCP request timed out: {method}")
         except Exception:
@@ -251,13 +252,13 @@ class ToolMeta:
         self,
         name: str,
         description: str = "",
-        input_schema: Optional[Dict[str, Any]] = None,
+        input_schema: dict[str, Any] | None = None,
     ):
         self.name = name
         self.description = description
         self.input_schema = input_schema or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "name": self.name,
@@ -278,9 +279,9 @@ class MCPClient:
 
     def __init__(self):
         """Initialize MCP client with server configurations."""
-        self._servers: Dict[str, Dict[str, Any]] = {}
-        self._allowed_tools: Dict[str, List[str]] = {}  # server_id -> [tool_names]
-        self._processes: Dict[str, MCPServerProcess] = {}  # server_id -> process
+        self._servers: dict[str, dict[str, Any]] = {}
+        self._allowed_tools: dict[str, list[str]] = {}  # server_id -> [tool_names]
+        self._processes: dict[str, MCPServerProcess] = {}  # server_id -> process
         self._load_servers()
 
     def _load_servers(self) -> None:
@@ -331,7 +332,7 @@ class MCPClient:
             "MCP_FILESYSTEM_COMMAND", "npx -y @modelcontextprotocol/server-filesystem"
         )
         fs_allowed_dirs = os.getenv(
-            "MCP_FILESYSTEM_ALLOWED_DIRS", "/Users/ib-mac/Projects"
+            "MCP_FILESYSTEM_ALLOWED_DIRS", str(Path.home() / "Projects")
         )
         self._servers["filesystem"] = {
             "command": fs_command.split() + fs_allowed_dirs.split(","),
@@ -383,7 +384,7 @@ class MCPClient:
             "enabled", False
         )
 
-    def get_allowed_tools(self, server_id: str) -> List[str]:
+    def get_allowed_tools(self, server_id: str) -> list[str]:
         """Get list of allowed tools for a server."""
         return self._allowed_tools.get(server_id, [])
 
@@ -440,7 +441,7 @@ class MCPClient:
         self._processes.clear()
         logger.info("All MCP servers stopped")
 
-    async def list_tools(self, server_id: str) -> List[ToolMeta]:
+    async def list_tools(self, server_id: str) -> list[ToolMeta]:
         """
         List available tools from an MCP server.
 
@@ -508,8 +509,8 @@ class MCPClient:
         self,
         server_id: str,
         tool_name: str,
-        arguments: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        arguments: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Call a tool on an MCP server.
 
@@ -594,8 +595,8 @@ class MCPClient:
         self,
         server_id: str,
         tool_name: str,
-        arguments: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        arguments: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Call a tool on an HTTP-based MCP server (like l9-memory).
 
@@ -645,20 +646,19 @@ class MCPClient:
                         "result": data.get("result"),
                         "error": None,
                     }
-                else:
-                    error_text = response.text
-                    logger.error(
-                        "HTTP MCP tool call failed",
-                        server_id=server_id,
-                        tool_name=tool_name,
-                        status=response.status_code,
-                        error=error_text,
-                    )
-                    return {
-                        "success": False,
-                        "error": f"HTTP {response.status_code}: {error_text}",
-                        "result": None,
-                    }
+                error_text = response.text
+                logger.error(
+                    "HTTP MCP tool call failed",
+                    server_id=server_id,
+                    tool_name=tool_name,
+                    status=response.status_code,
+                    error=error_text,
+                )
+                return {
+                    "success": False,
+                    "error": f"HTTP {response.status_code}: {error_text}",
+                    "result": None,
+                }
 
         except Exception as e:
             logger.error(
@@ -686,9 +686,9 @@ def get_mcp_client() -> MCPClient:
 
 
 __all__ = [
-    "ToolMeta",
     "MCPClient",
     "MCPServerProcess",
+    "ToolMeta",
     "get_mcp_client",
 ]
 

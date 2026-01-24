@@ -34,7 +34,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 import structlog
 
@@ -60,8 +61,8 @@ tool_executor_registry = AutoRegistry[Callable](
 
 
 def register_tool(
-    name: Optional[str] = None,
-    category: Optional[str] = None,
+    name: str | None = None,
+    category: str | None = None,
     priority: int = 0,
     **metadata: Any,
 ):
@@ -120,7 +121,7 @@ def discover_tools(package: str = "runtime") -> int:
     return count
 
 
-def get_tool_executors() -> Dict[str, Callable]:
+def get_tool_executors() -> dict[str, Callable]:
     """
     Get all registered tool executors as a dictionary.
 
@@ -142,7 +143,7 @@ def get_tool_executors() -> Dict[str, Callable]:
     tool_executor_registry.initialize_factories()
 
     # Build dictionary mapping names to functions
-    executors: Dict[str, Callable] = {}
+    executors: dict[str, Callable] = {}
 
     for tool_id in tool_executor_registry.list_ids():
         tool_func = tool_executor_registry.get(tool_id)
@@ -153,7 +154,7 @@ def get_tool_executors() -> Dict[str, Callable]:
     return executors
 
 
-def get_tools_by_category(category: str) -> Dict[str, Callable]:
+def get_tools_by_category(category: str) -> dict[str, Callable]:
     """
     Get all tool executors in a specific category.
 
@@ -166,7 +167,7 @@ def get_tools_by_category(category: str) -> Dict[str, Callable]:
     tool_executor_registry.initialize_factories()
 
     tools = tool_executor_registry.get_all(tags=[category])
-    executors: Dict[str, Callable] = {}
+    executors: dict[str, Callable] = {}
 
     for tool_func in tools:
         # Find the tool's ID
@@ -187,50 +188,31 @@ def register_extension_tool_executors() -> int:
     """
     Register tools from extension modules (research, reflection, etc).
 
+    MIGRATED: All extension tools now use @register_tool decorator.
+    This function triggers auto-discovery of extension tools.
+
     Returns:
         Number of additional tools registered
     """
     registered = 0
 
-    # Research tools
+    # Auto-discover research tools (all have @register_tool decorator)
     try:
-        from core.tools.research_tools import RESEARCH_TOOL_EXECUTORS
+        import core.tools.research_tools
 
-        for tool_name, executor_func in RESEARCH_TOOL_EXECUTORS.items():
-            try:
-                tool_executor_registry.register_instance(
-                    component_id=tool_name,
-                    component=executor_func,
-                    priority=0,
-                    tags=["research", "extension"],
-                    category="research",
-                    source="extension",
-                )
-                registered += 1
-            except Exception:
-                pass
-    except ImportError:
-        pass
+        logger.debug("extension_tools.research_loaded")
+        registered += 4  # run_research_query, synthesize, discover, generate_spec
+    except ImportError as e:
+        logger.warning(f"extension_tools.research_unavailable: {e}")
 
-    # Reflection tools
+    # Auto-discover reflection tools (all have @register_tool decorator)
     try:
-        from core.tools.reflection_tools import REFLECTION_TOOL_EXECUTORS
+        import core.tools.reflection_tools  # noqa: F401 - trigger module load for @register_tool
 
-        for tool_name, executor_func in REFLECTION_TOOL_EXECUTORS.items():
-            try:
-                tool_executor_registry.register_instance(
-                    component_id=tool_name,
-                    component=executor_func,
-                    priority=0,
-                    tags=["reflection", "extension"],
-                    category="reflection",
-                    source="extension",
-                )
-                registered += 1
-            except Exception:
-                pass
-    except ImportError:
-        pass
+        logger.debug("extension_tools.reflection_loaded")
+        registered += 5  # reflect, analyze_failure, compare_approaches, extract_patterns, generate_improvements
+    except ImportError as e:
+        logger.warning(f"extension_tools.reflection_unavailable: {e}")
 
     if registered > 0:
         logger.info("extension_tools_registered", count=registered)

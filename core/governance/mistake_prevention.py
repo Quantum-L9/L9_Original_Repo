@@ -45,7 +45,8 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from pathlib import Path
+from typing import Any
 
 import structlog
 
@@ -82,7 +83,7 @@ class MistakeRule:
     prevention: str
     severity: Severity
     occurrences: int = 0
-    last_triggered: Optional[datetime] = None
+    last_triggered: datetime | None = None
 
 
 @dataclass
@@ -144,7 +145,7 @@ class MistakePrevention:
             MistakeRule(
                 id="MP-004",
                 name="Hardcoded User Path",
-                pattern=r"/Users/ib-mac/(?!Projects/L9)",
+                pattern=rf"{Path.home()}/(?!Projects/L9)",
                 prevention="Use $HOME or relative paths for cross-machine compatibility.",
                 severity=Severity.CRITICAL,
             ),
@@ -303,8 +304,8 @@ def create_mistake_prevention() -> MistakePrevention:
 __all__ = [
     "MistakePrevention",
     "MistakeRule",
-    "Violation",
     "Severity",
+    "Violation",
     "create_mistake_prevention",
 ]
 

@@ -37,7 +37,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -81,7 +81,7 @@ def _get_research_agent():
 async def run_research_query(
     query: str,
     user_id: str = "l_agent",
-    thread_id: Optional[str] = None,
+    thread_id: str | None = None,
     **kwargs,
 ) -> dict[str, Any]:
     """
@@ -167,7 +167,7 @@ async def run_research_query(
 )
 async def research_agent_synthesize(
     topic: str,
-    context: Optional[dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
     **kwargs,
 ) -> dict[str, Any]:
     """
@@ -234,7 +234,7 @@ async def research_agent_synthesize(
 async def research_agent_discover(
     topic: str,
     domain: str = "general",
-    stages: Optional[list[str]] = None,
+    stages: list[str] | None = None,
     **kwargs,
 ) -> dict[str, Any]:
     """
@@ -309,7 +309,7 @@ async def research_agent_discover(
 )
 async def research_agent_generate_spec(
     topic: str,
-    description: Optional[str] = None,
+    description: str | None = None,
     run_synthesis_first: bool = True,
     **kwargs,
 ) -> dict[str, Any]:
@@ -373,24 +373,17 @@ async def research_agent_generate_spec(
 
 
 # ============================================================================
-# Tool Executor Registry (for runtime.l_tools integration)
-
-RESEARCH_TOOL_EXECUTORS = {
-    "run_research_query": run_research_query,  # PRIMARY: Full LangGraph pipeline
-    "research_agent_synthesize": research_agent_synthesize,
-    "research_agent_discover": research_agent_discover,
-    "research_agent_generate_spec": research_agent_generate_spec,
-}
+# LEGACY: RESEARCH_TOOL_EXECUTORS dictionary removed - all tools now use @register_tool decorator
+# All research tools are auto-discovered via runtime.tool_registry.discover_tools()
 
 # ============================================================================
 # Public API
 
 __all__ = [
-    "run_research_query",
-    "research_agent_synthesize",
     "research_agent_discover",
     "research_agent_generate_spec",
-    "RESEARCH_TOOL_EXECUTORS",
+    "research_agent_synthesize",
+    "run_research_query",
 ]
 
 # ============================================================================

@@ -53,18 +53,25 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Optional
+from pathlib import Path
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
 
 from core.decorators import must_stay_async
+
 # Strategy Memory (optional - Phase 0)
-from memory.strategymemory import (IStrategyMemoryService, StrategyCandidate,
-                                   StrategyFeedback, StrategyRetrievalRequest)
+from memory.strategymemory import (
+    IStrategyMemoryService,
+    StrategyCandidate,
+    StrategyFeedback,
+    StrategyRetrievalRequest,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -109,12 +116,12 @@ class StepResult:
     status: StepStatus
     action_type: str = ""
     target: str = ""
-    output: Optional[dict[str, Any]] = None
-    error: Optional[str] = None
+    output: dict[str, Any] | None = None
+    error: str | None = None
     duration_ms: int = 0
     retries: int = 0
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -142,8 +149,8 @@ class ExecutionResult:
     skipped_steps: int = 0
     artifacts: dict[str, Any] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     packets_emitted: int = 0
 
     def to_dict(self) -> dict[str, Any]:
@@ -181,7 +188,7 @@ class ExecutorConfig:
     # Handler options
     real_execution: bool = False  # When True, actually modify files
     allowed_write_roots: list[str] = field(
-        default_factory=lambda: ["/Users/ib-mac/Projects"]
+        default_factory=lambda: [str(Path.home() / "Projects")]
     )
     # Strategy Memory auto-capture (Phase 1 - GMP-103)
     auto_capture_enabled: bool = True  # Auto-capture successful executions
@@ -218,8 +225,8 @@ class PlanExecutor:
 
     def __init__(
         self,
-        config: Optional[ExecutorConfig] = None,
-        strategy_memory: Optional[IStrategyMemoryService] = None,
+        config: ExecutorConfig | None = None,
+        strategy_memory: IStrategyMemoryService | None = None,
     ):
         """
         Initialize the executor.
@@ -234,13 +241,13 @@ class PlanExecutor:
         self._progress_callbacks: list[Callable[[UUID, int, int], None]] = []
 
         # Memory client
-        self._memory_client: Optional[Any] = None
+        self._memory_client: Any | None = None
 
         # World model hook
-        self._world_model: Optional[Any] = None
+        self._world_model: Any | None = None
 
         # Strategy Memory (Phase 0: retrieval-only)
-        self._strategy_memory: Optional[IStrategyMemoryService] = strategy_memory
+        self._strategy_memory: IStrategyMemoryService | None = strategy_memory
 
         # Register default handlers
         self._register_default_handlers()
@@ -301,10 +308,10 @@ class PlanExecutor:
         task_id: str,
         task_kind: str,
         goal_description: str,
-        context_embedding: Optional[list[float]] = None,
-        tags: Optional[list[str]] = None,
+        context_embedding: list[float] | None = None,
+        tags: list[str] | None = None,
         min_confidence: float = 0.6,
-    ) -> Optional[StrategyCandidate]:
+    ) -> StrategyCandidate | None:
         """
         Attempt to retrieve a matching strategy for the given task.
 
@@ -371,8 +378,8 @@ class PlanExecutor:
         execution_time_ms: int,
         resource_cost: float = 0.0,
         was_adapted: bool = False,
-        adaptation_distance: Optional[int] = None,
-        metadata: Optional[dict] = None,
+        adaptation_distance: int | None = None,
+        metadata: dict | None = None,
     ) -> None:
         """
         Record feedback for a strategy after execution.
@@ -423,9 +430,9 @@ class PlanExecutor:
     async def _maybe_capture_strategy(
         self,
         plan: Any,
-        result: "ExecutionResult",
+        result: ExecutionResult,
         context: dict[str, Any],
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Capture a successful execution as a new strategy (Phase 1 - GMP-103).
 
@@ -562,7 +569,7 @@ class PlanExecutor:
     async def execute(
         self,
         plan: Any,  # ExecutionPlan
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> ExecutionResult:
         """
         Execute a plan.
@@ -890,7 +897,9 @@ class PlanExecutor:
             }
 
         # Validate path is within allowed directories
-        allowed_roots = self._config.allowed_write_roots or ["/Users/ib-mac/Projects"]
+        allowed_roots = self._config.allowed_write_roots or [
+            str(Path.home() / "Projects")
+        ]
         path = Path(target_path).resolve()
 
         is_allowed = any(
@@ -1260,7 +1269,7 @@ class PlanExecutor:
         """Get all active executions."""
         return list(self._active_executions.values())
 
-    def get_execution(self, execution_id: UUID) -> Optional[ExecutionResult]:
+    def get_execution(self, execution_id: UUID) -> ExecutionResult | None:
         """Get a specific execution by ID."""
         return self._active_executions.get(execution_id)
 

@@ -37,7 +37,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any, Dict, List, Literal, Optional, TypedDict
+from pathlib import Path
+from typing import Any, Literal, TypedDict
 
 import structlog
 
@@ -57,10 +58,10 @@ LLM_MODEL = os.getenv("L9_LLM_MODEL", "gpt-4o-mini")
 async def generate_artifact_with_llm(
     artifact_type: str,
     goal: str,
-    constraints: List[str],
-    context: Dict[str, Any],
+    constraints: list[str],
+    context: dict[str, Any],
     max_tokens: int = 2048,
-) -> Optional[str]:
+) -> str | None:
     """
     Generate an artifact (plan, code, docs) using LLM.
 
@@ -186,7 +187,7 @@ Generate documentation for this implementation."""
         return None
 
 
-def _format_context(context: Dict[str, Any]) -> str:
+def _format_context(context: dict[str, Any]) -> str:
     """Format context dict into readable string."""
     parts = []
 
@@ -238,42 +239,42 @@ class LongPlanState(TypedDict):
 
     # Input
     goal: str
-    constraints: List[str]
-    target_apps: List[str]  # e.g., ["github", "notion", "vercel"]
+    constraints: list[str]
+    target_apps: list[str]  # e.g., ["github", "notion", "vercel"]
 
     # Phase tracking
     phase: Literal["PLAN", "EXECUTE", "HALT"]
 
     # Memory context
-    governance_rules: List[Dict[str, Any]]
-    project_history: List[Dict[str, Any]]
+    governance_rules: list[dict[str, Any]]
+    project_history: list[dict[str, Any]]
 
     # Gathered context
-    github_context: Optional[Dict[str, Any]]
-    notion_context: Optional[Dict[str, Any]]
-    vercel_context: Optional[Dict[str, Any]]
+    github_context: dict[str, Any] | None
+    notion_context: dict[str, Any] | None
+    vercel_context: dict[str, Any] | None
 
     # Drafted work
-    draft_plan: Optional[str]
-    draft_code: Optional[str]
-    draft_docs: Optional[str]
+    draft_plan: str | None
+    draft_code: str | None
+    draft_docs: str | None
 
     # Pending actions (require Igor approval)
-    pending_gmp_tasks: List[Dict[str, Any]]
-    pending_git_commits: List[Dict[str, Any]]
-    pending_deployments: List[Dict[str, Any]]
+    pending_gmp_tasks: list[dict[str, Any]]
+    pending_git_commits: list[dict[str, Any]]
+    pending_deployments: list[dict[str, Any]]
 
     # Review
-    review_summary: Optional[str]
+    review_summary: str | None
     review_approved: bool
 
     # Results
-    completed_actions: List[Dict[str, Any]]
-    errors: List[str]
+    completed_actions: list[dict[str, Any]]
+    errors: list[str]
 
     # Metadata
     agent_id: str
-    thread_id: Optional[str]
+    thread_id: str | None
 
 
 # =============================================================================
@@ -292,9 +293,11 @@ async def hydrate_memory_node(state: LongPlanState) -> LongPlanState:
     logger.info("hydrate_memory_node: Loading memory context")
 
     try:
-        from runtime.memory_helpers import (MEMORY_SEGMENT_GOVERNANCE_META,
-                                            MEMORY_SEGMENT_PROJECT_HISTORY,
-                                            memory_search)
+        from runtime.memory_helpers import (
+            MEMORY_SEGMENT_GOVERNANCE_META,
+            MEMORY_SEGMENT_PROJECT_HISTORY,
+            memory_search,
+        )
 
         agent_id = state.get("agent_id", "L")
 
@@ -341,8 +344,7 @@ async def hydrate_memory_node(state: LongPlanState) -> LongPlanState:
         logger.error(f"hydrate_memory_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", [])
-            + [f"hydrate_memory_node error: {str(e)}"],
+            "errors": state.get("errors", []) + [f"hydrate_memory_node error: {e!s}"],
         }
 
 
@@ -422,8 +424,7 @@ async def gather_context_node(state: LongPlanState) -> LongPlanState:
         logger.error(f"gather_context_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", [])
-            + [f"gather_context_node error: {str(e)}"],
+            "errors": state.get("errors", []) + [f"gather_context_node error: {e!s}"],
         }
 
 
@@ -507,7 +508,7 @@ async def draft_work_node(state: LongPlanState) -> LongPlanState:
         logger.error(f"draft_work_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", []) + [f"draft_work_node error: {str(e)}"],
+            "errors": state.get("errors", []) + [f"draft_work_node error: {e!s}"],
         }
 
 
@@ -537,7 +538,7 @@ async def prepare_changes_node(state: LongPlanState) -> LongPlanState:
             try:
                 gmp_result = await gmp_run_tool(
                     gmp_markdown=draft_plan,
-                    repo_root="/Users/ib-mac/Projects/L9",  # Default repo
+                    repo_root=str(Path.home() / "Projects/L9"),  # Default repo
                     caller=agent_id,
                     metadata={
                         "goal": state.get("goal"),
@@ -583,8 +584,7 @@ async def prepare_changes_node(state: LongPlanState) -> LongPlanState:
         logger.error(f"prepare_changes_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", [])
-            + [f"prepare_changes_node error: {str(e)}"],
+            "errors": state.get("errors", []) + [f"prepare_changes_node error: {e!s}"],
         }
 
 
@@ -632,7 +632,7 @@ Review the pending actions and approve them to proceed with execution.
         logger.error(f"final_review_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", []) + [f"final_review_node error: {str(e)}"],
+            "errors": state.get("errors", []) + [f"final_review_node error: {e!s}"],
             "phase": "HALT",
         }
 
@@ -686,11 +686,11 @@ def build_long_plan_graph():
 
 async def execute_long_plan(
     goal: str,
-    constraints: List[str] | None = None,
-    target_apps: List[str] | None = None,
+    constraints: list[str] | None = None,
+    target_apps: list[str] | None = None,
     agent_id: str = "L",
-    thread_id: Optional[str] = None,
-) -> Dict[str, Any]:
+    thread_id: str | None = None,
+) -> dict[str, Any]:
     """
     Execute a long plan through the DAG.
 
@@ -780,10 +780,10 @@ async def execute_long_plan(
 
 async def simulate_long_plan(
     goal: str,
-    constraints: List[str] | None = None,
-    target_apps: List[str] | None = None,
+    constraints: list[str] | None = None,
+    target_apps: list[str] | None = None,
     agent_id: str = "L",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Simulate a long plan without executing (dry run).
 
@@ -815,7 +815,7 @@ async def simulate_long_plan(
     }
 
 
-async def extract_tasks_from_plan(plan_id: str) -> List[Dict[str, Any]]:
+async def extract_tasks_from_plan(plan_id: str) -> list[dict[str, Any]]:
     """
     Extract executable task specs from a completed plan.
 
@@ -917,8 +917,8 @@ __all__ = [
     "LongPlanState",
     "build_long_plan_graph",
     "execute_long_plan",
-    "simulate_long_plan",
     "extract_tasks_from_plan",
+    "simulate_long_plan",
 ]
 
 # ============================================================================

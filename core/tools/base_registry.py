@@ -50,14 +50,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from collections import defaultdict
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any
 
+import structlog
 from pydantic import BaseModel, Field
-from core.singleton_auto_registry import register_singleton, register_singleton_closer
+
+from core.singleton_auto_registry import register_singleton
 from runtime.tool_registry import register_tool
 
 logger = structlog.get_logger(__name__)
@@ -106,7 +107,7 @@ class ToolMetadata(BaseModel):
     requires_api_key: bool = Field(
         default=False, description="Whether tool requires API key"
     )
-    input_schema: Optional[ToolSchema] = Field(
+    input_schema: ToolSchema | None = Field(
         default=None, description="JSON Schema for tool parameters"
     )
 
@@ -163,7 +164,7 @@ class RateLimitWindow:
         current = len([t for t in self._calls[key] if t > cutoff])
         return max(0, limit - current)
 
-    def reset(self, key: Optional[str] = None) -> None:
+    def reset(self, key: str | None = None) -> None:
         """Reset rate limits for a key or all keys."""
         if key:
             self._calls[key] = []
@@ -198,7 +199,7 @@ class ToolRegistry:
     def register(
         self,
         metadata: ToolMetadata,
-        executor: Optional[Any] = None,
+        executor: Any | None = None,
     ) -> None:
         """
         Register a tool with the registry.
@@ -213,11 +214,11 @@ class ToolRegistry:
 
         logger.info(f"Registered tool: {metadata.name} ({metadata.id})")
 
-    def get(self, tool_id: str) -> Optional[ToolMetadata]:
+    def get(self, tool_id: str) -> ToolMetadata | None:
         """Get tool metadata by ID."""
         return self._tools.get(tool_id)
 
-    def get_executor(self, tool_id: str) -> Optional[Any]:
+    def get_executor(self, tool_id: str) -> Any | None:
         """Get tool executor instance by ID."""
         return self._executors.get(tool_id)
 
@@ -275,7 +276,7 @@ class ToolRegistry:
             return 0
         return self._rate_limiter.get_remaining(tool_id, metadata.rate_limit)
 
-    def reset_rate_limits(self, tool_id: Optional[str] = None) -> None:
+    def reset_rate_limits(self, tool_id: str | None = None) -> None:
         """Reset rate limit counters for a tool or all tools."""
         self._rate_limiter.reset(tool_id)
 
@@ -395,7 +396,7 @@ class ToolRegistry:
                 "duration_ms": duration_ms,
             }
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
             logger.warning(f"Tool {tool_id} timed out after {timeout}s")
             return {
@@ -414,7 +415,7 @@ class ToolRegistry:
 
 
 # Singleton instance
-_registry: Optional[ToolRegistry] = None
+_registry: ToolRegistry | None = None
 
 
 @register_singleton(
@@ -434,9 +435,9 @@ def get_tool_registry() -> ToolRegistry:
 def _initialize_default_tools(registry: ToolRegistry) -> None:
     """Initialize default tools in registry with schemas."""
     from services.research.tools.tool_wrappers import (
-        PerplexityTool,
         HTTPTool,
         MockSearchTool,
+        PerplexityTool,
     )
 
     # Perplexity Search
@@ -556,48 +557,13 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
     # Simple calculator executor
     def calculate_executor(expression: str) -> dict:
         try:
-            # Use ast module for safer expression evaluation
+            # Safe evaluation using ast.literal_eval (only allows literals)
             import ast
-            import operator
-            
-            # Define allowed operations
-            allowed_ops = {
-                ast.Add: operator.add,
-                ast.Sub: operator.sub,
-                ast.Mult: operator.mul,
-                ast.Div: operator.truediv,
-                ast.Pow: operator.pow,
-                ast.USub: operator.neg,
-            }
-            
-            def eval_expr(node):
-                if isinstance(node, ast.Constant):  # Python 3.8+
-                    return node.value
-                elif isinstance(node, ast.BinOp):
-                    op = allowed_ops.get(type(node.op))
-                    if op is None:
-                        raise ValueError(f"Unsupported operation: {type(node.op).__name__}")
-                    return op(eval_expr(node.left), eval_expr(node.right))
-                elif isinstance(node, ast.UnaryOp):
-                    op = allowed_ops.get(type(node.op))
-                    if op is None:
-                        raise ValueError(f"Unsupported operation: {type(node.op).__name__}")
-                    return op(eval_expr(node.operand))
-                elif isinstance(node, ast.Call):
-                    # Allow specific functions
-                    if isinstance(node.func, ast.Name):
-                        func_name = node.func.id
-                        if func_name in ["abs", "round", "min", "max"]:
-                            func = eval(func_name)  # Safe: only built-in functions
-                            args = [eval_expr(arg) for arg in node.args]
-                            return func(*args)
-                    raise ValueError(f"Function calls not allowed: {ast.unparse(node)}")
-                else:
-                    raise ValueError(f"Unsupported expression: {ast.unparse(node)}")
-            
-            tree = ast.parse(expression, mode='eval')
-            result = eval_expr(tree.body)
+
+            result = ast.literal_eval(expression)
             return {"result": result, "expression": expression}
+        except (ValueError, SyntaxError) as e:
+            return {"error": f"Invalid expression: {e!s}", "expression": expression}
         except Exception as e:
             return {"error": str(e), "expression": expression}
 
@@ -606,7 +572,7 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
     logger.info(f"Initialized {len(registry.list_all())} default tools")
 
 
-async def recall_task_history(num_tasks: int = 10) -> List[dict]:
+async def recall_task_history(num_tasks: int = 10) -> list[dict]:
     """
     Retrieve recent task execution history.
 
@@ -619,6 +585,7 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
         List of task result dicts with task_id, status, duration_ms, error, etc.
     """
     import structlog
+
     from memory.substrate_service import get_service
 
     logger = structlog.get_logger(__name__)
@@ -671,7 +638,7 @@ async def recall_task_history(num_tasks: int = 10) -> List[dict]:
 async def tool_router_find(
     query: str,
     top_k: int = 5,
-    exclude_categories: Optional[List[str]] = None,
+    exclude_categories: list[str] | None = None,
 ) -> dict:
     """
     Find relevant tools for a task using semantic search.
@@ -765,7 +732,7 @@ async def tool_router_find(
 @register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
 async def saga_fetch_and_enrich(
     query: str,
-    entity_types: Optional[List[str]] = None,
+    entity_types: list[str] | None = None,
     limit: int = 10,
 ) -> dict:
     """
@@ -897,8 +864,8 @@ async def saga_fetch_and_enrich(
 
 @register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
 async def saga_enrich_entities(
-    entity_ids: List[str],
-    relationship_types: Optional[List[str]] = None,
+    entity_ids: list[str],
+    relationship_types: list[str] | None = None,
     depth: int = 1,
 ) -> dict:
     """
@@ -997,11 +964,13 @@ async def saga_enrich_entities(
         }
 
 
-@register_tool(category="saga", priority=10, description="saga_timeline_correlation tool")
+@register_tool(
+    category="saga", priority=10, description="saga_timeline_correlation tool"
+)
 async def saga_timeline_correlation(
     start_entity_id: str,
     time_range_hours: int = 24,
-    event_types: Optional[List[str]] = None,
+    event_types: list[str] | None = None,
 ) -> dict:
     """
     Cross-DB saga: fetch events → trace causal chains → correlate timeline.
@@ -1021,8 +990,9 @@ async def saga_timeline_correlation(
     Returns:
         Dict with timeline events and causal relationships
     """
-    import structlog
     from datetime import datetime, timedelta
+
+    import structlog
 
     logger = structlog.get_logger(__name__)
 
@@ -1136,7 +1106,7 @@ async def saga_timeline_correlation(
 
 @register_tool(category="saga", priority=10, description="saga_execute_custom tool")
 async def saga_execute_custom(
-    steps: List[dict],
+    steps: list[dict],
 ) -> dict:
     """
     Execute a custom saga with user-defined steps.
@@ -1157,8 +1127,9 @@ async def saga_execute_custom(
     Returns:
         Dict with results from each step
     """
-    import structlog
     import re
+
+    import structlog
 
     logger = structlog.get_logger(__name__)
 

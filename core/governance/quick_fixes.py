@@ -39,8 +39,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from pathlib import Path
+from typing import Any
 
 import structlog
 
@@ -66,7 +68,7 @@ class QuickFix:
     problem: str
     pattern: str
     solution: str
-    fix_fn: Optional[Callable[[str, re.Match], str]] = None
+    fix_fn: Callable[[str, re.Match], str] | None = None
     auto_apply: bool = False
     times_applied: int = 0
 
@@ -80,7 +82,7 @@ class FixResult:
     solution: str
     applied: bool
     original_match: str
-    fixed_content: Optional[str] = None
+    fixed_content: str | None = None
 
 
 class QuickFixEngine:
@@ -174,8 +176,8 @@ class QuickFixEngine:
             ),
             QuickFix(
                 id="QF-009",
-                problem="Hardcoded /Users/ib-mac path",
-                pattern=r"/Users/ib-mac/(?!Projects/L9)",
+                problem="Hardcoded user-specific path",
+                pattern=rf"{Path.home()}/(?!Projects/L9)",
                 solution="Use Path.home() or $HOME for portability",
                 fix_fn=None,  # Requires context analysis
                 auto_apply=False,
@@ -340,9 +342,9 @@ def create_quick_fix_engine() -> QuickFixEngine:
 
 
 __all__ = [
-    "QuickFixEngine",
-    "QuickFix",
     "FixResult",
+    "QuickFix",
+    "QuickFixEngine",
     "create_quick_fix_engine",
 ]
 

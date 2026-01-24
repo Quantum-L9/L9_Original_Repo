@@ -36,18 +36,28 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any
 from uuid import UUID
 
 import structlog
 
 from core.decorators import must_stay_async
-from core.worldmodel.l9_schema import (ConnectionStatus, EntityType,
-                                       InfrastructureType, L9Agent,
-                                       L9ExternalSystem, L9Infrastructure,
-                                       L9MemorySegment, L9Relationship,
-                                       L9RelationshipType, L9Repository,
-                                       L9Tool, ToolCategory, ToolRiskLevel)
+from core.worldmodel.l9_schema import (
+    ConnectionStatus,
+    EntityType,
+    InfrastructureType,
+    L9Agent,
+    L9ExternalSystem,
+    L9Infrastructure,
+    L9MemorySegment,
+    L9Relationship,
+    L9RelationshipType,
+    L9Repository,
+    L9Tool,
+    ToolCategory,
+    ToolRiskLevel,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -60,7 +70,7 @@ class WorldModelService:
     with optional persistence to memory substrate.
     """
 
-    def __init__(self, substrate_service: Optional[Any] = None):
+    def __init__(self, substrate_service: Any | None = None):
         """
         Initialize WorldModelService.
 
@@ -70,18 +80,18 @@ class WorldModelService:
         self._substrate = substrate_service
 
         # In-memory entity storage
-        self._agents: Dict[UUID, L9Agent] = {}
-        self._repositories: Dict[UUID, L9Repository] = {}
-        self._infrastructure: Dict[UUID, L9Infrastructure] = {}
-        self._tools: Dict[UUID, L9Tool] = {}
-        self._memory_segments: Dict[UUID, L9MemorySegment] = {}
-        self._external_systems: Dict[UUID, L9ExternalSystem] = {}
-        self._relationships: Dict[UUID, L9Relationship] = {}
+        self._agents: dict[UUID, L9Agent] = {}
+        self._repositories: dict[UUID, L9Repository] = {}
+        self._infrastructure: dict[UUID, L9Infrastructure] = {}
+        self._tools: dict[UUID, L9Tool] = {}
+        self._memory_segments: dict[UUID, L9MemorySegment] = {}
+        self._external_systems: dict[UUID, L9ExternalSystem] = {}
+        self._relationships: dict[UUID, L9Relationship] = {}
 
         # Index by name for quick lookup
-        self._agents_by_name: Dict[str, UUID] = {}
-        self._tools_by_name: Dict[str, UUID] = {}
-        self._infra_by_name: Dict[str, UUID] = {}
+        self._agents_by_name: dict[str, UUID] = {}
+        self._tools_by_name: dict[str, UUID] = {}
+        self._infra_by_name: dict[str, UUID] = {}
 
         # Initialization flag
         self._initialized = False
@@ -358,7 +368,7 @@ class WorldModelService:
         repos = [
             L9Repository(
                 name="L9",
-                path="/Users/ib-mac/Projects/L9",
+                path=str(Path.home() / "Projects/L9"),
                 integration_type="git",
                 default_branch="main",
                 remote_url="https://github.com/quantumai/L9",
@@ -431,7 +441,7 @@ class WorldModelService:
     # =========================================================================
 
     @must_stay_async("callers use await")
-    async def get_agent_capabilities(self, agent_name: str) -> Dict[str, Any]:
+    async def get_agent_capabilities(self, agent_name: str) -> dict[str, Any]:
         """
         Get capabilities for an agent.
 
@@ -475,7 +485,7 @@ class WorldModelService:
         }
 
     @must_stay_async("health endpoint")
-    async def get_infrastructure_status(self) -> Dict[str, Any]:
+    async def get_infrastructure_status(self) -> dict[str, Any]:
         """
         Get status of all infrastructure components.
 
@@ -497,7 +507,7 @@ class WorldModelService:
         }
 
     @must_stay_async("callers use await")
-    async def get_approvals_summary(self) -> Dict[str, Any]:
+    async def get_approvals_summary(self) -> dict[str, Any]:
         """
         Get summary of approval requirements.
 
@@ -521,7 +531,7 @@ class WorldModelService:
         }
 
     @must_stay_async("callers use await")
-    async def get_integrations(self) -> Dict[str, Any]:
+    async def get_integrations(self) -> dict[str, Any]:
         """
         Get list of external system integrations.
 
@@ -616,11 +626,11 @@ class WorldModelService:
 # Global service instance (lazy initialization)
 # =============================================================================
 
-_global_service: Optional[WorldModelService] = None
+_global_service: WorldModelService | None = None
 
 
 def get_world_model_service(
-    substrate_service: Optional[Any] = None,
+    substrate_service: Any | None = None,
 ) -> WorldModelService:
     """Get or create the global WorldModelService instance."""
     global _global_service

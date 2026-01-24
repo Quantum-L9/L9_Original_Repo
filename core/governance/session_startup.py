@@ -63,7 +63,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -95,7 +95,7 @@ class PreflightResult:
     name: str
     passed: bool
     message: str
-    details: Optional[dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 @dataclass
@@ -105,7 +105,7 @@ class KernelReadinessResult:
     kernels_ready: bool
     kernel_state: str  # INACTIVE, LOADING, VALIDATING, ACTIVE, ERROR
     kernel_count: int
-    kernel_hash_snapshot: Dict[str, str] = field(default_factory=dict)
+    kernel_hash_snapshot: dict[str, str] = field(default_factory=dict)
     integrity_verified: bool = False
     errors: list[str] = field(default_factory=list)
 
@@ -121,7 +121,7 @@ class ADRLoadResult:
 
     adrs_loaded: list[str]  # List of ADR filenames loaded
     adr_count: int  # Total count of ADRs found
-    adr_index: Dict[str, Dict[str, Any]] = field(
+    adr_index: dict[str, dict[str, Any]] = field(
         default_factory=dict
     )  # ADR number -> metadata
     errors: list[str] = field(default_factory=list)
@@ -147,11 +147,11 @@ class StartupResult:
     # Kernel readiness (new in v2.0)
     kernels_ready: bool = False
     kernel_state: str = "NOT_CHECKED"
-    kernel_hash_snapshot: Dict[str, str] = field(default_factory=dict)
+    kernel_hash_snapshot: dict[str, str] = field(default_factory=dict)
     # ADR loading (new in v2.1.0, per ADR-0003)
     adrs_loaded: list[str] = field(default_factory=list)
     adr_count: int = 0
-    adr_index: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    adr_index: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 class SessionStartup:
@@ -162,7 +162,7 @@ class SessionStartup:
     returning structured status for governance verification.
 
     Usage:
-        startup = SessionStartup(Path("/Users/ib-mac/Projects/L9"))
+        startup = SessionStartup(Path.home() / "Projects/L9")
         result = startup.execute()
         if result.status != "READY":
             # Handle startup issues
@@ -191,7 +191,7 @@ class SessionStartup:
         self._files_loaded: list[str] = []
         self._errors: list[str] = []
         self._warnings: list[str] = []
-        self._kernel_result: Optional[KernelReadinessResult] = None
+        self._kernel_result: KernelReadinessResult | None = None
 
     @property
     def mandatory_files(self) -> list[StartupFile]:
@@ -427,7 +427,7 @@ class SessionStartup:
             KernelReadinessResult with readiness status
         """
         errors: list[str] = []
-        kernel_hashes: Dict[str, str] = {}
+        kernel_hashes: dict[str, str] = {}
 
         # Check kernel files exist
         kernel_dir = self.root / "private" / "kernels" / "00_system"
@@ -510,7 +510,7 @@ class SessionStartup:
         """
         errors: list[str] = []
         adrs_loaded: list[str] = []
-        adr_index: Dict[str, Dict[str, Any]] = {}
+        adr_index: dict[str, dict[str, Any]] = {}
 
         adr_dir = self.root / "readme" / "adr"
 
@@ -653,7 +653,7 @@ class SessionStartup:
         # Check kernel readiness (v2.0)
         kernels_ready = False
         kernel_state = "NOT_CHECKED"
-        kernel_hash_snapshot: Dict[str, str] = {}
+        kernel_hash_snapshot: dict[str, str] = {}
 
         if self.check_kernels:
             kernel_result = self.check_kernel_readiness()
@@ -712,7 +712,7 @@ class SessionStartup:
 
 
 # Factory function
-def create_session_startup(workspace_root: Optional[Path] = None) -> SessionStartup:
+def create_session_startup(workspace_root: Path | None = None) -> SessionStartup:
     """
     Create a SessionStartup instance.
 
@@ -722,17 +722,17 @@ def create_session_startup(workspace_root: Optional[Path] = None) -> SessionStar
     Returns:
         Configured SessionStartup
     """
-    root = workspace_root or Path("/Users/ib-mac/Projects/L9")
+    root = workspace_root or Path.home() / "Projects/L9"
     return SessionStartup(root)
 
 
 __all__ = [
+    "ADRLoadResult",
+    "KernelReadinessResult",
+    "PreflightResult",
     "SessionStartup",
     "StartupFile",
-    "PreflightResult",
     "StartupResult",
-    "KernelReadinessResult",
-    "ADRLoadResult",
     "create_session_startup",
 ]
 

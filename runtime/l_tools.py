@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -184,8 +184,7 @@ async def memory_get_packet(
                     else dict(packet)
                 ),
             }
-        else:
-            return {"status": "not_found", "packet_id": packet_id}
+        return {"status": "not_found", "packet_id": packet_id}
     except Exception as e:
         logger.error(f"Memory get_packet failed: {e}")
         return {"error": str(e), "status": "error"}
@@ -306,7 +305,7 @@ async def memory_search_by_type(
 
 @register_tool(category="memory", priority=10, description="memory_get_events tool")
 async def memory_get_events(
-    event_type: Optional[str] = None,
+    event_type: str | None = None,
     limit: int = 50,
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -342,7 +341,7 @@ async def memory_get_events(
     category="memory", priority=10, description="memory_get_reasoning_traces tool"
 )
 async def memory_get_reasoning_traces(
-    task_id: Optional[str] = None,
+    task_id: str | None = None,
     limit: int = 20,
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -490,7 +489,7 @@ async def memory_embed_text(
 async def memory_hybrid_search(
     query: str,
     top_k: int = 10,
-    filters: Optional[dict[str, Any]] = None,
+    filters: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -612,8 +611,8 @@ async def memory_fetch_thread(
     category="memory", priority=10, description="memory_fetch_facts_api tool"
 )
 async def memory_fetch_facts_api(
-    subject: Optional[str] = None,
-    predicate: Optional[str] = None,
+    subject: str | None = None,
+    predicate: str | None = None,
     limit: int = 50,
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -653,8 +652,8 @@ async def memory_fetch_facts_api(
 
 @register_tool(category="memory", priority=10, description="memory_fetch_insights tool")
 async def memory_fetch_insights(
-    packet_id: Optional[str] = None,
-    insight_type: Optional[str] = None,
+    packet_id: str | None = None,
+    insight_type: str | None = None,
     limit: int = 50,
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -724,7 +723,7 @@ async def memory_gc_stats(
 @register_tool(category="orchestration", priority=10, description="gmp_run tool")
 async def gmp_run(
     gmp_id: str,
-    params: Optional[dict[str, Any]] = None,
+    params: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -779,7 +778,7 @@ async def gmp_run(
 @register_tool(category="git", priority=10, description="git_commit tool")
 async def git_commit(
     message: str,
-    files: Optional[list[str]] = None,
+    files: list[str] | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -958,7 +957,7 @@ async def mcp_list_tools(
 async def mcp_call_tool(
     server_id: str,
     tool_name: str,
-    arguments: Optional[dict[str, Any]] = None,
+    arguments: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -988,7 +987,7 @@ async def mcp_call_tool(
 
         # Read local file
         mcp_call_tool(server_id="filesystem", tool_name="read_file", arguments={
-            "path": "/Users/ib-mac/Projects/L9/README.md"
+            "path": str(Path.home() / "Projects/L9/README.md")
         })
     """
     if arguments is None:
@@ -1011,13 +1010,12 @@ async def mcp_call_tool(
                 "tool_name": tool_name,
                 "result": result.get("result"),
             }
-        else:
-            return {
-                "status": "error",
-                "server_id": server_id,
-                "tool_name": tool_name,
-                "error": result.get("error", "Unknown error"),
-            }
+        return {
+            "status": "error",
+            "server_id": server_id,
+            "tool_name": tool_name,
+            "error": result.get("error", "Unknown error"),
+        }
     except Exception as e:
         logger.error(f"MCP call failed: {e}")
         return {"error": str(e), "status": "error"}
@@ -1391,13 +1389,12 @@ async def memory_get_checkpoint(
                 "agent_id": agent_id,
                 "checkpoint": checkpoint,
             }
-        else:
-            return {
-                "status": "success",
-                "agent_id": agent_id,
-                "checkpoint": None,
-                "message": "No checkpoint found",
-            }
+        return {
+            "status": "success",
+            "agent_id": agent_id,
+            "checkpoint": None,
+            "message": "No checkpoint found",
+        }
     except Exception as e:
         logger.error(f"Memory get checkpoint failed: {e}")
         return {"error": str(e), "status": "error"}
@@ -1688,7 +1685,7 @@ async def world_model_list_updates(
 async def slack_send(
     channel: str,
     text: str,
-    thread_ts: Optional[str] = None,
+    thread_ts: str | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -1745,8 +1742,8 @@ async def slack_send(
 @register_tool(category="llm", priority=10, description="llm_chat tool")
 async def llm_chat(
     message: str,
-    model: Optional[str] = None,
-    system_prompt: Optional[str] = None,
+    model: str | None = None,
+    system_prompt: str | None = None,
     temperature: float = 0.3,
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -1816,7 +1813,7 @@ async def llm_chat(
 )
 async def simulation_execute(
     graph_data: dict[str, Any],
-    scenario_params: Optional[dict[str, Any]] = None,
+    scenario_params: dict[str, Any] | None = None,
     mode: str = "standard",
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -1832,9 +1829,11 @@ async def simulation_execute(
         Dict with simulation results including score, metrics, failure_modes
     """
     try:
-        from simulation.simulation_engine import (SimulationConfig,
-                                                  SimulationEngine,
-                                                  SimulationMode)
+        from simulation.simulation_engine import (
+            SimulationConfig,
+            SimulationEngine,
+            SimulationMode,
+        )
 
         # Map mode string to enum
         mode_map = {
@@ -1880,7 +1879,7 @@ async def simulation_execute(
 )
 async def world_model_query(
     query_type: str,
-    params: Optional[dict[str, Any]] = None,
+    params: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -1938,7 +1937,7 @@ async def world_model_query(
 @register_tool(category="database", priority=10, description="neo4j_query tool")
 async def neo4j_query(
     cypher: str,
-    params: Optional[dict[str, Any]] = None,
+    params: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -2033,7 +2032,7 @@ async def redis_get(
 async def redis_set(
     key: str,
     value: str,
-    ttl_seconds: Optional[int] = None,
+    ttl_seconds: int | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -2406,8 +2405,7 @@ async def tools_get_metadata(
                     "rate_limit": tool.rate_limit,
                 },
             }
-        else:
-            return {"status": "not_found", "tool_id": tool_id}
+        return {"status": "not_found", "tool_id": tool_id}
     except Exception as e:
         logger.error(f"Tools get_metadata failed: {e}")
         return {"error": str(e), "status": "error"}
@@ -2439,8 +2437,7 @@ async def tools_get_schema(
         if schema:
             logger.info(f"Tools get_schema: tool={tool_id}")
             return {"status": "success", "tool_id": tool_id, "schema": schema}
-        else:
-            return {"status": "not_found", "tool_id": tool_id}
+        return {"status": "not_found", "tool_id": tool_id}
     except Exception as e:
         logger.error(f"Tools get_schema failed: {e}")
         return {"error": str(e), "status": "error"}
@@ -2556,8 +2553,7 @@ async def world_model_get_entity(
                     else dict(entity)
                 ),
             }
-        else:
-            return {"status": "not_found", "entity_id": entity_id}
+        return {"status": "not_found", "entity_id": entity_id}
     except Exception as e:
         logger.error(f"World model get_entity failed: {e}")
         return {"error": str(e), "status": "error"}
@@ -2567,8 +2563,8 @@ async def world_model_get_entity(
     category="world_model", priority=10, description="world_model_list_entities tool"
 )
 async def world_model_list_entities(
-    entity_type: Optional[str] = None,
-    min_confidence: Optional[float] = None,
+    entity_type: str | None = None,
+    min_confidence: float | None = None,
     limit: int = 50,
     **kwargs: Any,
 ) -> dict[str, Any]:
@@ -2613,7 +2609,7 @@ async def world_model_list_entities(
     category="world_model", priority=10, description="world_model_snapshot tool"
 )
 async def world_model_snapshot(
-    description: Optional[str] = None,
+    description: str | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """
@@ -2799,7 +2795,7 @@ async def kernel_read(
 # Map tool names to executor functions
 
 
-def get_tool_executor(tool_name: str) -> Optional[Any]:
+def get_tool_executor(tool_name: str) -> Any | None:
     """
     Get executor function for a tool by name.
 
