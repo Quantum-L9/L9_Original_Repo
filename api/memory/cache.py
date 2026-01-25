@@ -39,17 +39,28 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 
 from api.auth import verify_api_key
+from api.routes.registry import router_registry
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="/api/v1/memory/cache",
+    tags=["memory-cache", "redis"],
+    module_id="memory_cache",
+    display_name="Memory Cache API (Redis)",
+    dependencies=["redis_client"],
+)
 
 # Lazy import Redis client
 _redis_client = None
@@ -79,7 +90,7 @@ class CacheSetRequest(BaseModel):
 
     key: str
     value: Any
-    ttl: Optional[int] = None  # seconds
+    ttl: int | None = None  # seconds
 
 
 class CacheResponse(BaseModel):
@@ -87,7 +98,7 @@ class CacheResponse(BaseModel):
 
     success: bool
     data: Any = None
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class SessionContextRequest(BaseModel):

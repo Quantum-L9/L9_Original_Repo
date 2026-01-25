@@ -31,19 +31,30 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from api.routes.registry import router_registry
 from core.decorators import must_stay_async
 from core.tools.registry_adapter import ExecutorToolRegistry
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="/tools",
+    tags=["tools"],
+    module_id="tools_api",
+    display_name="Tools API",
+    dependencies=["tool_registry"],
+)
 
 
 # ============================================================================
@@ -55,7 +66,7 @@ class ToolExecuteRequest(BaseModel):
     """Request model for tool execution."""
 
     tool_id: str = Field(..., description="Canonical tool identity")
-    arguments: Dict[str, Any] = Field(
+    arguments: dict[str, Any] = Field(
         default_factory=dict, description="Tool arguments"
     )
     max_retries: int = Field(default=3, description="Max retry attempts")
@@ -66,7 +77,7 @@ class ToolExecuteResponse(BaseModel):
     """Response model for tool execution."""
 
     success: bool = Field(..., description="Whether operation succeeded")
-    result: Optional[Dict[str, Any]] = Field(
+    result: dict[str, Any] | None = Field(
         default=None, description="Tool execution result"
     )
     safety_level: str = Field(default="safe", description="Safety assessment")
@@ -167,7 +178,7 @@ async def execute_tool(
         )
     except Exception as e:
         logger.error(f"Tool execution failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Tool execution failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Tool execution failed: {e!s}")
 
 
 @router.get("/health")

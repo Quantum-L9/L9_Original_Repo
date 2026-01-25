@@ -26,9 +26,19 @@ __dora_meta__ = {
 
 from fastapi import APIRouter
 
+from api.routes.registry import router_registry
 from core.decorators import must_stay_async
 
 router = APIRouter(tags=["os"])
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="/os",
+    tags=["os"],
+    module_id="os_routes",
+    display_name="OS Health & Status",
+)
 
 
 @router.get("/health")

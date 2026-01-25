@@ -49,9 +49,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
 import json
-from typing import AsyncGenerator, List, Optional
+import os
+from collections.abc import AsyncGenerator
 from uuid import UUID
 
 import structlog
@@ -59,9 +59,9 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from api.auth import verify_api_key
+from api.routes.registry import router_registry
 from core.decorators import must_stay_async
-from core.observability.circuit_breaker import (CircuitBreaker,
-                                                CircuitBreakerConfig)
+from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
 from memory.governance_gate import build_governance_context, governance_context
 from memory.housekeeping import get_housekeeping_engine
@@ -94,6 +94,16 @@ async def memory_governance_context_dependency(
 
 router = APIRouter(dependencies=[Depends(memory_governance_context_dependency)])
 
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="/api/v1/memory",
+    tags=["memory"],
+    module_id="memory_substrate",
+    display_name="Memory Substrate API",
+    dependencies=["memory_service"],
+)
+
 _batch_circuit_breaker = CircuitBreaker(
     CircuitBreakerConfig(
         failure_threshold=10,
@@ -123,13 +133,13 @@ class PacketRequest(BaseModel):
 
     packet_type: str
     payload: dict
-    metadata: Optional[dict] = None
-    provenance: Optional[dict] = None
-    confidence: Optional[dict] = None
+    metadata: dict | None = None
+    provenance: dict | None = None
+    confidence: dict | None = None
     # v2.0 additions
-    thread_id: Optional[str] = None
-    tags: Optional[List[str]] = None
-    ttl: Optional[int] = None  # seconds until expiration
+    thread_id: str | None = None
+    tags: list[str] | None = None
+    ttl: int | None = None  # seconds until expiration
 
 
 class PacketResponse(BaseModel):
@@ -137,8 +147,8 @@ class PacketResponse(BaseModel):
 
     packet_id: str
     status: str
-    written_tables: List[str]
-    error_message: Optional[str] = None
+    written_tables: list[str]
+    error_message: str | None = None
 
 
 @router.post("/test")
@@ -207,7 +217,7 @@ async def create_packet(
     except Exception as e:
         logger.error(f"Packet ingestion failed: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Packet ingestion failed: {str(e)}"
+            status_code=500, detail=f"Packet ingestion failed: {e!s}"
         )
 
 
@@ -227,7 +237,7 @@ async def semantic_search(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Semantic search failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {e!s}")
 
 
 @router.get("/stats")
@@ -265,7 +275,7 @@ async def get_stats(
         }
     except Exception as e:
         logger.error(f"Stats retrieval failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Stats failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Stats failed: {e!s}")
 
 
 @router.get("/packet/{packet_id}")
@@ -288,7 +298,7 @@ async def get_packet(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Get packet failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get packet failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Get packet failed: {e!s}")
 
 
 @router.get("/thread/{thread_id}")
@@ -310,13 +320,13 @@ async def get_thread(
         packets = await pipeline.fetch_thread(thread_uuid, limit=limit, order=order)
         return {"thread_id": thread_id, "packets": packets, "count": len(packets)}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid thread_id: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid thread_id: {e!s}")
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Get thread failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get thread failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Get thread failed: {e!s}")
 
 
 @router.get("/lineage/{packet_id}")
@@ -340,13 +350,13 @@ async def get_lineage(
         )
         return lineage
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}")
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Get lineage failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get lineage failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Get lineage failed: {e!s}")
 
 
 @router.post("/hybrid/search")
@@ -355,7 +365,7 @@ async def hybrid_search(
     query: str = Query(..., min_length=1),
     top_k: int = Query(10, ge=1, le=100),
     min_score: float = Query(0.5, ge=0.0, le=1.0),
-    agent_id: Optional[str] = Query(None),
+    agent_id: str | None = Query(None),
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
 ):
@@ -393,14 +403,14 @@ async def hybrid_search(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Hybrid search failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Hybrid search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Hybrid search failed: {e!s}")
 
 
 @router.get("/facts")
 async def get_facts(
-    subject: Optional[str] = Query(None),
-    predicate: Optional[str] = Query(None),
-    source_packet: Optional[str] = Query(None),
+    subject: str | None = Query(None),
+    predicate: str | None = Query(None),
+    source_packet: str | None = Query(None),
     limit: int = Query(100, ge=1, le=1000),
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -432,13 +442,13 @@ async def get_facts(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Get facts failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get facts failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Get facts failed: {e!s}")
 
 
 @router.get("/insights")
 async def get_insights(
-    packet_id: Optional[str] = Query(None),
-    insight_type: Optional[str] = Query(None),
+    packet_id: str | None = Query(None),
+    insight_type: str | None = Query(None),
     limit: int = Query(50, ge=1, le=1000),
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -458,13 +468,13 @@ async def get_insights(
         )
         return {"insights": insights, "count": len(insights)}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}")
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Get insights failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get insights failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Get insights failed: {e!s}")
 
 
 @router.post("/gc/run")
@@ -485,7 +495,7 @@ async def run_gc(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"GC run failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"GC run failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"GC run failed: {e!s}")
 
 
 @router.get("/gc/stats")
@@ -506,7 +516,7 @@ async def get_gc_stats(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Get GC stats failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get GC stats failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Get GC stats failed: {e!s}")
 
 
 @router.get("/health")
@@ -540,7 +550,7 @@ async def health_check(
 class BatchRequest(BaseModel):
     """Request model for batch packet ingestion."""
 
-    packets: List[dict]
+    packets: list[dict]
     batch_size: int = 100
 
 
@@ -549,7 +559,7 @@ class BatchResponse(BaseModel):
 
     success: bool
     processed_count: int
-    errors: List[str] = []
+    errors: list[str] = []
 
 
 class CompactResponse(BaseModel):
@@ -610,7 +620,7 @@ async def batch_write(
     except Exception as e:
         _batch_circuit_breaker.record_failure(str(e))
         logger.error(f"Batch write failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Batch write failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Batch write failed: {e!s}")
 
 
 @router.post("/compact", response_model=CompactResponse)
@@ -639,7 +649,7 @@ async def compact_storage(
         )
     except Exception as e:
         logger.error(f"Compact failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Compact failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Compact failed: {e!s}")
 
 
 # ============================================================================
@@ -650,7 +660,7 @@ class ReasoningReplayRequest(BaseModel):
     """Request model for reasoning replay."""
 
     packet_id: str
-    max_depth: Optional[int] = None
+    max_depth: int | None = None
     format: str = "narrative"  # json, narrative, graph_viz, mermaid
 
 
@@ -705,13 +715,13 @@ async def reasoning_replay(
             format=request.format,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}")
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logger.error(f"Reasoning replay failed: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Reasoning replay failed: {str(e)}"
+            status_code=500, detail=f"Reasoning replay failed: {e!s}"
         )
 
 
@@ -731,8 +741,8 @@ class ConsolidationResponse(BaseModel):
     archived_count: int
     summarized_count: int
     expired_count: int
-    errors: List[str]
-    duration_seconds: Optional[float]
+    errors: list[str]
+    duration_seconds: float | None
     message: str
 
 
@@ -781,7 +791,7 @@ async def run_consolidation(
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logger.error(f"Consolidation failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Consolidation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Consolidation failed: {e!s}")
 
 
 # ============================================================================
@@ -799,16 +809,16 @@ class FetchAndEnrichRequest(BaseModel):
 class EnrichEntitiesRequest(BaseModel):
     """Request model for entity enrichment saga."""
 
-    entity_ids: List[str]
+    entity_ids: list[str]
     entity_type: str = "Entity"
 
 
 class CorrelateTimelineRequest(BaseModel):
     """Request model for timeline correlation saga."""
 
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
-    event_type: Optional[str] = None
+    start_time: str | None = None
+    end_time: str | None = None
+    event_type: str | None = None
     limit: int = 50
 
 
@@ -822,9 +832,9 @@ class SagaResponse(BaseModel):
     steps_failed: int
     steps_skipped: int
     total_duration_ms: float
-    output: Optional[dict] = None
-    error: Optional[str] = None
-    failed_step: Optional[str] = None
+    output: dict | None = None
+    error: str | None = None
+    failed_step: str | None = None
 
 
 def _saga_result_to_response(result: SagaResult) -> SagaResponse:
@@ -874,7 +884,7 @@ async def saga_fetch_and_enrich(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Fetch and enrich saga failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Saga failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}")
 
 
 @router.post("/saga/enrich-entities", response_model=SagaResponse)
@@ -903,7 +913,7 @@ async def saga_enrich_entities(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Entity enrichment saga failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Saga failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}")
 
 
 @router.post("/saga/correlate-timeline", response_model=SagaResponse)
@@ -934,7 +944,7 @@ async def saga_correlate_timeline(
         raise HTTPException(status_code=503, detail="Memory system not available.")
     except Exception as e:
         logger.error(f"Timeline correlation saga failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Saga failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}")
 
 
 # =============================================================================
@@ -945,7 +955,7 @@ class WarmRequest(BaseModel):
     """Request for memory warming."""
 
     query: str
-    mentioned_entities: List[str] = []
+    mentioned_entities: list[str] = []
     max_gaps_to_warm: int = 10
 
 
@@ -957,7 +967,7 @@ class WarmResponse(BaseModel):
     entities_warmed: int
     warming_latency_ms: float
     cache_metrics: dict
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @router.post("/warm", response_model=WarmResponse)
@@ -1012,7 +1022,7 @@ async def warm_memory_for_query(
 
     except Exception as e:
         logger.error(f"Memory warming failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Memory warming failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Memory warming failed: {e!s}")
 
 
 @router.get("/warm/metrics")
@@ -1044,7 +1054,7 @@ async def get_warming_metrics(
         return metrics
     except Exception as e:
         logger.error(f"Failed to get warming metrics: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {e!s}")
 
 
 # ============================================================================

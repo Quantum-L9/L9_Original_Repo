@@ -49,16 +49,28 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from api.routes.registry import router_registry
+
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/world-model", tags=["world-model"])
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/world-model"
+    tags=["world-model"],
+    module_id="world_model_api",
+    display_name="World Model API",
+    dependencies=["world_model_service"],
+)
 
 
 # =============================================================================
@@ -73,8 +85,8 @@ class EntityResponse(BaseModel):
     entity_type: str
     attributes: dict[str, Any]
     confidence: float
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    created_at: str | None = None
+    updated_at: str | None = None
     version: int = 1
 
 
@@ -97,7 +109,7 @@ class StateVersionResponse(BaseModel):
 class SnapshotRequest(BaseModel):
     """Create snapshot request."""
 
-    description: Optional[str] = Field(None, description="Optional description")
+    description: str | None = Field(None, description="Optional description")
     created_by: str = Field(default="api", description="Creator identifier")
 
 
@@ -108,7 +120,7 @@ class SnapshotResponse(BaseModel):
     state_version: int
     entity_count: int
     created_at: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class RestoreRequest(BaseModel):
@@ -129,7 +141,7 @@ class RestoreResponse(BaseModel):
 class InsightInput(BaseModel):
     """Single insight for world model update."""
 
-    insight_id: Optional[str] = None
+    insight_id: str | None = None
     insight_type: str = Field(
         ..., description="Type: pattern, conclusion, recommendation"
     )
@@ -137,7 +149,7 @@ class InsightInput(BaseModel):
     entities: list[str] = Field(default_factory=list, description="Referenced entities")
     confidence: float = Field(default=0.7, ge=0.0, le=1.0)
     trigger_world_model: bool = Field(default=True)
-    source_packet: Optional[str] = None
+    source_packet: str | None = None
     facts: list[dict[str, Any]] = Field(default_factory=list)
 
 
@@ -160,8 +172,8 @@ class UpdateRecord(BaseModel):
     """Single update record."""
 
     update_id: str
-    insight_id: Optional[str] = None
-    insight_type: Optional[str] = None
+    insight_id: str | None = None
+    insight_type: str | None = None
     entities: list[str]
     confidence: float
     applied_at: str
@@ -236,8 +248,8 @@ async def get_entity(entity_id: str):
 
 @router.get("/entities", response_model=EntityListResponse)
 async def list_entities(
-    entity_type: Optional[str] = Query(None, description="Filter by entity type"),
-    min_confidence: Optional[float] = Query(
+    entity_type: str | None = Query(None, description="Filter by entity type"),
+    min_confidence: float | None = Query(
         None, ge=0.0, le=1.0, description="Minimum confidence"
     ),
     limit: int = Query(100, ge=1, le=1000, description="Maximum results"),
@@ -317,7 +329,7 @@ async def create_snapshot(request: SnapshotRequest):
         )
     except Exception as e:
         logger.error(f"Failed to create snapshot: {e}")
-        raise HTTPException(status_code=500, detail=f"Snapshot failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Snapshot failed: {e!s}")
 
 
 @router.post("/restore", response_model=RestoreResponse)
@@ -407,8 +419,8 @@ async def submit_insights(request: InsightsRequest):
 
 @router.get("/updates", response_model=UpdatesListResponse)
 async def list_updates(
-    insight_type: Optional[str] = Query(None, description="Filter by insight type"),
-    min_confidence: Optional[float] = Query(None, ge=0.0, le=1.0),
+    insight_type: str | None = Query(None, description="Filter by insight type"),
+    min_confidence: float | None = Query(None, ge=0.0, le=1.0),
     limit: int = Query(100, ge=1, le=1000),
 ):
     """

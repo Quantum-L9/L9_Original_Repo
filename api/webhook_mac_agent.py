@@ -27,21 +27,31 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Optional
 
 import structlog
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from orchestrators.agent_execution.task_queue import \
-    complete_task  # Legacy API for backward compatibility
-from orchestrators.agent_execution.task_queue import (get_next_task,
-                                                      list_tasks,
-                                                      mark_task_completed)
+from api.routes.registry import router_registry
+from orchestrators.agent_execution.task_queue import (
+    complete_task,  # Legacy API for backward compatibility
+    get_next_task,
+    list_tasks,
+    mark_task_completed,
+)
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/mac", tags=["mac-agent"])
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/mac"
+    tags=["mac-agent"],
+    module_id="mac_agent_api",
+    display_name="Mac Agent API",
+)
 
 
 class TaskResultRequest(BaseModel):
@@ -49,8 +59,8 @@ class TaskResultRequest(BaseModel):
 
     result: str
     status: str = "done"
-    screenshot_path: Optional[str] = None
-    logs: Optional[List[str]] = None
+    screenshot_path: str | None = None
+    logs: list[str] | None = None
 
 
 @router.get("/tasks/next")

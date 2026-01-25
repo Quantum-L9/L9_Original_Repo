@@ -40,32 +40,43 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
+from api.routes.registry import router_registry
 from core.decorators import must_stay_async
 from services.symbolic_computation.config import get_config
 from services.symbolic_computation.core.cache_manager import CacheManager
 from services.symbolic_computation.core.code_generator import CodeGenerator
-from services.symbolic_computation.core.expression_evaluator import \
-    ExpressionEvaluator
+from services.symbolic_computation.core.expression_evaluator import ExpressionEvaluator
 from services.symbolic_computation.core.metrics import MetricsCollector
-from services.symbolic_computation.core.models import (CodeGenRequest,
-                                                       CodeGenResult,
-                                                       CodeLanguage,
-                                                       ComputationResult,
-                                                       HealthStatus,
-                                                       MetricsSummary,
-                                                       ValidationResult)
+from services.symbolic_computation.core.models import (
+    CodeGenRequest,
+    CodeGenResult,
+    CodeLanguage,
+    ComputationResult,
+    HealthStatus,
+    MetricsSummary,
+    ValidationResult,
+)
 from services.symbolic_computation.core.optimizer import Optimizer
 from services.symbolic_computation.core.validator import ExpressionValidator
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/symbolic", tags=["symbolic"])
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/symbolic"
+    tags=["symbolic", "computation"],
+    module_id="symbolic_computation",
+    display_name="Symbolic Computation API",
+)
 
 # Service instances (initialized lazily)
 _evaluator: ExpressionEvaluator | None = None
@@ -128,7 +139,7 @@ class EvaluateRequest(BaseModel):
     """Request model for /evaluate endpoint."""
 
     expression: str = Field(..., description="SymPy expression to evaluate")
-    variables: Dict[str, float] = Field(
+    variables: dict[str, float] = Field(
         default_factory=dict, description="Variable name to value mapping"
     )
     backend: str = Field(
@@ -140,7 +151,7 @@ class OptimizeRequest(BaseModel):
     """Request model for /optimize endpoint."""
 
     expression: str = Field(..., description="SymPy expression to optimize")
-    strategies: List[str] = Field(
+    strategies: list[str] = Field(
         default=["simplify"], description="Optimization strategies to apply"
     )
 
@@ -153,7 +164,7 @@ class OptimizeResponse(BaseModel):
     original_ops: int
     optimized_ops: int
     reduction_percent: float
-    strategies_applied: List[str]
+    strategies_applied: list[str]
 
 
 class ValidateRequest(BaseModel):
@@ -404,7 +415,7 @@ async def health_check() -> HealthStatus:
 
 @router.get("/cache/stats")
 @must_stay_async("FastAPI/ASGI route handler")
-async def get_cache_stats() -> Dict[str, Any]:
+async def get_cache_stats() -> dict[str, Any]:
     """Get cache statistics."""
     global _cache
     if _cache is None:
@@ -414,7 +425,7 @@ async def get_cache_stats() -> Dict[str, Any]:
 
 @router.post("/cache/clear")
 @must_stay_async("FastAPI/ASGI route handler")
-async def clear_cache() -> Dict[str, str]:
+async def clear_cache() -> dict[str, str]:
     """Clear all caches."""
     global _cache
     if _cache:

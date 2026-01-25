@@ -74,11 +74,7 @@ from pydantic import BaseModel
 
 import api.agent_routes as agent_routes
 import api.db as db
-import api.os_routes as os_routes
 from api.auth import verify_api_key
-from api.memory.cache import router as cache_router
-from api.memory.graph import router as graph_router
-from api.memory.router import router as memory_router
 
 # Router Auto-Registration (Phase 2 Auto-Wiring)
 from api.routes.registry import discover_routers, router_registry
@@ -100,12 +96,12 @@ from runtime.background_tasks import BackgroundTaskRegistry
 # MCP Server Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
 from runtime.mcp_server_registry import (
     get_all_mcp_servers,  # noqa: F401
-    )
+)
 
 # Tool Executor Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
 from runtime.tool_registry import (
     get_tool_executors,  # noqa: F401
-    )
+)
 
 # Telemetry / Prometheus metrics
 try:
@@ -3279,51 +3275,34 @@ except Exception as e:
     logger.warning(f"Router auto-wiring failed: {e}")
 
 # Legacy manual router registrations (will be migrated to auto-registration)
-# OS health + metrics + routing
-app.include_router(os_routes.router, prefix="/os")
+# NOTE: os_routes now auto-wired via router_registry — see api/os_routes.py
 
-# Background agent tasking
-app.include_router(agent_routes.router, prefix="/agent")
+# NOTE: agent_routes now auto-wired via router_registry — see api/agent_routes.py
 
 # Modules status router (GMP-45)
 # NOTE: Now auto-wired via router_registry — see api/routes/modules.py
 
-# Persistent memory router
-app.include_router(memory_router, prefix="/api/v1/memory")
+# NOTE: memory_router now auto-wired via router_registry — see api/memory/router.py
 
-# Graph router (Neo4j) - for cursor_memory_client.py
-app.include_router(graph_router, prefix="/api/v1/memory/graph")
+# NOTE: graph_router now auto-wired via router_registry — see api/memory/graph.py
 
-# Cache router (Redis) - for cursor_memory_client.py
-app.include_router(cache_router, prefix="/api/v1/memory/cache")
+# NOTE: cache_router now auto-wired via router_registry — see api/memory/cache.py
 
-# World Model router (v1.1.0+)
-if _has_world_model:
-    app.include_router(world_model_router)
+# NOTE: world_model_router now auto-wired via router_registry — see api/world_model_api.py
 
-# World Model Query router (GMP-18)
-if _has_worldmodel_query:
-    app.include_router(worldmodel_query_router)
-    logger.info("World Model Query router registered at /worldmodel")
+# NOTE: worldmodel_query_router now auto-wired via router_registry — see api/routes/worldmodel.py
 
 # Slack adapter router (v2.0+)
 # NOTE: Now auto-wired via router_registry — see api/routes/slack.py
 
-# Quantum Research Factory router (v2.1+)
-if _has_research:
-    app.include_router(research_router)
+# NOTE: research_router now auto-wired via router_registry — see services/research/research_api.py
 
-# Research Factory router (v2.3+)
-if _has_factory:
-    app.include_router(factory_router)
+# NOTE: factory_router now auto-wired via router_registry — see api/routes/factory.py
 
 # Igor Command Interface router (v2.7+ / GMP-11)
 # NOTE: Now auto-wired via router_registry — see api/routes/commands.py
 
-# Tools router (v2.8+ / Wire Orchestrators)
-if _has_tools_router:
-    app.include_router(tools_router, prefix="/tools")
-    logger.info("Tools router registered at /tools")
+# NOTE: tools_router now auto-wired via router_registry — see api/tools/router.py
 
 # Reasoning router (Stage 2.6 Phase 2)
 # NOTE: Now auto-wired via router_registry — see api/routes/reasoning.py
@@ -3342,10 +3321,7 @@ if _has_tools_router:
 # ResearchAgent router (Perplexity-based unified research-to-code)
 # NOTE: Now auto-wired via router_registry — see api/routes/research_agent.py
 
-# ReflectionAgent router (Meta-reasoning and self-improvement)
-if _has_reflection_agent:
-    app.include_router(reflection_agent_router, prefix="/reflection/agent")
-    logger.info("ReflectionAgent router registered at /reflection/agent")
+# NOTE: reflection_agent_router now auto-wired via router_registry — see api/routes/reflection_agent.py
 
 # Cursor Executor router (GMP-48)
 # NOTE: Now auto-wired via router_registry — see api/routes/cursor.py
@@ -3353,19 +3329,9 @@ if _has_reflection_agent:
 # Compliance router (GMP-21)
 # NOTE: Now auto-wired via router_registry — see api/routes/compliance.py
 
-# Simulation router (GMP-24)
-try:
-    from api.routes.simulation import router as simulation_router
+# NOTE: simulation_router now auto-wired via router_registry — see api/routes/simulation.py
 
-    app.include_router(simulation_router)
-    logger.info("Simulation router registered at /simulation")
-except ImportError:
-    logger.debug("Simulation router not available")
-
-# Symbolic Computation router (GMP-SYMPY-TASK4)
-if _has_symbolic:
-    app.include_router(symbolic_router)  # Router already has /symbolic prefix
-    logger.info("Symbolic Computation router registered at /symbolic")
+# NOTE: symbolic_router now auto-wired via router_registry — see services/symbolic_computation/api/routes.py
 
 # Observability Router (GMP-91)
 # NOTE: Now auto-wired via router_registry — see api/routes/observability.py
@@ -3373,14 +3339,7 @@ if _has_symbolic:
 # Slack Webhook Adapter (v2.6+) - NOT USED (using slack_router v2.0+ instead)
 # Legacy webhook router - NOT USED (using slack_router v2.0+ instead)
 
-# Mac Agent API
-if _has_mac_agent:
-    try:
-        from api.webhook_mac_agent import router as mac_agent_router
-
-        app.include_router(mac_agent_router)
-    except Exception as e:
-        logger.warning(f"Failed to load Mac Agent router: {e}")
+# NOTE: mac_agent_router now auto-wired via router_registry — see api/webhook_mac_agent.py
 
 # WABA (WhatsApp Business Account - native Meta) (legacy)
 if _has_waba:
@@ -3391,19 +3350,9 @@ if _has_waba:
     except Exception as e:
         logger.warning(f"Failed to load WABA router: {e}")
 
-# Email Agent API (email_agent/router.py) - Gmail multi-account
-if _has_email_agent:
-    app.include_router(email_agent_router)
-    logger.info("Email Agent router registered at /email/{account}/*")
+# NOTE: email_agent_router now auto-wired via router_registry — see email_agent/router.py
 
-# PacketEnvelope Upgrades API (Phases 2-5)
-try:
-    from api.routes.upgrades import router as upgrades_router
-
-    app.include_router(upgrades_router, prefix="/api/v1")
-    logger.info("PacketEnvelope upgrades router registered at /api/v1/upgrades")
-except Exception as e:
-    logger.warning(f"Failed to load PacketEnvelope upgrades router: {e}")
+# NOTE: upgrades_router now auto-wired via router_registry — see api/routes/upgrades.py
 
 # MCP Memory Router (MCP Protocol endpoints)
 # NOTE: Now auto-wired via router_registry — see api/routes/mcp.py

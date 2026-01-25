@@ -26,19 +26,28 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional
 from uuid import uuid4
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
+from api.routes.registry import router_registry
 from services.research.graph_runtime import ResearchGraphRuntime, get_runtime
 
 logger = structlog.get_logger(__name__)
 
 # Create router
 router = APIRouter(prefix="/research", tags=["research"])
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="",  # Router already has prefix="/research"
+    tags=["research"],
+    module_id="research_factory",
+    display_name="Research Factory API",
+)
 
 
 # =============================================================================
@@ -51,7 +60,7 @@ class ResearchRequest(BaseModel):
 
     query: str = Field(..., min_length=1, max_length=5000, description="Research query")
     user_id: str = Field(default="anonymous", description="User identifier")
-    thread_id: Optional[str] = Field(
+    thread_id: str | None = Field(
         None, description="Optional thread ID for tracking"
     )
 
@@ -79,7 +88,7 @@ class ResearchResponse(BaseModel):
     )
     feedback: str = Field(default="", description="Critic feedback")
     timestamp: str = Field(default="", description="Completion timestamp")
-    error: Optional[str] = Field(None, description="Error message if failed")
+    error: str | None = Field(None, description="Error message if failed")
 
     class Config:
         json_schema_extra = {
@@ -162,7 +171,7 @@ async def research(
         )
 
         # Handle error in result
-        if "error" in result and result["error"]:
+        if result.get("error"):
             return ResearchResponse(
                 thread_id=result.get("thread_id", str(uuid4())),
                 query=request.query,
@@ -184,7 +193,7 @@ async def research(
     except Exception as e:
         logger.error(f"Research failed: {e}")
         raise HTTPException(
-            status_code=500, detail=f"Research execution failed: {str(e)}"
+            status_code=500, detail=f"Research execution failed: {e!s}"
         )
 
 
@@ -254,7 +263,7 @@ async def resume_research(
         raise
     except Exception as e:
         logger.error(f"Resume failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Resume failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Resume failed: {e!s}")
 
 
 # ============================================================================

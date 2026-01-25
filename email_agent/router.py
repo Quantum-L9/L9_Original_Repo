@@ -59,7 +59,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -67,11 +67,22 @@ from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel
 
 from api.auth import verify_api_key
+from api.routes.registry import router_registry
 from email_agent.config import VALID_ACCOUNTS
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/email", tags=["email-agent"])
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="/email",
+    tags=["email-agent"],
+    module_id="email_agent",
+    display_name="Email Agent API",
+    dependencies=["email_agent_service"],
+)
 
 
 # =============================================================================
@@ -98,17 +109,17 @@ class DraftRequest(BaseModel):
     to: str
     subject: str
     body: str
-    attachments: Optional[List[str]] = None
+    attachments: list[str] | None = None
 
 
 class SendRequest(BaseModel):
     """Request model for sending email."""
 
-    draft_id: Optional[str] = None
-    to: Optional[str] = None
-    subject: Optional[str] = None
-    body: Optional[str] = None
-    attachments: Optional[List[str]] = None
+    draft_id: str | None = None
+    to: str | None = None
+    subject: str | None = None
+    body: str | None = None
+    attachments: list[str] | None = None
 
 
 class ReplyRequest(BaseModel):
@@ -135,8 +146,8 @@ async def ingest_email_event(
     trace_id: str,
     action: str,
     phase: str,  # "pre" or "post"
-    payload: Dict[str, Any],
-    error: Optional[str] = None,
+    payload: dict[str, Any],
+    error: str | None = None,
 ) -> None:
     """
     Ingest email event to memory.
@@ -179,7 +190,7 @@ async def ingest_email_event(
         logger.error(f"[{trace_id}] FAILED to ingest email event: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Memory ingestion failed for {action} ({phase}): {str(e)}. trace_id={trace_id}",
+            detail=f"Memory ingestion failed for {action} ({phase}): {e!s}. trace_id={trace_id}",
         )
 
 
@@ -270,7 +281,7 @@ async def query_emails(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email query failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{str(e)} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
 
 
 @router.post("/{account}/get")
@@ -323,22 +334,21 @@ async def get_email(
                 },
             )
             return {"message": message, "trace_id": trace_id, "account": account}
-        else:
-            # Post-action ingestion (not found)
-            await ingest_email_event(
-                trace_id=trace_id,
-                action=action,
-                phase="post",
-                payload={
-                    "account": account,
-                    "status": "not_found",
-                    "message_id": request.id,
-                },
-            )
-            raise HTTPException(
-                status_code=404,
-                detail=f"Message {request.id} not found (trace_id={trace_id})",
-            )
+        # Post-action ingestion (not found)
+        await ingest_email_event(
+            trace_id=trace_id,
+            action=action,
+            phase="post",
+            payload={
+                "account": account,
+                "status": "not_found",
+                "message_id": request.id,
+            },
+        )
+        raise HTTPException(
+            status_code=404,
+            detail=f"Message {request.id} not found (trace_id={trace_id})",
+        )
 
     except HTTPException:
         raise
@@ -352,7 +362,7 @@ async def get_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email get failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{str(e)} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
 
 
 @router.post("/{account}/draft")
@@ -414,18 +424,17 @@ async def draft_email(
                 "trace_id": trace_id,
                 "account": account,
             }
-        else:
-            # Post-action ingestion (failure)
-            await ingest_email_event(
-                trace_id=trace_id,
-                action=action,
-                phase="post",
-                payload={"account": account, "status": "error"},
-                error="Draft creation returned None",
-            )
-            raise HTTPException(
-                status_code=500, detail=f"Failed to create draft (trace_id={trace_id})"
-            )
+        # Post-action ingestion (failure)
+        await ingest_email_event(
+            trace_id=trace_id,
+            action=action,
+            phase="post",
+            payload={"account": account, "status": "error"},
+            error="Draft creation returned None",
+        )
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create draft (trace_id={trace_id})"
+        )
 
     except HTTPException:
         raise
@@ -439,7 +448,7 @@ async def draft_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email draft failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{str(e)} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
 
 
 @router.post("/{account}/send")
@@ -539,7 +548,7 @@ async def send_email(
                 logger.error(f"[{trace_id}] Failed to send draft: {e}")
                 raise HTTPException(
                     status_code=500,
-                    detail=f"Failed to send draft: {str(e)} (trace_id={trace_id})",
+                    detail=f"Failed to send draft: {e!s} (trace_id={trace_id})",
                 )
         else:
             # Send directly
@@ -587,22 +596,21 @@ async def send_email(
                     "account": account,
                     **result,
                 }
-            else:
-                await ingest_email_event(
-                    trace_id=trace_id,
-                    action=action,
-                    phase="post",
-                    payload={
-                        "account": account,
-                        "status": "error",
-                        "send_mode": "direct",
-                    },
-                    error="send_email returned None",
-                )
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Failed to send email (trace_id={trace_id})",
-                )
+            await ingest_email_event(
+                trace_id=trace_id,
+                action=action,
+                phase="post",
+                payload={
+                    "account": account,
+                    "status": "error",
+                    "send_mode": "direct",
+                },
+                error="send_email returned None",
+            )
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to send email (trace_id={trace_id})",
+            )
 
     except HTTPException:
         raise
@@ -615,7 +623,7 @@ async def send_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email send failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{str(e)} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
 
 
 @router.post("/{account}/reply")
@@ -676,21 +684,20 @@ async def reply_email(
                 "account": account,
                 **result,
             }
-        else:
-            await ingest_email_event(
-                trace_id=trace_id,
-                action=action,
-                phase="post",
-                payload={
-                    "account": account,
-                    "status": "error",
-                    "original_message_id": request.id,
-                },
-                error="reply_to_email returned None",
-            )
-            raise HTTPException(
-                status_code=500, detail=f"Failed to send reply (trace_id={trace_id})"
-            )
+        await ingest_email_event(
+            trace_id=trace_id,
+            action=action,
+            phase="post",
+            payload={
+                "account": account,
+                "status": "error",
+                "original_message_id": request.id,
+            },
+            error="reply_to_email returned None",
+        )
+        raise HTTPException(
+            status_code=500, detail=f"Failed to send reply (trace_id={trace_id})"
+        )
 
     except HTTPException:
         raise
@@ -707,7 +714,7 @@ async def reply_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email reply failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{str(e)} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
 
 
 @router.post("/{account}/forward")
@@ -771,21 +778,20 @@ async def forward_email(
                 "account": account,
                 **result,
             }
-        else:
-            await ingest_email_event(
-                trace_id=trace_id,
-                action=action,
-                phase="post",
-                payload={
-                    "account": account,
-                    "status": "error",
-                    "original_message_id": request.id,
-                },
-                error="forward_email returned None",
-            )
-            raise HTTPException(
-                status_code=500, detail=f"Failed to forward email (trace_id={trace_id})"
-            )
+        await ingest_email_event(
+            trace_id=trace_id,
+            action=action,
+            phase="post",
+            payload={
+                "account": account,
+                "status": "error",
+                "original_message_id": request.id,
+            },
+            error="forward_email returned None",
+        )
+        raise HTTPException(
+            status_code=500, detail=f"Failed to forward email (trace_id={trace_id})"
+        )
 
     except HTTPException:
         raise
@@ -802,7 +808,7 @@ async def forward_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email forward failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{str(e)} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
 
 
 # ============================================================================

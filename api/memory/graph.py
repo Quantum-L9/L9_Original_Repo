@@ -37,17 +37,28 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 
 from api.auth import verify_api_key
+from api.routes.registry import router_registry
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="/api/v1/memory/graph",
+    tags=["memory-graph", "neo4j"],
+    module_id="memory_graph",
+    display_name="Memory Graph API (Neo4j)",
+    dependencies=["neo4j_client"],
+)
 
 # Lazy import Neo4j client
 _neo4j_client = None
@@ -88,14 +99,14 @@ class RelationshipRequest(BaseModel):
     to_type: str
     to_id: str
     rel_type: str
-    properties: Optional[dict] = None
+    properties: dict | None = None
 
 
 class QueryRequest(BaseModel):
     """Request model for Cypher queries."""
 
     query: str
-    parameters: Optional[dict] = None
+    parameters: dict | None = None
 
 
 class GraphResponse(BaseModel):
@@ -103,7 +114,7 @@ class GraphResponse(BaseModel):
 
     success: bool
     data: Any = None
-    error: Optional[str] = None
+    error: str | None = None
 
 
 # ============================================================================
@@ -236,7 +247,7 @@ async def create_relationship(
 async def get_relationships(
     entity_type: str,
     entity_id: str,
-    rel_type: Optional[str] = Query(None),
+    rel_type: str | None = Query(None),
     direction: str = Query("both", pattern="^(outgoing|incoming|both)$"),
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),

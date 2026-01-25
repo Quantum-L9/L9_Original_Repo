@@ -32,20 +32,31 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, List, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.auth import verify_api_key
+from api.routes.registry import router_registry
 from core.decorators import must_stay_async
+
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
 
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(tags=["agent"])
+
+# Auto-register with RouterRegistry
+router_registry.register(
+    router=router,
+    prefix="/agent",
+    tags=["agent"],
+    module_id="agent_routes",
+    display_name="Agent Task Management",
+)
 
 
 # =============================================================================
@@ -56,7 +67,7 @@ router = APIRouter(tags=["agent"])
 class ExecuteTaskRequest(BaseModel):
     """Request model for /execute endpoint."""
 
-    agent_id: Optional[str] = Field(
+    agent_id: str | None = Field(
         None, description="Target agent ID (uses default if not specified)"
     )
     kind: str = Field(
@@ -64,7 +75,7 @@ class ExecuteTaskRequest(BaseModel):
     )
     message: str = Field(..., description="User message or query")
     source_id: str = Field(default="api", description="Source identifier")
-    thread_id: Optional[str] = Field(
+    thread_id: str | None = Field(
         None, description="Thread identifier for conversation continuity"
     )
     context: dict[str, Any] = Field(
@@ -88,8 +99,8 @@ class SegmentResult(BaseModel):
     segment: str = Field(..., description="The segmented directive")
     task_id: str = Field(..., description="Task ID for this segment")
     status: str = Field(..., description="Execution status")
-    result: Optional[str] = Field(None, description="Agent response")
-    error: Optional[str] = Field(None, description="Error if failed")
+    result: str | None = Field(None, description="Agent response")
+    error: str | None = Field(None, description="Error if failed")
 
 
 class ExecuteTaskResponse(BaseModel):
@@ -100,12 +111,12 @@ class ExecuteTaskResponse(BaseModel):
     status: str = Field(
         ..., description="Execution status: completed, failed, terminated, duplicate"
     )
-    result: Optional[str] = Field(None, description="Agent response if completed")
+    result: str | None = Field(None, description="Agent response if completed")
     iterations: int = Field(default=0, description="Number of reasoning iterations")
     duration_ms: int = Field(
         default=0, description="Execution duration in milliseconds"
     )
-    error: Optional[str] = Field(None, description="Error message if failed")
+    error: str | None = Field(None, description="Error message if failed")
     # Multi-part fields
     was_multi_part: bool = Field(
         default=False, description="Whether input was segmented"
@@ -113,7 +124,7 @@ class ExecuteTaskResponse(BaseModel):
     segments_processed: int = Field(
         default=1, description="Number of segments processed"
     )
-    segment_results: Optional[List[SegmentResult]] = Field(
+    segment_results: list[SegmentResult] | None = Field(
         None, description="Individual results if multi-part"
     )
 
@@ -251,12 +262,12 @@ async def execute_task(
                 segments=segment_result.segments,
             )
 
-            segment_results: List[SegmentResult] = []
+            segment_results: list[SegmentResult] = []
             total_iterations = 0
             total_duration_ms = 0
             first_task_id = None
             all_successful = True
-            combined_results: List[str] = []
+            combined_results: list[str] = []
 
             for i, segment in enumerate(segment_result.segments):
                 # Create AgentTask for this segment
@@ -390,7 +401,7 @@ async def execute_task(
         logger.exception("Error executing task: %s", str(e))
         raise HTTPException(
             status_code=500,
-            detail=f"Task execution failed: {str(e)}",
+            detail=f"Task execution failed: {e!s}",
         )
 
 
@@ -408,7 +419,7 @@ class SegmentPreviewRequest(BaseModel):
 class SegmentPreviewResponse(BaseModel):
     """Response model for segment preview."""
 
-    segments: List[str] = Field(..., description="Segmented directives")
+    segments: list[str] = Field(..., description="Segmented directives")
     segment_count: int = Field(..., description="Number of segments")
     was_multi_part: bool = Field(..., description="Whether multiple segments detected")
     original_input: str = Field(..., description="Original input")
