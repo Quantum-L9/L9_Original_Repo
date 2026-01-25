@@ -31,6 +31,23 @@ from core.protocols.agent_protocols import (
     StateManager,
     ToolExecutor,
 )
+from core.protocols.connection_protocols import (
+    ConnectionPoolProtocol,
+    ConnectionProtocol,
+    ConnectionState,
+    PooledConnection,
+    StandardConnectionPool,
+)
+
+# Resilience protocols (GMP-125) - error handling, validation, connection, retry, rate limiting
+from core.protocols.error_handling_protocols import (
+    ErrorCategory,
+    ErrorContext,
+    ErrorHandlingProtocol,
+    ErrorSeverity,
+    StandardErrorHandler,
+    with_error_handling,
+)
 
 # Kernel protocols
 from core.protocols.kernel_protocols import (
@@ -63,6 +80,21 @@ from core.protocols.observability_protocols import (
     SpanStatus,
     TraceContext,
 )
+from core.protocols.rate_limiting_protocols import (
+    RateLimitExceededError,
+    RateLimitingProtocol,
+    RateLimitPolicy,
+    RateLimitStrategy,
+    StandardRateLimiter,
+    rate_limited,
+)
+from core.protocols.retry_protocols import (
+    BackoffStrategy,
+    RetryPolicy,
+    RetryProtocol,
+    StandardRetryHandler,
+    with_retry,
+)
 
 # High-level service protocols (PR #49 / GMP-114)
 from core.protocols.service_protocols import (
@@ -77,6 +109,14 @@ from core.protocols.substrate_protocols import (
     EmbeddingProviderProtocol,
     SemanticServiceProtocol,
     SubstrateRepositoryProtocol,
+)
+from core.protocols.validation_protocols import (
+    StandardValidator,
+    ValidationError,
+    ValidationProtocol,
+    ValidationResult,
+    ValidationSeverity,
+    validate_input,
 )
 
 __all__ = [
@@ -120,6 +160,39 @@ __all__ = [
     "EmbeddingProviderProtocol",
     "SemanticServiceProtocol",
     "DAGProtocol",
+    # Error handling protocols (GMP-125)
+    "ErrorHandlingProtocol",
+    "StandardErrorHandler",
+    "ErrorContext",
+    "ErrorSeverity",
+    "ErrorCategory",
+    "with_error_handling",
+    # Validation protocols (GMP-125)
+    "ValidationProtocol",
+    "StandardValidator",
+    "ValidationResult",
+    "ValidationError",
+    "ValidationSeverity",
+    "validate_input",
+    # Connection protocols (GMP-125)
+    "ConnectionProtocol",
+    "ConnectionPoolProtocol",
+    "StandardConnectionPool",
+    "PooledConnection",
+    "ConnectionState",
+    # Retry protocols (GMP-125)
+    "RetryProtocol",
+    "StandardRetryHandler",
+    "RetryPolicy",
+    "BackoffStrategy",
+    "with_retry",
+    # Rate limiting protocols (GMP-125)
+    "RateLimitingProtocol",
+    "StandardRateLimiter",
+    "RateLimitPolicy",
+    "RateLimitStrategy",
+    "RateLimitExceededError",
+    "rate_limited",
 ]
 
 __version__ = "1.0.0"

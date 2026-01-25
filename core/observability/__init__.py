@@ -33,33 +33,87 @@ Quick start:
 """
 
 from .aggregation import KPITracker, MetricsAggregator
-from .circuit_breaker import (CircuitBreaker, CircuitBreakerConfig,
-                              CircuitBreakerState, CircuitOpenError)
+from .circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitBreakerState,
+    CircuitOpenError,
+)
 from .config import ObservabilitySettings, load_config
-from .context_strategies import (AdaptiveStrategySelector, ContextStrategy,
-                                 HierarchicalSummarizationStrategy,
-                                 HybridStrategy, NaiveTruncationStrategy,
-                                 RAGStrategy, RecencyBiasedWindowStrategy)
-from .exporters import (AsyncSpanExporter, CompositeExporter, ConsoleExporter,
-                        JSONFileExporter, SpanExporter, SubstrateExporter)
-from .failures import (FailureDetector, RecoveryAction, RecoveryExecutor,
-                       get_recovery_actions)
-from .instrumentation import (trace_governance_check, trace_llm_call,
-                              trace_span, trace_tool_call)
-from .jaeger_exporter import (JaegerExporter, get_jaeger_exporter,
-                              initialize_jaeger_exporter)
-from .l9_integration import (instrument_agent_executor,
-                             instrument_aios_runtime,
-                             instrument_governance_engine,
-                             instrument_memory_substrate,
-                             instrument_tool_registry)
-from .models import (AgentKPI, AgentTrajectorySpan, ContextAssemblySpan,
-                     FailureClass, FailureSignal, GovernanceCheckSpan,
-                     LLMGenerationSpan, RAGRetrievalSpan, RemediationAction,
-                     Span, SpanKind, SpanStatus, SREMetric, ToolCallSpan,
-                     TraceContext)
-from .prometheus_exporter import (ObservabilityPrometheusExporter,
-                                  get_exporter, initialize_exporter)
+from .context_strategies import (
+    AdaptiveStrategySelector,
+    ContextStrategy,
+    HierarchicalSummarizationStrategy,
+    HybridStrategy,
+    NaiveTruncationStrategy,
+    RAGStrategy,
+    RecencyBiasedWindowStrategy,
+)
+from .exporters import (
+    AsyncSpanExporter,
+    CompositeExporter,
+    ConsoleExporter,
+    JSONFileExporter,
+    SpanExporter,
+    SubstrateExporter,
+)
+from .failures import (
+    FailureDetector,
+    RecoveryAction,
+    RecoveryExecutor,
+    get_recovery_actions,
+)
+from .instrumentation import (
+    trace_governance_check,
+    trace_llm_call,
+    trace_span,
+    trace_tool_call,
+)
+from .jaeger_exporter import (
+    JaegerExporter,
+    get_jaeger_exporter,
+    initialize_jaeger_exporter,
+)
+from .l9_integration import (
+    instrument_agent_executor,
+    instrument_aios_runtime,
+    instrument_governance_engine,
+    instrument_memory_substrate,
+    instrument_tool_registry,
+)
+from .models import (
+    AgentKPI,
+    AgentTrajectorySpan,
+    ContextAssemblySpan,
+    FailureClass,
+    FailureSignal,
+    GovernanceCheckSpan,
+    LLMGenerationSpan,
+    RAGRetrievalSpan,
+    RemediationAction,
+    Span,
+    SpanKind,
+    SpanStatus,
+    SREMetric,
+    ToolCallSpan,
+    TraceContext,
+)
+from .observability_context import (
+    get_correlation_id,
+    get_span_id,
+    get_trace_context,
+    get_trace_id,
+    observability_context,
+    set_correlation_id,
+    set_trace_context_from_headers,
+    set_trace_id,
+    span,
+)
+from .prometheus_exporter import (
+    ObservabilityPrometheusExporter,
+    get_exporter,
+    initialize_exporter,
+)
 from .service import ObservabilityService, initialize_observability
 
 __version__ = "1.0.0"
@@ -133,4 +187,14 @@ __all__ = [
     "JaegerExporter",
     "initialize_jaeger_exporter",
     "get_jaeger_exporter",
+    # Observability Context (W3C Trace Context)
+    "observability_context",
+    "span",
+    "get_trace_id",
+    "get_span_id",
+    "get_correlation_id",
+    "get_trace_context",
+    "set_trace_id",
+    "set_correlation_id",
+    "set_trace_context_from_headers",
 ]
