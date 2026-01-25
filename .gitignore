@@ -133,3 +133,6 @@ tests/codegen/email_agent/private_auth/
 email_agent/private_auth/
 reports/
 *.tfvars
+
+# Archived content
+_archived/
