@@ -140,6 +140,7 @@ async def lifespan(app: FastAPI):
                     "Migration errors occurred",
                     error_details=migration_result["error_details"],
                 )
+                print("DEBUG: Migration errors logged, continuing...", flush=True)
         except Exception as e:
             logger.error(
                 "Failed to run migrations",
@@ -152,6 +153,13 @@ async def lifespan(app: FastAPI):
             "MEMORY_DSN not set. Skipping migrations. "
             "Set MEMORY_DSN to enable automatic migrations."
         )
+
+    # DEBUG: Immediate checkpoint after migrations
+    import sys
+
+    print("DEBUG: Migrations block complete, proceeding to substrate init", flush=True)
+    sys.stdout.flush()
+    sys.stderr.flush()
 
     # =========================================================================
     # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
@@ -396,7 +404,9 @@ async def verify_api_key(
     if api_key_c and token == api_key_c:
         return CallerIdentity(caller_id="C", user_id=settings.L_CTO_USER_ID)
     # Legacy fallback: MCP_API_KEY / MCPL9MEMORYKEY → shared identity (defaults to L)
-    if (settings.MCP_API_KEY and token == settings.MCP_API_KEY) or (settings.MCPL9MEMORYKEY and token == settings.MCPL9MEMORYKEY):
+    if (settings.MCP_API_KEY and token == settings.MCP_API_KEY) or (
+        settings.MCPL9MEMORYKEY and token == settings.MCPL9MEMORYKEY
+    ):
         return CallerIdentity(
             caller_id="L", user_id=settings.L_CTO_USER_ID
         )  # Legacy → L
