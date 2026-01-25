@@ -58,6 +58,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
 import inspect
 import threading
 from collections.abc import Callable
@@ -631,7 +632,9 @@ class MemorySubstrateContainer:
                 - openai_api_key (str, optional): OpenAI API key (required if type=openai)
         """
         self._config = config
-        self._lock = threading.Lock()
+        # GMP-MEM-FIX: Use asyncio.Lock() instead of threading.Lock()
+        # threading.Lock() blocks the event loop when awaiting inside the lock
+        self._lock = asyncio.Lock()
 
         # Singleton instances
         self._repository: Any | None = None  # SubstrateRepositoryProtocol
@@ -657,7 +660,7 @@ class MemorySubstrateContainer:
             DIContainerError: If repository initialization fails
         """
         if self._repository is None:
-            with self._lock:
+            async with self._lock:
                 if self._repository is None:  # Double-checked locking
                     try:
                         from memory.substrate_repository import SubstrateRepository
@@ -695,7 +698,7 @@ class MemorySubstrateContainer:
             DIContainerError: If embedding provider initialization fails
         """
         if self._embedding_provider is None:
-            with self._lock:
+            async with self._lock:
                 if self._embedding_provider is None:  # Double-checked locking
                     try:
                         from memory.substrate_semantic import create_embedding_provider
@@ -741,7 +744,7 @@ class MemorySubstrateContainer:
             DIContainerError: If semantic service initialization fails
         """
         if self._semantic_service is None:
-            with self._lock:
+            async with self._lock:
                 if self._semantic_service is None:  # Double-checked locking
                     try:
                         from memory.substrate_semantic import SemanticService
@@ -779,7 +782,7 @@ class MemorySubstrateContainer:
             DIContainerError: If DAG initialization fails
         """
         if self._dag is None:
-            with self._lock:
+            async with self._lock:
                 if self._dag is None:  # Double-checked locking
                     try:
                         from memory.substrate_dag import SubstrateDAG
@@ -816,7 +819,7 @@ class MemorySubstrateContainer:
             DIContainerError: If service initialization fails
         """
         if self._service is None:
-            with self._lock:
+            async with self._lock:
                 if self._service is None:  # Double-checked locking
                     try:
                         from memory.substrate_service import MemorySubstrateService

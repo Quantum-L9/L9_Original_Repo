@@ -111,15 +111,23 @@ class SubstrateRepository:
         self._pool: asyncpg.Pool | None = None
 
     async def connect(self) -> None:
-        """Initialize connection pool."""
+        """Initialize connection pool with lazy initialization and timeouts."""
         if self._pool is None:
+            # GMP-MEM-FIX: Use min_size=0 for lazy pool (no connections at startup)
+            # This prevents hanging when multiple services start simultaneously
             self._pool = await asyncpg.create_pool(
                 self._database_url,
-                min_size=self._pool_size,
+                min_size=0,  # Lazy: create connections on-demand, not at startup
                 max_size=self._pool_size + self._max_overflow,
                 init=_init_json_codecs,  # Register JSON codecs for JSONB columns
+                timeout=30,  # Connection acquisition timeout (seconds)
+                command_timeout=60,  # Query execution timeout (seconds)
             )
-            logger.info("Database connection pool initialized with JSON codecs")
+            logger.info(
+                "Database connection pool initialized",
+                min_size=0,
+                max_size=self._pool_size + self._max_overflow,
+            )
 
     async def disconnect(self) -> None:
         """Close connection pool."""

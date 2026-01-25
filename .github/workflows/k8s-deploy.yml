@@ -3,8 +3,6 @@
 # =============================================================================
 # This workflow deploys L9 to Kubernetes using Helm
 # Triggered on: successful Docker build, manual workflow dispatch
-#
-# NOTE: Stored in deploy/ci/ for reference. Copy to .github/workflows/ to activate.
 # =============================================================================
 
 name: Kubernetes Deployment

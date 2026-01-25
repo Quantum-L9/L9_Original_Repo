@@ -165,11 +165,11 @@ async def lifespan(app: FastAPI):
     # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
     # GMP-MEM-FIX: Added DB readiness check + timeout wrapper to prevent hang
     # =========================================================================
-    print("DEBUG: About to set SUBSTRATE_INIT_TIMEOUT", flush=True)
-    SUBSTRATE_INIT_TIMEOUT = int(os.getenv("SUBSTRATE_INIT_TIMEOUT", "10"))
-    SKIP_SUBSTRATE_INIT = os.getenv("SKIP_SUBSTRATE_INIT", "true").lower() == "true"
-    print(f"DEBUG: SUBSTRATE_INIT_TIMEOUT={SUBSTRATE_INIT_TIMEOUT}", flush=True)
-    print(f"DEBUG: SKIP_SUBSTRATE_INIT={SKIP_SUBSTRATE_INIT}", flush=True)
+    print("DEBUG: About to set substrate_init_timeout", flush=True)
+    substrate_init_timeout = int(os.getenv("substrate_init_timeout", "30"))
+    skip_substrate_init = os.getenv("skip_substrate_init", "false").lower() == "true"
+    print(f"DEBUG: substrate_init_timeout={substrate_init_timeout}", flush=True)
+    print(f"DEBUG: skip_substrate_init={skip_substrate_init}", flush=True)
 
     async def _check_db_ready(url: str, max_retries: int = 5) -> bool:
         """Check if PostgreSQL is accepting connections before init_service."""
@@ -224,10 +224,10 @@ async def lifespan(app: FastAPI):
         print(f"DEBUG: database_url={'SET' if database_url else 'NONE'}", flush=True)
 
         # TEMPORARY: Skip substrate init to allow health checks to pass
-        if SKIP_SUBSTRATE_INIT:
-            print("DEBUG: SKIP_SUBSTRATE_INIT=true, skipping init_service", flush=True)
+        if skip_substrate_init:
+            print("DEBUG: skip_substrate_init=true, skipping init_service", flush=True)
             logger.warning(
-                "Substrate init skipped (SKIP_SUBSTRATE_INIT=true). "
+                "Substrate init skipped (skip_substrate_init=true). "
                 "MCP memory will operate in limited mode."
             )
             app.state.substrate_service = None
@@ -245,7 +245,7 @@ async def lifespan(app: FastAPI):
             if not db_ready:
                 logger.error(
                     "Database not ready after retries - skipping substrate init",
-                    timeout=SUBSTRATE_INIT_TIMEOUT,
+                    timeout=substrate_init_timeout,
                 )
                 app.state.substrate_service = None
             else:
@@ -261,7 +261,7 @@ async def lifespan(app: FastAPI):
                     print(f"DEBUG: embed_model={embed_model}", flush=True)
                     print(f"DEBUG: api_key={'SET' if api_key else 'NONE'}", flush=True)
                     print(
-                        f"DEBUG: Calling init_service with {SUBSTRATE_INIT_TIMEOUT}s timeout...",
+                        f"DEBUG: Calling init_service with {substrate_init_timeout}s timeout...",
                         flush=True,
                     )
 
@@ -272,7 +272,7 @@ async def lifespan(app: FastAPI):
                             embedding_model=embed_model,
                             openai_api_key=api_key,
                         ),
-                        timeout=SUBSTRATE_INIT_TIMEOUT,
+                        timeout=substrate_init_timeout,
                     )
                     print("DEBUG: init_service completed successfully!", flush=True)
                     # Store in app state for route handlers
@@ -287,14 +287,14 @@ async def lifespan(app: FastAPI):
                     )
                     logger.error(
                         "Memory Substrate Service initialization timed out",
-                        timeout=SUBSTRATE_INIT_TIMEOUT,
+                        timeout=substrate_init_timeout,
                     )
                     app.state.substrate_service = None
                 except TimeoutError:
                     print("DEBUG: init_service TIMED OUT (TimeoutError)!", flush=True)
                     logger.error(
                         "Memory Substrate Service initialization timed out (TE)",
-                        timeout=SUBSTRATE_INIT_TIMEOUT,
+                        timeout=substrate_init_timeout,
                     )
                     app.state.substrate_service = None
                 except Exception as inner_e:

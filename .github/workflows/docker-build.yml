@@ -3,8 +3,6 @@
 # =============================================================================
 # This workflow builds and pushes Docker images to GitHub Container Registry
 # Triggered on: push to main, pull requests, and tags
-#
-# NOTE: Stored in deploy/ci/ for reference. Copy to .github/workflows/ to activate.
 # =============================================================================
 
 name: Docker Build and Push
