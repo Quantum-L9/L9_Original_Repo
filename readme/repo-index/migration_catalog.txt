@@ -25,7 +25,7 @@
 | `0017_governance_project_id.sql` | ============================================================ |
 | `0018_semantic_facts.sql` | ============================================================ |
 | `0019_episodic_events.sql` | ============================================================ |
-| `0020_tool_embeddings.sql` | Migration: 0020_tool_embeddings.sql |
+| `0025_tool_embeddings.sql` | Migration: 0025_tool_embeddings.sql |
 | `0021_gmp_learning.sql` | Migration: 0021_gmp_learning.sql |
 | `0022_temporal_fact_validity.sql` | ============================================================ |
 | `0024_cmts_schema.sql` | ============================================================ |

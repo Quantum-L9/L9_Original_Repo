@@ -26,15 +26,26 @@
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
-**COMPLETED THIS SESSION (2026-01-24)**:
-- ✅ **PR #58 Partial** — CI Marketplace Integrations (5 files adopted). Deferred: strict linting. See ADR-0062.
-- ✅ **PR #45 Closed** — Anti-Pattern Regression Tests adopted (Gate 14, 6 tests). Realigned: type annotations, lint fixes.
-- ✅ **PR #52 Closed** — DI/DIP Three-Track Refactoring. 7 files adopted, 3 skipped. Realigned: protocol location, DEBUG code removed.
-- ✅ **GMP-115 + GMP-116** — High-Level Service Protocol Implementations:
-  - `MemoryServiceAdapter` wrapping `MemorySubstrateService`
-  - `OpenAILLMService` + `MockLLMService` implementing `LLMService` protocol
-- ✅ **GMP-114** — Created `core/protocols/service_protocols.py` (3 protocols)
-- ✅ **Type Fix** — Resolved 50 `asyncpg` union type errors in `substrate_repository.py`
+**COMPLETED THIS SESSION (2026-01-25)**:
+- ✅ **GMP-78 Phase 2** — Dynamic Tool Discovery FULLY WIRED:
+  - `core/tools/dynamic_discovery.py` — Semantic tool retrieval integration
+  - `core/agents/agent_instance.py` — `prepare_dynamic_tools()` + cache
+  - `core/agents/executor.py` — Wired at iteration 0
+  - `api/server.py` — Health tracking (`/health/services`)
+  - `config/settings.py` — Feature flags (`L9_DYNAMIC_TOOL_DISCOVERY=true`)
+- ✅ **ADR-0064 Updated** — Revised to reflect actual implementation
+- ✅ **Migration Renamed** — `0020_tool_embeddings.sql` → `0025_tool_embeddings.sql` (fixed conflict)
+- ✅ **READMEs Updated** — `core/tools/README.md`, `tools/README.md` (deprecation notices)
+- ✅ **Python 3.12 Standardization** — Updated all version references:
+  - GitHub workflows (`.github/workflows/*.yml`)
+  - Pre-commit config (`.pre-commit-config.yaml`)
+  - Mypy config (`.refactor-config/pyproject.toml`)
+  - Docker images (`python:3.12-slim`)
+  - Fixed `memory/retention_engine.py` UTC import
+- ✅ **Local Mac Python 3.12** — Installed via Homebrew, added to PATH
+
+**PENDING (GMP-79 Scope Lock):**
+- Multi-turn tool caching (Redis) — Awaiting CONFIRM
 
 > **Note:** All historical COMPLETED items (2026-01-15 to 2026-01-23) archived to `reports/Workflow_State_Archive_2026-01-08.md`
 
@@ -86,7 +97,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Embedding Dimensions**: ALL systems aligned at **1536**
 
 ---
-*Last updated: 2026-01-25 (PR #28-30 merge verification, wiring tasks identified)*
+*Last updated: 2026-01-25 (GMP-78 Dynamic Tool Discovery + Python 3.12 standardization)*
 
 ## Next Steps (Current Session)
 
@@ -111,9 +122,9 @@ PRs #36, #46, #48, #49, #50, #53, #54 — All CLOSED (superseded or abandoned)
 PR #51 (Spring Cleaning) — MERGED ✅
 
 **Recent Sessions (7-day window):**
-- 2026-01-25: PR status audit — PRs #28-30 confirmed MERGED, wiring tasks identified
+- 2026-01-25: **GMP-78 Phase 2 COMPLETE** — Dynamic Tool Discovery wired, Python 3.12 standardization, ADR-0064 updated
+- ✅ 2026-01-25: PR status audit — PRs #28-30 confirmed MERGED, wiring tasks identified
 - ✅ 2026-01-24: sentence-transformers analysis (leave as-is), PR #45 + #52 closed, GMP-114-116 service protocols
 - ✅ 2026-01-23: PR Cleanup (#41, #42, #44), Tenant ID standardization
 - ✅ 2026-01-21: PRs #28-30 Analysis (now merged)
 - ✅ 2026-01-20: World Model Pipeline Unification, GMP-106 PR #22
-- ✅ 2026-01-19: Pre-Commit v3.0, Session Startup, Auto-Wiring Phase 3

@@ -5,10 +5,68 @@
 **L9 Tools** is the protocol and client layer for external tool communications. This folder contains utilities for Cursor IDE integration and Mac agent reverse-tunnel protocols.
 
 > **Note:** This is NOT the main tool registry. The L9 tool system spans multiple directories:
-> - `core/tools/` — Tool graph, registry adapter, capability enforcement
+> - `core/tools/` — **PRIMARY**: Tool graph, registry, dynamic discovery, embeddings
 > - `runtime/l_tools.py` — Tool executor implementations  
 > - `services/research/tools/` — Base tool registry and wrappers
 > - `api/tools/` — HTTP API routes for tool execution
+
+---
+
+## 🚨 DEPRECATION NOTICES
+
+### Static Tool Binding (DEPRECATED)
+
+**Effective: 2026-01-25 (GMP-78 Phase 2)**
+
+Static tool binding (loading all tools into context) is **DEPRECATED**. Dynamic tool discovery is now the default.
+
+| Old Pattern | New Pattern |
+|-------------|-------------|
+| `from core.tools import L9_TOOLS` | `from core.tools import discover_tools_for_task` |
+| `agent_instance.get_bound_tools()` | `await agent_instance.prepare_dynamic_tools()` |
+| Static tool lists in config | Semantic search at runtime |
+
+**Migration:**
+```python
+# DEPRECATED
+tools = L9_TOOLS  # Static list
+
+# PREFERRED
+tools = await discover_tools_for_task("task description")
+```
+
+**To temporarily disable:**
+```bash
+L9_DYNAMIC_TOOL_DISCOVERY=false
+```
+
+### Tool Access Hierarchy
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ PREFERRED: Dynamic Discovery (GMP-78)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ from core.tools import discover_tools_for_task                  │
+│ tools = await discover_tools_for_task("search memory")          │
+│                                                                  │
+│ Benefits:                                                        │
+│ - 40-70% token reduction                                        │
+│ - Task-relevant tools only                                      │
+│ - Scales to 100+ tools                                          │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓ fallback
+┌─────────────────────────────────────────────────────────────────┐
+│ DEPRECATED: Static Binding                                       │
+├─────────────────────────────────────────────────────────────────┤
+│ from core.tools import L9_TOOLS                                 │
+│ tools = agent_instance.get_tool_definitions()  # if no dynamic  │
+│                                                                  │
+│ Problems:                                                        │
+│ - Context bloat (5000-15000 tokens)                             │
+│ - Poor tool selection at scale                                  │
+│ - Emits DeprecationWarning                                      │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -16,24 +74,26 @@
 
 | File | Purpose | Status |
 |------|---------|--------|
-| ~~`cursor_client.py`~~ | ~~HTTP client for Cursor remote API~~ | ✅ **Moved to `agents/cursor/`** |
 | `mac_protocol.py` | JSON schema for Mac agent tunnel | ✅ Active |
 | `export_repo_indexes.py` | Repo indexing utility | 🟡 Legacy |
-| `TOOL_LOADING_DIAGRAM.md` | Architecture diagram | ✅ Active |
+| `TOOL_LOADING_DIAGRAM.md` | Architecture diagram | ⚠️ Needs update for GMP-78 |
 
 ---
 
 ## Architecture
 
-See [`TOOL_LOADING_DIAGRAM.md`](./TOOL_LOADING_DIAGRAM.md) for complete tool loading flow.
+See [`TOOL_LOADING_DIAGRAM.md`](./TOOL_LOADING_DIAGRAM.md) for tool loading flow.
 
-### Quick Reference
+### Tool Discovery Flow (GMP-78)
 
 ```
-Tool Request Flow:
+Task Request Flow (v2.0.0):
   AgentExecutorService
+    → prepare_dynamic_tools()           # NEW: Semantic discovery
+    → discover_tools_for_task()         # NEW: pgvector search
+    → get_tool_definitions()            # Returns discovered OR static
     → TOOL_EXECUTORS (runtime/l_tools.py)
-    → Capability check (core/schemas/capabilities.py)
+    → Capability check
     → Approval check (if high-risk)
     → Execute & log packet
 ```
@@ -73,22 +133,7 @@ response = create_mac_response(
 
 ---
 
-## Cursor Client (Legacy)
-
-> ⚠️ **Deprecated:** The CursorClient was designed for a remote Cursor API that is not currently active.
-
-```python
-from agents.cursor.cursor_client import CursorClient
-
-client = CursorClient(host="127.0.0.1", port=3000)
-result = client.send_code("print('hello')")
-```
-
----
-
-## Tool System Overview
-
-### L's Authorized Tools
+## L's Authorized Tools
 
 L (the L9 CTO agent) has access to these tools via `DEFAULT_L_CAPABILITIES`:
 
@@ -108,16 +153,7 @@ L (the L9 CTO agent) has access to these tools via `DEFAULT_L_CAPABILITIES`:
 | `git_commit` | VCS | **High** | ✅ Yes |
 | `mac_agent_exec_task` | Execution | **High** | ✅ Yes |
 
-### Default Research Tools
-
-These are registered at startup via `get_tool_registry()`:
-
-| Tool | Description | Rate Limit |
-|------|-------------|------------|
-| `perplexity_search` | AI search via Perplexity | 20/min |
-| `http_request` | External HTTP requests | 100/min |
-| `mock_search` | Testing mock | 1000/min |
-| `calculate` | Math expressions | 1000/min |
+**Note:** With dynamic discovery, only tools relevant to the current task are loaded.
 
 ---
 
@@ -125,26 +161,59 @@ These are registered at startup via `get_tool_registry()`:
 
 | Location | Purpose |
 |----------|---------|
-| `core/tools/tool_graph.py` | Neo4j tool dependency graph, ToolDefinition |
+| `core/tools/dynamic_discovery.py` | **NEW** Semantic tool discovery |
+| `core/tools/tool_embeddings.py` | **NEW** pgvector tool storage |
+| `core/tools/tool_graph.py` | Tool definitions (L9_TOOLS, L_INTERNAL_TOOLS) |
 | `core/tools/registry_adapter.py` | ExecutorToolRegistry, register_l_tools() |
 | `core/schemas/capabilities.py` | ToolName enum, Capability, AgentCapabilities |
 | `runtime/l_tools.py` | TOOL_EXECUTORS dict, tool implementations |
 | `services/research/tools/tool_registry.py` | Base ToolRegistry singleton |
-| `services/research/tools/tool_wrappers.py` | PerplexityTool, HTTPTool, MockSearchTool |
 | `api/tools/router.py` | POST /tools/execute endpoint |
-| `orchestrators/action_tool/orchestrator.py` | ActionToolOrchestrator |
 | `ci/check_tool_wiring.py` | CI gate for tool consistency |
 
 ---
 
-## Orphaned/Legacy Files
+## Adding New Tools
 
-The following files in this directory are **orphaned** (not actively wired into L9):
+### 1. Define the tool (still required)
 
-| File | Reason | Action |
-|------|--------|--------|
-| ~~`cursor_client.py`~~ | ~~Cursor remote API not active~~ | ✅ **Moved to `agents/cursor/`** |
-| `export_repo_indexes.py` | One-time utility script | Can be moved to scripts/ |
+```python
+# core/tools/tool_graph.py
+L_INTERNAL_TOOLS.append(
+    ToolDefinition(
+        name="my_new_tool",
+        description="Does something useful - will be embedded for discovery",
+        category="custom",
+        scope="internal",
+        risk_level="low",
+        agent_id="L",
+    )
+)
+```
+
+### 2. Implement the executor
+
+```python
+# runtime/l_tools.py
+async def my_new_tool(arg1: str, **kwargs) -> dict:
+    """Implementation here."""
+    return {"result": arg1}
+
+TOOL_EXECUTORS["my_new_tool"] = my_new_tool
+```
+
+### 3. Tool will be auto-embedded at startup
+
+The tool will be automatically:
+- Embedded via `sync_all_tool_embeddings()` at server startup
+- Discoverable via semantic search
+- Available in `/health/services` tool count
+
+### 4. Run CI check
+
+```bash
+python ci/check_tool_wiring.py
+```
 
 ---
 
@@ -165,63 +234,6 @@ Checks:
 
 ---
 
-## Adding New Tools
-
-### 1. Define the tool enum
-
-```python
-# core/schemas/capabilities.py
-class ToolName(str, Enum):
-    MY_NEW_TOOL = "my_new_tool"
-```
-
-### 2. Add capability for L
-
-```python
-# core/schemas/capabilities.py
-DEFAULT_L_CAPABILITIES = AgentCapabilities(
-    capabilities=[
-        # ... existing ...
-        Capability(tool=ToolName.MY_NEW_TOOL, allowed=True),
-    ]
-)
-```
-
-### 3. Implement the executor
-
-```python
-# runtime/l_tools.py
-async def my_new_tool(arg1: str, **kwargs) -> dict:
-    """Implementation here."""
-    return {"result": arg1}
-
-TOOL_EXECUTORS["my_new_tool"] = my_new_tool
-```
-
-### 4. Register with metadata
-
-```python
-# core/tools/registry_adapter.py (in register_l_tools)
-tools_to_register.append(
-    ToolDefinition(
-        name="my_new_tool",
-        description="Does something useful",
-        category="custom",
-        scope="internal",
-        risk_level="low",
-        agent_id="L",
-    )
-)
-```
-
-### 5. Run CI check
-
-```bash
-python ci/check_tool_wiring.py
-```
-
----
-
 ## Security Model
 
 - **Capability sandboxing**: Each agent declares capabilities on handshake
@@ -229,8 +241,8 @@ python ci/check_tool_wiring.py
 - **Rate limiting**: Time-based sliding window per tool
 - **Approval gates**: High-risk tools require Igor approval before execution
 - **Audit logging**: All tool calls logged to memory substrate
+- **Token budget**: Dynamic discovery enforces max tokens for tool context
 
 ---
 
-*Last updated: 2026-01-04*
-
+*Last updated: 2026-01-25 (GMP-78 Phase 2)*

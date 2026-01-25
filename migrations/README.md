@@ -30,6 +30,17 @@ Apply migrations **in order**. Each builds on the previous.
 | 10 | `0011_tool_audit_log.sql` | Tool execution audit | tool_audit_log |
 | 11 | `0012_fix_graph_checkpoints_unique.sql` | Fix unique constraint | (fixes graph_checkpoints) |
 | 12 | `0013_mcp_audit_columns.sql` | MCP audit governance | (extends tool_audit_log) |
+| 13 | `0014_multi_checkpoint_support.sql` | Multi-checkpoint support | (extends graph_checkpoints) |
+| 14 | `0015_knowledge_facts_upsert_key.sql` | Knowledge facts upsert | (extends knowledge_facts) |
+| 15 | `0016_governance_scope_semantics.sql` | Governance scope semantics | governance_scopes |
+| 16 | `0017_governance_project_id.sql` | Governance project ID | (extends governance) |
+| 17 | `0018_semantic_facts.sql` | Semantic facts | semantic_facts |
+| 18 | `0019_episodic_events.sql` | Episodic events | episodic_events |
+| 19 | `0020_optimize_vector_search.sql` | Vector search optimization | (indexes) |
+| 20 | `0021_gmp_learning.sql` | GMP learning | gmp_learning |
+| 21 | `0022_temporal_fact_validity.sql` | Temporal fact validity | (extends knowledge_facts) |
+| 22 | `0024_cmts_schema.sql` | CMTS schema | cmts_* tables |
+| **25** | **`0025_tool_embeddings.sql`** | **GMP-78: Tool embeddings** | **tool_embeddings** |
 
 ---
 
@@ -472,5 +483,45 @@ Adds governance columns to `tool_audit_log` for MCP memory server audit:
 
 ---
 
-*Last updated: 2026-01-09*
+### 0025_tool_embeddings.sql (GMP-78: Dynamic Tool Discovery)
+
+**Version:** 1.0.0  
+**Dependencies:** pgvector extension (from 0001)
+**GMP:** GMP-78 Phase 1
+
+Creates the `tool_embeddings` table for semantic tool retrieval:
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| `tool_name` | VARCHAR(255) | Primary key - unique tool identifier |
+| `description` | TEXT | Tool description (embedded for search) |
+| `category` | VARCHAR(64) | Tool category for filtering |
+| `embedding` | vector(1536) | OpenAI text-embedding-3-small vector |
+| `negative_constraints` | TEXT[] | Array of "don't use when X" guidance |
+| `metadata` | JSONB | Additional metadata (risk_level, scope, etc.) |
+| `created_at` | TIMESTAMPTZ | Creation timestamp |
+| `updated_at` | TIMESTAMPTZ | Auto-updated on modification |
+
+**Key Indexes:**
+- ivfflat index on `embedding` for cosine similarity search
+- B-tree index on `category` for filtering
+
+**Key Features:**
+- Enables semantic tool discovery instead of static tool binding
+- Auto-synced at startup via `sync_all_tool_embeddings()`
+- 40-70% token reduction vs loading all tools
+- See ADR-0064 for full architecture
+
+**Usage:**
+```python
+from core.tools import discover_tools_for_task
+
+# At runtime (per task):
+tools = await discover_tools_for_task("search memory for user")
+# Returns: [{"type": "function", "function": {...}}]
+```
+
+---
+
+*Last updated: 2026-01-25*
 

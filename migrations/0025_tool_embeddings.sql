@@ -1,4 +1,4 @@
--- Migration: 0020_tool_embeddings.sql
+-- Migration: 0025_tool_embeddings.sql
 -- GMP-78: Semantic Tool Retrieval (Tool RAG)
 -- Created: 2026-01-15
 --

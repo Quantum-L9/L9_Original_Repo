@@ -53,19 +53,26 @@ __dora_meta__ = {
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Protocol
 from uuid import UUID, uuid4
 
 import structlog
 
 from core.agents.agent_instance import AgentInstance
-from core.agents.schemas import (AgentConfig, AgentTask, AIOSResult,
-                                 AIOSResultType, DuplicateTaskResponse,
-                                 ExecutionResult, ExecutorState, ToolBinding,
-                                 ToolCallRequest, ToolCallResult)
+from core.agents.schemas import (
+    AgentConfig,
+    AgentTask,
+    AIOSResult,
+    AIOSResultType,
+    DuplicateTaskResponse,
+    ExecutionResult,
+    ExecutorState,
+    ToolBinding,
+    ToolCallRequest,
+    ToolCallResult,
+)
 from core.governance.approvals import ApprovalManager
-from core.observability.circuit_breaker import (CircuitBreaker,
-                                                CircuitBreakerConfig)
+from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 from core.schemas import PacketEnvelopeIn
 from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
@@ -78,8 +85,7 @@ logger = structlog.get_logger(__name__)
 # Self-reflection imports (optional - graceful degradation if not available)
 try:
     from core.agents.kernelevolution import create_evolution_plan
-    from core.agents.selfreflection import (TaskExecutionContext,
-                                            analyze_task_execution)
+    from core.agents.selfreflection import TaskExecutionContext, analyze_task_execution
 
     _has_self_reflection = True
 except ImportError:
@@ -87,10 +93,12 @@ except ImportError:
 
 # Prompt defense imports (GMP-60: Runtime hardening)
 try:
-    from core.agents.prompt_defense import (InjectionDetectionResult,
-                                            detect_prompt_injection,
-                                            get_blocked_response,
-                                            should_block_request)
+    from core.agents.prompt_defense import (
+        InjectionDetectionResult,
+        detect_prompt_injection,
+        get_blocked_response,
+        should_block_request,
+    )
 
     _has_prompt_defense = True
 except ImportError:
@@ -99,8 +107,10 @@ except ImportError:
 
 # Kernel-aware prompt builder (GMP-60: Runtime hardening)
 try:
-    from core.agents.prompt_builder import (build_kernel_system_prompt,
-                                            build_runtime_prompt)
+    from core.agents.prompt_builder import (
+        build_kernel_system_prompt,
+        build_runtime_prompt,
+    )
 
     _has_prompt_builder = True
 except ImportError:
@@ -125,7 +135,7 @@ except ImportError:
 
 
 @must_stay_async("callers use await")
-async def _generate_tasks_from_query(query: str) -> List[Dict[str, Any]]:
+async def _generate_tasks_from_query(query: str) -> list[dict[str, Any]]:
     """
     Parse user requests into task specifications.
 
@@ -312,7 +322,7 @@ class SubstrateServiceProtocol(Protocol):
     async def search_packets_by_thread(
         self,
         thread_id: str,
-        packet_type: Optional[str] = None,
+        packet_type: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -332,7 +342,7 @@ class SubstrateServiceProtocol(Protocol):
 class AgentRegistryProtocol(Protocol):
     """Protocol for agent registry interface."""
 
-    def get_agent_config(self, agent_id: str) -> Optional[AgentConfig]:
+    def get_agent_config(self, agent_id: str) -> AgentConfig | None:
         """
         Get configuration for an agent.
 
@@ -373,9 +383,9 @@ class AgentExecutorService:
         tool_registry: ToolRegistryProtocol,
         substrate_service: SubstrateServiceProtocol,
         agent_registry: AgentRegistryProtocol,
-        default_agent_id: Optional[str] = None,
-        max_iterations: Optional[int] = None,
-        agent_persistence: Optional[AgentPersistenceService] = None,
+        default_agent_id: str | None = None,
+        max_iterations: int | None = None,
+        agent_persistence: AgentPersistenceService | None = None,
     ):
         """
         Initialize the executor service.
@@ -410,13 +420,13 @@ class AgentExecutorService:
         self._processed_tasks: dict[str, ExecutionResult] = {}
 
         # Kernel-aware agent reference (for guarded execution)
-        self._kernel_aware_agent: Optional[Any] = None
+        self._kernel_aware_agent: Any | None = None
 
         # Stage 5: Predictive Memory Warming service (optional)
-        self._memory_warming_service: Optional[Any] = None
+        self._memory_warming_service: Any | None = None
 
         # Stage 5: Graph Hydrator for loading agent context from Neo4j (optional)
-        self._graph_hydrator: Optional[Any] = None
+        self._graph_hydrator: Any | None = None
 
         logger.info(
             "agent.executor.init: default_agent_id=%s, max_iterations=%d, persistence=%s",
@@ -529,7 +539,7 @@ class AgentExecutorService:
                 exc_info=True,
             )
 
-    def _get_kernel_aware_agent(self) -> Optional[Any]:
+    def _get_kernel_aware_agent(self) -> Any | None:
         """
         Get the kernel-aware agent if available and active.
 
@@ -829,7 +839,7 @@ class AgentExecutorService:
                 "execution_error",
             )
 
-    async def _bind_memory_context(self, task_id: str, agent_id: str) -> Dict[str, Any]:
+    async def _bind_memory_context(self, task_id: str, agent_id: str) -> dict[str, Any]:
         """
         Load and inject memory state into executor.
 
@@ -881,7 +891,9 @@ class AgentExecutorService:
             try:
                 from runtime.memory_helpers import (
                     MEMORY_SEGMENT_GOVERNANCE_META,
-                    MEMORY_SEGMENT_PROJECT_HISTORY, memory_search)
+                    MEMORY_SEGMENT_PROJECT_HISTORY,
+                    memory_search,
+                )
 
                 _has_memory_helpers = True
             except ImportError:
@@ -973,9 +985,8 @@ class AgentExecutorService:
                     logger.warning(f"Failed to cache task result in Redis: {e}")
 
                 return True
-            else:
-                logger.warning(f"Failed to persist task result: {task_id}")
-                return False
+            logger.warning(f"Failed to persist task result: {task_id}")
+            return False
 
         except Exception as e:
             logger.error(f"Error persisting task result {task_id}: {e}", exc_info=True)
@@ -1053,7 +1064,7 @@ class AgentExecutorService:
     # Validation
     # =========================================================================
 
-    def _validate_task(self, task: AgentTask) -> Optional[str]:
+    def _validate_task(self, task: AgentTask) -> str | None:
         """
         Validate an incoming task. Does NOT mutate the task object.
 
@@ -1086,7 +1097,7 @@ class AgentExecutorService:
     # Agent Instantiation
     # =========================================================================
 
-    async def _instantiate_agent(self, task: AgentTask) -> Optional[AgentInstance]:
+    async def _instantiate_agent(self, task: AgentTask) -> AgentInstance | None:
         """
         Instantiate an agent for the given task.
 
@@ -1253,8 +1264,7 @@ class AgentExecutorService:
 
         # Pre-execution governance validation
         try:
-            from core.governance.validation import (validate_authority,
-                                                    validate_safety)
+            from core.governance.validation import validate_authority, validate_safety
 
             # Extract action from task
             action = (
@@ -1424,8 +1434,8 @@ class AgentExecutorService:
         # Transition to reasoning
         instance.transition_to(ExecutorState.REASONING)
 
-        final_result: Optional[str] = None
-        error: Optional[str] = None
+        final_result: str | None = None
+        error: str | None = None
 
         while instance.iteration < max_iterations:
             iteration = instance.increment_iteration()
@@ -1487,6 +1497,11 @@ class AgentExecutorService:
                 )
                 break
 
+            # GMP-78 Phase 2: Dynamic tool discovery (semantic search for relevant tools)
+            # Run once at start of execution, tools are cached in instance
+            if iteration == 0:
+                await instance.prepare_dynamic_tools()
+
             # Call AIOS
             context = instance.assemble_context()
             try:
@@ -1539,7 +1554,7 @@ class AgentExecutorService:
                 instance.transition_to(ExecutorState.COMPLETED)
                 break
 
-            elif aios_result.result_type == AIOSResultType.TOOL_CALL:
+            if aios_result.result_type == AIOSResultType.TOOL_CALL:
                 # Need to call a tool
                 instance.transition_to(ExecutorState.TOOL_USE)
 
@@ -1797,8 +1812,9 @@ class AgentExecutorService:
                 # Get adaptive context from past patterns for high-risk tools
                 adaptive_context = ""
                 try:
-                    from core.agents.adaptive_prompting import \
-                        get_adaptive_context_for_tool
+                    from core.agents.adaptive_prompting import (
+                        get_adaptive_context_for_tool,
+                    )
 
                     adaptive_context = await get_adaptive_context_for_tool(
                         tool_call.tool_id
@@ -1947,7 +1963,7 @@ class AgentExecutorService:
                 error=str(e),
             )
 
-    async def _execute_plan_sequence(self, plan_id: str) -> Dict[str, Any]:
+    async def _execute_plan_sequence(self, plan_id: str) -> dict[str, Any]:
         """
         Dequeue and execute tasks from a plan in order, with approval checks.
 
@@ -2407,11 +2423,11 @@ class AgentExecutorService:
 # =============================================================================
 
 __all__ = [
-    "AgentExecutorService",
     "AIOSRuntime",
-    "ToolRegistryProtocol",
-    "SubstrateServiceProtocol",
+    "AgentExecutorService",
     "AgentRegistryProtocol",
+    "SubstrateServiceProtocol",
+    "ToolRegistryProtocol",
 ]
 
 # ============================================================================

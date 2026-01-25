@@ -61,8 +61,14 @@ from config.settings import settings
 
 # Initialize logger early for import error handling
 logger = structlog.get_logger(__name__)
-from fastapi import (Depends, FastAPI, Header, HTTPException,  # noqa: E402
-                     WebSocket, WebSocketDisconnect)
+from fastapi import (
+    Depends,
+    FastAPI,
+    Header,
+    HTTPException,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from openai import OpenAI
 from pydantic import BaseModel
 
@@ -73,26 +79,33 @@ from api.auth import verify_api_key
 from api.memory.cache import router as cache_router
 from api.memory.graph import router as graph_router
 from api.memory.router import router as memory_router
+
 # Router Auto-Registration (Phase 2 Auto-Wiring)
 from api.routes.registry import discover_routers, router_registry
 from core.decorators import must_stay_async
+
 # Event Type Auto-Registration (Phase 2 Auto-Wiring)
-from core.event_type_registry import (get_all_event_types,
-                                      register_core_event_types)
+from core.event_type_registry import get_all_event_types, register_core_event_types
+
 # Singleton Auto-Registration (Phase 2 Auto-Wiring)
-from core.singleton_auto_registry import (discover_singleton_services,
-                                          wire_singletons_to_registry)
+from core.singleton_auto_registry import (
+    discover_singleton_services,
+    wire_singletons_to_registry,
+)
 from core.singleton_registry import get_singleton_registry
+
 # Background Task Registry (Auto-Wiring)
-from runtime.background_tasks import BackgroundTaskRegistry  # noqa: F401
+from runtime.background_tasks import BackgroundTaskRegistry
+
 # MCP Server Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
-from runtime.mcp_server_registry import (get_all_mcp_servers,  # noqa: F401
-                                         get_mcp_server_snapshot,
-                                         load_mcp_servers_from_yaml,
-                                         mcp_server_registry)
+from runtime.mcp_server_registry import (
+    get_all_mcp_servers,  # noqa: F401
+    )
+
 # Tool Executor Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
-from runtime.tool_registry import (get_tool_executors,  # noqa: F401
-                                   get_tool_snapshot, tool_executor_registry)
+from runtime.tool_registry import (
+    get_tool_executors,  # noqa: F401
+    )
 
 # Telemetry / Prometheus metrics
 try:
@@ -155,9 +168,12 @@ except ImportError:
 
 # Optional: World Model Runtime (v2.5+)
 try:
-    from world_model.runtime import (RuntimeConfig, WorldModelRuntime,
-                                     create_runtime_with_substrate,
-                                     get_or_create_runtime)
+    from world_model.runtime import (
+        RuntimeConfig,
+        WorldModelRuntime,
+        create_runtime_with_substrate,
+        get_or_create_runtime,
+    )
 
     _has_world_model_runtime = True
 except ImportError:
@@ -166,9 +182,14 @@ except ImportError:
 # Optional: Agent Executor (v2.2+)
 try:
     from core.agents.executor import AgentExecutorService
-    from core.agents.schemas import (AgentConfig, AgentTask, AgentType,
-                                     DuplicateTaskResponse, ExecutionResult,
-                                     ToolBinding)
+    from core.agents.schemas import (
+        AgentConfig,
+        AgentTask,
+        AgentType,
+        DuplicateTaskResponse,
+        ExecutionResult,
+        ToolBinding,
+    )
 
     _has_agent_executor = True
 except ImportError as e:
@@ -192,8 +213,10 @@ except Exception as e:
 
 # Optional: Tool Registry Adapter (v2.2+)
 try:
-    from core.tools.registry_adapter import (ExecutorToolRegistry,
-                                             create_executor_tool_registry)
+    from core.tools.registry_adapter import (
+        ExecutorToolRegistry,
+        create_executor_tool_registry,
+    )
 
     _has_tool_registry = True
 except ImportError as e:
@@ -248,8 +271,7 @@ except ImportError:
 # Optional: ResearchSwarm Orchestrator (v3.5+ / Stage 2.6 Phase 3)
 try:
     from api.routes.research import router as research_swarm_router
-    from orchestrators.research_swarm.orchestrator import \
-        ResearchSwarmOrchestrator
+    from orchestrators.research_swarm.orchestrator import ResearchSwarmOrchestrator
 
     _has_research_swarm = True
 except ImportError:
@@ -267,8 +289,7 @@ except ImportError as e:
 
 # Optional: ReflectionAgent (Meta-reasoning and self-improvement agent)
 try:
-    from agents.reflection_agent import (ReflectionAgent,
-                                         create_reflection_agent)
+    from agents.reflection_agent import ReflectionAgent, create_reflection_agent
     from api.routes.reflection_agent import router as reflection_agent_router
 
     _has_reflection_agent = True
@@ -280,13 +301,11 @@ except ImportError as e:
 try:
     from agents.cursor.integrations.cursor_executor import CursorExecutor
     from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
-    from agents.cursor.integrations.cursor_langgraph import \
-        build_cursor_langgraph
+    from agents.cursor.integrations.cursor_langgraph import build_cursor_langgraph
     from api.routes.cursor import router as cursor_router
     from config.cursor_langgraph_config import get_cursor_langgraph_config
     from core.governance.approval_manager import ApprovalManager
-    from memory.checkpoint.cursor_checkpoint_manager import \
-        CursorCheckpointManager
+    from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
     from memory.checkpoint.postgres_saver import L9PostgresSaver
 
     _has_cursor_executor = True
@@ -296,8 +315,7 @@ except ImportError as e:
 
 # Optional: Governance Engine (v2.4+)
 try:
-    from core.governance.engine import (GovernanceEngineService,
-                                        create_governance_engine)
+    from core.governance.engine import GovernanceEngineService, create_governance_engine
     from core.governance.loader import InvalidPolicyError, PolicyLoadError
 
     _has_governance = True
@@ -306,8 +324,7 @@ except ImportError:
 
 # Optional: Symbolic Computation Service (v2.9+ / GMP-SYMPY-TASK4)
 try:
-    from services.symbolic_computation.api.routes import \
-        router as symbolic_router
+    from services.symbolic_computation.api.routes import router as symbolic_router
 
     _has_symbolic = True
 except ImportError:
@@ -323,8 +340,10 @@ except ImportError:
 
 # Optional: Kernel-Aware Agent Registry (v2.5+)
 try:
-    from core.agents.kernel_registry import (KernelAwareAgentRegistry,
-                                             create_kernel_aware_registry)
+    from core.agents.kernel_registry import (
+        KernelAwareAgentRegistry,
+        create_kernel_aware_registry,
+    )
 
     _has_kernel_registry = True
 except ImportError as e:
@@ -346,11 +365,9 @@ try:
             sys.path.insert(0, str(startup_path.parent))
             from startup.session_startup import SessionStartup, StartupResult
         else:
-            from core.governance.session_startup import (SessionStartup,
-                                                         StartupResult)
+            from core.governance.session_startup import SessionStartup, StartupResult
     except ImportError:
-        from core.governance.session_startup import (SessionStartup,
-                                                     StartupResult)
+        from core.governance.session_startup import SessionStartup, StartupResult
 
     _has_session_startup = True
 except ImportError as e:
@@ -375,13 +392,20 @@ L9_GRAPH_AGENT_STATE = settings.l9_graph_agent_state
 
 # Optional: Graph-Backed Agent State (v3.2+ Stage 5)
 try:
-    from core.agents.graph_state import (AgentGraphLoader, GraphHydrator,
-                                         bootstrap_l_graph)
-    from core.tools.agent_self_modify import (AgentSelfModifyTool,
-                                              create_self_modify_tool)
-    from services.research.graph_persistence import (ResearchGraphPersistence,
-                                                     create_graph_persistence,
-                                                     init_graph_persistence)
+    from core.agents.graph_state import (
+        AgentGraphLoader,
+        GraphHydrator,
+        bootstrap_l_graph,
+    )
+    from core.tools.agent_self_modify import (
+        AgentSelfModifyTool,
+        create_self_modify_tool,
+    )
+    from services.research.graph_persistence import (
+        ResearchGraphPersistence,
+        create_graph_persistence,
+        init_graph_persistence,
+    )
 
     _has_graph_agent_state = True
     _has_research_graph_persistence = True
@@ -393,10 +417,15 @@ except ImportError:
 L9_OBSERVABILITY = settings.l9_observability
 try:
     from core.observability.l9_integration import (
-        instrument_agent_executor, instrument_governance_engine,
-        instrument_memory_substrate, instrument_tool_registry)
-    from core.observability.service import (ObservabilityService,
-                                            initialize_observability)
+        instrument_agent_executor,
+        instrument_governance_engine,
+        instrument_memory_substrate,
+        instrument_tool_registry,
+    )
+    from core.observability.service import (
+        ObservabilityService,
+        initialize_observability,
+    )
 
     _has_observability = True
 except ImportError:
@@ -413,8 +442,7 @@ except ImportError:
 
 # Optional: Event Queue (v3.1+ Stage 3)
 try:
-    from core.coordination.event_queue import (EventQueue,
-                                               init_event_driven_coordination)
+    from core.coordination.event_queue import EventQueue, init_event_driven_coordination
 
     _has_event_queue = True
 except ImportError:
@@ -454,8 +482,7 @@ else:
 
 # Optional: Housekeeping Engine (v2.4+)
 try:
-    from memory.housekeeping import (HousekeepingEngine,
-                                     init_housekeeping_engine)
+    from memory.housekeeping import HousekeepingEngine, init_housekeeping_engine
 
     _has_housekeeping = True
 except ImportError:
@@ -468,6 +495,7 @@ _has_mac_agent = settings.mac_agent_enabled
 _has_waba = settings.waba_enabled
 
 from memory.agent_persistence import AgentPersistenceService
+
 # Memory system imports
 from memory.migration_runner import run_migrations
 from memory.state_manager import MemoryStateManager
@@ -632,8 +660,11 @@ async def lifespan(app: FastAPI):
     # Register all tools: legacy TOOL_EXECUTORS + extension modules + @register_tool
     # ------------------------------------------------------------------------
     try:
-        from runtime.tool_registry import (discover_tools, get_tool_snapshot,
-                                           register_extension_tool_executors)
+        from runtime.tool_registry import (
+            discover_tools,
+            get_tool_snapshot,
+            register_extension_tool_executors,
+        )
 
         # 1. All tools now use @register_tool decorator - legacy bridge removed
         # 2. Register extension tools (research, reflection)
@@ -663,8 +694,10 @@ async def lifespan(app: FastAPI):
     try:
         from pathlib import Path
 
-        from runtime.mcp_server_registry import (get_all_mcp_servers,
-                                                 load_mcp_servers_from_yaml)
+        from runtime.mcp_server_registry import (
+            get_all_mcp_servers,
+            load_mcp_servers_from_yaml,
+        )
 
         mcp_config_path = Path(__file__).parent.parent / "config" / "mcp_servers.yaml"
         if mcp_config_path.exists():
@@ -687,8 +720,11 @@ async def lifespan(app: FastAPI):
     # Register all agents: legacy exports + @register_agent decorated
     # ------------------------------------------------------------------------
     try:
-        from agents.agent_registry import (discover_agents, get_agent_snapshot,
-                                           register_legacy_agents)
+        from agents.agent_registry import (
+            discover_agents,
+            get_agent_snapshot,
+            register_legacy_agents,
+        )
 
         # 1. Register legacy agent classes
         legacy_agent_count = register_legacy_agents()
@@ -711,8 +747,10 @@ async def lifespan(app: FastAPI):
     # ------------------------------------------------------------------------
     try:
         from orchestrators.orchestrator_registry import (
-            discover_orchestrators, get_orchestrator_snapshot,
-            register_legacy_orchestrators)
+            discover_orchestrators,
+            get_orchestrator_snapshot,
+            register_legacy_orchestrators,
+        )
 
         # 1. Register legacy orchestrator classes
         legacy_orch_count = register_legacy_orchestrators()
@@ -734,9 +772,11 @@ async def lifespan(app: FastAPI):
     # Register all cells: legacy exports + @register_cell decorated
     # ------------------------------------------------------------------------
     try:
-        from collaborative_cells.cell_registry import (discover_cells,
-                                                       get_cell_snapshot,
-                                                       register_legacy_cells)
+        from collaborative_cells.cell_registry import (
+            discover_cells,
+            get_cell_snapshot,
+            register_legacy_cells,
+        )
 
         # 1. Register legacy cell classes
         legacy_cell_count = register_legacy_cells()
@@ -759,7 +799,9 @@ async def lifespan(app: FastAPI):
     # ------------------------------------------------------------------------
     try:
         from core.governance.policy_registry import (
-            get_policy_source_snapshot, register_default_policy_sources)
+            get_policy_source_snapshot,
+            register_default_policy_sources,
+        )
 
         # Register default policy directories
         policy_source_count = register_default_policy_sources()
@@ -1077,17 +1119,28 @@ async def lifespan(app: FastAPI):
 
             # ========================================================================
             # GMP-78: Sync tool embeddings for semantic tool retrieval
+            # Phase 2: Track sync status for dynamic tool discovery health
             # ========================================================================
+            app.state.tool_embeddings_synced = False
+            app.state.tool_embedding_count = 0
             try:
                 from core.tools.tool_embeddings import sync_all_tool_embeddings
 
                 tool_embedding_count = await sync_all_tool_embeddings()
-                logger.info(f"Tool embeddings synced: {tool_embedding_count} tools")
+                app.state.tool_embeddings_synced = True
+                app.state.tool_embedding_count = tool_embedding_count
+                logger.info(
+                    f"✓ Tool embeddings synced: {tool_embedding_count} tools (dynamic discovery enabled)"
+                )
             except ImportError:
-                logger.debug("Tool embeddings service not available (optional)")
+                logger.warning(
+                    "Tool embeddings service not available - dynamic tool discovery DISABLED"
+                )
             except Exception as e:
-                # Non-fatal: semantic tool retrieval is an optimization
-                logger.warning(f"Tool embedding sync failed (non-fatal): {e}")
+                # Non-fatal: semantic tool retrieval is an optimization, but log clearly
+                logger.warning(
+                    f"Tool embedding sync failed - dynamic tool discovery may be impaired: {e}"
+                )
 
             # ========================================================================
             # SESSION STARTUP: Preflight checks + kernel readiness gate (v3.4+)
@@ -1231,8 +1284,9 @@ async def lifespan(app: FastAPI):
 
             # Initialize ActionToolOrchestrator (for /tools/execute endpoint)
             try:
-                from orchestrators.action_tool.orchestrator import \
-                    ActionToolOrchestrator
+                from orchestrators.action_tool.orchestrator import (
+                    ActionToolOrchestrator,
+                )
 
                 gov_engine = getattr(app.state, "governance_engine", None)
                 action_tool_orchestrator = ActionToolOrchestrator(
@@ -1250,8 +1304,7 @@ async def lifespan(app: FastAPI):
 
             # Initialize MemoryOrchestrator (for /memory/batch, /memory/compact endpoints)
             try:
-                from orchestrators.memory.orchestrator import \
-                    MemoryOrchestrator
+                from orchestrators.memory.orchestrator import MemoryOrchestrator
 
                 memory_orchestrator = MemoryOrchestrator()
                 app.state.memory_orchestrator = memory_orchestrator
@@ -1610,8 +1663,7 @@ async def lifespan(app: FastAPI):
         if neo4j and neo4j.is_available():
             # Bootstrap governance schema (creates Responsibility, Directive, SOP labels)
             try:
-                from scripts.bootstrap_neo4j_schema import \
-                    bootstrap_l_governance
+                from scripts.bootstrap_neo4j_schema import bootstrap_l_governance
 
                 bootstrap_result = await bootstrap_l_governance(neo4j.driver)
                 if bootstrap_result.get("success"):
@@ -1630,8 +1682,7 @@ async def lifespan(app: FastAPI):
 
             # Register L9 tools in graph (for dependency tracking)
             try:
-                from core.tools.tool_graph import (register_l9_tools,
-                                                   register_l_tools)
+                from core.tools.tool_graph import register_l9_tools, register_l_tools
 
                 tool_count = await register_l9_tools()
                 logger.info(f"Registered {tool_count} tools in Neo4j graph")
@@ -1653,8 +1704,7 @@ async def lifespan(app: FastAPI):
 
             # Initialize Strategy Memory Service (GMP-102: Phase 0-1)
             try:
-                from memory.neo4j_strategy_memory import \
-                    Neo4jStrategyMemoryService
+                from memory.neo4j_strategy_memory import Neo4jStrategyMemoryService
 
                 strategy_memory = Neo4jStrategyMemoryService(
                     neo4j_client=neo4j,
@@ -1887,9 +1937,7 @@ async def lifespan(app: FastAPI):
             )
             logger.info(f"✓ Memory tools registered: {memory_tool_count} tools")
         else:
-            logger.warning(
-                "⚠️ Memory tools not registered: tool_registry not available"
-            )
+            logger.warning("⚠️ Memory tools not registered: tool_registry not available")
     except Exception as e:
         logger.error(f"❌ Memory tool registration failed: {e}", exc_info=True)
 
@@ -2243,7 +2291,9 @@ async def lifespan(app: FastAPI):
         else:
             try:
                 from core.integration.graph_to_wm_sync import (
-                    get_graph_wm_sync, start_graph_wm_sync)
+                    get_graph_wm_sync,
+                    start_graph_wm_sync,
+                )
 
                 # Use driver property from Neo4jClient (single source of truth)
                 await start_graph_wm_sync(neo4j_driver=neo4j_for_sync.driver)
@@ -2280,8 +2330,10 @@ async def lifespan(app: FastAPI):
         and neo4j_for_wm_sync.is_available()
     ):
         try:
-            from core.integration.wm_to_graph_sync import (get_wm_graph_sync,
-                                                           start_wm_graph_sync)
+            from core.integration.wm_to_graph_sync import (
+                get_wm_graph_sync,
+                start_wm_graph_sync,
+            )
             from world_model.causal_mapper import CausalMapper
 
             # Get CausalMapper from world_model_service if available (ensures we sync actual data)
@@ -2328,7 +2380,9 @@ async def lifespan(app: FastAPI):
     if L9_TOOL_PATTERN_EXTRACTION:
         try:
             from core.integration.tool_pattern_extractor import (
-                get_tool_pattern_extractor, start_tool_pattern_extraction)
+                get_tool_pattern_extractor,
+                start_tool_pattern_extraction,
+            )
 
             await start_tool_pattern_extraction()
             app.state.tool_pattern_extractor = get_tool_pattern_extractor()
@@ -2527,8 +2581,9 @@ async def lifespan(app: FastAPI):
         and app.state.tool_pattern_extractor
     ):
         try:
-            from core.integration.tool_pattern_extractor import \
-                stop_tool_pattern_extraction
+            from core.integration.tool_pattern_extractor import (
+                stop_tool_pattern_extraction,
+            )
 
             await stop_tool_pattern_extraction()
             logger.info("Tool Pattern Extraction stopped")
@@ -2665,21 +2720,25 @@ async def lifespan(app: FastAPI):
 
 
 # FastAPI App with OpenAPI Configuration
-from api.openapi_config import get_openapi_config, get_security_schemes, SWAGGER_UI_PARAMETERS
+from api.openapi_config import (
+    get_openapi_config,
+    get_security_schemes,
+)
 
 app = FastAPI(
     **get_openapi_config(),
     lifespan=lifespan,
 )
 
+
 # Add security schemes to OpenAPI schema
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
-    
+
     openapi_schema = app.openapi()
     openapi_schema["components"]["securitySchemes"] = get_security_schemes()
-    
+
     # Apply security to all endpoints by default
     for path in openapi_schema["paths"]:
         for method in openapi_schema["paths"][path]:
@@ -2689,9 +2748,10 @@ def custom_openapi():
                     openapi_schema["paths"][path][method]["security"] = [
                         {"ApiKeyAuth": []}
                     ]
-    
+
     app.openapi_schema = openapi_schema
     return app.openapi_schema
+
 
 app.openapi = custom_openapi
 
@@ -2874,7 +2934,7 @@ async def reload_kernels_endpoint(
             success=False,
             kernels_reloaded=0,
             modified_kernels=[],
-            errors=[f"Kernel reload module not available: {str(e)}"],
+            errors=[f"Kernel reload module not available: {e!s}"],
             message="Kernel reload not available",
         )
 
@@ -2905,7 +2965,7 @@ async def reload_kernels_endpoint(
             success=False,
             kernels_reloaded=0,
             modified_kernels=[],
-            errors=[f"Failed to get L-CTO agent: {str(e)}"],
+            errors=[f"Failed to get L-CTO agent: {e!s}"],
             message="Cannot reload: agent retrieval failed",
         )
 
@@ -2938,14 +2998,13 @@ async def reload_kernels_endpoint(
                 errors=result.errors,
                 message=f"Successfully reloaded {result.kernels_reloaded} kernels",
             )
-        else:
-            return KernelReloadResponse(
-                success=False,
-                kernels_reloaded=result.kernels_reloaded,
-                modified_kernels=result.modified_kernels,
-                errors=result.errors,
-                message="Kernel reload failed",
-            )
+        return KernelReloadResponse(
+            success=False,
+            kernels_reloaded=result.kernels_reloaded,
+            modified_kernels=result.modified_kernels,
+            errors=result.errors,
+            message="Kernel reload failed",
+        )
 
     except Exception as e:
         logger.error("kernel_reload.endpoint_error", error=str(e), exc_info=True)
@@ -2954,7 +3013,7 @@ async def reload_kernels_endpoint(
             kernels_reloaded=0,
             modified_kernels=[],
             errors=[str(e)],
-            message=f"Kernel reload failed with exception: {str(e)}",
+            message=f"Kernel reload failed with exception: {e!s}",
         )
 
 
@@ -2997,6 +3056,22 @@ async def services_health():
     Internal services health check.
     Returns status of optional services initialized at startup.
     """
+    # GMP-78 Phase 2: Include dynamic tool discovery status
+    tool_discovery_status = {
+        "synced": getattr(app.state, "tool_embeddings_synced", False),
+        "tool_count": getattr(app.state, "tool_embedding_count", 0),
+    }
+
+    # Get dynamic discovery settings
+    try:
+        from config.settings import get_integration_settings
+
+        settings = get_integration_settings()
+        tool_discovery_status["enabled"] = settings.l9_dynamic_tool_discovery
+        tool_discovery_status["top_k"] = settings.l9_tool_discovery_top_k
+    except Exception:
+        tool_discovery_status["enabled"] = False
+
     return {
         "status": "ok",
         "services": {
@@ -3016,6 +3091,7 @@ async def services_health():
                 "available": getattr(app.state, "observability_service", None)
                 is not None,
             },
+            "dynamic_tool_discovery": tool_discovery_status,
         },
     }
 
@@ -3029,8 +3105,7 @@ async def checkpoint_health():
 
     Pool stats are updated by L9RetryablePostgresSaver when available.
     """
-    from memory.checkpoint_metrics import (PROMETHEUS_AVAILABLE,
-                                           get_pool_stats_dict)
+    from memory.checkpoint_metrics import PROMETHEUS_AVAILABLE, get_pool_stats_dict
 
     pool_stats = get_pool_stats_dict()
 
@@ -3067,7 +3142,7 @@ class ChatResponse(BaseModel):
 # L-CTO Agent Chat Endpoint (kernel-aware via AgentExecutorService)
 # =============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import Field
 
@@ -3076,7 +3151,7 @@ class LChatRequest(BaseModel):
     """Request for L-CTO agent chat via AgentExecutorService."""
 
     message: str = Field(..., description="User message to send to L")
-    thread_id: Optional[str] = Field(
+    thread_id: str | None = Field(
         None, description="Thread identifier for conversation grouping"
     )
     metadata: dict[str, Any] = Field(
@@ -3362,6 +3437,7 @@ async def on_shutdown():
 # =============================================================================
 
 from core.schemas.event_stream import AgentHandshake
+
 # Import the shared singleton orchestrator instance
 from runtime.websocket_orchestrator import verify_ws_token, ws_orchestrator
 

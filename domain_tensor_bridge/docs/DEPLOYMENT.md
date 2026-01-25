@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.12+
 - Redis 7+
 - PostgreSQL 15+
 - Neo4j 5+

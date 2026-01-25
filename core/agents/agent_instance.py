@@ -84,13 +84,12 @@ __dora_meta__ = {
 import hashlib
 import re
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
 
-from core.agents.schemas import (AgentConfig, AgentTask, ExecutorState,
-                                 ToolBinding)
+from core.agents.schemas import AgentConfig, AgentTask, ExecutorState, ToolBinding
 
 logger = structlog.get_logger(__name__)
 
@@ -140,6 +139,9 @@ class AgentInstance:
         self._tool_name_reverse_map: dict[str, str] = {}
         self._user_corrections: list[dict[str, Any]] = []
         self._governance_blocks: list[dict[str, Any]] = []
+        self._discovered_tools: list[dict[str, Any]] | None = (
+            None  # Dynamic discovery cache
+        )
 
         logger.info(
             "AgentInstance created",
@@ -241,7 +243,7 @@ class AgentInstance:
         self._total_tokens += tokens
 
     def add_user_correction(
-        self, correction: str, metadata: Optional[dict[str, Any]] = None
+        self, correction: str, metadata: dict[str, Any] | None = None
     ) -> None:
         """
         Track a user correction during execution.
@@ -272,10 +274,10 @@ class AgentInstance:
     def add_governance_block(
         self,
         block_type: str,
-        violation: Optional[str] = None,
-        pattern: Optional[str] = None,
-        tool_id: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        violation: str | None = None,
+        pattern: str | None = None,
+        tool_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """
         Track a governance block during execution.
@@ -331,11 +333,39 @@ class AgentInstance:
         """
         Get tool definitions in OpenAI function calling format.
 
+        If dynamic discovery has been run (via prepare_dynamic_tools), returns
+        the dynamically discovered tools. Otherwise returns statically bound tools.
+
         function.name == tool_id (canonical identity, must match exactly).
 
         Returns:
             List of tool definitions for AIOS
         """
+        # Use dynamically discovered tools if available
+        if self._discovered_tools is not None:
+            logger.debug(
+                "Using dynamically discovered tools",
+                tool_count=len(self._discovered_tools),
+                task_id=str(self._task.id),
+            )
+            return self._discovered_tools
+
+        # Fallback: static tool binding (DEPRECATED - GMP-78 Phase 2)
+        # Static binding is legacy behavior. Dynamic discovery is preferred.
+        # Set L9_DYNAMIC_TOOL_DISCOVERY=true (default) to use semantic discovery.
+        import warnings
+
+        warnings.warn(
+            "Static tool binding is deprecated. Use prepare_dynamic_tools() for "
+            "semantic discovery. Set L9_DYNAMIC_TOOL_DISCOVERY=true to enable.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        logger.debug(
+            "Using deprecated static tool binding",
+            task_id=str(self._task.id),
+            hint="Enable L9_DYNAMIC_TOOL_DISCOVERY=true for semantic discovery",
+        )
         definitions = []
         self._build_tool_name_map()
         for tool in self.get_bound_tools():
@@ -351,6 +381,107 @@ class AgentInstance:
                 }
             )
         return definitions
+
+    async def prepare_dynamic_tools(self) -> int:
+        """
+        Discover and cache relevant tools for this task using semantic search.
+
+        GMP-78 Phase 2: Dynamic Tool Discovery Integration.
+        GMP-79: Multi-turn caching via Redis.
+
+        This method:
+        1. Checks Redis cache for previously discovered tools (multi-turn)
+        2. If cache miss: runs semantic search against tool embeddings
+        3. Caches discovered tools in Redis for future turns
+        4. Stores locally for get_tool_definitions()
+
+        Call this BEFORE assemble_context() for dynamic tool discovery.
+        If not called, get_tool_definitions() returns static bound tools.
+
+        Returns:
+            Number of tools discovered
+        """
+        try:
+            from core.tools.dynamic_discovery import (
+                cache_tools,
+                discover_tools_for_task,
+                get_cached_tools,
+                is_dynamic_discovery_enabled,
+            )
+
+            if not is_dynamic_discovery_enabled():
+                logger.debug("Dynamic tool discovery disabled, using static binding")
+                return 0
+
+            task_id = str(self._task.id)
+
+            # GMP-79: Check Redis cache first (multi-turn optimization)
+            cached = await get_cached_tools(task_id)
+            if cached:
+                self._discovered_tools = cached
+                logger.info(
+                    "Using cached tools (multi-turn)",
+                    task_id=task_id,
+                    tools_cached=len(cached),
+                )
+                return len(cached)
+
+            # Extract task payload for semantic search
+            task_query = self._extract_task_query()
+            if not task_query:
+                logger.debug("No task query found, using static binding")
+                return 0
+
+            # Discover relevant tools via semantic search
+            self._discovered_tools = await discover_tools_for_task(task_query)
+
+            # GMP-79: Cache tools for future turns
+            if self._discovered_tools:
+                await cache_tools(task_id, self._discovered_tools)
+
+            logger.info(
+                "Dynamic tool discovery complete",
+                task_id=task_id,
+                tools_discovered=len(self._discovered_tools),
+                task_preview=task_query[:50] if task_query else None,
+                cached=True,
+            )
+
+            return len(self._discovered_tools)
+
+        except ImportError as e:
+            logger.debug(f"Dynamic discovery not available: {e}")
+            return 0
+        except Exception as e:
+            logger.warning(f"Dynamic tool discovery failed, using static binding: {e}")
+            self._discovered_tools = None
+            return 0
+
+    def _extract_task_query(self) -> str | None:
+        """
+        Extract the task query/description for semantic tool search.
+
+        Returns:
+            Task query string or None if not extractable
+        """
+        payload = self._task.payload
+
+        # Try common payload fields
+        if isinstance(payload, dict):
+            # Priority: query > content > message > description
+            for field in ["query", "content", "message", "description", "text"]:
+                if payload.get(field):
+                    return str(payload[field])
+
+        # If payload is a string, use it directly
+        if isinstance(payload, str) and payload.strip():
+            return payload
+
+        return None
+
+    def clear_discovered_tools(self) -> None:
+        """Clear cached discovered tools (revert to static binding)."""
+        self._discovered_tools = None
 
     def has_tool(self, tool_id: str) -> bool:
         """Check if a tool is bound to this agent."""
@@ -393,7 +524,7 @@ class AgentInstance:
     # =========================================================================
 
     def add_user_message(
-        self, content: str, metadata: Optional[dict[str, Any]] = None
+        self, content: str, metadata: dict[str, Any] | None = None
     ) -> None:
         """
         Add a user message to history.
@@ -412,7 +543,7 @@ class AgentInstance:
         )
 
     def add_assistant_message(
-        self, content: str, metadata: Optional[dict[str, Any]] = None
+        self, content: str, metadata: dict[str, Any] | None = None
     ) -> None:
         """
         Add an assistant message to history.
@@ -433,8 +564,8 @@ class AgentInstance:
     def add_assistant_message_with_tool_calls(
         self,
         tool_calls: list[dict[str, Any]],
-        content: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        content: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """
         Add an assistant message with tool_calls to history.

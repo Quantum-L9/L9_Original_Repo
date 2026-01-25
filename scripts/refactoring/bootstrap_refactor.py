@@ -23,7 +23,7 @@ import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class Language(Enum):
@@ -38,9 +38,9 @@ class ToolConfig:
     """Configuration for refactoring tools"""
 
     language: Language
-    tools: List[str]
+    tools: list[str]
     install_cmd: str
-    config_files: Dict[str, str]
+    config_files: dict[str, str]
 
 
 class RefactoringBootstrap:
@@ -136,10 +136,10 @@ fixable = ["F", "E", "W", "C901", "B", "UP"]
 
 [tool.black]
 line-length = 100
-target-version = ['py39']
+target-version = ['py312']
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.12"
 strict = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
@@ -292,7 +292,7 @@ isort==5.13.2
         baseline_path.write_text(json.dumps(baseline, indent=2))
         print(f"  ✓ Baseline report: {baseline_path}")
 
-    def _analyze_python(self) -> Dict[str, Any]:
+    def _analyze_python(self) -> dict[str, Any]:
         """Analyze Python codebase"""
         analysis = {"tools_available": [], "file_count": 0, "total_lines": 0}
 
@@ -302,9 +302,9 @@ isort==5.13.2
 
         for py_file in py_files:
             try:
-                with open(py_file, "r", encoding="utf-8", errors="ignore") as f:
+                with open(py_file, encoding="utf-8", errors="ignore") as f:
                     analysis["total_lines"] += len(f.readlines())
-            except (IOError, OSError):
+            except OSError:
                 pass  # Skip files that can't be read
 
         # Check available tools
@@ -314,7 +314,7 @@ isort==5.13.2
 
         return analysis
 
-    def _analyze_typescript(self) -> Dict[str, Any]:
+    def _analyze_typescript(self) -> dict[str, Any]:
         """Analyze TypeScript codebase"""
         analysis = {"tools_available": [], "file_count": 0, "total_lines": 0}
 
@@ -328,9 +328,9 @@ isort==5.13.2
 
         for ts_file in ts_files:
             try:
-                with open(ts_file, "r", encoding="utf-8", errors="ignore") as f:
+                with open(ts_file, encoding="utf-8", errors="ignore") as f:
                     analysis["total_lines"] += len(f.readlines())
-            except (IOError, OSError):
+            except OSError:
                 pass  # Skip files that can't be read
 
         return analysis
@@ -415,7 +415,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.12'
       
       - name: Install refactoring tools
         run: |
@@ -469,7 +469,7 @@ jobs:
     rev: 24.10.0
     hooks:
       - id: black
-        language_version: python3.9
+        language_version: python3.12
   
   # Python type checking
   - repo: https://github.com/pre-commit/mirrors-mypy

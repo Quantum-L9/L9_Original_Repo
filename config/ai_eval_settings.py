@@ -9,6 +9,7 @@ Usage:
     from config.ai_eval_settings import get_ai_eval_settings
     settings = get_ai_eval_settings()
 """
+# Python 3.12+ required (L9 standard)
 
 # ============================================================================
 __dora_meta__ = {
@@ -32,7 +33,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from functools import lru_cache
-from typing import List, Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -45,7 +45,7 @@ class HallucinationSettings(BaseSettings):
     confidence_threshold: float = Field(
         default=0.85, description="Minimum confidence score to pass"
     )
-    kb_endpoint: Optional[str] = Field(
+    kb_endpoint: str | None = Field(
         default=None,
         alias="AI_EVAL_KB_ENDPOINT",
         description="Knowledge base endpoint for fact verification",
@@ -62,7 +62,7 @@ class BiasSettings(BaseSettings):
     """Bias detection settings."""
 
     enabled: bool = Field(default=True, description="Enable bias checks")
-    sensitive_attributes: List[str] = Field(
+    sensitive_attributes: list[str] = Field(
         default=["gender", "ethnicity", "age", "disability_status"],
         description="Attributes to test for bias",
     )
@@ -100,7 +100,7 @@ class SecuritySettings(BaseSettings):
         default=True, description="Enable prompt injection tests"
     )
     pii_scan_enabled: bool = Field(default=True, description="Enable PII scanning")
-    pii_patterns: List[str] = Field(
+    pii_patterns: list[str] = Field(
         default=[
             r"\b\d{3}-\d{2}-\d{4}\b",  # SSN
             r"\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{3}\b",  # Credit card
@@ -157,7 +157,7 @@ class AIEvalSettings(BaseSettings):
         env_nested_delimiter = "__"
 
 
-@lru_cache()
+@lru_cache
 def get_ai_eval_settings() -> AIEvalSettings:
     """Get cached AI evaluation settings."""
     return AIEvalSettings()

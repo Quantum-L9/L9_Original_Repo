@@ -160,7 +160,7 @@ class SubstrateGraphState(TypedDict):
 
     Accumulates results from each processing node.
 
-    Note: Uses Optional[] instead of X | None for Python 3.9 + LangGraph compatibility.
+    Note: Uses Optional[] for LangGraph compatibility.
     LangGraph's get_type_hints() evaluates types at runtime.
     """
 
@@ -171,7 +171,9 @@ class SubstrateGraphState(TypedDict):
     reasoning_block: dict[str, Any] | None  # StructuredReasoningBlock if generated
     written_tables: list[str]
     embedding_id: str | None
-    saved_checkpoint_id: str | None  # Renamed from checkpoint_id (reserved in LangGraph)
+    saved_checkpoint_id: (
+        str | None
+    )  # Renamed from checkpoint_id (reserved in LangGraph)
 
     # Insight extraction results (v1.1.0+)
     insights: list[dict[str, Any]]  # ExtractedInsight objects as dicts

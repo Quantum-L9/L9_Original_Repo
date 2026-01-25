@@ -41,7 +41,6 @@ __dora_meta__ = {
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -175,6 +174,37 @@ class IntegrationSettings(BaseSettings):
         description="Enable Stage 5: Predictive Memory Warming (gap detection + cache warming).",
     )
 
+    # Dynamic Tool Discovery (GMP-78 Phase 2)
+    l9_dynamic_tool_discovery: bool = Field(
+        default=True,
+        alias="L9_DYNAMIC_TOOL_DISCOVERY",
+        description="Enable dynamic tool discovery: semantic search for relevant tools per-task instead of static binding.",
+    )
+
+    l9_tool_discovery_top_k: int = Field(
+        default=5,
+        alias="L9_TOOL_DISCOVERY_TOP_K",
+        description="Maximum number of tools to discover per task (default: 5).",
+    )
+
+    l9_tool_discovery_min_similarity: float = Field(
+        default=0.3,
+        alias="L9_TOOL_DISCOVERY_MIN_SIMILARITY",
+        description="Minimum cosine similarity threshold for tool discovery (default: 0.3).",
+    )
+
+    l9_tool_discovery_max_tokens: int = Field(
+        default=2000,
+        alias="L9_TOOL_DISCOVERY_MAX_TOKENS",
+        description="Maximum tokens to allocate for discovered tools (default: 2000).",
+    )
+
+    l9_tool_cache_ttl: int = Field(
+        default=300,
+        alias="L9_TOOL_CACHE_TTL",
+        description="TTL in seconds for cached tool discoveries (multi-turn, default: 300s/5min).",
+    )
+
     # Development mode
     local_dev: bool = Field(
         default=False,
@@ -196,37 +226,37 @@ class IntegrationSettings(BaseSettings):
     )
 
     # Slack-specific configuration
-    slack_app_id: Optional[str] = Field(
+    slack_app_id: str | None = Field(
         default=None,
         alias="SLACK_APP_ID",
         description="Slack app ID (for future OAuth flows)",
     )
 
-    slack_bot_token: Optional[str] = Field(
+    slack_bot_token: str | None = Field(
         default=None,
         alias="SLACK_BOT_TOKEN",
         description="Slack bot OAuth token (xoxb-...)",
     )
 
-    slack_signing_secret: Optional[str] = Field(
+    slack_signing_secret: str | None = Field(
         default=None,
         alias="SLACK_SIGNING_SECRET",
         description="Slack app signing secret for HMAC verification",
     )
 
-    slack_client_id: Optional[str] = Field(
+    slack_client_id: str | None = Field(
         default=None,
         alias="SLACK_CLIENT_ID",
         description="Slack OAuth client ID (for future OAuth flows)",
     )
 
-    slack_client_secret: Optional[str] = Field(
+    slack_client_secret: str | None = Field(
         default=None,
         alias="SLACK_CLIENT_SECRET",
         description="Slack OAuth client secret (for future OAuth flows)",
     )
 
-    slack_verification_token: Optional[str] = Field(
+    slack_verification_token: str | None = Field(
         default=None,
         alias="SLACK_VERIFICATION_TOKEN",
         description="Slack verification token (legacy, for future OAuth flows)",
@@ -248,8 +278,7 @@ def get_integration_settings() -> IntegrationSettings:
 
 def reset_integration_settings() -> None:
     """Reset settings (useful for testing)."""
-    global _settings
-    _settings = None
+    get_integration_settings.cache_clear()
 
 
 # Convenience accessor

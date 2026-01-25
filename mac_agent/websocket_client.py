@@ -53,9 +53,10 @@ import platform
 import signal
 import socket
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -98,7 +99,7 @@ class AgentConfig:
     agent_version: str = "1.0.0"
 
     # Capabilities declared during handshake
-    capabilities: List[str] = field(
+    capabilities: list[str] = field(
         default_factory=lambda: [
             "shell",
             "memory_read",
@@ -119,7 +120,7 @@ class AgentConfig:
     task_timeout: float = 300.0  # 5 minutes
 
     @classmethod
-    def from_env(cls) -> "AgentConfig":
+    def from_env(cls) -> AgentConfig:
         """Load configuration from environment variables."""
         return cls(
             ws_url=os.getenv("L9_WS_URL", cls.ws_url),
@@ -162,9 +163,9 @@ def create_handshake(config: AgentConfig) -> dict:
 def create_heartbeat(
     agent_id: str,
     running_tasks: int = 0,
-    load_avg: Optional[float] = None,
-    memory_usage_mb: Optional[float] = None,
-    cpu_percent: Optional[float] = None,
+    load_avg: float | None = None,
+    memory_usage_mb: float | None = None,
+    cpu_percent: float | None = None,
 ) -> dict:
     """Create EventMessage with HEARTBEAT type."""
     # Get system load if available
@@ -192,9 +193,9 @@ def create_task_result(
     agent_id: str,
     task_id: str,
     status: str,
-    output: Dict[str, Any],
-    error: Optional[str] = None,
-    trace_id: Optional[str] = None,
+    output: dict[str, Any],
+    error: str | None = None,
+    trace_id: str | None = None,
 ) -> dict:
     """Create EventMessage with TASK_RESULT type."""
     return {
@@ -216,7 +217,7 @@ def create_error_event(
     agent_id: str,
     code: str,
     message: str,
-    details: Optional[Dict[str, Any]] = None,
+    details: dict[str, Any] | None = None,
     recoverable: bool = True,
 ) -> dict:
     """Create EventMessage with ERROR type."""
@@ -252,8 +253,8 @@ class TaskExecutor:
     """
 
     def __init__(self):
-        self._running_tasks: Dict[str, asyncio.Task] = {}
-        self._task_results: Dict[str, Dict[str, Any]] = {}
+        self._running_tasks: dict[str, asyncio.Task] = {}
+        self._task_results: dict[str, dict[str, Any]] = {}
 
     @property
     def running_count(self) -> int:
@@ -264,9 +265,9 @@ class TaskExecutor:
         self,
         task_id: str,
         task_type: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         timeout: float = 300.0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Execute a task and return the result.
 
@@ -311,7 +312,7 @@ class TaskExecutor:
             )
             return result
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error("[Executor] Task %s timed out after %ds", task_id, timeout)
             return {
                 "status": "failed",
@@ -328,7 +329,7 @@ class TaskExecutor:
 
     # Task type executors
     @must_stay_async("callers use await")
-    async def _execute_shell(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_shell(self, payload: dict[str, Any]) -> dict[str, Any]:
         """
         Execute shell command with security validation.
 
@@ -416,7 +417,7 @@ class TaskExecutor:
             logger.error(f"Shell execution error: {e}")
             return {"status": "error", "error": str(e), "output": "", "exit_code": -1}
 
-    async def _execute_browser(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_browser(self, payload: dict[str, Any]) -> dict[str, Any]:
         """
         Execute browser automation via Playwright.
 
@@ -473,7 +474,7 @@ class TaskExecutor:
             return {"status": "error", "error": str(e), "logs": [], "screenshots": []}
 
     @must_stay_async("callers use await")
-    async def _execute_python(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_python(self, payload: dict[str, Any]) -> dict[str, Any]:
         """
         Execute Python code in a sandboxed environment.
 
@@ -514,7 +515,7 @@ class TaskExecutor:
 
                 # Create container with security restrictions
                 container = client.containers.run(
-                    "python:3.11-slim",
+                    "python:3.12-slim",
                     command=["python", "-c", code],
                     detach=True,
                     network_disabled=True,
@@ -616,7 +617,7 @@ class MacAgentClient:
         await client.run()
     """
 
-    def __init__(self, config: Optional[AgentConfig] = None):
+    def __init__(self, config: AgentConfig | None = None):
         """
         Initialize the Mac Agent client.
 
@@ -627,19 +628,19 @@ class MacAgentClient:
         self.executor = TaskExecutor()
 
         # Connection state
-        self._ws: Optional[WebSocketClientProtocol] = None
+        self._ws: WebSocketClientProtocol | None = None
         self._connected = False
         self._reconnect_count = 0
 
         # Task management
         self._running = False
         self._shutdown_event = asyncio.Event()
-        self._tasks: Dict[str, asyncio.Task] = {}
+        self._tasks: dict[str, asyncio.Task] = {}
 
         # Callbacks
-        self._on_connect_callbacks: List[Callable] = []
-        self._on_disconnect_callbacks: List[Callable] = []
-        self._on_task_callbacks: List[Callable] = []
+        self._on_connect_callbacks: list[Callable] = []
+        self._on_disconnect_callbacks: list[Callable] = []
+        self._on_task_callbacks: list[Callable] = []
 
     # =========================================================================
     # Public API
@@ -702,7 +703,7 @@ class MacAgentClient:
                 await asyncio.wait_for(self._shutdown_event.wait(), timeout=delay)
                 # Shutdown requested during wait
                 break
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 pass
 
             # Exponential backoff
@@ -840,7 +841,7 @@ class MacAgentClient:
             except Exception as e:
                 logger.error("[MacAgent] Message handling error: %s", e)
 
-    async def _handle_message(self, data: Dict[str, Any]) -> None:
+    async def _handle_message(self, data: dict[str, Any]) -> None:
         """
         Handle an incoming EventMessage from server.
 
@@ -858,7 +859,7 @@ class MacAgentClient:
         else:
             logger.debug("[MacAgent] Received event: type=%s", event_type)
 
-    async def _handle_task_assigned(self, data: Dict[str, Any]) -> None:
+    async def _handle_task_assigned(self, data: dict[str, Any]) -> None:
         """Handle TASK_ASSIGNED event from server."""
         payload = data.get("payload", {})
         task_id = payload.get("task_id", str(uuid4()))
@@ -892,8 +893,8 @@ class MacAgentClient:
         self,
         task_id: str,
         task_type: str,
-        payload: Dict[str, Any],
-        trace_id: Optional[str],
+        payload: dict[str, Any],
+        trace_id: str | None,
     ) -> None:
         """Execute task and send result back to server."""
         try:
@@ -914,7 +915,7 @@ class MacAgentClient:
 
             await self._send(result_event)
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             error_event = create_task_result(
                 agent_id=self.config.agent_id,
                 task_id=task_id,
@@ -937,7 +938,7 @@ class MacAgentClient:
             )
             await self._send(error_event)
 
-    async def _handle_control(self, data: Dict[str, Any]) -> None:
+    async def _handle_control(self, data: dict[str, Any]) -> None:
         """Handle CONTROL event from server."""
         payload = data.get("payload", {})
         action = payload.get("action")
@@ -954,7 +955,7 @@ class MacAgentClient:
             logger.warning("[MacAgent] Unknown control action: %s", action)
 
     @must_stay_async("callers use await")
-    async def _handle_error(self, data: Dict[str, Any]) -> None:
+    async def _handle_error(self, data: dict[str, Any]) -> None:
         """Handle ERROR event from server."""
         payload = data.get("payload", {})
         code = payload.get("code", "UNKNOWN")
@@ -994,14 +995,14 @@ class MacAgentClient:
                 )
                 # Shutdown requested
                 break
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 pass
 
     # =========================================================================
     # Utilities
     # =========================================================================
 
-    async def _send(self, data: Dict[str, Any]) -> None:
+    async def _send(self, data: dict[str, Any]) -> None:
         """Send JSON data to server."""
         if self._ws and not self._ws.closed:
             await self._ws.send(json.dumps(data, default=str))
