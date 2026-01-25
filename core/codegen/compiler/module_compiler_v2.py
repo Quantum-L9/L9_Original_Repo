@@ -2,8 +2,8 @@
 L9 Module Compiler v2.0.0
 =========================
 
-Deterministic compiler that transforms Module-Spec v2.6 into production-ready
-L9-integrated Python modules.
+Deterministic compiler that transforms normalized Module-Spec v2.6 into
+production-ready L9-integrated Python modules.
 
 **L9 Alignment Features**:
 - Inherits from BaseAgent (not standalone orchestrator)
@@ -12,6 +12,11 @@ L9-integrated Python modules.
 - Includes @rate_limit decorators
 - Includes @async_retry decorators
 - Generates tool YAML configs for Neo4j registry
+
+**Integration**:
+- Imports SpecNormalizer from core.codegen.spec
+- Accepts either raw spec dict or NormalizedSpec object
+- Pure compilation logic (no parsing/validation)
 
 Version: 2.0.0 (L9-Aligned)
 """
@@ -22,7 +27,7 @@ __dora_meta__ = {
     "module_version": "2.0.0",
     "created_by": "CodeGenAgent",
     "created_at": "2025-12-31T20:00:00Z",
-    "updated_at": "2025-12-31T20:00:00Z",
+    "updated_at": "2026-01-25T22:55:34Z",
     "layer": "intelligence",
     "domain": "codegen",
     "module_name": "module_compiler_v2",
@@ -41,10 +46,13 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import structlog
 from jinja2 import Template
+
+# L9 Spec Integration (Option B: Modular Design)
+from core.codegen.spec import NormalizedSpec, SpecNormalizer
 
 logger = structlog.get_logger(__name__)
 
@@ -54,7 +62,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 # Template 1: Agent Core (inherits from BaseAgent)
-TEMPLATE_AGENT_CORE = """\"\"\"
+TEMPLATE_AGENT_CORE = """\"\"\"  
 {{metadata.name}} - L9 Agent
 {{description_line}}
 
@@ -112,7 +120,7 @@ logger = structlog.get_logger(__name__)
 
 
 class {{class_name}}Agent(BaseAgent):
-    \"\"\"
+    \"\"\"  
     {{metadata.name}} - L9 Agent
     
     {{metadata.description}}
@@ -123,14 +131,14 @@ class {{class_name}}Agent(BaseAgent):
     \"\"\"
     
     agent_role = AgentRole.{{agent_role_enum}}
-    agent_name = "{{module_id}}_agent"
+    agent_name = \"{{module_id}}_agent\"
     
     def __init__(
         self,
         agent_id: Optional[str] = None,
         config: Optional[AgentConfig] = None,
     ):
-        \"\"\"
+        \"\"\"  
         Initialize {{metadata.name}} agent.
         
         Args:
@@ -144,14 +152,14 @@ class {{class_name}}Agent(BaseAgent):
         {% endif %}
         
         logger.info(
-            "{{metadata.name}} initialized",
+            \"{{metadata.name}} initialized\",
             agent_id=self.agent_id,
             tier={{tier}},
-            escalation_path="{{escalation_path}}"
+            escalation_path=\"{{escalation_path}}\"
         )
     
     def get_system_prompt(self) -> str:
-        \"\"\"
+        \"\"\"  
         Get the agent's system prompt.
         
         Returns:
@@ -171,13 +179,13 @@ Your responsibilities:
 Always respond with structured, actionable outputs.
 \"\"\"
     
-    @must_stay_async("callers use await")
+    @must_stay_async(\"callers use await\")
     async def run(
         self,
         task: dict[str, Any],
         context: Optional[dict[str, Any]] = None
     ) -> AgentResponse:
-        \"\"\"
+        \"\"\"  
         Execute the agent's primary function.
         
         Args:
@@ -188,7 +196,7 @@ Always respond with structured, actionable outputs.
             AgentResponse with PacketEnvelope result
         \"\"\"
         logger.info(
-            "{{metadata.name}} starting task",
+            \"{{metadata.name}} starting task\",
             agent_id=self.agent_id,
             task_keys=list(task.keys())
         )
@@ -202,17 +210,17 @@ Always respond with structured, actionable outputs.
             
             # Create PacketEnvelope response
             packet = PacketEnvelope(
-                packet_type="{{packet_type}}",
+                packet_type=\"{{packet_type}}\",
                 payload=result,
                 metadata=PacketMetadata(
                     agent=self.agent_name,
-                    schema_version="2.0.0",
-                    domain="{{metadata.domain | default('l9')}}"
+                    schema_version=\"2.0.0\",
+                    domain=\"{{metadata.domain | default('l9')}}\"
                 ),
                 provenance=PacketProvenance(
                     source_agent=self.agent_id,
-                    source="{{module_id}}_agent",
-                    tool="{{module_id}}"
+                    source=\"{{module_id}}_agent\",
+                    tool=\"{{module_id}}\"
                 )
             )
             
@@ -222,7 +230,7 @@ Always respond with structured, actionable outputs.
             {% endif %}
             
             logger.info(
-                "{{metadata.name}} task completed",
+                \"{{metadata.name}} task completed\",
                 agent_id=self.agent_id,
                 packet_id=str(packet.packet_id),
                 success=True
@@ -237,7 +245,7 @@ Always respond with structured, actionable outputs.
             
         except Exception as e:
             logger.error(
-                "{{metadata.name}} task failed",
+                \"{{metadata.name}} task failed\",
                 agent_id=self.agent_id,
                 error=str(e),
                 exc_info=True
@@ -246,19 +254,19 @@ Always respond with structured, actionable outputs.
             # Return error response
             return AgentResponse(
                 agent_id=self.agent_id,
-                content=f"Error: {str(e)}",
+                content=f\"Error: {str(e)}\",
                 success=False,
                 error=str(e)
             )
     
-    @rate_limit("agent.{{module_id}}")
+    @rate_limit(\"agent.{{module_id}}\")
     @async_retry(AsyncRetryConfig(max_retries=3, backoff_factor=2.0))
     async def _execute_logic(
         self,
         request: {{class_name}}Request,
         context: Optional[dict[str, Any]] = None
     ) -> dict[str, Any]:
-        \"\"\"
+        \"\"\"  
         Execute the core agent logic.
         
         Args:
@@ -275,26 +283,26 @@ Always respond with structured, actionable outputs.
         from agents.base_agent import AgentMessage
         
         messages = [
-            AgentMessage(role="user", content=request.data.get("query", ""))
+            AgentMessage(role=\"user\", content=request.data.get(\"query\", \"\"))
         ]
         
         llm_response = await self.call_llm(messages)
         
         return {
-            "result": llm_response.content,
-            "tokens_used": llm_response.tokens_used
+            \"result\": llm_response.content,
+            \"tokens_used\": llm_response.tokens_used
         }
         {% else %}
         # Example: Process request data
         return {
-            "result": "processed",
-            "data": request.data
+            \"result\": \"processed\",
+            \"data\": request.data
         }
         {% endif %}
 """
 
 # Template 2: Config (Pydantic Settings)
-TEMPLATE_CONFIG = """\"\"\"
+TEMPLATE_CONFIG = """\"\"\"  
 {{metadata.name}} - Configuration
 \"\"\"
 
@@ -307,19 +315,19 @@ class {{class_name}}Config(BaseSettings):
     \"\"\"Configuration for {{metadata.name}}\"\"\"
     
     # Module settings
-    module_id: str = "{{module_id}}"
-    module_version: str = "{{metadata.version}}"
+    module_id: str = \"{{module_id}}\"
+    module_version: str = \"{{metadata.version}}\"
     
     # Environment-specific settings
     {{config_fields}}
     
     class Config:
-        env_prefix = "{{env_prefix}}_"
+        env_prefix = \"{{env_prefix}}_\"
         case_sensitive = False
 """
 
 # Template 3: Models (Pydantic Request/Response)
-TEMPLATE_MODELS = """\"\"\"
+TEMPLATE_MODELS = """\"\"\"  
 {{metadata.name}} - Data Models
 \"\"\"
 
@@ -332,8 +340,8 @@ from uuid import UUID, uuid4
 class {{class_name}}Request(BaseModel):
     \"\"\"Request model for {{metadata.name}}\"\"\"
     
-    data: dict[str, Any] = Field(..., description="Request data payload")
-    metadata: Optional[dict[str, Any]] = Field(None, description="Optional metadata")
+    data: dict[str, Any] = Field(..., description=\"Request data payload\")
+    metadata: Optional[dict[str, Any]] = Field(None, description=\"Optional metadata\")
     
     class Config:
         frozen = False
@@ -344,40 +352,40 @@ TEMPLATE_TOOL_YAML = """# Tool Configuration for {{metadata.name}}
 # Generated by: CodeGenAgent v2.0.0
 # Module ID: {{module_id}}
 
-tool_id: "{{module_id}}_tool"
-name: "{{metadata.name}}"
-description: "{{metadata.description}}"
-category: "{{tool_category}}"
-scope: "{{tool_scope}}"
-risk_level: "{{risk_level}}"
+tool_id: \"{{module_id}}_tool\"
+name: \"{{metadata.name}}\"
+description: \"{{metadata.description}}\"
+category: \"{{tool_category}}\"
+scope: \"{{tool_scope}}\"
+risk_level: \"{{risk_level}}\"
 
 # Function binding
 function:
-  module: "{{module_path}}"
-  class: "{{class_name}}Agent"
-  method: "run"
+  module: \"{{module_path}}\"
+  class: \"{{class_name}}Agent\"
+  method: \"run\"
 
 # Input schema
 input_schema:
-  type: "object"
+  type: \"object\"
   properties:
     data:
-      type: "object"
-      description: "Request data payload"
-  required: ["data"]
+      type: \"object\"
+      description: \"Request data payload\"
+  required: [\"data\"]
 
 # Output schema
 output_schema:
-  type: "object"
+  type: \"object\"
   properties:
     result:
-      type: "object"
-      description: "Agent execution result"
+      type: \"object\"
+      description: \"Agent execution result\"
 
 # Governance
 governance:
   requires_approval: {{requires_approval}}
-  escalation_path: "{{escalation_path}}"
+  escalation_path: \"{{escalation_path}}\"
   tier: {{tier}}
 
 # Rate limiting
@@ -392,7 +400,7 @@ dependencies:
 """
 
 # Template 5: Tests
-TEMPLATE_TESTS = """\"\"\"
+TEMPLATE_TESTS = """\"\"\"  
 Tests for {{metadata.name}}
 \"\"\"
 
@@ -409,7 +417,7 @@ async def test_{{module_id}}_agent_initialization():
     \"\"\"Test agent initialization\"\"\"
     agent = {{class_name}}Agent()
     
-    assert agent.agent_name == "{{module_id}}_agent"
+    assert agent.agent_name == \"{{module_id}}_agent\"
     assert agent.agent_id is not None
 
 
@@ -419,7 +427,7 @@ async def test_{{module_id}}_agent_run_success():
     agent = {{class_name}}Agent()
     
     task = {
-        "data": {"test": "value"}
+        \"data\": {\"test\": \"value\"}
     }
     
     response = await agent.run(task)
@@ -464,20 +472,24 @@ class ModuleCompilerV2:
     """
     L9-Aligned Module Compiler v2.0.0
 
-    Transforms Module-Spec v2.6 into production-ready L9 agents.
+    Transforms normalized Module-Spec v2.6 into production-ready L9 agents.
+    Accepts either raw spec dict or NormalizedSpec object.
     """
 
     def __init__(self):
         self.logger = logger
+        self.normalizer = SpecNormalizer()  # Substrate service
 
     async def compile(
-        self, spec: dict[str, Any], output_dir: str | Path
+        self, 
+        spec: Union[dict[str, Any], NormalizedSpec], 
+        output_dir: str | Path
     ) -> CompilerOutput:
         """
         Compile Module-Spec v2.6 into L9-integrated agent.
 
         Args:
-            spec: Normalized Module-Spec v2.6
+            spec: Raw spec dict OR NormalizedSpec object
             output_dir: Output directory path
 
         Returns:
@@ -486,8 +498,13 @@ class ModuleCompilerV2:
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
 
-        metadata = spec.get("metadata", {})
-        module_id = metadata.get("module_id", "unknown_module")
+        # Normalize spec if raw dict provided
+        if isinstance(spec, dict):
+            normalized_spec = await self.normalizer.normalize_from_dict(spec)
+        else:
+            normalized_spec = spec
+
+        module_id = normalized_spec.module_id
 
         self.logger.info(
             "Starting module compilation",
@@ -497,32 +514,48 @@ class ModuleCompilerV2:
 
         files_generated = []
 
+        # Convert normalized spec to dict for template rendering
+        spec_dict = normalized_spec.to_dict()
+        metadata = {
+            "name": normalized_spec.module_name,
+            "description": normalized_spec.module_description,
+            "version": normalized_spec.module_version,
+            "domain": normalized_spec.module_domain,
+            "role": normalized_spec.module_role,
+        }
+
         # Generate core agent file
-        core_file = await self._generate_agent_core(spec, output_path)
+        core_file = await self._generate_agent_core(
+            spec_dict, metadata, normalized_spec, output_path
+        )
         files_generated.append(core_file)
 
         # Generate config file
-        config_file = await self._generate_config(spec, output_path)
+        config_file = await self._generate_config(spec_dict, metadata, output_path)
         files_generated.append(config_file)
 
         # Generate models file
-        models_file = await self._generate_models(spec, output_path)
+        models_file = await self._generate_models(spec_dict, metadata, output_path)
         files_generated.append(models_file)
 
         # Generate tool YAML config
-        tool_yaml = await self._generate_tool_yaml(spec, output_path)
+        tool_yaml = await self._generate_tool_yaml(
+            spec_dict, metadata, normalized_spec, output_path
+        )
         files_generated.append(tool_yaml)
 
         # Generate tests
-        test_file = await self._generate_tests(spec, output_path)
+        test_file = await self._generate_tests(spec_dict, metadata, output_path)
         files_generated.append(test_file)
 
         # Generate __init__.py
-        init_file = await self._generate_init(spec, output_path)
+        init_file = await self._generate_init(metadata, output_path)
         files_generated.append(init_file)
 
         # Generate README
-        readme_file = await self._generate_readme(spec, output_path)
+        readme_file = await self._generate_readme(
+            metadata, normalized_spec, output_path
+        )
         files_generated.append(readme_file)
 
         self.logger.info(
@@ -538,26 +571,29 @@ class ModuleCompilerV2:
             confidence=95.0,
         )
 
-    async def _generate_agent_core(self, spec: dict, output_dir: Path) -> str:
+    async def _generate_agent_core(
+        self, 
+        spec: dict, 
+        metadata: dict,
+        normalized: NormalizedSpec,
+        output_dir: Path
+    ) -> str:
         """Generate core agent file (inherits from BaseAgent)"""
-        metadata = spec.get("metadata", {})
-        module_id = metadata.get("module_id", "unknown")
+        module_id = normalized.module_id
         class_name = self._to_class_name(module_id)
 
         # Determine agent role
-        agent_role = spec.get("system", {}).get("role", "General Agent")
+        agent_role = metadata.get("role", "General Agent")
         agent_role_enum = self._map_agent_role(agent_role)
 
-        # Determine tier and escalation
-        tier = spec.get("governance", {}).get("tier", 2)
-        escalation_path = spec.get("governance", {}).get("escalation_path", "Igor")
+        # Governance
+        tier = normalized.tier
+        escalation_path = normalized.escalation_path
 
         # Check for dependencies
-        integration = spec.get("integration", {})
-        depends_on = integration.get("depends_on", [])
-        has_memory = "memory.service" in depends_on
-        has_tools = "tool_registry" in depends_on
-        has_llm = "llm" in depends_on or "openai" in depends_on
+        has_memory = "memory.service" in normalized.depends_on
+        has_tools = "tool_registry" in normalized.depends_on
+        has_llm = "llm" in normalized.depends_on or "openai" in normalized.depends_on
 
         # Datasources
         datasources = []
@@ -593,21 +629,20 @@ class ModuleCompilerV2:
 
         return str(file_path)
 
-    async def _generate_config(self, spec: dict, output_dir: Path) -> str:
+    async def _generate_config(self, spec: dict, metadata: dict, output_dir: Path) -> str:
         """Generate config file"""
-        metadata = spec.get("metadata", {})
-        module_id = metadata.get("module_id", "unknown")
+        module_id = metadata.get("module_id") or self._generate_module_id(
+            metadata.get("name", "")
+        )
         class_name = self._to_class_name(module_id)
         env_prefix = module_id.upper()
 
-        # Generate config fields from spec
+        # Generate config fields from external services
         config_fields = []
-        external_services = spec.get("dependency_contract", {}).get(
-            "external_services", []
-        )
-        for service in external_services:
+        for service in spec.get("dependency_contract", {}).get("external_services", []):
             service_name = service.get("name", "").upper()
-            config_fields.append(f"    {service_name}_API_KEY: Optional[str] = None")
+            if service_name:
+                config_fields.append(f"    {service_name}_API_KEY: Optional[str] = None")
 
         if not config_fields:
             config_fields.append("    # Add configuration fields here")
@@ -626,31 +661,35 @@ class ModuleCompilerV2:
 
         return str(file_path)
 
-    async def _generate_models(self, spec: dict, output_dir: Path) -> str:
+    async def _generate_models(self, spec: dict, metadata: dict, output_dir: Path) -> str:
         """Generate models file"""
-        metadata = spec.get("metadata", {})
-        module_id = metadata.get("module_id", "unknown")
+        module_id = metadata.get("module_id") or self._generate_module_id(
+            metadata.get("name", "")
+        )
         class_name = self._to_class_name(module_id)
 
         template = Template(TEMPLATE_MODELS)
-        content = template.render(
-            metadata=metadata, module_id=module_id, class_name=class_name
-        )
+        content = template.render(metadata=metadata, module_id=module_id, class_name=class_name)
 
         file_path = output_dir / "models.py"
         file_path.write_text(content)
 
         return str(file_path)
 
-    async def _generate_tool_yaml(self, spec: dict, output_dir: Path) -> str:
+    async def _generate_tool_yaml(
+        self, 
+        spec: dict, 
+        metadata: dict,
+        normalized: NormalizedSpec,
+        output_dir: Path
+    ) -> str:
         """Generate tool YAML config for Neo4j registry"""
-        metadata = spec.get("metadata", {})
-        module_id = metadata.get("module_id", "unknown")
+        module_id = normalized.module_id
         class_name = self._to_class_name(module_id)
 
-        # Determine tool properties
-        tier = spec.get("governance", {}).get("tier", 2)
-        escalation_path = spec.get("governance", {}).get("escalation_path", "Igor")
+        # Tool properties
+        tier = normalized.tier
+        escalation_path = normalized.escalation_path
 
         tool_category = "general"
         tool_scope = "internal"
@@ -662,17 +701,8 @@ class ModuleCompilerV2:
             requires_approval = "true"
 
         # Dependencies
-        integration = spec.get("integration", {})
-        depends_on = integration.get("depends_on", [])
-
-        kernel_dependencies = []
-        service_dependencies = []
-
-        for dep in depends_on:
-            if "kernel" in dep:
-                kernel_dependencies.append(dep)
-            else:
-                service_dependencies.append(dep)
+        kernel_dependencies = list(normalized.kernel_requirements)
+        service_dependencies = list(normalized.depends_on)
 
         if not kernel_dependencies:
             kernel_dependencies = ["01-master-kernel.yaml"]
@@ -698,19 +728,17 @@ class ModuleCompilerV2:
 
         return str(file_path)
 
-    async def _generate_tests(self, spec: dict, output_dir: Path) -> str:
+    async def _generate_tests(self, spec: dict, metadata: dict, output_dir: Path) -> str:
         """Generate test file"""
-        metadata = spec.get("metadata", {})
-        module_id = metadata.get("module_id", "unknown")
+        module_id = metadata.get("module_id") or self._generate_module_id(
+            metadata.get("name", "")
+        )
         class_name = self._to_class_name(module_id)
         module_path = f"agents.{module_id}"
 
         template = Template(TEMPLATE_TESTS)
         content = template.render(
-            metadata=metadata,
-            module_id=module_id,
-            class_name=class_name,
-            module_path=module_path,
+            metadata=metadata, module_id=module_id, class_name=class_name, module_path=module_path
         )
 
         tests_dir = output_dir / "tests"
@@ -721,13 +749,14 @@ class ModuleCompilerV2:
 
         return str(file_path)
 
-    async def _generate_init(self, spec: dict, output_dir: Path) -> str:
+    async def _generate_init(self, metadata: dict, output_dir: Path) -> str:
         """Generate __init__.py"""
-        metadata = spec.get("metadata", {})
-        module_id = metadata.get("module_id", "unknown")
+        module_id = metadata.get("module_id") or self._generate_module_id(
+            metadata.get("name", "")
+        )
         class_name = self._to_class_name(module_id)
 
-        content = f'''"""
+        content = f'''"""  
 {metadata.get("name", "Module")} - L9 Agent
 """
 
@@ -743,10 +772,14 @@ __all__ = ["{class_name}Agent", "{class_name}Request", "{class_name}Config"]
 
         return str(file_path)
 
-    async def _generate_readme(self, spec: dict, output_dir: Path) -> str:
+    async def _generate_readme(
+        self, 
+        metadata: dict, 
+        normalized: NormalizedSpec,
+        output_dir: Path
+    ) -> str:
         """Generate README"""
-        metadata = spec.get("metadata", {})
-        module_id = metadata.get("module_id", "unknown")
+        module_id = normalized.module_id
         class_name = self._to_class_name(module_id)
 
         content = f"""# {metadata.get("name", "Module")}
@@ -756,9 +789,9 @@ __all__ = ["{class_name}Agent", "{class_name}Request", "{class_name}Config"]
 ## Generated by CodeGenAgent v2.0.0
 
 **Module ID**: `{module_id}`  
-**Version**: `{metadata.get("version", "1.0.0")}`  
-**Tier**: `{spec.get("governance", {}).get("tier", 2)}`  
-**Escalation Path**: `{spec.get("governance", {}).get("escalation_path", "Igor")}`
+**Version**: `{normalized.module_version}`  
+**Tier**: `{normalized.tier}`  
+**Escalation Path**: `{normalized.escalation_path}`
 
 ## Usage
 
@@ -770,7 +803,7 @@ agent = {class_name}Agent()
 
 # Run task
 response = await agent.run(task={{
-    "data": {{"key": "value"}}
+    \"data\": {{\"key\": \"value\"}}
 }})
 
 print(response.content)
@@ -802,6 +835,13 @@ pytest tests/test_{module_id}_agent.py -v
         parts = module_id.split("_")
         return "".join(word.capitalize() for word in parts)
 
+    def _generate_module_id(self, name: str) -> str:
+        """Generate module ID from name"""
+        import re
+        module_id = re.sub(r"[^a-z0-9_]", "_", name.lower())
+        module_id = re.sub(r"_+", "_", module_id)
+        return module_id.strip("_") or f"module_{uuid4().hex[:8]}"
+
     def _map_agent_role(self, role_str: str) -> str:
         """Map role string to AgentRole enum"""
         role_lower = role_str.lower()
@@ -815,6 +855,8 @@ pytest tests/test_{module_id}_agent.py -v
         else:
             return "REFLECTION"
 
+
+from uuid import uuid4
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -848,9 +890,9 @@ __dora_footer__ = {
         "system",
     ],
     "business_value": "Provides module compiler v2 components including CompilerOutput, ModuleCompilerV2",
-    "last_modified": "2026-01-24T13:02:52Z",
+    "last_modified": "2026-01-25T22:55:34Z",
     "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
+    "change_summary": "Integrated SpecNormalizer for modular spec parsing (Option B)",
 }
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
