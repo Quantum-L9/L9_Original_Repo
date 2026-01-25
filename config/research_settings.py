@@ -33,7 +33,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from functools import lru_cache
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -54,8 +53,9 @@ class ResearchSettings(BaseSettings):
     """
 
     # LLM Configuration
-    openai_api_key: str = Field(
-        ..., alias="OPENAI_API_KEY", description="OpenAI API key for LLM calls"
+    # Note: Required at runtime via OPENAI_API_KEY env var
+    openai_api_key: str | None = Field(
+        default=None, alias="OPENAI_API_KEY", description="OpenAI API key for LLM calls"
     )
     openai_model: str = Field(
         default="gpt-4-turbo",
@@ -118,7 +118,7 @@ class ResearchSettings(BaseSettings):
     )
 
     # Perplexity API (optional, for web research)
-    perplexity_api_key: Optional[str] = Field(
+    perplexity_api_key: str | None = Field(
         default=None,
         alias="PERPLEXITY_API_KEY",
         description="Perplexity API key for web research",

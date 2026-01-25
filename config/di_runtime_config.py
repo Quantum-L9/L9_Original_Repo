@@ -261,13 +261,14 @@ class DIRuntimeConfigLoader:
             self.load()
 
         substrate_config = self._config.get("memory_substrate", {})
-        return substrate_config.get(
+        result: dict[str, str] = substrate_config.get(
             "embedding_provider",
             {
                 "type": "openai",
                 "model": "text-embedding-3-large",
             },
         )
+        return result
 
     def get_feature_flags(self) -> dict[str, bool]:
         """
@@ -279,13 +280,14 @@ class DIRuntimeConfigLoader:
         if not self._loaded:
             self.load()
 
-        return self._config.get(
+        result: dict[str, bool] = self._config.get(
             "feature_flags",
             {
                 "enable_protocol_validation": True,
                 "enable_lazy_dag_init": False,
             },
         )
+        return result
 
     def reload(self) -> dict[str, Any]:
         """

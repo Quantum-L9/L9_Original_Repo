@@ -70,15 +70,22 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Optional
+from typing import Any
 
 import structlog
 
 # DI container from PR #22
 from core.di.container import DIContainer, get_di_container
+
 # Protocol abstractions from PR #22
-from core.protocols import (CacheClient, GraphClient, MemoryRepository,
-                            ObservabilityService, ToolExecutor, VectorStore)
+from core.protocols import (
+    CacheClient,
+    GraphClient,
+    MemoryRepository,
+    ObservabilityService,
+    ToolExecutor,
+    VectorStore,
+)
 
 # Aliases for backward compatibility
 MemoryService = MemoryRepository
@@ -114,11 +121,17 @@ def create_redis_client() -> CacheClient:
 
     Returns:
         CacheClient: Redis client instance
+
+    ⚠️ TODO (ASYNC-DI): get_redis_client() is ASYNC but called synchronously here.
+       - Currently returns Coroutine object, not actual client
+       - Tests pass because they only check binding exists, never resolve
+       - See: docs/DI_ASYNC_MIGRATION_PLAN.md for refactor roadmap
+       - Timeline: Phase 3+ (dedicated async DI container GMP)
     """
     from runtime.redis_client import get_redis_client
 
     logger.info("di_config.create_redis_client", action="creating_redis_client")
-    return get_redis_client()
+    return get_redis_client()  # type: ignore[no-any-return]
 
 
 def create_neo4j_client() -> GraphClient:
@@ -127,11 +140,17 @@ def create_neo4j_client() -> GraphClient:
 
     Returns:
         GraphClient: Neo4j client instance
+
+    ⚠️ TODO (ASYNC-DI): get_neo4j_client() is ASYNC but called synchronously here.
+       - Currently returns Coroutine object, not actual client
+       - Tests pass because they only check binding exists, never resolve
+       - See: docs/DI_ASYNC_MIGRATION_PLAN.md for refactor roadmap
+       - Timeline: Phase 3+ (dedicated async DI container GMP)
     """
     from memory.graph_client import get_neo4j_client
 
     logger.info("di_config.create_neo4j_client", action="creating_neo4j_client")
-    return get_neo4j_client()
+    return get_neo4j_client()  # type: ignore[no-any-return]
 
 
 def create_pgvector_client() -> VectorStore:
@@ -165,8 +184,14 @@ def create_memory_substrate_service(
 
     Returns:
         MemoryService: Memory substrate service instance
+
+    ⚠️ TODO (ASYNC-DI): get_service() is ASYNC but called synchronously here.
+       - Currently returns Coroutine object, not actual service
+       - Tests pass because they only check binding exists, never resolve
+       - See: docs/DI_ASYNC_MIGRATION_PLAN.md for refactor roadmap
+       - Timeline: Phase 3+ (dedicated async DI container GMP)
     """
-    from memory.substrate_service import get_memory_substrate_service
+    from memory.substrate_service import get_service
 
     logger.info(
         "di_config.create_memory_substrate_service",
@@ -175,9 +200,9 @@ def create_memory_substrate_service(
         has_graph=graph is not None,
         has_vector=vector is not None,
     )
-    # For now, use existing singleton getter
+    # For now, use existing singleton getter (async)
     # TODO: Refactor substrate_service.py to accept injected dependencies
-    return get_memory_substrate_service()
+    return get_service()  # type: ignore[no-any-return]
 
 
 def create_world_model_service(graph: GraphClient) -> WorldModelService:
@@ -199,7 +224,7 @@ def create_world_model_service(graph: GraphClient) -> WorldModelService:
     )
     # For now, use existing singleton getter
     # TODO: Refactor world_model service to accept injected dependencies
-    return get_world_model_service()
+    return get_world_model_service()  # type: ignore[no-any-return]
 
 
 def create_observability_service() -> ObservabilityService:
@@ -218,12 +243,15 @@ def create_observability_service() -> ObservabilityService:
     return None  # type: ignore
 
 
-def create_kernel_loader() -> KernelLoader:
+def create_kernel_loader() -> Any:
     """
     Create kernel loader.
 
     Returns:
-        KernelLoader: Kernel loader instance
+        Kernel loader module (runtime.kernel_loader)
+
+    Note: KernelLoader is a module, not a class. This factory returns None
+    as a placeholder. Use `from runtime import kernel_loader` directly.
     """
     # Note: Kernel loader is not a singleton, it's a module
     # We'll return a placeholder for now
@@ -232,7 +260,7 @@ def create_kernel_loader() -> KernelLoader:
         action="kernel_loader_not_singleton",
         message="Kernel loader is a module, not a singleton",
     )
-    return None  # type: ignore
+    return None
 
 
 def create_tool_registry() -> ToolRegistry:
@@ -242,10 +270,10 @@ def create_tool_registry() -> ToolRegistry:
     Returns:
         ToolRegistry: Tool registry instance
     """
-    from runtime.tool_registry import get_tool_registry
+    from core.tools.base_registry import get_tool_registry
 
     logger.info("di_config.create_tool_registry", action="creating_tool_registry")
-    return get_tool_registry()
+    return get_tool_registry()  # type: ignore[no-any-return]
 
 
 # =============================================================================
@@ -254,7 +282,7 @@ def create_tool_registry() -> ToolRegistry:
 
 
 def configure_di_container(
-    container: Optional[DIContainer] = None, env: Optional[str] = None
+    container: DIContainer | None = None, env: str | None = None
 ) -> DIContainer:
     """
     Configure DI container with substrate bindings.
@@ -291,15 +319,15 @@ def configure_di_container(
     # =========================================================================
 
     # Cache client (Redis)
-    container.bind_singleton(CacheClient, create_redis_client)
+    container.bind_singleton(CacheClient, create_redis_client)  # type: ignore[type-abstract]
     logger.debug("di_config", action="bound_cache_client", protocol="CacheClient")
 
     # Graph client (Neo4j)
-    container.bind_singleton(GraphClient, create_neo4j_client)
+    container.bind_singleton(GraphClient, create_neo4j_client)  # type: ignore[type-abstract]
     logger.debug("di_config", action="bound_graph_client", protocol="GraphClient")
 
     # Vector store (pgvector)
-    container.bind_singleton(VectorStore, create_pgvector_client)
+    container.bind_singleton(VectorStore, create_pgvector_client)  # type: ignore[type-abstract]
     logger.debug("di_config", action="bound_vector_store", protocol="VectorStore")
 
     # =========================================================================
@@ -307,17 +335,17 @@ def configure_di_container(
     # =========================================================================
 
     # Memory substrate service (with auto-injection)
-    container.bind_singleton(MemoryService, create_memory_substrate_service)
+    container.bind_singleton(MemoryService, create_memory_substrate_service)  # type: ignore[type-abstract,arg-type]
     logger.debug("di_config", action="bound_memory_service", protocol="MemoryService")
 
     # World model service (with auto-injection)
-    container.bind_singleton(WorldModelService, create_world_model_service)
+    container.bind_singleton(WorldModelService, create_world_model_service)  # type: ignore[type-abstract,arg-type]
     logger.debug(
         "di_config", action="bound_world_model_service", protocol="WorldModelService"
     )
 
     # Observability service
-    container.bind_singleton(ObservabilityService, create_observability_service)
+    container.bind_singleton(ObservabilityService, create_observability_service)  # type: ignore[type-abstract]
     logger.debug(
         "di_config",
         action="bound_observability_service",
@@ -329,7 +357,7 @@ def configure_di_container(
     # =========================================================================
 
     # Tool registry
-    container.bind_singleton(ToolRegistry, create_tool_registry)
+    container.bind_singleton(ToolRegistry, create_tool_registry)  # type: ignore[type-abstract]
     logger.debug("di_config", action="bound_tool_registry", protocol="ToolRegistry")
 
     # =========================================================================
@@ -380,7 +408,7 @@ def get_cache_client() -> CacheClient:
         CacheClient: Redis client instance
     """
     container = get_di_container()
-    return container.resolve(CacheClient)
+    return container.resolve(CacheClient)  # type: ignore[type-abstract]
 
 
 def get_graph_client() -> GraphClient:
@@ -394,7 +422,7 @@ def get_graph_client() -> GraphClient:
         GraphClient: Neo4j client instance
     """
     container = get_di_container()
-    return container.resolve(GraphClient)
+    return container.resolve(GraphClient)  # type: ignore[type-abstract]
 
 
 def get_vector_store() -> VectorStore:
@@ -405,7 +433,7 @@ def get_vector_store() -> VectorStore:
         VectorStore: pgvector client instance
     """
     container = get_di_container()
-    return container.resolve(VectorStore)
+    return container.resolve(VectorStore)  # type: ignore[type-abstract]
 
 
 def get_memory_service() -> MemoryService:
@@ -416,7 +444,7 @@ def get_memory_service() -> MemoryService:
         MemoryService: Memory substrate service instance
     """
     container = get_di_container()
-    return container.resolve(MemoryService)
+    return container.resolve(MemoryService)  # type: ignore[type-abstract]
 
 
 def get_world_model_service_di() -> WorldModelService:
@@ -427,7 +455,7 @@ def get_world_model_service_di() -> WorldModelService:
         WorldModelService: World model service instance
     """
     container = get_di_container()
-    return container.resolve(WorldModelService)
+    return container.resolve(WorldModelService)  # type: ignore[type-abstract]
 
 
 # =============================================================================
@@ -496,13 +524,13 @@ def initialize_di_container() -> DIContainer:
 
 __all__ = [
     "configure_di_container",
-    "initialize_di_container",
     "get_cache_client",
+    "get_environment",
     "get_graph_client",
-    "get_vector_store",
     "get_memory_service",
+    "get_vector_store",
     "get_world_model_service_di",
+    "initialize_di_container",
     "is_di_enabled",
     "should_use_di_for_substrates",
-    "get_environment",
 ]

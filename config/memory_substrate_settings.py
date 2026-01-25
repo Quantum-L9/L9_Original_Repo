@@ -27,7 +27,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from functools import lru_cache
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -44,8 +43,9 @@ class MemorySubstrateSettings(BaseSettings):
     """
 
     # Database
-    database_url: str = Field(
-        ...,
+    # Note: Required at runtime via DATABASE_URL env var
+    database_url: str | None = Field(
+        default=None,
         alias="DATABASE_URL",
         description="Postgres DSN with pgvector extension enabled",
     )
@@ -61,7 +61,7 @@ class MemorySubstrateSettings(BaseSettings):
     )
 
     # OpenAI API (for embeddings)
-    openai_api_key: Optional[str] = Field(
+    openai_api_key: str | None = Field(
         default=None,
         alias="OPENAI_API_KEY",
         description="OpenAI API key for embedding generation",
