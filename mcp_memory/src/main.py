@@ -214,8 +214,12 @@ async def lifespan(app: FastAPI):
     sys.stdout.flush()  # Ensure this log appears before potential hang
 
     try:
+        print("DEBUG: Importing init_service...", flush=True)
         from memory.substrate_service import init_service
 
+        print("DEBUG: init_service imported successfully", flush=True)
+
+        print(f"DEBUG: database_url={'SET' if database_url else 'NONE'}", flush=True)
         if not database_url:
             logger.warning(
                 "MEMORY_DSN not set. MCP memory will use direct DB access. "
@@ -224,7 +228,9 @@ async def lifespan(app: FastAPI):
             app.state.substrate_service = None
         else:
             # Check DB readiness before attempting init_service
+            print("DEBUG: Calling _check_db_ready...", flush=True)
             db_ready = await _check_db_ready(database_url)
+            print(f"DEBUG: _check_db_ready returned {db_ready}", flush=True)
             if not db_ready:
                 logger.error(
                     "Database not ready after retries - skipping substrate init",
