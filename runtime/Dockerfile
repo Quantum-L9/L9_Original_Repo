@@ -22,9 +22,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy all application code
 COPY . /app
 
-# Install Python dependencies (all deps in requirements.txt)
+# Install Python dependencies (Docker-optimized, excludes playwright)
 RUN python -m pip install -U pip setuptools wheel \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r requirements-docker.txt
 
 # Create non-root user for security
 RUN useradd -m -u 1000 l9user
