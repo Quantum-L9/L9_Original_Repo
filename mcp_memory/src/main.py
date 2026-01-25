@@ -246,6 +246,14 @@ async def lifespan(app: FastAPI):
                     embed_model = settings.OPENAI_EMBED_MODEL
                     api_key = settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY")
 
+                    print(f"DEBUG: embed_provider={embed_provider}", flush=True)
+                    print(f"DEBUG: embed_model={embed_model}", flush=True)
+                    print(f"DEBUG: api_key={'SET' if api_key else 'NONE'}", flush=True)
+                    print(
+                        f"DEBUG: Calling init_service with {SUBSTRATE_INIT_TIMEOUT}s timeout...",
+                        flush=True,
+                    )
+
                     substrate_service = await asyncio.wait_for(
                         init_service(
                             database_url=database_url,
@@ -255,12 +263,14 @@ async def lifespan(app: FastAPI):
                         ),
                         timeout=SUBSTRATE_INIT_TIMEOUT,
                     )
+                    print("DEBUG: init_service completed successfully!", flush=True)
                     # Store in app state for route handlers
                     app.state.substrate_service = substrate_service
                     logger.info(
                         "✓ Memory Substrate Service initialized (DAG pipeline enabled)"
                     )
                 except TimeoutError:
+                    print("DEBUG: init_service TIMED OUT!", flush=True)
                     logger.error(
                         "Memory Substrate Service initialization timed out",
                         timeout=SUBSTRATE_INIT_TIMEOUT,
