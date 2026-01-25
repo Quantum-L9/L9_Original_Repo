@@ -27,6 +27,13 @@
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
 **COMPLETED THIS SESSION (2026-01-25)**:
+- ✅ **GMP-S3-INFRASTRUCTURE** — S3 Storage Architecture for C1 Backup & Blob Offload:
+  - `scripts/backup/backup_c1_memory.sh` — C1 PostgreSQL/Neo4j backup (every 12h)
+  - `scripts/backup/enable_s3_versioning.sh` — S3 versioning, encryption, lifecycle
+  - `scripts/backup/setup_s3_audit.sh` — S3 access logging for compliance
+  - `memory/blob_store.py` — S3 client for large content offloading (>512KB)
+  - `services/slack_files.py` — S3 storage backend with presigned URLs
+  - **Commit:** `8cec1524`
 - ✅ **GMP-78 Phase 2** — Dynamic Tool Discovery FULLY WIRED:
   - `core/tools/dynamic_discovery.py` — Semantic tool retrieval integration
   - `core/agents/agent_instance.py` — `prepare_dynamic_tools()` + cache
@@ -59,6 +66,7 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-25] **✅ GMP-122 Complete** — Status: PASS. Report: `reports/GMP-Report-122-*.md`
 - [2026-01-24] **✅ GMP-123 Complete** — Status: PASS. Report: `reports/GMP-Report-123-*.md`
 - [2026-01-24] **GMP-123 Started** — MCP tools migration from l_tools.py
 - [2026-01-24] **✅ GMP-122 Complete** — Status: PASS. Report: `reports/GMP-Report-122-*.md`
@@ -74,6 +82,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Decision Log (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-25] **S3 Backup Strategy**: Every 12 hours (until stable), then daily. Buckets: `l9-backups` (c1/), `l9-blobs`, `l9-files`, `l9-audit`. Versioning + encryption enabled. 30-day retention.
 - [2026-01-24] **sentence-transformers Optional**: Leave uninstalled. Cross-encoder re-ranking disabled; RRF fusion still works. Heavy dep (~400MB). Install later if retrieval quality needs boost.
 - [2026-01-24] **ADR-0062 Deferred Strict Linting**: Incremental adoption of strict mypy/ruff. Keep line-length=88. Adopt strictness per-module via future GMPs.
 - [2026-01-24] **PR Realignment Pattern**: PRs require type annotations (strict mypy), lint compliance (ruff), correct file locations (existing package structure), no DEBUG code.
@@ -89,15 +98,18 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Sticky Notes
 - **✅ VPS DEPLOYED**: 2026-01-15 commit `960b2de7` (106 files, governance hardening + RLS)
 - VPS IP: 157.180.73.53, User: admin, L9 dir: /opt/l9
+- **C1 (PRIMARY)**: 46.62.243.82 — PostgreSQL :30432, Neo4j :30474, MCP :30902
+- **C1 Backup**: `scripts/backup/backup_c1_memory.sh` — cron `0 */12 * * *` (every 12h)
 - **Domain**: `l9.quantumaipartners.com` (Cloudflare proxied)
 - **Ports**: 8000=l9-api (unified)
 - **Memory Client**: `agents/cursor/cursor_memory_client.py` — **THE ONLY METHOD** for Cursor ↔ L9 memory
 - **Memory API Keys**: `MCP_API_KEY_C` for Cursor, `MCP_API_KEY_L` for L-CTO
 - **Memory scopes**: `developer` (L+C collab), `global` (cross-project), `l-private` (L only)
 - **Embedding Dimensions**: ALL systems aligned at **1536**
+- **S3 Buckets**: `l9-backups` (c1/), `l9-blobs` (>512KB), `l9-files` (Slack), `l9-audit` (logs)
 
 ---
-*Last updated: 2026-01-25 (GMP-78 Dynamic Tool Discovery + Python 3.12 standardization)*
+*Last updated: 2026-01-25 (GMP-S3-INFRASTRUCTURE + GMP-78 Dynamic Tool Discovery + Python 3.12)*
 
 ## Next Steps (Current Session)
 
@@ -122,7 +134,8 @@ PRs #36, #46, #48, #49, #50, #53, #54 — All CLOSED (superseded or abandoned)
 PR #51 (Spring Cleaning) — MERGED ✅
 
 **Recent Sessions (7-day window):**
-- 2026-01-25: **GMP-78 Phase 2 COMPLETE** — Dynamic Tool Discovery wired, Python 3.12 standardization, ADR-0064 updated
+- 2026-01-25: **GMP-S3-INFRASTRUCTURE COMPLETE** — C1 backup scripts, S3 blob store, Slack S3 backend (`8cec1524`)
+- ✅ 2026-01-25: **GMP-78 Phase 2 COMPLETE** — Dynamic Tool Discovery wired, Python 3.12 standardization, ADR-0064 updated
 - ✅ 2026-01-25: PR status audit — PRs #28-30 confirmed MERGED, wiring tasks identified
 - ✅ 2026-01-24: sentence-transformers analysis (leave as-is), PR #45 + #52 closed, GMP-114-116 service protocols
 - ✅ 2026-01-23: PR Cleanup (#41, #42, #44), Tenant ID standardization

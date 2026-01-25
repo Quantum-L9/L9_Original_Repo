@@ -205,6 +205,40 @@ class IntegrationSettings(BaseSettings):
         description="TTL in seconds for cached tool discoveries (multi-turn, default: 300s/5min).",
     )
 
+    # ==========================================================================
+    # Secrets Provider Configuration (GMP-122)
+    # ==========================================================================
+
+    l9_secrets_provider: str = Field(
+        default="env",
+        alias="L9_SECRETS_PROVIDER",
+        description="Secrets provider: 'env' (default) or 'aws' (AWS Secrets Manager).",
+    )
+
+    aws_region: str = Field(
+        default="us-east-1",
+        alias="AWS_REGION",
+        description="AWS region for Secrets Manager (default: us-east-1).",
+    )
+
+    aws_secrets_prefix: str = Field(
+        default="l9",
+        alias="AWS_SECRETS_PREFIX",
+        description="Secret name prefix in AWS (default: l9).",
+    )
+
+    aws_secrets_cache_ttl: int = Field(
+        default=3600,
+        alias="AWS_SECRETS_CACHE_TTL",
+        description="Cache TTL for secrets in seconds (default: 3600 = 1 hour).",
+    )
+
+    aws_secrets_fallback_to_env: bool = Field(
+        default=True,
+        alias="AWS_SECRETS_FALLBACK_TO_ENV",
+        description="Fall back to env vars if AWS secret not found (default: True in non-prod).",
+    )
+
     # Development mode
     local_dev: bool = Field(
         default=False,

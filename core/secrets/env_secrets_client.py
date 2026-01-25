@@ -1,148 +1,159 @@
 """
-L9 Environment Secrets Client
-==============================
+Environment Variable Secrets Client
+====================================
 
-Production-ready secrets client that reads from environment variables.
-
-**Top Frontier AI Lab Quality** - Secure, type-safe secrets management.
-
-Features:
-- ✅ Reads secrets from environment variables
-- ✅ Caching for performance
-- ✅ Structured logging
-- ✅ Type-safe implementation of SecretsClient protocol
+Simple secrets client that reads from environment variables.
+Used as the default/fallback provider for local development.
 
 Version: 1.0.0
-GMP: security-remediation-phase1
-Author: Top Frontier AI Lab
-ADR: readme/adr/0038-secrets-management-protocol.md
+GMP: GMP-122 AWS Secrets Manager Integration
 """
 
 from __future__ import annotations
 
-# ============================================================================
-__dora_meta__ = {
-    "component_name": "Environment Secrets Client",
-    "module_version": "1.0.0",
-    "created_by": "L9 Security Remediation",
-    "created_at": "2026-01-20T18:00:00Z",
-    "updated_at": "2026-01-20T18:00:00Z",
-    "layer": "infrastructure",
-    "domain": "secrets",
-    "module_name": "env_secrets_client",
-    "type": "service",
-    "status": "active",
-    "integrates_with": {
-        "api_endpoints": [],
-        "datasources": ["Environment Variables"],
-        "memory_layers": [],
-        "imported_by": [
-            "core.di.container",
-            "tests.unit.test_env_secrets_client",
-        ],
-    },
-}
-# ============================================================================
-
 import os
-from typing import Dict, Optional
 
 import structlog
 
 logger = structlog.get_logger(__name__)
 
 
+# =============================================================================
+# DORA Metadata
+# =============================================================================
+__dora_meta__ = {
+    "component_name": "Environment Secrets Client",
+    "module_version": "1.0.0",
+    "created_by": "GMP-122",
+    "created_at": "2026-01-25T00:00:00Z",
+    "updated_at": "2026-01-25T00:00:00Z",
+    "layer": "infrastructure",
+    "domain": "secrets",
+    "module_name": "env_secrets_client",
+    "type": "implementation",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Environment Variables"],
+        "memory_layers": [],
+        "imported_by": ["core.secrets"],
+    },
+}
+
+
+# =============================================================================
+# Environment Secrets Client
+# =============================================================================
+
+
 class EnvSecretsClient:
     """
-    Environment variable-based secrets client.
+    Secrets client that reads from environment variables.
 
-    Reads secrets from environment variables with optional caching.
-    Suitable for local development and testing.
-
-    Example:
-        client = EnvSecretsClient()
-        password = await client.get_secret("NEO4J_PASSWORD")
+    Simple fallback implementation for local development and testing.
+    Does not support set/delete/rotate operations (env vars are read-only at runtime).
     """
 
-    def __init__(self):
-        """Initialize environment secrets client."""
-        self._cache: Dict[str, str] = {}
-        logger.info("env_secrets_client.initialized")
-
-    async def get_secret(self, key: str) -> Optional[str]:
+    def __init__(self, prefix: str = "") -> None:
         """
-        Get secret from environment variable.
+        Initialize environment secrets client.
 
         Args:
-            key: Environment variable name
+            prefix: Optional prefix to prepend to key names (e.g., "L9_")
+        """
+        self._prefix = prefix
+        logger.info(
+            "env_secrets_client_initialized",
+            prefix=prefix or "(none)",
+        )
+
+    @property
+    def provider_name(self) -> str:
+        """Return provider name for audit/logging."""
+        return "env"
+
+    def _build_env_key(self, key: str) -> str:
+        """Build environment variable name with optional prefix."""
+        return f"{self._prefix}{key}" if self._prefix else key
+
+    def get_secret(self, key: str) -> str | None:
+        """
+        Get secret value from environment variable.
+
+        Args:
+            key: Secret key name
 
         Returns:
-            Secret value or None if not found
+            Secret value or None if not set
         """
-        # Check cache first
-        if key in self._cache:
-            logger.debug("env_secrets_client.cache_hit", key=key)
-            return self._cache[key]
-
-        # Read from environment
-        value = os.getenv(key)
+        env_key = self._build_env_key(key)
+        value = os.getenv(env_key)
 
         if value:
-            self._cache[key] = value
-            logger.info("env_secrets_client.secret_retrieved", key=key)
+            logger.debug("secret_retrieved_from_env", key=key, env_key=env_key)
         else:
-            logger.warning("env_secrets_client.secret_not_found", key=key)
+            logger.debug("secret_not_found_in_env", key=key, env_key=env_key)
 
         return value
 
-    async def set_secret(self, key: str, value: str) -> bool:
+    def set_secret(self, key: str, value: str) -> bool:
         """
-        Set secret (not supported for environment variables).
+        Set secret (not supported for env vars at runtime).
 
         Args:
-            key: Secret key
+            key: Secret key name
             value: Secret value
 
         Returns:
             False (operation not supported)
         """
         logger.warning(
-            "env_secrets_client.set_not_supported",
+            "set_secret_not_supported",
+            provider="env",
             key=key,
-            message="Environment secrets are read-only",
+            reason="Environment variables are read-only at runtime",
         )
         return False
 
-    async def delete_secret(self, key: str) -> bool:
+    def delete_secret(self, key: str) -> bool:
         """
-        Delete secret (not supported for environment variables).
+        Delete secret (not supported for env vars at runtime).
 
         Args:
-            key: Secret key
+            key: Secret key name
 
         Returns:
             False (operation not supported)
         """
         logger.warning(
-            "env_secrets_client.delete_not_supported",
+            "delete_secret_not_supported",
+            provider="env",
             key=key,
-            message="Environment secrets are read-only",
+            reason="Environment variables are read-only at runtime",
         )
         return False
+
+    # -------------------------------------------------------------------------
+    # Async wrappers (for protocol compatibility)
+    # -------------------------------------------------------------------------
+
+    async def get_secret_async(self, key: str) -> str | None:
+        """Async wrapper for get_secret."""
+        return self.get_secret(key)
+
+    async def set_secret_async(self, key: str, value: str) -> bool:
+        """Async wrapper for set_secret."""
+        return self.set_secret(key, value)
+
+    async def delete_secret_async(self, key: str) -> bool:
+        """Async wrapper for delete_secret."""
+        return self.delete_secret(key)
 
     async def rotate_secret(self, key: str) -> bool:
-        """
-        Rotate secret (not supported for environment variables).
-
-        Args:
-            key: Secret key
-
-        Returns:
-            False (operation not supported)
-        """
+        """Rotation not supported for env vars."""
         logger.warning(
-            "env_secrets_client.rotate_not_supported",
+            "rotate_secret_not_supported",
+            provider="env",
             key=key,
-            message="Environment secrets do not support rotation",
         )
         return False
