@@ -9,6 +9,27 @@ Detects anomalous behavior from TensorGlobe provider:
 - Pattern deviation (repeated failures)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Anomaly Guard",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:07:20Z",
+    "updated_at": "2026-01-24T13:02:52Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "anomaly_guard",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import logging
 import numpy as np
 from typing import List, Optional, Dict, Any
@@ -22,6 +43,7 @@ logger = logging.getLogger(__name__)
 
 class AnomalySeverity(str, Enum):
     """Anomaly severity levels"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -30,6 +52,7 @@ class AnomalySeverity(str, Enum):
 
 class AnomalyType(str, Enum):
     """Types of anomalies detected"""
+
     CONFIDENCE_COLLAPSE = "confidence_collapse"
     LATENCY_BREACH = "latency_breach"
     STATISTICAL_OUTLIER = "statistical_outlier"
@@ -40,6 +63,7 @@ class AnomalyType(str, Enum):
 @dataclass
 class AnomalySignal:
     """Anomaly detection output"""
+
     request_id: str
     anomaly_type: AnomalyType
     anomaly_score: float  # 0.0 to 1.0
@@ -52,37 +76,37 @@ class AnomalySignal:
 class AnomalyDetector:
     """
     Statistical anomaly detection for TensorGlobe responses.
-    
+
     Thresholds (from L9 kernel spec):
     - CONFIDENCE_COLLAPSE_THRESHOLD = 0.5 (if avg conf < 50%)
     - LATENCY_BREACH_THRESHOLD_MS = 5000
     - MAHALANOBIS_DISTANCE_THRESHOLD = 3.0 (3σ outlier)
     - REPEAT_FAILURE_THRESHOLD = 3 (consecutive failures)
     """
-    
+
     # Thresholds from kernel spec + recommendations
     CONFIDENCE_COLLAPSE_THRESHOLD = 0.5  # If avg conf < 50%
-    LATENCY_BREACH_THRESHOLD_MS = 5000   # 5 second timeout
+    LATENCY_BREACH_THRESHOLD_MS = 5000  # 5 second timeout
     MAHALANOBIS_DISTANCE_THRESHOLD = 3.0  # 3σ outlier
-    REPEAT_FAILURE_THRESHOLD = 3          # Consecutive failures before suspension
-    
+    REPEAT_FAILURE_THRESHOLD = 3  # Consecutive failures before suspension
+
     # Rolling window for historical analysis
     HISTORY_WINDOW_SIZE = 100
-    
+
     def __init__(self):
         self.logger = logger.getChild(self.__class__.__name__)
-        
+
         # Historical data for statistical analysis
         self.latency_history: deque = deque(maxlen=self.HISTORY_WINDOW_SIZE)
         self.confidence_history: deque = deque(maxlen=self.HISTORY_WINDOW_SIZE)
         self.failure_count: int = 0
         self.consecutive_failures: int = 0
-        
+
         # Statistics cache
         self._latency_mean: Optional[float] = None
         self._latency_std: Optional[float] = None
         self._confidence_mean: Optional[float] = None
-    
+
     async def detect(
         self,
         request: Any,  # TensorRequest
@@ -90,80 +114,82 @@ class AnomalyDetector:
     ) -> List[AnomalySignal]:
         """
         Detect anomalies in TensorGlobe response.
-        
+
         Checks:
         1. Confidence collapse (avg result confidence)
         2. Latency breach (response time)
         3. Statistical outliers (Mahalanobis distance)
         4. Repeat failures (consecutive anomalies)
-        
+
         Returns:
             List of detected anomalies (empty if none)
         """
         anomalies: List[AnomalySignal] = []
-        
+
         # Extract metrics from response
         latency_ms = response.latency_ms
-        confidences = [r.confidence for r in response.results] if response.results else []
+        confidences = (
+            [r.confidence for r in response.results] if response.results else []
+        )
         avg_confidence = np.mean(confidences) if confidences else 0.0
-        
+
         # Update history
         self.latency_history.append(latency_ms)
         if confidences:
             self.confidence_history.extend(confidences)
-        
+
         # Check 1: Confidence collapse
         confidence_anomaly = self._check_confidence_collapse(
             request.request_id, avg_confidence
         )
         if confidence_anomaly:
             anomalies.append(confidence_anomaly)
-        
+
         # Check 2: Latency breach
-        latency_anomaly = self._check_latency_breach(
-            request.request_id, latency_ms
-        )
+        latency_anomaly = self._check_latency_breach(request.request_id, latency_ms)
         if latency_anomaly:
             anomalies.append(latency_anomaly)
-        
+
         # Check 3: Statistical outlier (Mahalanobis distance)
         outlier_anomaly = self._check_statistical_outlier(
             request.request_id, latency_ms, avg_confidence
         )
         if outlier_anomaly:
             anomalies.append(outlier_anomaly)
-        
+
         # Track consecutive failures
         if anomalies:
             self.consecutive_failures += 1
             self.failure_count += 1
-            
+
             # Check 4: Repeat failure pattern
             if self.consecutive_failures >= self.REPEAT_FAILURE_THRESHOLD:
-                anomalies.append(AnomalySignal(
-                    request_id=request.request_id,
-                    anomaly_type=AnomalyType.REPEAT_FAILURE,
-                    anomaly_score=1.0,
-                    severity=AnomalySeverity.CRITICAL,
-                    action_taken="provider_suspension_recommended",
-                    details={
-                        "consecutive_failures": self.consecutive_failures,
-                        "total_failures": self.failure_count,
-                    }
-                ))
+                anomalies.append(
+                    AnomalySignal(
+                        request_id=request.request_id,
+                        anomaly_type=AnomalyType.REPEAT_FAILURE,
+                        anomaly_score=1.0,
+                        severity=AnomalySeverity.CRITICAL,
+                        action_taken="provider_suspension_recommended",
+                        details={
+                            "consecutive_failures": self.consecutive_failures,
+                            "total_failures": self.failure_count,
+                        },
+                    )
+                )
         else:
             # Reset consecutive failure count on success
             self.consecutive_failures = 0
-        
+
         # Log anomalies
         for anomaly in anomalies:
             self.logger.warning(
                 f"Anomaly detected: {anomaly.anomaly_type.value} "
                 f"(score={anomaly.anomaly_score:.2f}, severity={anomaly.severity.value})"
             )
-        
+
         return anomalies
-    
+
     def _check_confidence_collapse(
         self,
         request_id: str,
@@ -173,8 +199,10 @@ class AnomalyDetector:
         if avg_confidence < self.CONFIDENCE_COLLAPSE_THRESHOLD:
             score = 1.0 - (avg_confidence / self.CONFIDENCE_COLLAPSE_THRESHOLD)
             severity = (
-                AnomalySeverity.CRITICAL if avg_confidence < 0.2
-                else AnomalySeverity.HIGH if avg_confidence < 0.35
+                AnomalySeverity.CRITICAL
+                if avg_confidence < 0.2
+                else AnomalySeverity.HIGH
+                if avg_confidence < 0.35
                 else AnomalySeverity.MEDIUM
             )
             return AnomalySignal(
@@ -186,10 +214,10 @@ class AnomalyDetector:
                 details={
                     "avg_confidence": avg_confidence,
                     "threshold": self.CONFIDENCE_COLLAPSE_THRESHOLD,
-                }
+                },
             )
         return None
-    
+
     def _check_latency_breach(
         self,
         request_id: str,
@@ -199,8 +227,10 @@ class AnomalyDetector:
         if latency_ms > self.LATENCY_BREACH_THRESHOLD_MS:
             overage_ratio = latency_ms / self.LATENCY_BREACH_THRESHOLD_MS
             severity = (
-                AnomalySeverity.CRITICAL if overage_ratio > 2.0
-                else AnomalySeverity.HIGH if overage_ratio > 1.5
+                AnomalySeverity.CRITICAL
+                if overage_ratio > 2.0
+                else AnomalySeverity.HIGH
+                if overage_ratio > 1.5
                 else AnomalySeverity.MEDIUM
             )
             return AnomalySignal(
@@ -213,10 +243,10 @@ class AnomalyDetector:
                     "latency_ms": latency_ms,
                     "threshold_ms": self.LATENCY_BREACH_THRESHOLD_MS,
                     "overage_ratio": overage_ratio,
-                }
+                },
             )
         return None
-    
+
     def _check_statistical_outlier(
         self,
         request_id: str,
@@ -227,17 +257,17 @@ class AnomalyDetector:
         # Need enough history for statistical analysis
         if len(self.latency_history) < 10:
             return None
-        
+
         # Calculate latency z-score
         latency_array = np.array(self.latency_history)
         latency_mean = np.mean(latency_array)
         latency_std = np.std(latency_array)
-        
+
         if latency_std > 0:
             latency_zscore = abs(latency_ms - latency_mean) / latency_std
         else:
             latency_zscore = 0
-        
+
         # Check if beyond threshold (3σ)
         if latency_zscore > self.MAHALANOBIS_DISTANCE_THRESHOLD:
             return AnomalySignal(
@@ -251,15 +281,15 @@ class AnomalyDetector:
                     "latency_mean": latency_mean,
                     "latency_std": latency_std,
                     "threshold": self.MAHALANOBIS_DISTANCE_THRESHOLD,
-                }
+                },
             )
         return None
-    
+
     def reset_failure_count(self) -> None:
         """Reset failure counters (e.g., after provider recovery)"""
         self.consecutive_failures = 0
         self.logger.info("Failure count reset")
-    
+
     def get_statistics(self) -> Dict[str, Any]:
         """Get current anomaly detection statistics"""
         return {
@@ -267,6 +297,54 @@ class AnomalyDetector:
             "consecutive_failures": self.consecutive_failures,
             "latency_history_size": len(self.latency_history),
             "confidence_history_size": len(self.confidence_history),
-            "latency_mean": float(np.mean(self.latency_history)) if self.latency_history else None,
-            "latency_std": float(np.std(self.latency_history)) if self.latency_history else None,
+            "latency_mean": float(np.mean(self.latency_history))
+            if self.latency_history
+            else None,
+            "latency_std": float(np.std(self.latency_history))
+            if self.latency_history
+            else None,
         }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ADA-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["async", "caching", "data-models", "dataclass", "metrics", "operations"],
+    "keywords": [
+        "anomaly",
+        "confidence",
+        "count",
+        "detect",
+        "detection",
+        "detector",
+        "failure",
+        "guard",
+    ],
+    "business_value": "Provides anomaly guard components including AnomalySeverity, AnomalyType, AnomalySignal",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

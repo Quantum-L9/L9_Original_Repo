@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Codegen Agent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent_codegen_agent"
+# type: "service"
+# status: "active"
+# ============================================================================
+
 # ===================================
 # L9 CodegenAgent Core Orchestrator
 # ===================================
@@ -43,3 +58,11 @@ code: |
           setup_reversion(files)
           record_generation(meta, files)
           return {"status": "success", "files": list(files.keys())}
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "codegenagent", "operations", "pipeline", "service", "workflow"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

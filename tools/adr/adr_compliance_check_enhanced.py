@@ -358,3 +358,57 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TOO-OPER-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "cli",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "operations",
+        "serialization",
+        "testing",
+    ],
+    "keywords": [
+        "adr",
+        "check",
+        "checker",
+        "compliance",
+        "directory",
+        "enhanced",
+        "generate",
+        "report",
+    ],
+    "business_value": "Provides adr compliance check enhanced components including ADRViolation, ADRComplianceChecker",
+    "last_modified": "2026-01-24T15:21:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

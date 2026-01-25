@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Codegen Batch Spec Generator Patch"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "codegen_batch_spec_generator_patch"
+# type: "factory"
+# status: "active"
+# ============================================================================
+
 # ===========================================
 # Patch: BatchSpecGenerator → GMP Capsule Flow
 # ===========================================
@@ -28,3 +43,11 @@ code: |
       module_code = f"# Auto-generated for {capsule['agent_name']}\\n{capsule['code']}"
       with open(f"agents/{capsule['agent_name']}.py", "w") as f:
           f.write(module_code)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "factory", "operations", "schema"]
+# keywords: ["batch", "code", "codegen", "description", "filename", "generator"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Api Routes Codegen"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "api_gateway"
+# file_name: "api_routes_codegen"
+# type: "router"
+# status: "active"
+# ============================================================================
+
 # ===============================
 # L9 CodeGen Spec: API Generator
 # ===============================
@@ -30,3 +45,11 @@ code: |
   async def generate_from_meta(meta: MetaContract, request: Request):
       result = await agent.generate(meta)
       return {"status": "ok", "files": list(result.keys())}
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "api-gateway", "operations", "router"]
+# keywords: ["api", "code", "codegen", "description", "filename", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

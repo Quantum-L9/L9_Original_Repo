@@ -8,14 +8,20 @@
   "legacy_migration_needed": 0,
   "files": [
     {
-      "file": "/Users/ib-mac/Projects/l9/tools/export_repo_indexes.py",
-      "component_id": "TOO-OPER-001",
+      "file": "/Users/ib-mac/Projects/L9/scripts/audit/inject_dora_complete.py",
+      "component_id": "SCR-OPER-001",
       "injected": {
         "header": true,
         "footer": true,
         "trace": true
       },
-      "classes": []
+      "classes": [
+        "ClassInfo",
+        "HeaderMeta",
+        "FooterMeta",
+        "DoraTraceBlock",
+        "DoraCompleteInjector"
+      ]
     }
   ]
 }

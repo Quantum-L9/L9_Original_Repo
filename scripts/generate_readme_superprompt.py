@@ -865,3 +865,57 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-007",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "ast",
+        "cli",
+        "config",
+        "dataclass",
+        "filesystem",
+        "metrics",
+        "operations",
+        "pydantic",
+        "realtime",
+    ],
+    "keywords": [
+        "annotation",
+        "decorator",
+        "extract",
+        "facts",
+        "field",
+        "fields",
+        "format",
+        "function",
+    ],
+    "business_value": "Provides generate readme superprompt components including TypeInfo, FieldInfo, ClassInfo",
+    "last_modified": "2026-01-24T13:02:53Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

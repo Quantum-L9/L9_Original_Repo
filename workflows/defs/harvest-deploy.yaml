@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Harvest-Deploy"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:45:56Z"
+# updated_at: "2026-01-25T14:33:17Z"
+# layer: "operations"
+# domain: "workflows"
+# file_name: "harvest-deploy"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =============================================================================
 # L9 DAG Workflow: Harvest and Deploy
 # =============================================================================
@@ -226,3 +241,11 @@ steps:
         - "echo 'Telemetry metrics added:'"
         - "grep -n 'tool_feedback_recorded\\|tool_success_rate' telemetry/memory_metrics.py | head -3"
     checkpoint: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["configuration", "operations", "tool-config", "utility", "workflow", "workflows"]
+# keywords: ["deploy", "description", "harvest", "name", "steps", "variables"]
+# last_modified: "2026-01-25T14:33:17Z"
+# ============================================================================

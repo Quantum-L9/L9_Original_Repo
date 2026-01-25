@@ -23,6 +23,29 @@ Extended Metadata:
 ================================================================================
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "World Model Bridge",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:07:20Z",
+    "updated_at": "2026-01-24T13:02:52Z",
+    "layer": "operations",
+    "domain": "domain_tensor_bridge",
+    "module_name": "world_model_bridge",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": [],
+        "imported_by": [
+            "domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment"
+        ],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
@@ -35,6 +58,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class CausalFactor:
     """Causal factor from world model."""
+
     factor_id: str
     factor_type: str
     strength: float
@@ -44,6 +68,7 @@ class CausalFactor:
 @dataclass
 class Pattern:
     """Temporal pattern from world model."""
+
     pattern_id: str
     pattern_type: str
     confidence: float
@@ -52,20 +77,20 @@ class Pattern:
 
 class WorldModelBridge:
     """Interface to world model layer."""
-    
+
     def __init__(self, world_model_url: str = ""):
         self.world_model_url = world_model_url
         self._client: httpx.AsyncClient = None
-    
+
     async def initialize(self) -> None:
         """Initialize HTTP client."""
         self._client = httpx.AsyncClient(timeout=30.0)
         logger.info("world_model_bridge_initialized")
-    
+
     async def query_causal_factors(self, entity_id: str) -> List[CausalFactor]:
         """Query causal factors for entity."""
         logger.debug("query_causal_factors", entity_id=entity_id)
-        
+
         # In production, this would call the world model API
         return [
             CausalFactor(
@@ -75,11 +100,13 @@ class WorldModelBridge:
                 direction="positive",
             )
         ]
-    
-    async def query_temporal_patterns(self, entity_id: str, window_days: int = 30) -> List[Pattern]:
+
+    async def query_temporal_patterns(
+        self, entity_id: str, window_days: int = 30
+    ) -> List[Pattern]:
         """Query temporal patterns for entity."""
         logger.debug("query_temporal_patterns", entity_id=entity_id, window=window_days)
-        
+
         return [
             Pattern(
                 pattern_id=f"pat_{entity_id}_1",
@@ -88,7 +115,7 @@ class WorldModelBridge:
                 window_days=window_days,
             )
         ]
-    
+
     async def close(self) -> None:
         """Close HTTP client."""
         if self._client:
@@ -113,8 +140,57 @@ __footer_meta__ = {
     "dependencies": ["structlog", "httpx"],
 }
 
-__all__ = ["WorldModelBridge", "CausalFactor", "Pattern", "__footer_meta__", "__l9_trace__"]
+__all__ = [
+    "WorldModelBridge",
+    "CausalFactor",
+    "Pattern",
+    "__footer_meta__",
+    "__l9_trace__",
+]
 
-__l9_trace__ = {"trace_id": "", "task": "", "timestamp": "", "patterns_used": [], "graph": {"nodes": [], "edges": []}, "inputs": {}, "outputs": {}, "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""}}
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
 
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "DOM-OPER-010",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "dataclass",
+        "debugging",
+        "domain-tensor-bridge",
+        "http-client",
+        "logging",
+        "operations",
+        "tracing",
+    ],
+    "keywords": [
+        "bridge",
+        "causal",
+        "close",
+        "factor",
+        "factors",
+        "initialize",
+        "model",
+        "pattern",
+    ],
+    "business_value": "Provides world model bridge components including CausalFactor, Pattern, WorldModelBridge",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}

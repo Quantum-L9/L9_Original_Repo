@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Testing L9 Tool Simulation Harness"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "testing_l9_tool_simulation_harness"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =====================================
 # L9 Tool Simulation Harness
 # =====================================
@@ -27,3 +42,11 @@ code: |
       steps = yaml.safe_load(open(capsule))["tools"]
       results = [{"tool": t, "outcome": "success"} for t in steps]
       yaml.dump(results, open("sim_report.json", "w"))
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "pipeline", "tool-config", "utility"]
+# keywords: ["code", "description", "filename", "harness", "language", "simulation"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

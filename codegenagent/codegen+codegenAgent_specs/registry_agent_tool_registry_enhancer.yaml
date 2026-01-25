@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Registry Agent Tool Registry Enhancer"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "registry_agent_tool_registry_enhancer"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ============================================
 # Agent Tool Registry Enhancer (Spec)
 # ============================================
@@ -34,3 +49,10 @@ code: |
               validated.append({"tool": tool, "status": "approved"})
       yaml.dump(validated, open(f"validated_tools/{agent_id}.yaml", "w"))
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "pipeline", "tool-config", "utility"]
+# keywords: ["agent", "code", "description", "enhancer", "filename", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

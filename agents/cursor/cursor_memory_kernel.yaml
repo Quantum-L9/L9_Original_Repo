@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Cursor Memory Kernel"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T08:58:01Z"
+# updated_at: "2026-01-25T08:58:45Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "cursor_memory_kernel"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # CURSOR MEMORY KERNEL — BINDING CONTRACT
 # ============================================================================
 # This kernel governs Cursor agent memory utilization. Treat as LAW.
@@ -505,3 +520,11 @@ degraded_mode:
     - Using file-based context only (workflow_state.md)
     - Memory writes disabled until MCP restored
     - Run `python3 agents/cursor/cursor_memory_client.py health` to check status
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "api-config", "configuration", "intelligence", "kernel", "redis-config", "tool-config"]
+# keywords: ["author", "cursor", "description", "init", "kernel", "memory"]
+# last_modified: "2026-01-25T08:58:45Z"
+# ============================================================================

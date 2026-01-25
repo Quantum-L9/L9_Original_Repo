@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Ui Patch Audit Viewer"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "api_gateway"
+# file_name: "ui_patch_audit_viewer"
+# type: "router"
+# status: "active"
+# ============================================================================
+
 # ============================
 # Patch Audit Viewer (Spec)
 # ============================
@@ -36,3 +51,10 @@ code: |
       with open(path) as f:
           return {"patch": f.read()}
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "api-gateway", "kernel", "operations", "prompt", "router"]
+# keywords: ["audit", "code", "description", "filename", "language", "patch"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

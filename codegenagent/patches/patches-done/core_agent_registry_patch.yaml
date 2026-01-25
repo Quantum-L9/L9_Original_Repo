@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Core Agent Registry Patch"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "core_agent_registry_patch"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =====================================
 # Patch: Auto-Register GMP Agents
 # =====================================
@@ -31,3 +46,11 @@ code: |
       }
       with open("config/agent_registry.yaml", "a") as f:
           yaml.dump([entry], f)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "configuration", "operations", "tool-config", "utility"]
+# keywords: ["agent", "code", "core", "description", "filename", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

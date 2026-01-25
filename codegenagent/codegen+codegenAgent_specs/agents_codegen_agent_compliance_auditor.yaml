@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Compliance Auditor"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent_compliance_auditor"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =================================
 # Compliance Auditor for GMP Output
 # =================================
@@ -30,3 +45,11 @@ code: |
               errors.append(f"{name} missing policy zone")
       if errors:
           raise Exception("Compliance errors: " + str(errors))
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "utility"]
+# keywords: ["agent", "agents", "auditor", "code", "codegen", "compliance"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

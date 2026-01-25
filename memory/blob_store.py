@@ -22,6 +22,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Blob Store",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T06:18:10Z",
+    "updated_at": "2026-01-25T08:58:44Z",
+    "layer": "learning",
+    "domain": "memory_substrate",
+    "module_name": "blob_store",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["S3"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import hashlib
 import os
 from dataclasses import dataclass, field
@@ -402,3 +423,56 @@ def build_blob_reference(metadata: BlobMetadata) -> dict[str, Any]:
         "blob_size": metadata.size_bytes,
         "content_type": metadata.content_type,
     }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-018",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "dataclass",
+        "debugging",
+        "learning",
+        "logging",
+        "memory-substrate",
+        "security",
+        "streaming",
+    ],
+    "keywords": [
+        "await",
+        "blob",
+        "build",
+        "compute",
+        "delete",
+        "exists",
+        "hash",
+        "large",
+    ],
+    "business_value": "Provides S3-backed blob storage for large packet payloads (>512KB). Supports presigned URLs for secure, time-limited access. blob_store = BlobStore() # Store large content blob_id = await blob_store.s",
+    "last_modified": "2026-01-25T08:58:44Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

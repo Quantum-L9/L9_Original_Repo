@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Aios-Metrics"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-21T01:07:38Z"
+# updated_at: "2026-01-20T23:54:21Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "aios-metrics"
+# type: "tracker"
+# status: "active"
+# ============================================================================
+
 aios_metrics:
   memory_substrate:
     - metric: "pgvector_insert_throughput"
@@ -48,3 +63,11 @@ aios_metrics:
       threshold: 0
 
 # Monitor these before/after each refactoring phase
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["configuration", "foundation", "tool-config", "tracker"]
+# keywords: ["aios", "aios_metrics", "metrics"]
+# last_modified: "2026-01-20T23:54:21Z"
+# ============================================================================

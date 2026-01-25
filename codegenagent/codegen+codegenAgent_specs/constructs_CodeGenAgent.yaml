@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Constructs Codegenagent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "constructs_CodeGenAgent"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # 2. CGA CONSTRUCT UPGRADE – Expanded Capabilities Block
 # Filename: constructs/CodeGenAgent.yaml
@@ -24,3 +39,11 @@ patch:
     exec_patch_all: true
     emit_gmp: true
     override_self_construct: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "prompt", "schema", "utility"]
+# keywords: ["codegenagent", "constructs", "filename", "language", "patch", "patch_type"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

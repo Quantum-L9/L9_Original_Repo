@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Agents Autonomous-Research-Agent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "runtime_agents_autonomous-research-agent"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # 3. PATCH EXECUTOR CLASS
 # Filename: runtime/agents/autonomous-research-agent.py
@@ -37,3 +52,11 @@ patch:
 
         def delegate_search(self, schema_block):
             os.system(f"python3 runtime/perplexity/Perplexity_Interface_Agent.py {schema_block}")
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "prompt", "schema", "utility"]
+# keywords: ["agent", "agents", "autonomous", "filename", "language", "patch"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

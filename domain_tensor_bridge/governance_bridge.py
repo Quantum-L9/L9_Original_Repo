@@ -24,6 +24,29 @@ Extended Metadata:
 ================================================================================
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Governance Bridge",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:07:20Z",
+    "updated_at": "2026-01-24T13:02:52Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "governance_bridge",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "domain_tensor_bridge.tests.domain_tensor_bridge.test_governance_integration"
+        ],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -38,7 +61,7 @@ logger = structlog.get_logger(__name__)
 
 class EscalationLevel(str, Enum):
     """Escalation levels for governance decisions."""
-    
+
     STANDARD = "standard"
     COMPLIANCE = "compliance"
     IGOR = "igor"
@@ -46,7 +69,7 @@ class EscalationLevel(str, Enum):
 
 class GovernanceDecision(str, Enum):
     """Governance check outcomes."""
-    
+
     APPROVED = "approved"
     BLOCKED = "blocked"
     ESCALATED = "escalated"
@@ -56,7 +79,7 @@ class GovernanceDecision(str, Enum):
 @dataclass
 class GovernanceResult:
     """Result of governance check."""
-    
+
     decision: GovernanceDecision
     approved: bool
     reason: Optional[str] = None
@@ -68,7 +91,7 @@ class GovernanceResult:
 @dataclass
 class EscalationResult:
     """Result of escalation to anchor."""
-    
+
     escalated: bool
     anchor: str
     response: Optional[str] = None
@@ -78,14 +101,14 @@ class EscalationResult:
 class GovernanceBridge:
     """
     Bridge to L9 governance layer.
-    
+
     Responsibilities:
     - Check decisions against governance policy
     - Escalate to Igor/Compliance when needed
     - Respect and apply human overrides
     - Log all governance interactions
     """
-    
+
     def __init__(
         self,
         approval_manager: Optional[ApprovalManager] = None,
@@ -94,27 +117,27 @@ class GovernanceBridge:
         self.approval_manager = approval_manager
         self.igor_client = igor_client
         self._initialized = False
-    
+
     async def initialize(self) -> None:
         """Initialize governance connections."""
         logger.info("governance_bridge_initializing")
-        
+
         if not self.approval_manager:
             logger.warning("no_approval_manager_configured")
-        
+
         self._initialized = True
         logger.info("governance_bridge_ready")
-    
+
     async def check_governance(
         self,
         decision: Dict[str, Any],
     ) -> GovernanceResult:
         """
         Check decision against governance policy.
-        
+
         Args:
             decision: Decision to check
-            
+
         Returns:
             GovernanceResult with approval status
         """
@@ -122,25 +145,25 @@ class GovernanceBridge:
             "checking_governance",
             decision_type=decision.get("type", "unknown"),
         )
-        
+
         # Determine if escalation needed
         requires_escalation = self._requires_escalation(decision)
-        
+
         if requires_escalation:
             escalation_level = self._determine_escalation_level(decision)
-            
+
             logger.info(
                 "escalation_required",
                 level=escalation_level.value if escalation_level else "unknown",
             )
-            
+
             return GovernanceResult(
                 decision=GovernanceDecision.ESCALATED,
                 approved=False,
                 reason="Requires escalation to governance anchor",
                 escalation_level=escalation_level,
             )
-        
+
         # Check with approval manager
         if self.approval_manager:
             approval = await self._check_approval(decision)
@@ -150,16 +173,16 @@ class GovernanceBridge:
                     approved=False,
                     reason="Approval manager denied",
                 )
-        
+
         return GovernanceResult(
             decision=GovernanceDecision.APPROVED,
             approved=True,
         )
-    
+
     async def check(self, result: Dict[str, Any]) -> GovernanceResult:
         """Alias for check_governance."""
         return await self.check_governance(result)
-    
+
     async def escalate_to_anchor(
         self,
         decision: Dict[str, Any],
@@ -167,11 +190,11 @@ class GovernanceBridge:
     ) -> EscalationResult:
         """
         Escalate decision to governance anchor (Igor/Compliance).
-        
+
         Args:
             decision: Decision requiring escalation
             reason: Reason for escalation
-            
+
         Returns:
             EscalationResult with anchor response
         """
@@ -179,14 +202,14 @@ class GovernanceBridge:
             "escalating_to_anchor",
             reason=reason,
         )
-        
+
         if self.igor_client:
             try:
                 response = await self.igor_client.request_approval(
                     context=decision,
                     reason=reason,
                 )
-                
+
                 return EscalationResult(
                     escalated=True,
                     anchor="igor",
@@ -199,29 +222,29 @@ class GovernanceBridge:
                     anchor="igor",
                     timeout=True,
                 )
-        
+
         logger.warning("no_anchor_available_for_escalation")
         return EscalationResult(
             escalated=False,
             anchor="none",
         )
-    
+
     def _requires_escalation(self, decision: Dict[str, Any]) -> bool:
         """Determine if decision requires escalation."""
         # Check confidence threshold
         confidence = decision.get("confidence", 1.0)
         if confidence < 0.5:
             return True
-        
+
         # Check for high-risk markers
         if decision.get("high_risk", False):
             return True
-        
+
         if decision.get("destructive", False):
             return True
-        
+
         return False
-    
+
     def _determine_escalation_level(
         self,
         decision: Dict[str, Any],
@@ -229,17 +252,17 @@ class GovernanceBridge:
         """Determine appropriate escalation level."""
         if decision.get("critical", False):
             return EscalationLevel.IGOR
-        
+
         if decision.get("high_risk", False):
             return EscalationLevel.COMPLIANCE
-        
+
         return EscalationLevel.STANDARD
-    
+
     async def _check_approval(self, decision: Dict[str, Any]) -> bool:
         """Check with approval manager."""
         if not self.approval_manager:
             return True
-        
+
         try:
             # ApprovalManager interface may differ - adapt as needed
             return await self.approval_manager.check(decision)
@@ -301,4 +324,28 @@ __l9_trace__ = {
 # END L9 DORA BLOCK
 # ============================================================================
 
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "DOM-OPER-018",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.governance"],
+    "tags": ["async", "data-models", "dataclass", "logging", "operations", "tracing"],
+    "keywords": [
+        "anchor",
+        "bridge",
+        "check",
+        "decision",
+        "escalate",
+        "escalation",
+        "governance",
+        "initialize",
+    ],
+    "business_value": "Handles escalation decisions, respects human overrides, logs all governance checks, and enforces compliance anchors (Igor, Compliance). See __footer_meta__ at module footer. Runtime trace in __l9_trac",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}

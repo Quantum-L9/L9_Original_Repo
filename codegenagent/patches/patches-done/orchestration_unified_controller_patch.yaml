@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestration Unified Controller Patch"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "orchestration_unified_controller_patch"
+# type: "controller"
+# status: "active"
+# ============================================================================
+
 # ===============================================
 # Patch: UnifiedController ↔ SubstrateGraphState
 # ===============================================
@@ -25,3 +40,11 @@ code: |
       graph = SubstrateGraphState().load()
       decision = graph.decide(task_id)
       return decision
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["codegenagent", "controller", "operations", "tool-config"]
+# keywords: ["code", "controller", "description", "filename", "language", "orchestration"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

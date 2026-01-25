@@ -23,6 +23,27 @@ Extended Metadata:
 ================================================================================
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Domain Context Builder",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:07:20Z",
+    "updated_at": "2026-01-24T13:02:52Z",
+    "layer": "operations",
+    "domain": "domain_tensor_bridge",
+    "module_name": "domain_context_builder",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
@@ -36,6 +57,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class DomainContext:
     """Domain-specific context structure."""
+
     domain: str
     entity_data: Dict[str, Any] = field(default_factory=dict)
     domain_rules: Dict[str, Any] = field(default_factory=dict)
@@ -44,19 +66,21 @@ class DomainContext:
 
 class DomainContextBuilder:
     """Builds domain-specific context."""
-    
+
     DOMAIN_CONFIGS = {
         "plastos": {"requires_compliance": True, "risk_threshold": 0.7},
         "mortgageos": {"requires_compliance": True, "risk_threshold": 0.6},
         "default": {"requires_compliance": False, "risk_threshold": 0.5},
     }
-    
-    def build_domain_context(self, packet: PacketEnvelope, domain: str) -> DomainContext:
+
+    def build_domain_context(
+        self, packet: PacketEnvelope, domain: str
+    ) -> DomainContext:
         """Build context for specific domain."""
         logger.debug("building_domain_context", domain=domain)
-        
+
         config = self.DOMAIN_CONFIGS.get(domain, self.DOMAIN_CONFIGS["default"])
-        
+
         return DomainContext(
             domain=domain,
             entity_data=packet.payload,
@@ -85,6 +109,38 @@ __footer_meta__ = {
 
 __all__ = ["DomainContextBuilder", "DomainContext", "__footer_meta__", "__l9_trace__"]
 
-__l9_trace__ = {"trace_id": "", "task": "", "timestamp": "", "patterns_used": [], "graph": {"nodes": [], "edges": []}, "inputs": {}, "outputs": {}, "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""}}
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
 
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "DOM-OPER-019",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.schemas"],
+    "tags": [
+        "builder-pattern",
+        "dataclass",
+        "debugging",
+        "domain-tensor-bridge",
+        "logging",
+        "operations",
+        "tracing",
+    ],
+    "keywords": ["build", "builder", "domain"],
+    "business_value": "Provides domain context builder components including DomainContext, DomainContextBuilder",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}

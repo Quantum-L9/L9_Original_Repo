@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Pipeline Validator"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent_pipeline_validator"
+# type: "validator"
+# status: "active"
+# ============================================================================
+
 # ================================
 # CodeGenAgent Pipeline Validator
 # ================================
@@ -22,3 +37,11 @@ code: |
       missing = [f for f in ["name", "inputs", "outputs", "responsibilities"] if f not in meta.dict()]
       if missing:
           raise ValueError(f"Missing required meta fields: {missing}")
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "pipeline", "validator"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

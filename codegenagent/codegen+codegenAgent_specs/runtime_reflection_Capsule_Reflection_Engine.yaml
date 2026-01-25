@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Reflection Capsule Reflection Engine"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "runtime_reflection_Capsule_Reflection_Engine"
+# type: "cli"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # Capsule_Reflection_Engine.py
 # ============================================================
@@ -37,3 +52,11 @@ code: |
 
   if __name__ == "__main__":
       run_reflection()
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["cli", "codegenagent", "operations", "prompt"]
+# keywords: ["capsule", "code", "description", "engine", "filename", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

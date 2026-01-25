@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Boot Singleton Patch Mainagent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "boot_singleton_patch_mainagent"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ========================================
 # L9 Codegen Spec: Singleton Injection Hook
 # ========================================
@@ -25,3 +40,11 @@ code: |
           wm=world_model_engine,
           governance=governance_policy
       )
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "kernel", "model-config", "operations", "redis-config", "utility"]
+# keywords: ["boot", "code", "description", "filename", "language", "mainagent"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

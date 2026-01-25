@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Coderabbit"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-24T15:22:14Z"
+# updated_at: "2026-01-24T15:21:11Z"
+# layer: "operations"
+# domain: "coderabbit.yaml"
+# file_name: "coderabbit"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 language: "python"
 reviews:
   profile: "chill"
@@ -41,3 +56,11 @@ patterns:
       - "API client error handling"
 
 blocklist: ["**.md", "docs/**", ".github/workflows/**", "*.txt"]
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "coderabbit.yaml", "kernel", "operations", "schema", "tool-config", "utility"]
+# keywords: ["blocklist", "coderabbit", "language", "patterns", "reviews"]
+# last_modified: "2026-01-24T15:21:11Z"
+# ============================================================================

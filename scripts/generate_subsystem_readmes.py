@@ -24,6 +24,27 @@ Usage:
     python scripts/generate_subsystem_readmes.py --validate         # Validate config
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Generate Subsystem Readmes",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-18T17:12:30Z",
+    "updated_at": "2026-01-25T14:49:28Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "generate_subsystem_readmes",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["PostgreSQL", "Redis"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import ast
 import json
@@ -1250,3 +1271,57 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-008",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "ast",
+        "async",
+        "auth",
+        "batch-processing",
+        "cli",
+        "config",
+        "dataclass",
+        "debugging",
+        "event-driven",
+    ],
+    "keywords": [
+        "auto",
+        "backup",
+        "existing",
+        "extract",
+        "facts",
+        "function",
+        "generate",
+        "load",
+    ],
+    "business_value": "This is the ONLY README pipeline - replaces the old README.meta.yaml system. Reads subsystem definitions from YAML config Verifies system time at startup (prevents stale timestamps) Updates last_updat",
+    "last_modified": "2026-01-25T14:49:28Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

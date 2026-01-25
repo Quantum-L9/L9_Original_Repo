@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Docker-Compose"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T04:08:31Z"
+# updated_at: "2026-01-25T04:08:24Z"
+# layer: "operations"
+# domain: "deploy"
+# file_name: "docker-compose"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 version: '3.9'
 
 services:
@@ -113,3 +128,11 @@ volumes:
 networks:
   l9-network:
     driver: bridge
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "configuration", "database-config", "deploy", "operations", "redis-config", "utility"]
+# keywords: ["compose", "docker", "networks", "services", "version", "volumes"]
+# last_modified: "2026-01-25T04:08:24Z"
+# ============================================================================

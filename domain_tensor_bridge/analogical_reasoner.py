@@ -23,6 +23,27 @@ Extended Metadata:
 ================================================================================
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Analogical Reasoner",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:07:20Z",
+    "updated_at": "2026-01-24T13:02:52Z",
+    "layer": "operations",
+    "domain": "domain_tensor_bridge",
+    "module_name": "analogical_reasoner",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
@@ -34,6 +55,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class Analogy:
     """Cross-domain analogy."""
+
     source_domain: str
     target_domain: str
     pattern: str
@@ -43,14 +65,14 @@ class Analogy:
 
 class AnalogicalReasoner:
     """Finds cross-domain analogies."""
-    
+
     async def find_analogies(self, context: Dict[str, Any]) -> List[Analogy]:
         """Find analogies in context."""
         logger.info("finding_analogies")
-        
+
         domain = context.get("domain", "default")
         analogies = []
-        
+
         # Look for patterns in other domains
         if domain == "plastos":
             analogies.append(
@@ -62,7 +84,7 @@ class AnalogicalReasoner:
                     mapping={"credit_score": "plast_score"},
                 )
             )
-        
+
         return analogies
 
 
@@ -86,6 +108,37 @@ __footer_meta__ = {
 
 __all__ = ["AnalogicalReasoner", "Analogy", "__footer_meta__", "__l9_trace__"]
 
-__l9_trace__ = {"trace_id": "", "task": "", "timestamp": "", "patterns_used": [], "graph": {"nodes": [], "edges": []}, "inputs": {}, "outputs": {}, "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""}}
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
 
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "DOM-OPER-007",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "dataclass",
+        "domain-tensor-bridge",
+        "logging",
+        "operations",
+        "tracing",
+    ],
+    "keywords": ["analogical", "analogies", "analogy", "find", "reasoner"],
+    "business_value": "Provides analogical reasoner components including Analogy, AnalogicalReasoner",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}

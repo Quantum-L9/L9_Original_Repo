@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Mainagent V6 Meta"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_mainagent_v6_meta"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ==================================
 # MetaContract: MainAgent v6.0 (L9)
 # ==================================
@@ -49,3 +64,11 @@ catalog_entry:
     - POST /api/mainagent/v6/packet
     - orchestrator:meta -> audit
   registered_in: config/agent_catalog.yaml
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "codegenagent", "configuration", "model-config", "operations", "schema", "utility"]
+# keywords: ["agents", "description", "filename", "guarantees", "inputs", "mainagent"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

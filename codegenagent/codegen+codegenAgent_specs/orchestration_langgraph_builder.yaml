@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestration Langgraph Builder"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "orchestration_langgraph_builder"
+# type: "factory"
+# status: "active"
+# ============================================================================
+
 # ===================================
 # LangGraph Agent Mesh Generator
 # ===================================
@@ -40,3 +55,11 @@ code: |
               "edges": [{"from": n["id"], "to": "ReflectionAgent"} for n in nodes]
           }
       }
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "factory", "operations"]
+# keywords: ["builder", "code", "description", "filename", "langgraph", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

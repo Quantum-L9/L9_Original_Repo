@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Governance Eval Patch"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "governance_eval_patch"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ======================================
 # GMP Compliance Evaluator (Spec)
 # ======================================
@@ -29,3 +44,10 @@ code: |
       if not status["pass"]:
           raise Exception(f"Policy Violation: {status['errors']}")
 
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["codegenagent", "operations", "utility"]
+# keywords: ["code", "description", "eval", "filename", "governance", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Ir Engine Compile Meta To Ir"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "ir_engine_compile_meta_to_ir"
+# type: "cli"
+# status: "active"
+# ============================================================================
+
 # =====================================
 # L9 CodeGen Spec: Meta Compiler Script
 # =====================================
@@ -33,3 +48,11 @@ code: |
       import sys, json
       obj = compile_meta(sys.argv[1] if len(sys.argv) > 1 else "meta.yaml")
       print(json.dumps(obj.dict(), indent=2))
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["cli", "codegenagent", "operations", "tool-config"]
+# keywords: ["code", "compile", "description", "engine", "filename", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

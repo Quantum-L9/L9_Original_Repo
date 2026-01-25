@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Factories Gmp Manifest Factory"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "factories_gmp_manifest_factory"
+# type: "factory"
+# status: "active"
+# ============================================================================
+
 # =====================================
 # GMP Manifest Factory (Autogenerator)
 # =====================================
@@ -43,3 +58,11 @@ code: |
       os.makedirs(output_dir, exist_ok=True)
       with open(os.path.join(output_dir, "gmp_manifest.yaml"), "w") as f:
           yaml.dump(manifest, f)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "factory", "operations", "prompt", "schema"]
+# keywords: ["code", "description", "factories", "factory", "filename", "gmp"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

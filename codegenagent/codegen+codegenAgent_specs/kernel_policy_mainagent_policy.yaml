@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Kernel Policy Mainagent Policy"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "kernel_policy_mainagent_policy"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ======================================
 # L9 Codegen Spec: MainAgent Policy Zone
 # ======================================
@@ -33,3 +48,11 @@ code: |
   override_approved_by:
     - L
     - CTOAgent
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "kernel", "operations", "utility"]
+# keywords: ["code", "description", "filename", "kernel", "language", "mainagent"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Chart"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T03:21:35Z"
+# updated_at: "2026-01-25T03:21:17Z"
+# layer: "operations"
+# domain: "deploy"
+# file_name: "Chart"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 apiVersion: v2
 name: l9-platform
 description: L9 Agentic Intelligence Platform - Complete deployment
@@ -25,3 +40,11 @@ dependencies: []
 annotations:
   category: AI/ML
   licenses: MIT
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "deploy", "operations", "utility"]
+# keywords: ["apiversion", "appversion", "chart", "description", "home", "keywords"]
+# last_modified: "2026-01-25T03:21:17Z"
+# ============================================================================

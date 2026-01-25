@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Constructors Canonical Agent Constructor"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "runtime_constructors_Canonical_Agent_Constructor"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # PATCH — Canonical_Agent_Constructor.py
 # Purpose: Respect construct_features in schema during build
@@ -47,3 +62,11 @@ patch:
                 impact = map_schema_to_worldmodel(schema, {})
                 with open(f'worldmodel/generated/{name}_impact.yaml', 'w') as f:
                     yaml.dump(impact, f)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "codegenagent", "model-config", "operations", "prompt", "schema", "utility"]
+# keywords: ["agent", "canonical", "constructor", "constructors", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

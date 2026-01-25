@@ -13,6 +13,36 @@ Design principles:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "State",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T14:45:56Z",
+    "updated_at": "2026-01-25T14:45:51Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "state",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "workflows.__init__",
+            "workflows.harvest_deploy",
+            "workflows.nodes.checkpoint",
+            "workflows.nodes.deploy",
+            "workflows.nodes.extract",
+            "workflows.nodes.inject",
+            "workflows.nodes.report",
+            "workflows.nodes.validate",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Literal, TypedDict
@@ -225,3 +255,47 @@ def create_initial_state(
         user_confirmed=None,
         messages=[],
     )
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["data-models", "enum", "messaging", "operations"],
+    "keywords": [
+        "artifacts",
+        "check",
+        "create",
+        "extraction",
+        "files",
+        "initial",
+        "mapping",
+        "merge",
+    ],
+    "business_value": "Provides state components including StepStatus, FileMapping, ExtractionPattern",
+    "last_modified": "2026-01-25T14:45:51Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

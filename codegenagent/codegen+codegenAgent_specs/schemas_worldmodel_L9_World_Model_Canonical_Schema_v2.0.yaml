@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Schemas Worldmodel L9 World Model Canonical Schema V2.0"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "schemas_worldmodel_L9_World_Model_Canonical_Schema_v2.0"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # PATCH — L9_World_Model_Canonical_Schema_v2.0.yaml
 # Purpose: Add construct impact mappings and traceability fields
@@ -20,3 +35,11 @@ patch:
     - sub-agent_suggestions
     - reroute_trace_links
     - world_facts_asserted
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "model-config", "operations", "schema"]
+# keywords: ["canonical", "description", "filename", "language", "model", "patch"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "C1-L9-Api"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-22T15:50:27Z"
+# updated_at: "2026-01-23T15:06:30Z"
+# layer: "operations"
+# domain: "deploy"
+# file_name: "c1-l9-api"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # C1 L9 API - The actual L9 FastAPI application
 # Rollback: kubectl delete -f c1-l9-api.yaml
 #
@@ -195,3 +210,11 @@ spec:
   - port: 8000
     targetPort: 8000
     name: http
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "database-config", "deploy", "kernel", "model-config", "openai"]
+# keywords: ["api"]
+# last_modified: "2026-01-23T15:06:30Z"
+# ============================================================================

@@ -8,6 +8,27 @@ and leaky bucket algorithms).
 Module: core/protocols/rate_limiting_protocols.py
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Rate Limiting Protocols",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T08:48:24Z",
+    "updated_at": "2026-01-25T08:58:45Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "rate_limiting_protocols",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.protocols.__init__"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import time
 from collections import defaultdict
@@ -594,3 +615,56 @@ class RateLimitExceededError(Exception):
         self.message = message
         self.remaining = remaining
         self.reset_time = reset_time
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-123",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "foundation",
+        "logging",
+        "messaging",
+    ],
+    "keywords": [
+        "acquire",
+        "api",
+        "bucket",
+        "decorator",
+        "exceeded",
+        "extract",
+        "handle",
+        "limit",
+    ],
+    "business_value": "This module provides a type-safe, structlog-integrated rate limiting system with support for multiple limiting strategies (fixed window, sliding window, token bucket, and leaky bucket algorithms). Mod",
+    "last_modified": "2026-01-25T08:58:45Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

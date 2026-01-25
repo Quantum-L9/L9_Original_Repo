@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Templates Gmp-Prompt-Schema"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "templates_GMP-Prompt-Schema"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # PATCH — GMP-Prompt-Schema.yaml (New File)
 # Purpose: Add features to enable GMP capsules to recursively generate others
@@ -34,3 +49,11 @@ schema:
     recursive_mode: true
     confidence_threshold: 0.6
     auto_regenerate: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["codegenagent", "operations", "prompt", "schema"]
+# keywords: ["filename", "gmp", "language", "patch_type", "prompt", "schema"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

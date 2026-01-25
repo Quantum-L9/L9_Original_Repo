@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Telemetry Codegen"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent_telemetry_codegen"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ==============================
 # CGA Generation Telemetry Pack
 # ==============================
@@ -29,3 +44,11 @@ code: |
       line_count = sum(code.count("\\n") for code in files.values())
       emit("lines_emitted", line_count)
       emit("last_generated_module", meta.name)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "utility"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

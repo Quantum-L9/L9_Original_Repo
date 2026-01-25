@@ -17,6 +17,31 @@ Alignment:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Execution Outcome Recording",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T14:50:13Z",
+    "updated_at": "2026-01-25T14:49:28Z",
+    "layer": "operations",
+    "domain": "services",
+    "module_name": "tool_feedback_service",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "core.tools.dynamic_discovery",
+            "core.tools.tool_audit",
+            "tests.services.test_tool_feedback_service",
+        ],
+    },
+}
+# ============================================================================
+
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
@@ -233,3 +258,58 @@ def get_tool_feedback_service(
         _tool_feedback_service = ToolFeedbackService(substrate_service)
 
     return _tool_feedback_service
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SER-OPER-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "audit-tool",
+        "batch-processing",
+        "dataclass",
+        "debugging",
+        "logging",
+        "operations",
+        "service",
+        "services",
+    ],
+    "keywords": [
+        "async",
+        "audit",
+        "core",
+        "entry",
+        "execution",
+        "feedback",
+        "flush",
+        "outcome",
+    ],
+    "business_value": "Storing structured execution outcomes in Postgres Enabling feedback-aware re-ranking in core/tools/dynamic_discovery.py Providing a single async API for recording and querying feedback Uses MemorySubs",
+    "last_modified": "2026-01-25T14:49:28Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

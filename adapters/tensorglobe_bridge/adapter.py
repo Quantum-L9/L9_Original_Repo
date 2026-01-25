@@ -3,6 +3,27 @@ TensorGlobe Adapter: L9 External Cognitive Accelerator
 Gated by EOS + Accountability. Read-only. Evidence-producing.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Adapter",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:07:20Z",
+    "updated_at": "2026-01-24T13:02:52Z",
+    "layer": "operations",
+    "domain": "adapters",
+    "module_name": "adapter",
+    "type": "adapter",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import logging
 import asyncio
 import hashlib
@@ -10,7 +31,13 @@ from typing import Optional, List, Tuple
 from datetime import datetime
 
 from L9.core.eos import AccountabilityEngine
-from L9.core.eos.schemas import ActionEnvelope, ActionType, RiskClass, Environment, Verdict
+from L9.core.eos.schemas import (
+    ActionEnvelope,
+    ActionType,
+    RiskClass,
+    Environment,
+    Verdict,
+)
 from L9.core.memory.substrate_service import MemorySubstrateService
 from L9.core.boundary_enforcer import BoundaryEnforcer
 
@@ -24,7 +51,7 @@ logger = logging.getLogger(__name__)
 class TensorGlobeBridgeAdapter:
     """
     L9 External Cognitive Accelerator.
-    
+
     Responsibilities:
     1. Validate incoming TensorRequest (schema, signature)
     2. Submit to EOS gate (verdict required)
@@ -34,7 +61,7 @@ class TensorGlobeBridgeAdapter:
     6. Emit evidence object → memory substrate
     7. Log to accountability ledger
     """
-    
+
     def __init__(
         self,
         accountability_engine: AccountabilityEngine,
@@ -48,12 +75,12 @@ class TensorGlobeBridgeAdapter:
         self.boundary = boundary_enforcer
         self.tensorglobe_endpoint = tensorglobe_endpoint
         self.tensorglobe_auth_key = tensorglobe_auth_key
-        
+
         self.signature_verifier = SignatureVerifier()
         self.anomaly_detector = AnomalyDetector()
-        
+
         self.logger = logger.getChild(self.__class__.__name__)
-    
+
     async def handle_tensor_request(
         self,
         request: TensorRequest,
@@ -61,23 +88,25 @@ class TensorGlobeBridgeAdapter:
     ) -> Tuple[bool, Optional[TensorResponse], Optional[str]]:
         """
         Main entry point for handling tensor requests.
-        
+
         Returns:
             (success, response, error_message)
         """
-        
-        self.logger.info(f"TensorRequest {request.request_id} from {requester_agent_id}")
-        
+
+        self.logger.info(
+            f"TensorRequest {request.request_id} from {requester_agent_id}"
+        )
+
         try:
             # Step 1: Validate request schema & signature
             if not self._validate_request_schema(request):
                 raise ValueError("Request schema invalid")
-            
+
             if not await self._verify_request_signature(request, requester_agent_id):
                 raise ValueError("Request signature verification failed")
-            
+
             self.logger.debug(f"Request {request.request_id} validated")
-            
+
             # Step 2: Submit to EOS gate (ActionEnvelope)
             action_envelope = ActionEnvelope(
                 agent_id=requester_agent_id,
@@ -91,53 +120,61 @@ class TensorGlobeBridgeAdapter:
                 signature=request.signature,
                 signing_key_id=request.signing_key_id,
             )
-            
+
             verdict, violations = await self.accountability.evaluate_action(
                 action_envelope,
                 {"tensorglobe_request": True},
             )
-            
+
             if verdict.decision.value == "deny":
-                self.logger.error(f"EOS DENIED request {request.request_id}: {violations}")
-                return False, None, f"EOS gate denied: {violations[0] if violations else 'unknown'}"
-            
+                self.logger.error(
+                    f"EOS DENIED request {request.request_id}: {violations}"
+                )
+                return (
+                    False,
+                    None,
+                    f"EOS gate denied: {violations[0] if violations else 'unknown'}",
+                )
+
             self.logger.info(f"EOS APPROVED request {request.request_id}")
-            
+
             # Step 3: Call TensorGlobe (sandboxed)
             response = await self._call_tensorglobe(request)
-            
+
             # Step 4: Validate response
             if not self._validate_response_schema(response):
                 raise ValueError("Response schema invalid")
-            
+
             if not await self._verify_response_signature(response):
                 raise ValueError("Response signature verification failed")
-            
+
             # Step 5: Detect anomalies
             anomalies = await self.anomaly_detector.detect(request, response)
             if anomalies:
                 for anomaly in anomalies:
                     self.logger.warning(f"Anomaly detected: {anomaly.anomaly_type}")
-                    
+
                     # Suspend provider if critical anomaly repeated
                     if anomaly.severity == "critical":
                         await self._suspend_provider()
                         return False, None, "Provider suspended (critical anomaly)"
-            
+
             # Step 6: Emit evidence object
             evidence_obj = response.to_evidence_object(request)
             evidence_id = await self.substrate.write_evidence(evidence_obj)
-            
+
             # Step 7: Log to accountability ledger
             await self._emit_ledger_event(
                 "tensor_response_received",
                 request_id=request.request_id,
                 response_id=evidence_id,
             )
-            
-            self.logger.info(f"TensorRequest {request.request_id} completed successfully")
+
+            self.logger.info(
+                f"TensorRequest {request.request_id} completed successfully"
+            )
             return True, response, None
-        
+
         except Exception as e:
             self.logger.error(f"TensorRequest {request.request_id} failed: {e}")
             await self._emit_ledger_event(
@@ -146,7 +183,7 @@ class TensorGlobeBridgeAdapter:
                 error=str(e),
             )
             return False, None, str(e)
-    
+
     def _validate_request_schema(self, request: TensorRequest) -> bool:
         """Validate request against schema"""
         try:
@@ -155,7 +192,7 @@ class TensorGlobeBridgeAdapter:
         except Exception as e:
             self.logger.error(f"Request validation failed: {e}")
             return False
-    
+
     async def _verify_request_signature(
         self,
         request: TensorRequest,
@@ -169,7 +206,7 @@ class TensorGlobeBridgeAdapter:
         except Exception as e:
             self.logger.error(f"Request signature verification failed: {e}")
             return False
-    
+
     async def _call_tensorglobe(self, request: TensorRequest) -> TensorResponse:
         """
         Call TensorGlobe provider (sandboxed, egress-only).
@@ -179,7 +216,7 @@ class TensorGlobeBridgeAdapter:
             # TODO: Implement HTTP call to TensorGlobe endpoint
             # Must include: request_id, entities, operation, signature
             # Response must include: results, confidence scores, latency_ms, signature
-            
+
             # Placeholder: return dummy response
             return TensorResponse(
                 request_id=request.request_id,
@@ -192,7 +229,7 @@ class TensorGlobeBridgeAdapter:
             )
         except asyncio.TimeoutError:
             raise ValueError("TensorGlobe timeout (5s exceeded)")
-    
+
     def _validate_response_schema(self, response: TensorResponse) -> bool:
         """Validate response schema"""
         try:
@@ -200,7 +237,7 @@ class TensorGlobeBridgeAdapter:
         except Exception as e:
             self.logger.error(f"Response validation failed: {e}")
             return False
-    
+
     async def _verify_response_signature(self, response: TensorResponse) -> bool:
         """Verify response signature (provider → adapter)"""
         try:
@@ -209,12 +246,12 @@ class TensorGlobeBridgeAdapter:
         except Exception as e:
             self.logger.error(f"Response signature verification failed: {e}")
             return False
-    
+
     async def _suspend_provider(self) -> None:
         """Suspend TensorGlobe provider (trigger revocation)"""
         self.logger.critical("Suspending TensorGlobe provider due to anomaly")
         # TODO: Emit revocation event to governance layer
-    
+
     async def _emit_ledger_event(
         self,
         event_type: str,
@@ -227,3 +264,49 @@ class TensorGlobeBridgeAdapter:
             **kwargs,
         }
         await self.substrate.write_audit_log(event)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ADA-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "adapter",
+        "adapter-pattern",
+        "adapters",
+        "async",
+        "auth",
+        "batch-processing",
+        "debugging",
+        "event-driven",
+        "messaging",
+        "operations",
+    ],
+    "keywords": ["adapter", "bridge", "globe", "handle", "tensor"],
+    "business_value": "Implements TensorGlobeBridgeAdapter for adapter functionality",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Readme"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent_README"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ===============================
 # CodeGenAgent System Overview
 # ===============================
@@ -26,3 +41,11 @@ code: |
   ### Modules:
   - `meta_loader.py`: Reads meta.yaml
   - `c_gmp_engine.py`: Extracts and expands
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "codegenagent", "operations", "pipeline", "utility"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -31,6 +31,31 @@ Created: 2026-01-25
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Dynamic Tool Discovery Integration",
+    "module_version": "2.0.0 (GMP-TD-WIRE)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T06:31:32Z",
+    "updated_at": "2026-01-25T14:49:28Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "dynamic_discovery",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API", "Redis"],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": [
+            "core.agents.agent_instance",
+            "core.tools.__init__",
+            "tests.unit.test_dynamic_tool_discovery",
+        ],
+    },
+}
+# ============================================================================
+
 import time
 import uuid
 from dataclasses import dataclass
@@ -513,3 +538,63 @@ __all__ = [
     "cache_tools",
     "invalidate_tool_cache",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-026",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.tools.base_registry",
+        "core.tools.discovery_tracing",
+        "core.tools.tool_embeddings",
+        "memory.substrate_service",
+        "runtime.redis_client",
+    ],
+    "tags": [
+        "async",
+        "cache",
+        "caching",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "foundation",
+        "logging",
+        "metrics",
+    ],
+    "keywords": [
+        "agent",
+        "binding",
+        "budget",
+        "cache",
+        "cached",
+        "discover",
+        "discovery",
+        "dynamic",
+    ],
+    "business_value": "Provides dynamic discovery components including DiscoveryMethod, DiscoveryResult",
+    "last_modified": "2026-01-25T14:49:28Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

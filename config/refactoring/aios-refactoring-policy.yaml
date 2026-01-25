@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Aios-Refactoring-Policy"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-21T01:07:38Z"
+# updated_at: "2026-01-20T23:54:22Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "aios-refactoring-policy"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # .refactor-config/aios-refactoring-policy.yaml
 refactoring_policy:
   principles:
@@ -47,3 +62,11 @@ refactoring_policy:
       
     - type: "Security Review"
       description: "For governance/auth changes only"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "configuration", "foundation", "model-config", "schema", "utility"]
+# keywords: ["aios", "policy", "refactoring", "refactoring_policy"]
+# last_modified: "2026-01-20T23:54:22Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Metrics Metrics Mainagent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "metrics_metrics_mainagent"
+# type: "tracker"
+# status: "active"
+# ============================================================================
+
 # ==========================================
 # L9 Codegen Spec: MainAgent Telemetry Pack
 # ==========================================
@@ -31,3 +46,11 @@ code: |
           emit("escalation_count", 1)
       latency = (time.time() - start_time) * 1000
       emit("processing_latency_ms", latency)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "tracker"]
+# keywords: ["code", "description", "filename", "language", "mainagent", "metrics"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

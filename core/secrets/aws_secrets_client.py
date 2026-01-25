@@ -335,3 +335,58 @@ class AwsSecretsClient:
         except Exception as e:
             logger.error("secret_rotation_failed", key=key, error=str(e))
             raise SecretsError(f"Failed to rotate secret {key}: {e}") from e
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-042",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.protocols.secrets_protocols"],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "client",
+        "core",
+        "debugging",
+        "foundation",
+        "logging",
+        "security",
+        "service",
+    ],
+    "keywords": [
+        "async",
+        "aws",
+        "cache",
+        "caching",
+        "client",
+        "delete",
+        "fallback",
+        "integration",
+    ],
+    "business_value": "Implements SecretsClient protocol for L9 secrets management. Boto3-based AWS Secrets Manager integration In-memory caching with configurable TTL (default 3600s / 1 hour) Graceful fallback to env vars ",
+    "last_modified": "2026-01-25T08:58:45Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

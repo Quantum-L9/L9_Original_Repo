@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Readme Config"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T14:42:38Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "readme_config"
+# type: "service"
+# status: "active"
+# ============================================================================
+
 version: '2.0'
 config_updated: '2026-01-25T19:42:30Z'
 defaults:
@@ -1606,3 +1621,11 @@ subsystems:
     - Agent execution (owned by core/agents)
     - Memory storage (owned by memory/)
     - File harvesting logic (owned by nodes)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "anthropic", "api-config", "configuration", "database-config", "foundation", "kernel", "model-config"]
+# keywords: ["config", "config_updated", "defaults", "readme", "subsystems", "version"]
+# last_modified: "2026-01-25T14:42:38Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Autonomy Codegen Autonomy Loop"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "autonomy_codegen_autonomy_loop"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ===========================================
 # CodeGen Autonomy Loop v2 (Self-Healing Flow)
 # ===========================================
@@ -28,3 +43,11 @@ code: |
       memory_diff = open(f"memory_trace/{agent_id}_diff.yaml").read()
       regenerated = CodeGenAgent().generate_from_meta(f"meta/{agent_id}.yaml")
       open(f"regenerated/{agent_id}_regenerated.py", "w").write(str(regenerated))
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "pipeline", "prompt", "utility"]
+# keywords: ["autonomy", "code", "codegen", "description", "filename", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

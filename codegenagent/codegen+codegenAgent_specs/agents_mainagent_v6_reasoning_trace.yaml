@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Mainagent V6 Reasoning Trace"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_mainagent_v6_reasoning_trace"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ========================================
 # L9 Codegen Spec: MainAgent Trace Logger
 # ========================================
@@ -31,3 +46,11 @@ code: |
           "content": content
       }
       log_trace_record(record)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "kernel", "operations", "utility"]
+# keywords: ["agents", "code", "description", "filename", "language", "mainagent"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

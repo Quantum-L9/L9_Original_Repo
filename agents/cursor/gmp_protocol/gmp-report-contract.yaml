@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Gmp-Report-Contract"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-18T17:12:30Z"
+# updated_at: "2026-01-20T23:27:23Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "gmp-report-contract"
+# type: "repository"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # GMP REPORT CONTRACT v3.3.0 — L9 CANONICAL REPORT SPECIFICATION
 # ============================================================================
 # Purpose: Machine-readable contract for GMP report structure and validation
@@ -331,3 +346,11 @@ metadata:
     - "gmp-contract.yaml v3.2.0"
     - "cursor-gmp-template.md v3.2.0"
   template_file: "gmp-report-template.md"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-execution", "api-config", "intelligence", "kernel", "repository", "schema", "workflow"]
+# keywords: ["contract", "forbidden_sections", "gmp", "locations", "metadata", "naming"]
+# last_modified: "2026-01-20T23:27:23Z"
+# ============================================================================

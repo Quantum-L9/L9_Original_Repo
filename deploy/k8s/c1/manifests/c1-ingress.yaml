@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "C1-Ingress"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-22T15:50:27Z"
+# updated_at: "2026-01-23T15:06:30Z"
+# layer: "operations"
+# domain: "deploy"
+# file_name: "c1-ingress"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # C1 Ingress - NodePort Services for external access
 # Rollback: kubectl delete -f c1-ingress.yaml
 #
@@ -129,3 +144,11 @@ spec:
 #       services:
 #         - name: l9-orchestrator
 #           port: 8000
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["api-config", "deploy", "operations", "utility"]
+# keywords: ["ingress"]
+# last_modified: "2026-01-23T15:06:30Z"
+# ============================================================================

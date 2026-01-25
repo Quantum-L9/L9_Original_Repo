@@ -25,6 +25,31 @@ Usage:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Di Async Config",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T08:23:17Z",
+    "updated_at": "2026-01-25T08:58:45Z",
+    "layer": "foundation",
+    "domain": "api_gateway",
+    "module_name": "di_async_config",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /data"],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": ["working_memory"],
+        "imported_by": [
+            "config.di_async_config",
+            "core.fastapi_lifespan",
+            "tests.config.test_di_async_config",
+        ],
+    },
+}
+# ============================================================================
+
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -375,3 +400,61 @@ __all__ = [
     "shutdown_lifespan",
     "startup_lifespan",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CON-FOUN-007",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "memory.graph_client",
+        "memory.substrate_service",
+        "runtime.redis_client",
+    ],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "caching",
+        "debugging",
+        "endpoint",
+        "event-driven",
+        "foundation",
+        "router",
+        "testing",
+    ],
+    "keywords": [
+        "async",
+        "await",
+        "cache",
+        "client",
+        "container",
+        "dependency",
+        "factory",
+        "fastapi",
+    ],
+    "business_value": "Provides async factory functions and lifecycle management for async resources (Redis, Neo4j, Memory Substrate). Coordinates with FastAPI lifespan for proper initialization and cleanup.",
+    "last_modified": "2026-01-25T08:58:45Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

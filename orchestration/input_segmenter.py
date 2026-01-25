@@ -27,6 +27,27 @@ Harvested: 2026-01-19 from tokenizer/core/tokenizer/tokenizer.py
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Input Segmenter",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-20T14:03:16Z",
+    "updated_at": "2026-01-24T13:02:52Z",
+    "layer": "intelligence",
+    "domain": "orchestration",
+    "module_name": "input_segmenter",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["api.agent_routes", "memory.slack_ingest", "orchestration.__init__", "orchestration.unified_controller", "runtime.websocket_orchestrator", "tests.orchestration.test_input_segmenter"],
+    },
+}
+# ============================================================================
+
 import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
@@ -391,3 +412,37 @@ __all__ = [
     "segment_input",
     "segment_to_tasks",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "ORC-INTE-003",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "auth", "dataclass", "intelligence", "logging", "orchestration", "testing"],
+    "keywords": ["core", "deploy", "directives", "harvested", "inputsegmenter", "multi", "part", "segment"],
+    "business_value": "Comma-separated directives: "Deploy RIL, test ToT, sync DB" Sequential directives: "Deploy RIL then test ToT" Multi-line input Basic normalization (lowercase, abbreviation expansion) segmenter = Input",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

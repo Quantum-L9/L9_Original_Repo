@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Mainagent V6 Memory Enricher"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_mainagent_v6_memory_enricher"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ======================================
 # L9 Codegen Spec: Memory Fusion Module
 # ======================================
@@ -21,3 +36,11 @@ code: |
       episodic = memory.pgvector.embed_and_search(packet)
       causal = memory.neo4j.query_relations(packet)
       return {**semantic, **episodic, **causal}
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "redis-config", "utility"]
+# keywords: ["agents", "code", "description", "enricher", "filename", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Orchestration Cga Autogen Orchestrator"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "runtime_orchestration_CGA_Autogen_Orchestrator"
+# type: "controller"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # PATCH — CGA_Autogen_Orchestrator.py
 # Purpose: Route agents into orchestrator DAGs using construct_features
@@ -29,3 +44,11 @@ patch:
             outfile = f'orchestrators/generated/{agent_schema["id"]}_orchestrator.py'
             with open(outfile, 'w') as f:
                 f.write(dag_code)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "controller", "operations", "schema"]
+# keywords: ["autogen", "cga", "description", "filename", "language", "orchestration"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

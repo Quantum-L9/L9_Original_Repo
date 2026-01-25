@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Perplexity Superprompt Emitter"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "runtime_perplexity_SuperPrompt_Emitter"
+# type: "cli"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # SuperPrompt_Emitter.py
 # ============================================================
@@ -48,3 +63,11 @@ code: |
   if __name__ == "__main__":
       for f in os.listdir('schemas/agents/'):
           build_superprompt(f'schemas/agents/{f}')
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "cli", "codegenagent", "operations", "prompt", "schema", "tool-config"]
+# keywords: ["code", "description", "emitter", "filename", "language", "perplexity"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

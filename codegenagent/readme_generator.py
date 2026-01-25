@@ -14,6 +14,27 @@ Follows the L9 README Suite gold-standard patterns:
 Version: 1.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Readme Generator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T14:50:13Z",
+    "updated_at": "2026-01-25T14:49:28Z",
+    "layer": "operations",
+    "domain": "codegenagent",
+    "module_name": "readme_generator",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -796,3 +817,58 @@ def generate_readme_for_module(
     return generator.generate_module_readme(
         module_name=module_name, overview=overview, **kwargs
     )
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COD-OPER-003",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "codegenagent",
+        "dataclass",
+        "filesystem",
+        "logging",
+        "metrics",
+        "operations",
+        "rest-api",
+        "testing",
+    ],
+    "keywords": [
+        "codegenagent",
+        "compute",
+        "generate",
+        "generated",
+        "generator",
+        "meta",
+        "metadata",
+        "module",
+    ],
+    "business_value": "READMEs as binding contracts 3-layer architecture (root, subsystem, metadata) Explicit AI usage rules Scope/invariants/APIs/configuration sections Version: 1.0.0",
+    "last_modified": "2026-01-25T14:49:28Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

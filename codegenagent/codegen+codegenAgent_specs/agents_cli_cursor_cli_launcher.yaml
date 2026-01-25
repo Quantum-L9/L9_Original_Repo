@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Cli Cursor Cli Launcher"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_cli_cursor_cli_launcher"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =====================================
 # Cursor-Aware CLI Agent Launcher
 # =====================================
@@ -33,3 +48,11 @@ code: |
       prompt_path = f"capsules/{agent}_gmp_prompt.md"
 
       subprocess.run(["python", "agents/entrypoint.py", agent, "--prompt", prompt_path])
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "prompt", "tool-config", "utility"]
+# keywords: ["agents", "cli", "code", "cursor", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

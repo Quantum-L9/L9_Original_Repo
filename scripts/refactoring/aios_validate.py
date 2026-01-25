@@ -15,6 +15,27 @@ Examples:
     python scripts/refactoring/aios_validate.py --path core/agents # Scan specific path
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Aios Validate",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-21T01:07:38Z",
+    "updated_at": "2026-01-24T13:02:53Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "aios_validate",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import ast
 import sys
@@ -170,3 +191,57 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-030",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "ast",
+        "async",
+        "caching",
+        "cli",
+        "filesystem",
+        "operations",
+        "scripts",
+        "service",
+        "testing",
+    ],
+    "keywords": [
+        "aios",
+        "check",
+        "compliance",
+        "directory",
+        "scan",
+        "should",
+        "skip",
+        "validate",
+    ],
+    "business_value": "Implements AOISCompliance for aios validate functionality",
+    "last_modified": "2026-01-24T13:02:53Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -18,6 +18,27 @@ Exit codes:
     2 - Script error
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Check N Plus 1",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:55:26Z",
+    "updated_at": "2026-01-24T13:02:53Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "check_n_plus_1",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import ast
 import re
@@ -40,13 +61,13 @@ class N1DetectorVisitor(ast.NodeVisitor):
         """Visit for loop"""
         old_in_loop = self.in_loop
         old_loop_line = self.loop_line
-        
+
         self.in_loop = True
         self.loop_line = node.lineno
-        
+
         # Visit loop body
         self.generic_visit(node)
-        
+
         self.in_loop = old_in_loop
         self.loop_line = old_loop_line
 
@@ -54,13 +75,13 @@ class N1DetectorVisitor(ast.NodeVisitor):
         """Visit while loop"""
         old_in_loop = self.in_loop
         old_loop_line = self.loop_line
-        
+
         self.in_loop = True
         self.loop_line = node.lineno
-        
+
         # Visit loop body
         self.generic_visit(node)
-        
+
         self.in_loop = old_in_loop
         self.loop_line = old_loop_line
 
@@ -69,12 +90,14 @@ class N1DetectorVisitor(ast.NodeVisitor):
         # Check if this is a database query call
         if self._is_db_query(node):
             if self.in_loop:
-                self.issues.append((
-                    node.lineno,
-                    "potential_n_plus_1",
-                    f"Database query inside loop (loop starts at line {self.loop_line})"
-                ))
-        
+                self.issues.append(
+                    (
+                        node.lineno,
+                        "potential_n_plus_1",
+                        f"Database query inside loop (loop starts at line {self.loop_line})",
+                    )
+                )
+
         self.generic_visit(node)
 
     def visit_ListComp(self, node: ast.ListComp) -> None:
@@ -84,13 +107,13 @@ class N1DetectorVisitor(ast.NodeVisitor):
             # Mark as in loop for the comprehension body
             old_in_loop = self.in_loop
             old_loop_line = self.loop_line
-            
+
             self.in_loop = True
             self.loop_line = node.lineno
-            
+
             # Visit the element expression
             self.visit(node.elt)
-            
+
             self.in_loop = old_in_loop
             self.loop_line = old_loop_line
 
@@ -99,35 +122,41 @@ class N1DetectorVisitor(ast.NodeVisitor):
         # Pattern 1: conn.fetch_one(...), conn.fetch_all(...), conn.execute(...)
         if isinstance(node.func, ast.Attribute):
             method_name = node.func.attr
-            if method_name in ('fetch_one', 'fetch_all', 'fetch', 'execute', 'executemany'):
+            if method_name in (
+                "fetch_one",
+                "fetch_all",
+                "fetch",
+                "execute",
+                "executemany",
+            ):
                 return True
-        
+
         # Pattern 2: await db.query(...), await session.query(...)
         if isinstance(node.func, ast.Attribute):
-            if node.func.attr in ('query', 'get', 'filter', 'all', 'first'):
+            if node.func.attr in ("query", "get", "filter", "all", "first"):
                 return True
-        
+
         return False
 
 
 def check_file_ast(filepath: Path) -> List[Tuple[int, str, str]]:
     """
     Check a Python file for N+1 patterns using AST analysis
-    
+
     Args:
         filepath: Path to Python file
-        
+
     Returns:
         List of (line_number, issue_type, description) tuples
     """
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
-        
+
         tree = ast.parse(source, filename=str(filepath))
         visitor = N1DetectorVisitor(str(filepath))
         visitor.visit(tree)
-        
+
         return visitor.issues
     except SyntaxError as e:
         print(f"⚠️  Syntax error in {filepath}: {e}", file=sys.stderr)
@@ -140,55 +169,61 @@ def check_file_ast(filepath: Path) -> List[Tuple[int, str, str]]:
 def check_file_regex(filepath: Path) -> List[Tuple[int, str, str]]:
     """
     Check a Python file for N+1 patterns using regex (fallback)
-    
+
     Args:
         filepath: Path to Python file
-        
+
     Returns:
         List of (line_number, issue_type, description) tuples
     """
     issues = []
-    
+
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             lines = f.readlines()
-        
+
         in_loop = False
         loop_line = 0
         indent_level = 0
-        
+
         for i, line in enumerate(lines, 1):
             stripped = line.lstrip()
             current_indent = len(line) - len(stripped)
-            
+
             # Detect loop start
-            if re.match(r'(for|while)\s+', stripped):
+            if re.match(r"(for|while)\s+", stripped):
                 in_loop = True
                 loop_line = i
                 indent_level = current_indent
-            
+
             # Detect loop end (dedent)
             elif in_loop and stripped and current_indent <= indent_level:
                 in_loop = False
-            
+
             # Detect database query in loop
             if in_loop:
-                if re.search(r'\.(fetch_one|fetch_all|fetch|execute|executemany)\s*\(', line):
-                    issues.append((
-                        i,
-                        "potential_n_plus_1",
-                        f"Database query inside loop (loop starts at line {loop_line})"
-                    ))
-                elif re.search(r'await\s+.*\.(query|get|filter|all|first)\s*\(', line):
-                    issues.append((
-                        i,
-                        "potential_n_plus_1",
-                        f"Database query inside loop (loop starts at line {loop_line})"
-                    ))
-    
+                if re.search(
+                    r"\.(fetch_one|fetch_all|fetch|execute|executemany)\s*\(", line
+                ):
+                    issues.append(
+                        (
+                            i,
+                            "potential_n_plus_1",
+                            f"Database query inside loop (loop starts at line {loop_line})",
+                        )
+                    )
+                elif re.search(r"await\s+.*\.(query|get|filter|all|first)\s*\(", line):
+                    issues.append(
+                        (
+                            i,
+                            "potential_n_plus_1",
+                            f"Database query inside loop (loop starts at line {loop_line})",
+                        )
+                    )
+
     except Exception as e:
         print(f"⚠️  Error analyzing {filepath}: {e}", file=sys.stderr)
-    
+
     return issues
 
 
@@ -196,19 +231,19 @@ def get_changed_files() -> List[Path]:
     """Get list of changed Python files from git"""
     try:
         result = subprocess.run(
-            ['git', 'diff', '--name-only', '--cached', 'HEAD'],
+            ["git", "diff", "--name-only", "--cached", "HEAD"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
-        
+
         files = []
-        for line in result.stdout.strip().split('\n'):
-            if line.endswith('.py'):
+        for line in result.stdout.strip().split("\n"):
+            if line.endswith(".py"):
                 path = Path(line)
                 if path.exists():
                     files.append(path)
-        
+
         return files
     except subprocess.CalledProcessError:
         print("⚠️  Not a git repository or git not available", file=sys.stderr)
@@ -218,18 +253,26 @@ def get_changed_files() -> List[Path]:
 def get_all_python_files(root: Path) -> List[Path]:
     """Get all Python files in repository"""
     exclude_dirs = {
-        '__pycache__', '.git', '.venv', 'venv', 'env',
-        'node_modules', '.pytest_cache', '.mypy_cache',
-        'build', 'dist', '.eggs'
+        "__pycache__",
+        ".git",
+        ".venv",
+        "venv",
+        "env",
+        "node_modules",
+        ".pytest_cache",
+        ".mypy_cache",
+        "build",
+        "dist",
+        ".eggs",
     }
-    
+
     files = []
-    for path in root.rglob('*.py'):
+    for path in root.rglob("*.py"):
         # Skip excluded directories
         if any(excluded in path.parts for excluded in exclude_dirs):
             continue
         files.append(path)
-    
+
     return files
 
 
@@ -243,34 +286,26 @@ def main():
         description="Detect potential N+1 query patterns in Python code"
     )
     parser.add_argument(
-        'files',
-        nargs='*',
-        help='Files to check (default: changed files)'
+        "files", nargs="*", help="Files to check (default: changed files)"
     )
     parser.add_argument(
-        '--all',
-        action='store_true',
-        help='Check all Python files in repository'
+        "--all", action="store_true", help="Check all Python files in repository"
     )
     parser.add_argument(
-        '--changed',
-        action='store_true',
-        help='Check only git changed files (default)'
+        "--changed", action="store_true", help="Check only git changed files (default)"
     )
     parser.add_argument(
-        '--method',
-        choices=['ast', 'regex', 'both'],
-        default='ast',
-        help='Detection method (default: ast)'
+        "--method",
+        choices=["ast", "regex", "both"],
+        default="ast",
+        help="Detection method (default: ast)",
     )
     parser.add_argument(
-        '--strict',
-        action='store_true',
-        help='Exit with error code if any issues found'
+        "--strict", action="store_true", help="Exit with error code if any issues found"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Determine which files to check
     if args.files:
         files = [Path(f) for f in args.files]
@@ -281,55 +316,57 @@ def main():
         if not files:
             print("ℹ️  No changed Python files to check")
             return 0
-    
+
     if not files:
         print("ℹ️  No files to check")
         return 0
-    
+
     print(f"🔍 Checking {len(files)} file(s) for N+1 query patterns...\n")
-    
+
     total_issues = 0
     files_with_issues = 0
-    
+
     for filepath in files:
         if not filepath.exists():
             print(f"⚠️  File not found: {filepath}", file=sys.stderr)
             continue
-        
+
         # Run detection
         issues = []
-        
-        if args.method in ('ast', 'both'):
+
+        if args.method in ("ast", "both"):
             issues.extend(check_file_ast(filepath))
-        
-        if args.method in ('regex', 'both'):
+
+        if args.method in ("regex", "both"):
             regex_issues = check_file_regex(filepath)
             # Deduplicate if using both methods
-            if args.method == 'both':
+            if args.method == "both":
                 existing_lines = {issue[0] for issue in issues}
                 issues.extend([i for i in regex_issues if i[0] not in existing_lines])
             else:
                 issues.extend(regex_issues)
-        
+
         if issues:
             files_with_issues += 1
             total_issues += len(issues)
-            
+
             print(f"⚠️  {filepath}")
             for line, issue_type, description in sorted(issues):
                 print(f"    Line {line}: {description}")
             print()
-    
+
     # Summary
     if total_issues > 0:
-        print(f"❌ Found {total_issues} potential N+1 pattern(s) in {files_with_issues} file(s)")
+        print(
+            f"❌ Found {total_issues} potential N+1 pattern(s) in {files_with_issues} file(s)"
+        )
         print()
         print("💡 Tips:")
         print("   - Use ANY() operator for batch queries: WHERE id = ANY($1)")
         print("   - Use executemany() for batch inserts")
         print("   - Fetch related data with JOINs or separate batch queries")
         print("   - See docs/DATABASE_BEST_PRACTICES.md for examples")
-        
+
         if args.strict:
             return 1
         else:
@@ -341,7 +378,7 @@ def main():
         return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         sys.exit(main())
     except KeyboardInterrupt:
@@ -350,3 +387,57 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"❌ Error: {e}", file=sys.stderr)
         sys.exit(2)
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "ast",
+        "batch-processing",
+        "caching",
+        "cli",
+        "filesystem",
+        "operations",
+        "scripts",
+        "subprocess",
+        "testing",
+        "visitor-pattern",
+    ],
+    "keywords": [
+        "all",
+        "ast",
+        "changed",
+        "check",
+        "detector",
+        "files",
+        "format",
+        "issue",
+    ],
+    "business_value": "Implements N1DetectorVisitor for check n plus 1 functionality",
+    "last_modified": "2026-01-24T13:02:53Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Worldmodel Tool Metadata Reflector"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "worldmodel_tool_metadata_reflector"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
 # =====================================
 # Tool Metadata Reflection Ingestor
 # =====================================
@@ -31,3 +46,11 @@ code: |
           else:
               summary[tid]["fail"] += 1
       json.dump(summary, open("reflected_tools.json", "w"), indent=2)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "model-config", "operations", "schema", "tool-config"]
+# keywords: ["code", "description", "filename", "language", "metadata", "reflector"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -65,7 +65,7 @@ logger = structlog.get_logger(__name__)
 
 class PlanStatus(str, Enum):
     """Status of execution plan."""
-    
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -76,7 +76,7 @@ class PlanStatus(str, Enum):
 
 class StepStatus(str, Enum):
     """Status of individual plan step."""
-    
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -93,7 +93,7 @@ class StepStatus(str, Enum):
 class ExecutionStepSnapshot:
     """
     Snapshot of a single execution step.
-    
+
     Attributes:
         step_id: Unique step identifier
         step_name: Human-readable step name
@@ -107,7 +107,7 @@ class ExecutionStepSnapshot:
         error: Error message if failed
         metadata: Additional step metadata
     """
-    
+
     step_id: str
     step_name: str
     step_type: str
@@ -119,7 +119,7 @@ class ExecutionStepSnapshot:
     outputs: Dict[str, Any] = field(default_factory=dict)
     error: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Export as dict."""
         return {
@@ -128,7 +128,9 @@ class ExecutionStepSnapshot:
             "step_type": self.step_type,
             "status": self.status.value,
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": self.completed_at.isoformat()
+            if self.completed_at
+            else None,
             "duration_seconds": self.duration_seconds,
             "inputs": self.inputs,
             "outputs": self.outputs,
@@ -141,7 +143,7 @@ class ExecutionStepSnapshot:
 class ExecutionPlanSnapshot:
     """
     Snapshot of entire execution plan at checkpoint boundary.
-    
+
     Attributes:
         snapshot_id: Unique snapshot identifier
         plan_id: Execution plan ID
@@ -156,7 +158,7 @@ class ExecutionPlanSnapshot:
         execution_context: Execution context (env vars, config)
         metadata: Additional plan metadata
     """
-    
+
     snapshot_id: str
     plan_id: str
     checkpoint_id: str
@@ -169,7 +171,7 @@ class ExecutionPlanSnapshot:
     failed_steps: int = 0
     execution_context: Dict[str, Any] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Export as dict."""
         return {
@@ -186,19 +188,19 @@ class ExecutionPlanSnapshot:
             "execution_context": self.execution_context,
             "metadata": self.metadata,
         }
-    
+
     def get_progress_percentage(self) -> float:
         """Calculate progress percentage."""
         if self.total_steps == 0:
             return 0.0
         return (self.completed_steps / self.total_steps) * 100.0
-    
+
     def get_current_step(self) -> Optional[ExecutionStepSnapshot]:
         """Get currently executing step."""
         if 0 <= self.current_step_index < len(self.steps):
             return self.steps[self.current_step_index]
         return None
-    
+
     def get_failed_steps(self) -> List[ExecutionStepSnapshot]:
         """Get all failed steps."""
         return [step for step in self.steps if step.status == StepStatus.FAILED]
@@ -212,17 +214,17 @@ class ExecutionPlanSnapshot:
 class ExecutionPlanSnapshotManager:
     """
     Manages execution plan snapshots.
-    
+
     Captures plan state at checkpoint boundaries and provides
     recovery and analysis capabilities.
     """
-    
+
     def __init__(self):
         """Initialize snapshot manager."""
         self._snapshots: Dict[str, ExecutionPlanSnapshot] = {}
-        
+
         logger.info("ExecutionPlanSnapshotManager initialized")
-    
+
     async def create_snapshot(
         self,
         plan_id: str,
@@ -235,7 +237,7 @@ class ExecutionPlanSnapshotManager:
     ) -> ExecutionPlanSnapshot:
         """
         Create execution plan snapshot.
-        
+
         Args:
             plan_id: Execution plan ID
             checkpoint_id: Associated checkpoint ID
@@ -244,12 +246,12 @@ class ExecutionPlanSnapshotManager:
             current_step_index: Index of current step
             execution_context: Execution context
             metadata: Additional metadata
-            
+
         Returns:
             Created snapshot
         """
         snapshot_id = str(uuid4())
-        
+
         # Convert step dicts to ExecutionStepSnapshot objects
         step_snapshots = []
         for step_dict in steps:
@@ -267,7 +269,7 @@ class ExecutionPlanSnapshotManager:
                 metadata=step_dict.get("metadata", {}),
             )
             step_snapshots.append(step_snapshot)
-        
+
         # Calculate stats
         completed_steps = sum(
             1 for step in step_snapshots if step.status == StepStatus.COMPLETED
@@ -275,7 +277,7 @@ class ExecutionPlanSnapshotManager:
         failed_steps = sum(
             1 for step in step_snapshots if step.status == StepStatus.FAILED
         )
-        
+
         snapshot = ExecutionPlanSnapshot(
             snapshot_id=snapshot_id,
             plan_id=plan_id,
@@ -290,10 +292,10 @@ class ExecutionPlanSnapshotManager:
             execution_context=execution_context or {},
             metadata=metadata or {},
         )
-        
+
         # Store snapshot
         self._snapshots[snapshot_id] = snapshot
-        
+
         logger.info(
             "execution_plan_snapshot.created",
             snapshot_id=snapshot_id,
@@ -304,76 +306,77 @@ class ExecutionPlanSnapshotManager:
             completed_steps=completed_steps,
             progress_pct=snapshot.get_progress_percentage(),
         )
-        
+
         return snapshot
-    
+
     async def get_snapshot(self, snapshot_id: str) -> Optional[ExecutionPlanSnapshot]:
         """
         Get snapshot by ID.
-        
+
         Args:
             snapshot_id: Snapshot ID
-            
+
         Returns:
             Snapshot or None if not found
         """
         return self._snapshots.get(snapshot_id)
-    
+
     async def get_snapshots_for_plan(
         self,
         plan_id: str,
     ) -> List[ExecutionPlanSnapshot]:
         """
         Get all snapshots for a plan.
-        
+
         Args:
             plan_id: Plan ID
-            
+
         Returns:
             List of snapshots for plan
         """
         return [
-            snapshot for snapshot in self._snapshots.values()
+            snapshot
+            for snapshot in self._snapshots.values()
             if snapshot.plan_id == plan_id
         ]
-    
+
     async def get_latest_snapshot_for_plan(
         self,
         plan_id: str,
     ) -> Optional[ExecutionPlanSnapshot]:
         """
         Get latest snapshot for a plan.
-        
+
         Args:
             plan_id: Plan ID
-            
+
         Returns:
             Latest snapshot or None if no snapshots exist
         """
         plan_snapshots = await self.get_snapshots_for_plan(plan_id)
-        
+
         if not plan_snapshots:
             return None
-        
+
         return max(plan_snapshots, key=lambda s: s.created_at)
-    
+
     async def recover_plan_from_snapshot(
         self,
         snapshot_id: str,
     ) -> Optional[Dict[str, Any]]:
         """
         Recover execution plan from snapshot.
-        
+
         Returns plan state that can be used to resume execution.
-        
+
         Args:
             snapshot_id: Snapshot ID to recover from
-            
+
         Returns:
             Recovered plan dict or None if snapshot not found
         """
         snapshot = await self.get_snapshot(snapshot_id)
-        
+
         if not snapshot:
             logger.warning(
                 "execution_plan_snapshot.recovery_failed",
@@ -381,7 +384,7 @@ class ExecutionPlanSnapshotManager:
                 reason="snapshot_not_found",
             )
             return None
-        
+
         # Build recovery plan
         recovery_plan = {
             "plan_id": snapshot.plan_id,
@@ -395,7 +398,7 @@ class ExecutionPlanSnapshotManager:
                 "recovery_timestamp": datetime.utcnow().isoformat(),
             },
         }
-        
+
         logger.info(
             "execution_plan_snapshot.recovered",
             snapshot_id=snapshot_id,
@@ -403,39 +406,39 @@ class ExecutionPlanSnapshotManager:
             current_step_index=snapshot.current_step_index,
             progress_pct=snapshot.get_progress_percentage(),
         )
-        
+
         return recovery_plan
-    
+
     async def analyze_plan_evolution(
         self,
         plan_id: str,
     ) -> Dict[str, Any]:
         """
         Analyze plan evolution over time.
-        
+
         Provides insights into how plan execution progressed.
-        
+
         Args:
             plan_id: Plan ID to analyze
-            
+
         Returns:
             Analysis dict with metrics and insights
         """
         snapshots = await self.get_snapshots_for_plan(plan_id)
-        
+
         if not snapshots:
             return {"error": "No snapshots found for plan"}
-        
+
         # Sort by creation time
         snapshots.sort(key=lambda s: s.created_at)
-        
+
         # Calculate metrics
         total_duration = None
         if len(snapshots) >= 2:
             total_duration = (
                 snapshots[-1].created_at - snapshots[0].created_at
             ).total_seconds()
-        
+
         analysis = {
             "plan_id": plan_id,
             "snapshot_count": len(snapshots),
@@ -450,45 +453,45 @@ class ExecutionPlanSnapshotManager:
             "checkpoints": [s.checkpoint_id for s in snapshots],
             "status_transitions": [s.status.value for s in snapshots],
         }
-        
+
         logger.info(
             "execution_plan_snapshot.analysis_complete",
             plan_id=plan_id,
             **analysis,
         )
-        
+
         return analysis
-    
+
     async def cleanup_old_snapshots(
         self,
         max_age_days: int = 30,
     ) -> int:
         """
         Clean up old snapshots.
-        
+
         Args:
             max_age_days: Maximum age in days
-            
+
         Returns:
             Number of snapshots deleted
         """
         cutoff_date = datetime.utcnow().timestamp() - (max_age_days * 86400)
-        
+
         snapshots_to_delete = [
             snapshot_id
             for snapshot_id, snapshot in self._snapshots.items()
             if snapshot.created_at.timestamp() < cutoff_date
         ]
-        
+
         for snapshot_id in snapshots_to_delete:
             del self._snapshots[snapshot_id]
-        
+
         logger.info(
             "execution_plan_snapshot.cleanup_complete",
             deleted_count=len(snapshots_to_delete),
             max_age_days=max_age_days,
         )
-        
+
         return len(snapshots_to_delete)
 
 
@@ -502,16 +505,16 @@ _global_snapshot_manager: Optional[ExecutionPlanSnapshotManager] = None
 def get_snapshot_manager() -> ExecutionPlanSnapshotManager:
     """
     Get global snapshot manager singleton.
-    
+
     Returns:
         Global ExecutionPlanSnapshotManager instance
     """
     global _global_snapshot_manager
-    
+
     if _global_snapshot_manager is None:
         _global_snapshot_manager = ExecutionPlanSnapshotManager()
         logger.info("Global execution plan snapshot manager initialized")
-    
+
     return _global_snapshot_manager
 
 
@@ -527,3 +530,57 @@ __all__ = [
     "ExecutionPlanSnapshotManager",
     "get_snapshot_manager",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-LEAR-033",
+    "governance_level": "high",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "learning",
+        "logging",
+        "messaging",
+        "metrics",
+        "queue",
+        "testing",
+    ],
+    "keywords": [
+        "analysis",
+        "analyze",
+        "checkpoint",
+        "checkpoints",
+        "cleanup",
+        "create",
+        "current",
+        "evolution",
+    ],
+    "business_value": "Implements Phase 0 Plan 7: Execution Plan Snapshots in Checkpoints",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

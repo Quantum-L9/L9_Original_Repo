@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Context Bridge Cursor Memory Bridge"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_context_bridge_cursor_memory_bridge"
+# type: "adapter"
+# status: "active"
+# ============================================================================
+
 # ====================================================
 # Cursor ↔︎ Memory Context Bridge (Standalone Service)
 # ====================================================
@@ -55,3 +70,11 @@ code: |
 
       store_patch(agent_id, patch)
       return patch
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["adapter", "agent-config", "codegenagent", "operations", "prompt"]
+# keywords: ["agents", "bridge", "code", "context", "cursor", "description"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

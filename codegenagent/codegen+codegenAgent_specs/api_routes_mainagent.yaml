@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Api Routes Mainagent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "api_gateway"
+# file_name: "api_routes_mainagent"
+# type: "router"
+# status: "active"
+# ============================================================================
+
 # ==============================
 # L9 Codegen Spec: API Endpoint
 # ==============================
@@ -34,3 +49,11 @@ code: |
   async def process(packet: PacketEnvelope, request: Request):
       result = await agent.handle_packet(packet)
       return {"result": result}
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "api-gateway", "operations", "router", "schema"]
+# keywords: ["api", "code", "description", "filename", "language", "mainagent"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

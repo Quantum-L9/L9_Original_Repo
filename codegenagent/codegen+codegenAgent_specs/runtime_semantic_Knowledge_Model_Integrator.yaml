@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Semantic Knowledge Model Integrator"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "runtime_semantic_Knowledge_Model_Integrator"
+# type: "cli"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # Knowledge_Model_Integrator.py
 # ============================================================
@@ -40,3 +55,11 @@ code: |
 
   if __name__ == "__main__":
       integrate()
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "cli", "codegenagent", "model-config", "operations", "schema"]
+# keywords: ["code", "description", "filename", "integrator", "knowledge", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

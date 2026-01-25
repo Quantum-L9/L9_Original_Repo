@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Security Policy"
+# module_version: "1.0.0"
+# created_by: "cryptoxdog"
+# created_at: "2026-01-23T15:55:12Z"
+# updated_at: "2026-01-24T13:02:52Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "security_policy"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # L9 AI OS — Security Policy Configuration
 # ============================================================================
 # Version: 1.0.0
@@ -374,3 +389,11 @@ metadata:
     - "engineering-lead"
     - "devops-lead"
   next_review: "2026-04-21"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["anthropic", "api-config", "configuration", "database-config", "foundation", "openai", "tool-config", "utility"]
+# keywords: ["policy", "security"]
+# last_modified: "2026-01-24T13:02:52Z"
+# ============================================================================

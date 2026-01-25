@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Codecov"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-24T15:22:14Z"
+# updated_at: "2026-01-24T15:21:11Z"
+# layer: "operations"
+# domain: "codecov.yml"
+# file_name: "codecov"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # Codecov configuration for L9
 
 coverage:
@@ -42,3 +57,11 @@ fail:
     target: 75
     branches: 50
     if: head
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codecov.yml", "configuration", "kernel", "operations", "utility"]
+# keywords: ["codecov", "comment", "coverage", "fail", "flags", "ignore"]
+# last_modified: "2026-01-24T15:21:11Z"
+# ============================================================================

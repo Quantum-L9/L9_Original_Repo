@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent File Emitter"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent_file_emitter"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ==========================
 # CodeGenAgent File Emitter
 # ==========================
@@ -32,3 +47,11 @@ code: |
               f.write(code)
           results[path] = code
       return results
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "utility"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "emitter"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

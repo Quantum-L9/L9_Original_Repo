@@ -49,8 +49,12 @@ from typing import Any, Dict, List, Optional
 import structlog
 
 from core.decorators import must_stay_async
-from memory.strategymemory import (IStrategyMemoryService, StrategyCandidate,
-                                   StrategyFeedback, StrategyRetrievalRequest)
+from memory.strategymemory import (
+    IStrategyMemoryService,
+    StrategyCandidate,
+    StrategyFeedback,
+    StrategyRetrievalRequest,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -811,4 +815,21 @@ __dora_footer__ = {
     "modified_by": "GMP-102",
     "change_summary": "Initial implementation of Neo4j-backed Strategy Memory",
 }
+# ============================================================================
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
 # ============================================================================

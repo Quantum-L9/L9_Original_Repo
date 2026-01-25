@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Api Server Router Patch"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "api_server_router_patch"
+# type: "router"
+# status: "active"
+# ============================================================================
+
 # =====================================
 # L9 Codegen Spec: Route Integration
 # =====================================
@@ -16,3 +31,11 @@ wiring:
 code: |
   from api.routes import mainagent as mainagent_router
   app.include_router(mainagent_router.router)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "codegenagent", "operations", "router"]
+# keywords: ["api", "code", "description", "filename", "language", "patch"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

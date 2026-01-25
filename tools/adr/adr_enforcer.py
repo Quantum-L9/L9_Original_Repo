@@ -14,6 +14,27 @@ Enforces key Accepted ADRs across the L9 codebase by detecting violations in:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Comprehensive ADR compliance checking",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-24T16:03:39Z",
+    "updated_at": "2026-01-24T16:30:16Z",
+    "layer": "operations",
+    "domain": "tools",
+    "module_name": "adr_enforcer",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["HTTP API"],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["tests.unit.adr.test_adr_enforcer"],
+    },
+}
+# ============================================================================
+
 import ast
 import json
 import re
@@ -87,11 +108,11 @@ class ADREnforcementValidator:
     ADR_SEVERITY = {
         "ADR-0001": "CRITICAL",  # Path safety
         "ADR-0002": "CRITICAL",  # Circular imports
-        "ADR-0003": "HIGH",      # Documentation
+        "ADR-0003": "HIGH",  # Documentation
         "ADR-0006": "CRITICAL",  # PacketEnvelope audit
-        "ADR-0010": "HIGH",      # Async patterns
-        "ADR-0022": "HIGH",      # Registry pattern
-        "ADR-0026": "MEDIUM",    # Protocol-based abstractions
+        "ADR-0010": "HIGH",  # Async patterns
+        "ADR-0022": "HIGH",  # Registry pattern
+        "ADR-0026": "MEDIUM",  # Protocol-based abstractions
         "ADR-0055": "CRITICAL",  # Fail-loudly
     }
 
@@ -121,7 +142,9 @@ class ADREnforcementValidator:
             if not path.is_file():
                 self._file_cache[path] = ""
             else:
-                self._file_cache[path] = path.read_text(encoding="utf-8", errors="ignore")
+                self._file_cache[path] = path.read_text(
+                    encoding="utf-8", errors="ignore"
+                )
         return self._file_cache[path]
 
     def _should_skip(self, path: Path) -> bool:
@@ -326,9 +349,7 @@ class ADREnforcementValidator:
             if "PacketEnvelope" not in line:
                 continue
 
-            window = "\n".join(
-                lines[max(0, lineno - 5) : min(len(lines), lineno + 5)]
-            )
+            window = "\n".join(lines[max(0, lineno - 5) : min(len(lines), lineno + 5)])
 
             if "audit_context" not in window:
                 violations.append(
@@ -627,7 +648,9 @@ def main() -> int:
         print(json.dumps(as_dict, indent=2))
 
         if args.output:
-            Path(args.output).write_text(json.dumps(as_dict, indent=2), encoding="utf-8")
+            Path(args.output).write_text(
+                json.dumps(as_dict, indent=2), encoding="utf-8"
+            )
             logger.info("ADR enforcement report written", path=args.output)
 
         if args.strict and report.total_violations > 0:
@@ -641,3 +664,48 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TOO-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "ast",
+        "audit-tool",
+        "caching",
+        "cli",
+        "dataclass",
+        "event-driven",
+        "filesystem",
+        "logging",
+        "migration",
+    ],
+    "keywords": ["0001", "0002", "0003", "0006", "0010", "0022", "0026", "0055"],
+    "business_value": "ADR-0001: Path safety ADR-0002: Circular imports ADR-0003: Documentation standards ADR-0006: PacketEnvelope audit trails ADR-0010: Async patterns ADR-0022: Registry patterns ADR-0026: Protocol-based a",
+    "last_modified": "2026-01-24T16:30:16Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

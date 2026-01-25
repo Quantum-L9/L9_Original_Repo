@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Schemas Research Research-Factory-Spec"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "schemas_research_Research-Factory-Spec"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # PATCH — Research-Factory-Spec.yaml
 # Purpose: Enable superprompt triggers and auto-execution mapping
@@ -21,3 +36,11 @@ patch:
     log_research_replies: true
     inject_summary_to_manifest: true
     feedback_self_loop_enabled: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["codegenagent", "operations", "prompt", "schema"]
+# keywords: ["factory", "filename", "language", "patch", "patch_type", "research"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

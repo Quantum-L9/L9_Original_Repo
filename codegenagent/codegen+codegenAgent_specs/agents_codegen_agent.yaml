@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent"
+# type: "service"
+# status: "active"
+# ============================================================================
+
 # ===============================
 # L9 CodeGen Spec: Codegen Agent
 # ===============================
@@ -38,3 +53,11 @@ code: |
           files = generate_from_meta(meta)
           # Emit via PacketEnvelope or write to FS
           return files
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "codegenagent", "operations", "schema", "service", "tool-config"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

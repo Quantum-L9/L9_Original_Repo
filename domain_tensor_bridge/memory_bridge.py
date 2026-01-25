@@ -24,6 +24,30 @@ Extended Metadata:
 ================================================================================
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Memory Bridge",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:07:20Z",
+    "updated_at": "2026-01-24T13:02:52Z",
+    "layer": "operations",
+    "domain": "domain_tensor_bridge",
+    "module_name": "memory_bridge",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+        "imported_by": [
+            "domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment",
+            "domain_tensor_bridge.tests.domain_tensor_bridge.test_memory_integration",
+        ],
+    },
+}
+# ============================================================================
+
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
@@ -39,7 +63,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class EpisodicEvent:
     """Event from episodic memory."""
-    
+
     event_id: str
     timestamp: str
     event_type: str
@@ -50,7 +74,7 @@ class EpisodicEvent:
 @dataclass
 class Node:
     """Node from semantic graph."""
-    
+
     node_id: str
     node_type: str
     properties: Dict[str, Any]
@@ -60,14 +84,14 @@ class Node:
 class MemoryBridge:
     """
     Unified interface to L9 memory layers.
-    
+
     Memory topology:
     - Working Memory (Redis): Fast, ephemeral, session context
     - Episodic Memory (Postgres): Event logs, packet history
     - Semantic Graph (Neo4j): Entity relationships, knowledge
     - Causal Graph (HyperGraphDB): Causal reasoning, interventions
     """
-    
+
     def __init__(
         self,
         substrate_service: Optional[MemorySubstrateService] = None,
@@ -78,7 +102,7 @@ class MemoryBridge:
         self._neo4j_dsn = os.environ.get("L9_NEO4J_URL")
         self._hypergraph_dsn = os.environ.get("L9_HYPERGRAPH_URL")
         self._initialized = False
-    
+
     async def initialize(self) -> None:
         """Initialize memory connections."""
         logger.info(
@@ -87,35 +111,35 @@ class MemoryBridge:
             postgres=bool(self._postgres_dsn),
             neo4j=bool(self._neo4j_dsn),
         )
-        
+
         if self.substrate:
             await self.substrate.initialize()
-        
+
         self._initialized = True
         logger.info("memory_bridge_ready")
-    
+
     # =========================================================================
     # Working Memory (Redis)
     # =========================================================================
-    
+
     async def get_working_memory(self, key: str) -> Optional[Dict[str, Any]]:
         """
         Get value from working memory (Redis).
-        
+
         Args:
             key: Cache key
-            
+
         Returns:
             Cached value or None
         """
         logger.debug("get_working_memory", key=key)
-        
+
         if self.substrate:
             return await self.substrate.redis_get(key)
-        
+
         logger.warning("no_substrate_configured")
         return None
-    
+
     async def set_working_memory(
         self,
         key: str,
@@ -124,42 +148,42 @@ class MemoryBridge:
     ) -> bool:
         """
         Set value in working memory (Redis).
-        
+
         Args:
             key: Cache key
             value: Value to cache
             ttl_seconds: Time-to-live in seconds (default 5 min)
-            
+
         Returns:
             True if successful
         """
         logger.debug("set_working_memory", key=key, ttl=ttl_seconds)
-        
+
         if self.substrate:
             return await self.substrate.redis_set(key, value, ttl=ttl_seconds)
-        
+
         logger.warning("no_substrate_configured")
         return False
-    
+
     # =========================================================================
     # Episodic Memory (Postgres)
     # =========================================================================
-    
+
     async def query_episodic_memory(
         self,
         filters: Dict[str, Any],
     ) -> List[EpisodicEvent]:
         """
         Query episodic memory (Postgres) for events.
-        
+
         Args:
             filters: Query filters (event_type, time_range, entity_id, etc.)
-            
+
         Returns:
             List of matching events
         """
         logger.debug("query_episodic_memory", filters=filters)
-        
+
         if self.substrate:
             raw_events = await self.substrate.query_events(filters)
             return [
@@ -172,42 +196,42 @@ class MemoryBridge:
                 )
                 for e in raw_events
             ]
-        
+
         logger.warning("no_substrate_configured")
         return []
-    
+
     async def store_episodic_event(
         self,
         event: EpisodicEvent,
     ) -> bool:
         """Store event in episodic memory."""
         logger.debug("store_episodic_event", event_type=event.event_type)
-        
+
         if self.substrate:
             return await self.substrate.store_event(
                 event_type=event.event_type,
                 payload=event.payload,
                 metadata=event.metadata,
             )
-        
+
         return False
-    
+
     # =========================================================================
     # Semantic Graph (Neo4j)
     # =========================================================================
-    
+
     async def query_semantic_graph(self, query: str) -> List[Node]:
         """
         Query semantic graph (Neo4j).
-        
+
         Args:
             query: Cypher query string
-            
+
         Returns:
             List of matching nodes
         """
         logger.debug("query_semantic_graph", query=query[:50])
-        
+
         if self.substrate:
             raw_nodes = await self.substrate.cypher_query(query)
             return [
@@ -219,14 +243,14 @@ class MemoryBridge:
                 )
                 for n in raw_nodes
             ]
-        
+
         logger.warning("no_substrate_configured")
         return []
-    
+
     # =========================================================================
     # Causal Graph (HyperGraphDB)
     # =========================================================================
-    
+
     async def query_causal_graph(
         self,
         entity_id: str,
@@ -234,19 +258,19 @@ class MemoryBridge:
     ) -> Dict[str, Any]:
         """
         Query causal graph for entity relationships.
-        
+
         Args:
             entity_id: Entity to query
             depth: Traversal depth (default 2)
-            
+
         Returns:
             Causal subgraph
         """
         logger.debug("query_causal_graph", entity_id=entity_id, depth=depth)
-        
+
         if self.substrate and hasattr(self.substrate, "hypergraph_query"):
             return await self.substrate.hypergraph_query(entity_id, depth)
-        
+
         return {"nodes": [], "edges": []}
 
 
@@ -303,4 +327,38 @@ __l9_trace__ = {
 # END L9 DORA BLOCK
 # ============================================================================
 
-
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "DOM-OPER-005",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.substrate_service"],
+    "tags": [
+        "async",
+        "caching",
+        "dataclass",
+        "debugging",
+        "domain-tensor-bridge",
+        "event-driven",
+        "logging",
+        "operations",
+        "tracing",
+    ],
+    "keywords": [
+        "bridge",
+        "causal",
+        "episodic",
+        "event",
+        "graph",
+        "initialize",
+        "memory",
+        "query",
+    ],
+    "business_value": "Provides memory bridge components including EpisodicEvent, Node, MemoryBridge",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}

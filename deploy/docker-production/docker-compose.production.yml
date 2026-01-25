@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Docker-Compose.Production"
+# module_version: "1.0.0"
+# created_by: "Igor"
+# created_at: "2025-12-26T23:48:00Z"
+# updated_at: "2026-01-24T21:59:14Z"
+# layer: "operations"
+# domain: "deploy"
+# file_name: "docker-compose.production"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =============================================================================
 # L9 Production Docker Compose
 # Version: 3.0.0 - Production-optimized configuration
@@ -420,3 +435,11 @@ networks:
     ipam:
       config:
         - subnet: 172.20.0.0/16
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "database-config", "deploy", "kernel", "model-config", "openai"]
+# keywords: ["compose.production", "docker", "networks", "services", "version", "volumes"]
+# last_modified: "2026-01-24T21:59:14Z"
+# ============================================================================

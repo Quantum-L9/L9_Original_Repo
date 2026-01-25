@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestration Multi Agent Code Swarm"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "orchestration_multi_agent_code_swarm"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ==========================================
 # Multi-Agent Code Swarm Orchestrator
 # ==========================================
@@ -28,3 +43,11 @@ code: |
       agent = CodeGenAgent()
       for meta in swarm["modules"]:
           agent.generate_from_meta(meta["meta_path"])
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "pipeline", "utility"]
+# keywords: ["agent", "code", "description", "filename", "language", "multi"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

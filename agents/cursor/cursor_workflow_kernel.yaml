@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Cursor Workflow Kernel"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-18T17:12:30Z"
+# updated_at: "2026-01-25T08:58:45Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "cursor_workflow_kernel"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # CURSOR WORKFLOW KERNEL — BINDING CONTRACT
 # ============================================================================
 # This kernel governs Cursor agent behavior. Treat as LAW.
@@ -263,3 +278,11 @@ agent_settings:
     - audit_hooks
   report_only_if_non_default: true
   include_in_summary: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "configuration", "intelligence", "kernel", "prompt", "schema", "tool-config"]
+# keywords: ["author", "cursor", "description", "kernel", "name", "owner"]
+# last_modified: "2026-01-25T08:58:45Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Cursor Context Sync Engine"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent_cursor_context_sync_engine"
+# type: "engine"
+# status: "active"
+# ============================================================================
+
 # =============================================
 # Cursor Context Sync Engine (Bi-Directional Sync)
 # =============================================
@@ -45,3 +60,11 @@ code: |
       with open(f"sync_out/{agent_id}_patch.yaml", "w") as f:
           f.write(patch)
       return patch
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "engine", "operations", "prompt", "redis-config"]
+# keywords: ["agent", "agents", "code", "codegen", "context", "cursor"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

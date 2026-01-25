@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Values-Production"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T03:21:35Z"
+# updated_at: "2026-01-25T03:21:17Z"
+# layer: "operations"
+# domain: "deploy"
+# file_name: "values-production"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =============================================================================
 # L9 Platform Helm Chart - Production Environment
 # =============================================================================
@@ -219,3 +234,11 @@ affinity:
             values:
             - l9-api
         topologyKey: kubernetes.io/hostname
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["api-config", "deploy", "operations", "redis-config", "utility"]
+# keywords: ["affinity", "api", "backup", "global", "mcpmemory", "monitoring"]
+# last_modified: "2026-01-25T03:21:17Z"
+# ============================================================================

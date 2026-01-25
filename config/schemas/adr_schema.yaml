@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Adr Schema"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-20T15:29:16Z"
+# updated_at: "2026-01-20T22:37:42Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "adr_schema"
+# type: "service"
+# status: "active"
+# ============================================================================
+
 # ADR Schema v1.0 — Canonical Format for AI-Readable Architecture Decision Records
 # Location: config/schemas/adr_schema.yaml
 # Referenced by: readme/adr/README.md, core/governance/session_startup.py
@@ -231,3 +246,11 @@ ai_notes:
     - "MUST NOT"          # Hard prohibitions
     - "DO NOT"            # AI-specific prohibitions
     - "❌ WRONG"          # Anti-patterns
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "database-config", "foundation", "schema", "service", "tool-config"]
+# keywords: ["adr", "ai_notes", "description", "markdown_template", "optional_sections", "required_sections"]
+# last_modified: "2026-01-20T22:37:42Z"
+# ============================================================================

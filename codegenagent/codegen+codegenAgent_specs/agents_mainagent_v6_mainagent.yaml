@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Mainagent V6 Mainagent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_mainagent_v6_mainagent"
+# type: "service"
+# status: "active"
+# ============================================================================
+
 # ===============================
 # L9 Codegen Spec: MainAgent v6
 # ===============================
@@ -50,3 +65,11 @@ code: |
               return self.governance.escalate(result)
           self.world_model.update(result)
           return result
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "kernel", "model-config", "operations", "redis-config", "service", "tool-config"]
+# keywords: ["agents", "code", "description", "filename", "language", "mainagent"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

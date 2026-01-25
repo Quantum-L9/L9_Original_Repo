@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Phase0-Scope-Schema"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-20T14:03:16Z"
+# updated_at: "2026-01-20T22:37:42Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "phase0-scope-schema"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # PHASE 0 SCOPE SCHEMA v1.0.0
 # ============================================================================
 # Purpose: JSON Schema for validating Phase 0 scope YAML files
@@ -203,3 +218,11 @@ additionalProperties: false
 
 # Custom validation: scope_items files must not be in protected_files
 # (Enforced by GMP executor, not JSON Schema)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "database-config", "foundation", "kernel", "model-config", "schema"]
+# keywords: ["$id", "$schema", "additionalproperties", "description", "phase0", "properties"]
+# last_modified: "2026-01-20T22:37:42Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Gmp Gmp Audit Engine"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "runtime_gmp_GMP_Audit_Engine"
+# type: "engine"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # 5. GMP-AUDIT HOOKS FOR META TRIGGERS
 # Filename: runtime/gmp/GMP_Audit_Engine.py
@@ -21,3 +36,11 @@ patch:
       log_event: "🔍 External reasoning engaged"
       audit_trace: true
       action: "log_to_hypergraph_and_mark_completion"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["codegenagent", "engine", "operations", "prompt"]
+# keywords: ["audit", "engine", "filename", "gmp", "language", "patch"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

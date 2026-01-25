@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: ".Pre-Commit-Config"
+# module_version: "1.0.0"
+# created_by: "cryptoxdog"
+# created_at: "2026-01-23T15:55:26Z"
+# updated_at: "2026-01-25T11:06:19Z"
+# layer: "operations"
+# domain: ".pre-commit-config.yaml"
+# file_name: ".pre-commit-config"
+# type: "config"
+# status: "active"
+# ============================================================================
+
 repos:
   # Python formatters
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -45,3 +60,11 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".pre-commit-config.yaml", "config", "configuration", "operations"]
+# keywords: [".pre", "commit", "config", "repos"]
+# last_modified: "2026-01-25T11:06:19Z"
+# ============================================================================

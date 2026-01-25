@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Cursor Cursor State Mirror"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "cursor_cursor_state_mirror"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ======================================
 # Cursor State Mirror (Session Reflector)
 # ======================================
@@ -27,3 +42,11 @@ code: |
   def sync_cursor_state():
       stack = json.load(open("cursor_context_stack.json"))
       yaml.dump({"session_trace": stack}, open("memory_session_state.yaml", "w"))
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "prompt", "utility"]
+# keywords: ["code", "cursor", "description", "filename", "language", "mirror"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

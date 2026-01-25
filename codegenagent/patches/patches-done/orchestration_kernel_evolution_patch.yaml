@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestration Kernel Evolution Patch"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "orchestration_kernel_evolution_patch"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =======================================
 # Patch: Meta-Kernel Evolution via GMP-L
 # =======================================
@@ -27,3 +42,11 @@ code: |
       trace = open(trace_path).read()
       new_kernel = f"# evolved from GMP\\n{trace}"
       open("evolved_kernels/kernel_v2.py", "w").write(new_kernel)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["codegenagent", "kernel", "operations", "utility"]
+# keywords: ["code", "description", "evolution", "filename", "kernel", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

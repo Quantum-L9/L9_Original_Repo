@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Config Agent Catalog"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "config_agent_catalog"
+# type: "config"
+# status: "active"
+# ============================================================================
+
 # ===================================
 # L9 Codegen Spec: Agent Registration
 # ===================================
@@ -27,3 +42,11 @@ code: |
     memory: true
     tensors: true
     governance: required
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "codegenagent", "config", "configuration", "kernel", "operations"]
+# keywords: ["agent", "catalog", "code", "config", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Worldmodel Tool Link Mapper"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "worldmodel_tool_link_mapper"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
 # ============================================
 # WorldModel Tool Relationship Linker
 # ============================================
@@ -26,3 +41,11 @@ code: |
       for log in logs:
           links.append({"from": log["tool"], "to": log["agent"], "reason": "used-in-execution"})
       json.dump(links, open("causal_links.json", "w"))
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "model-config", "operations", "schema", "tool-config"]
+# keywords: ["code", "description", "filename", "language", "link", "mapper"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

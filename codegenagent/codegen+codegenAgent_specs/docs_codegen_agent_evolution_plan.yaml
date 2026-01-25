@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Docs Codegen Agent Evolution Plan"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "docs_codegen_agent_evolution_plan"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ======================================================
 # CodeGenAgent Evolution & Activation Plan (CGA-X v1.0)
 # ======================================================
@@ -93,3 +108,11 @@ next:
   - Add CGA to runtime audit DAG via ReflectionAgent
   - Expose `/codegen/meta/preview` for dry-run feedback
   - Extend CGA to write `reasoning_trace.yaml` per module
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "codegenagent", "operations", "pipeline", "prompt", "schema", "utility"]
+# keywords: ["activate_modules", "agent", "capabilities", "codegen", "description", "docs"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

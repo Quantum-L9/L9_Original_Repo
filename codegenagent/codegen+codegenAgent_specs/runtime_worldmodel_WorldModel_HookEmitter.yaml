@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Runtime Worldmodel Worldmodel Hookemitter"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "runtime_worldmodel_WorldModel_HookEmitter"
+# type: "cli"
+# status: "active"
+# ============================================================================
+
 # ============================================================
 # WorldModel_HookEmitter.py
 # ============================================================
@@ -44,3 +59,11 @@ code: |
 
   if __name__ == "__main__":
       link_to_worldmodel()
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "cli", "codegenagent", "model-config", "operations", "schema", "tool-config"]
+# keywords: ["code", "description", "filename", "hookemitter", "language", "runtime"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

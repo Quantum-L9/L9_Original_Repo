@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestration Research Swarm Loader"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "orchestration_research_swarm_loader"
+# type: "collector"
+# status: "active"
+# ============================================================================
+
 # ===================================
 # Research Swarm Loader
 # ===================================
@@ -24,3 +39,11 @@ code: |
       agent = CodeGenAgent()
       for meta in swarm["modules"]:
           agent.generate_from_meta(meta["path"])
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "collector", "operations"]
+# keywords: ["code", "description", "filename", "language", "loader", "orchestration"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

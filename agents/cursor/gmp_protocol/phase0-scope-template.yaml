@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Phase0-Scope-Template"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-20T14:03:16Z"
+# updated_at: "2026-01-20T22:37:42Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "phase0-scope-template"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # PHASE 0 SCOPE TEMPLATE v1.0.0
 # ============================================================================
 # Purpose: Template for defining GMP Phase 0 scope
@@ -145,4 +160,12 @@ next_steps:
 #   ruff_format: false
 #   pytest: false
 #
+# ============================================================================
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "configuration", "database-config", "intelligence", "kernel", "schema", "tool-config"]
+# keywords: ["next_steps", "non_goals", "phase0", "phase_metadata", "scope", "scope_items"]
+# last_modified: "2026-01-20T22:37:42Z"
 # ============================================================================

@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Ir Engine Meta Ir"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "ir_engine_meta_ir"
+# type: "engine"
+# status: "active"
+# ============================================================================
+
 # ================================
 # L9 CodeGen Spec: Meta IR Schema
 # ================================
@@ -31,3 +46,11 @@ code: |
       guarantees: List[str]
       required_docs: List[str]
       required_tests: List[str]
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "engine", "model-config", "operations", "schema"]
+# keywords: ["code", "description", "engine", "filename", "language", "meta"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Schemas"
+# module_version: "1.0.0"
+# created_by: "cryptoxdog"
+# created_at: "2026-01-23T15:07:20Z"
+# updated_at: "2026-01-24T13:02:52Z"
+# layer: "foundation"
+# domain: "core"
+# file_name: "schemas"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # EOS CORE SCHEMAS (L9 Canonical)
 # ============================================================================
 # Source: EOS.md (Epistemic Operating System - Accountability-First)
@@ -78,3 +93,11 @@ Condition:
   description: string
   deadline: optional[datetime]
   satisfied: boolean
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "core", "foundation", "schema", "tool-config"]
+# keywords: ["actionenvelope", "condition", "epistemicobject", "executabledoctrine", "schemas", "verdict"]
+# last_modified: "2026-01-24T13:02:52Z"
+# ============================================================================

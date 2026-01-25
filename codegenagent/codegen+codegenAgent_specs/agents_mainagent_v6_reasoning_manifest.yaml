@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Mainagent V6 Reasoning Manifest"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_mainagent_v6_reasoning_manifest"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # =======================================
 # L9 Codegen Spec: Reasoning Manifest v6
 # =======================================
@@ -31,3 +46,11 @@ code: |
     - metrics.metrics_mainagent
     - kernel_policy.mainagent_policy
     - orchestration.schedules.reflection_schedule
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "kernel", "model-config", "operations", "utility"]
+# keywords: ["agents", "code", "description", "filename", "language", "mainagent"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

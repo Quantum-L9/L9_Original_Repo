@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Rate Limits"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-20T14:03:16Z"
+# updated_at: "2026-01-20T22:37:42Z"
+# layer: "foundation"
+# domain: "configuration"
+# file_name: "rate_limits"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # L9 Unified Rate Limit Policy
 # ============================================================================
 # Single source of truth for ALL rate limits across L9.
@@ -165,3 +180,11 @@ exemptions:
   # Caller IDs that bypass (system accounts)
   caller_ids:
     - "L"  # L-CTO has elevated access
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "anthropic", "api-config", "configuration", "foundation", "openai", "redis-config", "tool-config"]
+# keywords: ["exemptions", "limits", "rate", "rate_limits", "settings"]
+# last_modified: "2026-01-20T22:37:42Z"
+# ============================================================================

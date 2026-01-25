@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Accountability Layer"
+# module_version: "1.0.0"
+# created_by: "cryptoxdog"
+# created_at: "2026-01-23T15:07:20Z"
+# updated_at: "2026-01-24T13:02:52Z"
+# layer: "foundation"
+# domain: "core"
+# file_name: "accountability_layer"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # ACCOUNTABILITY LAYER SPECIFICATION (L9 Canonical)
 # ============================================================================
 # Source: EOS.md — SAIAL → Accountability Layer conversion
@@ -132,3 +147,11 @@ design_constraint:
     (high-risk tools, contract diffs, schema changes).
     No verdict → no execution.
     No ledger entry → no verdict.
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "core", "foundation", "kernel", "model-config", "schema", "tool-config"]
+# keywords: ["accountability", "audit_mechanisms", "design_constraint", "guarantees", "interface", "layer"]
+# last_modified: "2026-01-24T13:02:52Z"
+# ============================================================================

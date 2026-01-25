@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Rollback Hook"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "agents_codegen_agent_rollback_hook"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ===============================
 # CodeGenAgent Rollback Support
 # ===============================
@@ -20,3 +35,11 @@ code: |
   def setup_reversion(files: dict):
       snapshot = {name: code for name, code in files.items()}
       register_snapshot(agent="CodeGenAgent", files=snapshot)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "operations", "utility"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

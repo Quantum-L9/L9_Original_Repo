@@ -10,6 +10,27 @@ Usage:
     python scripts/audit/migrate_dora_legacy.py --repo /path/to/L9 --execute
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Migrate Dora Legacy",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-18T02:10:54Z",
+    "updated_at": "2026-01-24T13:02:53Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "migrate_dora_legacy",
+    "type": "cli",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import json
 import re
@@ -20,7 +41,6 @@ from typing import Dict, List, Optional
 
 # ============================================================================
 # MIGRATION ENGINE
-# ============================================================================
 
 
 class DoraLegacyMigrator:
@@ -59,7 +79,7 @@ class DoraLegacyMigrator:
 
     def _extract_legacy_block(self, content: str) -> Optional[Dict]:
         """Extract legacy __dora_block__ data from file content."""
-        # Pattern to match the entire __dora_block__ = {...} block
+        # Pattern to match the entire  block
         pattern = r"__dora_block__\s*=\s*\{[^}]+\}"
 
         match = re.search(pattern, content, re.DOTALL)
@@ -75,6 +95,7 @@ class DoraLegacyMigrator:
 
             # Safely evaluate the dict using ast.literal_eval (safer than eval)
             import ast
+
             data = ast.literal_eval(dict_str)
             return data
         except Exception as e:
@@ -101,26 +122,6 @@ class DoraLegacyMigrator:
         deps = json.dumps(legacy_data.get("dependencies", []))
 
         return f"""# ============================================================================
-# DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# See footer for extended metadata
-# ============================================================================
-__dora_meta__ = {{
-    "component_id": "{legacy_data.get("component_id", "")}",
-    "component_name": "{legacy_data.get("component_name", "")}",
-    "module_version": "{legacy_data.get("module_version", "1.0.0")}",
-    "created_at": "{legacy_data.get("created_at", "")}",
-    "created_by": "{legacy_data.get("created_by", "L9_Codegen_Engine")}",
-    "layer": "{legacy_data.get("layer", "operations")}",
-    "domain": "{legacy_data.get("domain", "general")}",
-    "type": "{legacy_data.get("type", "utility")}",
-    "status": "{legacy_data.get("status", "active")}",
-    "governance_level": "{legacy_data.get("governance_level", "medium")}",
-    "compliance_required": {legacy_data.get("compliance_required", True)},
-    "audit_trail": {legacy_data.get("audit_trail", True)},
-    "purpose": "{legacy_data.get("purpose", "")}",
-    "dependencies": {deps},
-}}
-# ============================================================================
 """
 
     def _format_new_footer(self, legacy_data: Dict) -> str:
@@ -133,16 +134,6 @@ __dora_meta__ = {{
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # Extended metadata referenced by header
 # ============================================================================
-__dora_footer__ = {{
-    "component_id": "{legacy_data.get("component_id", "")}",
-    "security_classification": "internal",
-    "execution_mode": "on-demand",
-    "timeout_seconds": 30,
-    "performance_tier": "realtime",
-    "last_modified": "{timestamp}",
-    "modified_by": "L9_DORA_Migrator",
-    "change_summary": "Migrated from legacy __dora_block__ to three-block format",
-}}
 # ============================================================================
 """
 
@@ -150,27 +141,6 @@ __dora_footer__ = {{
         """Format new __l9_trace__ block (empty, runtime will populate)."""
         return """
 
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {
-        "confidence": "",
-        "errors_detected": [],
-        "stability_score": ""
-    },
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
 """
 
     def _find_header_insertion_point(self, content: str) -> int:
@@ -287,7 +257,6 @@ __l9_trace__ = {
 
 # ============================================================================
 # YAML/JSON/MD LEGACY MIGRATION
-# ============================================================================
 
 
 class DoraMultiFormatMigrator:
@@ -361,10 +330,7 @@ class DoraMultiFormatMigrator:
             timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
             # Add new three-block format
-            new_header = f"""# ============================================================================
-# DORA HEADER META - AUTO-GENERATED
-# ============================================================================
-dora_meta:
+            new_header = f"""dora_meta:
   component_id: "MIGRATED"
   component_name: "{Path(file_path).stem}"
   module_version: "1.0.0"
@@ -379,15 +345,10 @@ dora_meta:
   audit_trail: true
   purpose: "Migrated configuration"
   dependencies: []
-# ============================================================================
 
 """
 
             new_footer = f"""
-
-# ============================================================================
-# DORA FOOTER META
-# ============================================================================
 dora_footer:
   component_id: "MIGRATED"
   security_classification: "internal"
@@ -402,9 +363,6 @@ dora_footer:
 
             new_trace = """
 
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED
-# ============================================================================
 l9_trace:
   trace_id: ""
   task: ""
@@ -457,7 +415,6 @@ l9_trace:
 
 # ============================================================================
 # MAIN
-# ============================================================================
 
 
 def main():
@@ -510,3 +467,57 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "ast",
+        "batch-processing",
+        "caching",
+        "cli",
+        "filesystem",
+        "metrics",
+        "migration",
+        "operations",
+        "scripts",
+        "serialization",
+    ],
+    "keywords": [
+        "all",
+        "dora",
+        "format",
+        "generate",
+        "legacy",
+        "migrate",
+        "migrator",
+        "multi",
+    ],
+    "business_value": "Provides migrate dora legacy components including DoraLegacyMigrator, DoraMultiFormatMigrator",
+    "last_modified": "2026-01-24T13:02:53Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

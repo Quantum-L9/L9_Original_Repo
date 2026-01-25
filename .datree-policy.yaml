@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: ".Datree-Policy"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-24T15:22:14Z"
+# updated_at: "2026-01-24T15:21:11Z"
+# layer: "operations"
+# domain: ".datree-policy.yaml"
+# file_name: ".datree-policy"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 policies:
   - name: "L9 Configuration Policy"
     rules:
@@ -21,3 +36,11 @@ policies:
         match:
           resources: ["ComposeFile"]
           selector: ["$.services[*].deploy.resources.limits"]
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: [".datree-policy.yaml", "configuration", "operations", "utility", "workflow"]
+# keywords: [".datree", "policies", "policy"]
+# last_modified: "2026-01-24T15:21:11Z"
+# ============================================================================

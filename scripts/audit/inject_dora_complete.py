@@ -13,6 +13,38 @@ Usage:
     python scripts/audit/inject_dora_complete.py --repo /path/to/L9 --execute --file path/to/file.py
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Inject Dora Complete",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-18T02:10:54Z",
+    "updated_at": "2026-01-25T14:59:57Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "inject_dora_complete",
+    "type": "router",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": ["GET /path", "POST /path"],
+        "datasources": [
+            "Anthropic API",
+            "Gmail API",
+            "HTTP API",
+            "Neo4j",
+            "OpenAI API",
+            "Perplexity API",
+            "PostgreSQL",
+            "Redis",
+            "S3",
+            "Slack API",
+        ],
+        "memory_layers": ["working_memory", "episodic_memory", "semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import ast
 import json
@@ -26,7 +58,6 @@ from typing import Dict, List, Optional, Set, Tuple
 
 # ============================================================================
 # DATA MODELS
-# ============================================================================
 
 
 @dataclass
@@ -96,7 +127,6 @@ class DoraTraceBlock:
 
 # ============================================================================
 # INJECTOR ENGINE
-# ============================================================================
 
 
 class DoraCompleteInjector:
@@ -1095,14 +1125,23 @@ class DoraCompleteInjector:
                     "legacy": False,
                 }
             else:
+                # Use regex to detect actual variable assignments at line start
+                # ONLY detect dict assignments - not string templates or comments
+                # This prevents false positives in generator/validator scripts
                 return {
-                    "header": "__dora_meta__" in content
-                    or "DORA HEADER META" in content,
-                    "footer": "__dora_footer__" in content
-                    or "DORA FOOTER META" in content,
-                    "trace": "__l9_trace__" in content or "L9 DORA BLOCK" in content,
-                    # Also check for old-style blocks to skip
-                    "legacy": "__dora_block__" in content,
+                    "header": bool(
+                        re.search(r"^__dora_meta__\s*=\s*\{", content, re.MULTILINE)
+                    ),
+                    "footer": bool(
+                        re.search(r"^__dora_footer__\s*=\s*\{", content, re.MULTILINE)
+                    ),
+                    "trace": bool(
+                        re.search(r"^__l9_trace__\s*=\s*\{", content, re.MULTILINE)
+                    ),
+                    # Check for old-style blocks (actual assignment at line start)
+                    "legacy": bool(
+                        re.search(r"^__dora_block__\s*=\s*\{", content, re.MULTILINE)
+                    ),
                 }
         except Exception:
             return {"header": False, "footer": False, "trace": False, "legacy": False}
@@ -1210,25 +1249,6 @@ class DoraCompleteInjector:
         )
 
         return f"""# ============================================================================
-__dora_meta__ = {{
-    "component_name": "{header.component_name}",
-    "module_version": "{header.module_version}",
-    "created_by": "{header.created_by}",
-    "created_at": "{header.created_at}",
-    "updated_at": "{modified_at}",
-    "layer": "{header.layer}",
-    "domain": "{header.domain}",
-    "module_name": "{module_name}",
-    "type": "{header.type}",
-    "status": "{header.status}",
-    "integrates_with": {{
-        "api_endpoints": {json.dumps(integrates_with["api_endpoints"])},
-        "datasources": {json.dumps(integrates_with["datasources"])},
-        "memory_layers": {json.dumps(integrates_with["memory_layers"])},
-        "imported_by": {json.dumps(integrates_with["imported_by"])},
-    }},
-}}
-# ============================================================================
 """
 
     def _format_header_meta_yaml(
@@ -1237,9 +1257,7 @@ __dora_meta__ = {{
         """Format Header Meta block for YAML file (TOP)."""
         file_name = Path(file_path).stem
 
-        return f"""# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
+        return f"""
 # component_name: "{header.component_name}"
 # module_version: "{header.module_version}"
 # created_by: "{header.created_by}"
@@ -1250,7 +1268,6 @@ __dora_meta__ = {{
 # file_name: "{file_name}"
 # type: "{header.type}"
 # status: "{header.status}"
-# ============================================================================
 
 """
 
@@ -1265,9 +1282,6 @@ __dora_meta__ = {{
 
         return f"""
 
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
 # tags: {json.dumps(tags)}
 # keywords: {json.dumps(keywords)}
 # last_modified: "{footer.last_modified}"
@@ -1452,23 +1466,7 @@ __dora_meta__ = {{
             keywords = self._generate_keywords(header.component_name, header.domain)
 
         return f"""
-
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {{
-    "component_id": "{footer.component_id}",
-    "governance_level": "{header.governance_level}",
-    "compliance_required": {str(header.compliance_required)},
-    "audit_trail": {str(header.audit_trail)},
-    "dependencies": {json.dumps(header.dependencies)},
-    "tags": {json.dumps(tags)},
-    "keywords": {json.dumps(keywords)},
-    "business_value": "{header.purpose}",
-    "last_modified": "{footer.last_modified}",
-    "modified_by": "{footer.modified_by}",
-    "change_summary": "{footer.change_summary}",
-}}"""
+"""
 
     def _generate_tags(self, domain: str, comp_type: str, layer: str) -> List[str]:
         """Generate tags based on domain, type, and layer."""
@@ -1966,23 +1964,6 @@ __dora_footer__ = {{
     def _format_trace_block(self, trace: DoraTraceBlock) -> str:
         """Format DORA Trace Block for Python file (VERY END)."""
         return f"""
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {{
-    "trace_id": "{trace.trace_id}",
-    "task": "{trace.task}",
-    "timestamp": "{trace.timestamp}",
-    "patterns_used": {json.dumps(trace.patterns_used)},
-    "graph": {json.dumps(trace.graph)},
-    "inputs": {json.dumps(trace.inputs)},
-    "outputs": {json.dumps(trace.outputs)},
-    "metrics": {json.dumps(trace.metrics)},
-}}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================
 """
 
     def _find_insertion_point(self, content: str) -> int:
@@ -2212,7 +2193,6 @@ __l9_trace__ = {{
 
 # ============================================================================
 # MAIN
-# ============================================================================
 
 
 def main():
@@ -2259,3 +2239,57 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "api-gateway",
+        "ast",
+        "async",
+        "auth",
+        "authorization",
+        "batch-processing",
+        "caching",
+        "cli",
+        "code-quality",
+    ],
+    "keywords": [
+        "all",
+        "block",
+        "blocks",
+        "complete",
+        "dora",
+        "files",
+        "footer",
+        "generate",
+    ],
+    "business_value": "Provides inject dora complete components including ClassInfo, HeaderMeta, FooterMeta",
+    "last_modified": "2026-01-25T14:59:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

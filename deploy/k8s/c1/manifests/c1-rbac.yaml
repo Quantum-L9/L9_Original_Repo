@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "C1-Rbac"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-22T15:50:27Z"
+# updated_at: "2026-01-23T15:06:30Z"
+# layer: "operations"
+# domain: "deploy"
+# file_name: "c1-rbac"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # C1 RBAC - ServiceAccount, Role, RoleBinding for L9 services
 # Rollback: kubectl delete -f c1-rbac.yaml
 #
@@ -52,3 +67,11 @@ roleRef:
   kind: Role
   name: l9-role
   apiGroup: rbac.authorization.k8s.io
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["api-config", "configuration", "deploy", "operations", "utility"]
+# keywords: ["rbac"]
+# last_modified: "2026-01-23T15:06:30Z"
+# ============================================================================

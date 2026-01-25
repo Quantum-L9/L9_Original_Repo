@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Ci Ci Meta Checker"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "ci_ci_meta_checker"
+# type: "cli"
+# status: "active"
+# ============================================================================
+
 # ===================================
 # L9 CodeGen Spec: CI Meta Validator
 # ===================================
@@ -44,3 +59,11 @@ code: |
   if __name__ == "__main__":
       ok = validate_meta(sys.argv[1] if len(sys.argv) > 1 else "meta.yaml")
       sys.exit(0 if ok else 1)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["cli", "codegenagent", "operations", "tool-config", "workflow"]
+# keywords: ["checker", "code", "description", "filename", "language", "meta"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

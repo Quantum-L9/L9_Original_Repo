@@ -1,3 +1,18 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Sandbox Session Roadmap L9"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-25T14:50:13Z"
+# updated_at: "2026-01-25T08:49:00Z"
+# layer: "operations"
+# domain: "codegenagent"
+# file_name: "sandbox_session_roadmap_l9"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
 # ====================================================
 # L9 SYSTEM: LIVE SESSION ROADMAP (v2.5.1 SYNCED)
 # ====================================================
@@ -87,3 +102,11 @@ blocked:
   - Meta-DAG Diff Visualizer (requires memory schema overlay)
   - Human-LCTO Override Layer (for final patch approvals)
   - Swarm-to-Canonical-Prompt Mapper (GPT planning + mapping layer)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "codegenagent", "kernel", "model-config", "operations", "pipeline", "prompt", "schema"]
+# keywords: ["blocked", "completed", "description", "filename", "in_progress", "language"]
+# last_modified: "2026-01-25T08:49:00Z"
+# ============================================================================

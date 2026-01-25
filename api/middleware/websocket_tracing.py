@@ -64,13 +64,13 @@ logger = structlog.get_logger(__name__)
 class TraceContext:
     """
     Container for trace context in WebSocket connections.
-    
+
     Attributes:
         trace_id: Distributed trace ID (UUID format)
         correlation_id: Correlation ID for grouping related operations
         connection_id: Unique WebSocket connection identifier
     """
-    
+
     def __init__(
         self,
         trace_id: Optional[str] = None,
@@ -80,7 +80,7 @@ class TraceContext:
         self.trace_id = trace_id or str(uuid4())
         self.correlation_id = correlation_id or self.trace_id
         self.connection_id = connection_id or str(uuid4())
-    
+
     def to_dict(self) -> dict[str, str]:
         """Export trace context as dict for logging."""
         return {
@@ -98,29 +98,29 @@ class TraceContext:
 class WebSocketTracingMiddleware:
     """
     ASGI middleware for WebSocket tracing.
-    
+
     Injects trace_id and correlation_id into WebSocket connection state,
     enabling distributed tracing across WebSocket messages.
-    
+
     Usage:
         >>> from fastapi import FastAPI
         >>> app = FastAPI()
         >>> app.add_middleware(WebSocketTracingMiddleware)
     """
-    
+
     def __init__(self, app: ASGIApp):
         """
         Initialize middleware.
-        
+
         Args:
             app: ASGI application to wrap
         """
         self.app = app
-    
+
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         ASGI middleware entry point.
-        
+
         Args:
             scope: ASGI connection scope
             receive: ASGI receive callable
@@ -130,15 +130,15 @@ class WebSocketTracingMiddleware:
         if scope["type"] != "websocket":
             await self.app(scope, receive, send)
             return
-        
+
         # Extract or generate trace context
         trace_context = self._extract_trace_context(scope)
-        
+
         # Inject trace context into scope state
         if "state" not in scope:
             scope["state"] = {}
         scope["state"]["trace_context"] = trace_context
-        
+
         # Log WebSocket connection with trace context
         logger.info(
             "websocket.connection_opened",
@@ -146,7 +146,7 @@ class WebSocketTracingMiddleware:
             path=scope.get("path"),
             client=scope.get("client"),
         )
-        
+
         # Wrap send to log outgoing messages
         async def traced_send(message: dict[str, Any]) -> None:
             """Wrap send to log outgoing WebSocket messages."""
@@ -163,14 +163,14 @@ class WebSocketTracingMiddleware:
                     code=message.get("code"),
                     reason=message.get("reason"),
                 )
-            
+
             await send(message)
-        
+
         # Wrap receive to log incoming messages
         async def traced_receive() -> dict[str, Any]:
             """Wrap receive to log incoming WebSocket messages."""
             message = await receive()
-            
+
             if message["type"] == "websocket.receive":
                 logger.debug(
                     "websocket.message_received",
@@ -183,65 +183,67 @@ class WebSocketTracingMiddleware:
                     **trace_context.to_dict(),
                     code=message.get("code"),
                 )
-            
+
             return message
-        
+
         # Call wrapped app with traced send/receive
         await self.app(scope, traced_receive, traced_send)
-    
+
     def _extract_trace_context(self, scope: Scope) -> TraceContext:
         """
         Extract trace context from WebSocket scope.
-        
+
         Checks for trace_id in:
         1. Query parameters (?trace_id=...)
         2. Headers (X-Trace-Id)
         3. Generates new trace_id if not found
-        
+
         Args:
             scope: ASGI connection scope
-            
+
         Returns:
             TraceContext with extracted or generated IDs
         """
         # Extract query parameters
         query_string = scope.get("query_string", b"").decode("utf-8")
         query_params = self._parse_query_string(query_string)
-        
+
         # Try to extract trace_id from query params
         trace_id = query_params.get("trace_id")
         correlation_id = query_params.get("correlation_id")
-        
+
         # Try to extract from headers if not in query params
         if not trace_id:
             headers = dict(scope.get("headers", []))
             trace_id = headers.get(b"x-trace-id", b"").decode("utf-8") or None
-            correlation_id = headers.get(b"x-correlation-id", b"").decode("utf-8") or None
-        
+            correlation_id = (
+                headers.get(b"x-correlation-id", b"").decode("utf-8") or None
+            )
+
         return TraceContext(
             trace_id=trace_id,
             correlation_id=correlation_id,
         )
-    
+
     def _parse_query_string(self, query_string: str) -> dict[str, str]:
         """
         Parse query string into dict.
-        
+
         Args:
             query_string: Raw query string (e.g., "trace_id=123&foo=bar")
-            
+
         Returns:
             Dict of query parameters
         """
         if not query_string:
             return {}
-        
+
         params = {}
         for pair in query_string.split("&"):
             if "=" in pair:
                 key, value = pair.split("=", 1)
                 params[key] = value
-        
+
         return params
 
 
@@ -253,13 +255,13 @@ class WebSocketTracingMiddleware:
 def get_trace_context(websocket: WebSocket) -> Optional[TraceContext]:
     """
     Extract trace context from WebSocket connection.
-    
+
     Args:
         websocket: FastAPI WebSocket instance
-        
+
     Returns:
         TraceContext if available, None otherwise
-        
+
     Example:
         >>> @app.websocket("/ws")
         >>> async def websocket_endpoint(websocket: WebSocket):
@@ -269,7 +271,7 @@ def get_trace_context(websocket: WebSocket) -> Optional[TraceContext]:
     """
     if not hasattr(websocket, "scope"):
         return None
-    
+
     scope = websocket.scope
     state = scope.get("state", {})
     return state.get("trace_context")
@@ -281,16 +283,16 @@ def inject_trace_into_packet(
 ) -> dict[str, Any]:
     """
     Inject trace context into packet dictionary.
-    
+
     Mutates the packet dict in-place to add trace_id and correlation_id.
-    
+
     Args:
         packet_dict: Packet dictionary to inject trace context into
         trace_context: TraceContext to inject (if None, generates new one)
-        
+
     Returns:
         Modified packet dict (same object, mutated in-place)
-        
+
     Example:
         >>> packet = {"packet_type": "event", "payload": {...}}
         >>> trace_ctx = get_trace_context(websocket)
@@ -299,10 +301,10 @@ def inject_trace_into_packet(
     """
     if trace_context is None:
         trace_context = TraceContext()
-    
+
     packet_dict["trace_id"] = trace_context.trace_id
     packet_dict["correlation_id"] = trace_context.correlation_id
-    
+
     return packet_dict
 
 
@@ -316,3 +318,57 @@ __all__ = [
     "get_trace_context",
     "inject_trace_into_packet",
 ]
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-011",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "auth",
+        "debugging",
+        "endpoint",
+        "event-driven",
+        "logging",
+        "messaging",
+        "middleware",
+    ],
+    "keywords": [
+        "endpoint",
+        "inject",
+        "into",
+        "middleware",
+        "module",
+        "packet",
+        "receive",
+        "send",
+    ],
+    "business_value": "Implements Phase 0 Plan 5: WebSocket Tracing Middleware",
+    "last_modified": "2026-01-24T13:02:52Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

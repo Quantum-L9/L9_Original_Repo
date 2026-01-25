@@ -1,4 +1,19 @@
 # ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Gmp-Contract"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-18T17:12:30Z"
+# updated_at: "2026-01-20T22:37:42Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "gmp-contract"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
 # GMP CONTRACT v3.2.0 — L9 CANONICAL ENFORCEMENT SPECIFICATION
 # ============================================================================
 # Purpose: Machine-readable contract for enforcing GMP phase compliance
@@ -594,3 +609,11 @@ metadata:
     - "cursor-phase-4-validation.md"
     - "cursor-phase-5-recursion.md"
     - "cursor-phase-6-finalization.md"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "api-config", "configuration", "intelligence", "kernel", "redis-config", "schema"]
+# keywords: ["contract", "definition_of_done", "enforcement", "fail_rules", "gmp", "metadata"]
+# last_modified: "2026-01-20T22:37:42Z"
+# ============================================================================
