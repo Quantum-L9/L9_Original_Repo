@@ -660,17 +660,23 @@ class MemorySubstrateContainer:
             DIContainerError: If repository initialization fails
         """
         if self._repository is None:
+            print("DEBUG: DI - Acquiring lock for repository...", flush=True)
             async with self._lock:
+                print("DEBUG: DI - Lock acquired for repository", flush=True)
                 if self._repository is None:  # Double-checked locking
                     try:
+                        print("DEBUG: DI - Importing SubstrateRepository...", flush=True)
                         from memory.substrate_repository import SubstrateRepository
 
+                        print("DEBUG: DI - Creating SubstrateRepository instance...", flush=True)
                         self._repository = SubstrateRepository(
                             database_url=self._config["database_url"],
                             pool_size=self._config.get("db_pool_size", 5),
                             max_overflow=self._config.get("db_max_overflow", 10),
                         )
+                        print("DEBUG: DI - Calling repository.connect()...", flush=True)
                         await self._repository.connect()
+                        print("DEBUG: DI - repository.connect() complete!", flush=True)
 
                         logger.info(
                             "MemorySubstrateContainer.repository_initialized",
@@ -698,9 +704,12 @@ class MemorySubstrateContainer:
             DIContainerError: If embedding provider initialization fails
         """
         if self._embedding_provider is None:
+            print("DEBUG: DI - Acquiring lock for embedding_provider...", flush=True)
             async with self._lock:
+                print("DEBUG: DI - Lock acquired for embedding_provider", flush=True)
                 if self._embedding_provider is None:  # Double-checked locking
                     try:
+                        print("DEBUG: DI - Creating embedding provider...", flush=True)
                         from memory.substrate_semantic import create_embedding_provider
 
                         provider_type = self._config.get(

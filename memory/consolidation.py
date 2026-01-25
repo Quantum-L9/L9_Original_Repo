@@ -50,6 +50,11 @@ from uuid import uuid4
 import structlog
 
 from memory.substrate_repository import SubstrateRepository
+from memory.deduplication import (
+    DeduplicationEngine,
+    MergeStrategy,
+    SimilarityMethod,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -99,6 +104,7 @@ class ConsolidationPipeline:
         self,
         repository: Optional[SubstrateRepository] = None,
         dry_run: bool = False,
+        dedup_engine: Optional[DeduplicationEngine] = None,
     ):
         """
         Initialize consolidation pipeline.
@@ -106,6 +112,7 @@ class ConsolidationPipeline:
         Args:
             repository: SubstrateRepository for database access
             dry_run: If True, log actions without executing
+            dedup_engine: Optional DeduplicationEngine instance (creates default if None)
         """
         self._repository = repository
         self._dry_run = dry_run
@@ -116,6 +123,14 @@ class ConsolidationPipeline:
             "similarity_threshold": 0.95,
             "merge_policy": "keep_highest_confidence",
         }
+
+        # Initialize DeduplicationEngine with config-derived settings
+        self._dedup_engine = dedup_engine or DeduplicationEngine(
+            similarity_threshold=self._deduplication_config["similarity_threshold"],
+            merge_strategy=MergeStrategy.KEEP_HIGHEST_CONFIDENCE,
+            similarity_method=SimilarityMethod.HYBRID,
+            batch_size=1000,
+        )
 
         self._archival_config = {
             "enabled": True,
@@ -138,7 +153,11 @@ class ConsolidationPipeline:
             "cascade_delete_embeddings": True,
         }
 
-        logger.info("ConsolidationPipeline initialized", dry_run=dry_run)
+        logger.info(
+            "ConsolidationPipeline initialized",
+            dry_run=dry_run,
+            dedup_engine=type(self._dedup_engine).__name__,
+        )
 
     def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update repository reference."""
@@ -218,17 +237,22 @@ class ConsolidationPipeline:
         sleep_ms: int,
     ) -> int:
         """
-        Run deduplication strategy.
+        Run deduplication strategy using DeduplicationEngine.
 
-        Finds packets with semantic similarity >= 0.95 and marks duplicates.
-        Uses embedding cosine similarity via pgvector.
+        Finds packets with semantic similarity >= threshold using pgvector,
+        then uses DeduplicationEngine's merge strategy for resolution.
 
         Strategy:
-        1. Query packets with embeddings, grouped by packet_type
-        2. For each group, find pairs with similarity >= threshold
-        3. Keep packet with highest confidence, mark others as duplicates
+        1. Query packets with embeddings via pgvector cosine similarity
+        2. For each duplicate pair, fetch full packet data
+        3. Use DeduplicationEngine merge strategy to determine which to keep
+        4. Mark duplicates with tags for later cleanup
         """
-        logger.info("Running deduplication strategy")
+        logger.info(
+            "Running deduplication strategy",
+            engine=type(self._dedup_engine).__name__,
+            merge_strategy=self._dedup_engine.merge_strategy.value,
+        )
 
         if self._dry_run:
             logger.info("DRY RUN: Would deduplicate packets", batch_size=batch_size)
@@ -271,19 +295,20 @@ class ConsolidationPipeline:
                     )
                     return 0
 
-                # Process duplicates - keep older one, mark newer as duplicate
+                # Process duplicates using DeduplicationEngine merge strategy
                 for row in rows:
-                    packet_id_to_keep = row["packet_id_1"]
-                    packet_id_to_mark = row["packet_id_2"]
+                    packet_id_1 = row["packet_id_1"]
+                    packet_id_2 = row["packet_id_2"]
                     similarity = row["similarity"]
 
-                    # If created_1 > created_2, swap (keep older)
-                    if row["created_1"] and row["created_2"]:
-                        if row["created_1"] > row["created_2"]:
-                            packet_id_to_keep, packet_id_to_mark = (
-                                packet_id_to_mark,
-                                packet_id_to_keep,
-                            )
+                    # Determine which packet to keep based on merge strategy
+                    packet_id_to_keep, packet_id_to_mark = await self._resolve_duplicate_pair(
+                        conn=conn,
+                        packet_id_1=packet_id_1,
+                        packet_id_2=packet_id_2,
+                        created_1=row["created_1"],
+                        created_2=row["created_2"],
+                    )
 
                     # Mark the duplicate packet with a tag
                     if packet_id_to_mark:
@@ -307,6 +332,7 @@ class ConsolidationPipeline:
                             duplicate=packet_id_to_mark,
                             original=packet_id_to_keep,
                             similarity=f"{similarity:.4f}",
+                            strategy=self._dedup_engine.merge_strategy.value,
                         )
 
                     if sleep_ms > 0:
@@ -318,6 +344,72 @@ class ConsolidationPipeline:
 
         logger.info("Deduplication complete", deduplicated_count=deduplicated)
         return deduplicated
+
+    async def _resolve_duplicate_pair(
+        self,
+        conn: Any,
+        packet_id_1: str,
+        packet_id_2: str,
+        created_1: Optional[datetime],
+        created_2: Optional[datetime],
+    ) -> tuple[str, str]:
+        """
+        Resolve which packet to keep in a duplicate pair using DeduplicationEngine strategy.
+
+        Args:
+            conn: Database connection
+            packet_id_1: First packet ID
+            packet_id_2: Second packet ID
+            created_1: First packet creation time
+            created_2: Second packet creation time
+
+        Returns:
+            Tuple of (packet_id_to_keep, packet_id_to_mark_as_duplicate)
+        """
+        merge_strategy = self._dedup_engine.merge_strategy
+
+        if merge_strategy == MergeStrategy.KEEP_HIGHEST_CONFIDENCE:
+            # Fetch confidence scores from both packets
+            rows = await conn.fetch(
+                """
+                SELECT packet_id, 
+                       COALESCE((envelope->'metadata'->>'confidence')::float, 0.0) as confidence
+                FROM packet_store
+                WHERE packet_id = ANY($1::uuid[])
+                """,
+                [packet_id_1, packet_id_2],
+            )
+
+            if len(rows) == 2:
+                # Sort by confidence descending, keep highest
+                sorted_rows = sorted(rows, key=lambda r: r["confidence"], reverse=True)
+                return str(sorted_rows[0]["packet_id"]), str(sorted_rows[1]["packet_id"])
+
+        elif merge_strategy == MergeStrategy.KEEP_MOST_RECENT:
+            # Keep the more recently created packet
+            if created_1 and created_2:
+                if created_1 >= created_2:
+                    return packet_id_1, packet_id_2
+                else:
+                    return packet_id_2, packet_id_1
+
+        elif merge_strategy == MergeStrategy.KEEP_FIRST:
+            # Keep the older packet (first created)
+            if created_1 and created_2:
+                if created_1 <= created_2:
+                    return packet_id_1, packet_id_2
+                else:
+                    return packet_id_2, packet_id_1
+
+        # Default fallback: keep older packet (original behavior)
+        if created_1 and created_2:
+            if created_1 <= created_2:
+                return packet_id_1, packet_id_2
+            else:
+                return packet_id_2, packet_id_1
+
+        # If no timestamps, keep first by ID order
+        return packet_id_1, packet_id_2
 
     async def _run_archival(
         self,

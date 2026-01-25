@@ -58,6 +58,15 @@ from memory.checkpoint_validator import CheckpointValidator, SchemaVersion
 # Consolidation Pipeline (GMP-85 + Stage 2)
 from memory.consolidation import ConsolidationPipeline, ConsolidationReport
 
+# Deduplication Engine (GMP-125: Wired into ConsolidationPipeline)
+from memory.deduplication import (
+    DeduplicationEngine,
+    DeduplicationReport as DeduplicationEngineReport,
+    DuplicateGroup,
+    MergeStrategy,
+    SimilarityMethod,
+)
+
 # Cypher Templates (GMP-55: Parameterized queries)
 from memory.cypher_templates import (
     CypherTemplate,
