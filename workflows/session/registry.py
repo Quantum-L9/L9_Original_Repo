@@ -9,13 +9,18 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
-import structlog
+# structlog is preferred but optional
+try:
+    import structlog
+
+    logger = structlog.get_logger(__name__)
+except ImportError:
+    logger = logging.getLogger(__name__)
 
 from workflows.session.interface import SessionDAG
-
-logger = structlog.get_logger(__name__)
 
 
 class SessionDAGRegistry:
@@ -79,7 +84,9 @@ class SessionDAGRegistry:
                 "id": dag.id,
                 "name": dag.name,
                 "version": dag.version,
-                "description": dag.description[:100] + "..." if len(dag.description) > 100 else dag.description,
+                "description": dag.description[:100] + "..."
+                if len(dag.description) > 100
+                else dag.description,
                 "nodes": len(dag.nodes),
                 "tags": dag.tags,
             }

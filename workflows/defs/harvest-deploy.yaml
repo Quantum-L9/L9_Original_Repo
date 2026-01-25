@@ -1,0 +1,228 @@
+# =============================================================================
+# L9 DAG Workflow: Harvest and Deploy
+# =============================================================================
+#
+# This workflow demonstrates the harvest → deploy → validate → report pattern.
+#
+# Usage:
+#   python3 scripts/workflows/dag_runner.py run scripts/workflows/examples/harvest-deploy.yaml
+#
+# Variables (override via command line or edit below):
+#   source_doc: Path to source document containing code blocks
+#   plan_doc: Path to plan document specifying targets
+#   harvest_dir: Directory for extracted files
+#   project_root: L9 project root
+#
+# =============================================================================
+
+id: harvest-deploy-example
+name: "Harvest and Deploy Workflow"
+description: "Extract code from documents and deploy to L9"
+version: "1.0.0"
+
+# Variables - customize these for your session
+variables:
+  source_doc: "current_work/01-25-2026/Plan Files To Harvest.md"
+  plan_doc: "current_work/01-25-2026/Plan.md"
+  harvest_dir: "current_work/01-25-2026/harvested-files"
+  project_root: "/Users/ib-mac/Projects/L9"
+
+# =============================================================================
+# Steps (DAG nodes)
+# =============================================================================
+
+steps:
+  # ---------------------------------------------------------------------------
+  # Phase 1: Extract code from source document
+  # ---------------------------------------------------------------------------
+  - id: extract_full_files
+    name: "Extract Full Files"
+    type: extract
+    config:
+      source: "${source_doc}"
+      target_dir: "${harvest_dir}"
+      patterns:
+        - start_line: 22
+          end_line: 141
+          output: "1_tool_feedback_learning.sql"
+          strip_backticks: true
+        - start_line: 150
+          end_line: 384
+          output: "2_tool_feedback_service.py"
+          strip_backticks: true
+        - start_line: 393
+          end_line: 564
+          output: "3_tool_learning_engine.py"
+          strip_backticks: true
+        - start_line: 573
+          end_line: 667
+          output: "4_test_tool_feedback_service.py"
+          strip_backticks: true
+        - start_line: 671
+          end_line: 754
+          output: "5_test_tool_learning_engine.py"
+          strip_backticks: true
+    checkpoint: true
+
+  - id: extract_diffs
+    name: "Extract Diff Files"
+    type: extract
+    depends_on: [extract_full_files]
+    config:
+      source: "${source_doc}"
+      target_dir: "${harvest_dir}"
+      patterns:
+        - start_line: 779
+          end_line: 794
+          output: "6_diff_settings.py"
+          strip_backticks: true
+        - start_line: 805
+          end_line: 810
+          output: "7_diff_tool_audit_import.py"
+          strip_backticks: true
+        - start_line: 994
+          end_line: 997
+          output: "11_diff_discovery_imports.py"
+          strip_backticks: true
+        - start_line: 1005
+          end_line: 1021
+          output: "12_diff_discovery_infer_task.py"
+          strip_backticks: true
+        - start_line: 1134
+          end_line: 1159
+          output: "14_diff_telemetry_metrics.py"
+          strip_backticks: true
+
+  - id: verify_extraction
+    name: "Verify Extraction"
+    type: validate
+    depends_on: [extract_full_files, extract_diffs]
+    config:
+      checks:
+        - type: exists
+          files:
+            - "${harvest_dir}/1_tool_feedback_learning.sql"
+            - "${harvest_dir}/2_tool_feedback_service.py"
+            - "${harvest_dir}/3_tool_learning_engine.py"
+        - type: shell
+          command: "ls -la ${harvest_dir}/ && wc -l ${harvest_dir}/*"
+
+  # ---------------------------------------------------------------------------
+  # Phase 2: Deploy full files (copy)
+  # ---------------------------------------------------------------------------
+  - id: deploy_creates
+    name: "Deploy Full Files"
+    type: copy
+    depends_on: [verify_extraction]
+    config:
+      mappings:
+        - from: "${harvest_dir}/1_tool_feedback_learning.sql"
+          to: "migrations/20260125_tool_feedback_learning.sql"
+        - from: "${harvest_dir}/2_tool_feedback_service.py"
+          to: "services/tool_feedback_service.py"
+        - from: "${harvest_dir}/3_tool_learning_engine.py"
+          to: "services/tool_learning_engine.py"
+        - from: "${harvest_dir}/4_test_tool_feedback_service.py"
+          to: "tests/services/test_tool_feedback_service.py"
+        - from: "${harvest_dir}/5_test_tool_learning_engine.py"
+          to: "tests/services/test_tool_learning_engine.py"
+    checkpoint: true
+
+  # ---------------------------------------------------------------------------
+  # Phase 3: Inject diffs into existing files
+  # ---------------------------------------------------------------------------
+  - id: inject_settings
+    name: "Inject Settings"
+    type: inject
+    depends_on: [deploy_creates]
+    config:
+      mappings:
+        - from: "${harvest_dir}/6_diff_settings.py"
+          to: "config/settings.py"
+          after_line: 207
+
+  - id: inject_discovery_imports
+    name: "Inject Discovery Imports"
+    type: inject
+    depends_on: [deploy_creates]
+    config:
+      mappings:
+        - from: "${harvest_dir}/11_diff_discovery_imports.py"
+          to: "core/tools/dynamic_discovery.py"
+          after_line: 43
+
+  - id: inject_discovery_helper
+    name: "Inject Discovery Helper"
+    type: inject
+    depends_on: [inject_discovery_imports]
+    config:
+      mappings:
+        - from: "${harvest_dir}/12_diff_discovery_infer_task.py"
+          to: "core/tools/dynamic_discovery.py"
+          after_line: 90
+
+  - id: inject_telemetry
+    name: "Inject Telemetry Metrics"
+    type: inject
+    depends_on: [deploy_creates]
+    config:
+      mappings:
+        - from: "${harvest_dir}/14_diff_telemetry_metrics.py"
+          to: "telemetry/memory_metrics.py"
+          after_line: 214
+
+  # ---------------------------------------------------------------------------
+  # Phase 4: Validate all changes
+  # ---------------------------------------------------------------------------
+  - id: validate_python
+    name: "Validate Python Syntax"
+    type: validate
+    depends_on: 
+      - inject_settings
+      - inject_discovery_imports
+      - inject_discovery_helper
+      - inject_telemetry
+    config:
+      checks:
+        - type: py_compile
+          files:
+            - "services/tool_feedback_service.py"
+            - "services/tool_learning_engine.py"
+            - "config/settings.py"
+            - "core/tools/dynamic_discovery.py"
+            - "telemetry/memory_metrics.py"
+
+  - id: validate_wiring
+    name: "Validate Wiring"
+    type: validate
+    depends_on: [validate_python]
+    config:
+      checks:
+        - type: grep
+          pattern: "l9_tool_feedback"
+          files:
+            - "config/settings.py"
+        - type: grep
+          pattern: "tool_feedback_recorded"
+          files:
+            - "telemetry/memory_metrics.py"
+
+  # ---------------------------------------------------------------------------
+  # Phase 5: Report
+  # ---------------------------------------------------------------------------
+  - id: report
+    name: "Final Report"
+    type: shell
+    depends_on: [validate_wiring]
+    config:
+      commands:
+        - "echo '=== DEPLOYMENT COMPLETE ==='"
+        - "echo 'Files created:'"
+        - "ls -la migrations/20260125_tool_feedback_learning.sql services/tool_feedback_service.py services/tool_learning_engine.py"
+        - "echo ''"
+        - "echo 'Settings injected:'"
+        - "grep -n 'l9_tool_feedback' config/settings.py | head -5"
+        - "echo ''"
+        - "echo 'Telemetry metrics added:'"
+        - "grep -n 'tool_feedback_recorded\\|tool_success_rate' telemetry/memory_metrics.py | head -3"
+    checkpoint: true

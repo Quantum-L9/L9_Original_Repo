@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 
 class NodeType(str, Enum):
@@ -137,7 +137,9 @@ class SessionDAG:
         """Get next node IDs from current node, optionally filtered by condition."""
         edges = self.get_outgoing_edges(node_id)
         if condition:
-            edges = [e for e in edges if e.condition == condition or e.condition is None]
+            edges = [
+                e for e in edges if e.condition == condition or e.condition is None
+            ]
         return [e.to_node for e in edges]
 
     def validate(self) -> list[str]:
@@ -155,25 +157,14 @@ class SessionDAG:
             if edge.to_node not in self._node_map:
                 errors.append(f"Edge to unknown node: {edge.to_node}")
 
-        # Check for cycles (basic DFS)
-        visited = set()
-        rec_stack = set()
-
-        def has_cycle(node_id: str) -> bool:
-            visited.add(node_id)
-            rec_stack.add(node_id)
-            for next_id in self.get_next_nodes(node_id):
-                if next_id not in visited:
-                    if has_cycle(next_id):
-                        return True
-                elif next_id in rec_stack:
-                    errors.append(f"Cycle detected involving node: {next_id}")
-                    return True
-            rec_stack.remove(node_id)
-            return False
-
-        if self.entry_node in self._node_map:
-            has_cycle(self.entry_node)
+        # Note: We allow cycles in session DAGs because they represent
+        # user-guided workflows with revision loops (e.g., revise -> re-validate).
+        # These are not execution DAGs - the user controls flow.
+        #
+        # Cycles are valid for:
+        # - Revision loops (gate -> revise -> validate -> gate)
+        # - Retry loops (validate -> fix -> validate)
+        # - Iteration loops (process -> check -> process)
 
         return errors
 
@@ -228,35 +219,43 @@ class SessionDAG:
         ]
 
         for i, node in enumerate(self.nodes, 1):
-            lines.append(f"| {i} | `{node.id}` | {node.node_type.value} | {node.description} |")
+            lines.append(
+                f"| {i} | `{node.id}` | {node.node_type.value} | {node.description} |"
+            )
 
-        lines.extend([
-            "",
-            "## Execution Instructions",
-            "",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Execution Instructions",
+                "",
+            ]
+        )
 
         for node in self.nodes:
             if node.node_type not in (NodeType.START, NodeType.END):
-                lines.extend([
-                    f"### {node.name} (`{node.id}`)",
-                    "",
-                    f"**Type:** {node.node_type.value}",
-                    "",
-                    f"**Action:**",
-                    "```",
-                    node.action,
-                    "```",
-                    "",
-                ])
-                if node.validation:
-                    lines.extend([
-                        f"**Validation:**",
+                lines.extend(
+                    [
+                        f"### {node.name} (`{node.id}`)",
+                        "",
+                        f"**Type:** {node.node_type.value}",
+                        "",
+                        "**Action:**",
                         "```",
-                        node.validation,
+                        node.action,
                         "```",
                         "",
-                    ])
+                    ]
+                )
+                if node.validation:
+                    lines.extend(
+                        [
+                            "**Validation:**",
+                            "```",
+                            node.validation,
+                            "```",
+                            "",
+                        ]
+                    )
                 if node.gate_type:
                     lines.append(f"**Gate:** {node.gate_type.value}")
                     lines.append("")

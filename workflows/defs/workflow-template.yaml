@@ -1,0 +1,200 @@
+# =============================================================================
+# L9 DAG Workflow Template
+# =============================================================================
+#
+# Copy this file and customize for your workflow.
+#
+# Usage:
+#   python3 scripts/workflows/dag_runner.py validate my-workflow.yaml
+#   python3 scripts/workflows/dag_runner.py run my-workflow.yaml
+#   python3 scripts/workflows/dag_runner.py resume my-workflow.yaml
+#
+# =============================================================================
+
+id: my-workflow
+name: "My Custom Workflow"
+description: "Description of what this workflow does"
+version: "1.0.0"
+
+# Variables - use ${var_name} in step configs
+variables:
+  source_file: "path/to/source.md"
+  target_dir: "path/to/output"
+  project_root: "/Users/ib-mac/Projects/L9"
+
+# =============================================================================
+# Steps
+# =============================================================================
+#
+# Available step types:
+#   - shell: Run shell commands
+#   - extract: Extract lines from file using sed
+#   - copy: Copy files
+#   - inject: Insert content into existing file
+#   - replace: Replace lines in existing file
+#   - validate: Run validation checks
+#   - checkpoint: Pause for user confirmation
+#   - python: Execute Python code
+#
+# Step options:
+#   - depends_on: List of step IDs that must complete first
+#   - checkpoint: true/false - pause after this step
+#   - continue_on_fail: true/false - continue if this step fails
+#
+# =============================================================================
+
+steps:
+  # ---------------------------------------------------------------------------
+  # Example: Shell command
+  # ---------------------------------------------------------------------------
+  - id: setup
+    name: "Setup Environment"
+    type: shell
+    config:
+      commands:
+        - "mkdir -p ${target_dir}"
+        - "echo 'Environment ready'"
+
+  # ---------------------------------------------------------------------------
+  # Example: Extract code blocks
+  # ---------------------------------------------------------------------------
+  - id: extract
+    name: "Extract Code"
+    type: extract
+    depends_on: [setup]
+    config:
+      source: "${source_file}"
+      target_dir: "${target_dir}"
+      patterns:
+        - start_line: 10
+          end_line: 50
+          output: "extracted_1.py"
+          strip_backticks: true
+        - start_line: 60
+          end_line: 100
+          output: "extracted_2.py"
+          strip_backticks: true
+    checkpoint: true
+
+  # ---------------------------------------------------------------------------
+  # Example: Copy files
+  # ---------------------------------------------------------------------------
+  - id: deploy
+    name: "Deploy Files"
+    type: copy
+    depends_on: [extract]
+    config:
+      mappings:
+        - from: "${target_dir}/extracted_1.py"
+          to: "services/new_service.py"
+        - from: "${target_dir}/extracted_2.py"
+          to: "core/new_module.py"
+
+  # ---------------------------------------------------------------------------
+  # Example: Inject into existing file
+  # ---------------------------------------------------------------------------
+  - id: inject_imports
+    name: "Inject Imports"
+    type: inject
+    depends_on: [deploy]
+    config:
+      mappings:
+        - from: "${target_dir}/diff_imports.py"
+          to: "core/existing_module.py"
+          after_line: 10  # Insert after line 10
+        # Or use pattern:
+        # - from: "${target_dir}/diff_class.py"
+        #   to: "core/existing_module.py"
+        #   after_pattern: "class MyClass:"
+
+  # ---------------------------------------------------------------------------
+  # Example: Replace lines
+  # ---------------------------------------------------------------------------
+  - id: replace_function
+    name: "Replace Function"
+    type: replace
+    depends_on: [deploy]
+    config:
+      mappings:
+        - from: "${target_dir}/new_function.py"
+          to: "core/existing_module.py"
+          start_line: 50
+          end_line: 75
+
+  # ---------------------------------------------------------------------------
+  # Example: Validate
+  # ---------------------------------------------------------------------------
+  - id: validate
+    name: "Validate Changes"
+    type: validate
+    depends_on: [inject_imports, replace_function]
+    config:
+      checks:
+        # Python syntax check
+        - type: py_compile
+          files:
+            - "services/new_service.py"
+            - "core/new_module.py"
+            - "core/existing_module.py"
+        # File existence check
+        - type: exists
+          files:
+            - "services/new_service.py"
+        # Pattern check
+        - type: grep
+          pattern: "expected_pattern"
+          files:
+            - "core/existing_module.py"
+        # Custom shell check
+        - type: shell
+          command: "python3 -c 'from services.new_service import *'"
+
+  # ---------------------------------------------------------------------------
+  # Example: Checkpoint
+  # ---------------------------------------------------------------------------
+  - id: confirm
+    name: "Confirm Changes"
+    type: checkpoint
+    depends_on: [validate]
+    config:
+      message: "All validations passed. Ready to finalize?"
+
+  # ---------------------------------------------------------------------------
+  # Example: Python step
+  # ---------------------------------------------------------------------------
+  - id: custom_logic
+    name: "Custom Processing"
+    type: python
+    depends_on: [confirm]
+    config:
+      code: |
+        import os
+        from pathlib import Path
+        
+        # Access variables and working_dir
+        wd = working_dir
+        vars = variables
+        
+        # Do custom processing
+        print(f"Working in: {wd}")
+        print(f"Variables: {vars}")
+        
+        # Set output for logging
+        output = "Custom processing complete"
+        
+        # Set artifacts for downstream steps
+        artifacts = {"custom_result": "value"}
+
+  # ---------------------------------------------------------------------------
+  # Example: Final report
+  # ---------------------------------------------------------------------------
+  - id: report
+    name: "Final Report"
+    type: shell
+    depends_on: [custom_logic]
+    config:
+      commands:
+        - "echo '=== WORKFLOW COMPLETE ==='"
+        - "echo 'Created files:'"
+        - "ls -la services/new_service.py core/new_module.py"
+        - "echo 'Done!'"
