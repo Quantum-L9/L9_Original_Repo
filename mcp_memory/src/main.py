@@ -31,16 +31,16 @@ import structlog
 from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
+
+from config.rls_config import get_rls_config
+from core.decorators import must_stay_async
+from memory.governance_gate import build_governance_context, governance_context
 from src.config import settings
 from src.db import close_db, init_db
 from src.mcp_server import MCPToolCall, get_mcp_tools, handle_tool_call
 from src.rate_limiter import RateLimiter
 from src.routes import health
 from src.routes import memory_unified as memory
-
-from core.decorators import must_stay_async
-from memory.governance_gate import build_governance_context, governance_context
-from config.rls_config import get_rls_config
 
 # Configure structlog
 # Use structlog log levels (no need for logging module)
@@ -153,31 +153,99 @@ async def lifespan(app: FastAPI):
             "Set MEMORY_DSN to enable automatic migrations."
         )
 
+    # =========================================================================
     # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
+    # GMP-MEM-FIX: Added DB readiness check + timeout wrapper to prevent hang
+    # =========================================================================
+    SUBSTRATE_INIT_TIMEOUT = int(os.getenv("SUBSTRATE_INIT_TIMEOUT", "30"))
+
+    async def _check_db_ready(url: str, max_retries: int = 5) -> bool:
+        """Check if PostgreSQL is accepting connections before init_service."""
+        for attempt in range(max_retries):
+            try:
+                conn = await asyncio.wait_for(
+                    asyncpg.connect(url),
+                    timeout=5.0,
+                )
+                await conn.close()
+                logger.info(
+                    "Database ready for substrate init",
+                    attempt=attempt + 1,
+                )
+                return True
+            except TimeoutError:
+                logger.warning(
+                    "Database connection timeout",
+                    attempt=attempt + 1,
+                    max_retries=max_retries,
+                )
+            except Exception as e:
+                logger.warning(
+                    "Database not ready",
+                    attempt=attempt + 1,
+                    max_retries=max_retries,
+                    error=str(e),
+                )
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2**attempt)  # Exponential backoff: 1, 2, 4, 8s
+        return False
+
+    # Flush logs before potential hang point (debugging aid)
+    import sys
+
+    sys.stdout.flush()
+    sys.stderr.flush()
+
     logger.info("Initializing L9 Memory Substrate Service...")
+    sys.stdout.flush()  # Ensure this log appears before potential hang
+
     try:
         from memory.substrate_service import init_service
 
         if not database_url:
             logger.warning(
                 "MEMORY_DSN not set. MCP memory will use direct DB access. "
-                "Set MEMORY_DSN to enable full DAG pipeline (graph sync, fact extraction, etc.)"
+                "Set MEMORY_DSN to enable full DAG pipeline."
             )
+            app.state.substrate_service = None
         else:
-            # CRITICAL: Use SAME embedding model for write AND search
-            # Search uses settings.OPENAI_EMBED_MODEL (in embeddings.py)
-            # Write must use the same model for vector similarity to work
-            substrate_service = await init_service(
-                database_url=database_url,
-                embedding_provider_type=os.getenv("EMBEDDING_PROVIDER", "openai"),
-                embedding_model=settings.OPENAI_EMBED_MODEL,  # MUST match embeddings.py
-                openai_api_key=settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY"),
-            )
-            # Store in app state for route handlers
-            app.state.substrate_service = substrate_service
-            logger.info(
-                "✓ L9 Memory Substrate Service initialized (full DAG pipeline enabled)"
-            )
+            # Check DB readiness before attempting init_service
+            db_ready = await _check_db_ready(database_url)
+            if not db_ready:
+                logger.error(
+                    "Database not ready after retries - skipping substrate init",
+                    timeout=SUBSTRATE_INIT_TIMEOUT,
+                )
+                app.state.substrate_service = None
+            else:
+                # CRITICAL: Use SAME embedding model for write AND search
+                # Search uses settings.OPENAI_EMBED_MODEL (in embeddings.py)
+                try:
+                    # Extract config vars for line length compliance
+                    embed_provider = os.getenv("EMBEDDING_PROVIDER", "openai")
+                    embed_model = settings.OPENAI_EMBED_MODEL
+                    api_key = settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY")
+
+                    substrate_service = await asyncio.wait_for(
+                        init_service(
+                            database_url=database_url,
+                            embedding_provider_type=embed_provider,
+                            embedding_model=embed_model,
+                            openai_api_key=api_key,
+                        ),
+                        timeout=SUBSTRATE_INIT_TIMEOUT,
+                    )
+                    # Store in app state for route handlers
+                    app.state.substrate_service = substrate_service
+                    logger.info(
+                        "✓ Memory Substrate Service initialized (DAG pipeline enabled)"
+                    )
+                except TimeoutError:
+                    logger.error(
+                        "Memory Substrate Service initialization timed out",
+                        timeout=SUBSTRATE_INIT_TIMEOUT,
+                    )
+                    app.state.substrate_service = None
     except Exception as e:
         logger.warning(
             f"Failed to initialize Memory Substrate Service: {e}. "
@@ -325,20 +393,15 @@ async def verify_api_key(
     # Primary keys first
     if api_key_l and token == api_key_l:
         return CallerIdentity(caller_id="L", user_id=settings.L_CTO_USER_ID)
-    elif api_key_c and token == api_key_c:
+    if api_key_c and token == api_key_c:
         return CallerIdentity(caller_id="C", user_id=settings.L_CTO_USER_ID)
     # Legacy fallback: MCP_API_KEY / MCPL9MEMORYKEY → shared identity (defaults to L)
-    elif settings.MCP_API_KEY and token == settings.MCP_API_KEY:
+    if (settings.MCP_API_KEY and token == settings.MCP_API_KEY) or (settings.MCPL9MEMORYKEY and token == settings.MCPL9MEMORYKEY):
         return CallerIdentity(
             caller_id="L", user_id=settings.L_CTO_USER_ID
         )  # Legacy → L
-    elif settings.MCPL9MEMORYKEY and token == settings.MCPL9MEMORYKEY:
-        return CallerIdentity(
-            caller_id="L", user_id=settings.L_CTO_USER_ID
-        )  # Legacy → L
-    else:
-        await rate_limiter.record_failed_auth(ip, now=time.time())
-        raise HTTPException(status_code=403, detail="Invalid API key")
+    await rate_limiter.record_failed_auth(ip, now=time.time())
+    raise HTTPException(status_code=403, detail="Invalid API key")
 
 
 @app.get("/")
@@ -399,7 +462,9 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
 
         # L gets all scopes, C gets developer + global only (no l-private)
         allowed_scopes = (
-            ["developer", "global", "l-private"] if caller.is_l else ["developer", "global"]
+            ["developer", "global", "l-private"]
+            if caller.is_l
+            else ["developer", "global"]
         )
 
         ctx = build_governance_context(
@@ -417,7 +482,9 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
 
         # Execute tool call within governance context
         async with governance_context(ctx):
-            result = await handle_tool_call(tool_call, user_id, caller, substrate_service)
+            result = await handle_tool_call(
+                tool_call, user_id, caller, substrate_service
+            )
 
         return {"status": "success", "result": result, "caller": caller.caller_id}
     except ValueError as e:
