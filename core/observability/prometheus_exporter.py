@@ -4,6 +4,8 @@ Prometheus exporter for Five-Tier Observability metrics.
 Exposes observability metrics to Prometheus for Grafana visualization.
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Prometheus Exporter",

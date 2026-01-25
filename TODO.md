@@ -1,26 +1,31 @@
 # TODO
 
-> **Last Updated:** 2026-01-21 (PRs 28-30 merge tracking, adaptive cache, api/server.py deferred)
+> **Last Updated:** 2026-01-25 (PRs #28-30 merged, wiring tasks pending)
 
 ---
 
 ## 🔴 High Priority
 
-### PRs #28, #29, #30 Merge (BLOCKED on CI)
+### ✅ PRs #28, #29, #30 — MERGED (2026-01-25 verified)
 
-**Status:** CI failing on all 3 PRs — Manus fixing (prompts sent)
+| PR | Title | Status |
+|----|-------|--------|
+| #28 | ExecutorComposer + DIContainer | ✅ MERGED |
+| #29 | Observability Infrastructure | ✅ MERGED |
+| #30 | Memory & Governance | ✅ MERGED |
 
-| PR | Title | CI Status | Blocker |
-|----|-------|-----------|---------|
-| #28 | ExecutorComposer + DIContainer | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
-| #29 | Observability Infrastructure | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
-| #30 | Memory & Governance | ❌ FAILED | CI Gates, Docker Validation, Path Safety |
+### Post-Merge Wiring Tasks (NOW ACTIVE)
 
-**Merge Order:** #28 → #29 → #30 (dependency chain)
-
-**Post-Merge TODO:**
-- [ ] Wire `DeduplicationEngine` into `memory/consolidation.py` `_run_deduplication()`
-- [ ] Wire `registry_cache.py` into `core/tools/registry_adapter.py`
+- [ ] **Wire `DeduplicationEngine`** into `memory/consolidation.py` `_run_deduplication()`
+  - File exists: `memory/deduplication.py` (529 lines)
+  - Current: Raw SQL in consolidation.py
+  - TODO: Import and use DeduplicationEngine class
+  
+- [ ] **Wire `RegistryCache`** into `core/tools/registry_adapter.py`
+  - File exists: `core/tools/registry_cache.py` (572 lines)
+  - Current: No caching in registry_adapter.py
+  - TODO: Import and integrate ToolRegistryCache
+  
 - [ ] Add tracing decorators to high-traffic routes
 
 **DEFERRED:** `api/server.py` refactor → separate future PR

@@ -48,6 +48,8 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-24] **✅ GMP-123 Complete** — Status: PASS. Report: `reports/GMP-Report-123-*.md`
+- [2026-01-24] **GMP-123 Started** — MCP tools migration from l_tools.py
 - [2026-01-24] **✅ GMP-122 Complete** — Status: PASS. Report: `reports/GMP-Report-122-*.md`
 - [2026-01-24] **GMP-122 Started** — Tool packages infrastructure + redis_tools proof-of-concept
 - [2026-01-24] **✅ GMP-121 Complete** — Status: PASS. Report: `reports/GMP-Report-121-*.md`
@@ -61,6 +63,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 ## Decision Log (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-24] **sentence-transformers Optional**: Leave uninstalled. Cross-encoder re-ranking disabled; RRF fusion still works. Heavy dep (~400MB). Install later if retrieval quality needs boost.
 - [2026-01-24] **ADR-0062 Deferred Strict Linting**: Incremental adoption of strict mypy/ruff. Keep line-length=88. Adopt strictness per-module via future GMPs.
 - [2026-01-24] **PR Realignment Pattern**: PRs require type annotations (strict mypy), lint compliance (ruff), correct file locations (existing package structure), no DEBUG code.
 - [2026-01-20] **Unified Memory Pipeline**: Three entry points → PostgreSQL. `ingest_packet()` and `_emit_packet()` → `write_packet()` → DAG.
@@ -83,7 +86,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Embedding Dimensions**: ALL systems aligned at **1536**
 
 ---
-*Last updated: 2026-01-24 (PR #45 + #52 closed, archive cleanup)*
+*Last updated: 2026-01-25 (PR #28-30 merge verification, wiring tasks identified)*
 
 ## Next Steps (Current Session)
 
@@ -91,26 +94,26 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **PR #45:** CLOSED — Anti-Pattern Tests adopted (100%)
 - **PR #52:** CLOSED — DI/DIP Three-Track (70% adopted)
 
-### 🔴 BLOCKED: PRs #28, #29, #30 Merge
-**Status:** All 3 PRs have CI failures
-**Action:** Manus fixing
-**Merge Order (when CI passes):** PR #28 → PR #29 → PR #30
+### ✅ COMPLETED: PRs #28, #29, #30 Merged
+**Status:** All 3 PRs merged successfully (verified 2026-01-25)
+- PR #28: ExecutorComposer Pattern & DIContainer Enhancements — MERGED
+- PR #29: Observability Infrastructure - Tracing & Instrumentation — MERGED
+- PR #30: Memory & Governance Enhancements — MERGED
 
-### 🟡 PENDING: PR Analysis (Awaiting User Confirmation)
-| PR | Title | Status |
-|----|-------|--------|
-| #36 | Remediate unsafe eval usage | Phase 0 TODO |
-| #46 | Add 5 More Anti-Pattern Tests | Phase 0 TODO |
-| #48 | Complete AutoRegistry Migration | Phase 0 TODO |
-| #49 | ADR Enforcement Infrastructure | Phase 0 TODO |
-| #50 | Remove Anti-Pattern Violations | Phase 0 TODO |
-| #51 | Spring Cleaning TODO Tracking | Phase 0 TODO |
-| #53 | Design Pattern Improvements | Phase 0 TODO |
-| #54 | Add 7 Design Pattern ADRs | Phase 0 TODO |
+### 🔴 POST-MERGE WIRING: Remaining Tasks
+| Task | File | Status |
+|------|------|--------|
+| Wire DeduplicationEngine | `memory/consolidation.py` | ❌ NOT DONE |
+| Wire RegistryCache | `core/tools/registry_adapter.py` | ❌ NOT DONE |
+
+### 🔵 CLOSED: PR Analysis (No Longer Active)
+PRs #36, #46, #48, #49, #50, #53, #54 — All CLOSED (superseded or abandoned)
+PR #51 (Spring Cleaning) — MERGED ✅
 
 **Recent Sessions (7-day window):**
-- 2026-01-24: PR #45 + #52 closed, GMP-114-116 service protocols, archive cleanup
-- 2026-01-23: PR Cleanup (#41, #42, #44), Tenant ID standardization
-- 2026-01-21: PRs #28-30 Analysis (blocked on CI)
-- 2026-01-20: World Model Pipeline Unification, GMP-106 PR #22
-- 2026-01-19: Pre-Commit v3.0, Session Startup, Auto-Wiring Phase 3
+- 2026-01-25: PR status audit — PRs #28-30 confirmed MERGED, wiring tasks identified
+- ✅ 2026-01-24: sentence-transformers analysis (leave as-is), PR #45 + #52 closed, GMP-114-116 service protocols
+- ✅ 2026-01-23: PR Cleanup (#41, #42, #44), Tenant ID standardization
+- ✅ 2026-01-21: PRs #28-30 Analysis (now merged)
+- ✅ 2026-01-20: World Model Pipeline Unification, GMP-106 PR #22
+- ✅ 2026-01-19: Pre-Commit v3.0, Session Startup, Auto-Wiring Phase 3

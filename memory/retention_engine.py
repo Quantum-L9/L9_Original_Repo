@@ -36,9 +36,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
+
+# Python 3.11+ has datetime.UTC, earlier versions use timezone.utc
+UTC = UTC if sys.version_info < (3, 11) else __import__("datetime").UTC
 
 import structlog
 

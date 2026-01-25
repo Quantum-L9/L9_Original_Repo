@@ -17,6 +17,8 @@ Production-ready features (v2.1.0):
 - Async execution with timeout handling
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Base Registry",

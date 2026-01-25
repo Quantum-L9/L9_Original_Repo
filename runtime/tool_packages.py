@@ -47,7 +47,7 @@ logger = structlog.get_logger(__name__)
 #
 # Migration Status:
 # - [x] runtime.redis_tools (13 tools) - GMP-122
-# - [ ] runtime.mcp_tools (8 tools) - pending
+# - [x] runtime.mcp_tools (7 tools) - GMP-123
 # - [ ] runtime.slack_tools (3 tools) - pending
 # - [ ] runtime.llm_tools (3 tools) - pending
 # - [ ] runtime.governance_tools (4 tools) - pending
@@ -63,12 +63,12 @@ logger = structlog.get_logger(__name__)
 TOOL_PACKAGES: list[str] = [
     # === MIGRATED (from l_tools.py) ===
     "runtime.redis_tools",  # GMP-122: Redis cache & queue tools (13)
+    "runtime.mcp_tools",  # GMP-123: MCP server tools (7)
     # === EXISTING (already use @register_tool) ===
     "core.tools.research_tools",  # Research tools (4)
     "core.tools.reflection_tools",  # Reflection tools (5)
     # === LEGACY (still in l_tools.py - to be migrated) ===
     # These will be added as modules are created:
-    # "runtime.mcp_tools",
     # "runtime.slack_tools",
     # "runtime.llm_tools",
     # "runtime.governance_tools",
@@ -146,7 +146,9 @@ def discover_from_packages() -> int:
             logger.warning("tool_package_import_failed", package=package, error=str(e))
         except DuplicateRegistrationError as e:
             # Tools already registered from this package (race condition or re-import)
-            logger.debug("tool_package_already_registered", package=package, error=str(e))
+            logger.debug(
+                "tool_package_already_registered", package=package, error=str(e)
+            )
             skipped += 1
 
     logger.info(

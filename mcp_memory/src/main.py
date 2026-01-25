@@ -165,7 +165,9 @@ async def lifespan(app: FastAPI):
     # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
     # GMP-MEM-FIX: Added DB readiness check + timeout wrapper to prevent hang
     # =========================================================================
+    print("DEBUG: About to set SUBSTRATE_INIT_TIMEOUT", flush=True)
     SUBSTRATE_INIT_TIMEOUT = int(os.getenv("SUBSTRATE_INIT_TIMEOUT", "30"))
+    print(f"DEBUG: SUBSTRATE_INIT_TIMEOUT={SUBSTRATE_INIT_TIMEOUT}", flush=True)
 
     async def _check_db_ready(url: str, max_retries: int = 5) -> bool:
         """Check if PostgreSQL is accepting connections before init_service."""
@@ -204,7 +206,11 @@ async def lifespan(app: FastAPI):
     sys.stdout.flush()
     sys.stderr.flush()
 
+    print(
+        "DEBUG: About to log 'Initializing L9 Memory Substrate Service...'", flush=True
+    )
     logger.info("Initializing L9 Memory Substrate Service...")
+    print("DEBUG: logger.info call complete", flush=True)
     sys.stdout.flush()  # Ensure this log appears before potential hang
 
     try:
