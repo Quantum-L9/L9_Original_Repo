@@ -7,11 +7,7 @@ repos:
         args: ['--fix']
       - id: ruff-format
   
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
-    hooks:
-      - id: black
-        language_version: python3.12
+  # NOTE: black removed - ruff-format handles formatting
   
   # Python type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -20,12 +16,8 @@ repos:
       - id: mypy
         args: ['--strict']
   
-  # Security scanning
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-
+  # NOTE: bandit removed - ruff "S" rules handle security scanning
+  
   # Secret scanning (gitleaks)
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.21.2
