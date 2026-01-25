@@ -812,6 +812,31 @@ async def lifespan(app: FastAPI):
         logger.warning(f"Policy source auto-registration failed: {e}")
 
     # ------------------------------------------------------------------------
+    # Governance Integration (CA + L Agent Runtime)
+    # Unified loader for DevLayer governance and ArchitectMentor runtime
+    # ------------------------------------------------------------------------
+    try:
+        from pathlib import Path
+
+        from core.governance_integration import GovernanceIntegration
+
+        governance = GovernanceIntegration(
+            repo_root=Path.cwd(),
+            agent_id=os.getenv("DEFAULT_AGENT_ID", "l"),
+            memory_manager=None,  # Will be wired later if memory service available
+        )
+        app.state.governance = governance
+        logger.info(
+            "Governance Integration initialized",
+            agent_id=governance.agent_id,
+            confidence_threshold=governance.l_agent.confidence_threshold,
+        )
+    except Exception as e:
+        # Non-fatal: governance features degraded but core API still works
+        app.state.governance = None
+        logger.warning(f"Governance Integration init failed: {e}")
+
+    # ------------------------------------------------------------------------
     # Router Auto-Registration (Phase 2 Auto-Wiring)
     # Discover and wire @router_registry.register() decorated routers
     # NOTE: This runs ALONGSIDE legacy manual registrations during migration
@@ -2548,6 +2573,14 @@ async def lifespan(app: FastAPI):
             logger.info("Memory Warming Service shutdown complete")
         except Exception as e:
             logger.warning(f"Error shutting down Memory Warming Service: {e}")
+
+    # Save Governance Integration agent state
+    if hasattr(app.state, "governance") and app.state.governance:
+        try:
+            app.state.governance.l_agent.save_state()
+            logger.info("Governance agent state saved on shutdown")
+        except Exception as e:
+            logger.warning(f"Error saving governance agent state: {e}")
 
     # Save agent checkpoints before shutdown
     if hasattr(app.state, "agent_persistence") and app.state.agent_persistence:
