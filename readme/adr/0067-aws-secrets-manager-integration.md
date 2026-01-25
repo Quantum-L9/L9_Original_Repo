@@ -3,7 +3,7 @@
 - **Status**: Accepted
 - **Date**: 2026-01-25
 - **Deciders**: Igor Beylin, L9 Architecture Team
-- **GMP**: GMP-122
+- **GMP**: GMP-122, GMP-123
 
 ## Context and Problem Statement
 
@@ -64,14 +64,33 @@ Chosen option: **AWS Secrets Manager** with environment variable fallback, becau
 
 ```
 l9/{KEY_NAME}
-
-Examples:
-- l9/DATABASE_URL
-- l9/OPENAI_API_KEY
-- l9/SLACK_BOT_TOKEN
-- l9/MCP_API_KEY_C
-- l9/MCP_API_KEY_L
 ```
+
+### Complete Secret Inventory (21 secrets as of 2026-01-25)
+
+| Category | Secret | Description |
+|----------|--------|-------------|
+| **Infrastructure** | `l9/DATABASE_URL` | PostgreSQL connection string |
+| | `l9/MEMORY_DSN` | Memory service DSN |
+| | `l9/NEO4J_PASSWORD` | Neo4j graph database |
+| | `l9/POSTGRES_PASSWORD` | PostgreSQL password |
+| **LLM APIs** | `l9/OPENAI_API_KEY` | OpenAI GPT-4 |
+| | `l9/ANTHROPIC_API_KEY` | Anthropic Claude |
+| | `l9/PERPLEXITY_API_KEY` | Perplexity research |
+| **Authentication** | `l9/MCP_API_KEY` | Main MCP key |
+| | `l9/MCP_API_KEY_C` | Cursor agent MCP |
+| | `l9/MCP_API_KEY_L` | L agent MCP |
+| | `l9/L9_EXECUTOR_API_KEY` | VPS executor auth |
+| **Slack** | `l9/SLACK_BOT_TOKEN` | Bot OAuth token |
+| | `l9/SLACK_SIGNING_SECRET` | Request signing |
+| | `l9/SLACK_CLIENT_SECRET` | OAuth client |
+| | `l9/SLACK_VERIFICATION_TOKEN` | Legacy verification |
+| **Communication** | `l9/TWILIO_AUTH_TOKEN` | Twilio API auth |
+| | `l9/TWILIO_ACCOUNT_SID` | Twilio account |
+| **Third-Party** | `l9/GOOGLE_CALENDAR_API_KEY` | Calendar integration |
+| | `l9/GMAIL_API_KEY` | Email integration |
+| **Observability** | `l9/GRAFANA_PASSWORD` | Dashboard admin |
+| **Signing** | `l9/GPG_KEY` | GPG signing key |
 
 ### Configuration
 
@@ -179,3 +198,4 @@ If issues arise in production:
 - ADR 0066: AWS S3 Storage Architecture
 - `core/protocols/secrets_protocols.py` - Protocol definition
 - Commit: `712c7847` (GMP-122)
+- GMP-123: Extended coverage from 9 to 21 secrets

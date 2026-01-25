@@ -21,7 +21,8 @@
 #   - AWS CLI installed and configured (with secretsmanager permissions)
 #   - .env file or shell environment with secrets set
 #
-# GMP: GMP-122 AWS Secrets Manager Integration
+# GMP: GMP-122, GMP-123 AWS Secrets Manager Integration
+# Updated: 2026-01-25 - Added 20 secrets (comprehensive coverage)
 # =============================================================================
 
 set -e
@@ -215,31 +216,100 @@ create_or_update_secret() {
 }
 
 # =============================================================================
-# Create Critical Secrets
+# CRITICAL SECRETS - Core Infrastructure
 # =============================================================================
 echo ""
-log_info "Creating/updating CRITICAL secrets..."
+log_info "Creating/updating CRITICAL secrets (Infrastructure)..."
 echo "----------------------------------------"
 
 create_or_update_secret "DATABASE_URL" "$DATABASE_URL"
-create_or_update_secret "OPENAI_API_KEY" "$OPENAI_API_KEY"
-create_or_update_secret "ANTHROPIC_API_KEY" "$ANTHROPIC_API_KEY"
-create_or_update_secret "SLACK_BOT_TOKEN" "$SLACK_BOT_TOKEN"
-create_or_update_secret "SLACK_SIGNING_SECRET" "$SLACK_SIGNING_SECRET"
-create_or_update_secret "MCP_API_KEY_C" "$MCP_API_KEY_C"
-create_or_update_secret "MCP_API_KEY_L" "$MCP_API_KEY_L"
+create_or_update_secret "MEMORY_DSN" "$MEMORY_DSN"
+create_or_update_secret "NEO4J_PASSWORD" "$NEO4J_PASSWORD"
+create_or_update_secret "POSTGRES_PASSWORD" "$POSTGRES_PASSWORD"
+create_or_update_secret "REDIS_PASSWORD" "$REDIS_PASSWORD"
 
 # =============================================================================
-# Create Optional Secrets
+# CRITICAL SECRETS - LLM API Keys
 # =============================================================================
 echo ""
-log_info "Creating/updating OPTIONAL secrets..."
+log_info "Creating/updating CRITICAL secrets (LLM APIs)..."
 echo "----------------------------------------"
 
+create_or_update_secret "OPENAI_API_KEY" "$OPENAI_API_KEY"
+create_or_update_secret "ANTHROPIC_API_KEY" "$ANTHROPIC_API_KEY"
+create_or_update_secret "PERPLEXITY_API_KEY" "$PERPLEXITY_API_KEY"
+create_or_update_secret "GEMINI_API_KEY" "$GEMINI_API_KEY"
+
+# =============================================================================
+# CRITICAL SECRETS - Authentication
+# =============================================================================
+echo ""
+log_info "Creating/updating CRITICAL secrets (Auth)..."
+echo "----------------------------------------"
+
+create_or_update_secret "MCP_API_KEY" "$MCP_API_KEY"
+create_or_update_secret "MCP_API_KEY_C" "$MCP_API_KEY_C"
+create_or_update_secret "MCP_API_KEY_L" "$MCP_API_KEY_L"
+create_or_update_secret "L9_EXECUTOR_API_KEY" "$L9_EXECUTOR_API_KEY"
 create_or_update_secret "JWT_SECRET" "$JWT_SECRET"
-create_or_update_secret "NEO4J_PASSWORD" "$NEO4J_PASSWORD"
-create_or_update_secret "REDIS_PASSWORD" "$REDIS_PASSWORD"
-create_or_update_secret "POSTGRES_PASSWORD" "$POSTGRES_PASSWORD"
+
+# =============================================================================
+# INTEGRATION SECRETS - Slack
+# =============================================================================
+echo ""
+log_info "Creating/updating INTEGRATION secrets (Slack)..."
+echo "----------------------------------------"
+
+create_or_update_secret "SLACK_BOT_TOKEN" "$SLACK_BOT_TOKEN"
+create_or_update_secret "SLACK_SIGNING_SECRET" "$SLACK_SIGNING_SECRET"
+create_or_update_secret "SLACK_CLIENT_SECRET" "$SLACK_CLIENT_SECRET"
+create_or_update_secret "SLACK_VERIFICATION_TOKEN" "$SLACK_VERIFICATION_TOKEN"
+
+# =============================================================================
+# INTEGRATION SECRETS - Communication
+# =============================================================================
+echo ""
+log_info "Creating/updating INTEGRATION secrets (Communication)..."
+echo "----------------------------------------"
+
+create_or_update_secret "TWILIO_AUTH_TOKEN" "$TWILIO_AUTH_TOKEN"
+create_or_update_secret "TWILIO_ACCOUNT_SID" "$TWILIO_ACCOUNT_SID"
+create_or_update_secret "WABA_ACCESS_TOKEN" "$WABA_ACCESS_TOKEN"
+
+# =============================================================================
+# INTEGRATION SECRETS - Third-Party APIs
+# =============================================================================
+echo ""
+log_info "Creating/updating INTEGRATION secrets (Third-Party APIs)..."
+echo "----------------------------------------"
+
+create_or_update_secret "GITHUB_TOKEN" "$GITHUB_TOKEN"
+create_or_update_secret "MCP_GITHUB_TOKEN" "$MCP_GITHUB_TOKEN"
+create_or_update_secret "NOTION_API_KEY" "$NOTION_API_KEY"
+create_or_update_secret "MCP_NOTION_TOKEN" "$MCP_NOTION_TOKEN"
+create_or_update_secret "GOOGLE_CALENDAR_API_KEY" "$GOOGLE_CALENDAR_API_KEY"
+create_or_update_secret "GMAIL_API_KEY" "$GMAIL_API_KEY"
+
+# =============================================================================
+# OBSERVABILITY SECRETS
+# =============================================================================
+echo ""
+log_info "Creating/updating OBSERVABILITY secrets..."
+echo "----------------------------------------"
+
+create_or_update_secret "GRAFANA_PASSWORD" "$GRAFANA_PASSWORD"
+create_or_update_secret "L9_SLACK_WEBHOOK_URL" "$L9_SLACK_WEBHOOK_URL"
+create_or_update_secret "L9_PAGERDUTY_INTEGRATION_KEY" "$L9_PAGERDUTY_INTEGRATION_KEY"
+create_or_update_secret "L9_SECURITY_WEBHOOK_URL" "$L9_SECURITY_WEBHOOK_URL"
+
+# =============================================================================
+# SIGNING/ENCRYPTION SECRETS
+# =============================================================================
+echo ""
+log_info "Creating/updating SIGNING secrets..."
+echo "----------------------------------------"
+
+create_or_update_secret "GPG_KEY" "$GPG_KEY"
 
 # =============================================================================
 # Summary
@@ -269,14 +339,25 @@ echo ""
 if [ "$DRY_RUN" = false ]; then
     echo ""
     log_info "Secrets in AWS Secrets Manager (prefix: $SECRET_PREFIX):"
+    SECRET_COUNT=0
     aws secretsmanager list-secrets \
         --region "$AWS_REGION" \
         --filters Key=name,Values="$SECRET_PREFIX/" \
         --query "SecretList[].Name" \
         --output text \
-        --no-cli-pager 2>/dev/null | tr '\t' '\n' | while read -r secret; do
+        --no-cli-pager 2>/dev/null | tr '\t' '\n' | sort | while read -r secret; do
             echo "  - $secret"
+            ((SECRET_COUNT++)) || true
         done
+    
+    TOTAL=$(aws secretsmanager list-secrets \
+        --region "$AWS_REGION" \
+        --filters Key=name,Values="$SECRET_PREFIX/" \
+        --query "length(SecretList)" \
+        --output text \
+        --no-cli-pager 2>/dev/null)
+    echo ""
+    log_info "Total secrets: $TOTAL"
 fi
 
 echo ""
