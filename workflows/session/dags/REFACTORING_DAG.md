@@ -92,7 +92,7 @@ graph TD
 To use this DAG, tell the agent:
 
 ```
-Follow the Refactoring DAG at orchestrators/session/dags/REFACTORING_DAG.md
+Follow the Refactoring DAG at workflows/session/dags/REFACTORING_DAG.md
 
 Document to analyze: {path/to/document.md}
 ```

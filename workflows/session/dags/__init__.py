@@ -9,7 +9,7 @@ Available DAGs:
 """
 
 # Import DAGs to trigger registration
-from orchestrators.session.dags.refactoring_dag import REFACTORING_DAG
+from workflows.session.dags.refactoring_dag import REFACTORING_DAG
 
 __all__ = [
     "REFACTORING_DAG",

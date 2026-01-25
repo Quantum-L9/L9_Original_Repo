@@ -12,7 +12,7 @@ Provides structured, repeatable workflows with:
 Version: 1.0.0
 """
 
-from orchestrators.session.interface import (
+from workflows.session.interface import (
     SessionDAG,
     SessionNode,
     SessionEdge,
@@ -20,7 +20,7 @@ from orchestrators.session.interface import (
     NodeType,
     GateType,
 )
-from orchestrators.session.registry import (
+from workflows.session.registry import (
     session_dag_registry,
     register_session_dag,
     get_session_dag,

@@ -15,14 +15,14 @@ Based on the Router Migration workflow (2026-01-25):
 Version: 1.0.0
 """
 
-from orchestrators.session.interface import (
+from workflows.session.interface import (
     GateType,
     NodeType,
     SessionDAG,
     SessionEdge,
     SessionNode,
 )
-from orchestrators.session.registry import register_session_dag
+from workflows.session.registry import register_session_dag
 
 # =============================================================================
 # REFACTORING DAG DEFINITION

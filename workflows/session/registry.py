@@ -13,7 +13,7 @@ from typing import Any
 
 import structlog
 
-from orchestrators.session.interface import SessionDAG
+from workflows.session.interface import SessionDAG
 
 logger = structlog.get_logger(__name__)
 
