@@ -6,20 +6,21 @@ Handles downloading, saving, and managing file attachments from Slack messages.
 
 Features:
 - Download files from Slack using Web API
-- Save files to managed storage directory (~/.l9/slack_files/YYYY/MM/DD/)
+- Save files to S3 (primary) or local storage (fallback)
+- Generate presigned URLs for secure file access
 - Create file artifact records for orchestrator
 - Support for PDFs, images, audio, markdown, ZIP, DOCX
 
-Version: 1.1.0
+Version: 1.2.0
 """
 
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Slack Files",
-    "module_version": "1.1.0",
+    "module_version": "1.2.0",
     "created_by": "Igor Beylin",
     "created_at": "2025-12-14T12:48:58Z",
-    "updated_at": "2026-01-17T23:47:56Z",
+    "updated_at": "2026-01-25T00:00:00Z",
     "layer": "operations",
     "domain": "services",
     "module_name": "slack_files",
@@ -27,17 +28,18 @@ __dora_meta__ = {
     "status": "active",
     "integrates_with": {
         "api_endpoints": [],
-        "datasources": ["HTTP API", "OpenAI API", "Slack API"],
+        "datasources": ["HTTP API", "OpenAI API", "Slack API", "S3"],
         "memory_layers": [],
         "imported_by": ["_archived.legacy_slack.webhook_slack", "memory.slack_ingest"],
     },
 }
 # ============================================================================
 
+import hashlib
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 import structlog
@@ -46,6 +48,15 @@ logger = structlog.get_logger(__name__)
 
 # Configuration
 SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
+
+# Storage backend: "s3" (primary) or "local" (fallback)
+STORAGE_BACKEND = os.getenv("SLACK_FILES_STORAGE_BACKEND", "local")
+
+# S3 Configuration
+S3_FILES_BUCKET = os.getenv("S3_FILES_BUCKET", "l9-files")
+S3_FILES_PREFIX = os.getenv("S3_FILES_PREFIX", "slack")
+S3_REGION = os.getenv("S3_REGION", "us-east-1")
+S3_PRESIGNED_URL_EXPIRY = int(os.getenv("S3_PRESIGNED_URL_EXPIRY", "3600"))
 
 # Import centralized config
 try:
@@ -58,8 +69,158 @@ except ImportError:
     Path(SLACK_FILES_BASE_DIR).mkdir(parents=True, exist_ok=True)
 
 
+# =============================================================================
+# S3 Storage Functions
+# =============================================================================
+
+_s3_client = None
+
+
+def _get_s3_client():
+    """Lazy initialization of S3 client."""
+    global _s3_client
+    if _s3_client is None:
+        try:
+            import boto3
+
+            _s3_client = boto3.client("s3", region_name=S3_REGION)
+            logger.info(
+                "s3_client_initialized",
+                bucket=S3_FILES_BUCKET,
+                region=S3_REGION,
+            )
+        except ImportError:
+            logger.error("boto3 not installed - S3 storage unavailable")
+            raise RuntimeError("boto3 required for S3 storage")
+    return _s3_client
+
+
+def _compute_file_hash(file_bytes: bytes) -> str:
+    """Compute SHA-256 hash of file content."""
+    return hashlib.sha256(file_bytes).hexdigest()[:16]
+
+
+def save_to_s3(
+    file_bytes: bytes,
+    file_id: str,
+    filename: str,
+    mimetype: str | None = None,
+    created_timestamp: int | None = None,
+) -> dict[str, Any]:
+    """
+    Save file bytes to S3.
+
+    Storage structure: s3://l9-files/slack/YYYY/MM/DD/<file_id>_<safe_filename>
+
+    Args:
+        file_bytes: File contents as bytes
+        file_id: Slack file ID
+        filename: Original filename
+        mimetype: MIME type
+        created_timestamp: Unix timestamp for file creation date
+
+    Returns:
+        Dict with s3_key, presigned_url, and metadata
+    """
+    client = _get_s3_client()
+
+    # Determine date for path structure
+    if created_timestamp:
+        file_date = datetime.fromtimestamp(created_timestamp)
+    else:
+        file_date = datetime.now()
+
+    # Build date-based prefix: slack/YYYY/MM/DD
+    year = file_date.strftime("%Y")
+    month = file_date.strftime("%m")
+    day = file_date.strftime("%d")
+    date_prefix = f"{S3_FILES_PREFIX}/{year}/{month}/{day}"
+
+    # Sanitize filename
+    safe_filename = os.path.basename(filename)
+    name_parts = safe_filename.rsplit(".", 1)
+    if len(name_parts) == 2:
+        base_name, ext = name_parts
+        safe_base = "".join(c if c.isalnum() or c in "._-" else "_" for c in base_name)
+        safe_filename = f"{safe_base}.{ext}"
+    else:
+        safe_filename = "".join(
+            c if c.isalnum() or c in "._-" else "_" for c in safe_filename
+        )
+
+    # Build S3 key
+    s3_key = f"{date_prefix}/{file_id}_{safe_filename}"
+    content_hash = _compute_file_hash(file_bytes)
+
+    try:
+        # Upload to S3
+        client.put_object(
+            Bucket=S3_FILES_BUCKET,
+            Key=s3_key,
+            Body=file_bytes,
+            ContentType=mimetype or "application/octet-stream",
+            Metadata={
+                "slack_file_id": file_id,
+                "original_filename": filename,
+                "content_hash": content_hash,
+            },
+        )
+
+        # Generate presigned URL
+        presigned_url = client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": S3_FILES_BUCKET, "Key": s3_key},
+            ExpiresIn=S3_PRESIGNED_URL_EXPIRY,
+        )
+
+        logger.info(
+            "slack_file_saved_to_s3",
+            file_id=file_id,
+            s3_key=s3_key,
+            size_bytes=len(file_bytes),
+        )
+
+        return {
+            "storage_backend": "s3",
+            "s3_bucket": S3_FILES_BUCKET,
+            "s3_key": s3_key,
+            "s3_uri": f"s3://{S3_FILES_BUCKET}/{s3_key}",
+            "presigned_url": presigned_url,
+            "presigned_url_expiry": S3_PRESIGNED_URL_EXPIRY,
+            "content_hash": content_hash,
+            "size_bytes": len(file_bytes),
+        }
+
+    except Exception as e:
+        logger.error(
+            "slack_file_s3_upload_failed",
+            file_id=file_id,
+            error=str(e),
+        )
+        raise
+
+
+def get_s3_presigned_url(s3_key: str, expires_in: int = S3_PRESIGNED_URL_EXPIRY) -> str:
+    """
+    Generate a new presigned URL for an existing S3 file.
+
+    Args:
+        s3_key: S3 object key
+        expires_in: URL expiry in seconds
+
+    Returns:
+        Presigned URL string
+    """
+    client = _get_s3_client()
+    return client.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": S3_FILES_BUCKET, "Key": s3_key},
+        ExpiresIn=expires_in,
+    )
+
+
 def download_file(
-    file_id: str, file_url_private: str, filename: str, mimetype: Optional[str] = None
+    file_id: str, file_url_private: str, filename: str, mimetype: str | None = None
 ) -> bytes:
     """
     Download a file from Slack using the private URL.
@@ -111,8 +272,8 @@ def save_to_disk(
     file_bytes: bytes,
     file_id: str,
     filename: str,
-    mimetype: Optional[str] = None,
-    created_timestamp: Optional[int] = None,
+    mimetype: str | None = None,
+    created_timestamp: int | None = None,
 ) -> str:
     """
     Save file bytes to disk in managed storage directory with date-based subfolders.
@@ -124,7 +285,8 @@ def save_to_disk(
         file_id: Slack file ID (used in filename)
         filename: Original filename
         mimetype: MIME type (optional, used for extension detection)
-        created_timestamp: Unix timestamp for file creation date (optional, uses current time if not provided)
+        created_timestamp: Unix timestamp for file creation date
+            (optional, uses current time if not provided)
 
     Returns:
         Absolute path to saved file
@@ -186,22 +348,91 @@ def save_to_disk(
         raise
 
 
+def save_file(
+    file_bytes: bytes,
+    file_id: str,
+    filename: str,
+    mimetype: str | None = None,
+    created_timestamp: int | None = None,
+) -> dict[str, Any]:
+    """
+    Save file to configured storage backend (S3 or local).
+
+    This is the primary entry point for file storage. It automatically
+    chooses S3 or local storage based on SLACK_FILES_STORAGE_BACKEND env var.
+
+    Args:
+        file_bytes: File contents as bytes
+        file_id: Slack file ID
+        filename: Original filename
+        mimetype: MIME type
+        created_timestamp: Unix timestamp for file creation date
+
+    Returns:
+        Storage result dict with backend-specific fields
+    """
+    if STORAGE_BACKEND == "s3":
+        try:
+            return save_to_s3(
+                file_bytes=file_bytes,
+                file_id=file_id,
+                filename=filename,
+                mimetype=mimetype,
+                created_timestamp=created_timestamp,
+            )
+        except Exception as e:
+            logger.warning(
+                "s3_storage_failed_falling_back_to_local",
+                file_id=file_id,
+                error=str(e),
+            )
+            # Fall through to local storage
+
+    # Local storage (default or fallback)
+    local_path = save_to_disk(
+        file_bytes=file_bytes,
+        file_id=file_id,
+        filename=filename,
+        mimetype=mimetype,
+        created_timestamp=created_timestamp,
+    )
+
+    return {
+        "storage_backend": "local",
+        "storage_key": local_path,
+        "path": local_path,
+        "size_bytes": len(file_bytes),
+        "content_hash": _compute_file_hash(file_bytes),
+    }
+
+
 def build_artifact_record(
     file_id: str,
     filename: str,
-    file_path: str,
+    storage_result: dict[str, Any],
     mimetype: str,
-    slack_url_private: Optional[str] = None,
-    size_bytes: Optional[int] = None,
-    additional_metadata: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    slack_url_private: str | None = None,
+    size_bytes: int | None = None,
+    additional_metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Build a file artifact record for orchestrator consumption.
 
-    Uses storage_key convention:
+    Supports both S3 and local storage backends:
+
+    S3 backend:
+    {
+        "storage_backend": "s3",
+        "storage_key": "s3://l9-files/slack/...",
+        "presigned_url": "https://...",
+        "source": "slack",
+        "slack_file_id": "<id>"
+    }
+
+    Local backend:
     {
         "storage_backend": "local",
-        "storage_key": "<absolute_path>",
+        "storage_key": "/path/to/file",
         "source": "slack",
         "slack_file_id": "<id>"
     }
@@ -209,7 +440,7 @@ def build_artifact_record(
     Args:
         file_id: Slack file ID
         filename: Original filename
-        file_path: Absolute path to saved file
+        storage_result: Result from save_file() with backend-specific fields
         mimetype: MIME type
         slack_url_private: Private Slack URL (optional)
         size_bytes: File size in bytes (optional)
@@ -217,6 +448,57 @@ def build_artifact_record(
 
     Returns:
         File artifact dictionary with standard structure
+    """
+    backend = storage_result.get("storage_backend", "local")
+
+    artifact = {
+        "storage_backend": backend,
+        "source": "slack",
+        "slack_file_id": file_id,
+        "id": file_id,
+        "name": filename,
+        "type": mimetype,
+        "slack_url": slack_url_private,
+    }
+
+    if backend == "s3":
+        # S3-specific fields
+        artifact["storage_key"] = storage_result.get("s3_uri", "")
+        artifact["s3_bucket"] = storage_result.get("s3_bucket", S3_FILES_BUCKET)
+        artifact["s3_key"] = storage_result.get("s3_key", "")
+        artifact["presigned_url"] = storage_result.get("presigned_url", "")
+        artifact["presigned_url_expiry"] = storage_result.get(
+            "presigned_url_expiry", S3_PRESIGNED_URL_EXPIRY
+        )
+    else:
+        # Local storage fields
+        local_path = storage_result.get("path", storage_result.get("storage_key", ""))
+        artifact["storage_key"] = local_path
+        artifact["path"] = local_path
+
+    # Common fields
+    artifact["size_bytes"] = size_bytes or storage_result.get("size_bytes")
+    artifact["content_hash"] = storage_result.get("content_hash")
+
+    if additional_metadata:
+        artifact.update(additional_metadata)
+
+    return artifact
+
+
+def build_artifact_record_legacy(
+    file_id: str,
+    filename: str,
+    file_path: str,
+    mimetype: str,
+    slack_url_private: str | None = None,
+    size_bytes: int | None = None,
+    additional_metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    DEPRECATED: Use build_artifact_record() with storage_result instead.
+
+    Legacy function for backward compatibility with local-only storage.
     """
     # Ensure absolute path
     absolute_path = os.path.abspath(file_path)
@@ -242,11 +524,12 @@ def build_artifact_record(
     return artifact
 
 
-def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any]:
+def process_slack_file(file_id: str, file_info: dict[str, Any]) -> dict[str, Any]:
     """
     Process a Slack file: download, save, and create artifact record.
 
     This is the main entry point for processing a single file attachment.
+    Automatically uses S3 or local storage based on configuration.
 
     Args:
         file_id: Slack file ID
@@ -278,8 +561,8 @@ def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any
         mimetype=mimetype,
     )
 
-    # Save to disk with date-based subfolder
-    file_path = save_to_disk(
+    # Save to configured storage backend (S3 or local)
+    storage_result = save_file(
         file_bytes=file_bytes,
         file_id=file_id,
         filename=filename,
@@ -291,7 +574,7 @@ def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any
     artifact = build_artifact_record(
         file_id=file_id,
         filename=filename,
-        file_path=file_path,
+        storage_result=storage_result,
         mimetype=mimetype,
         slack_url_private=url_private,
         size_bytes=size_bytes or len(file_bytes),
@@ -302,72 +585,86 @@ def process_slack_file(file_id: str, file_info: Dict[str, Any]) -> Dict[str, Any
         },
     )
 
-    # Enrich artifact based on mimetype
-    try:
-        # OCR for images
-        if mimetype.startswith("image/"):
-            try:
-                from services.ocr_engine import ocr_image
+    # Enrich artifact based on mimetype (only for local storage)
+    # S3 storage enrichment would require downloading the file again
+    file_path = storage_result.get("path") or storage_result.get("storage_key", "")
+    is_local = storage_result.get("storage_backend") == "local"
 
-                ocr_result = ocr_image(file_path)
-                artifact["ocr"] = ocr_result
-                logger.info(
-                    f"[SlackFiles] OCR extracted {len(ocr_result.get('tokens', []))} tokens from {filename}"
-                )
-            except Exception as e:
-                logger.warning(f"[SlackFiles] OCR failed for {filename}: {e}")
+    if is_local and file_path:
+        try:
+            # OCR for images
+            if mimetype.startswith("image/"):
+                try:
+                    from services.ocr_engine import ocr_image
 
-        # PDF extraction
-        elif mimetype == "application/pdf":
-            try:
-                from services.pdf_engine import extract_pdf
+                    ocr_result = ocr_image(file_path)
+                    artifact["ocr"] = ocr_result
+                    token_count = len(ocr_result.get("tokens", []))
+                    logger.info(
+                        f"[SlackFiles] OCR extracted {token_count} tokens "
+                        f"from {filename}"
+                    )
+                except Exception as e:
+                    logger.warning(f"[SlackFiles] OCR failed for {filename}: {e}")
 
-                pdf_result = extract_pdf(file_path)
-                artifact["pdf"] = pdf_result
-                logger.info(
-                    f"[SlackFiles] PDF extracted {len(pdf_result.get('pages', []))} pages from {filename}"
-                )
-            except Exception as e:
-                logger.warning(
-                    f"[SlackFiles] PDF extraction failed for {filename}: {e}"
-                )
+            # PDF extraction
+            elif mimetype == "application/pdf":
+                try:
+                    from services.pdf_engine import extract_pdf
 
-        # Audio transcription
-        elif mimetype.startswith("audio/"):
-            try:
-                from openai import OpenAI
-
-                client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-                with open(file_path, "rb") as audio_file:
-                    transcription = client.audio.transcriptions.create(
-                        model="whisper-1", file=audio_file, response_format="text"
+                    pdf_result = extract_pdf(file_path)
+                    artifact["pdf"] = pdf_result
+                    page_count = len(pdf_result.get("pages", []))
+                    logger.info(
+                        f"[SlackFiles] PDF extracted {page_count} pages from {filename}"
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"[SlackFiles] PDF extraction failed for {filename}: {e}"
                     )
 
-                artifact["transcription"] = {
-                    "text": transcription,
-                    "engine": "whisper-1",
-                }
-                logger.info(
-                    f"[SlackFiles] Transcribed audio {filename} ({len(transcription)} chars)"
-                )
-            except Exception as e:
-                logger.warning(
-                    f"[SlackFiles] Audio transcription failed for {filename}: {e}"
-                )
+            # Audio transcription
+            elif mimetype.startswith("audio/"):
+                try:
+                    from openai import OpenAI
 
-    except Exception as e:
-        logger.error(f"[SlackFiles] Error enriching artifact: {e}", exc_info=True)
-        # Continue even if enrichment fails
+                    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+                    with open(file_path, "rb") as audio_file:
+                        transcription = client.audio.transcriptions.create(
+                            model="whisper-1",
+                            file=audio_file,
+                            response_format="text",
+                        )
+
+                    artifact["transcription"] = {
+                        "text": transcription,
+                        "engine": "whisper-1",
+                    }
+                    logger.info(
+                        f"[SlackFiles] Transcribed audio {filename} "
+                        f"({len(transcription)} chars)"
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"[SlackFiles] Audio transcription failed for {filename}: {e}"
+                    )
+
+        except Exception as e:
+            logger.error(f"[SlackFiles] Error enriching artifact: {e}", exc_info=True)
+            # Continue even if enrichment fails
+
+    storage_key = storage_result.get("s3_uri") or storage_result.get("path", "")
     logger.info(
-        "[SlackFiles] Processed file artifact: id=%s, path=%s", file_id, file_path
+        "[SlackFiles] Processed file artifact: id=%s, storage=%s",
+        file_id,
+        storage_key,
     )
 
     return artifact
 
 
-async def get_file_info(file_id: str) -> Dict[str, Any]:
+async def get_file_info(file_id: str) -> dict[str, Any]:
     """
     Retrieve file metadata from Slack API using files.info (async).
 
@@ -408,7 +705,7 @@ async def get_file_info(file_id: str) -> Dict[str, Any]:
         await http_client.aclose()
 
 
-async def process_file_attachments(files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+async def process_file_attachments(files: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Process multiple file attachments from a Slack message (async).
 
