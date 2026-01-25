@@ -1,10 +1,11 @@
-# ADR-058: C1 Kubernetes Deployment Workflow
+# ADR 0058: C1 Kubernetes Deployment Workflow
 
-**Status:** Accepted  
-**Date:** 2026-01-22  
-**Author:** Igor Beylin  
+- **Status**: Accepted
+- **Date**: 2026-01-22
+- **Deciders**: Igor Beylin
+- **GMP**: c1-infrastructure
 
-## Context
+## Context and Problem Statement
 
 C1 is a Hetzner CPX32 server (8GB RAM, 4 vCPU) designated as the Kubernetes deployment target for L9. The deployment requires Docker images for L9 API and MCP Memory services.
 
